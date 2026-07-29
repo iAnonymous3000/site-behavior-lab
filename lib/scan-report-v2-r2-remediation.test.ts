@@ -30,6 +30,7 @@ import { REDACTION_VERSION } from "./redaction-v2";
 import { findTrackerMatch } from "./tracker-catalog";
 import {
   HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION,
+  HISTORICAL_NODE_R2_V3_ADBLOCK_IDENTITY,
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST,
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
   HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
@@ -81,7 +82,10 @@ function markHistoricalNodeV3(run: ScanRunV2R2): void {
     run.detectors[id] = { ...run.detectors[id], version: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS[id] };
   }
   if (run.toolchain.adblock !== null) {
-    run.toolchain.adblock.engineVersion = HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION;
+    run.toolchain.adblock = {
+      ...HISTORICAL_NODE_R2_V3_ADBLOCK_IDENTITY,
+      engineVersion: HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION
+    };
   }
 }
 
@@ -452,9 +456,15 @@ test("every superseded normalization reads only with its pinned historical produ
     Object.keys(HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION).sort(),
     [...SUPERSEDED_R2_NORMALIZATIONS["node-playwright"]].sort()
   );
-  const dualMethodologyNormalization = Object.entries(
+  const playwright161OnlyNormalization = Object.entries(
     HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION
   ).find(([normalization]) => normalization.includes("61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a"));
+  assert.deepEqual(playwright161OnlyNormalization?.[1], [
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION
+  ]);
+  const dualMethodologyNormalization = Object.entries(
+    HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION
+  ).find(([normalization]) => normalization.includes("68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23"));
   assert.deepEqual(dualMethodologyNormalization?.[1], [
     HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
     HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION

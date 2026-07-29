@@ -21,7 +21,10 @@ import {
 } from "./measurement-kernel";
 import { NODE_ADBLOCK_ENGINE_VERSION } from "./legacy-methodology";
 import { NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION } from "./scan-report-v2-normalization";
-import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
+import {
+  NODE_R2_CURRENT_ADBLOCK_IDENTITY,
+  NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION
+} from "./scan-report-v2-r2-producer-contract";
 import { trackerCatalogMetadata } from "./tracker-catalog";
 import type {
   ConsentEvidenceR2,
@@ -63,7 +66,7 @@ export function makeScanRunV2R2(overrides: RunOverrides = {}): ScanRunV2R2 {
     adblock:
       run.toolchain.adblock === null
         ? null
-        : { ...run.toolchain.adblock, engineVersion: NODE_ADBLOCK_ENGINE_VERSION },
+        : { ...NODE_R2_CURRENT_ADBLOCK_IDENTITY, engineVersion: NODE_ADBLOCK_ENGINE_VERSION },
     normalizationVersion: NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION
   };
   for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {

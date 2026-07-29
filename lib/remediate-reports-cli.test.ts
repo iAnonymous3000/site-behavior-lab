@@ -38,6 +38,7 @@ import {
 } from "./scan-report-v2-r2-remediation";
 import {
   HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION,
+  HISTORICAL_NODE_R2_V3_ADBLOCK_IDENTITY,
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST,
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
   HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
@@ -749,7 +750,10 @@ function markHistoricalNodeV3(run: ScanRunV2R2): void {
     run.detectors[id] = { ...run.detectors[id], version: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS[id] };
   }
   if (run.toolchain.adblock !== null) {
-    run.toolchain.adblock.engineVersion = HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION;
+    run.toolchain.adblock = {
+      ...HISTORICAL_NODE_R2_V3_ADBLOCK_IDENTITY,
+      engineVersion: HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION
+    };
   }
 }
 

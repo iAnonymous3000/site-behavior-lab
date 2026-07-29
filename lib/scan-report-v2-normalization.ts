@@ -22,17 +22,19 @@ export const PAGEGRAPH_R2_NORMALIZATION_VERSION =
  * This is intentionally not a regex: a self-declared or unreviewed v3
  * normalization must fail closed instead of being blessed by remediation.
  */
-export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<Record<ObserverKind, ReadonlySet<string>>> = {
-  "node-playwright": new Set([
+export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
+  Record<ObserverKind, readonly string[]>
+> = Object.freeze({
+  "node-playwright": Object.freeze([
     "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1"
   ]),
-  "pagegraph-import": new Set([
+  "pagegraph-import": Object.freeze([
     "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+pagegraph-request-evidence-v1"
   ]),
   // Browser Run is a retired report producer. Its historical r1/r2 outputs
   // have no reviewed v3 replay identity and cannot be upgraded by inference.
-  "browser-run-worker": new Set()
-};
+  "browser-run-worker": Object.freeze([])
+});
 
 /**
  * Identities this generation has already published, retired by a WIDENING of
@@ -49,8 +51,13 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<Record<ObserverKin
  * by inference. Only add an entry for a change that cannot remove a string from
  * the admitted set; a narrowing REQUIRES remediation instead.
  */
-export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<Record<ObserverKind, ReadonlySet<string>>> = {
-  "node-playwright": new Set([
+export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
+  Record<ObserverKind, readonly string[]>
+> = Object.freeze({
+  "node-playwright": Object.freeze([
+    // First deployed v4 identity. Retired by scanner-warning-patterns-v4,
+    // which widened only the fixed scanner-warning vocabulary.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by scanner-warning-patterns-v5, which admits the three consent
     // probe-failure disclosures that v4 replaced with "[redacted warning]".
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1",
@@ -64,14 +71,15 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<Record<ObserverKind, Readonl
     // scanner warnings to the admitted public vocabulary.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
-  "pagegraph-import": new Set([
+  "pagegraph-import": Object.freeze([
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1"
   ]),
-  "browser-run-worker": new Set()
-};
+  "browser-run-worker": Object.freeze([])
+});
 
 export function currentR2NormalizationForObserver(observer: ObserverKind): string | null {
   if (observer === "node-playwright") return NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION;
@@ -87,14 +95,14 @@ export function currentR2NormalizationForObserver(observer: ObserverKind): strin
 export function isReadableR2Normalization(observer: ObserverKind, source: string): boolean {
   return (
     source === currentR2NormalizationForObserver(observer) ||
-    SUPERSEDED_R2_NORMALIZATIONS[observer].has(source)
+    SUPERSEDED_R2_NORMALIZATIONS[observer].includes(source)
   );
 }
 
 export const REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX = "v3-to-v4-ip-port-title@1";
 
 export function migratedR2NormalizationForV3(observer: ObserverKind, source: string): string | null {
-  if (!MIGRATABLE_REDACTION_V3_NORMALIZATIONS[observer].has(source)) return null;
+  if (!MIGRATABLE_REDACTION_V3_NORMALIZATIONS[observer].includes(source)) return null;
   // Preserve the exact historical base. Replacing it with a fresh-producer
   // identity would falsely make a remediated tldts/list snapshot comparable
   // to a newly captured v4 run.

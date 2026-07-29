@@ -5,14 +5,12 @@ import {
   isDetectorReasonCode,
   isDetectorReasonForStatus
 } from "./measurement-kernel";
+import { PHASE_OMISSION_CONTRACT_VERSION } from "./detector-phase-omission";
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { MAX_RECORDED_REQUESTS } from "./scan-runtime";
 import {
-  MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
   NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
-  PAGEGRAPH_R2_NORMALIZATION_VERSION,
-  REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX,
-  SUPERSEDED_R2_NORMALIZATIONS
+  PAGEGRAPH_R2_NORMALIZATION_VERSION
 } from "./scan-report-v2-normalization";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
@@ -21,14 +19,16 @@ import {
   DETECTOR_IDS,
   type DetectorId,
   type DetectorLedger,
+  type DetectorStatus,
   type Toolchain
 } from "./scan-report-v2";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 
 /**
  * Public-array ceilings are part of the producer identity, not merely memory
- * safeguards. Managed reads replay them so a self-consistent forged report
- * cannot claim evidence that the named producer would never emit.
+ * safeguards. Managed reads replay the limits pinned on the selected row so a
+ * self-consistent forged report cannot claim evidence that producer did not
+ * emit.
  */
 export const NODE_R2_PUBLIC_LIMITS = Object.freeze({
   phases: 16,
@@ -45,6 +45,11 @@ export const NODE_R2_PUBLIC_LIMITS = Object.freeze({
   consentObservations: 32,
   policyClaims: 32,
   policyEntities: 100
+});
+
+export const PAGEGRAPH_R2_PUBLIC_LIMITS = Object.freeze({
+  phases: 1,
+  requests: MAX_RECORDED_REQUESTS
 });
 
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
@@ -76,33 +81,112 @@ export const HISTORICAL_NODE_R2_V3_TRACKER_CATALOG = HISTORICAL_R2_2026_06_TRACK
 /**
  * Exact producer epoch for the already-published v4 normalization identities
  * retired by sanitizer-vocabulary widening. Git history pins each identity to
- * its pre-detector-coverage Node release.
+ * its pre-detector-accountability Node release.
  */
 export const HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1";
 export const HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1";
+export const PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1";
 export const HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION = "node-detectors-v2";
 export const HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST =
   "1961b4197b649b6eb8028f95a9f2f6b28973b7427178b23e661017da7ed0c7c4";
 export const HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.2";
 export const HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS = HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS;
 export const HISTORICAL_NODE_R2_V4_TRACKER_CATALOG = HISTORICAL_NODE_R2_V3_TRACKER_CATALOG;
+
+export const PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_VERSION = "node-detectors-v2";
+export const PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_DIGEST =
+  "4f4bf67ce216d0a5c173ae2d1a1ddb79bac3c7699c04e6900908350ee4f5bdc5";
+export const PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_VERSIONS = Object.freeze({
+  "fingerprint-heuristics": "fingerprint-observer@1",
+  "keystroke-exfiltration": "synthetic-sentinel@2",
+  "cname-uncloaking": "dns-cname-chain@2",
+  "pixel-events": "pixel-request-decoder@2",
+  "consent-banner": "consent-control-and-state@2",
+  "privacy-policy": "policy-text-cross-check@2"
+} satisfies Readonly<Record<DetectorId, string>>);
+
+const NODE_V3_NORMALIZATION =
+  "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1";
+const NODE_V3_MIGRATED_NORMALIZATION = `${NODE_V3_NORMALIZATION}+v3-to-v4-ip-port-title@1`;
+const PAGEGRAPH_V3_NORMALIZATION =
+  "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+pagegraph-request-evidence-v1";
+const PAGEGRAPH_V3_MIGRATED_NORMALIZATION = `${PAGEGRAPH_V3_NORMALIZATION}+v3-to-v4-ip-port-title@1`;
+
+const V4_NORMALIZATION_PREFIX =
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:";
+const NODE_NORMALIZATION_SUFFIX = "+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1";
+const PAGEGRAPH_NORMALIZATION_SUFFIX =
+  "+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+
+const NODE_DBB6_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${NODE_NORMALIZATION_SUFFIX}`;
+const NODE_6E87_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b${NODE_NORMALIZATION_SUFFIX}`;
+const NODE_5B1F_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd${NODE_NORMALIZATION_SUFFIX}`;
+const NODE_6131_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${NODE_NORMALIZATION_SUFFIX}`;
+const NODE_68C3_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${NODE_NORMALIZATION_SUFFIX}`;
+
+const PAGEGRAPH_DBB6_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+const PAGEGRAPH_6E87_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+const PAGEGRAPH_5B1F_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+const PAGEGRAPH_6131_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+const PAGEGRAPH_68C3_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1":
-    Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1":
-    Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1":
-    Object.freeze([
-      HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
-      HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION
-    ]),
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1":
-    Object.freeze([HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION])
+  [NODE_DBB6_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
+  [NODE_6E87_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
+  [NODE_5B1F_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
+  [NODE_6131_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
+  [NODE_68C3_NORMALIZATION]: Object.freeze([
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION
+  ])
 });
+
+export const HISTORICAL_NODE_R2_V3_SHADOW_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-07-12T16:37:07.373Z",
+  manifestDigest: "db9450d318ab8b7eea2ac5cac540659290f75967dae688ae8ea23346057cedca",
+  engineVersion: HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+export const HISTORICAL_NODE_R2_V3_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-07-13T09:47:59.645Z",
+  manifestDigest: "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
+  engineVersion: HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-07-13T09:47:59.645Z",
+  manifestDigest: "17d246aca749766d24266f98061bb05f9d88182529285a3472e57045663261a9",
+  engineVersion: HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-07-25T14:05:35.223Z",
+  manifestDigest: "34a785b40cef51a78901561747aa8e1649acdbde8f74370c80bae58e694e187b",
+  engineVersion: NODE_ADBLOCK_ENGINE_VERSION
+} satisfies NonNullable<Toolchain["adblock"]>);
 
 export const PAGEGRAPH_R2_DETECTOR_VERSION = "pagegraph-import-unsupported@1" as const;
 export const PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION = "pagegraph-import-detectors@1" as const;
@@ -112,7 +196,11 @@ export const PAGEGRAPH_R2_EXPECTED_DETECTORS = Object.freeze(
   Object.fromEntries(
     DETECTOR_IDS.map((id) => [
       id,
-      { version: PAGEGRAPH_R2_DETECTOR_VERSION, status: "unsupported" as const, reason: "unsupported" }
+      Object.freeze({
+        version: PAGEGRAPH_R2_DETECTOR_VERSION,
+        status: "unsupported" as const,
+        reason: "unsupported"
+      })
     ])
   ) as DetectorLedger
 );
@@ -124,14 +212,354 @@ export const PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST = sha256Hex(
   })
 );
 
+type DetectorRegistryIdentity = Readonly<{ version: string; digest: string }>;
+type AdblockIdentity = Readonly<NonNullable<Toolchain["adblock"]>> | null;
+type DetectorStatusContractVersion = "detector-status-v1" | "detector-status-v2";
+
+export type NodeR2ProducerTuple = Readonly<{
+  id: string;
+  normalizationVersion: string;
+  methodologyVersion: string;
+  detectorRegistry: DetectorRegistryIdentity;
+  detectorVersions: Readonly<Record<DetectorId, string>>;
+  detectorStatusContractVersion: DetectorStatusContractVersion;
+  trackerCatalog: Readonly<Toolchain["trackerCatalog"]>;
+  adblockIdentity: AdblockIdentity;
+  publicLimits: Readonly<typeof NODE_R2_PUBLIC_LIMITS>;
+  phaseOmissionContractVersion: string;
+  runtimeIdentity: Readonly<{
+    sourceArtifactDigest: "absent";
+    automation: "playwright-chromium";
+    browserName: "chromium";
+    headless: true;
+    language: "matches-locale";
+  }>;
+}>;
+
+export type PageGraphR2ProducerTuple = Readonly<{
+  id: string;
+  normalizationVersion: string;
+  methodologyVersion: typeof PAGEGRAPH_R2_METHODOLOGY_VERSION;
+  detectorRegistry: DetectorRegistryIdentity;
+  detectors: DetectorLedger;
+  trackerCatalog: Readonly<Toolchain["trackerCatalog"]>;
+  adblockIdentity: null;
+  publicLimits: Readonly<typeof PAGEGRAPH_R2_PUBLIC_LIMITS>;
+  phaseOmissionContractVersion: null;
+  runtimeIdentity: Readonly<{
+    acquisition: "upload";
+    automation: "brave-pagegraph";
+    consent: "observe";
+    shields: "off";
+    keystrokeProbe: false;
+    policyVisitProbe: false;
+    verificationFacts: "absent";
+  }>;
+}>;
+
+const HISTORICAL_REGISTRY = Object.freeze({
+  version: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION,
+  digest: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST
+});
+const PRE_ACCOUNTABILITY_REGISTRY = Object.freeze({
+  version: PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_VERSION,
+  digest: PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_DIGEST
+});
+const ACTIVE_REGISTRY = Object.freeze({
+  version: DETECTOR_REGISTRY_VERSION,
+  digest: DETECTOR_REGISTRY_DIGEST
+});
+const ACTIVE_DETECTOR_VERSIONS = Object.freeze({ ...DETECTOR_VERSIONS });
+const ACTIVE_TRACKER_CATALOG = Object.freeze({
+  source: trackerCatalogMetadata.source,
+  version: trackerCatalogMetadata.version,
+  entries: trackerCatalogMetadata.entries,
+  digest: trackerCatalogMetadata.digest
+});
+const NODE_RUNTIME_IDENTITY = Object.freeze({
+  sourceArtifactDigest: "absent" as const,
+  automation: "playwright-chromium" as const,
+  browserName: "chromium" as const,
+  headless: true as const,
+  language: "matches-locale" as const
+});
+const PAGEGRAPH_RUNTIME_IDENTITY = Object.freeze({
+  acquisition: "upload" as const,
+  automation: "brave-pagegraph" as const,
+  consent: "observe" as const,
+  shields: "off" as const,
+  keystrokeProbe: false as const,
+  policyVisitProbe: false as const,
+  verificationFacts: "absent" as const
+});
+const PAGEGRAPH_REGISTRY = Object.freeze({
+  version: PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+  digest: PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST
+});
+
+type NodeTupleFields = Pick<
+  NodeR2ProducerTuple,
+  | "detectorRegistry"
+  | "detectorVersions"
+  | "detectorStatusContractVersion"
+  | "trackerCatalog"
+  | "phaseOmissionContractVersion"
+>;
+
+const NODE_V3_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: HISTORICAL_REGISTRY,
+  detectorVersions: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
+  detectorStatusContractVersion: "detector-status-v1",
+  trackerCatalog: HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
+  phaseOmissionContractVersion: "phase-omission-v1"
+});
+const NODE_V4_FIELDS: NodeTupleFields = NODE_V3_FIELDS;
+const PRE_ACCOUNTABILITY_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: PRE_ACCOUNTABILITY_REGISTRY,
+  detectorVersions: PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_VERSIONS,
+  detectorStatusContractVersion: "detector-status-v1",
+  trackerCatalog: ACTIVE_TRACKER_CATALOG,
+  phaseOmissionContractVersion: "phase-omission-v1"
+});
+const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
+  isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
+const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: ACTIVE_REGISTRY,
+  detectorVersions: ACTIVE_DETECTOR_VERSIONS,
+  detectorStatusContractVersion: ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION,
+  trackerCatalog: ACTIVE_TRACKER_CATALOG,
+  phaseOmissionContractVersion: PHASE_OMISSION_CONTRACT_VERSION
+});
+
+function nodeTuple(
+  id: string,
+  normalizationVersion: string,
+  methodologyVersion: string,
+  fields: NodeTupleFields,
+  adblockIdentity: AdblockIdentity
+): NodeR2ProducerTuple {
+  return Object.freeze({
+    id,
+    normalizationVersion,
+    methodologyVersion,
+    detectorRegistry: fields.detectorRegistry,
+    detectorVersions: fields.detectorVersions,
+    detectorStatusContractVersion: fields.detectorStatusContractVersion,
+    trackerCatalog: fields.trackerCatalog,
+    adblockIdentity,
+    publicLimits: NODE_R2_PUBLIC_LIMITS,
+    phaseOmissionContractVersion: fields.phaseOmissionContractVersion,
+    runtimeIdentity: NODE_RUNTIME_IDENTITY
+  });
+}
+
+const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
+  NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION !== PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION ||
+  String(DETECTOR_REGISTRY_VERSION) !== PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_VERSION ||
+  DETECTOR_REGISTRY_DIGEST !== PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
+  canonicalJson(ACTIVE_DETECTOR_VERSIONS) !== canonicalJson(PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_VERSIONS) ||
+  canonicalJson(ACTIVE_TRACKER_CATALOG) !== canonicalJson(PRE_ACCOUNTABILITY_FIELDS.trackerCatalog);
+
+const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
+  ? Object.freeze([
+      nodeTuple(
+        "node-v4-b68c-active-lists-2026-07-25",
+        NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+        NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
+        ACTIVE_NODE_FIELDS,
+        NODE_R2_CURRENT_ADBLOCK_IDENTITY
+      ),
+      nodeTuple(
+        "node-v4-b68c-active-no-adblock",
+        NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+        NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
+        ACTIVE_NODE_FIELDS,
+        null
+      )
+    ])
+  : Object.freeze([]);
+
+/**
+ * Exact, immutable wire producer rows. Every entry names one complete accepted
+ * combination. There is no independent "allowed methodologies" set or
+ * adblock-engine check that can accidentally cross-product two releases.
+ */
+export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.freeze([
+  nodeTuple(
+    "node-v3-shadow-lists-2026-07-12",
+    NODE_V3_NORMALIZATION,
+    HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
+    NODE_V3_FIELDS,
+    HISTORICAL_NODE_R2_V3_SHADOW_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v3-lists-2026-07-13",
+    NODE_V3_NORMALIZATION,
+    HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
+    NODE_V3_FIELDS,
+    HISTORICAL_NODE_R2_V3_ADBLOCK_IDENTITY
+  ),
+  nodeTuple("node-v3-no-adblock", NODE_V3_NORMALIZATION, HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION, NODE_V3_FIELDS, null),
+  nodeTuple(
+    "node-v3-migrated-shadow-lists-2026-07-12",
+    NODE_V3_MIGRATED_NORMALIZATION,
+    HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
+    NODE_V3_FIELDS,
+    HISTORICAL_NODE_R2_V3_SHADOW_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v3-migrated-lists-2026-07-13",
+    NODE_V3_MIGRATED_NORMALIZATION,
+    HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
+    NODE_V3_FIELDS,
+    HISTORICAL_NODE_R2_V3_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v3-migrated-no-adblock",
+    NODE_V3_MIGRATED_NORMALIZATION,
+    HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
+    NODE_V3_FIELDS,
+    null
+  ),
+  nodeTuple(
+    "node-v4-dbb6-lists-2026-07-13",
+    NODE_DBB6_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-dbb6-lists-2026-07-25",
+    NODE_DBB6_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-dbb6-no-adblock",
+    NODE_DBB6_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    null
+  ),
+  nodeTuple(
+    "node-v4-6e87-lists-2026-07-25",
+    NODE_6E87_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-6e87-no-adblock",
+    NODE_6E87_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    null
+  ),
+  nodeTuple(
+    "node-v4-5b1f-lists-2026-07-25",
+    NODE_5B1F_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-5b1f-no-adblock",
+    NODE_5B1F_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    null
+  ),
+  nodeTuple(
+    "node-v4-6131-pw161-lists-2026-07-25",
+    NODE_6131_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-6131-pw161-no-adblock",
+    NODE_6131_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    null
+  ),
+  nodeTuple(
+    "node-v4-68c3-pw161-lists-2026-07-25",
+    NODE_68C3_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-68c3-pw161-no-adblock",
+    NODE_68C3_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    null
+  ),
+  nodeTuple(
+    "node-v4-68c3-pw162-lists-2026-07-25",
+    NODE_68C3_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-68c3-pw162-no-adblock",
+    NODE_68C3_NORMALIZATION,
+    HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION,
+    NODE_V4_FIELDS,
+    null
+  ),
+  nodeTuple(
+    "node-v4-b68c-pre-accountability-lists-2026-07-25",
+    NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+    PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
+    PRE_ACCOUNTABILITY_FIELDS,
+    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-b68c-pre-accountability-no-adblock",
+    NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+    PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
+    PRE_ACCOUNTABILITY_FIELDS,
+    null
+  ),
+  ...ACTIVE_NODE_TUPLES
+]);
+
+function pageGraphTuple(
+  id: string,
+  normalizationVersion: string,
+  trackerCatalog: Readonly<Toolchain["trackerCatalog"]>
+): PageGraphR2ProducerTuple {
+  return Object.freeze({
+    id,
+    normalizationVersion,
+    methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
+    detectorRegistry: PAGEGRAPH_REGISTRY,
+    detectors: PAGEGRAPH_R2_EXPECTED_DETECTORS,
+    trackerCatalog,
+    adblockIdentity: null,
+    publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
+    phaseOmissionContractVersion: null,
+    runtimeIdentity: PAGEGRAPH_RUNTIME_IDENTITY
+  });
+}
+
+export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] = Object.freeze([
+  pageGraphTuple("pagegraph-v3", PAGEGRAPH_V3_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
+  pageGraphTuple("pagegraph-v3-migrated", PAGEGRAPH_V3_MIGRATED_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
+  pageGraphTuple("pagegraph-v4-dbb6", PAGEGRAPH_DBB6_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
+  pageGraphTuple("pagegraph-v4-6e87", PAGEGRAPH_6E87_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
+  pageGraphTuple("pagegraph-v4-5b1f", PAGEGRAPH_5B1F_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
+  pageGraphTuple("pagegraph-v4-6131", PAGEGRAPH_6131_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
+  pageGraphTuple("pagegraph-v4-68c3", PAGEGRAPH_68C3_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
+  pageGraphTuple("pagegraph-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG)
+]);
+
 const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
-const PAGEGRAPH_METHODOLOGY = new RegExp(
-  `^${escapeRegExp(PAGEGRAPH_R2_METHODOLOGY_VERSION)}` +
-    String.raw`\+crawl-[A-Za-z0-9][A-Za-z0-9._:+@/-]{0,127}` +
-    String.raw`\+crawl-sha-[0-9a-f]{40}` +
-    String.raw`\+schema-[A-Za-z0-9][A-Za-z0-9._:+@/-]{0,127}` +
-    String.raw`\+sanitizer-[A-Za-z0-9][A-Za-z0-9._:+@/-]{0,127}$`
-);
 
 export class R2ProducerContractError extends Error {
   constructor(detail: string) {
@@ -140,7 +568,7 @@ export class R2ProducerContractError extends Error {
   }
 }
 
-/** Replay the exact active producer family named by one public run. */
+/** Replay the exact active or historical producer row named by one public run. */
 export function assertR2ProducerContract(run: ScanRunV2R2): void {
   if (run.provenance.observer === "node-playwright") {
     assertNodeProducerContract(run);
@@ -154,178 +582,99 @@ export function assertR2ProducerContract(run: ScanRunV2R2): void {
 }
 
 function assertNodeProducerContract(run: ScanRunV2R2): void {
-  const epoch = nodeProducerEpochForNormalization(run.toolchain.normalizationVersion);
-  if (!epoch.methodologyVersions.includes(run.provenance.methodologyVersion)) {
-    throw new R2ProducerContractError("unknown Node methodology identity");
-  }
-  if (
-    run.provenance.detectorRegistry.version !== epoch.detectorRegistry.version ||
-    run.provenance.detectorRegistry.digest !== epoch.detectorRegistry.digest
-  ) {
-    throw new R2ProducerContractError("unknown Node detector registry identity");
-  }
-  if (run.provenance.sourceArtifactDigest !== undefined) {
-    throw new R2ProducerContractError("Node producer cannot claim an imported source artifact");
-  }
   if (!FULL_GIT_SHA.test(run.provenance.buildCommit)) {
     throw new R2ProducerContractError("Node build provenance is not a full lowercase Git SHA");
   }
-  if (
-    run.conditions.automation !== "playwright-chromium" ||
-    run.conditions.browser.name !== "chromium" ||
-    !run.conditions.headless ||
-    run.conditions.language !== run.conditions.locale
-  ) {
-    throw new R2ProducerContractError("conditions are impossible for the Node producer");
+  const tuple = NODE_R2_PRODUCER_TUPLES.find((candidate) => nodeTupleMatches(run, candidate));
+  if (tuple === undefined) {
+    throw new R2ProducerContractError("unknown Node producer tuple");
   }
-  assertTrackerCatalog(run, epoch.trackerCatalog);
-  if (run.toolchain.adblock !== null) {
-    if (
-      run.toolchain.adblock.engineVersion !== epoch.adblockEngineVersion ||
-      !Number.isSafeInteger(run.toolchain.adblock.lists) ||
-      run.toolchain.adblock.lists <= 0 ||
-      !/^[0-9a-f]{64}$/.test(run.toolchain.adblock.manifestDigest) ||
-      !canonicalTimestamp(run.toolchain.adblock.fetchedAt)
-    ) {
-      throw new R2ProducerContractError("invalid Node adblock toolchain identity");
-    }
-  }
-  assertNodeDetectorLedger(run.detectors, epoch.detectorVersions);
-  assertAtMost("phases", run.phases.length, NODE_R2_PUBLIC_LIMITS.phases);
-  assertAtMost("warnings", run.warnings.length, NODE_R2_PUBLIC_LIMITS.warnings);
-  assertAtMost("requests", run.evidence.requests.length, NODE_R2_PUBLIC_LIMITS.requests);
-  assertAtMost("cookie mutations", run.evidence.cookieMutations.length, NODE_R2_PUBLIC_LIMITS.cookieMutations);
-  assertAtMost("final cookies", run.evidence.cookiesFinal.length, NODE_R2_PUBLIC_LIMITS.cookieRecords);
-  assertAtMost("storage mutations", run.evidence.storageMutations.length, NODE_R2_PUBLIC_LIMITS.storageMutations);
-  assertAtMost("final storage", run.evidence.storageFinal.length, NODE_R2_PUBLIC_LIMITS.storageRecords);
-  assertAtMost("fingerprint events", run.evidence.fingerprintEvents.length, NODE_R2_PUBLIC_LIMITS.fingerprintEvents);
-  assertAtMost(
-    "fingerprint detections",
-    run.evidence.fingerprintDetections.length,
-    NODE_R2_PUBLIC_LIMITS.fingerprintDetections
+  assertNodeDetectorLedger(run.detectors, tuple);
+  assertNodePublicLimits(run, tuple.publicLimits);
+}
+
+function nodeTupleMatches(run: ScanRunV2R2, tuple: NodeR2ProducerTuple): boolean {
+  return (
+    run.toolchain.normalizationVersion === tuple.normalizationVersion &&
+    run.provenance.methodologyVersion === tuple.methodologyVersion &&
+    canonicalJson(run.provenance.detectorRegistry) === canonicalJson(tuple.detectorRegistry) &&
+    canonicalJson(detectorVersions(run.detectors)) === canonicalJson(tuple.detectorVersions) &&
+    canonicalJson(run.toolchain.trackerCatalog) === canonicalJson(tuple.trackerCatalog) &&
+    canonicalJson(run.toolchain.adblock) === canonicalJson(tuple.adblockIdentity) &&
+    canonicalJson(nodeRuntimeIdentity(run)) === canonicalJson(tuple.runtimeIdentity)
   );
-  assertAtMost("CNAME cloaks", run.evidence.cnameCloaks.length, NODE_R2_PUBLIC_LIMITS.cnameCloaks);
-  assertAtMost("pixel events", run.evidence.pixelEvents.length, NODE_R2_PUBLIC_LIMITS.pixelEvents);
+}
+
+function detectorVersions(detectors: DetectorLedger): Readonly<Record<DetectorId, string>> {
+  return Object.fromEntries(DETECTOR_IDS.map((id) => [id, detectors[id].version])) as Record<DetectorId, string>;
+}
+
+function nodeRuntimeIdentity(run: ScanRunV2R2): NodeR2ProducerTuple["runtimeIdentity"] {
+  return {
+    sourceArtifactDigest: run.provenance.sourceArtifactDigest === undefined ? "absent" : ("present" as never),
+    automation: run.conditions.automation as "playwright-chromium",
+    browserName: run.conditions.browser.name as "chromium",
+    headless: run.conditions.headless as true,
+    language: run.conditions.language === run.conditions.locale ? "matches-locale" : ("differs-from-locale" as never)
+  };
+}
+
+function assertNodePublicLimits(
+  run: ScanRunV2R2,
+  limits: Readonly<typeof NODE_R2_PUBLIC_LIMITS>
+): void {
+  assertAtMost("phases", run.phases.length, limits.phases);
+  assertAtMost("warnings", run.warnings.length, limits.warnings);
+  assertAtMost("requests", run.evidence.requests.length, limits.requests);
+  assertAtMost("cookie mutations", run.evidence.cookieMutations.length, limits.cookieMutations);
+  assertAtMost("final cookies", run.evidence.cookiesFinal.length, limits.cookieRecords);
+  assertAtMost("storage mutations", run.evidence.storageMutations.length, limits.storageMutations);
+  assertAtMost("final storage", run.evidence.storageFinal.length, limits.storageRecords);
+  assertAtMost("fingerprint events", run.evidence.fingerprintEvents.length, limits.fingerprintEvents);
+  assertAtMost("fingerprint detections", run.evidence.fingerprintDetections.length, limits.fingerprintDetections);
+  assertAtMost("CNAME cloaks", run.evidence.cnameCloaks.length, limits.cnameCloaks);
+  assertAtMost("pixel events", run.evidence.pixelEvents.length, limits.pixelEvents);
   if (run.evidence.consent !== undefined) {
     assertAtMost(
       "consent observations",
       run.evidence.consent.verificationObservations.length,
-      NODE_R2_PUBLIC_LIMITS.consentObservations
+      limits.consentObservations
     );
     if (run.evidence.consent.verificationFailureReason !== undefined) {
       throw new R2ProducerContractError("Node r2 consent cannot carry a free-form failure reason");
     }
   }
   if (run.evidence.privacyPolicy !== undefined) {
-    assertAtMost("privacy-policy claims", run.evidence.privacyPolicy.claims.length, NODE_R2_PUBLIC_LIMITS.policyClaims);
+    assertAtMost("privacy-policy claims", run.evidence.privacyPolicy.claims.length, limits.policyClaims);
     assertAtMost(
       "privacy-policy mentioned entities",
       run.evidence.privacyPolicy.mentionedEntities.length,
-      NODE_R2_PUBLIC_LIMITS.policyEntities
+      limits.policyEntities
     );
     assertAtMost(
       "privacy-policy unmentioned entities",
       run.evidence.privacyPolicy.unmentionedEntities.length,
-      NODE_R2_PUBLIC_LIMITS.policyEntities
+      limits.policyEntities
     );
   }
 }
 
-function isHistoricalNodeV3Normalization(normalization: string): boolean {
-  for (const source of MIGRATABLE_REDACTION_V3_NORMALIZATIONS["node-playwright"]) {
-    if (
-      normalization === source ||
-      normalization === `${source}+${REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX}`
-    ) {
-      return true;
-    }
-  }
-  return false;
-}
-
-type NodeProducerEpoch = {
-  methodologyVersions: readonly string[];
-  detectorRegistry: { version: string; digest: string };
-  detectorVersions: Readonly<Record<DetectorId, string>>;
-  trackerCatalog: Toolchain["trackerCatalog"];
-  adblockEngineVersion: string;
-};
-
-function nodeProducerEpochForNormalization(normalization: string): NodeProducerEpoch {
-  if (isHistoricalNodeV3Normalization(normalization)) {
-    return {
-      methodologyVersions: [HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION],
-      detectorRegistry: {
-        version: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
-        digest: HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_DIGEST
-      },
-      detectorVersions: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
-      trackerCatalog: HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
-      adblockEngineVersion: HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION
-    };
-  }
-  const historicalV4Methodologies = HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[normalization];
-  if (historicalV4Methodologies !== undefined) {
-    return {
-      methodologyVersions: historicalV4Methodologies,
-      detectorRegistry: {
-        version: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION,
-        digest: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST
-      },
-      detectorVersions: HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS,
-      trackerCatalog: HISTORICAL_NODE_R2_V4_TRACKER_CATALOG,
-      adblockEngineVersion: HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION
-    };
-  }
-  if (normalization === NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) {
-    return {
-      methodologyVersions: [NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION],
-      detectorRegistry: { version: DETECTOR_REGISTRY_VERSION, digest: DETECTOR_REGISTRY_DIGEST },
-      detectorVersions: DETECTOR_VERSIONS,
-      trackerCatalog: currentTrackerCatalogIdentity(),
-      adblockEngineVersion: NODE_ADBLOCK_ENGINE_VERSION
-    };
-  }
-  throw new R2ProducerContractError("unknown Node normalization identity");
-}
-
 function assertPageGraphProducerContract(run: ScanRunV2R2): void {
-  if (run.provenance.acquisition !== "upload") {
-    throw new R2ProducerContractError("PageGraph acquisition must be upload");
-  }
-  if (!PAGEGRAPH_METHODOLOGY.test(run.provenance.methodologyVersion)) {
-    throw new R2ProducerContractError("unknown PageGraph methodology identity");
-  }
   if (!FULL_GIT_SHA.test(run.provenance.buildCommit)) {
     throw new R2ProducerContractError("PageGraph build provenance is not a full lowercase Git SHA");
   }
-  if (
-    run.provenance.detectorRegistry.version !== PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION ||
-    run.provenance.detectorRegistry.digest !== PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST ||
-    canonicalJson(run.detectors) !== canonicalJson(PAGEGRAPH_R2_EXPECTED_DETECTORS)
-  ) {
-    throw new R2ProducerContractError("unknown PageGraph detector contract");
+  const tuple = PAGEGRAPH_R2_PRODUCER_TUPLES.find((candidate) => pageGraphTupleMatches(run, candidate));
+  if (tuple === undefined) {
+    throw new R2ProducerContractError("unknown PageGraph producer tuple");
   }
   if (
-    run.conditions.automation !== "brave-pagegraph" ||
-    run.conditions.consent !== "observe" ||
-    run.conditions.shields !== "off" ||
-    run.conditions.probes.keystroke ||
-    run.conditions.probes.policyVisit ||
-    run.toolchain.adblock !== null ||
-    run.verificationFacts !== undefined
-  ) {
-    throw new R2ProducerContractError("conditions or verification facts are impossible for PageGraph");
-  }
-  assertTrackerCatalog(run, pageGraphTrackerCatalogForNormalization(run.toolchain.normalizationVersion));
-  if (
-    run.phases.length !== 1 ||
-    run.phases[0].phaseId !== 0 ||
-    run.phases[0].kind !== "passive-load"
+    run.phases.length !== tuple.publicLimits.phases ||
+    run.phases[0]?.phaseId !== 0 ||
+    run.phases[0]?.kind !== "passive-load"
   ) {
     throw new R2ProducerContractError("PageGraph must carry exactly one passive-load phase");
   }
-  assertAtMost("PageGraph requests", run.evidence.requests.length, MAX_RECORDED_REQUESTS);
+  assertAtMost("PageGraph requests", run.evidence.requests.length, tuple.publicLimits.requests);
   if (
     run.evidence.cookieMutations.length !== 0 ||
     run.evidence.cookiesFinal.length !== 0 ||
@@ -342,67 +691,81 @@ function assertPageGraphProducerContract(run: ScanRunV2R2): void {
   }
 }
 
-function assertNodeDetectorLedger(
-  detectors: DetectorLedger,
-  expectedVersions: Readonly<Record<DetectorId, string>>
-): void {
+function pageGraphTupleMatches(run: ScanRunV2R2, tuple: PageGraphR2ProducerTuple): boolean {
+  return (
+    run.toolchain.normalizationVersion === tuple.normalizationVersion &&
+    pageGraphMethodologyMatches(run.provenance.methodologyVersion, tuple.methodologyVersion) &&
+    canonicalJson(run.provenance.detectorRegistry) === canonicalJson(tuple.detectorRegistry) &&
+    canonicalJson(run.detectors) === canonicalJson(tuple.detectors) &&
+    canonicalJson(run.toolchain.trackerCatalog) === canonicalJson(tuple.trackerCatalog) &&
+    run.toolchain.adblock === tuple.adblockIdentity &&
+    canonicalJson(pageGraphRuntimeIdentity(run)) === canonicalJson(tuple.runtimeIdentity)
+  );
+}
+
+function pageGraphMethodologyMatches(value: string, base: string): boolean {
+  const methodology = new RegExp(
+    `^${escapeRegExp(base)}` +
+      String.raw`\+crawl-[A-Za-z0-9][A-Za-z0-9._:+@/-]{0,127}` +
+      String.raw`\+crawl-sha-[0-9a-f]{40}` +
+      String.raw`\+schema-[A-Za-z0-9][A-Za-z0-9._:+@/-]{0,127}` +
+      String.raw`\+sanitizer-[A-Za-z0-9][A-Za-z0-9._:+@/-]{0,127}$`
+  );
+  return methodology.test(value);
+}
+
+function pageGraphRuntimeIdentity(run: ScanRunV2R2): PageGraphR2ProducerTuple["runtimeIdentity"] {
+  return {
+    acquisition: run.provenance.acquisition as "upload",
+    automation: run.conditions.automation as "brave-pagegraph",
+    consent: run.conditions.consent as "observe",
+    shields: run.conditions.shields as "off",
+    keystrokeProbe: run.conditions.probes.keystroke as false,
+    policyVisitProbe: run.conditions.probes.policyVisit as false,
+    verificationFacts: run.verificationFacts === undefined ? "absent" : ("present" as never)
+  };
+}
+
+const HISTORICAL_DETECTOR_STATUS_REASON_CODES = Object.freeze({
+  partial: Object.freeze(["budget-unavailable", "load-failed", "scan-failed"]),
+  skipped: Object.freeze([
+    "probe-disabled",
+    "budget-unavailable",
+    "not-requested",
+    "load-failed",
+    "engine-unavailable"
+  ]),
+  unsupported: Object.freeze(["unsupported"]),
+  failed: Object.freeze(["load-failed", "engine-unavailable", "scan-failed"])
+} satisfies Readonly<Record<Exclude<DetectorStatus, "complete">, readonly string[]>>);
+
+function assertNodeDetectorLedger(detectors: DetectorLedger, tuple: NodeR2ProducerTuple): void {
   for (const id of DETECTOR_IDS) {
     const entry = detectors[id];
-    if (entry.version !== expectedVersions[id]) {
+    if (entry.version !== tuple.detectorVersions[id]) {
       throw new R2ProducerContractError(`unknown Node detector version for ${id}`);
     }
-    if (entry.reason !== undefined && !isDetectorReasonCode(entry.reason)) {
-      throw new R2ProducerContractError(`unknown Node detector reason for ${id}`);
+    if (entry.status === "complete") {
+      if (entry.reason !== undefined) {
+        throw new R2ProducerContractError(`incompatible Node detector status/reason for ${id}`);
+      }
+      continue;
     }
-    if (
-      (entry.status === "complete" && entry.reason !== undefined) ||
-      (entry.status !== "complete" && entry.reason === undefined) ||
-      (entry.reason !== undefined && !isDetectorReasonForStatus(entry.status, entry.reason))
-    ) {
+    if (entry.reason === undefined) {
+      throw new R2ProducerContractError(`incompatible Node detector status/reason for ${id}`);
+    }
+    const compatible =
+      tuple.detectorStatusContractVersion === "detector-status-v1"
+        ? HISTORICAL_DETECTOR_STATUS_REASON_CODES[entry.status].includes(entry.reason)
+        : isDetectorReasonCode(entry.reason) && isDetectorReasonForStatus(entry.status, entry.reason);
+    if (!compatible) {
       throw new R2ProducerContractError(`incompatible Node detector status/reason for ${id}`);
     }
   }
 }
 
-function currentTrackerCatalogIdentity(): Toolchain["trackerCatalog"] {
-  return {
-    source: trackerCatalogMetadata.source,
-    version: trackerCatalogMetadata.version,
-    entries: trackerCatalogMetadata.entries,
-    digest: trackerCatalogMetadata.digest
-  };
-}
-
-function pageGraphTrackerCatalogForNormalization(normalization: string): Toolchain["trackerCatalog"] {
-  if (
-    SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"].has(normalization) ||
-    [...MIGRATABLE_REDACTION_V3_NORMALIZATIONS["pagegraph-import"]].some(
-      (source) =>
-        normalization === source ||
-        normalization === `${source}+${REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX}`
-    )
-  ) {
-    return HISTORICAL_R2_2026_06_TRACKER_CATALOG;
-  }
-  if (normalization === PAGEGRAPH_R2_NORMALIZATION_VERSION) {
-    return currentTrackerCatalogIdentity();
-  }
-  throw new R2ProducerContractError("unknown PageGraph normalization identity");
-}
-
-function assertTrackerCatalog(run: ScanRunV2R2, expected: Toolchain["trackerCatalog"]): void {
-  if (canonicalJson(run.toolchain.trackerCatalog) !== canonicalJson(expected)) {
-    throw new R2ProducerContractError("unknown tracker catalog identity");
-  }
-}
-
 function assertAtMost(label: string, actual: number, maximum: number): void {
   if (actual > maximum) throw new R2ProducerContractError(`${label} exceed producer cap ${maximum}`);
-}
-
-function canonicalTimestamp(value: string): boolean {
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 }
 
 function escapeRegExp(value: string): string {
