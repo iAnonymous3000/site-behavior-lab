@@ -57,7 +57,11 @@ const BOT_WALL_BODY_SIGNATURES = [
   /\bperforming security verification\b/i,
   /\benable javascript and cookies to continue\b/i,
   /\baccess to this page has been denied because we believe you are using automation tools\b/i,
-  /\b(?:unusual|automated) traffic (?:has been detected|from your computer network)\b/i
+  /\b(?:unusual|automated) traffic (?:has been detected|from your computer network)\b/i,
+  // Press-and-hold interstitials (PerimeterX/HUMAN and similar). The gesture
+  // phrase alone is ordinary UI language, so the human/robot context is
+  // required before it counts as a challenge.
+  /\bpress (?:&|and) hold\b[^.]{0,60}\b(?:human|robot|confirm|verify)\b/i
 ] as const;
 
 const CONSENT_WALL_BODY_SIGNATURES = [
@@ -91,15 +95,26 @@ export function classifyPageSubject(signals: BotWallPageSignals): PageSubjectSta
   const consentTitleMatched = CONSENT_WALL_TITLE_SIGNATURES.some((signature) => signature.test(title));
   const titleMatched = botTitleMatched || consentTitleMatched;
 
-  // Preserve the previous diagnostic behavior on an independently failed or
-  // unsettled navigation. The title is not what failed quality in this branch;
-  // it only identifies the likely shape of the failed response.
-  if (titleMatched && (signals.status === null || signals.status >= 400 || !signals.navigationSettled)) {
-    return SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_STATE;
+  // On an independently failed or unsettled navigation the title is not what
+  // failed quality; it only identifies the likely SHAPE of the failed response.
+  //
+  // A blocked response often carries its challenge in the body under an
+  // ordinary title: zillow.com answers 403 with a "Press & Hold" interstitial
+  // and no challenge title at all, so a title-only rule described a specific,
+  // nameable block as a generic HTTP error and threw away the reason. Reading
+  // the body HERE is safe in a way it is not on a successful load, because the
+  // status already failed quality on its own: a single body phrase can only
+  // improve the explanation of an already-failed visit, and can never turn a
+  // healthy one into a failure. Naming the block also does not evade it.
+  const loadIndependentlyFailed =
+    signals.status === null || signals.status >= 400 || !signals.navigationSettled;
+  if (loadIndependentlyFailed) {
+    const bodyIdentifiesChallenge = BOT_WALL_BODY_SIGNATURES.some((signature) => signature.test(text));
+    return titleMatched || bodyIdentifiesChallenge ? SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_STATE : "normal";
   }
 
   const successfulStatus = signals.status !== null && signals.status >= 200 && signals.status < 400;
-  if (!successfulStatus || !signals.navigationSettled) return "normal";
+  if (!successfulStatus) return "normal";
 
   const sparse =
     Number.isSafeInteger(signals.totalRequests) &&

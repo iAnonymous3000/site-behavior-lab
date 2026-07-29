@@ -169,3 +169,50 @@ test("a blocking consent interstitial needs both a wall title and wall body", ()
     "a normal page with cookie-banner prose is not a blocking consent wall"
   );
 });
+
+test("a blocked response is named from its body when the title says nothing", () => {
+  // zillow.com answers 403 with a PerimeterX "Press & Hold" interstitial under
+  // an ordinary title. A title-only rule reported a specific, nameable block as
+  // a generic HTTP error and threw away the reason. Reading the body is safe
+  // here precisely because the status already failed quality on its own.
+  const zillow = {
+    pageTitle: "zillow.com",
+    pageText: "Press & Hold to confirm you are a human",
+    pageTextAvailable: true,
+    status: 403,
+    navigationSettled: true,
+    totalRequests: 3
+  };
+  assert.equal(classifyPageSubject(zillow), SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_STATE);
+
+  // The gesture phrase alone is ordinary UI language and must not be enough.
+  assert.equal(
+    classifyPageSubject({ ...zillow, pageText: "Press and hold the shutter button to record video." }),
+    "normal"
+  );
+
+  // A blocked page with no challenge evidence at all stays a plain HTTP error,
+  // so the honest "the site refused this visit" wording is preserved.
+  assert.equal(
+    classifyPageSubject({ ...zillow, pageText: "Forbidden. You do not have access to this resource." }),
+    "normal"
+  );
+
+  // On a SUCCESSFUL load the stricter rule still governs: one body signature is
+  // not enough, because there no independent fact has failed and a page-
+  // controlled phrase alone must never turn a healthy visit into a failed one.
+  assert.equal(
+    classifyPageSubject({ ...zillow, status: 200, pageText: "Press & Hold to verify" }),
+    "normal"
+  );
+  // Two distinct signatures plus a sparse shape do clear that bar, which is the
+  // existing HTTP-200 interstitial rule and stays unchanged.
+  assert.equal(
+    classifyPageSubject({
+      ...zillow,
+      status: 200,
+      pageText: "Press & Hold to confirm you are a human"
+    }),
+    SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_STATE
+  );
+});

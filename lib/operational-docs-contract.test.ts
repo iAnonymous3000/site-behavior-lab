@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 
 const root = process.cwd();
 
@@ -50,8 +51,12 @@ test("current operator docs keep verified WAF/log controls separate from preview
 
   for (const document of [readme, evidenceSurvey]) {
     assert.match(document, /scanner non-production[\s\S]{0,40}(?:builds are )?disabled/i);
+    // Previews still BUILD, so "enabled" stays asserted; what changed on
+    // 2026-07-28 is that they are Access-restricted instead of public. Pin the
+    // new posture so the docs cannot drift back to calling them public.
     assert.match(document, /Pages automatic preview deployments[\s\S]{0,50}enabled/i);
-    assert.match(document, /public by default/i);
+    assert.match(document, /Access-(?:protected|restricted)/i);
+    assert.doesNotMatch(document, /preview deployments are (?:currently )?enabled and\s+public/i);
   }
 
   assert.doesNotMatch(
@@ -159,4 +164,28 @@ test("release runbook matches the current Wrangler and three-gate CI contract", 
     /all\s+five promotion gates \(`supply-chain`, `app`, `smoke`, `docker`, and `attest`\)/i
   );
   assert.doesNotMatch(goLive, /After both\s+test jobs pass/i);
+});
+
+test("the README names the methodology version the scanner actually records", () => {
+  // The README quoted a methodology string that drifted twice over: it still
+  // said playwright-1.61.1 against a 1.62.0 runtime, and predated the
+  // subject-validity/detector-coverage suffixes entirely. A reader checking a
+  // report's recorded methodology against the documentation would not have
+  // found the documented one anywhere. Pin the prose to the constant instead
+  // of to a transcription of it.
+  const readme = source("README.md");
+  assert.match(
+    readme,
+    new RegExp(NODE_SCANNER_METHODOLOGY_VERSION.replace(/[.+*?^${}()|[\]\\]/g, "\\$&")),
+    "README must quote the current NODE_SCANNER_METHODOLOGY_VERSION verbatim"
+  );
+  // No superseded Playwright component may survive anywhere in the prose.
+  assert.doesNotMatch(readme, /playwright-1\.61\.\d+/);
+});
+
+test("the README does not describe Access-protected Pages previews as public", () => {
+  const readme = source("README.md");
+  assert.doesNotMatch(readme, /preview deployments are (?:currently )?enabled and public/i);
+  assert.doesNotMatch(readme, /public by default/i);
+  assert.match(readme, /preview deployments[\s\S]{0,60}Access-protected/i);
 });

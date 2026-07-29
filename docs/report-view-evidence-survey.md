@@ -714,8 +714,8 @@ lifecycles for `reports/` after 7 days and `v2-shadow/` after 1 day, and
 Cloudflare Insights is disabled with no live beacon, matching the privacy
 disclosure. A newer 2026-07-21 deployment recheck supersedes the old preview
 note: Pages and the scanner both use `production`; scanner non-production
-builds are disabled, while Pages automatic preview deployments are enabled and
-public by default rather than Access-restricted. That recheck also verified the
+builds are disabled, while Pages automatic preview deployments are enabled but
+Access-restricted rather than public. That recheck also verified the
 POST `/api/scan` WAF ceiling at ten requests per ten seconds per IP with a
 ten-second block and queryable Worker logs over the configured seven-day range
 with report URLs redacted. Those controls require fresh release receipts. Still
