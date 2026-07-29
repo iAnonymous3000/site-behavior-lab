@@ -712,16 +712,29 @@ Steps 2 through 5 of the user-sequenced measurement kernel rollout landed:
 Operator-side status rechecked on 2026-07-13: the R2 bucket has enabled
 lifecycles for `reports/` after 7 days and `v2-shadow/` after 1 day, and
 Cloudflare Insights is disabled with no live beacon, matching the privacy
-disclosure. A newer 2026-07-21 deployment recheck supersedes the old preview
-note: Pages and the scanner both use `production`; scanner non-production
-builds are disabled, while Pages automatic preview deployments are enabled but
-Access-restricted rather than public. That recheck also verified the
-POST `/api/scan` WAF ceiling at ten requests per ten seconds per IP with a
-ten-second block and queryable Worker logs over the configured seven-day range
-with report URLs redacted. Those controls require fresh release receipts. Still
-pending outside the repo are the separately implemented R2 delete-canary
-activation and a platform-compatible independent egress backstop; health alone
-does not prove them. The scheduled Brave-list refresh rerun succeeded.
+disclosure. A 2026-07-21 deployment recheck confirmed that Pages and the
+scanner both use `production` and scanner non-production builds are disabled.
+A separate 2026-07-28 preview recheck superseded the old preview note: Pages
+automatic preview deployments are enabled but Access-restricted rather than
+public. The 2026-07-29 release recheck verified the combined WAF ceiling on both
+`POST /api/scan` and
+`GET /api/scan/admission` at ten requests per ten seconds per IP with a
+ten-second block. For each route, the eleventh bounded invalid request received
+`429` plus `Retry-After: 10`, Security Events matched the exact method and path,
+and the ordinary application `400` returned after the block expired. A
+bounded seven-day Workers Observability dashboard query returned 80 visible
+`/api/health` matches spanning dashboard timestamps `2026-07-22 18:23` through
+`2026-07-29 11:25`; a separate `/reports/` query returned eight visible matches
+spanning `2026-07-22 13:04` through `2026-07-29 11:42`, all with report
+identifiers redacted. These point-in-time receipts close the WAF and historical
+log-query follow-ups for this release; capture fresh receipts for later
+releases. The independently authenticated fixed-prefix R2 delete canary is
+active and required for this deployment: its direct smoke and required
+Production Health run 30483261603 both created, read, deleted, and proved
+absence for one isolated health object. A platform-compatible independent
+egress backstop remains pending
+outside the repo; health alone does not prove it. The scheduled Brave-list
+refresh rerun succeeded.
 Chromium sandbox is opt-in via SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX=1 after a
 verified deployed scan.
 

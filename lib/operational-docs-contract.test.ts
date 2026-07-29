@@ -10,7 +10,7 @@ function source(file: string): string {
   return readFileSync(path.join(root, file), "utf8");
 }
 
-test("operations docs distinguish the active production synthetic from the delete canary", () => {
+test("operations docs distinguish the active synthetic from the active required delete canary", () => {
   const readme = source("README.md");
   const containerRunbook = source("docs/deploy-cloudflare-containers.md");
   const goLive = source("docs/go-live-public-scanner.md");
@@ -19,45 +19,90 @@ test("operations docs distinguish the active production synthetic from the delet
   assert.match(readme, /hourly production synthetic is active/i);
   assert.doesNotMatch(readme, /activation of the hourly scan\/write\/read synthetic/i);
   assert.match(containerRunbook, /Production synthetic \(active\)/);
-  assert.match(containerRunbook, /synthetic never[\s\S]*not the still-separate delete canary/i);
+  assert.match(containerRunbook, /synthetic never[\s\S]*does not replace the separately authenticated delete\s+canary/i);
   assert.match(goLive, /hourly production synthetic is active/i);
-  assert.match(readme, /R2 delete canary is implemented and CI-wired but is not live/i);
-  assert.match(containerRunbook, /code-ready, not live/i);
-  assert.match(goLive, /code and production-health lane being[\s\S]*do not prove it is\s+deployed or configured/i);
+  assert.match(readme, /R2 delete canary is also active and required/i);
+  assert.match(
+    containerRunbook,
+    /reference deployment's R2 delete canary is active and required as of\s+2026-07-29/i
+  );
+  assert.match(containerRunbook, /Production Health run 30483261603/);
+  assert.match(goLive, /R2 delete canary is now active and required/i);
   assert.match(envExample, /SITE_BEHAVIOR_LAB_R2_DELETE_CANARY_TOKEN=/);
 
   for (const document of [readme, containerRunbook, goLive]) {
     assert.match(document, /WAF[\s-]*(?:ceiling|rate)/i);
-    assert.match(document, /(?:log[\s-]*retention|logs?[\s\S]{0,100}seven-day range)/i);
+    assert.match(
+      document,
+      /(?:log[\s-]*retention|logs?[\s\S]{0,100}seven-day range|historical\s+log-query)/i
+    );
     assert.match(document, /R2 delete[- ]canary/i);
     assert.match(document, /independent\s+egress backstop/i);
   }
 });
 
-test("current operator docs keep verified WAF/log controls separate from preview and remaining gates", () => {
+test("current operator docs record the fresh WAF and seven-day log receipts", () => {
   const readme = source("README.md");
+  const containerRunbook = source("docs/deploy-cloudflare-containers.md");
   const goLive = source("docs/go-live-public-scanner.md");
   const evidenceSurvey = source("docs/report-view-evidence-survey.md");
 
-  for (const document of [readme, goLive, evidenceSurvey]) {
-    assert.match(document, /2026-07-21/);
-    assert.match(document, /ten\s+requests per ten seconds per IP with a\s+ten-second block/i);
-    assert.match(document, /Worker logs[\s\S]{0,120}(?:configured )?seven-day range/i);
-    assert.match(document, /report URLs redacted/i);
-    assert.match(document, /fresh[\s\S]{0,80}(?:release )?receipts/i);
-    assert.match(document, /R2 delete[- ]canary/i);
+  for (const document of [readme, containerRunbook, goLive, evidenceSurvey]) {
+    assert.match(document, /2026-07-29/);
+    assert.match(document, /combined WAF (?:ceiling|rate-limiting rule)/i);
+    assert.match(
+      document,
+      /ten\s+requests\s+per\s+ten\s+seconds\s+per\s+IP\s+with\s+a\s+ten-second\s+block/i
+    );
+    assert.match(document, /both\s+`POST \/api\/scan`\s+and\s+`GET \/api\/scan\/admission`/i);
+    assert.match(
+      document,
+      /eleventh bounded invalid\s+request received\s+`429` plus\s+`Retry-After: 10`/i
+    );
+    assert.match(document, /Security Events matched[\s\S]{0,100}method[\s\S]{0,40}path/i);
+    assert.match(
+      document,
+      /ordinary\s+application\s+`400`\s+returned\s+after\s+the\s+block\s+expired/i
+    );
+    assert.match(
+      document,
+      /bounded\s+seven-day\s+Workers\s+Observability\s+dashboard\s+query\s+returned\s+80\s+visible\s+`\/api\/health`\s+matches/i
+    );
+    assert.match(document, /`2026-07-22 18:23`[\s\S]{0,100}`2026-07-29 11:25`/i);
+    assert.match(
+      document,
+      /`\/reports\/` query returned eight visible\s+matches[\s\S]{0,100}`2026-07-22 13:04`[\s\S]{0,100}`2026-07-29 11:42`[\s\S]{0,100}report\s+identifiers redacted/i
+    );
+    assert.match(document, /R2 delete[- ]canary[\s\S]{0,180}active[\s\S]{0,40}required/i);
+    assert.match(document, /direct smoke/i);
+    assert.match(document, /Production Health run 30483261603/i);
+    assert.match(
+      document,
+      /(?:write\/read\/delete\/absence|created,\s+read,\s+deleted,\s+and proved\s+absence)/i
+    );
+    assert.match(
+      document,
+      /point-in-time receipts[\s\S]{0,180}(?:capture fresh receipts|re-capture them)/i
+    );
     assert.match(document, /independent\s+egress backstop/i);
+    assert.doesNotMatch(document, /fresh historical seven-day[\s\S]{0,60}(?:required|pending)/i);
+    assert.doesNotMatch(document, /recovery-route WAF[\s\S]{0,40}(?:missing|pending|required)/i);
   }
 
-  for (const document of [readme, evidenceSurvey]) {
+  for (const document of [readme, goLive, evidenceSurvey]) {
     assert.match(document, /scanner non-production[\s\S]{0,40}(?:builds are )?disabled/i);
     // Previews still BUILD, so "enabled" stays asserted; what changed on
     // 2026-07-28 is that they are Access-restricted instead of public. Pin the
     // new posture so the docs cannot drift back to calling them public.
-    assert.match(document, /Pages automatic preview deployments[\s\S]{0,50}enabled/i);
+    assert.match(document, /Pages\s+automatic\s+preview\s+deployments[\s\S]{0,50}enabled/i);
     assert.match(document, /Access-(?:protected|restricted)/i);
     assert.doesNotMatch(document, /preview deployments are (?:currently )?enabled and\s+public/i);
   }
+  assert.doesNotMatch(readme, /non-production Pages builds (?:are )?disabled/i);
+  assert.match(
+    evidenceSurvey,
+    /2026-07-28 preview recheck[\s\S]{0,140}Pages\s+automatic preview deployments[\s\S]{0,80}Access-restricted/i
+  );
 
   assert.doesNotMatch(
     readme,
@@ -68,11 +113,7 @@ test("current operator docs keep verified WAF/log controls separate from preview
     /Container-log retention\/query verification, WAF-ceiling verification[\s\S]*remain external/i
   );
   assert.doesNotMatch(evidenceSurvey, /Pages uses[\s\S]{0,60}previews disabled/i);
-  assert.match(
-    goLive,
-    /GET `?\/api\/scan\/admission`?[\s\S]{0,300}(?:WAF|rate[- ]limiting)/i
-  );
-  assert.match(goLive, /receipt covers only `POST \/api\/scan`/i);
+  assert.doesNotMatch(goLive, /receipt covers only\s+`POST \/api\/scan`/i);
 });
 
 test("delete-canary activation is explicit, independently credentialed, and reversible", () => {

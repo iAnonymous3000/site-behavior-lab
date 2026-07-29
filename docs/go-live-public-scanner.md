@@ -2,9 +2,10 @@
 
 > **Status: LIVE on r2 (2026-07-13).** The original public go-live completed on
 > 2026-06-22. The full Containers scanner at `scan.sitebehavior.org` now returns
-> public r2 reports behind Turnstile and the in-app atomic quota. The WAF
-> rate-limit rule was verified on 2026-07-21; retain a fresh receipt for each
-> release rather than treating that dated observation as permanent proof.
+> public r2 reports behind Turnstile and the in-app atomic quota. The combined
+> WAF rate-limit rule was verified on both admission routes on 2026-07-29;
+> retain a fresh receipt for each release rather than treating that dated
+> observation as permanent proof.
 
 This runbook takes the full Node/Playwright scanner (the path that runs the
 **Brave-list blocking simulation**, tried-vs-blocked) from operator-gated to a **public** front door
@@ -692,9 +693,9 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
    npm run cf:container:deploy
    ```
 
-6. **Add Cloudflare WAF / rate-limiting rules** on both public admission routes
-   as coarse outer caps. This route coverage is a release requirement when
-   durable public scans are enabled:
+6. **Add a Cloudflare WAF rate-limiting rule** covering both public admission
+   routes as a coarse outer cap. This route coverage is a release requirement
+   when durable public scans are enabled:
 
    - throttle `POST /api/scan` per client IP to a ceiling above the in-app scan
      limit; and
@@ -705,7 +706,8 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
    The recovery endpoint also enforces an atomic 300-per-minute global ceiling
    and bounded SQLite cleanup, but that in-app control does not replace the WAF
    layer. Consider a managed challenge for known-bot ASNs. Do not enable the
-   durable public route until both WAF rules are active and have fresh receipts.
+   durable public route until the combined WAF rule is active and both routes
+   have fresh receipts.
 
 7. **Point the public site at the scanner.** Rebuild and deploy Cloudflare Pages
    with:
@@ -776,18 +778,26 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
   outage or block falls through to the independent next candidate with a
   workflow warning, and the alert fires only when every candidate fails to
   scan, which indicates the scanner rather than a third party.
-- On 2026-07-21 the POST `/api/scan` WAF ceiling was verified active at ten
-  requests per ten seconds per IP with a ten-second block, and Worker logs were
-  queryable over the configured seven-day range with report URLs redacted.
-  That receipt covers only `POST /api/scan`; it does not prove the required
-  `GET /api/scan/admission` WAF rule. Capture that recovery-route receipt before
-  enabling durable public admissions, and capture fresh WAF and log receipts
-  for every release. A platform-compatible
-  independent egress backstop and activation of the separately implemented
-  fixed-prefix R2 delete-canary Worker remain external operational follow-ups.
-  The canary's code and production-health lane being present do not prove it is
-  deployed or configured. `/api/health` proves R2 configuration, not remote
-  write/read/delete reachability or those remaining controls.
+- On 2026-07-29 the combined WAF ceiling was verified active on both
+  `POST /api/scan` and `GET /api/scan/admission` at ten requests per ten seconds
+  per IP with a ten-second block. For each route, the eleventh bounded invalid
+  request received `429` plus `Retry-After: 10`, Security Events matched
+  `scan-api-rate-limit` to the exact method and path, and the ordinary
+  application `400` returned after the block expired. A bounded seven-day
+  Workers Observability dashboard query returned 80 visible `/api/health`
+  matches spanning dashboard timestamps `2026-07-22 18:23` through
+  `2026-07-29 11:25`; a separate `/reports/` query returned eight visible
+  matches spanning `2026-07-22 13:04` through `2026-07-29 11:42`, all with
+  report identifiers redacted, including `/reports/REDACTED`. These
+  point-in-time receipts close the WAF and historical log-query follow-ups for
+  this release; capture fresh receipts for later releases. This closes only the
+  WAF prerequisite for durable public admissions; the separate durable-
+  execution rollout gates above still apply. The independently authenticated
+  fixed-prefix R2 delete canary is now active and required: its direct smoke and
+  Production Health run 30483261603 both passed the write/read/delete/absence
+  contract. A platform-compatible independent egress backstop remains an
+  external operational follow-up. `/api/health` proves R2 configuration, not
+  these separately exercised controls.
 
 ## Sharing live-scan results
 
@@ -855,11 +865,17 @@ the direct path because runs dispatched by repo-writing workflows with
 One-time dashboard setup (no API token needed):
 
 1. Cloudflare Pages project **sitebehavior.org**: Settings > Builds &
-   deployments > production branch = `production`; disable non-production
-   (preview) branch builds.
+   deployments > production branch = `production`; either disable
+   non-production (preview) branch builds or protect every preview with
+   Cloudflare Access. The reference deployment keeps automatic previews enabled
+   and Access-protected rather than public.
 2. The scanner's **Workers Builds** (wrangler.container.jsonc project):
    Settings > Builds > branch = `production`; disable non-production branch
    builds.
+
+Current reference state: scanner non-production builds are disabled, while
+Pages automatic preview deployments remain enabled but are Access-protected
+rather than public.
 
 To hold production at a known-good revision during an incident, set the
 repository Actions variable `SITE_BEHAVIOR_LAB_PROMOTION_PAUSED=1`. Clear it
@@ -879,7 +895,7 @@ and rerun CI on `main` to resume. Never move `production` by hand.
   WAF rule together as real traffic arrives.
 - Preserve separate receipts for controls the repository cannot infer from health:
   the WAF ceiling above the in-app quota, container-log retention plus one bounded
-  operator query, activation and successful readback of the dedicated-prefix R2
-  delete canary, and the independent egress backstop (or an explicit, reviewed
+  operator query, continued successful readback of the required dedicated-prefix
+  R2 delete canary, and the independent egress backstop (or an explicit, reviewed
   acceptance while the platform cannot provide one). The active hourly synthetic
   covers scan/write/read/render only.

@@ -408,7 +408,8 @@ from R2, and renders its HTML report page. Every request rejects redirects,
 returned capability URLs are restricted to the exact scanner origin and expected
 path, and per-request plus whole-run deadlines bound failure handling. Its report
 follows the ordinary seven-day/500-report retention policy; the synthetic never
-deletes that report and is not the still-separate delete canary. The workflow
+deletes that report and does not replace the separately authenticated delete
+canary. The workflow
 requests four best-effort checks per hour, runs this synthetic on the hourly `:07`
 schedule, and maintains one canonical failure issue. For an actual
 detection-latency SLA, have an independent scheduler send the `production-health`
@@ -419,15 +420,15 @@ repository dispatch; GitHub cron delivery can be delayed.
 Keep these as four separate operator receipts; neither `/api/health` nor the
 active scan/write/read/render synthetic can attest them:
 
-1. Verify that the Cloudflare WAF ceiling on `POST /api/scan` exists and is above
-   the stricter in-app minute/day quota, then record a non-production proof that it
-   rejects traffic at the intended boundary.
+1. Verify that the Cloudflare WAF ceiling covers both `POST /api/scan` and
+   `GET /api/scan/admission`, sits above each stricter in-app quota, and has a
+   bounded proof that it rejects traffic at the intended boundary.
 2. Verify the effective Worker/container log-retention window and execute one
    bounded query that can diagnose a failed health or synthetic run without
    retaining report evidence or target details beyond the documented policy.
-3. Activate the repo's code-ready R2 delete-canary Worker only after the bounded
-   contract below passes locally. It accepts no caller-selected object key, uses
-   only `health/r2-delete-canary/`, and requires its own bearer token. Its
+3. Keep the repo's R2 delete-canary Worker independently credentialed and the
+   production-health gate required. It accepts no caller-selected object key,
+   uses only `health/r2-delete-canary/`, and requires its own bearer token. Its
    write/read/**delete** transaction must prove the exact object is absent after
    deletion. Do not reuse a scanner, synthetic, staging, Turnstile, durable-job,
    watch, or R2 API credential for the invocation token.
@@ -436,13 +437,32 @@ active scan/write/read/render synthetic can attest them:
    reviewed. Cloudflare Containers internet-disable/interception is not a drop-in
    control for the current raw-TCP proxy path.
 
+The reference deployment satisfied the first three receipts on 2026-07-29. It
+proved the combined WAF ceiling on both `POST /api/scan` and
+`GET /api/scan/admission` at ten requests per ten seconds per IP with a
+ten-second block. For each route, the eleventh bounded invalid request received
+`429` plus `Retry-After: 10`, Security Events matched
+`scan-api-rate-limit` to the exact method and path, and the ordinary application
+`400` returned after the block expired. A bounded seven-day Workers
+Observability dashboard query returned 80 visible `/api/health` matches spanning
+dashboard timestamps `2026-07-22 18:23` through `2026-07-29 11:25`; a separate
+`/reports/` query returned eight visible matches spanning `2026-07-22 13:04`
+through `2026-07-29 11:42`, all with report identifiers redacted. The required
+delete canary receipt is recorded below. These point-in-time receipts close the
+WAF and historical log-query follow-ups for this release; re-capture them for
+later releases. The independent egress backstop remains operator work.
+
 ### Activate the dedicated R2 delete canary
 
 The repository includes the bounded implementation, tests, production-health
 lane, and [`wrangler.r2-delete-canary.jsonc`](../wrangler.r2-delete-canary.jsonc).
-That is **code-ready, not live**: do not claim deletion coverage until the
-dedicated Worker is deployed, its independent credential and exact HTTPS origin
-are configured, and both the direct smoke and production-health readback pass.
+The reference deployment's R2 delete canary is active and required as of
+2026-07-29: the direct smoke and
+[Production Health run 30483261603](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30483261603)
+both passed the write/read/delete/absence contract, and the required gate is
+enabled. For any fresh deployment, the source is only code-ready: do not claim
+deletion coverage until the dedicated Worker is deployed, its independent
+credential and exact HTTPS origin are configured, and both readbacks pass.
 The Worker binding reaches the production reports bucket, but its request surface
 accepts no object key and its implementation can touch only the fixed health
 prefix; it never operates under `reports/`.
