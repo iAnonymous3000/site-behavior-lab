@@ -659,8 +659,19 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(prepare, /persist-credentials: false/);
   assert.doesNotMatch(prepare, /secrets\.|actions\/attest@|git tag|git push|uses: \.\//);
   assert.match(prepare, /npm ci/);
+  assert.match(prepare, /npx playwright install --with-deps chromium/);
   assert.match(prepare, /npm run build:pages/);
   assert.match(prepare, /npm run test:smoke:static/);
+  assert.ok(
+    prepare.indexOf("npm ci") <
+      prepare.indexOf("npx playwright install --with-deps chromium"),
+    "the release job must install locked dependencies before invoking the pinned Playwright CLI"
+  );
+  assert.ok(
+    prepare.indexOf("npx playwright install --with-deps chromium") <
+      prepare.indexOf("npm run test:smoke:static"),
+    "the release job must install Chromium before launching the static smoke browser"
+  );
   assert.match(prepare, /npm run release:evidence --/);
   assert.match(prepare, /archive: false/);
   assert.match(prepare, /receipt_artifact_id: \$\{\{ steps\.receipt_artifact\.outputs\.artifact-id \}\}/);

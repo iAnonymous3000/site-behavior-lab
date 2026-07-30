@@ -246,6 +246,9 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
       - name: Build the static artifact this receipt describes
         run: |
           set -euo pipefail
