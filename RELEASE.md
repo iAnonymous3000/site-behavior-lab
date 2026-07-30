@@ -372,16 +372,18 @@ unavailable or too slow):
 - Break-glass never applies to `v*` tags or to `production`; those move only
   through their own gated paths.
 
-Two properties of concurrent proposals are deliberate and need their rule
-stated. First, two open report proposals both regenerate the report manifest
-and corpus statistics from their own tree, so whichever merges second will
-conflict in those generated files; the remedy is always to close the stale
-proposal and re-run its workflow, never to hand-merge regenerated output onto
-a tree it was not built from. Second, a proposal opened before a promotion
-landed can fail its corrections-baseline ancestry check on the required
-Typecheck, Unit Tests, Build job; pressing Update branch re-bases the proposal
-and the re-run passes. Both are review-time frictions, not data hazards: the
-validated report data itself never depends on the base tree.
+One rule governs every stale report proposal: if the base branch advanced
+after the proposal was validated, close the proposal and re-run its workflow.
+That covers both the conflict case (two open proposals regenerate the report
+manifest and corpus statistics from their own trees, so whichever merges
+second conflicts in those generated files) and the quieter case where the
+corrections-baseline ancestry check fails after a promotion lands. Do not
+hand-merge regenerated output, and do not press Update branch on a report
+proposal: updating merges the advanced base into the proposal and would mix
+evidence generated under the old base with generator and schema code from the
+new one, which is exactly the transplanted-tree hazard the proposal flow
+exists to forbid. Re-running the workflow regenerates everything from one
+tree and costs only machine time.
 
 ## Widening what a release may claim
 

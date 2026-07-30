@@ -51,6 +51,15 @@ test("trusted publishers validate bounded data before a non-rebasing branch push
     assert.match(publisher, /npm ci --ignore-scripts/);
     assert.doesNotMatch(publisher, /actions\/download-artifact|unzip|tar -x/);
     assert.match(publisher, /Precheck exact raw artifact metadata/);
+    // The artifact name is minted once in the acquisition job and carried as a
+    // job output. A publisher that rebuilds it from its own github.run_attempt
+    // breaks publish-only reruns: the rerun's attempt number names an artifact
+    // that was never uploaded.
+    assert.match(
+      publisher,
+      /ARTIFACT_NAME: \$\{\{ needs\.scan(?:-featured)?\.outputs\.publication_artifact_name \}\}/
+    );
+    assert.doesNotMatch(publisher, /ARTIFACT_NAME: site-behavior-/);
     assert.match(publisher, /actions\/runs\/\$\{GITHUB_RUN_ID\}\/artifacts/);
     assert.match(publisher, /--validate-metadata[\s\S]*--artifact-id "\$ARTIFACT_ID"[\s\S]*--artifact-name "\$ARTIFACT_NAME"[\s\S]*--run-id "\$GITHUB_RUN_ID"/);
     assert.match(publisher, /actions\/artifacts\/\$\{ARTIFACT_ID\}\/zip/);

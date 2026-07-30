@@ -105,6 +105,11 @@ jobs:
     outputs:
       publication_artifact_id: ${{ steps.publication_artifact.outputs.artifact-id }}
       publication_artifact_digest: ${{ steps.publication_artifact.outputs.artifact-digest }}
+      # The name is minted HERE, once. A publish-only rerun keeps this job's
+      # outputs from its successful attempt; a publisher that rebuilt the name
+      # from its own github.run_attempt would look for an artifact that was
+      # never uploaded under the rerun's attempt number.
+      publication_artifact_name: site-behavior-report-publication-${{ github.run_id }}-${{ github.run_attempt }}
     # A missing controlled-runner label falls back to GitHub-hosted execution
     # only so the r2 preflight can fail visibly; it never falls back to v1.
     # Explicit manual v1 compatibility remains on GitHub-hosted Ubuntu.
@@ -334,7 +339,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ARTIFACT_ID: ${{ needs.scan.outputs.publication_artifact_id }}
           ARTIFACT_DIGEST: ${{ needs.scan.outputs.publication_artifact_digest }}
-          ARTIFACT_NAME: site-behavior-report-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          ARTIFACT_NAME: ${{ needs.scan.outputs.publication_artifact_name }}
         run: |
           gh api --method GET \
             -H "Accept: application/vnd.github+json" \
@@ -367,7 +372,7 @@ jobs:
         env:
           ARTIFACT_ID: ${{ needs.scan.outputs.publication_artifact_id }}
           ARTIFACT_DIGEST: ${{ needs.scan.outputs.publication_artifact_digest }}
-          ARTIFACT_NAME: site-behavior-report-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          ARTIFACT_NAME: ${{ needs.scan.outputs.publication_artifact_name }}
         run: |
           npm run reports:publication-archive -- \
             --extract \
@@ -438,13 +443,13 @@ jobs:
             '- Merging still requires normal review and a fresh main-branch CI run.' \
             '- If another proposal merges first and this one conflicts in the report manifest or corpus statistics, close it and re-run the workflow; never hand-merge regenerated output.' \
             > "$proposal_body"
-          # The proposal branch is already pushed and every gate above passed,
-          # so a refusal to OPEN the pull request must not discard validated
-          # report data or report a working publisher as broken. Exactly one
-          # refusal is tolerated: the repository policy that forbids Actions
-          # from creating pull requests. It is surfaced as an error annotation
-          # with the one-click URL, and CI still runs on the branch. Every
-          # other failure is real and still fails the job.
+          # The proposal branch is already pushed, but a proposal nobody can
+          # merge is not a publication. A refusal to OPEN the pull request,
+          # including the repository policy that forbids Actions from creating
+          # pull requests, fails this job so reconciliation and the managed
+          # failure issue stay open instead of reporting success over an
+          # orphaned branch. The policy refusal keeps its one-click remediation
+          # annotation; every failure path here is loud.
           pr_error="$RUNNER_TEMP/report-proposal-pr-error.txt"
           if ! gh pr create \
             --repo "$GITHUB_REPOSITORY" \
@@ -463,6 +468,7 @@ jobs:
               echo "- Pull request: **not created**; Actions are not permitted to create pull requests in this repository"
               echo "- Open it here: ${compare_url}"
             } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
           fi
 
       - name: Trigger CI on the proposal branch
