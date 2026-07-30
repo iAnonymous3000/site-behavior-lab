@@ -94,8 +94,9 @@ and aggregate/compressed/inflated limit violations; inflation is output-bounded
 and writes are exclusive into a fresh temporary directory. The publisher does
 not use `actions/download-artifact` auto-extraction. It copies only new
 report/sidecar pairs, then independently applies
-retention and rebuilds the public manifest and corpus statistics before a
-fast-forward-only push. Featured-refresh issue writes happen in a third
+retention and rebuilds the public manifest and corpus statistics before
+pushing a per-attempt automation/* proposal branch and opening a pull request
+for review. Featured-refresh issue writes happen in a third
 GitHub-hosted job that receives only the bounded, revalidated public aggregate;
 per-target diagnostics remain in private workflow logs.
 

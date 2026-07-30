@@ -288,9 +288,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
       # GITHUB_TOKEN pushes do not recursively trigger CI, so the publisher
       # explicitly dispatches the required workflow after a successful push.
       actions: write
+    env:
+      BASE_BRANCH: ${{ github.ref_name }}
+      PROPOSAL_BRANCH: automation/scan-report-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout exact acquisition source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -394,6 +398,8 @@ jobs:
 
       - name: Commit static report
         id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "pushed=false" >> "$GITHUB_OUTPUT"
           if [[ "$GITHUB_REF_TYPE" != "branch" ]]; then
@@ -412,21 +418,60 @@ jobs:
           else
             git commit -m "Add r2 site behavior scan report"
           fi
-          # Reports and pruning were validated against this exact checkout. If
-          # the branch advanced, fail safely and rerun rather than transplanting
-          # stale generated output onto a source tree it was never checked with.
-          if ! git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"; then
-            echo "::error::The branch advanced after report validation; refusing to rebase stale generated output. Rerun this workflow from the latest branch head."
-            exit 1
-          fi
+          # Reports and pruning were validated against this exact checkout. The
+          # validated tree becomes a reviewed automation/* proposal, never a
+          # direct write to the source branch: a base branch that advanced
+          # since validation surfaces as an ordinary merge conflict on the pull
+          # request instead of a transplanted stale tree. The per-attempt
+          # branch name is unique, so this push never needs force.
+          git push origin "HEAD:refs/heads/$PROPOSAL_BRANCH"
           echo "pushed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Trigger CI on the pushed commit
+          proposal_body="$RUNNER_TEMP/report-proposal-pr.md"
+          printf '%s\n' \
+            '<!-- site-behavior-lab:report-publication-pr -->' \
+            '# Add validated scan report data' \
+            '' \
+            'This proposal contains validated, privacy-reduced report data produced by the trusted publisher from a bounded acquisition artifact.' \
+            '' \
+            '- The publisher validated artifact identity, redaction, provenance, pruning, manifests, and corpus statistics before proposing.' \
+            '- Merging still requires normal review and a fresh main-branch CI run.' \
+            '- If another proposal merges first and this one conflicts in the report manifest or corpus statistics, close it and re-run the workflow; never hand-merge regenerated output.' \
+            > "$proposal_body"
+          # The proposal branch is already pushed and every gate above passed,
+          # so a refusal to OPEN the pull request must not discard validated
+          # report data or report a working publisher as broken. Exactly one
+          # refusal is tolerated: the repository policy that forbids Actions
+          # from creating pull requests. It is surfaced as an error annotation
+          # with the one-click URL, and CI still runs on the branch. Every
+          # other failure is real and still fails the job.
+          pr_error="$RUNNER_TEMP/report-proposal-pr-error.txt"
+          if ! gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "$BASE_BRANCH" \
+            --head "$PROPOSAL_BRANCH" \
+            --title "Add validated scan report data" \
+            --body-file "$proposal_body" 2>"$pr_error"; then
+            cat "$pr_error" >&2
+            if ! grep -q "not permitted to create or approve pull requests" "$pr_error"; then
+              exit 1
+            fi
+            compare_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${BASE_BRANCH}...${PROPOSAL_BRANCH}?expand=1"
+            echo "::error title=Report publication needs its pull request opened by hand::The validated report data is pushed to ${PROPOSAL_BRANCH}, but this repository does not permit Actions to create pull requests. Open it at ${compare_url}, or enable Settings > Actions > General > Allow GitHub Actions to create and approve pull requests."
+            {
+              echo "- Proposal branch: \`${PROPOSAL_BRANCH}\` (validated, pushed)"
+              echo "- Pull request: **not created**; Actions are not permitted to create pull requests in this repository"
+              echo "- Open it here: ${compare_url}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Trigger CI on the proposal branch
         # Pushes made with GITHUB_TOKEN never fire `on: push` workflows, so the
-        # commit above would stay untested and the CI-gated production branch
-        # would never receive it. Dispatch CI explicitly; that tested CI run
-        # advances `production` itself once all required jobs pass.
+        # proposal would stay untested. Dispatch CI on the proposal branch
+        # only; its attest and promote jobs are gated on refs/heads/main, so
+        # this run tests the proposal and can never deploy it. Promotion
+        # happens from the fresh main CI run after the pull request merges.
         if: steps.commit.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run ci.yml --ref "$GITHUB_REF_NAME"
+        run: gh workflow run ci.yml --ref "$PROPOSAL_BRANCH"

@@ -285,8 +285,14 @@ test("scanner publishers fail closed instead of rebasing validated generated out
     const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", file), "utf8");
     assert.equal(workflow.includes("git pull --rebase"), false);
     assert.equal(workflow.includes("for attempt in 1 2 3"), false);
-    assert.equal(workflow.includes('if ! git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"; then'), true);
-    assert.equal(workflow.includes("refusing to rebase stale generated output"), true);
+    // The publisher proposes on a unique per-attempt automation/* branch, so
+    // it never rewrites its source branch and never needs a retry loop; a base
+    // branch that advanced surfaces as a merge conflict on the pull request.
+    // The push-target contract itself is pinned in
+    // lib/report-publication-workflow.test.ts; this test keeps only the
+    // fail-closed properties so the two files cannot disagree about the target.
+    assert.equal(workflow.includes('git push origin "HEAD:refs/heads/$GITHUB_REF_NAME"'), false);
+    assert.equal(workflow.includes("surfaces as an ordinary merge conflict"), true);
   }
 });
 

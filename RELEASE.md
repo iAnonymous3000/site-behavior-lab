@@ -333,6 +333,56 @@ of this repository. That is enforcement by workflow, and a workflow cannot
 constrain a direct push the way a ruleset can, so the four items above remain
 operator work and remain release-policy blockers.
 
+## Working model under branch protection
+
+Activating the `main` ruleset changes how every writer works, including the
+maintainer. The order matters: the automated publishers were converted to
+pull-request proposals first, because a required-PR rule with direct-push
+corpus writers still active would break every scheduled refresh.
+
+Normal change flow, human or automated:
+
+1. Work lands on a topic branch (`codex/*` for the maintainer's sessions,
+   `automation/*` for workflow-produced proposals, `dependabot/*` for
+   dependency bookkeeping).
+2. A pull request targets `main`. The ruleset requires the four candidate-code
+   checks (Supply-chain Security; Typecheck, Unit Tests, Build; Chromium Smoke
+   Test; Docker Runtime and Public R2 Smoke), an up-to-date branch, and every
+   review thread resolved.
+3. Merge. Attestation is deliberately NOT a pull-request check: it runs only
+   against trusted `main` after the merge, and the promotion path then
+   advances `production` from a completed successful `main` run.
+
+Required approvals stay at ZERO while this repository has one maintainer.
+GitHub forbids approving your own pull request, so a one-approval rule would
+deadlock every change; the protection value here is the required checks, the
+PR surface itself, and the audit trail, not a self-review no one can perform.
+Raise the approval count the day a second maintainer exists.
+
+Break-glass, for emergencies only (production incident with the PR path
+unavailable or too slow):
+
+- The maintainer may temporarily disable the `main` ruleset through repository
+  admin access, push the minimal fix, and re-enable the ruleset immediately.
+- Every break-glass use is recorded in a GitHub issue before or immediately
+  after the push: what was pushed, why the PR path was insufficient, and when
+  the ruleset was restored.
+- The resulting head still runs the full CI gates; a break-glass push that
+  fails CI is reverted, not patched forward.
+- Break-glass never applies to `v*` tags or to `production`; those move only
+  through their own gated paths.
+
+Two properties of concurrent proposals are deliberate and need their rule
+stated. First, two open report proposals both regenerate the report manifest
+and corpus statistics from their own tree, so whichever merges second will
+conflict in those generated files; the remedy is always to close the stale
+proposal and re-run its workflow, never to hand-merge regenerated output onto
+a tree it was not built from. Second, a proposal opened before a promotion
+landed can fail its corrections-baseline ancestry check on the required
+Typecheck, Unit Tests, Build job; pressing Update branch re-bases the proposal
+and the re-run passes. Both are review-time frictions, not data hazards: the
+validated report data itself never depends on the base tree.
+
 ## Widening what a release may claim
 
 The evidence schema accepts `development` and `released`, and it verifies the

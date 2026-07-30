@@ -57,8 +57,22 @@ test("trusted publishers validate bounded data before a non-rebasing branch push
     assert.match(publisher, /--extract[\s\S]*--archive "\$RUNNER_TEMP\/report-publication\.zip"[\s\S]*--artifact-dir "\$RUNNER_TEMP\/report-publication"/);
     assert.match(publisher, /--publish[\s\S]*--artifact-dir "\$RUNNER_TEMP\/report-publication"/);
     assert.match(publisher, /npm run reports:prune[\s\S]*npm run reports:remediate -- --check[\s\S]*npm run reports:manifest[\s\S]*npm run corpus:stats/);
-    assert.match(publisher, /git push origin "HEAD:refs\/heads\/\$GITHUB_REF_NAME"/);
-    assert.match(publisher, /gh workflow run ci\.yml --ref "\$GITHUB_REF_NAME"/);
+    // Validated report data is proposed on a per-attempt automation/* branch
+    // and reviewed through a pull request; a publisher that writes its source
+    // branch directly would bypass the branch protections this contract backs.
+    assert.match(publisher, /permissions:\n\s+contents: write\n\s+pull-requests: write/);
+    assert.match(
+      publisher,
+      /PROPOSAL_BRANCH: automation\/(?:scan-report|featured-scan)-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}/
+    );
+    assert.match(publisher, /BASE_BRANCH: \$\{\{ github\.ref_name \}\}/);
+    assert.match(publisher, /git push origin "HEAD:refs\/heads\/\$PROPOSAL_BRANCH"/);
+    assert.doesNotMatch(publisher, /git push origin "HEAD:refs\/heads\/\$GITHUB_REF_NAME"/);
+    assert.match(publisher, /gh pr create[\s\S]*--base "\$BASE_BRANCH"[\s\S]*--head "\$PROPOSAL_BRANCH"/);
+    // The one tolerated pull-request refusal is the Actions policy switch; the
+    // proposal branch stays pushed and CI-dispatched either way.
+    assert.match(publisher, /not permitted to create or approve pull requests/);
+    assert.match(publisher, /gh workflow run ci\.yml --ref "\$PROPOSAL_BRANCH"/);
     assert.doesNotMatch(publisher, /git pull|git rebase|--force/);
     assert.doesNotMatch(publisher, /scan:ci|scan:featured|Install Chromium|next start/);
     assert.equal(
