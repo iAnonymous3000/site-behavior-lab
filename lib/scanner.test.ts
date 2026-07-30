@@ -3298,39 +3298,26 @@ test("a consent control that never responds is disclosed as a click, not an empt
   }
 });
 
-test("a churning third-party iframe is disclosed as lost coverage, not a page that moved", { timeout: 30_000 }, async () => {
+test("an unrelated detached subframe is disclosed as lost coverage, not a page that moved", { timeout: 60_000 }, async () => {
   // An unreadable frame has two causes that look identical from outside: a
   // consent control that reloads the page on click (the page really did move
-  // out from under the search) and an unrelated iframe detaching mid-probe (it
-  // did not). Attributing the second to the first published a false statement
-  // about the site, made from a failure of the instrument, for any ad-funded
-  // page with churning frames.
+  // out from under the search) and an unrelated subframe detaching mid-probe
+  // (it did not). Attributing the second to the first published a false
+  // statement about the site, made from a failure of the instrument, for any
+  // page with detachable embedded frames.
   //
-  // This fixture continuously attaches and detaches ad frames from the TOP
-  // document, which never navigates, so the probe's frame.evaluate races a
-  // frame that is being removed and loses the read.
-  const upstream = createServer((request, response) => {
-    if (request.url?.startsWith("/ad")) {
-      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-      response.end("<!doctype html><title>Ad</title><p>ad</p>");
-      return;
-    }
+  // The fixture contains one empty, control-free subframe. A test-only scanner
+  // hook removes it immediately before the real consent evaluation, so the
+  // evaluation itself deterministically observes a detached frame while the
+  // top document stays put and no control can have been dispatched.
+  let detachedSubframes = 0;
+  let detachedSubframeObserved = false;
+  const upstream = createServer((_request, response) => {
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     response.end(`<!doctype html>
-      <title>Churning iframe fixture</title>
-      <p>No consent control on this page.</p>
-      <script>
-        // Keep a rotating population of subframes alive for the whole visit.
-        let n = 0;
-        setInterval(() => {
-          for (const old of document.querySelectorAll("iframe")) old.remove();
-          for (let i = 0; i < 6; i += 1) {
-            const frame = document.createElement("iframe");
-            frame.src = "/ad?n=" + (n += 1);
-            document.body.appendChild(frame);
-          }
-        }, 15);
-      </script>`);
+      <title>Detaching subframe fixture</title>
+      <p>No consent control in the top document.</p>
+      <iframe title="Unrelated embedded content"></iframe>`);
   });
   await new Promise<void>((resolve, reject) => {
     upstream.once("error", reject);
@@ -3342,7 +3329,7 @@ test("a churning third-party iframe is disclosed as lost coverage, not a page th
   try {
     const { result } = await scanSiteWithMeasurement(
       {
-        url: "http://churning-iframe.test/",
+        url: "http://detaching-subframe.test/",
         device: "desktop",
         gpcEnabled: false,
         consentMode: "accept-all"
@@ -3352,10 +3339,23 @@ test("a churning third-party iframe is disclosed as lost coverage, not a page th
         verifyPublicUrl: async () => undefined,
         resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
         connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
-        resolveCnameChain: async () => []
+        resolveCnameChain: async () => [],
+        beforeConsentSubframeEvaluationForTests: async (frame) => {
+          assert.notEqual(frame.parentFrame(), null);
+          const frameElement = await frame.frameElement();
+          try {
+            await frameElement.evaluate((element) => element.parentNode?.removeChild(element));
+            detachedSubframes += 1;
+            detachedSubframeObserved = frame.isDetached();
+          } finally {
+            await frameElement.dispose();
+          }
+        }
       }
     );
 
+    assert.equal(detachedSubframes, 1);
+    assert.equal(detachedSubframeObserved, true);
     assert.equal(result.consentInteraction?.clicked, false);
     const consentWarnings = result.warnings.filter((warning) => warning.startsWith("This visit was asked to choose"));
     assert.deepEqual(consentWarnings, redactScannerWarnings(consentWarnings, new RedactionPass()));
@@ -3363,7 +3363,9 @@ test("a churning third-party iframe is disclosed as lost coverage, not a page th
     // The probe lost at least one frame, so it must disclose incomplete
     // coverage; the top document never navigated, so it may not say otherwise.
     assert.match(consentWarnings[0], /one or more frames could not be read/);
+    assert.match(consentWarnings[0], /no control was clicked/);
     assert.doesNotMatch(consentWarnings[0], /moved out from under the search/);
+    assert.doesNotMatch(consentWarnings[0], /no recognizable control was found/);
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));

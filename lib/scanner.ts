@@ -379,6 +379,11 @@ export type ScanSiteOptions = {
    * deadline.
    */
   consentVisibilityProbeTimeoutMsForTests?: number;
+  /**
+   * Coordinate frame lifecycle immediately before consent evaluation in
+   * scanner integration tests. Production never supplies this hook.
+   */
+  beforeConsentSubframeEvaluationForTests?: (frame: Frame) => Promise<void>;
   /** Exercise the fail-closed subject-validity path with an absent collector capability. */
   forceMissingPageSubjectCollectorForTests?: boolean;
 };
@@ -1392,7 +1397,13 @@ export async function scanSiteWithMeasurement(
               readableFrames: 0
             }
           : await withScanTimeout(
-              applyConsentChoice(page, payload.consentMode, started, consentShadowRootCapability),
+              applyConsentChoice(
+                page,
+                payload.consentMode,
+                started,
+                consentShadowRootCapability,
+                options.beforeConsentSubframeEvaluationForTests
+              ),
               started
             ).catch(
               (error): ConsentChoiceProbeOutcome => {
@@ -3213,7 +3224,8 @@ async function applyConsentChoice(
   page: Page,
   choice: ConsentChoice,
   started: number,
-  shadowRootCapability: string
+  shadowRootCapability: string,
+  beforeSubframeEvaluationForTests?: (frame: Frame) => Promise<void>
 ): Promise<ConsentChoiceProbeOutcome> {
   const summary: ConsentInteractionSummary = { mode: choice, clicked: false };
   let readableFrames = 0;
@@ -3234,6 +3246,11 @@ async function applyConsentChoice(
   for (let attempt = 0; attempt < CONSENT_BANNER_RETRIES && !summary.clicked; attempt += 1) {
     // Main frame first; consent iframes (Sourcepoint and similar) after it.
     for (const frame of page.frames()) {
+      // Keep deterministic lifecycle coordination outside the capture-loss
+      // catch: a broken test hook must fail the test, not become site evidence.
+      if (beforeSubframeEvaluationForTests && frame !== page.mainFrame()) {
+        await beforeSubframeEvaluationForTests(frame);
+      }
       let outcome: ConsentClickOutcome | null;
       try {
         outcome = await frame.evaluate(findAndClickConsentControl, args);
