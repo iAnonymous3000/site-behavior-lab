@@ -43,7 +43,12 @@ import {
 import { sha256Hex } from "./sha256";
 import type { StaticReportManifestEntry } from "./types";
 
-const EXPECTED_COMMITTED_BUNDLES = 514;
+// A FLOOR, deliberately not an exact count. Reports now arrive through
+// reviewed automation/* proposals whose whole content is generated data, so an
+// exact pin here would make every legitimate publication fail CI inside its
+// own proposal. The floor still catches silent corpus shrinkage; it moves only
+// on a deliberate, reviewed prune event.
+const MINIMUM_COMMITTED_BUNDLES = 514;
 const SITE_ORIGIN = "https://sitebehavior.org";
 const FIXED_BUILD_TIME = new Date("2026-07-29T00:00:00.000Z");
 const REPORT_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -58,15 +63,15 @@ type AcceptedBundle = {
   presentation: Presentation;
 };
 
-test("all 514 committed bundles stay faithful across every public report surface", async () => {
+test("every committed bundle stays faithful across every public report surface", async () => {
   const reportsDir = path.join(process.cwd(), "public", "reports");
   const ids = await listStaticReportCandidateIds(reportsDir);
   assert.equal(
-    ids.length,
-    EXPECTED_COMMITTED_BUNDLES,
-    "the committed-corpus epoch changed; review and update this acceptance count intentionally"
+    ids.length >= MINIMUM_COMMITTED_BUNDLES,
+    true,
+    `committed corpus shrank below its reviewed floor: ${ids.length} < ${MINIMUM_COMMITTED_BUNDLES}; lower the floor only on a deliberate prune`
   );
-  assert.equal(new Set(ids).size, EXPECTED_COMMITTED_BUNDLES, "report ids must be unique");
+  assert.equal(new Set(ids).size, ids.length, "report ids must be unique");
   assert.equal(ids.every((id) => REPORT_ID_PATTERN.test(id)), true, "every candidate must have a canonical report id");
 
   const corpus = await readProductionCorpusStats();
@@ -124,7 +129,7 @@ test("all 514 committed bundles stay faithful across every public report surface
     });
   }
 
-  assert.equal(bundles.length, EXPECTED_COMMITTED_BUNDLES, "every committed bundle must complete every read/render path");
+  assert.equal(bundles.length, ids.length, "every committed bundle must complete every read/render path");
 
   await assertCorpusProjection(bundles, corpus);
   await assertManifestProjection(reportsDir, bundles);
