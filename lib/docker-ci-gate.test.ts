@@ -29,6 +29,53 @@ test("promotion fallback can repair a failed direct promotion but rechecks every
   assert.match(workflow, /node scripts\/verify-required-ci-jobs\.mjs "\$RUNNER_TEMP\/ci-jobs\.json"/);
 });
 
+test("both promotion paths reserve production writes for the dedicated App", () => {
+  const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
+  const direct = ci.slice(ci.indexOf("\n  promote:"));
+  const fallback = readFileSync(path.join(root, ".github", "workflows", "promote-production.yml"), "utf8");
+  const directCheckout = direct.slice(
+    direct.indexOf("- name: Checkout main history"),
+    direct.indexOf("- name: Mint promotion App token")
+  );
+  const fallbackCheckout = fallback.slice(
+    fallback.indexOf("- name: Checkout main history"),
+    fallback.indexOf("- name: Confirm every CI test gate passed")
+  );
+  const fallbackPush = fallback.slice(fallback.indexOf("- name: Fast-forward production to the tested SHA"));
+
+  for (const workflow of [direct, fallback]) {
+    assert.match(
+      workflow,
+      /actions\/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1/
+    );
+    assert.match(workflow, /app-id: \$\{\{ vars\.PROMOTION_APP_ID \}\}/);
+    assert.match(workflow, /private-key: \$\{\{ secrets\.PROMOTION_APP_PRIVATE_KEY \}\}/);
+    assert.match(workflow, /permission-contents: write/);
+    assert.match(workflow, /APP_TOKEN: \$\{\{ steps\.promotion_app_token\.outputs\.token \}\}/);
+    assert.match(workflow, /Promotion push authenticates as the dedicated promotion App/);
+    assert.match(
+      workflow,
+      /auth_header="AUTHORIZATION: basic \$\(printf 'x-access-token:%s' "\$\{APP_TOKEN\}" \| base64 \| tr -d '\\n'\)"/
+    );
+    assert.match(workflow, /git -c http\.extraheader="\$\{auth_header\}" push origin/);
+    assert.doesNotMatch(workflow, /FALLBACK_TOKEN|falling back to the workflow token/);
+  }
+
+  assert.match(direct, /permissions:\n\s+contents: read/);
+  assert.doesNotMatch(direct, /^\s+contents: write$|\$\{\{ github\.token \}\}/m);
+  assert.match(fallback, /permissions:\n\s+contents: read\n[\s\S]*?\s+actions: read/);
+  assert.doesNotMatch(fallback, /^\s+contents: write$/m);
+  assert.match(directCheckout, /persist-credentials: false/);
+  assert.match(fallbackCheckout, /persist-credentials: false/);
+  assert.doesNotMatch(fallbackPush, /\$\{\{ github\.token \}\}/);
+
+  const confirmIndex = fallback.indexOf("- name: Confirm every CI test gate passed");
+  const mintIndex = fallback.indexOf("- name: Mint promotion App token");
+  const pushIndex = fallback.indexOf("- name: Fast-forward production to the tested SHA");
+  assert.ok(confirmIndex >= 0 && confirmIndex < mintIndex, "fallback must verify CI before minting the App token");
+  assert.ok(mintIndex < pushIndex, "fallback must mint the App token before the production push");
+});
+
 test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () => {
   const smoke = readFileSync(path.join(root, "scripts", "smoke-docker.mjs"), "utf8");
   const seccomp = JSON.parse(
