@@ -43,12 +43,16 @@ import {
 import { sha256Hex } from "./sha256";
 import type { StaticReportManifestEntry } from "./types";
 
-// A FLOOR, deliberately not an exact count. Reports now arrive through
-// reviewed automation/* proposals whose whole content is generated data, so an
-// exact pin here would make every legitimate publication fail CI inside its
-// own proposal. The floor still catches silent corpus shrinkage; it moves only
-// on a deliberate, reviewed prune event.
-const MINIMUM_COMMITTED_BUNDLES = 514;
+// A STRUCTURAL floor, deliberately far below the corpus's real size. The
+// corpus legitimately moves in both directions inside reviewed automation/*
+// proposals: publications add reports, and the retention pruner ages out
+// superseded generations (7-day max age, 2 newest generations per site
+// exempt, corrections pins absolute) in the same commit. The first canary
+// proposal lawfully removed 67 superseded bundles, so any count pinned to
+// yesterday's corpus fails every legitimate publish. Deletion review lives in
+// the pull-request diff and the pruner's own tests; this floor only catches
+// catastrophic loss such as an empty directory or a listing regression.
+const MINIMUM_COMMITTED_BUNDLES = 50;
 const SITE_ORIGIN = "https://sitebehavior.org";
 const FIXED_BUILD_TIME = new Date("2026-07-29T00:00:00.000Z");
 const REPORT_ID_PATTERN = /^[0-9]{8}-[0-9a-f]{32}$/;
@@ -69,7 +73,7 @@ test("every committed bundle stays faithful across every public report surface",
   assert.equal(
     ids.length >= MINIMUM_COMMITTED_BUNDLES,
     true,
-    `committed corpus shrank below its reviewed floor: ${ids.length} < ${MINIMUM_COMMITTED_BUNDLES}; lower the floor only on a deliberate prune`
+    `committed corpus collapsed below its structural floor: ${ids.length} < ${MINIMUM_COMMITTED_BUNDLES}; retention never cuts this deep, so suspect the directory listing or a checkout problem`
   );
   assert.equal(new Set(ids).size, ids.length, "report ids must be unique");
   assert.equal(ids.every((id) => REPORT_ID_PATTERN.test(id)), true, "every candidate must have a canonical report id");

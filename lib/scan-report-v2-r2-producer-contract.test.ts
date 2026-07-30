@@ -347,7 +347,10 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
 test("every committed managed bundle remains readable through the exact producer rows", () => {
   const reportsDir = path.join(process.cwd(), "public", "reports");
   const files = readdirSync(reportsDir).filter((name) => /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(name));
-  assert.equal(files.length >= 514, true, `expected the 514-report historical corpus, found ${files.length}`);
+  // Structural floor only: retention lawfully shrinks the corpus inside
+  // reviewed proposals (7-day age, newest generations exempt), so this guards
+  // against an empty or misread directory, never against pruning.
+  assert.equal(files.length >= 50, true, `expected a populated committed corpus, found ${files.length}`);
   for (const name of files) {
     const reportId = name.slice(0, -".json".length);
     const reportContents = readFileSync(path.join(reportsDir, name), "utf8");
