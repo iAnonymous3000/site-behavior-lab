@@ -3,6 +3,9 @@ import { test } from "node:test";
 import {
   DETECTOR_OBLIGATION_CONTRACT_VERSION,
   DETECTOR_OBLIGATION_REGISTRY,
+  DETECTOR_OBLIGATION_TARGET_REGISTRIES,
+  DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   detectorObligationViolations,
   type DetectorObligationRule
 } from "./detector-obligations";
@@ -29,6 +32,25 @@ const EPOCH = {
   detectorRegistryVersion: DETECTOR_REGISTRY_VERSION,
   detectorRegistryDigest: DETECTOR_REGISTRY_DIGEST
 } as const;
+
+test("the obligation contract keeps both accountability registry epochs active", () => {
+  assert.deepEqual(DETECTOR_OBLIGATION_TARGET_REGISTRIES, [
+    {
+      detectorRegistryVersion: "node-detectors-v3",
+      detectorRegistryDigest: "ad2971a6c3eff3a0ba537529ba91cb28686a5101bf2f2c290e47c176cd23c38b"
+    },
+    {
+      detectorRegistryVersion: "node-detectors-v4",
+      detectorRegistryDigest: "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
+    }
+  ]);
+  assert.equal(
+    DETECTOR_OBLIGATION_TARGET_REGISTRIES[0],
+    HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY
+  );
+  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[1], DETECTOR_OBLIGATION_TARGET_REGISTRY);
+  assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
+});
 
 function configureRule(rule: DetectorObligationRule): ScanRunV2 {
   const run = makeScanRunV2R2();
@@ -408,13 +430,46 @@ test("privacy silent paths are narrow, including the Zillow-style error intersti
   assert.deepEqual(detectorObligationViolations(unverified, "unverified", EPOCH), []);
 });
 
-test("historical registry identities do not inherit the active obligation epoch", () => {
+test("pre-accountability registry identities do not inherit an obligation epoch", () => {
   const historical = cnameCapRun();
   historical.provenance.detectorRegistry = {
     version: "node-detectors-v2",
     digest: "1".repeat(64)
   };
   assert.deepEqual(detectorObligationViolations(historical, "historical", EPOCH), []);
+});
+
+test("the shared r2 semantic reader still rejects missing obligations in historical v3 reports", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.provenance.methodologyVersion =
+    "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1";
+  report.run.provenance.detectorRegistry = {
+    version: "node-detectors-v3",
+    digest: "ad2971a6c3eff3a0ba537529ba91cb28686a5101bf2f2c290e47c176cd23c38b"
+  };
+  report.run.detectors["cname-uncloaking"] = {
+    version: "dns-cname-chain@3",
+    status: "partial",
+    reason: "evidence-cap-reached",
+    phaseId: 0
+  };
+  report.run.detectors["privacy-policy"] = {
+    ...report.run.detectors["privacy-policy"],
+    version: "policy-text-cross-check@3"
+  };
+  report.run.fingerprints = buildFingerprints({
+    conditions: report.run.conditions,
+    provenance: report.run.provenance,
+    toolchain: report.run.toolchain,
+    detectors: report.run.detectors
+  });
+  report.run.quality = evaluateQuality(report.run.qualityFacts, {
+    observedRequests: report.run.evidence.requests.length
+  });
+  assert.match(
+    scanReportV2R2SemanticViolations(report).join("\n"),
+    /cname-uncloaking lacks causal detector-output\/cname-lookups loss/
+  );
 });
 
 test("the shared r2 semantic reader rejects a missing active-epoch obligation", () => {

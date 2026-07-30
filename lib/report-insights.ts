@@ -5,8 +5,20 @@ import {
   PAGE_SUBJECT_UNVERIFIED_WARNING
 } from "./bot-wall-classifier";
 import { isReviewedSameOrganizationDomain, reviewedOrganizationForDomain } from "./reviewed-ownership";
+import {
+  hasUnknownServiceRole,
+  isOperationalOnlyEntity as hasOperationalOnlyServiceRoles,
+  isTrackingRelatedEntity as hasTrackingRelatedServiceRole
+} from "./service-role";
 import { humanList, plural } from "./text-format";
-import type { DomainSummary, FingerprintDetectionSummary, PixelEventSummary, PixelMatchField, ScanResult } from "./types";
+import type {
+  DomainSummary,
+  FingerprintDetectionSummary,
+  PixelEventSummary,
+  PixelMatchField,
+  ScanResult,
+  TrackerMatch
+} from "./types";
 
 /**
  * Shared tracker/fingerprint classification derived from a {@link ScanResult}.
@@ -25,23 +37,6 @@ import type { DomainSummary, FingerprintDetectionSummary, PixelEventSummary, Pix
 
 /** Recognizable platforms that make the strongest plain-language headline. */
 export const HEADLINE_PLATFORMS = ["Google", "Meta", "TikTok", "X", "Microsoft", "LinkedIn", "Pinterest"];
-
-const OPERATIONAL_CATEGORY_HINTS = ["error monitoring", "performance monitoring", "customer support", "customer messaging"];
-const TRACKING_CATEGORY_HINTS = [
-  "advertis",
-  "analytics",
-  "pixel",
-  "audience",
-  "measurement",
-  "retarget",
-  "social",
-  "data platform",
-  "data management",
-  "tag manag",
-  "marketing",
-  "session replay",
-  "behavior"
-];
 
 const HIGH_ENTROPY_FINGERPRINT_KINDS = new Set<FingerprintDetectionSummary["kind"]>([
   "canvas-fingerprinting",
@@ -152,20 +147,40 @@ export function trackerResponseQualification(
   return "were sent requests that recorded no response, so receipt is unproven";
 }
 
-/** An entity whose every category is operational (monitoring/support), not cross-site tracking. */
+/** An entity whose catalog roles are explicitly tracking-related. */
+export function isTrackingEntity(entity: TrackerEntitySummary): boolean {
+  return hasTrackingRelatedServiceRole(entity.categories);
+}
+
+/** True only when this exact catalog match carries a reviewed tracking role. */
+export function isTrackingTrackerMatch(match: Pick<TrackerMatch, "category">): boolean {
+  return hasTrackingRelatedServiceRole([match.category]);
+}
+
+/** An entity whose catalog roles are all explicitly operational/non-tracking. */
 export function isOperationalEntity(entity: TrackerEntitySummary): boolean {
-  return entity.categories.length > 0 && entity.categories.every((category) => !isTrackingCategory(category));
+  return hasOperationalOnlyServiceRoles(entity.categories);
+}
+
+/** An identified catalog entity whose functional role remains unclassified. */
+export function isUnclassifiedEntity(entity: TrackerEntitySummary): boolean {
+  return (
+    hasUnknownServiceRole(entity.categories) &&
+    !hasTrackingRelatedServiceRole(entity.categories) &&
+    !hasOperationalOnlyServiceRoles(entity.categories)
+  );
 }
 
 /**
- * Requests to catalogued TRACKING services only, excluding operational-only
- * entities (error monitoring, support chat). `summary.knownTrackerRequests`
- * counts every catalog match including operational services, so aggregate
+ * Requests to catalogued TRACKING services only. Operational and unclassified
+ * entities are excluded by positive role membership rather than being treated
+ * as tracking merely because their category is unfamiliar.
+ * `summary.knownTrackerRequests` counts every catalog match, so aggregate
  * surfaces that say "tracker" must use this instead.
  */
 export function trackingServiceRequests(result: Pick<ScanResult, "domains">): number {
   return trackerEntitySummaries(result)
-    .filter((entity) => !isOperationalEntity(entity))
+    .filter(isTrackingEntity)
     .reduce((total, entity) => total + entity.requests, 0);
 }
 
@@ -250,12 +265,6 @@ export function scanPageSubjectUnverified(run: {
     run.quality.reasons.includes("page-subject-unverified") ||
     run.quality.reasons.includes(`capture-loss:${PAGE_SUBJECT_CAPTURE_LOSS_DETAIL}`)
   );
-}
-
-function isTrackingCategory(category: string): boolean {
-  const lower = category.toLowerCase();
-  if (TRACKING_CATEGORY_HINTS.some((hint) => lower.includes(hint))) return true;
-  return !OPERATIONAL_CATEGORY_HINTS.some((hint) => lower.includes(hint));
 }
 
 /** All fingerprint/behavioral detections on a scan (safe on legacy reports without the field). */

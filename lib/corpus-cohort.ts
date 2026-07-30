@@ -1,16 +1,31 @@
+import { canonicalJson } from "./canonical-json";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
 import { displayRunView, type ReportView } from "./scan-report-views";
+import {
+  SERVICE_ROLE_TAXONOMY_DIGEST,
+  SERVICE_ROLE_TAXONOMY_VERSION
+} from "./service-role";
+import { sha256Hex } from "./sha256";
 
 /**
  * Public, auditable identity for one statistical measurement cohort.
  *
- * Schema revision and methodology are deliberately part of the key. Producer
- * identity is included when it was recorded because PageGraph imports and
- * browser observations do not measure the same evidence surface. Build,
- * browser patch, acquisition route, and egress remain row-level provenance:
- * splitting on each of those would turn every deployment into an unusably
- * small cohort, while methodologyVersion is the producer's reviewed promise
- * about when the meaning of the measurements changes.
+ * Schema revision, methodology, tracker-catalog identity, and the read-time
+ * ServiceRole taxonomy are deliberately part of the key. Producer identity is
+ * included when it was recorded because PageGraph imports and browser
+ * observations do not measure the same evidence surface. Build, browser patch,
+ * acquisition route, and egress remain row-level provenance: splitting on
+ * each of those would turn every deployment into an unusably small cohort,
+ * while methodologyVersion is the producer's reviewed promise about when the
+ * meaning of the measurements changes.
+ *
+ * r2 records the tracker catalog's content digest. Frozen v1 did not, so its
+ * strongest available identity is a SHA-256 hash of the catalog metadata that
+ * survived into the version-aware read view. The origin stays explicit: a
+ * legacy metadata hash is never represented as if v1 had recorded a content
+ * digest. ServiceRole is intentionally a read-time interpretation rather than
+ * a mutation of immutable report wires, so its current version and digest
+ * join every cohort that derives tracking/operational semantics from it.
  *
  * The requested GPC state joins them because it is a measured condition, not
  * environment: comparison eligibility already refuses to compare two arms that
@@ -31,7 +46,44 @@ export type CorpusCohortIdentity = {
   producer: string | null;
   /** Whether the cohort's lead runs requested Global Privacy Control. */
   gpc: boolean;
+  /** Recorded r2 content digest, or a canonical hash of v1's recorded metadata. */
+  trackerCatalogDigest: string;
+  /** Makes the weaker legacy metadata identity impossible to mistake for an r2 content digest. */
+  trackerCatalogOrigin: "recorded" | "legacy-metadata-hash";
+  /** Current read-time ServiceRole taxonomy applied to this immutable report. */
+  serviceRoleTaxonomyVersion: string;
+  /** SHA-256 identity of the exact read-time ServiceRole taxonomy. */
+  serviceRoleTaxonomyDigest: string;
 };
+
+export type CorpusCohortIdentityComponents = Omit<CorpusCohortIdentity, "id">;
+
+/**
+ * Canonical public encoding of the typed cohort identity.
+ *
+ * Readers use the same function to reject an artifact whose readable fields
+ * disagree with its lookup key; maintaining a second string template would
+ * recreate the exact identity-drift class this key exists to prevent.
+ */
+export function corpusCohortIdForIdentity(cohort: CorpusCohortIdentityComponents): string {
+  if (
+    (cohort.schemaVersion === 1 && cohort.schemaRevision !== null) ||
+    (cohort.schemaVersion === 2 && cohort.schemaRevision === null)
+  ) {
+    throw new Error("Corpus cohort schema generation and revision are inconsistent.");
+  }
+  const schema =
+    cohort.schemaVersion === 1 ? "v1" : `v2-r${cohort.schemaRevision}`;
+  const producer = cohort.producer ?? "producer-unrecorded";
+  const roleTaxonomy =
+    `${encodeURIComponent(cohort.serviceRoleTaxonomyVersion)}-${cohort.serviceRoleTaxonomyDigest}`;
+  return (
+    `${schema}:${encodeURIComponent(cohort.methodologyVersion)}:${encodeURIComponent(producer)}` +
+    `:gpc-${cohort.gpc ? "on" : "off"}` +
+    `:catalog-${cohort.trackerCatalogOrigin}-${cohort.trackerCatalogDigest}` +
+    `:roles-${roleTaxonomy}`
+  );
+}
 
 /**
  * Minimum distinct sites before a cohort may back a corpus-wide aggregate.
@@ -136,7 +188,11 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
     if (
       other.identity.methodologyVersion !== candidate.identity.methodologyVersion ||
       other.identity.producer !== candidate.identity.producer ||
-      other.identity.schemaVersion !== candidate.identity.schemaVersion
+      other.identity.schemaVersion !== candidate.identity.schemaVersion ||
+      other.identity.trackerCatalogDigest !== candidate.identity.trackerCatalogDigest ||
+      other.identity.trackerCatalogOrigin !== candidate.identity.trackerCatalogOrigin ||
+      other.identity.serviceRoleTaxonomyVersion !== candidate.identity.serviceRoleTaxonomyVersion ||
+      other.identity.serviceRoleTaxonomyDigest !== candidate.identity.serviceRoleTaxonomyDigest
     ) {
       return false;
     }
@@ -153,23 +209,30 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
 /**
  * Reader-facing name for a cohort, covering every component of its id.
  *
- * The gate keys on schema, methodology, producer AND the requested GPC
- * condition, so naming a cohort by its methodology alone can print byte-
- * identical labels for two cohorts the gate holds apart: after the gpc-off
- * refresh, two categories differing only in the requested signal both read
- * "measured under one methodology cohort (shields-request-context-v2-...)"
- * while the page also tells the reader their medians are not comparable.
+ * The gate keys on schema, methodology, catalog, ServiceRole taxonomy,
+ * producer, AND the requested GPC condition, so naming a cohort by its
+ * methodology alone can print byte-identical labels for two cohorts the gate
+ * holds apart: after the gpc-off refresh, two categories differing only in the
+ * requested signal both read "measured under one methodology cohort
+ * (shields-request-context-v2-...)" while the page also tells the reader their
+ * medians are not comparable.
  *
  * The raw id is not usable here: it percent-encodes its components. This
- * renders the same four fields as prose, from the typed identity, so the label
- * and the gate cannot drift.
+ * renders every field as prose, from the typed identity, so the label and the
+ * gate cannot drift.
  */
 export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
   const schema =
     cohort.schemaVersion === 1 ? "schema v1" : `schema v2 revision ${cohort.schemaRevision ?? "unrecorded"}`;
   const producer = cohort.producer ?? "producer unrecorded";
   const gpc = cohort.gpc ? "GPC requested" : "GPC not requested";
-  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}`;
+  const catalog =
+    cohort.trackerCatalogOrigin === "recorded"
+      ? `recorded catalog digest ${cohort.trackerCatalogDigest}`
+      : `legacy catalog-metadata hash ${cohort.trackerCatalogDigest}`;
+  const serviceRoles =
+    `ServiceRole taxonomy ${cohort.serviceRoleTaxonomyVersion} digest ${cohort.serviceRoleTaxonomyDigest}`;
+  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}, ${catalog}, ${serviceRoles}`;
 }
 
 /**
@@ -185,6 +248,12 @@ export function corpusCohortDifferences(cohorts: readonly CorpusCohortIdentity[]
   if (distinct((cohort) => `${cohort.schemaVersion}:${cohort.schemaRevision}`)) differences.push("different schema revisions");
   if (distinct((cohort) => cohort.producer)) differences.push("different producers");
   if (distinct((cohort) => cohort.gpc)) differences.push("a different requested GPC condition");
+  if (distinct((cohort) => `${cohort.trackerCatalogOrigin}:${cohort.trackerCatalogDigest}`)) {
+    differences.push("different tracker-catalog identities");
+  }
+  if (distinct((cohort) => `${cohort.serviceRoleTaxonomyVersion}:${cohort.serviceRoleTaxonomyDigest}`)) {
+    differences.push("different ServiceRole taxonomies");
+  }
   return differences;
 }
 
@@ -195,17 +264,40 @@ export function corpusCohortIdentityForView(view: ReportView): CorpusCohortIdent
   const producer = run.provenance?.observer ?? null;
   const schemaVersion = view.origin === "v2" ? 2 : 1;
   const schemaRevision = view.revision;
-  const schema = schemaVersion === 1 ? "v1" : `v2-r${schemaRevision}`;
-  const producerKey = producer ?? "producer-unrecorded";
   const gpc = run.conditions.gpcEnabled;
-
-  return {
-    id: `${schema}:${encodeURIComponent(methodologyVersion)}:${encodeURIComponent(producerKey)}:gpc-${gpc ? "on" : "off"}`,
+  const trackerCatalog = trackerCatalogIdentityForView(view, run);
+  const components: CorpusCohortIdentityComponents = {
     schemaVersion,
     schemaRevision,
     methodologyVersion,
     methodologyOrigin: run.provenance ? "recorded" : "legacy-derived",
     producer,
-    gpc
+    gpc,
+    trackerCatalogDigest: trackerCatalog.digest,
+    trackerCatalogOrigin: trackerCatalog.origin,
+    serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
+    serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
+  };
+  return { id: corpusCohortIdForIdentity(components), ...components };
+}
+
+function trackerCatalogIdentityForView(
+  view: ReportView,
+  run: ReturnType<typeof displayRunView>
+): {
+  digest: string;
+  origin: CorpusCohortIdentity["trackerCatalogOrigin"];
+} {
+  if (view.origin === "v2") {
+    const digest = run.toolchainIdentity?.trackerCatalogDigest;
+    if (!digest) throw new Error("A v2 corpus cohort requires its recorded tracker-catalog digest.");
+    return { digest, origin: "recorded" };
+  }
+
+  const metadata = run.conditions.trackerCatalog;
+  if (!metadata) throw new Error("A v1 corpus cohort requires its recorded tracker-catalog metadata.");
+  return {
+    digest: sha256Hex(canonicalJson(metadata)),
+    origin: "legacy-metadata-hash"
   };
 }

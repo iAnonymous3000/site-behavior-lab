@@ -495,9 +495,9 @@ export function SiteBehaviorApp({
 /**
  * The homepage sums per-category medians that each belong to ONE cohort, so
  * when the tiles span cohorts it must say so. Naming the cause matters: the
- * cohort key covers schema, methodology, producer and the requested GPC
- * condition, and attributing a GPC split to "different methodology
- * generations" points the reader at the wrong thing.
+ * cohort key covers schema, methodology, tracker catalog, read-time ServiceRole
+ * taxonomy, producer, and the requested GPC condition. Attributing a GPC split
+ * to "different methodology generations" points the reader at the wrong thing.
  */
 function cohortSplitNote(cohorts: readonly CorpusCohortIdentity[]): string {
   if (new Set(cohorts.map((cohort) => cohort.id)).size <= 1) return "";

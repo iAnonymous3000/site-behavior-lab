@@ -62,7 +62,11 @@ import {
   pickPrivacyPolicyLink,
   type PolicyLinkCandidate
 } from "./privacy-policy";
-import { isOperationalEntity, trackerEntitySummaries } from "./report-insights";
+import {
+  isTrackingEntity,
+  isTrackingTrackerMatch,
+  trackerEntitySummaries
+} from "./report-insights";
 import { isThirdParty, partyKey, summarizeDomains } from "./domain-utils";
 import {
   resolveCnameCloaks,
@@ -2255,7 +2259,7 @@ export async function scanSiteWithMeasurement(
     }
     const matchCnameTracker = (host: string): TrackerMatch | null => {
       const named = findTrackerMatch(host);
-      if (named) return named;
+      if (named) return isTrackingTrackerMatch(named) ? named : null;
       if (adblockEngine) {
         const observed = observedRequestTypesByHost.get(host.toLowerCase());
         const probeTypes = observed && observed.size > 0 ? [...observed] : [mapRequestType("other")];
@@ -3678,7 +3682,7 @@ async function probePrivacyPolicy(input: {
     assertAllowedPrivacyPolicyPage(observedPolicyUrl, input.firstPartyHostname);
 
     const trackingEntities = trackerEntitySummaries({ domains: summarizeDomains(input.requests) })
-      .filter((entity) => !isOperationalEntity(entity))
+      .filter(isTrackingEntity)
       .map((entity) => entity.entity);
 
     const summary = buildPrivacyPolicySummary({

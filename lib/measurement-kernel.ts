@@ -11,6 +11,10 @@ import {
   DETECTOR_OBLIGATION_REGISTRY_DIGEST
 } from "./detector-obligations";
 import {
+  SERVICE_ROLE_TAXONOMY_DIGEST,
+  SERVICE_ROLE_TAXONOMY_VERSION
+} from "./service-role";
+import {
   DETECTOR_IDS,
   type CaptureLossEntry,
   type CookieMutation,
@@ -40,15 +44,15 @@ export {
   isDetectorReasonForStatus
 } from "./detector-status-contract";
 
-export const DETECTOR_REGISTRY_VERSION = "node-detectors-v3";
+export const DETECTOR_REGISTRY_VERSION = "node-detectors-v4";
 
 export const DETECTOR_VERSIONS: Readonly<Record<DetectorId, string>> = {
   "fingerprint-heuristics": "fingerprint-observer@1",
   "keystroke-exfiltration": "synthetic-sentinel@3",
-  "cname-uncloaking": "dns-cname-chain@3",
+  "cname-uncloaking": "dns-cname-chain@4",
   "pixel-events": "pixel-request-decoder@3",
   "consent-banner": "consent-control-and-state@2",
-  "privacy-policy": "policy-text-cross-check@3"
+  "privacy-policy": "policy-text-cross-check@4"
 };
 
 export const FINGERPRINT_EVENT_APIS = [
@@ -108,6 +112,10 @@ export const DETECTOR_REGISTRY_DIGEST = sha256Hex(
     detectorObligations: {
       version: DETECTOR_OBLIGATION_CONTRACT_VERSION,
       digest: DETECTOR_OBLIGATION_REGISTRY_DIGEST
+    },
+    serviceRoleTaxonomy: {
+      version: SERVICE_ROLE_TAXONOMY_VERSION,
+      digest: SERVICE_ROLE_TAXONOMY_DIGEST
     },
     fingerprintVocabulary: {
       eventApis: FINGERPRINT_EVENT_APIS,

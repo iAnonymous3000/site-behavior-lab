@@ -343,6 +343,18 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     assert.equal(row.corpusCohortId, cohort.id, `${row.id}: corpus cohort`);
     assert.equal(row.methodologyVersion, cohort.methodologyVersion, `${row.id}: corpus methodology`);
     assert.equal(row.methodologyOrigin, cohort.methodologyOrigin, `${row.id}: corpus methodology origin`);
+    assert.equal(row.trackerCatalogDigest, cohort.trackerCatalogDigest, `${row.id}: corpus catalog digest`);
+    assert.equal(row.trackerCatalogOrigin, cohort.trackerCatalogOrigin, `${row.id}: corpus catalog origin`);
+    assert.equal(
+      row.serviceRoleTaxonomyVersion,
+      cohort.serviceRoleTaxonomyVersion,
+      `${row.id}: corpus ServiceRole taxonomy version`
+    );
+    assert.equal(
+      row.serviceRoleTaxonomyDigest,
+      cohort.serviceRoleTaxonomyDigest,
+      `${row.id}: corpus ServiceRole taxonomy digest`
+    );
     assert.equal(row.consentChoiceState, run.consent?.choiceState ?? null, `${row.id}: corpus consent state`);
     assert.equal(
       row.variantConsentChoiceState,
@@ -389,9 +401,32 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
   for (const cohort of payload.cohorts) {
     const cohortRows = rows.filter((row) => row.corpusCohortId === cohort.id);
     const included = cohortRows.filter((row) => row.corpusInclusion === "included");
+    const representative = cohortRows[0];
+    assert.ok(representative, `${cohort.id}: exported cohort must have at least one row`);
     const denominator = new Set(
       included.map((row) => corpusSiteDomainKey(row.domain) || row.domain.toLowerCase())
     ).size;
+    assert.equal(cohort.gpc, representative.gpcEnabled, `${cohort.id}: exported cohort GPC condition`);
+    assert.equal(
+      cohort.trackerCatalogDigest,
+      representative.trackerCatalogDigest,
+      `${cohort.id}: exported cohort catalog digest`
+    );
+    assert.equal(
+      cohort.trackerCatalogOrigin,
+      representative.trackerCatalogOrigin,
+      `${cohort.id}: exported cohort catalog origin`
+    );
+    assert.equal(
+      cohort.serviceRoleTaxonomyVersion,
+      representative.serviceRoleTaxonomyVersion,
+      `${cohort.id}: exported cohort ServiceRole version`
+    );
+    assert.equal(
+      cohort.serviceRoleTaxonomyDigest,
+      representative.serviceRoleTaxonomyDigest,
+      `${cohort.id}: exported cohort ServiceRole digest`
+    );
     assert.equal(cohort.denominator, denominator, `${cohort.id}: exported cohort denominator`);
     assert.equal(cohort.includedRows, included.length, `${cohort.id}: exported included rows`);
     assert.equal(cohort.excludedRows, cohortRows.length - included.length, `${cohort.id}: exported excluded rows`);

@@ -139,8 +139,18 @@ export type RunConditionsView = {
   /** The blocker's list provenance for the methodology block; null when the engine never ran. */
   adblockLists: { source: string; lists: number; fetchedAt: string } | null;
   consentMode: string;
-  /** `region` is a v1-only recorded fact; v2 catalogs pin a digest instead. */
-  trackerCatalog: { source: string; version: string; entries: number; region: string | null } | null;
+  /**
+   * Human-facing catalog metadata. `region`, `curatedOverrides`, and `license`
+   * are v1-only recorded facts; v2 catalogs pin a content digest instead.
+   */
+  trackerCatalog: {
+    source: string;
+    version: string;
+    entries: number;
+    region: string | null;
+    curatedOverrides: number | null;
+    license: string | null;
+  } | null;
   /** v1's prose scanner disclosure; v2 records structured facts instead. */
   disclosure: string | null;
 };
@@ -517,7 +527,9 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
         source: run.toolchain.trackerCatalog.source,
         version: run.toolchain.trackerCatalog.version,
         entries: run.toolchain.trackerCatalog.entries,
-        region: null
+        region: null,
+        curatedOverrides: null,
+        license: null
       },
       // v2 records structured facts; there is no prose disclosure to quote.
       disclosure: null
@@ -660,7 +672,9 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
         source: result.conditions.trackerCatalog.source,
         version: result.conditions.trackerCatalog.version,
         entries: result.conditions.trackerCatalog.entries,
-        region: result.conditions.trackerCatalog.region ?? null
+        region: result.conditions.trackerCatalog.region ?? null,
+        curatedOverrides: result.conditions.trackerCatalog.curatedOverrides,
+        license: result.conditions.trackerCatalog.license
       },
       disclosure: result.conditions.scannerDisclosure || null
     },

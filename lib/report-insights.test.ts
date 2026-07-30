@@ -3,10 +3,16 @@ import { test } from "node:test";
 import {
   catalogCoverage,
   gpcRunMeasurement,
+  isOperationalEntity,
+  isTrackingEntity,
+  isTrackingTrackerMatch,
+  isUnclassifiedEntity,
   respondedTrackerEntityNames,
   shieldsRunMeasurement,
+  trackerEntitySummaries,
   trackerOwnershipBreakdown,
-  trackerResponseQualification
+  trackerResponseQualification,
+  trackingServiceRequests
 } from "./report-insights";
 import type { DomainSummary } from "./types";
 
@@ -190,5 +196,92 @@ test("catalog coverage counts the third-party domains the catalog could not name
       ]
     }),
     { thirdPartyDomains: 1, identified: 1, unidentified: 0 }
+  );
+});
+
+test("tracking totals use positive service-role assignments and preserve unknown identities", () => {
+  const domains: DomainSummary[] = [
+    {
+      domain: "ads.example",
+      requests: 5,
+      thirdParty: true,
+      tracker: {
+        domain: "ads.example",
+        entity: "AdCo",
+        category: "advertising",
+        confidence: "curated"
+      },
+      statuses: [200],
+      resourceTypes: ["script"]
+    },
+    {
+      domain: "experiment.example",
+      requests: 3,
+      thirdParty: true,
+      tracker: {
+        domain: "experiment.example",
+        entity: "Experiment Co",
+        category: "experimentation",
+        confidence: "curated"
+      },
+      statuses: [200],
+      resourceTypes: ["script"]
+    },
+    {
+      domain: "support.example",
+      requests: 2,
+      thirdParty: true,
+      tracker: {
+        domain: "support.example",
+        entity: "Support Co",
+        category: "customer support",
+        confidence: "curated"
+      },
+      statuses: [200],
+      resourceTypes: ["script"]
+    }
+  ];
+
+  const entities = trackerEntitySummaries({ domains });
+  const ad = entities.find((entity) => entity.entity === "AdCo");
+  const experiment = entities.find((entity) => entity.entity === "Experiment Co");
+  const support = entities.find((entity) => entity.entity === "Support Co");
+  assert.ok(ad && experiment && support);
+
+  assert.equal(isTrackingEntity(ad), true);
+  assert.equal(isOperationalEntity(ad), false);
+  assert.equal(isUnclassifiedEntity(ad), false);
+
+  assert.equal(isTrackingEntity(experiment), false);
+  assert.equal(isOperationalEntity(experiment), false);
+  assert.equal(isUnclassifiedEntity(experiment), true);
+
+  assert.equal(isTrackingEntity(support), false);
+  assert.equal(isOperationalEntity(support), true);
+  assert.equal(isUnclassifiedEntity(support), false);
+
+  assert.equal(trackingServiceRequests({ domains }), 5);
+
+  const mixed = {
+    entity: "Mixed Co",
+    requests: 2,
+    domains: 2,
+    categories: ["analytics", "experimentation"]
+  };
+  assert.equal(isTrackingEntity(mixed), true);
+  assert.equal(isOperationalEntity(mixed), false);
+  assert.equal(isUnclassifiedEntity(mixed), false);
+
+  assert.equal(
+    isTrackingTrackerMatch({
+      category: "advertising"
+    }),
+    true
+  );
+  assert.equal(
+    isTrackingTrackerMatch({
+      category: "experimentation"
+    }),
+    false
   );
 });

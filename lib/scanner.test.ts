@@ -1643,7 +1643,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@3",
+      version: "policy-text-cross-check@4",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1669,7 +1669,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     );
     assert.equal(zillow.result.summary.status, 403);
     assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@3",
+      version: "policy-text-cross-check@4",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1691,7 +1691,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       options
     );
     assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@3",
+      version: "policy-text-cross-check@4",
       status: "skipped",
       reason: "evidence-cap-reached"
     });
@@ -1763,7 +1763,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@3",
+      version: "policy-text-cross-check@4",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1856,7 +1856,7 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["cname-uncloaking"], {
-      version: "dns-cname-chain@3",
+      version: "dns-cname-chain@4",
       status: "failed",
       reason: "scan-failed",
       phaseId: 0
@@ -2057,7 +2057,7 @@ test("CNAME candidate overflow records detector-output loss instead of a complet
 
     assert.equal(resolvedHosts.length, 10);
     assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
-      version: "dns-cname-chain@3",
+      version: "dns-cname-chain@4",
       status: "partial",
       reason: "evidence-cap-reached",
       phaseId: 0
@@ -2074,6 +2074,64 @@ test("CNAME candidate overflow records detector-output loss instead of a complet
         detail: "cname-lookups"
       }
     );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("CNAME resolution does not let a filter-list match override a reviewed nontracking catalog role", { timeout: 20_000 }, async () => {
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "cname-role.test") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(
+        "<!doctype html><title>CNAME role fixture</title><script src='http://experiment.cname-role.test/asset.js'></script>"
+      );
+      return;
+    }
+    response.writeHead(200, { "content-type": "application/javascript" });
+    response.end("globalThis.experimentLoaded = true");
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  const resolvedHosts: string[] = [];
+
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      {
+        url: "http://cname-role.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async (host) => {
+          resolvedHosts.push(host);
+          return host === "experiment.cname-role.test" ? ["ingest.sentry.io"] : [];
+        }
+      }
+    );
+
+    assert.deepEqual(resolvedHosts, ["experiment.cname-role.test"]);
+    assert.deepEqual(result.cnameCloaks ?? [], []);
+    assert.equal(
+      result.warnings.some((warning) => warning.includes("CNAME alias for a third-party tracker")),
+      false
+    );
+    assert.deepEqual(measurement.measurement.detectors["cname-uncloaking"], {
+      version: "dns-cname-chain@4",
+      status: "complete",
+      phaseId: 0
+    });
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
@@ -2519,9 +2577,18 @@ test("excluded privacy-policy traffic cannot censor the main visit's request evi
         );
         return;
       }
+      if (path === "/experiment.js") {
+        const scriptBody = "globalThis.experimentLoaded = true";
+        socket.end(
+          `HTTP/1.1 200 OK\r\nContent-Type: application/javascript\r\nContent-Length: ${Buffer.byteLength(scriptBody)}\r\nConnection: close\r\n\r\n${scriptBody}`
+        );
+        return;
+      }
+      const policyText =
+        "We collect information and use cookies for analytics and advertising. ".repeat(12);
       const body = path === "/privacy"
-        ? "<!doctype html><title>Privacy</title><h1>Privacy Policy</h1><p>We collect information and use cookies for analytics and advertising.</p><script>new Worker('/policy-worker.js')</script><script src='/bad.js'></script>"
-        : "<!doctype html><title>Main</title><a href='/privacy'>Privacy Policy</a>";
+        ? `<!doctype html><title>Privacy</title><h1>Privacy Policy</h1><p>${policyText}</p><script>new Worker('/policy-worker.js')</script><script src='/bad.js'></script>`
+        : "<!doctype html><title>Main</title><a href='/privacy'>Privacy Policy</a><script src='http://optimizely.com/experiment.js'></script>";
       socket.end(
         `HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: ${Buffer.byteLength(body)}\r\nConnection: close\r\n\r\n${body}`
       );
@@ -2550,7 +2617,17 @@ test("excluded privacy-policy traffic cannot censor the main visit's request evi
     assert.equal(upstreamPaths.includes("/privacy"), true);
     assert.equal(upstreamPaths.includes("/bad.js"), true);
     assert.equal(upstreamPaths.includes("/policy-worker.js"), true);
-    assert.equal(result.requests.length, 1, "the policy visit stays outside the public request log");
+    assert.equal(upstreamPaths.includes("/experiment.js"), true);
+    assert.equal(result.requests.length, 2, "the policy visit stays outside the public request log");
+    assert.deepEqual(
+      result.domains
+        .filter((domain) => domain.tracker?.entity === "Optimizely")
+        .map((domain) => domain.tracker?.category),
+      ["experimentation"],
+      "the main visit keeps the catalogued but unclassified service"
+    );
+    assert.deepEqual(result.privacyPolicy?.mentionedEntities, []);
+    assert.deepEqual(result.privacyPolicy?.unmentionedEntities, []);
     assert.equal(result.warnings.includes(INVALID_UPSTREAM_RESPONSE_WARNING), false);
     assert.equal(result.warnings.includes(GPC_WORKER_CAPTURE_LOSS_WARNING), false);
     assert.equal(

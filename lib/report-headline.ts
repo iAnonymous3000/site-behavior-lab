@@ -6,7 +6,7 @@ import {
 import {
   HEADLINE_PLATFORMS,
   fingerprintDetection,
-  isOperationalEntity,
+  isTrackingEntity,
   keystrokeLeakHashed,
   pixelFieldLabel,
   shieldsRunMeasurement,
@@ -149,11 +149,13 @@ export function buildReportHeadline(
   const ownership = facts.identity.ownership;
   const entities = ownership.otherOrUnreviewed;
   const sameOrganizationEntities = ownership.sameOrganization;
-  const trackingEntities = entities.filter((entity) => !isOperationalEntity(entity));
-  const sameOrganizationTrackingEntities = sameOrganizationEntities.filter((entity) => !isOperationalEntity(entity));
+  const trackingEntities = entities.filter(isTrackingEntity);
+  const sameOrganizationTrackingEntities = sameOrganizationEntities.filter(isTrackingEntity);
   const trackingNames = trackingEntities.map((entity) => entity.entity);
   const respondedEntities = facts.identity.respondedEntities;
-  const platforms = entities.filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity)).map((entity) => entity.entity);
+  const platforms = trackingEntities
+    .filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity))
+    .map((entity) => entity.entity);
   const highEntropy = facts.signals.fingerprint.highEntropyDetections;
   const sessionReplay = facts.signals.fingerprint.sessionReplayNames.length > 0;
   const sessionRecording = Boolean(facts.signals.fingerprint.sessionRecording);
@@ -401,7 +403,7 @@ export function buildReportHeadline(
         contradicted.run.evidence,
         contradicted.run.domain
       ).otherOrUnreviewed.filter(
-        (entity) => !isOperationalEntity(entity)
+        isTrackingEntity
       );
       return finish(
         "warn",
@@ -439,7 +441,7 @@ export function buildReportHeadline(
     const rejectTracking = trackerOwnershipBreakdown(
       arms.variant.evidence,
       arms.variant.domain
-    ).otherOrUnreviewed.filter((entity) => !isOperationalEntity(entity));
+    ).otherOrUnreviewed.filter(isTrackingEntity);
     const rejectResponded = reportFacts.arms?.variant.identity.respondedEntities ?? new Set<string>();
     // Both consent headlines describe the Reject-all (variant) visit, so the
     // stat chips and share text must quote that run too, not the Accept-all
@@ -498,7 +500,7 @@ export function buildReportHeadline(
     const gpcOnTracking = trackerOwnershipBreakdown(
       arms.variant.evidence,
       arms.variant.domain
-    ).otherOrUnreviewed.filter((entity) => !isOperationalEntity(entity));
+    ).otherOrUnreviewed.filter(isTrackingEntity);
     if (classificationDeltasUsable && gpcOnTracking.length > 0 && after > 0 && reductionPct < 25) {
       return finish(
         "alarm",

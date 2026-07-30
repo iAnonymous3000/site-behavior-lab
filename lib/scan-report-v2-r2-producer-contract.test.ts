@@ -12,6 +12,15 @@ import {
   SUPERSEDED_R2_NORMALIZATIONS
 } from "./scan-report-v2-normalization";
 import {
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_ADBLOCK_IDENTITY,
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_OBLIGATIONS,
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST,
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_VERSION,
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_VERSIONS,
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION,
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION,
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_PUBLIC_LIMITS,
+  HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG,
   HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST,
   HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION,
   HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS,
@@ -26,6 +35,10 @@ import {
   type NodeR2ProducerTuple
 } from "./scan-report-v2-r2-producer-contract";
 import { makeScanRunV2R2 } from "./scan-report-v2-r2-fixtures";
+import {
+  SERVICE_ROLE_TAXONOMY_DIGEST,
+  SERVICE_ROLE_TAXONOMY_VERSION
+} from "./service-role";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 
 const V4_PREFIX =
@@ -101,7 +114,9 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-68c3-pw162-lists-2026-07-25",
       "node-v4-68c3-pw162-no-adblock",
       "node-v4-b68c-pre-accountability-lists-2026-07-25",
-      "node-v4-b68c-pre-accountability-no-adblock"
+      "node-v4-b68c-pre-accountability-no-adblock",
+      "node-v4-b68c-accountability-v1-lists-2026-07-25",
+      "node-v4-b68c-accountability-v1-no-adblock"
   ];
   if (NODE_R2_PRODUCER_TUPLES.some((tuple) => tuple.id.endsWith("active-no-adblock"))) {
     expectedTupleIds.push(
@@ -117,14 +132,66 @@ test("Node producer rows are complete, immutable, and individually replayable", 
   const activeAccountability = NODE_R2_PRODUCER_TUPLES.find((tuple) =>
     tuple.id.endsWith("active-no-adblock")
   );
+  const historicalAccountability = NODE_R2_PRODUCER_TUPLES.find((tuple) =>
+    tuple.id.endsWith("accountability-v1-no-adblock")
+  );
   assert.equal(preAccountability?.phaseOmissionContractVersion, "phase-omission-v1");
   assert.equal(preAccountability?.detectorObligations, null);
   assert.notEqual(activeAccountability, undefined);
+  assert.notEqual(historicalAccountability, undefined);
+  assert.equal(
+    historicalAccountability?.methodologyVersion,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION
+  );
+  assert.equal(
+    historicalAccountability?.normalizationVersion,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION
+  );
+  assert.deepEqual(historicalAccountability?.detectorRegistry, {
+    version: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_VERSION,
+    digest: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST
+  });
+  assert.deepEqual(
+    historicalAccountability?.detectorVersions,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_VERSIONS
+  );
+  assert.deepEqual(
+    historicalAccountability?.detectorObligations,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_OBLIGATIONS
+  );
+  assert.equal(historicalAccountability?.serviceRoleTaxonomy, null);
+  assert.deepEqual(
+    historicalAccountability?.trackerCatalog,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG
+  );
+  assert.deepEqual(
+    historicalAccountability?.adblockIdentity,
+    null,
+    "the selected historical no-adblock row remains exact"
+  );
+  const historicalWithLists = NODE_R2_PRODUCER_TUPLES.find((tuple) =>
+    tuple.id.endsWith("accountability-v1-lists-2026-07-25")
+  );
+  assert.deepEqual(
+    historicalWithLists?.adblockIdentity,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_ADBLOCK_IDENTITY
+  );
+  assert.deepEqual(
+    historicalAccountability?.publicLimits,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_PUBLIC_LIMITS
+  );
   assert.equal(activeAccountability?.phaseOmissionContractVersion, "phase-omission-v2");
-  assert.match(activeAccountability?.methodologyVersion ?? "", /\+detector-accountability-v1$/);
+  assert.match(
+    activeAccountability?.methodologyVersion ?? "",
+    /\+detector-accountability-v1\+service-role-taxonomy-v1$/
+  );
   assert.deepEqual(activeAccountability?.detectorObligations, {
     version: "detector-obligations-v1",
     digest: "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+  });
+  assert.deepEqual(activeAccountability?.serviceRoleTaxonomy, {
+    version: SERVICE_ROLE_TAXONOMY_VERSION,
+    digest: SERVICE_ROLE_TAXONOMY_DIGEST
   });
   assert.deepEqual((activeAccountability ?? preAccountability)?.publicLimits, {
     phases: 16,
@@ -150,10 +217,13 @@ test("Node producer rows are complete, immutable, and individually replayable", 
     language: "matches-locale"
   });
   for (const tuple of NODE_R2_PRODUCER_TUPLES) {
+    const hasAccountability =
+      tuple.id.includes("-accountability-v1-") || tuple.id.includes("-active-");
+    assert.equal(tuple.detectorObligations !== null, hasAccountability, `${tuple.id} obligation identity`);
     assert.equal(
-      tuple.detectorObligations === null,
-      !tuple.id.includes("-active-"),
-      `${tuple.id} obligation identity`
+      tuple.serviceRoleTaxonomy !== null,
+      tuple.id.includes("-active-"),
+      `${tuple.id} ServiceRole taxonomy identity`
     );
     assert.equal(Object.isFrozen(tuple), true, tuple.id);
     assert.equal(Object.isFrozen(tuple.detectorRegistry), true, tuple.id);
@@ -164,6 +234,9 @@ test("Node producer rows are complete, immutable, and individually replayable", 
     assert.equal(Object.isFrozen(tuple.runtimeIdentity), true, tuple.id);
     if (tuple.detectorObligations !== null) {
       assert.equal(Object.isFrozen(tuple.detectorObligations), true, tuple.id);
+    }
+    if (tuple.serviceRoleTaxonomy !== null) {
+      assert.equal(Object.isFrozen(tuple.serviceRoleTaxonomy), true, tuple.id);
     }
     assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(tuple)), tuple.id);
   }
@@ -223,6 +296,51 @@ test("pre-accountability and active accountability fields cannot be mixed", () =
   preWithActiveDetector.detectors["keystroke-exfiltration"].version =
     activeAccountability.detectorVersions["keystroke-exfiltration"];
   assert.throws(() => assertR2ProducerContract(preWithActiveDetector), R2ProducerContractError);
+});
+
+test("the ServiceRole producer epoch cannot be mixed with the prior accountability row", () => {
+  const historical = NODE_R2_PRODUCER_TUPLES.find((tuple) =>
+    tuple.id.endsWith("accountability-v1-no-adblock")
+  );
+  const active = NODE_R2_PRODUCER_TUPLES.find((tuple) =>
+    tuple.id.endsWith("active-no-adblock")
+  );
+  assert.notEqual(historical, undefined);
+  assert.notEqual(active, undefined);
+  if (historical === undefined || active === undefined) return;
+
+  assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(historical)));
+  assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(active)));
+
+  const historicalWithActiveMethodology = runForTuple(historical);
+  historicalWithActiveMethodology.provenance.methodologyVersion = active.methodologyVersion;
+  assert.throws(
+    () => assertR2ProducerContract(historicalWithActiveMethodology),
+    R2ProducerContractError
+  );
+
+  const activeWithHistoricalRegistry = runForTuple(active);
+  activeWithHistoricalRegistry.provenance.detectorRegistry = { ...historical.detectorRegistry };
+  assert.throws(
+    () => assertR2ProducerContract(activeWithHistoricalRegistry),
+    R2ProducerContractError
+  );
+
+  const activeWithHistoricalCname = runForTuple(active);
+  activeWithHistoricalCname.detectors["cname-uncloaking"].version =
+    historical.detectorVersions["cname-uncloaking"];
+  assert.throws(
+    () => assertR2ProducerContract(activeWithHistoricalCname),
+    R2ProducerContractError
+  );
+
+  const activeWithHistoricalPolicy = runForTuple(active);
+  activeWithHistoricalPolicy.detectors["privacy-policy"].version =
+    historical.detectorVersions["privacy-policy"];
+  assert.throws(
+    () => assertR2ProducerContract(activeWithHistoricalPolicy),
+    R2ProducerContractError
+  );
 });
 
 test("normalization registries are frozen arrays, not runtime-mutable Sets", () => {

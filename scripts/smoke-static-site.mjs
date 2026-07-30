@@ -55,12 +55,19 @@ const htmlResponseMaxBytes = 2 * 1024 * 1024;
 const imageResponseMaxBytes = 4 * 1024 * 1024;
 const corpusResponseMaxBytes = 32 * 1024 * 1024;
 const fullCommitPattern = /^[0-9a-f]{40}$/;
+const sha256Pattern = /^[0-9a-f]{64}$/;
 const corpusJsonDecisionFields = [
   "consentChoiceState",
   "variantConsentChoiceState",
   "comparisonDecisionMode",
   "compatibilityFingerprintOrigin",
   "compatibilityFingerprintMatched"
+];
+const corpusJsonCohortIdentityFields = [
+  "trackerCatalogDigest",
+  "trackerCatalogOrigin",
+  "serviceRoleTaxonomyVersion",
+  "serviceRoleTaxonomyDigest"
 ];
 const corpusCsvDecisionColumns = [
   "consent_choice_state",
@@ -85,7 +92,11 @@ const corpusCsvProvenanceColumns = [
   "corpus_cohort_id",
   "corpus_cohort_denominator",
   "corpus_inclusion",
-  "corpus_exclusion_reasons"
+  "corpus_exclusion_reasons",
+  "tracker_catalog_digest",
+  "tracker_catalog_origin",
+  "service_role_taxonomy_version",
+  "service_role_taxonomy_digest"
 ];
 const recordedConsentChoiceStates = ["verified", "contradicted", "weak-signal", "unavailable", "failed"];
 
@@ -346,7 +357,7 @@ async function main() {
     }
     const phaseReportExportRow = corpus.reports.find((report) => report?.id === phaseReport.id);
     if (!phaseReportExportRow) fail("researcher JSON export omits the committed r2 phase smoke report");
-    for (const field of corpusJsonDecisionFields) {
+    for (const field of [...corpusJsonDecisionFields, ...corpusJsonCohortIdentityFields]) {
       if (!Object.prototype.hasOwnProperty.call(phaseReportExportRow, field)) {
         fail(`researcher JSON export omits ${field}`);
       }
@@ -356,9 +367,15 @@ async function main() {
       !recordedConsentChoiceStates.includes(phaseReportExportRow.variantConsentChoiceState) ||
       !["comparable", "raw-only"].includes(phaseReportExportRow.comparisonDecisionMode) ||
       phaseReportExportRow.compatibilityFingerprintOrigin !== "recorded" ||
-      typeof phaseReportExportRow.compatibilityFingerprintMatched !== "boolean"
+      typeof phaseReportExportRow.compatibilityFingerprintMatched !== "boolean" ||
+      !sha256Pattern.test(phaseReportExportRow.trackerCatalogDigest) ||
+      phaseReportExportRow.trackerCatalogOrigin !== "recorded" ||
+      typeof phaseReportExportRow.serviceRoleTaxonomyVersion !== "string" ||
+      !sha256Pattern.test(phaseReportExportRow.serviceRoleTaxonomyDigest) ||
+      !phaseReportExportRow.corpusCohortId.includes(phaseReportExportRow.trackerCatalogDigest) ||
+      !phaseReportExportRow.corpusCohortId.includes(phaseReportExportRow.serviceRoleTaxonomyDigest)
     ) {
-      fail("researcher JSON export flattened the committed r2 comparison metadata incorrectly");
+      fail("researcher JSON export flattened the committed r2 comparison or cohort identity incorrectly");
     }
 
     const { response: corpusCsvResponse, value: corpusCsv } = await fetchTextResource(

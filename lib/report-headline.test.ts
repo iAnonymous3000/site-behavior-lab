@@ -132,6 +132,42 @@ test("treats operational-only services as not tracking", () => {
   assert.match(headline.headline, /app\.example contacted 2 cross-site hosts/);
 });
 
+test("an unclassified major-platform service is identified but never promoted to a tracking headline", () => {
+  const result = makeResult({
+    firstPartyDomain: "app.example",
+    domains: [makeTrackerDomain("experiment.example", 3, "Google", "experimentation")],
+    thirdPartyRequests: 3,
+    thirdPartyDomains: 1
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.equal(headline.tone, "info");
+  assert.match(headline.headline, /app\.example contacted 1 cross-site host/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /catalogued Google|tracking-related service/);
+});
+
+test("a historical nontracking CNAME alias prevents a reassuring absence headline", () => {
+  const result = makeResult({ firstPartyDomain: "app.example" });
+  result.cnameCloaks = [
+    {
+      host: "errors.app.example",
+      cname: "ingest.sentry.io",
+      tracker: {
+        domain: "sentry.io",
+        entity: "Sentry",
+        category: "error monitoring",
+        confidence: "curated"
+      }
+    }
+  ];
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.equal(headline.tone, "info");
+  assert.equal(headline.semantic.reassuring, false);
+  assert.match(headline.headline, /produced evidence that needs context/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /few catalogued|No cross-site hosts/);
+});
+
 test("flags a GPC comparison that barely changed as an alarm", () => {
   const baseline = makeResult({
     firstPartyDomain: "www.amazon.com",

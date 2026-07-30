@@ -1,25 +1,40 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  corpusCohortIdentityForView,
   corpusCohortDifferences,
   corpusCohortLabel,
   selectPrimaryCorpusCohort,
   type CorpusCohortCandidate,
   type CorpusCohortIdentity
 } from "./corpus-cohort";
+import { canonicalJson } from "./canonical-json";
+import { makePublicSingleReportV2R2, makeScanRunV2R2 } from "./scan-report-v2-r2-fixtures";
+import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
+import {
+  SERVICE_ROLE_TAXONOMY_DIGEST,
+  SERVICE_ROLE_TAXONOMY_VERSION
+} from "./service-role";
+import { sha256Hex } from "./sha256";
 
 const MIN = 50;
 
 function identity(overrides: Partial<CorpusCohortIdentity> & { id: string }): CorpusCohortIdentity {
-  return {
+  const base: CorpusCohortIdentity = {
+    id: overrides.id,
     schemaVersion: 1,
     schemaRevision: null,
     methodologyVersion: "method",
     methodologyOrigin: "legacy-derived",
     producer: null,
     gpc: true,
-    ...overrides
+    trackerCatalogDigest: "a".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash",
+    serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
+    serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
   };
+  return { ...base, ...overrides };
 }
 
 function candidate(
@@ -104,8 +119,8 @@ test("an unparseable timestamp is treated as undated rather than ranking first",
 });
 
 // ---------------------------------------------------------------------------
-// Naming a cohort. The gate keys on four components; a label that renders one
-// of them can print byte-identical text for two cohorts the gate holds apart.
+// Naming a cohort. A label that omits an identity component can print byte-
+// identical text for two cohorts the gate holds apart.
 // ---------------------------------------------------------------------------
 
 
@@ -127,7 +142,11 @@ test("every component of a cohort id is distinguishable in its label", () => {
     identity({ id: "a", methodologyVersion: "m2" }),
     identity({ id: "b", schemaVersion: 2, schemaRevision: 2 }),
     identity({ id: "c", producer: "controlled-runner" }),
-    identity({ id: "d", gpc: false })
+    identity({ id: "d", gpc: false }),
+    identity({ id: "e", trackerCatalogDigest: "b".repeat(64) }),
+    identity({ id: "f", trackerCatalogOrigin: "recorded" }),
+    identity({ id: "g", serviceRoleTaxonomyVersion: "service-role-taxonomy-v2" }),
+    identity({ id: "h", serviceRoleTaxonomyDigest: "c".repeat(64) })
   ];
   for (const variant of variants) {
     assert.notEqual(corpusCohortLabel(variant), corpusCohortLabel(base), JSON.stringify(variant));
@@ -145,7 +164,52 @@ test("a cohort split is attributed to the components that actually differ", () =
     corpusCohortDifferences([identity({ id: "base" }), identity({ id: "x", methodologyVersion: "m2", gpc: false })]),
     ["different methodology generations", "a different requested GPC condition"]
   );
+  assert.deepEqual(
+    corpusCohortDifferences([
+      identity({ id: "base" }),
+      identity({
+        id: "x",
+        trackerCatalogDigest: "b".repeat(64),
+        serviceRoleTaxonomyDigest: "c".repeat(64)
+      })
+    ]),
+    ["different tracker-catalog identities", "different ServiceRole taxonomies"]
+  );
   assert.deepEqual(corpusCohortDifferences([identity({ id: "base" }), identity({ id: "base" })]), []);
+});
+
+test("cohort identity uses the recorded r2 catalog digest and current read-time role taxonomy", () => {
+  const report = makePublicSingleReportV2R2();
+  const cohort = corpusCohortIdentityForView(viewFromV2(report, 2));
+
+  assert.equal(cohort.trackerCatalogDigest, report.run.toolchain.trackerCatalog.digest);
+  assert.equal(cohort.trackerCatalogOrigin, "recorded");
+  assert.equal(cohort.serviceRoleTaxonomyVersion, SERVICE_ROLE_TAXONOMY_VERSION);
+  assert.equal(cohort.serviceRoleTaxonomyDigest, SERVICE_ROLE_TAXONOMY_DIGEST);
+  assert.match(cohort.id, new RegExp(`catalog-recorded-${report.run.toolchain.trackerCatalog.digest}`));
+  assert.match(cohort.id, new RegExp(`roles-${SERVICE_ROLE_TAXONOMY_VERSION}-${SERVICE_ROLE_TAXONOMY_DIGEST}`));
+});
+
+test("frozen v1 gets a labeled hash of its available recorded catalog metadata without wire mutation", () => {
+  const report = makeScanReportV1();
+  const before = structuredClone(report);
+  const view = viewFromV1Report(report);
+  const cohort = corpusCohortIdentityForView(view);
+  const expected = sha256Hex(canonicalJson(view.runs[0].conditions.trackerCatalog));
+
+  assert.equal(cohort.trackerCatalogDigest, expected);
+  assert.equal(cohort.trackerCatalogOrigin, "legacy-metadata-hash");
+  assert.match(cohort.id, new RegExp(`catalog-legacy-metadata-hash-${expected}`));
+  assert.deepEqual(report, before, "deriving the read-time cohort must not rewrite a frozen v1 report");
+});
+
+test("a v2 view without its recorded catalog digest fails closed", () => {
+  const run = makeScanRunV2R2();
+  const report = makePublicSingleReportV2R2();
+  report.run = run;
+  const view = viewFromV2(report, 2);
+  view.runs[0].toolchainIdentity = null;
+  assert.throws(() => corpusCohortIdentityForView(view), /requires its recorded tracker-catalog digest/);
 });
 
 // ---------------------------------------------------------------------------
@@ -205,4 +269,24 @@ test("composition only constrains cohorts that are substitutable descriptions", 
   // And a cohort whose composition is unknown cannot be shown to be narrower.
   const unknown = { ...current, sites: undefined };
   assert.equal(selectPrimaryCorpusCohort([otherLine, unknown], MIN)?.identity.id, "current");
+});
+
+test("a broader cohort with a different catalog or ServiceRole taxonomy cannot veto the current line", () => {
+  const current = era("current", "shields-v2", gallerySites, "2026-07-27T00:00:00.000Z");
+  const identityChanges: Partial<CorpusCohortIdentity>[] = [
+    { trackerCatalogDigest: "b".repeat(64) },
+    { trackerCatalogOrigin: "recorded" },
+    { serviceRoleTaxonomyVersion: "service-role-taxonomy-v2" },
+    { serviceRoleTaxonomyDigest: "c".repeat(64) }
+  ];
+
+  for (const change of identityChanges) {
+    const broad = era("broad", "shields-v2", [...gallerySites, ...seedSites], "2026-07-20T00:00:00.000Z");
+    broad.identity = identity({ ...broad.identity, ...change, id: broad.identity.id });
+    assert.equal(
+      selectPrimaryCorpusCohort([broad, current], MIN)?.identity.id,
+      "current",
+      JSON.stringify(change)
+    );
+  }
 });

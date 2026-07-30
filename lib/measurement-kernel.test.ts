@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
   DETECTOR_REGISTRY_DIGEST,
   DETECTOR_REGISTRY_VERSION,
+  DETECTOR_VERSIONS,
   MeasurementKernel,
   deriveCookieMutations,
   deriveStorageMutations
@@ -125,11 +126,13 @@ test("boundary snapshots derive added, changed, and removed cookie/storage recor
 });
 
 test("detector registry identity is stable and non-empty", () => {
-  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v3");
+  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v4");
+  assert.equal(DETECTOR_VERSIONS["cname-uncloaking"], "dns-cname-chain@4");
+  assert.equal(DETECTOR_VERSIONS["privacy-policy"], "policy-text-cross-check@4");
   // Detector behavior is published provenance. Completeness, cancellation,
   // and truncation semantics moved together with the detector versions rather
   // than silently presenting the new behavior as the old release.
-  assert.equal(DETECTOR_REGISTRY_DIGEST, "ad2971a6c3eff3a0ba537529ba91cb28686a5101bf2f2c290e47c176cd23c38b");
+  assert.equal(DETECTOR_REGISTRY_DIGEST, "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2");
   assert.deepEqual(DETECTOR_OBLIGATION_TARGET_REGISTRY, {
     detectorRegistryVersion: DETECTOR_REGISTRY_VERSION,
     detectorRegistryDigest: DETECTOR_REGISTRY_DIGEST

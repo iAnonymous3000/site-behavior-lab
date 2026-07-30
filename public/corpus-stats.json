@@ -1,19 +1,23 @@
 {
-  "version": 2,
-  "generatedAt": "2026-07-30T07:40:06.170Z",
+  "version": 3,
+  "generatedAt": "2026-07-30T20:07:46.186Z",
   "sampleSize": 69,
   "coverageSiteCount": 99,
   "cappedSiteCount": 3,
-  "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on",
+  "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
   "cohorts": [
     {
-      "id": "v1:legacy-v1-methodology-unspecified:producer-unrecorded:gpc-on",
+      "id": "v1:legacy-v1-methodology-unspecified:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "schemaVersion": 1,
       "schemaRevision": null,
       "methodologyVersion": "legacy-v1-methodology-unspecified",
       "methodologyOrigin": "legacy-derived",
       "producer": null,
       "gpc": true,
+      "trackerCatalogDigest": "c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593",
+      "trackerCatalogOrigin": "legacy-metadata-hash",
+      "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
+      "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "sampleSize": 85,
       "latestRunAt": "2026-07-06T09:35:14.875Z",
       "metrics": {
@@ -65,13 +69,17 @@
       }
     },
     {
-      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-off",
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-off:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "schemaVersion": 1,
       "schemaRevision": null,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1",
       "methodologyOrigin": "legacy-derived",
       "producer": null,
       "gpc": false,
+      "trackerCatalogDigest": "c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593",
+      "trackerCatalogOrigin": "legacy-metadata-hash",
+      "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
+      "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "sampleSize": 59,
       "latestRunAt": "2026-07-27T10:27:57.414Z",
       "metrics": {
@@ -123,13 +131,17 @@
       }
     },
     {
-      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on",
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "schemaVersion": 1,
       "schemaRevision": null,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1",
       "methodologyOrigin": "legacy-derived",
       "producer": null,
       "gpc": true,
+      "trackerCatalogDigest": "c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593",
+      "trackerCatalogOrigin": "legacy-metadata-hash",
+      "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
+      "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "sampleSize": 69,
       "latestRunAt": "2026-07-25T18:23:27.733Z",
       "metrics": {
@@ -181,13 +193,17 @@
       }
     },
     {
-      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0%2Bsubject-validity-v2%2Bdetector-coverage-v2:producer-unrecorded:gpc-on",
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0%2Bsubject-validity-v2%2Bdetector-coverage-v2:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-5e73ad577074eabc09f10938fd0d395edec261e6516d74a339442436d7488222:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "schemaVersion": 1,
       "schemaRevision": null,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2",
       "methodologyOrigin": "legacy-derived",
       "producer": null,
       "gpc": true,
+      "trackerCatalogDigest": "5e73ad577074eabc09f10938fd0d395edec261e6516d74a339442436d7488222",
+      "trackerCatalogOrigin": "legacy-metadata-hash",
+      "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
+      "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "sampleSize": 1,
       "latestRunAt": "2026-07-30T07:31:01.830Z",
       "metrics": {
@@ -239,13 +255,17 @@
       }
     },
     {
-      "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-off",
+      "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-off:catalog-recorded-b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "schemaVersion": 2,
       "schemaRevision": 2,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.0-request-method-v1+phase-kernel-v1+boundary-state-v1+consent-r2-v1+resource-budget-v1",
       "methodologyOrigin": "recorded",
       "producer": "node-playwright",
       "gpc": false,
+      "trackerCatalogDigest": "b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf",
+      "trackerCatalogOrigin": "recorded",
+      "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
+      "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "sampleSize": 1,
       "latestRunAt": "2026-07-14T03:18:40.331Z",
       "metrics": {
@@ -297,13 +317,17 @@
       }
     },
     {
-      "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-on",
+      "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-on:catalog-recorded-b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "schemaVersion": 2,
       "schemaRevision": 2,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.0-request-method-v1+phase-kernel-v1+boundary-state-v1+consent-r2-v1+resource-budget-v1",
       "methodologyOrigin": "recorded",
       "producer": "node-playwright",
       "gpc": true,
+      "trackerCatalogDigest": "b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf",
+      "trackerCatalogOrigin": "recorded",
+      "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
+      "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "sampleSize": 1,
       "latestRunAt": "2026-07-14T03:24:56.423Z",
       "metrics": {
