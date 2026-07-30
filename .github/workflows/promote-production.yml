@@ -28,7 +28,7 @@ on:
       - completed
 
 permissions:
-  contents: write
+  contents: read
   # A failed direct promotion makes CI red even when every test gate passed.
   # Read that completed run's jobs before allowing this fallback to retry.
   actions: read
@@ -64,6 +64,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Confirm every CI test gate passed
         env:
@@ -82,9 +83,20 @@ jobs:
           # promotion gate and the release-tag gate verify the same set.
           node scripts/verify-required-ci-jobs.mjs "$RUNNER_TEMP/ci-jobs.json" "CI gate not passed"
 
+      # This privileged token is minted only after the independent fallback has
+      # revalidated every required CI job for the exact candidate SHA.
+      - name: Mint promotion App token
+        id: promotion_app_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.PROMOTION_APP_ID }}
+          private-key: ${{ secrets.PROMOTION_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Fast-forward production to the tested SHA
         env:
           CANDIDATE: ${{ github.event.workflow_run.head_sha }}
+          APP_TOKEN: ${{ steps.promotion_app_token.outputs.token }}
         run: |
           set -euo pipefail
           git fetch origin main
@@ -115,5 +127,7 @@ jobs:
 
           # Plain ref update: the remote itself refuses non-fast-forward, so
           # even a race that slipped past the checks above cannot rewind.
-          git push origin "${CANDIDATE}:refs/heads/production"
+          echo "Promotion push authenticates as the dedicated promotion App."
+          auth_header="AUTHORIZATION: basic $(printf 'x-access-token:%s' "${APP_TOKEN}" | base64 | tr -d '\n')"
+          git -c http.extraheader="${auth_header}" push origin "${CANDIDATE}:refs/heads/production"
           echo "production advanced to ${CANDIDATE}."

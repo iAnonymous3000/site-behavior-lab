@@ -600,7 +600,7 @@ jobs:
       vars.SITE_BEHAVIOR_LAB_PROMOTION_PAUSED != '1'
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     # Shared with promote-production.yml so direct and workflow_run fallbacks
     # cannot race one another.
     concurrency:
@@ -612,29 +612,23 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          # The push below authenticates explicitly (promotion App when
-          # configured, workflow token as recovery); nothing in this job may
-          # rely on credentials quietly persisted into .git/config.
+          # The push below authenticates explicitly as the promotion App;
+          # nothing in this job may rely on credentials quietly persisted into
+          # .git/config.
           persist-credentials: false
 
-      # Stage 1 of the dedicated-promoter migration: when the repository-scoped
-      # promotion App is configured, the production push authenticates as that
-      # App instead of this workflow's own token. The token path below stays
-      # intact as the recovery fallback until the App is proven and the
-      # production updater ruleset restricts branch updates to it.
       - name: Mint promotion App token
         id: promotion_app_token
-        if: vars.PROMOTION_APP_ID != ''
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.PROMOTION_APP_ID }}
           private-key: ${{ secrets.PROMOTION_APP_PRIVATE_KEY }}
+          permission-contents: write
 
       - name: Fast-forward production to the tested SHA
         env:
           CANDIDATE: ${{ github.sha }}
-          APP_TOKEN: ${{ steps.promotion_app_token.outputs.token || '' }}
-          FALLBACK_TOKEN: ${{ github.token }}
+          APP_TOKEN: ${{ steps.promotion_app_token.outputs.token }}
         run: |
           set -euo pipefail
           git fetch origin main
@@ -657,13 +651,7 @@ jobs:
             fi
           fi
 
-          if [ -n "${APP_TOKEN}" ]; then
-            PUSH_TOKEN="${APP_TOKEN}"
-            echo "Promotion push authenticates as the dedicated promotion App."
-          else
-            PUSH_TOKEN="${FALLBACK_TOKEN}"
-            echo "::warning::Promotion App is not configured; the production push is falling back to the workflow token."
-          fi
-          auth_header="AUTHORIZATION: basic $(printf 'x-access-token:%s' "${PUSH_TOKEN}" | base64 | tr -d '\n')"
+          echo "Promotion push authenticates as the dedicated promotion App."
+          auth_header="AUTHORIZATION: basic $(printf 'x-access-token:%s' "${APP_TOKEN}" | base64 | tr -d '\n')"
           git -c http.extraheader="${auth_header}" push origin "${CANDIDATE}:refs/heads/production"
           echo "production advanced to ${CANDIDATE}."
