@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "generatedAt": "2026-07-28T02:14:11.524Z",
-  "sampleSize": 71,
+  "generatedAt": "2026-07-30T06:37:40.349Z",
+  "sampleSize": 69,
   "coverageSiteCount": 99,
   "cappedSiteCount": 3,
   "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on",
@@ -130,38 +130,38 @@
       "methodologyOrigin": "legacy-derived",
       "producer": null,
       "gpc": true,
-      "sampleSize": 71,
+      "sampleSize": 69,
       "latestRunAt": "2026-07-25T18:23:27.733Z",
       "metrics": {
         "thirdPartyRequests": {
-          "count": 71,
+          "count": 69,
           "min": 0,
           "max": 382,
-          "p50": 11,
+          "p50": 14,
           "p75": 56,
-          "p90": 161,
+          "p90": 162,
           "p95": 185
         },
         "thirdPartyDomains": {
-          "count": 71,
+          "count": 69,
           "min": 0,
           "max": 59,
           "p50": 3,
           "p75": 9,
-          "p90": 21,
+          "p90": 24,
           "p95": 29
         },
         "knownTrackerRequests": {
-          "count": 71,
+          "count": 69,
           "min": 0,
           "max": 152,
           "p50": 1,
           "p75": 10,
-          "p90": 27,
+          "p90": 29,
           "p95": 36
         },
         "thirdPartyCookies": {
-          "count": 71,
+          "count": 69,
           "min": 0,
           "max": 36,
           "p50": 0,
@@ -170,13 +170,71 @@
           "p95": 19
         },
         "fingerprintEvents": {
-          "count": 71,
+          "count": 69,
           "min": 0,
           "max": 122,
           "p50": 0,
           "p75": 0,
           "p90": 2,
           "p95": 8
+        }
+      }
+    },
+    {
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0%2Bsubject-validity-v2%2Bdetector-coverage-v2:producer-unrecorded:gpc-on",
+      "schemaVersion": 1,
+      "schemaRevision": null,
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2",
+      "methodologyOrigin": "legacy-derived",
+      "producer": null,
+      "gpc": true,
+      "sampleSize": 1,
+      "latestRunAt": "2026-07-30T06:29:08.176Z",
+      "metrics": {
+        "thirdPartyRequests": {
+          "count": 1,
+          "min": 0,
+          "max": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0
+        },
+        "thirdPartyDomains": {
+          "count": 1,
+          "min": 0,
+          "max": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0
+        },
+        "knownTrackerRequests": {
+          "count": 1,
+          "min": 0,
+          "max": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0
+        },
+        "thirdPartyCookies": {
+          "count": 1,
+          "min": 0,
+          "max": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0
+        },
+        "fingerprintEvents": {
+          "count": 1,
+          "min": 0,
+          "max": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0
         }
       }
     },
@@ -299,34 +357,34 @@
   ],
   "metrics": {
     "thirdPartyRequests": {
-      "count": 71,
+      "count": 69,
       "min": 0,
       "max": 382,
-      "p50": 11,
+      "p50": 14,
       "p75": 56,
-      "p90": 161,
+      "p90": 162,
       "p95": 185
     },
     "thirdPartyDomains": {
-      "count": 71,
+      "count": 69,
       "min": 0,
       "max": 59,
       "p50": 3,
       "p75": 9,
-      "p90": 21,
+      "p90": 24,
       "p95": 29
     },
     "knownTrackerRequests": {
-      "count": 71,
+      "count": 69,
       "min": 0,
       "max": 152,
       "p50": 1,
       "p75": 10,
-      "p90": 27,
+      "p90": 29,
       "p95": 36
     },
     "thirdPartyCookies": {
-      "count": 71,
+      "count": 69,
       "min": 0,
       "max": 36,
       "p50": 0,
@@ -335,7 +393,7 @@
       "p95": 19
     },
     "fingerprintEvents": {
-      "count": 71,
+      "count": 69,
       "min": 0,
       "max": 122,
       "p50": 0,
