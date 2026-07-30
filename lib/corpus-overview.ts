@@ -89,7 +89,7 @@ export type DirectoryEntry = {
   status: number | null;
   /** Evaluator-derived outcome; status 200 can still be a failed/bot-wall run. */
   runOutcome: "complete" | "failed";
-  /** Versioned schema + methodology + recorded-producer statistical cohort. */
+  /** Complete schema/methodology/catalog/ServiceRole/producer/GPC statistical cohort. */
   corpusCohort: CorpusCohortIdentity;
   /** Recorded v2 producer/observer; null on v1, which never recorded it. */
   producer: string | null;

@@ -2,6 +2,23 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildCorpusExportPayload, buildCorpusExportRows, CORPUS_EXPORT_NOTE, corpusExportToCsv } from "./corpus-export";
 import type { DirectoryEntry } from "./corpus-overview";
+import {
+  SERVICE_ROLE_TAXONOMY_DIGEST,
+  SERVICE_ROLE_TAXONOMY_VERSION
+} from "./service-role";
+
+const SERVICE_ROLE_IDENTITY = {
+  serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
+  serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
+} as const;
+const LEGACY_CATALOG_IDENTITY = {
+  trackerCatalogDigest: "a".repeat(64),
+  trackerCatalogOrigin: "legacy-metadata-hash" as const
+};
+const RECORDED_CATALOG_IDENTITY = {
+  trackerCatalogDigest: "b".repeat(64),
+  trackerCatalogOrigin: "recorded" as const
+};
 
 function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): DirectoryEntry {
   return {
@@ -30,7 +47,9 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
       methodologyVersion: "test-methodology",
       methodologyOrigin: "legacy-derived",
       producer: null,
-      gpc: true
+      gpc: true,
+      ...LEGACY_CATALOG_IDENTITY,
+      ...SERVICE_ROLE_IDENTITY
     },
     producer: null,
     acquisition: null,
@@ -121,6 +140,10 @@ test("the JSON payload embeds the measured-corpus framing", () => {
   assert.match(payload.note, /no percentile, category median, or leaderboard silently pools v1 and r2/);
   assert.equal(payload.cohorts[0].denominator, 1);
   assert.equal(payload.cohorts[0].methodologyVersion, "test-methodology");
+  assert.equal(payload.cohorts[0].trackerCatalogDigest, LEGACY_CATALOG_IDENTITY.trackerCatalogDigest);
+  assert.equal(payload.cohorts[0].trackerCatalogOrigin, "legacy-metadata-hash");
+  assert.equal(payload.cohorts[0].serviceRoleTaxonomyVersion, SERVICE_ROLE_TAXONOMY_VERSION);
+  assert.equal(payload.cohorts[0].serviceRoleTaxonomyDigest, SERVICE_ROLE_TAXONOMY_DIGEST);
   // Capped counts are floors/snapshots, never measured behavior.
   assert.match(payload.note, /floors cut off mid-collection/);
   assert.match(payload.note, /end-state snapshots of an interrupted visit/);
@@ -205,7 +228,9 @@ test("r2 rows keep click dispatch separate from both consent-arm verification st
           methodologyVersion: "test-methodology",
           methodologyOrigin: "recorded",
           producer: "node-playwright",
-          gpc: true
+          gpc: true,
+          ...RECORDED_CATALOG_IDENTITY,
+          ...SERVICE_ROLE_IDENTITY
         },
         producer: "node-playwright",
         acquisition: "public-api",
@@ -252,7 +277,9 @@ test("comparison metadata exports the fingerprint verdict but deliberately omits
           methodologyVersion: "test-methodology",
           methodologyOrigin: "recorded",
           producer: "node-playwright",
-          gpc: true
+          gpc: true,
+          ...RECORDED_CATALOG_IDENTITY,
+          ...SERVICE_ROLE_IDENTITY
         },
         producer: "node-playwright"
       })
@@ -282,7 +309,7 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched,run_outcome,producer,acquisition,build_commit,methodology_version,methodology_origin,browser_name,browser_version,egress_label,egress_region,corpus_cohort_id,corpus_cohort_denominator,corpus_inclusion,corpus_exclusion_reasons"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched,run_outcome,producer,acquisition,build_commit,methodology_version,methodology_origin,browser_name,browser_version,egress_label,egress_region,corpus_cohort_id,corpus_cohort_denominator,corpus_inclusion,corpus_exclusion_reasons,tracker_catalog_digest,tracker_catalog_origin,service_role_taxonomy_version,service_role_taxonomy_digest"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);
@@ -390,7 +417,9 @@ test("rows export provenance and auditable cohort inclusion without fingerprint 
     methodologyVersion: "method-r2",
     methodologyOrigin: "recorded" as const,
     producer: "node-playwright",
-    gpc: true
+    gpc: true,
+    ...RECORDED_CATALOG_IDENTITY,
+    ...SERVICE_ROLE_IDENTITY
   };
   const rows = buildCorpusExportRows(
     [
@@ -450,6 +479,10 @@ test("rows export provenance and auditable cohort inclusion without fingerprint 
   assert.ok(rows[1].id.localeCompare(rows[0].id) > 0, "equal timestamps use the shared report-id tie-break");
   assert.equal(rows[1].corpusCohortDenominator, 1);
   assert.equal(rows[1].methodologyVersion, "method-r2");
+  assert.equal(rows[1].trackerCatalogDigest, RECORDED_CATALOG_IDENTITY.trackerCatalogDigest);
+  assert.equal(rows[1].trackerCatalogOrigin, "recorded");
+  assert.equal(rows[1].serviceRoleTaxonomyVersion, SERVICE_ROLE_TAXONOMY_VERSION);
+  assert.equal(rows[1].serviceRoleTaxonomyDigest, SERVICE_ROLE_TAXONOMY_DIGEST);
   assert.equal(rows[1].acquisition, "ci-workflow");
   assert.equal(rows[1].buildCommit, "d".repeat(40));
   assert.equal(rows[1].browserName, "chromium");

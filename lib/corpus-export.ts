@@ -55,11 +55,17 @@ export type CorpusExportRow = {
   /** Methodology token defining the statistical cohort. */
   methodologyVersion: string;
   methodologyOrigin: "recorded" | "legacy-derived";
+  /** Recorded r2 catalog digest or canonical hash of v1's recorded catalog metadata. */
+  trackerCatalogDigest: string;
+  trackerCatalogOrigin: "recorded" | "legacy-metadata-hash";
+  /** Read-time ServiceRole interpretation applied to this immutable report. */
+  serviceRoleTaxonomyVersion: string;
+  serviceRoleTaxonomyDigest: string;
   browserName: string | null;
   browserVersion: string | null;
   egressLabel: string;
   egressRegion: string | null;
-  /** Versioned schema/methodology/producer/requested-GPC cohort; never a cross-version pool. */
+  /** Complete schema/methodology/catalog/taxonomy/producer/requested-GPC cohort. */
   corpusCohortId: string;
   /** Distinct-site denominator after this cohort's passive-run quality gates. */
   corpusCohortDenominator: number;
@@ -127,7 +133,7 @@ export const CORPUS_EXPORT_NOTE = [
   "The flattened corpus deliberately omits the raw baseline and variant fingerprint digests: they remain available in the linked full reports, while repeating stable digests here would add linkability and noise without a documented corpus consumer.",
   "Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior. request_capped is the exact 1,000-request recording-cap flag; those activity counts are floors cut off mid-collection. request_evidence_complete is the broader request-family completeness flag, so it can be false for other bounded capture loss while request_capped remains false.",
   "Rows with request_evidence_complete false have lower-bound request counts and stay out of this project's percentiles, category medians, leaderboards, and since-last-scan deltas, as do failed loads and post-choice consent lead runs. A request-capped row also has cookie and storage figures that are end-state snapshots of an interrupted visit.",
-  "corpus_cohort_id is a versioned schema, methodology, recorded-producer, and requested-GPC identity. corpus_cohort_denominator is the distinct-site passive-run denominator for that exact cohort; no percentile, category median, or leaderboard silently pools v1 and r2 or different methodology tokens.",
+  "corpus_cohort_id is a versioned schema, methodology, tracker-catalog, read-time ServiceRole-taxonomy, recorded-producer, and requested-GPC identity. tracker_catalog_digest is the recorded content digest on v2 and a canonical hash of the available recorded legacy metadata on v1; tracker_catalog_origin keeps those assurance levels distinct. corpus_cohort_denominator is the distinct-site passive-run denominator for that exact cohort; no percentile, category median, or leaderboard silently pools v1 and r2 or different methodology, catalog, or ServiceRole identities.",
   "corpus_inclusion and corpus_exclusion_reasons state whether a row is the newest eligible representative for its site in that cohort. Excluded rows remain published and auditable; they never contribute a zero or truncated measurement.",
   "siteCount counts distinct sites with a successful single run or primary comparison arm, including request-capped recordings; two successful primary arms do not count a site twice. measuredSampleSize is the denominator of primaryCohortId, the top-level compatibility cohort in corpus-stats.json; the cohorts collection names every separate methodology denominator.",
   "Delta fields compare a site's newest report against its previous successfully loaded, request-complete report only when kind, requested/final subject, schema revision, methodology, browser environment, device/viewport, intervention state, filter-list engine/source/count, known snapshot dates (which may differ), and tracker-catalog identity are compatible; an unknown setup never matches another unknown. The deltas can still reflect run-to-run variance as well as real site changes.",
@@ -162,6 +168,10 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
     buildCommit: entry.buildCommit,
     methodologyVersion: entry.corpusCohort.methodologyVersion,
     methodologyOrigin: entry.corpusCohort.methodologyOrigin,
+    trackerCatalogDigest: entry.corpusCohort.trackerCatalogDigest,
+    trackerCatalogOrigin: entry.corpusCohort.trackerCatalogOrigin,
+    serviceRoleTaxonomyVersion: entry.corpusCohort.serviceRoleTaxonomyVersion,
+    serviceRoleTaxonomyDigest: entry.corpusCohort.serviceRoleTaxonomyDigest,
     browserName: entry.browserName,
     browserVersion: entry.browserVersion,
     egressLabel: entry.egressLabel,
@@ -262,6 +272,11 @@ export type CorpusExportCohort = {
   methodologyVersion: string;
   methodologyOrigin: "recorded" | "legacy-derived";
   producer: string | null;
+  gpc: boolean;
+  trackerCatalogDigest: string;
+  trackerCatalogOrigin: "recorded" | "legacy-metadata-hash";
+  serviceRoleTaxonomyVersion: string;
+  serviceRoleTaxonomyDigest: string;
   denominator: number;
   includedRows: number;
   excludedRows: number;
@@ -312,6 +327,11 @@ export function summarizeExportCohorts(rows: CorpusExportRow[]): CorpusExportCoh
       methodologyVersion: row.methodologyVersion,
       methodologyOrigin: row.methodologyOrigin,
       producer: row.producer,
+      gpc: row.gpcEnabled,
+      trackerCatalogDigest: row.trackerCatalogDigest,
+      trackerCatalogOrigin: row.trackerCatalogOrigin,
+      serviceRoleTaxonomyVersion: row.serviceRoleTaxonomyVersion,
+      serviceRoleTaxonomyDigest: row.serviceRoleTaxonomyDigest,
       denominator: row.corpusCohortDenominator,
       includedRows: 0,
       excludedRows: 0
@@ -373,7 +393,11 @@ const CSV_HEADER = [
   "corpus_cohort_id",
   "corpus_cohort_denominator",
   "corpus_inclusion",
-  "corpus_exclusion_reasons"
+  "corpus_exclusion_reasons",
+  "tracker_catalog_digest",
+  "tracker_catalog_origin",
+  "service_role_taxonomy_version",
+  "service_role_taxonomy_digest"
 ] as const;
 
 export function corpusExportToCsv(rows: CorpusExportRow[]): string {
@@ -425,7 +449,11 @@ export function corpusExportToCsv(rows: CorpusExportRow[]): string {
     row.corpusCohortId,
     row.corpusCohortDenominator,
     row.corpusInclusion,
-    row.corpusExclusionReasons.join(";")
+    row.corpusExclusionReasons.join(";"),
+    row.trackerCatalogDigest,
+    row.trackerCatalogOrigin,
+    row.serviceRoleTaxonomyVersion,
+    row.serviceRoleTaxonomyDigest
   ]);
   return [CSV_HEADER, ...lines].map((line) => line.map(csvCell).join(",")).join("\r\n").concat("\r\n");
 }

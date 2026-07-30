@@ -45,7 +45,7 @@ import {
   R2_REQUEST_STATUS_UNREPRESENTABLE
 } from "./scan-report-v2-http-status";
 import {
-  DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  DETECTOR_OBLIGATION_TARGET_REGISTRIES,
   detectorObligationViolations
 } from "./detector-obligations";
 import { subjectsMatch } from "./scan-report-v2-subject";
@@ -1023,10 +1023,8 @@ export function scanRunCoreViolations(run: ScanRunV2, label: string, options: Ru
   violations.push(...summaryViolations(run, label, options));
   violations.push(...detectorViolations(run, label));
   violations.push(
-    ...detectorObligationViolations(
-      run,
-      label,
-      DETECTOR_OBLIGATION_TARGET_REGISTRY
+    ...DETECTOR_OBLIGATION_TARGET_REGISTRIES.flatMap((epoch) =>
+      detectorObligationViolations(run, label, epoch)
     )
   );
   return violations;

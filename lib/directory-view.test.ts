@@ -7,6 +7,15 @@ import {
   directoryPageCount,
   directoryPageSlice
 } from "./directory-view";
+import {
+  SERVICE_ROLE_TAXONOMY_DIGEST,
+  SERVICE_ROLE_TAXONOMY_VERSION
+} from "./service-role";
+
+const SERVICE_ROLE_IDENTITY = {
+  serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
+  serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
+} as const;
 
 function entry(id: string, overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
   return {
@@ -35,7 +44,10 @@ function entry(id: string, overrides: Partial<DirectoryEntry> = {}): DirectoryEn
       methodologyVersion: "test-methodology",
       methodologyOrigin: "recorded",
       producer: "node-playwright",
-      gpc: true
+      gpc: true,
+      trackerCatalogDigest: "b".repeat(64),
+      trackerCatalogOrigin: "recorded",
+      ...SERVICE_ROLE_IDENTITY
     },
     producer: "node-playwright",
     acquisition: "ci-workflow",
@@ -172,7 +184,10 @@ test("category medians select one methodology cohort instead of pooling generati
     methodologyVersion: "legacy-method",
     methodologyOrigin: "legacy-derived" as const,
     producer: null,
-    gpc: true
+    gpc: true,
+    trackerCatalogDigest: "a".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash" as const,
+    ...SERVICE_ROLE_IDENTITY
   };
   const r2 = [
     entry("r2-a", { domain: "a.com", trackerRequests: 100 }),

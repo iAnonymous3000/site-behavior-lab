@@ -132,6 +132,18 @@ test("r2 structural mutants are rejected by BOTH validators", () => {
         }
       })
     ],
+    [
+      "read-time service roles smuggled onto a frozen tracker match",
+      mutate(makePublicSingleReportV2R2(), (draft) => {
+        (draft.run.evidence.requests[0] as AnyRecord).tracker = {
+          domain: "experiment.example",
+          entity: "Experiment Co",
+          category: "experimentation",
+          confidence: "curated",
+          serviceRoles: ["other-unknown"]
+        };
+      })
+    ],
     ["ephemeral block at the root", { ...makePublicSingleReportV2R2(), ephemeral: { screenshot: null } }],
     ["wrong revision literal", mutate(makePublicSingleReportV2R2(), (draft) => (((draft as AnyRecord).schemaRevision = 1)))]
   ];

@@ -18,6 +18,10 @@ import {
 } from "./scan-report-v2-normalization";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
+import {
+  SERVICE_ROLE_TAXONOMY_DIGEST,
+  SERVICE_ROLE_TAXONOMY_VERSION
+} from "./service-role";
 import { trackerCatalogMetadata } from "./tracker-catalog";
 import {
   DETECTOR_IDS,
@@ -56,8 +60,12 @@ export const PAGEGRAPH_R2_PUBLIC_LIMITS = Object.freeze({
   requests: MAX_RECORDED_REQUESTS
 });
 
+/** Exact accountability epoch immediately before ServiceRole affected producer decisions. */
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1";
+
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
-  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1`;
+  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}`;
 
 /** Exact producer epoch attested by the reviewed Node r2/v3 corpus. */
 export const HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION =
@@ -111,6 +119,54 @@ export const PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_VERSIONS = Object.freeze({
   "consent-banner": "consent-control-and-state@2",
   "privacy-policy": "policy-text-cross-check@2"
 } satisfies Readonly<Record<DetectorId, string>>);
+
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_VERSION =
+  "node-detectors-v3";
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST =
+  "ad2971a6c3eff3a0ba537529ba91cb28686a5101bf2f2c290e47c176cd23c38b";
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_VERSIONS = Object.freeze({
+  "fingerprint-heuristics": "fingerprint-observer@1",
+  "keystroke-exfiltration": "synthetic-sentinel@3",
+  "cname-uncloaking": "dns-cname-chain@3",
+  "pixel-events": "pixel-request-decoder@3",
+  "consent-banner": "consent-control-and-state@2",
+  "privacy-policy": "policy-text-cross-check@3"
+} satisfies Readonly<Record<DetectorId, string>>);
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION =
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1";
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG = Object.freeze({
+  source: "Hand-curated service catalog",
+  version: "hand-curated-2026.07",
+  entries: 137,
+  digest: "7cade02ae20c3bb88e28e0de1135ef63c48f586e7196de3c02c13478f70c95bc"
+} satisfies Toolchain["trackerCatalog"]);
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-07-25T14:05:35.223Z",
+  manifestDigest: "34a785b40cef51a78901561747aa8e1649acdbde8f74370c80bae58e694e187b",
+  engineVersion: "adblock-rust-0.13.2"
+} satisfies NonNullable<Toolchain["adblock"]>);
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_PUBLIC_LIMITS = Object.freeze({
+  phases: 16,
+  warnings: 64,
+  requests: 1_000,
+  cookieRecords: 1_000,
+  cookieMutations: 2_000,
+  storageRecords: 1_000,
+  storageMutations: 2_000,
+  fingerprintEvents: 1_000,
+  fingerprintDetections: 256,
+  cnameCloaks: 256,
+  pixelEvents: 512,
+  consentObservations: 32,
+  policyClaims: 32,
+  policyEntities: 100
+} satisfies Readonly<typeof NODE_R2_PUBLIC_LIMITS>);
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_OBLIGATIONS = Object.freeze({
+  version: "detector-obligations-v1",
+  digest: "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+});
 
 const NODE_V3_NORMALIZATION =
   "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1";
@@ -219,6 +275,7 @@ export const PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST = sha256Hex(
 type DetectorRegistryIdentity = Readonly<{ version: string; digest: string }>;
 type AdblockIdentity = Readonly<NonNullable<Toolchain["adblock"]>> | null;
 type DetectorObligationIdentity = Readonly<{ version: string; digest: string }> | null;
+type ServiceRoleTaxonomyIdentity = Readonly<{ version: string; digest: string }> | null;
 type DetectorStatusContractVersion = "detector-status-v1" | "detector-status-v2";
 
 export type NodeR2ProducerTuple = Readonly<{
@@ -229,6 +286,7 @@ export type NodeR2ProducerTuple = Readonly<{
   detectorVersions: Readonly<Record<DetectorId, string>>;
   detectorStatusContractVersion: DetectorStatusContractVersion;
   detectorObligations: DetectorObligationIdentity;
+  serviceRoleTaxonomy: ServiceRoleTaxonomyIdentity;
   trackerCatalog: Readonly<Toolchain["trackerCatalog"]>;
   adblockIdentity: AdblockIdentity;
   publicLimits: Readonly<typeof NODE_R2_PUBLIC_LIMITS>;
@@ -271,6 +329,10 @@ const PRE_ACCOUNTABILITY_REGISTRY = Object.freeze({
   version: PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_VERSION,
   digest: PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_DIGEST
 });
+const HISTORICAL_ACCOUNTABILITY_V1_REGISTRY = Object.freeze({
+  version: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_VERSION,
+  digest: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST
+});
 const ACTIVE_REGISTRY = Object.freeze({
   version: DETECTOR_REGISTRY_VERSION,
   digest: DETECTOR_REGISTRY_DIGEST
@@ -279,6 +341,10 @@ const ACTIVE_DETECTOR_VERSIONS = Object.freeze({ ...DETECTOR_VERSIONS });
 const ACTIVE_DETECTOR_OBLIGATIONS = Object.freeze({
   version: DETECTOR_OBLIGATION_CONTRACT_VERSION,
   digest: DETECTOR_OBLIGATION_REGISTRY_DIGEST
+});
+const ACTIVE_SERVICE_ROLE_TAXONOMY = Object.freeze({
+  version: SERVICE_ROLE_TAXONOMY_VERSION,
+  digest: SERVICE_ROLE_TAXONOMY_DIGEST
 });
 const ACTIVE_TRACKER_CATALOG = Object.freeze({
   source: trackerCatalogMetadata.source,
@@ -313,7 +379,9 @@ type NodeTupleFields = Pick<
   | "detectorVersions"
   | "detectorStatusContractVersion"
   | "detectorObligations"
+  | "serviceRoleTaxonomy"
   | "trackerCatalog"
+  | "publicLimits"
   | "phaseOmissionContractVersion"
 >;
 
@@ -322,7 +390,9 @@ const NODE_V3_FIELDS: NodeTupleFields = Object.freeze({
   detectorVersions: HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
   detectorStatusContractVersion: "detector-status-v1",
   detectorObligations: null,
+  serviceRoleTaxonomy: null,
   trackerCatalog: HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
+  publicLimits: NODE_R2_PUBLIC_LIMITS,
   phaseOmissionContractVersion: "phase-omission-v1"
 });
 const NODE_V4_FIELDS: NodeTupleFields = NODE_V3_FIELDS;
@@ -331,8 +401,20 @@ const PRE_ACCOUNTABILITY_FIELDS: NodeTupleFields = Object.freeze({
   detectorVersions: PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_VERSIONS,
   detectorStatusContractVersion: "detector-status-v1",
   detectorObligations: null,
+  serviceRoleTaxonomy: null,
   trackerCatalog: ACTIVE_TRACKER_CATALOG,
+  publicLimits: NODE_R2_PUBLIC_LIMITS,
   phaseOmissionContractVersion: "phase-omission-v1"
+});
+const HISTORICAL_ACCOUNTABILITY_V1_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: HISTORICAL_ACCOUNTABILITY_V1_REGISTRY,
+  detectorVersions: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_VERSIONS,
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_OBLIGATIONS,
+  serviceRoleTaxonomy: null,
+  trackerCatalog: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG,
+  publicLimits: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_PUBLIC_LIMITS,
+  phaseOmissionContractVersion: "phase-omission-v2"
 });
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
@@ -341,7 +423,9 @@ const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
   detectorVersions: ACTIVE_DETECTOR_VERSIONS,
   detectorStatusContractVersion: ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION,
   detectorObligations: ACTIVE_DETECTOR_OBLIGATIONS,
+  serviceRoleTaxonomy: ACTIVE_SERVICE_ROLE_TAXONOMY,
   trackerCatalog: ACTIVE_TRACKER_CATALOG,
+  publicLimits: NODE_R2_PUBLIC_LIMITS,
   phaseOmissionContractVersion: PHASE_OMISSION_CONTRACT_VERSION
 });
 
@@ -360,20 +444,25 @@ function nodeTuple(
     detectorVersions: fields.detectorVersions,
     detectorStatusContractVersion: fields.detectorStatusContractVersion,
     detectorObligations: fields.detectorObligations,
+    serviceRoleTaxonomy: fields.serviceRoleTaxonomy,
     trackerCatalog: fields.trackerCatalog,
     adblockIdentity,
-    publicLimits: NODE_R2_PUBLIC_LIMITS,
+    publicLimits: fields.publicLimits,
     phaseOmissionContractVersion: fields.phaseOmissionContractVersion,
     runtimeIdentity: NODE_RUNTIME_IDENTITY
   });
 }
 
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
-  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION ||
-  String(DETECTOR_REGISTRY_VERSION) !== PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_VERSION ||
-  DETECTOR_REGISTRY_DIGEST !== PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
-  canonicalJson(ACTIVE_DETECTOR_VERSIONS) !== canonicalJson(PRE_ACCOUNTABILITY_NODE_R2_DETECTOR_VERSIONS) ||
-  canonicalJson(ACTIVE_TRACKER_CATALOG) !== canonicalJson(PRE_ACCOUNTABILITY_FIELDS.trackerCatalog);
+  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !==
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION ||
+  String(DETECTOR_REGISTRY_VERSION) !==
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_VERSION ||
+  DETECTOR_REGISTRY_DIGEST !== HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
+  canonicalJson(ACTIVE_DETECTOR_VERSIONS) !==
+    canonicalJson(HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_VERSIONS) ||
+  canonicalJson(ACTIVE_SERVICE_ROLE_TAXONOMY) !==
+    canonicalJson(HISTORICAL_ACCOUNTABILITY_V1_FIELDS.serviceRoleTaxonomy);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
@@ -539,6 +628,20 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
     PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
     PRE_ACCOUNTABILITY_FIELDS,
+    null
+  ),
+  nodeTuple(
+    "node-v4-b68c-accountability-v1-lists-2026-07-25",
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_ACCOUNTABILITY_V1_FIELDS,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-b68c-accountability-v1-no-adblock",
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_ACCOUNTABILITY_V1_FIELDS,
     null
   ),
   ...ACTIVE_NODE_TUPLES

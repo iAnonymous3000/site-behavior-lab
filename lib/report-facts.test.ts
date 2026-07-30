@@ -175,6 +175,27 @@ test("identity coverage unions catalog, CMP, reviewed ownership, and CNAME namer
   ]);
 });
 
+test("identity facts keep unclassified catalog services out of tracking totals", () => {
+  const result = makeV1Result();
+  result.domains = [
+    thirdPartyDomain("experiment.example", {
+      domain: "experiment.example",
+      entity: "Experiment Co",
+      category: "experimentation",
+      confidence: "curated"
+    })
+  ];
+  result.summary.thirdPartyDomains = 1;
+  result.summary.thirdPartyRequests = 2;
+  result.summary.knownTrackerRequests = 2;
+
+  const identity = factsForV1(result).identity;
+  assert.deepEqual(identity.catalogEntities.map((entity) => entity.entity), ["Experiment Co"]);
+  assert.deepEqual(identity.trackingEntities, []);
+  assert.deepEqual(identity.operationalEntities, []);
+  assert.deepEqual(identity.unclassifiedEntities.map((entity) => entity.entity), ["Experiment Co"]);
+});
+
 test("subject facts prevent returned error and interstitial documents from describing the requested page", () => {
   const requested = factsForV1(makeV1Result());
   assert.deepEqual(requested.subject, {

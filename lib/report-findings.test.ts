@@ -299,7 +299,7 @@ test("a Shields pair with mixed directions never reads as 'fewer tracking signal
   assert.equal(card.level, "info");
   assert.match(card.title, /Mixed changes observed in the Brave-list blocking attempt/);
   assert.match(card.lead, /8 more third-party requests/);
-  assert.match(card.lead, /1 fewer known-service request/);
+  assert.match(card.lead, /1 fewer tracking-related service request/);
   assert.doesNotMatch(card.title, /Fewer tracking signals/);
   assert.doesNotMatch(card.lead, /0 fewer/);
 });
@@ -362,15 +362,44 @@ test("treats operational-only services as not tracking", () => {
   const result = makeResult({
     domains: [
       makeTrackerDomain("sentry.io", 2, "Sentry", "error monitoring"),
-      makeTrackerDomain("newrelic.com", 2, "New Relic", "performance monitoring")
+      makeTrackerDomain("newrelic.com", 2, "New Relic", "performance monitoring"),
+      makeTrackerDomain("security.example", 1, "Security Co", "security / anti-abuse"),
+      makeTrackerDomain("cdn.example", 1, "CDN Co", "cdn / hosting"),
+      makeTrackerDomain("consent.example", 1, "Consent Co", "consent management")
     ],
-    thirdPartyRequests: 4,
-    thirdPartyDomains: 2
+    thirdPartyRequests: 7,
+    thirdPartyDomains: 5
   });
 
   const services = byId(buildFindings(viewFromV1Report(result), null), "third-party-services");
   assert.equal(services.title, "Operational service matches were recorded");
   assert.equal(services.level, "info");
+  assert.match(services.detail, /operational, support, security, consent-management, or hosting roles/);
+});
+
+test("an unclassified service remains visible without becoming a tracking claim", () => {
+  const result = makeResult({
+    domains: [makeTrackerDomain("experiment.example", 3, "Google", "experimentation")],
+    thirdPartyRequests: 3,
+    thirdPartyDomains: 1
+  });
+
+  const findings = buildFindings(viewFromV1Report(result), null);
+  const services = byId(findings, "third-party-services");
+  assert.equal(services.level, "info");
+  assert.equal(services.title, "Identified services have unclassified functional roles");
+  assert.match(services.lead, /Google/);
+  assert.match(services.detail, /not a basis for calling the service tracking-related/);
+  assert.doesNotMatch(`${services.title} ${services.lead}`, /No known services matched/);
+
+  const platforms = byId(findings, "named-platforms");
+  assert.equal(platforms.level, "info");
+  assert.equal(
+    platforms.title,
+    "Major-platform domains were identified without a tracking-role assignment"
+  );
+  assert.match(platforms.lead, /catalogued domains for Google/);
+  assert.doesNotMatch(`${platforms.title} ${platforms.lead}`, /No requests .* were recorded/);
 });
 
 test("uses measured percentile wording when the corpus is usable, fixed thresholds otherwise", () => {
@@ -433,7 +462,10 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
     /each percentile card naming its metric-specific measured-site denominator/,
     "the matching r1 methodology cohort is usable"
   );
-  assert.match(byId(matched, "bottom-line").detail, /exact schema, methodology, producer, and Global Privacy Control cohort/);
+  assert.match(
+    byId(matched, "bottom-line").detail,
+    /exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, producer, and Global Privacy Control cohort/
+  );
   assert.doesNotMatch(byId(matched, "bottom-line").detail, /legacy-v1 distribution/);
 
   const mismatched: CorpusStats = {
@@ -843,6 +875,29 @@ test("surfaces CNAME-cloaked trackers as their own finding, and omits it when th
   const base = makeResult({ thirdPartyDomains: 2, thirdPartyRequests: 4 });
   assert.equal(buildFindings(viewFromV1Report(base), null).some((finding) => finding.id === "cname-cloaking"), false);
 
+  const operationalOnly: ScanResult = {
+    ...base,
+    cnameCloaks: [
+      {
+        host: "errors.shop.example",
+        cname: "ingest.sentry.io",
+        tracker: {
+          domain: "sentry.io",
+          entity: "Sentry",
+          category: "error monitoring",
+          confidence: "curated"
+        }
+      }
+    ]
+  };
+  assert.equal(
+    buildFindings(viewFromV1Report(operationalOnly), null).some(
+      (finding) => finding.id === "cname-cloaking"
+    ),
+    false,
+    "historical operational aliases must not be republished as cloaked trackers"
+  );
+
   const cloaked: ScanResult = {
     ...base,
     cnameCloaks: [
@@ -850,14 +905,34 @@ test("surfaces CNAME-cloaked trackers as their own finding, and omits it when th
         host: "metrics.shop.example",
         cname: "shop.eulerian.net",
         tracker: { domain: "eulerian.net", entity: "Eulerian", category: "advertising", confidence: "curated" }
+      },
+      {
+        host: "errors.shop.example",
+        cname: "ingest.sentry.io",
+        tracker: {
+          domain: "sentry.io",
+          entity: "Sentry",
+          category: "error monitoring",
+          confidence: "curated"
+        }
       }
     ]
   };
-  const card = byId(buildFindings(viewFromV1Report(cloaked), null), "cname-cloaking");
+  const cloakedFindings = buildFindings(viewFromV1Report(cloaked), null);
+  const card = byId(cloakedFindings, "cname-cloaking");
   assert.equal(card.level, "warn");
   assert.match(card.title, /1 tracker hidden behind a first-party subdomain/);
   assert.match(card.lead, /Eulerian/);
   assert.match(card.evidence, /metrics\.shop\.example → shop\.eulerian\.net/);
+  assert.doesNotMatch(`${card.title} ${card.lead} ${card.evidence}`, /Sentry|errors\.shop\.example/);
+
+  const services = byId(cloakedFindings, "third-party-services");
+  assert.equal(services.title, "Tracking services were identified behind first-party aliases");
+  assert.match(`${services.lead} ${services.evidence}`, /Eulerian/);
+  assert.doesNotMatch(
+    `${services.title} ${services.lead} ${services.detail}`,
+    /without being classified as tracking services/
+  );
 });
 
 test("surfaces pre-consent tracking when a consent-management platform is present", () => {
@@ -997,7 +1072,7 @@ test("an eligible GPC pair gets a card, signed and never attributed to the signa
   // board narrated only the baseline arm.
   const card = byId(buildFindings(viewFromV1Report(gpcPair(baseline, variant)), null), "gpc-comparison");
   assert.equal(card.level, "ok");
-  assert.match(card.title, /Fewer tracking signals observed in the visit with a privacy signal/);
+  assert.match(card.title, /Lower values observed across comparable metrics in the visit with a privacy signal/);
   assert.match(card.lead, /30 fewer third-party requests/);
   assert.match(card.detail, /not proof the site received or honored the signal/);
   assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /honors|respects|complied|obeyed/i);
@@ -1023,7 +1098,7 @@ test("an eligible GPC pair gets a card, signed and never attributed to the signa
   );
   assert.match(cookiesOnly.lead, /fewer third-party cookies/);
   assert.doesNotMatch(cookiesOnly.title, /off-site request|off-site activity/i);
-  assert.match(cookiesOnly.title, /Fewer tracking signals/);
+  assert.match(cookiesOnly.title, /Lower values observed across comparable metrics/);
 
   // Mixed directions must never collapse into a reduction story.
   const mixed = makeResult({
@@ -1037,7 +1112,59 @@ test("an eligible GPC pair gets a card, signed and never attributed to the signa
   assert.equal(mixedCard.level, "info");
   assert.match(mixedCard.title, /Mixed changes observed/);
   assert.match(mixedCard.lead, /8 more third-party requests/);
-  assert.match(mixedCard.lead, /10 fewer known-service requests/);
+  assert.match(mixedCard.lead, /10 fewer tracking-related service requests/);
+});
+
+test("comparison cards never turn operational-only catalog deltas into tracking changes", () => {
+  const baseline = makeResult({
+    firstPartyDomain: "app.example",
+    domains: [makeTrackerDomain("sentry.io", 4, "Sentry", "error monitoring")],
+    totalRequests: 10,
+    thirdPartyRequests: 4,
+    thirdPartyDomains: 1
+  });
+  const variant = makeResult({
+    firstPartyDomain: "app.example",
+    domains: [
+      {
+        domain: "asset.example",
+        requests: 4,
+        thirdParty: true,
+        tracker: null,
+        statuses: [200],
+        resourceTypes: ["script"]
+      }
+    ],
+    totalRequests: 10,
+    thirdPartyRequests: 4,
+    thirdPartyDomains: 1
+  });
+
+  for (const [id, report] of [
+    ["gpc-comparison", gpcPair(structuredClone(baseline), structuredClone(variant))],
+    ["shields-comparison", shieldsPair(structuredClone(baseline), structuredClone(variant))]
+  ] as const) {
+    const card = byId(buildFindings(viewFromV1Report(report), null), id);
+    assert.match(card.title, /No change observed/);
+    assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /fewer tracking|Sentry/);
+    assert.match(card.lead, /tracking-related service requests/);
+  }
+
+  const emptyVariant = makeResult({
+    firstPartyDomain: "app.example",
+    totalRequests: 6,
+    thirdPartyRequests: 0,
+    thirdPartyDomains: 0
+  });
+  for (const [id, report] of [
+    ["gpc-comparison", gpcPair(structuredClone(baseline), structuredClone(emptyVariant))],
+    ["shields-comparison", shieldsPair(structuredClone(baseline), structuredClone(emptyVariant))]
+  ] as const) {
+    const card = byId(buildFindings(viewFromV1Report(report), null), id);
+    assert.match(card.title, /Lower values observed across comparable metrics/);
+    assert.match(card.lead, /4 fewer third-party requests/);
+    assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /tracking signals|Sentry/);
+  }
 });
 
 test("request capture loss replaces the GPC finding with a non-comparative methodology card", () => {
@@ -1181,16 +1308,20 @@ test("flags a policy contradiction when the policy denies third-party cookies th
   assert.match(card.detail, /not a legal conclusion/);
 });
 
-test("flags unnamed tracking companies as an informational disclosure gap", () => {
+test("frozen-v1 policy arrays retain actual tracking entities and discard non-tracking role matches", () => {
   const result = makeResult({
-    domains: [makeTrackerDomain("track.criteo.com", 4, "Criteo", "advertising")],
-    thirdPartyDomains: 1
+    domains: [
+      makeTrackerDomain("track.criteo.com", 4, "Criteo", "advertising"),
+      makeTrackerDomain("cdn.optimizely.com", 2, "Optimizely", "experimentation"),
+      makeTrackerDomain("sdk.iad-01.braze.com", 2, "Braze", "customer engagement")
+    ],
+    thirdPartyDomains: 3
   });
   result.privacyPolicy = {
     url: "https://example.com/privacy",
     claims: [],
     mentionedEntities: ["Google"],
-    unmentionedEntities: ["Criteo"],
+    unmentionedEntities: ["Criteo", "Optimizely", "Braze"],
     policyTextLength: 5000
   };
 
@@ -1201,7 +1332,34 @@ test("flags unnamed tracking companies as an informational disclosure gap", () =
   // re-verified for any committed report.
   assert.match(card.title, /does not appear to name/);
   assert.match(card.lead, /Criteo was sent requests during this visit, but the policy text matched none of the names this scan knows that company by/);
+  assert.doesNotMatch(`${card.lead} ${card.detail}`, /Optimizely|Braze|Google/);
   assert.match(card.detail, /not automatically a violation/);
+  assert.match(card.evidence, /0 of 1 observed tracking company named in the policy/);
+  assert.equal(card.claim?.mode, "presence");
+});
+
+test("frozen-v1 unclassified services cannot create a tracking-company policy claim", () => {
+  const result = makeResult({
+    domains: [
+      makeTrackerDomain("cdn.optimizely.com", 2, "Optimizely", "experimentation"),
+      makeTrackerDomain("sdk.iad-01.braze.com", 2, "Braze", "customer engagement")
+    ],
+    thirdPartyDomains: 2
+  });
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: ["Optimizely", "Braze"],
+    policyTextLength: 5000
+  };
+
+  const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+  assert.equal(card.level, "info");
+  assert.match(card.title, /no statement this scan can check/);
+  assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail}`, /Optimizely|Braze|does not appear to name/);
+  assert.match(card.evidence, /no catalogued tracking companies observed to check against it/);
+  assert.equal(card.claim?.mode, "unavailable");
 });
 
 test("reports a clean policy check at ok level", () => {
@@ -1429,7 +1587,7 @@ test("a tampered wire diff cannot drive the Shields card; deltas and entity list
   report.diff.removedEntities = [{ entity: "Forged Co", requests: 999, domains: 9 }];
 
   const card = byId(buildFindings(viewFromV1Report(report), null), "shields-comparison");
-  assert.match(card.lead, /55 fewer third-party requests and 60 fewer known-service requests/);
+  assert.match(card.lead, /55 fewer third-party requests and 60 fewer tracking-related service requests/);
   assert.match(card.detail, /Services only seen in the unblocked visit: AdCo/);
   assert.doesNotMatch(card.detail, /Forged Co/);
 });

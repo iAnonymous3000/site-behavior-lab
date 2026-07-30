@@ -269,7 +269,7 @@ test("r2 reports get a separate methodology cohort and never enter the legacy v1
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
   assert.equal(stats.metrics.thirdPartyRequests?.max, 20);
   assert.equal(stats.coverageSiteCount, 2);
-  assert.equal(stats.version, 2);
+  assert.equal(stats.version, 3);
   assert.equal(stats.cohorts?.length, 2);
   const r2Cohort = stats.cohorts?.find((cohort) => cohort.schemaVersion === 2);
   assert.equal(r2Cohort?.sampleSize, 1);
@@ -277,6 +277,10 @@ test("r2 reports get a separate methodology cohort and never enter the legacy v1
   assert.equal(r2Cohort?.metrics.thirdPartyCookies, undefined, "cookie-only loss reduces only that metric denominator");
   assert.equal(r2Cohort?.methodologyOrigin, "recorded");
   assert.equal(r2Cohort?.producer, "node-playwright");
+  assert.equal(r2Cohort?.trackerCatalogDigest, r2.run.toolchain.trackerCatalog.digest);
+  assert.equal(r2Cohort?.trackerCatalogOrigin, "recorded");
+  assert.match(r2Cohort?.serviceRoleTaxonomyVersion ?? "", /^service-role-taxonomy-v\d+$/);
+  assert.match(r2Cohort?.serviceRoleTaxonomyDigest ?? "", /^[a-f0-9]{64}$/);
   assert.deepEqual(warnings, []);
 });
 

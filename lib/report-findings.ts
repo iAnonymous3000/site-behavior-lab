@@ -30,7 +30,8 @@ import {
   detectionEvidence,
   detectionLabel,
   fingerprintDetection,
-  isOperationalEntity,
+  isTrackingEntity,
+  isTrackingTrackerMatch,
   keystrokeLeakHashed,
   pixelEventEvidence,
   pixelEventSummaries,
@@ -38,7 +39,8 @@ import {
   respondedTrackerEntityNames,
   shieldsRunMeasurement,
   trackerOwnershipBreakdown,
-  trackerResponseQualification
+  trackerResponseQualification,
+  trackingServiceRequests
 } from "./report-insights";
 import {
   reviewedOwnershipRelationship
@@ -209,7 +211,7 @@ const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this cover
 function corpusBenchmarkScope(corpus: CorpusStats): string {
   const coverage = corpus.coverageSiteCount;
   if (corpus.cohorts && corpus.primaryCohortId) {
-    return `report's exact schema, methodology, producer, and Global Privacy Control cohort, with each percentile card naming its metric-specific measured-site denominator${
+    return `report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, producer, and Global Privacy Control cohort, with each percentile card naming its metric-specific measured-site denominator${
       typeof coverage === "number" && coverage > corpus.sampleSize
         ? ` (among ${coverage.toLocaleString("en-US")} sites with a successful load across all cohorts; other methodologies, request-capped visits, and post-choice consent visits are excluded from this denominator, while failed or block-page attempts are outside that coverage)`
         : ""
@@ -245,10 +247,19 @@ export function buildFindings(
   const recipientEntities = ownership.otherOrUnreviewed;
   const trackingEntities = facts.identity.trackingEntities;
   const operationalEntities = facts.identity.operationalEntities;
+  const unclassifiedEntities = facts.identity.unclassifiedEntities;
   const trackingNames = trackingEntities.map((entity) => entity.entity);
   const operationalNames = operationalEntities.map((entity) => entity.entity);
+  const unclassifiedNames = unclassifiedEntities.map((entity) => entity.entity);
   const respondedEntities = facts.identity.respondedEntities;
   const topCategories = Array.from(new Set(trackingEntities.flatMap((entity) => entity.categories))).slice(0, 3);
+  const trackingCnameCloaks = run.evidence.cnameCloaks.filter((cloak) =>
+    isTrackingTrackerMatch(cloak.tracker)
+  );
+  const trackingCnameNames = Array.from(
+    new Set(trackingCnameCloaks.map((cloak) => cloak.tracker.entity))
+  ).sort();
+  const trackingCnameNameSet = new Set(trackingCnameNames);
   const catalogReach = facts.identity.coverage;
   // Quantify what the report could not name. "No known services matched" is
   // otherwise read as "no third parties", when it can equally mean the catalog
@@ -263,10 +274,10 @@ export function buildFindings(
         : ` This scan could not identify ${catalogReach.unidentifiedHosts} of the ${plural(catalogReach.thirdPartyHosts, "third-party host")} recorded here, so it cannot say who operates ${catalogReach.unidentifiedHosts === 1 ? "it" : "them"}. That is a limit of identity coverage, not evidence about the site.`;
   const catalogEntityNames = new Set(facts.identity.catalogEntities.map((entity) => entity.entity));
   const nonCatalogOutsideIdentityNames = facts.identity.outsideNames.filter(
-    (name) => !catalogEntityNames.has(name)
+    (name) => !catalogEntityNames.has(name) && !trackingCnameNameSet.has(name)
   );
   const nonCatalogSameOrganizationNames = facts.identity.sameOrganizationNames.filter(
-    (name) => !catalogEntityNames.has(name)
+    (name) => !catalogEntityNames.has(name) && !trackingCnameNameSet.has(name)
   );
   const nonCatalogIdentityNames = Array.from(
     new Set([...nonCatalogOutsideIdentityNames, ...nonCatalogSameOrganizationNames])
@@ -318,7 +329,11 @@ export function buildFindings(
 
   const operationalNote =
     operationalNames.length > 0
-      ? ` Catalog labels for these additional services describe monitoring or support functions: ${humanList(operationalNames)}.`
+      ? ` The role taxonomy assigns these additional services explicitly non-tracking operational, support, security, consent-management, or hosting roles: ${humanList(operationalNames)}.`
+      : "";
+  const unclassifiedNote =
+    unclassifiedNames.length > 0
+      ? ` The role taxonomy leaves at least one catalog category unclassified for these identified services and assigns none a tracking-related role, so they are not counted as tracking-related: ${humanList(unclassifiedNames)}.`
       : "";
   const sameOrganizationNote =
     ownership.sameOrganizationDomainCount > 0
@@ -334,20 +349,29 @@ export function buildFindings(
       ? ` Catalog labels include session-replay or behavior-analytics services: ${humanList(sessionReplayNames)}; the domain match alone does not prove that a recording occurred.`
       : "";
 
-  const headlineEntities = recipientEntities.filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
-  const sameOrganizationHeadlineEntities = ownership.sameOrganization.filter((entity) =>
-    HEADLINE_PLATFORMS.includes(entity.entity)
-  );
+  const headlineEntities = recipientEntities
+    .filter(isTrackingEntity)
+    .filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
+  const cataloguedNonTrackingHeadlineEntities = recipientEntities
+    .filter((entity) => !isTrackingEntity(entity))
+    .filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
+  const sameOrganizationHeadlineEntities = ownership.sameOrganization
+    .filter(isTrackingEntity)
+    .filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
   const headlineNames = headlineEntities.map((entity) => entity.entity);
+  const cataloguedNonTrackingHeadlineNames = cataloguedNonTrackingHeadlineEntities.map(
+    (entity) => entity.entity
+  );
   // Platform domains the ownership map names but the service catalog does not
   // carry, for example fonts.googleapis.com and gstatic.com. The card's absence
   // claim is derived from catalog matches alone, so without these it published
   // a green "no requests to Google domains were observed" over an observed
   // request to exactly such a domain.
-  const cataloguedHeadlineNames = new Set([
-    ...headlineNames,
-    ...sameOrganizationHeadlineEntities.map((entity) => entity.entity)
-  ]);
+  const cataloguedHeadlineNames = new Set(
+    [...recipientEntities, ...ownership.sameOrganization]
+      .map((entity) => entity.entity)
+      .filter((entity) => HEADLINE_PLATFORMS.includes(entity))
+  );
   const sameOrganizationPlatformNames = Array.from(
     new Set([
       ...sameOrganizationHeadlineEntities.map((entity) => entity.entity),
@@ -369,6 +393,8 @@ export function buildFindings(
     )
     .reduce((total, host) => total + host.requests, 0);
   const headlineRequests = headlineEntities.reduce((total, entity) => total + entity.requests, 0);
+  const cataloguedNonTrackingHeadlineRequests =
+    cataloguedNonTrackingHeadlineEntities.reduce((total, entity) => total + entity.requests, 0);
   const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
   const requestsWithProvenance = run.evidence.requests.filter((request) => request.provenance).length;
 
@@ -420,7 +446,7 @@ export function buildFindings(
     });
   }
 
-  const cnameCloaks = run.evidence.cnameCloaks;
+  const cnameCloaks = trackingCnameCloaks;
   if (cnameCloaks.length > 0) {
     const vendors = humanList(Array.from(new Set(cnameCloaks.map((cloak) => cloak.tracker.entity))));
     findings.push({
@@ -528,8 +554,21 @@ export function buildFindings(
     // The claim stays in the stored policy summary, but no request-count
     // comparison is allowed to contradict it.
 
-    const namedCount = policy.mentionedEntities.length;
-    const totalObserved = namedCount + policy.unmentionedEntities.length;
+    // Frozen producer arrays recorded every catalogued entity as a potential
+    // tracking company. Rebind them to the current, positive ServiceRole
+    // classification before publishing a disclosure claim; an operational or
+    // unclassified catalog match must not become tracking merely because an
+    // older producer put its name in one of these arrays.
+    const policyMentionedEntityNames = new Set(policy.mentionedEntities);
+    const policyUnmentionedEntityNames = new Set(policy.unmentionedEntities);
+    const mentionedTrackingEntities = trackingNames.filter((entity) =>
+      policyMentionedEntityNames.has(entity)
+    );
+    const unmentionedTrackingEntities = trackingNames.filter((entity) =>
+      policyUnmentionedEntityNames.has(entity)
+    );
+    const namedCount = mentionedTrackingEntities.length;
+    const totalObserved = namedCount + unmentionedTrackingEntities.length;
     const coverage =
       totalObserved > 0
         ? `${namedCount} of ${plural(totalObserved, "observed tracking company", "observed tracking companies")} named in the policy`
@@ -553,7 +592,7 @@ export function buildFindings(
       level:
         conflicts.length > 0
           ? "warn"
-          : conditionalConflicts.length > 0 || policy.unmentionedEntities.length > 0
+          : conditionalConflicts.length > 0 || unmentionedTrackingEntities.length > 0
             ? "info"
             : policyAbsenceIneligible || noCheckableClaims
               ? "info"
@@ -563,7 +602,7 @@ export function buildFindings(
           ? "The privacy policy says one thing; this visit shows another"
           : conditionalConflicts.length > 0
             ? "A policy statement may conflict with observed advertising events"
-            : policy.unmentionedEntities.length > 0
+            : unmentionedTrackingEntities.length > 0
               ? "Tracking companies the privacy policy does not appear to name"
               : noCheckableClaims
                 ? "Privacy policy read; it made no statement this scan can check"
@@ -577,22 +616,22 @@ export function buildFindings(
           ? `Comparing the site's own privacy policy against this visit: ${humanList(conflicts, 3)}.`
           : conditionalConflicts.length > 0
             ? `Comparing the site's own privacy policy against this visit: ${humanList(conditionalConflicts, 2)}.`
-            : policy.unmentionedEntities.length > 0
-              ? `${humanList(policy.unmentionedEntities)} ${policy.unmentionedEntities.length === 1 ? "was" : "were"} sent requests during this visit, but the policy text matched none of the names this scan knows ${policy.unmentionedEntities.length === 1 ? "that company" : "those companies"} by.`
+            : unmentionedTrackingEntities.length > 0
+              ? `${humanList(unmentionedTrackingEntities)} ${unmentionedTrackingEntities.length === 1 ? "was" : "were"} sent requests during this visit, but the policy text matched none of the names this scan knows ${unmentionedTrackingEntities.length === 1 ? "that company" : "those companies"} by.`
               : noCheckableClaims
                 ? `None of the statements this scan knows how to check appear in the policy text, so nothing was compared against this visit's evidence (${coverage}). That is a limit of the automated check, not a finding about the site either way.`
                 : `The policy's checkable statements did not contradict this visit's evidence (${coverage}).`,
       detail:
         conflicts.length > 0 || conditionalConflicts.length > 0
           ? `Matched policy wording: ${quotes.map((quote) => `"${quote}"`).join(" / ")}. This is an automated sentence match against the policy's own text, quoted so it can be verified in context. Policies can define terms narrowly (such as what counts as selling or sharing), so treat this as a documented discrepancy to review, not a legal conclusion.`
-          : policy.unmentionedEntities.length > 0
-            ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(policy.mentionedEntities)}.` : ""}`
+          : unmentionedTrackingEntities.length > 0
+            ? `Policies often disclose vendor categories rather than company names, so an unnamed vendor is a transparency gap worth reviewing, not automatically a violation.${namedCount > 0 ? ` Named in the policy: ${humanList(mentionedTrackingEntities)}.` : ""}`
             : `Statements checked automatically: blanket no-cookie claims, third-party-cookie claims, and combined do-not-sell-or-share claims against advertising-pixel identifier fields. Global Privacy Control claims are never checked against request counts, which cannot show whether selling or sharing stopped.${policyEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
       evidence: `Policy at ${policy.url}; ${plural(checkablePolicyClaims.length, "checkable statement")} matched; ${coverage}.`,
       claim: findingClaim(
         facts,
         "privacy-policy",
-        conflicts.length > 0 || conditionalConflicts.length > 0 || policy.unmentionedEntities.length > 0
+        conflicts.length > 0 || conditionalConflicts.length > 0 || unmentionedTrackingEntities.length > 0
           ? "presence"
           : noCheckableClaims
             ? "unavailable"
@@ -607,7 +646,12 @@ export function buildFindings(
     level:
       trackingEntities.length > 0
         ? thirdPartyLevel
-        : operationalEntities.length > 0 || nonCatalogIdentityNames.length > 0 || requestsCensored
+        : trackingCnameNames.length > 0
+          ? "warn"
+        : operationalEntities.length > 0 ||
+            unclassifiedEntities.length > 0 ||
+            nonCatalogIdentityNames.length > 0 ||
+            requestsCensored
           ? "info"
           : "ok",
     title:
@@ -615,8 +659,12 @@ export function buildFindings(
         ? trackingEntities.every((entity) => respondedEntities.has(entity.entity))
           ? "Catalogued service domains recorded responses during this visit"
           : "Requests were dispatched to catalogued service domains"
+        : trackingCnameNames.length > 0
+          ? "Tracking services were identified behind first-party aliases"
         : operationalEntities.length > 0
           ? "Operational service matches were recorded"
+          : unclassifiedEntities.length > 0
+            ? "Identified services have unclassified functional roles"
           : nonCatalogOutsideIdentityNames.length > 0
             ? "Other third-party operators were identified outside the tracking-service catalog"
             : nonCatalogSameOrganizationNames.length > 0
@@ -625,8 +673,12 @@ export function buildFindings(
     lead:
       trackingEntities.length > 0
         ? `${humanList(trackingNames)} appeared in the request log.`
+        : trackingCnameNames.length > 0
+          ? `DNS CNAME evidence identified ${humanList(trackingCnameNames)} behind first-party-looking hostnames.`
         : operationalEntities.length > 0
           ? `The catalog matched operational tools: ${humanList(operationalNames)}.`
+          : unclassifiedEntities.length > 0
+            ? `The catalog identified ${humanList(unclassifiedNames)}, but its read-time role taxonomy leaves at least one category unclassified and assigns ${unclassifiedEntities.length === 1 ? "that service" : "those services"} no tracking-related role.`
           : nonCatalogOutsideIdentityNames.length > 0
             ? `${humanList(nonCatalogOutsideIdentityNames)} were named by consent-platform signatures, reviewed ownership, or CNAME evidence without being classified as tracking services.`
             : nonCatalogSameOrganizationNames.length > 0
@@ -634,9 +686,13 @@ export function buildFindings(
             : "This scan did not match any third-party domains to the service catalog or another identity source.",
     detail:
       trackingEntities.length > 0
-        ? `A catalog match identifies a maintainer-reviewed service/domain mapping; it does not establish why an individual request occurred, what it carried, or whether profiling happened.${topCategories.length > 0 ? ` Functional catalog labels include ${humanList(topCategories)}.` : ""}${catalogCoverageNote}${sessionReplayNote}${operationalNote}${sameOrganizationNote}`
+        ? `A catalog match identifies a maintainer-reviewed service/domain mapping; it does not establish why an individual request occurred, what it carried, or whether profiling happened.${topCategories.length > 0 ? ` Functional catalog labels include ${humanList(topCategories)}.` : ""}${catalogCoverageNote}${sessionReplayNote}${operationalNote}${unclassifiedNote}${sameOrganizationNote}`
+        : trackingCnameNames.length > 0
+          ? `The read-time role taxonomy classifies the resolved CNAME targets as tracking-related. That identifies the service behind the alias, but does not establish the request's purpose, payload, or whether profiling occurred.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
         : operationalEntities.length > 0
-          ? `The catalog assigns these services monitoring or support labels; the matches do not establish each request's purpose.${catalogCoverageNote}${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+          ? `The role taxonomy assigns these services explicitly non-tracking operational, support, security, consent-management, or hosting roles; the matches do not establish each request's purpose.${catalogCoverageNote}${unclassifiedNote}${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+          : unclassifiedEntities.length > 0
+            ? `Identification and functional classification are separate. An unclassified role is not evidence that a service was harmless, but it is also not a basis for calling the service tracking-related.${catalogCoverageNote}${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
           : nonCatalogOutsideIdentityNames.length > 0
             ? `Operator identity and tracking classification are separate: naming an operator does not prove that a request was for tracking.${catalogCoverageNote}${sameOrganizationNote}${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
             : nonCatalogSameOrganizationNames.length > 0
@@ -645,18 +701,26 @@ export function buildFindings(
     // Counted per distinct HOST, not per registrable domain: two subdomains of
     // one company are two rows here. Calling them registrable-domain
     // boundaries overstated how many separate parties the visit reached.
-    evidence: `${retainedCountPhrase(
-      run.counts.thirdPartyRequests,
-      "cross-site request",
-      "cross-site requests",
-      facts.evidence.requests.state
-    )} across ${retainedCountPhrase(
-      run.counts.thirdPartyDomains,
-      "third-party host",
-      "third-party hosts",
-      facts.evidence.requests.state
-    )}.`,
-    benchmark: !domainsBenchmarkAllowed
+    evidence:
+      trackingEntities.length === 0 && trackingCnameCloaks.length > 0
+        ? humanList(
+            trackingCnameCloaks.map(
+              (cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.entity})`
+            ),
+            4
+          )
+        : `${retainedCountPhrase(
+            run.counts.thirdPartyRequests,
+            "cross-site request",
+            "cross-site requests",
+            facts.evidence.requests.state
+          )} across ${retainedCountPhrase(
+            run.counts.thirdPartyDomains,
+            "third-party host",
+            "third-party hosts",
+            facts.evidence.requests.state
+          )}.`,
+    benchmark: trackingCnameNames.length > 0 || !domainsBenchmarkAllowed
       ? undefined
       : domainsBenchmark
         ? domainsBenchmark.label
@@ -667,7 +731,11 @@ export function buildFindings(
     claim: findingClaim(
       facts,
       "third-party-services",
-      trackingEntities.length > 0 || operationalEntities.length > 0 || nonCatalogIdentityNames.length > 0
+      trackingEntities.length > 0 ||
+        trackingCnameNames.length > 0 ||
+        operationalEntities.length > 0 ||
+        unclassifiedEntities.length > 0 ||
+        nonCatalogIdentityNames.length > 0
         ? "presence"
         : "absence"
     )
@@ -678,7 +746,8 @@ export function buildFindings(
     icon: "network",
     level:
       headlineNames.length === 0
-        ? sameOrganizationPlatformNames.length > 0 ||
+        ? cataloguedNonTrackingHeadlineNames.length > 0 ||
+          sameOrganizationPlatformNames.length > 0 ||
           uncataloguedPlatformOrganizations.length > 0 ||
           requestsCensored
           ? "info"
@@ -689,6 +758,8 @@ export function buildFindings(
     title:
       headlineNames.length > 0
         ? "Requests were dispatched to catalogued major-platform domains"
+        : cataloguedNonTrackingHeadlineNames.length > 0
+          ? "Major-platform domains were identified without a tracking-role assignment"
         : sameOrganizationPlatformNames.length > 0
           ? "Major-platform domains matched within the site's reviewed organization"
           : uncataloguedPlatformOrganizations.length > 0
@@ -697,6 +768,8 @@ export function buildFindings(
     lead:
       headlineNames.length > 0
         ? `This visit dispatched requests to catalogued domains for ${humanList(headlineNames)}.`
+        : cataloguedNonTrackingHeadlineNames.length > 0
+          ? `This visit dispatched requests to catalogued domains for ${humanList(cataloguedNonTrackingHeadlineNames)}, but the read-time role taxonomy assigns no tracking-related role to those matches.`
         : sameOrganizationPlatformNames.length > 0
           ? `${humanList(sameOrganizationPlatformNames)} domains appeared across a registrable-domain boundary, but the reviewed ownership map groups them with the site rather than an outside company.`
           : uncataloguedPlatformOrganizations.length > 0
@@ -707,6 +780,8 @@ export function buildFindings(
     detail:
       headlineNames.length > 0
         ? `The domain matches identify services, not the requests' purpose, payload, or whether any profile linking occurred.${sameOrganizationNote}`
+        : cataloguedNonTrackingHeadlineNames.length > 0
+          ? "Identification and functional classification are separate. These domain matches remain visible, but an operational or unclassified role is not enough to label the requests tracking-related."
         : sameOrganizationPlatformNames.length > 0
           ? "Cross-registrable-domain traffic remains counted in the report, but this reviewed ownership relationship does not support an outside-recipient disclosure claim. Naming the operator also does not prove request purpose."
           : uncataloguedPlatformOrganizations.length > 0
@@ -720,6 +795,13 @@ export function buildFindings(
             "requests",
             facts.evidence.requests.state
           )} to these platforms.`
+        : cataloguedNonTrackingHeadlineNames.length > 0
+          ? `${retainedCountPhrase(
+              cataloguedNonTrackingHeadlineRequests,
+              "request",
+              "requests",
+              facts.evidence.requests.state
+            )} to these catalogued platform domains.`
         : sameOrganizationPlatformNames.length > 0
           ? `${retainedCountPhrase(
               sameOrganizationPlatformRequests,
@@ -738,6 +820,7 @@ export function buildFindings(
       facts,
       "named-platforms",
       headlineNames.length > 0 ||
+        cataloguedNonTrackingHeadlineNames.length > 0 ||
         sameOrganizationPlatformNames.length > 0 ||
         uncataloguedPlatformOrganizations.length > 0
         ? "presence"
@@ -1034,7 +1117,7 @@ export function buildFindings(
       // SIGNED deltas per allowed family (variant minus baseline; negative =
       // fewer with blocking on), classified as decreased / increased / mixed
       // / flat. Never clamped and never summed across families: a pair with
-      // more third-party requests but one fewer known-service request is a
+      // more third-party requests but one fewer tracking-related service request is a
       // MIXED result, not "fewer tracking signals".
       const signedDeltas: { label: string; singular: string; value: number }[] = [];
       if (rawCountsAllowed) {
@@ -1053,9 +1136,11 @@ export function buildFindings(
       }
       if (classificationAllowed) {
         signedDeltas.push({
-          label: "known-service requests",
-          singular: "known-service request",
-          value: arms.variant.counts.knownTrackerRequests - arms.baseline.counts.knownTrackerRequests
+          label: "tracking-related service requests",
+          singular: "tracking-related service request",
+          value:
+            trackingServiceRequests(arms.variant.evidence) -
+            trackingServiceRequests(arms.baseline.evidence)
         });
       }
       if (fingerprintComparisonAllowed) {
@@ -1110,9 +1195,9 @@ export function buildFindings(
           level: direction === "decreased" ? "ok" : direction === "flat" ? "quiet" : "info",
           title:
             direction === "decreased"
-              ? "Fewer tracking signals observed in the Brave-list blocking attempt"
+              ? "Lower values observed across comparable metrics in the Brave-list blocking attempt"
               : direction === "increased"
-                ? "More third-party activity observed in the Brave-list blocking attempt"
+                ? "Higher values observed across comparable metrics in the Brave-list blocking attempt"
                 : direction === "mixed"
                   ? "Mixed changes observed in the Brave-list blocking attempt"
                   : "No change observed in the Brave-list blocking attempt",
@@ -1180,9 +1265,11 @@ export function buildFindings(
       }
       if (classificationAllowed) {
         signedDeltas.push({
-          label: "known-service requests",
-          singular: "known-service request",
-          value: arms.variant.counts.knownTrackerRequests - arms.baseline.counts.knownTrackerRequests
+          label: "tracking-related service requests",
+          singular: "tracking-related service request",
+          value:
+            trackingServiceRequests(arms.variant.evidence) -
+            trackingServiceRequests(arms.baseline.evidence)
         });
       }
       if (fingerprintComparisonAllowed) {
@@ -1223,9 +1310,9 @@ export function buildFindings(
           // already names the exact metrics that moved.
           title:
             direction === "decreased"
-              ? "Fewer tracking signals observed in the visit with a privacy signal"
+              ? "Lower values observed across comparable metrics in the visit with a privacy signal"
               : direction === "increased"
-                ? "More tracking signals observed in the visit with a privacy signal"
+                ? "Higher values observed across comparable metrics in the visit with a privacy signal"
                 : direction === "mixed"
                   ? "Mixed changes observed in the visit with a privacy signal"
                   : "No change observed in the visit with a privacy signal",
@@ -1514,9 +1601,12 @@ function unconfirmedConsentInteractionFinding(view: ReportView, baseline: RunVie
  */
 function entitiesOnlyIn(run: RunView, other: RunView): string[] {
   const otherEntities = new Set(
-    trackerOwnershipBreakdown(other.evidence, other.domain).otherOrUnreviewed.map((entity) => entity.entity)
+    trackerOwnershipBreakdown(other.evidence, other.domain).otherOrUnreviewed
+      .filter(isTrackingEntity)
+      .map((entity) => entity.entity)
   );
   return trackerOwnershipBreakdown(run.evidence, run.domain).otherOrUnreviewed
+    .filter(isTrackingEntity)
     .filter((entity) => !otherEntities.has(entity.entity))
     .map((entity) => entity.entity);
 }
@@ -1557,11 +1647,11 @@ function buildConsentComparisonFinding(
   const acceptTracking = trackerOwnershipBreakdown(
     baseline.evidence,
     baseline.domain
-  ).otherOrUnreviewed.filter((entity) => !isOperationalEntity(entity));
+  ).otherOrUnreviewed.filter(isTrackingEntity);
   const rejectTracking = trackerOwnershipBreakdown(
     variant.evidence,
     variant.domain
-  ).otherOrUnreviewed.filter((entity) => !isOperationalEntity(entity));
+  ).otherOrUnreviewed.filter(isTrackingEntity);
   const rejectResponded = respondedTrackerEntityNames(variant.evidence);
   const requestsBefore = baseline.counts.thirdPartyRequests;
   const requestsAfter = variant.counts.thirdPartyRequests;

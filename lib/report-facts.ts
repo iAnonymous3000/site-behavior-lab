@@ -5,6 +5,9 @@ import {
   fingerprintDetection,
   highEntropyDetections,
   isOperationalEntity,
+  isTrackingEntity,
+  isTrackingTrackerMatch,
+  isUnclassifiedEntity,
   keystrokeLeakHashed,
   respondedTrackerEntityNames,
   scanLoadFailureStatus,
@@ -123,6 +126,8 @@ export type RunIdentityFacts = {
   catalogEntities: TrackerEntitySummary[];
   trackingEntities: TrackerEntitySummary[];
   operationalEntities: TrackerEntitySummary[];
+  /** Services with an unresolved catalog category and no tracking-bearing assignment. */
+  unclassifiedEntities: TrackerEntitySummary[];
   ownership: TrackerOwnershipBreakdown;
   respondedEntities: Set<string>;
   cmpNames: string[];
@@ -631,8 +636,9 @@ function claimFamilyState(
 
 function identityFacts(run: RunView): RunIdentityFacts {
   const catalogEntities = trackerEntitySummaries(run.evidence);
-  const trackingEntities = catalogEntities.filter((entity) => !isOperationalEntity(entity));
+  const trackingEntities = catalogEntities.filter(isTrackingEntity);
   const operationalEntities = catalogEntities.filter(isOperationalEntity);
+  const unclassifiedEntities = catalogEntities.filter(isUnclassifiedEntity);
   const ownership = trackerOwnershipBreakdown(run.evidence, run.domain);
   const respondedEntities = respondedTrackerEntityNames(run.evidence);
   const hosts: IdentifiedHostFact[] = [];
@@ -692,7 +698,10 @@ function identityFacts(run: RunView): RunIdentityFacts {
       alias.relationship === "same-organization" ? sameOrganizationNames : outsideNames;
     target.add(alias.name);
   }
-  const majorPlatformNames = [...allNames].filter((name) => HEADLINE_PLATFORMS.includes(name)).sort();
+  const majorPlatformNames = trackingEntities
+    .map((entity) => entity.entity)
+    .filter((name) => HEADLINE_PLATFORMS.includes(name))
+    .sort();
   const identifiedHosts = hosts.filter((host) => host.namers.length > 0).map((host) => host.host);
   const unidentifiedHosts = hosts.filter((host) => host.namers.length === 0).map((host) => host.host);
 
@@ -700,6 +709,7 @@ function identityFacts(run: RunView): RunIdentityFacts {
     catalogEntities,
     trackingEntities,
     operationalEntities,
+    unclassifiedEntities,
     ownership,
     respondedEntities,
     cmpNames: [...cmpNames].sort(),
@@ -745,7 +755,11 @@ function observedSeverity(
     signals.fingerprint.listenerCoverageObserved ? (listenerCorroborated ? "warn" : "info") : "ok",
     signals.fingerprint.replayVendorObserved ? "info" : "ok",
     signals.shields.severity,
-    run.evidence.cnameCloaks.length > 0 ? "warn" : "ok",
+    run.evidence.cnameCloaks.some((cloak) => isTrackingTrackerMatch(cloak.tracker))
+      ? "warn"
+      : run.evidence.cnameCloaks.length > 0
+        ? "info"
+        : "ok",
     pixelIdentifiers ? "warn" : run.evidence.pixelEvents.length > 0 ? "info" : "ok",
     keystroke ? (keystrokeLeakHashed(keystroke.evidence.encodings) ? "loud" : "warn") : "ok"
   ];

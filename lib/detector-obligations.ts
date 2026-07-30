@@ -15,14 +15,26 @@ import type { DetectorReasonCode } from "./detector-status-contract";
 export const DETECTOR_OBLIGATION_CONTRACT_VERSION = "detector-obligations-v1";
 
 /**
- * Exact producer registry governed by this obligation epoch. Kept beside the
- * reader-safe rules so browser readers do not import the Node measurement
- * kernel merely to decide whether the rules apply.
+ * Exact producer registries governed by this obligation contract. Kept beside
+ * the reader-safe rules so browser readers do not import the Node measurement
+ * kernel merely to decide whether the rules apply. The former active epoch
+ * remains enforced after a producer-version transition; only pre-accountability
+ * registries are exempt.
  */
-export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
+export const HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
   detectorRegistryVersion: "node-detectors-v3",
   detectorRegistryDigest: "ad2971a6c3eff3a0ba537529ba91cb28686a5101bf2f2c290e47c176cd23c38b"
 });
+
+export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
+  detectorRegistryVersion: "node-detectors-v4",
+  detectorRegistryDigest: "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
+});
+
+export const DETECTOR_OBLIGATION_TARGET_REGISTRIES = Object.freeze([
+  HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  DETECTOR_OBLIGATION_TARGET_REGISTRY
+]);
 
 type LossKind = CaptureLossEntry["kind"];
 
