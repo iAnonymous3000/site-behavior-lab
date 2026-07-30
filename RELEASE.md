@@ -317,9 +317,13 @@ fresh verification for the final clean commit.
 Re-read from the public rulesets API rather than assumed, because the snapshot
 above is dated and governance is the gate a release leans on hardest:
 
-- exactly one ruleset exists, `Protect main history`, active on `refs/heads/main`
-  with rules `deletion` and `non_fast_forward` only. It still requires **no**
-  status checks and **no** pull request or review;
+- exactly one ruleset exists, `Protect main history`, active on
+  `refs/heads/main`. As of 2026-07-30 it requires a pull request (zero
+  approvals, review threads resolved, stale approvals dismissed), the four
+  candidate-code checks from the GitHub Actions app, a branch current with
+  `main` before merge, and it keeps the `deletion` and `non_fast_forward`
+  rules with no bypass actors. The proposal-canary sequence (two defects
+  found and fixed, third run clean end to end) preceded activation;
 - no ruleset targets `production`, so whatever protects it is classic
   protection, which the same snapshot recorded as linear history only;
 - no tag ruleset exists, so `v*` tags are unprotected and a pushed tag can be
