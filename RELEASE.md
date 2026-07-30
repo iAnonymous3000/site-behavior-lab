@@ -312,30 +312,54 @@ evidence for that exact snapshot. The governance, toolchain, and public-preview
 observations are release-policy blockers, and none of these receipts replaces
 fresh verification for the final clean commit.
 
-### Governance re-check (2026-07-25, read-only)
+### Governance re-check (2026-07-30, read-only)
 
-Re-read from the public rulesets API rather than assumed, because the snapshot
-above is dated and governance is the gate a release leans on hardest:
+Re-read from GitHub's ruleset and environment APIs rather than assumed, because
+the snapshot above is dated and governance is the gate a release leans on
+hardest:
 
-- exactly one ruleset exists, `Protect main history`, active on
-  `refs/heads/main`. As of 2026-07-30 it requires a pull request (zero
+- `Protect main history` (ruleset `19473770`) is active on `refs/heads/main`
+  with no bypass actors. It requires linear history, a pull request (zero
   approvals, review threads resolved, stale approvals dismissed), the four
-  candidate-code checks from the GitHub Actions app, a branch current with
-  `main` before merge, and it keeps the `deletion` and `non_fast_forward`
-  rules with no bypass actors. The proposal-canary sequence (two defects
-  found and fixed, third run clean end to end) preceded activation;
-- no ruleset targets `production`, so whatever protects it is classic
-  protection, which the same snapshot recorded as linear history only;
-- no tag ruleset exists, so `v*` tags are unprotected and a pushed tag can be
-  deleted or moved by anyone who can push;
-- no tag exists yet: `v0.2.0` has not been cut.
+  candidate-code checks from the GitHub Actions app, and a branch current with
+  `main`; only squash and rebase merges are allowed, and deletion plus
+  non-fast-forward updates are blocked;
+- `Protect immutable release tags` (ruleset `20050122`) is active on
+  `refs/tags/v*` with no bypass actors and blocks both deletion and every update.
+  It makes a created release tag immutable, but does not by itself restrict who
+  may create a new matching tag;
+- the `release-tag` environment exists with `main` as its sole custom branch,
+  requires review by `iAnonymous3000`, and allows that solo maintainer to review
+  their own deployment. GitHub currently reports administrator bypass enabled,
+  so the environment gate is live but is not yet an admin-proof authorization
+  boundary;
+- `Protect production evidence` (ruleset `20050303`) is active on
+  `refs/heads/production` with no bypass actors. It requires linear,
+  non-deleting, non-rewinding history and all five exact GitHub Actions checks,
+  including the trusted main-only attestation job;
+- `Restrict production updates to promoter App` (ruleset `20050309`) is active
+  with the dedicated promotion App (`Integration` id `4436250`) as its sole
+  bypass actor. During activation, a maintainer fast-forward and both the
+  direct CI promotion (run `30553823520`) and independent fallback (run
+  `30555628056`, attempt 1) were refused by `GH013` while the updater had no
+  bypass. After the App became the sole bypass, fallback attempt 2 independently
+  revalidated all five gates and advanced `production` to exact SHA
+  `49b9062b845b1c5aa97ea90069083bce274fb79b`. Final readback matched `main`
+  and `production`, kept the evidence ruleset's bypass list empty, and exposed
+  the aggregate deletion, non-fast-forward, linear-history, status-check, and
+  restricted-update rules;
+- no release tag exists yet: `v0.2.0` was never cut, and `v0.3.0` has not yet
+  been cut.
 
-The repository side of the gate is now as strong as it can be without those
-controls: both the promotion path and the release path verify every job in
-`.github/required-ci-jobs.json` against a completed successful `main` push run
-of this repository. That is enforcement by workflow, and a workflow cannot
-constrain a direct push the way a ruleset can, so the four items above remain
-operator work and remain release-policy blockers.
+The main-history, production-evidence, and immutable-tag boundaries are active,
+and the release environment now gates the workflow job that can publish a tag.
+The production-updater gate is closed. Tag publication is restricted by the
+main-only reviewed environment plus the workflow's actor and triggering-actor
+checks, but creation is not App-exclusive and the environment remains
+administrator-bypassable; those limits must not be described as stronger
+authorization. Before cutting `v0.3.0`, the final candidate still needs one
+exact-SHA chain of fresh CI, App-authenticated promotion, deployment
+convergence, deep Production Health, and final ruleset/ref readback.
 
 ## Working model under branch protection
 

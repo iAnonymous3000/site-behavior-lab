@@ -7,17 +7,108 @@ public API or a 1.0 release.
 
 ## Unreleased
 
-Work landing after the 0.2.0 milestone. Nothing here is released.
+Work landing after the 0.3.0 milestone. Nothing here is released.
 
-## [0.2.0] (declared 2026-07-25; the attested tag ceremony has not run)
+## [0.3.0] - 2026-07-30
+
+Pre-1.0 milestone prepared for the repository's first attested tag ceremony.
+It does not declare a stable public API, enable npm publication, turn automated
+observations into legal conclusions, or claim that disabled operational paths
+are live. The ScanReport schema contracts (v1 frozen, v2/r1, v2/r2) continue to
+version independently.
+
+### Added
+
+- Exact-source release receipt isolation now separates candidate builds,
+  hostile-data validation and attestation, and atomic tag publication. The
+  release gate independently requires the exact promoted commit and all five
+  named main-branch CI conclusions.
+- Detector accountability records the exact detector and phase obligations for
+  each metric family, preserves historical producer tuples, and refuses to use
+  public output as proof that a detector ran.
+- A first pixel-events calibration pilot exercises the labeled-study pipeline
+  and deliberately publishes no precision or recall rate because it contains no
+  representative labeled cases.
+- Real-site scanner-fidelity coverage checks both supported wire generations,
+  renders every returned report, and rejects contradictions between navigation,
+  detector status, findings, and reader-facing summaries.
+- Production-control receipts now record the bounded WAF admission ceiling,
+  log-retention queries, and required R2 create/read/delete/absence canary
+  without treating those observations as permanent infrastructure guarantees.
+
+### Changed
+
+- Report and corpus metrics now remain cohort-, methodology-, producer-, and
+  detector-status-specific. Unsupported, omitted, censored, or deadline-lost
+  families remain unavailable instead of silently becoming reassuring zeroes.
+- Featured and one-off report publishers now propose reviewed pull requests;
+  corpus floors are structural, and a stale proposal must be regenerated from
+  one current tree rather than updated in place.
+- Both production promotion paths authenticate with a repository-scoped GitHub
+  App token and keep checkout credentials out of Git configuration. The
+  production updater ruleset grants that App its sole bypass while the exact-
+  SHA evidence ruleset retains none; freeze refusals and the positive
+  promotion canary are recorded separately from workflow source.
+- The browser and container measurement toolchain moved to Playwright 1.62,
+  the application moved to Next.js 16, and reviewed GitHub Actions pins and
+  dependency overrides moved with the corresponding evidence contracts.
+- Evidence Library, comparison, shared-link, print, reduced-motion, live-scan,
+  and narrow-screen states now expose more of their evidence and status without
+  turning missing or incomplete observations into verdicts.
+
+### Fixed
+
+- Detector-specific failures, phase omissions, capture loss, and evidence caps
+  no longer borrow another detector's success, report unmeasured rates, or use
+  budget-exhaustion language for a bounded evidence cap.
+- CNAME, privacy-policy, platform-request, consent, navigation, detached-frame,
+  and third-party-host findings now stay aligned with the exact facts their
+  detectors observed.
+- Scanner setup, CNAME resolution, worker fetches, cancellation, durable-job
+  pumping, and response parsing now spend and report the deadline that actually
+  governs them instead of continuing work or misclassifying the stop.
+- A blocked or still-working scan no longer reads as a clean result or failed
+  navigation, and a widget or shared-link error no longer blanks otherwise
+  valid live evidence.
+- Corpus cards and rankings no longer pool incompatible cohorts, count covered
+  sites as measured sites, or headline comparison deltas that the selected pair
+  could not support.
+- Link-state announcements, new-tab disclosure, printable evidence, reduced
+  motion, mobile overflow, and representative control-state handling were
+  repaired across the report and scan surfaces.
+
+### Security
+
+- `main` now uses a no-bypass, linear-history pull-request ruleset with strict
+  candidate checks and resolved review threads; any matching `v*` release tag,
+  once created, is protected from update or deletion by a separate no-bypass
+  ruleset.
+- Production promotion authority is separated from ordinary workflow tokens,
+  while exact-SHA evidence checks stay in a distinct no-bypass boundary.
+- Supply-chain CI verifies the deterministic dependency/filter inventory,
+  audited registry state, Rust advisories, repository configuration, and the
+  smoke-tested runtime image without suppressing blocking findings.
+
+### Documentation
+
+- Release and governance documentation now distinguishes source evidence,
+  deployment convergence, environment approval, immutable tags, the closed
+  production-updater gate, and the still administrator-bypassable,
+  non-App-exclusive tag-creation path instead of presenting them as one gate.
+- Evidence and calibration language states that one automated visit is a
+  lower-bound observation rather than a universal or legal conclusion, and
+  that a pilot with no representative labeled cases cannot emit rates.
+
+## [0.2.0] (declared 2026-07-25; never tagged)
 
 Milestone of the pre-1.0 development line, declared for tagging on 2026-07-25.
-No `v0.2.0` tag or GitHub release exists yet, so on 2026-07-29 the release
-policy returned to development until the ceremony cuts the tag against a
-reviewed, CI-green, promoted source revision with an attested evidence receipt.
-A future tag does not declare a stable public API, and npm publication stays
-disabled. The ScanReport schema contracts (v1 frozen, v2/r1, v2/r2) version
-independently of this line and are unchanged by it.
+No `v0.2.0` tag or GitHub release was created. On 2026-07-29 the release policy
+returned to development rather than retroactively tagging a later tree. The
+0.3.0 milestone supersedes that untagged declaration, while this section remains
+as the source-level record of what the project called 0.2.0. Neither declaration
+creates a stable public API or enables npm publication. The ScanReport schema
+contracts (v1 frozen, v2/r1, v2/r2) version independently of this line and are
+unchanged by it.
 
 These entries describe source-level work on the private development line. A
 feature-gated path, test, canary, or runbook is not evidence that its external
@@ -239,4 +330,5 @@ activation gate has passed or that the corresponding production control is live.
   authorizes enabling the currently off feature flags.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
-[0.2.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.2.0
+[0.3.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.3.0
+[0.2.0]: https://github.com/iAnonymous3000/site-behavior-lab/commit/4240d32d1fa987e8d61d74fe719f6a8382422efa
