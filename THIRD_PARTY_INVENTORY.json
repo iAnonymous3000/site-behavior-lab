@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "909385408af67a2db514f0e08f617c7225131822ae24666c3fffac637bf1cf40"
+      "sha256": "3670a52afe6969dadca9b43dd8551a90df6b0eec8d05a28bc674b5d6fdbfe6ee"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
