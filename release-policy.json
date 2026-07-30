@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
-  "status": "released",
+  "status": "development",
   "version": "0.2.0",
-  "releaseTag": "v0.2.0",
-  "releaseDate": "2026-07-25",
+  "releaseTag": null,
+  "releaseDate": null,
   "stablePublicApi": false,
   "npmPublication": "disabled"
 }
