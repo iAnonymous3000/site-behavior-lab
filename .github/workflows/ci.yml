@@ -54,6 +54,14 @@ jobs:
         continue-on-error: true
         run: npm run supply-chain:third-party:check
 
+      # A new or bumped dependency cannot merge without at least an explicit
+      # unreviewed row in the review ledger; review COMPLETENESS is reported
+      # here and gated only at release readiness.
+      - name: Verify third-party review ledger coverage
+        id: third_party_review_ledger
+        continue-on-error: true
+        run: npm run supply-chain:reviews:check
+
       # This validates the committed status=blocked integrity/provenance
       # contract. It intentionally does not claim local rebuild byte parity.
       - name: Verify vendored WASM static integrity contract
@@ -174,6 +182,7 @@ jobs:
         env:
           NPM_CI_OUTCOME: ${{ steps.supply_chain_npm_ci.outcome }}
           THIRD_PARTY_OUTCOME: ${{ steps.third_party_supply_chain.outcome }}
+          REVIEW_LEDGER_OUTCOME: ${{ steps.third_party_review_ledger.outcome }}
           WASM_STATIC_INTEGRITY_OUTCOME: ${{ steps.wasm_static_integrity.outcome }}
           NPM_AUDIT_OUTCOME: ${{ steps.npm_audit.outcome }}
           CARGO_AUDIT_OUTCOME: ${{ steps.cargo_audit.outcome }}
@@ -186,6 +195,7 @@ jobs:
           for gate in \
             "npm ci:$NPM_CI_OUTCOME" \
             "third-party inventory:$THIRD_PARTY_OUTCOME" \
+            "third-party review ledger:$REVIEW_LEDGER_OUTCOME" \
             "WASM static integrity:$WASM_STATIC_INTEGRITY_OUTCOME" \
             "npm audit:$NPM_AUDIT_OUTCOME" \
             "cargo audit:$CARGO_AUDIT_OUTCOME" \
@@ -617,8 +627,22 @@ jobs:
           # .git/config.
           persist-credentials: false
 
+      # v3 deprecates app-id in favor of client-id. The client-id step takes
+      # over the moment the operator stores the App's client id in
+      # vars.PROMOTION_APP_CLIENT_ID; until then the app-id step runs and logs
+      # the action's deprecation warning. Exactly one of the two mints.
+      - name: Mint promotion App token (client id)
+        id: promotion_app_token_client
+        if: ${{ vars.PROMOTION_APP_CLIENT_ID }}
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.PROMOTION_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PROMOTION_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Mint promotion App token
         id: promotion_app_token
+        if: ${{ !vars.PROMOTION_APP_CLIENT_ID }}
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.PROMOTION_APP_ID }}
@@ -628,7 +652,7 @@ jobs:
       - name: Fast-forward production to the tested SHA
         env:
           CANDIDATE: ${{ github.sha }}
-          APP_TOKEN: ${{ steps.promotion_app_token.outputs.token }}
+          APP_TOKEN: ${{ steps.promotion_app_token_client.outputs.token || steps.promotion_app_token.outputs.token }}
         run: |
           set -euo pipefail
           git fetch origin main

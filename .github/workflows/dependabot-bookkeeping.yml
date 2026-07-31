@@ -134,14 +134,18 @@ jobs:
 
             # Pure read-and-hash over declarative files. Never installs.
             node scripts/third-party-inventory.mjs
+            # A bump is a new review-ledger row (created unreviewed); without
+            # this the review-coverage gate would refuse the branch for
+            # bookkeeping rather than for anything about the dependency.
+            node scripts/third-party-reviews.mjs --sync
 
-            if git diff --quiet -- package-lock.json THIRD_PARTY_INVENTORY.json; then
+            if git diff --quiet -- package-lock.json THIRD_PARTY_INVENTORY.json THIRD_PARTY_REVIEWS.json; then
               echo "already consistent"
               echo "::endgroup::"
               continue
             fi
 
-            git add package-lock.json THIRD_PARTY_INVENTORY.json
+            git add package-lock.json THIRD_PARTY_INVENTORY.json THIRD_PARTY_REVIEWS.json
             # Separate -m paragraphs, not an embedded newline: a message body at
             # column 0 would be less indented than this YAML block scalar and
             # would end it mid-script.

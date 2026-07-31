@@ -49,9 +49,18 @@ test("both promotion paths reserve production writes for the dedicated App", () 
       /actions\/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1/
     );
     assert.match(workflow, /app-id: \$\{\{ vars\.PROMOTION_APP_ID \}\}/);
+    // The deprecation migration: a client-id mint takes over when the
+    // operator stores the App client id, and the consumer coalesces so
+    // exactly one minted token is ever used.
+    assert.match(workflow, /client-id: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
+    assert.match(workflow, /if: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
+    assert.match(workflow, /if: \$\{\{ !vars\.PROMOTION_APP_CLIENT_ID \}\}/);
     assert.match(workflow, /private-key: \$\{\{ secrets\.PROMOTION_APP_PRIVATE_KEY \}\}/);
     assert.match(workflow, /permission-contents: write/);
-    assert.match(workflow, /APP_TOKEN: \$\{\{ steps\.promotion_app_token\.outputs\.token \}\}/);
+    assert.match(
+      workflow,
+      /APP_TOKEN: \$\{\{ steps\.promotion_app_token_client\.outputs\.token \|\| steps\.promotion_app_token\.outputs\.token \}\}/
+    );
     assert.match(workflow, /Promotion push authenticates as the dedicated promotion App/);
     assert.match(
       workflow,

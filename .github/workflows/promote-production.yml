@@ -85,8 +85,20 @@ jobs:
 
       # This privileged token is minted only after the independent fallback has
       # revalidated every required CI job for the exact candidate SHA.
+      # v3 deprecates app-id in favor of client-id; the client-id step takes
+      # over once vars.PROMOTION_APP_CLIENT_ID exists. Exactly one mints.
+      - name: Mint promotion App token (client id)
+        id: promotion_app_token_client
+        if: ${{ vars.PROMOTION_APP_CLIENT_ID }}
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.PROMOTION_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PROMOTION_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Mint promotion App token
         id: promotion_app_token
+        if: ${{ !vars.PROMOTION_APP_CLIENT_ID }}
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ vars.PROMOTION_APP_ID }}
@@ -96,7 +108,7 @@ jobs:
       - name: Fast-forward production to the tested SHA
         env:
           CANDIDATE: ${{ github.event.workflow_run.head_sha }}
-          APP_TOKEN: ${{ steps.promotion_app_token.outputs.token }}
+          APP_TOKEN: ${{ steps.promotion_app_token_client.outputs.token || steps.promotion_app_token.outputs.token }}
         run: |
           set -euo pipefail
           git fetch origin main
