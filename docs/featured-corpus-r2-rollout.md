@@ -127,6 +127,18 @@ Do not describe the r2 acquisition lane as production-ready, isolated, or
 ephemeral until the operator evidence exists and is reviewed; the existing
 egress attestation is necessary but is not a substitute for that evidence.
 
+That evidence now has a machine-readable shape: one destruction receipt per
+production run (`scripts/runner-receipt-lib.mjs`, verified by
+`scripts/verify-runner-destruction-receipt.mjs`), committed under
+`research/runner-receipts/<actions-run-id>.json`. The verifier enforces
+completeness and internal consistency: every isolation and egress gate must
+be literally true, registration must be ephemeral and job-scoped, and the
+destruction timeline must be ordered, with the operator attestation and its
+evidence references bound to the exact Actions run id. A cycle without a
+verifying receipt does not count toward the two-successful-cycles milestone.
+The receipt still cannot prove host truth; it makes missing evidence loud
+and gives review something exact to check.
+
 ## Manual v1 compatibility lane
 
 `workflow_dispatch` alone exposes `report_mode=v1`. That explicit choice runs

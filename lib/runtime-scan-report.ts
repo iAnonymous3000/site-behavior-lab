@@ -1,6 +1,7 @@
 import { BUILD_COMMIT_ENV, recordedBuildCommit } from "./build-provenance";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { PublicScanError } from "./public-errors";
+import { resolveScannerEgressRegion } from "./scanner-egress";
 import type { EphemeralComparisonReportR2, EphemeralSingleReportR2 } from "./scan-report-v2-r2";
 import type {
   ScanError,
@@ -23,6 +24,15 @@ export type RuntimeScanJobStatusResponse = Omit<ScanJobStatusResponse, "report">
 export type RuntimeScanJobApiResponse = RuntimeScanJobStatusResponse | ScanError;
 
 export const PUBLIC_R2_REPORTS_ENV = "SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS";
+/**
+ * Opt-in invariant: with this set to 1, public r2 production REQUIRES a
+ * resolvable scanner egress region, making "every report discloses its
+ * egress region" a readiness precondition instead of a health warning. Kept
+ * behind an explicit flag because a readiness failure is an admission outage
+ * by design (never a silent v1 fallback), so the operator flips it only
+ * after confirming the deployment's placement tuple is reliably present.
+ */
+export const REQUIRE_EGRESS_REGION_ENV = "SITE_BEHAVIOR_LAB_REQUIRE_EGRESS_REGION";
 export { BUILD_COMMIT_ENV };
 
 export type PublicR2ReportsReadiness = {
@@ -49,6 +59,14 @@ export function publicR2ReportsReadiness(env: NodeJS.ProcessEnv = process.env): 
   }
   if (env[CONSENT_VERIFICATION_ENV] !== "1") {
     issues.push(`${CONSENT_VERIFICATION_ENV} must be 1 before public r2 reports are enabled.`);
+  }
+  if (
+    env[REQUIRE_EGRESS_REGION_ENV] === "1" &&
+    resolveScannerEgressRegion(env).status !== "configured"
+  ) {
+    issues.push(
+      `${REQUIRE_EGRESS_REGION_ENV}=1 requires a resolvable scanner egress region before public r2 reports are enabled.`
+    );
   }
   return issues.length === 0
     ? { status: "enabled", issues }
