@@ -24,9 +24,42 @@ function input(overrides: Partial<FeaturedReportPreflightInput> = {}): FeaturedR
     egressAttested: "",
     chromiumSandbox: "1",
     controlledRunnerConfigured: true,
+    measurementFreeze: false,
     ...overrides
   };
 }
+
+test("a measurement freeze quiesces both v1 lanes and discloses itself on the r2 lane", () => {
+  // The freeze refuses the scheduled fallback AND the manual compatibility
+  // lane: any v1 report minted mid-epoch would join the corpus under a
+  // producer identity the epoch did not freeze.
+  for (const eventName of ["schedule", "workflow_dispatch", "repository_dispatch"]) {
+    for (const controlledRunnerConfigured of [true, false]) {
+      assert.throws(
+        () =>
+          featuredReportPreflight(
+            input({ mode: "v1", eventName, controlledRunnerConfigured, measurementFreeze: true })
+          ),
+        /measurement freeze is active/i
+      );
+    }
+  }
+
+  const plan = featuredReportPreflight(
+    input({
+      measurementFreeze: true,
+      runnerEnvironment: "self-hosted",
+      egressRegion: "us-east",
+      egressAttested: "1"
+    })
+  );
+  assert.equal(plan.mode, "r2");
+  assert.equal(
+    plan.summary.some((line) => /measurement freeze active/i.test(line)),
+    true,
+    "the collection lane must disclose that it ran inside a freeze"
+  );
+});
 
 test("automated r2 production rejects GitHub-hosted placement instead of falling back to v1", () => {
   assert.throws(
@@ -220,6 +253,23 @@ test("both committed-report workflows force automated r2 and gate before scannin
     assert.equal(workflow.includes("github.event.client_payload.report_mode"), false, file);
     assert.equal(workflow.includes("vars.FEATURED_REPORT_MODE"), false, file);
     assert.match(workflow, /FEATURED_R2_EGRESS_ATTESTED:/, file);
+    // Both producers bind the freeze variable so the shared preflight can
+    // refuse v1 lanes mid-freeze, and scan.yml additionally gates its
+    // publish job on the same variable.
+    assert.equal(
+      workflow.includes(
+        "SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}"
+      ),
+      true,
+      file
+    );
+    if (file === "scan.yml") {
+      assert.match(
+        workflow,
+        /publish:\n\s+name: Validate and Publish Static Report\n[\s\S]{0,400}?if: vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'/,
+        file
+      );
+    }
     assert.match(workflow, /SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"/, file);
     assert.match(workflow, /runs-on:.*github\.event_name == 'workflow_dispatch'.*FEATURED_RUNNER_LABEL.*'ubuntu-latest'/, file);
     assert.match(workflow, /git commit -m "Add manual v1 compatibility scan report/, file);
@@ -237,6 +287,7 @@ test("the shared preflight CLI binds the event and both workflow flag namespaces
     );
   }
   assert.match(cli, /controlledRunnerConfigured: .*FEATURED_CONTROLLED_RUNNER_CONFIGURED/);
+  assert.match(cli, /measurementFreeze: .*SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE.* === "1"/);
   assert.match(cli, /::warning::\$\{warning\}/);
 });
 

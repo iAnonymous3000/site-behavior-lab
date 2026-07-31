@@ -29,11 +29,24 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
+  measurement-freeze-notice:
+    name: Measurement freeze notice
+    if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain the withheld refresh
+        run: |
+          echo "::warning title=Measurement freeze::SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1 quiesces the filter-list refresh: a mid-epoch list change would move the Shields methodology identity under collected evidence. Unset the repository variable once the freeze ends."
+
   refresh-lists:
     name: Refresh and validate filter lists
     # A manual run may target any ref. Never let an arbitrary feature ref
-    # become the base of the repository-wide refresh proposal.
-    if: github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch
+    # become the base of the repository-wide refresh proposal. The measurement
+    # freeze quiesces refreshes entirely: a mid-epoch filter change would move
+    # the Shields methodology identity under evidence already collected.
+    if: >-
+      github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch &&
+      vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'
     runs-on: ubuntu-latest
     permissions:
       contents: write

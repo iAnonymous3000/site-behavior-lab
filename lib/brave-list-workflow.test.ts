@@ -11,6 +11,16 @@ const refreshStart = workflow.indexOf("\n  refresh-lists:");
 const driftStart = workflow.indexOf("\n  toolchain-drift-check:", refreshStart);
 const refreshJob = workflow.slice(refreshStart, driftStart);
 
+test("a measurement freeze quiesces the refresh and says so loudly", () => {
+  // The gate lives on the refresh job itself, and the loud notice job runs
+  // ONLY when frozen, so a quiesced Monday is visible rather than silent.
+  assert.match(
+    workflow,
+    /measurement-freeze-notice:\n\s+name: Measurement freeze notice\n\s+if: vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'/
+  );
+  assert.match(workflow, /::warning title=Measurement freeze::/);
+});
+
 test("scheduled Brave-list refresh failures stay red and reconcile one isolated issue", () => {
   assert.notEqual(refreshStart, -1);
   assert.notEqual(driftStart, -1);
@@ -38,7 +48,7 @@ test("scheduled Brave-list refresh failures stay red and reconcile one isolated 
 test("Brave-list refresh can publish only a reviewed proposal branch", () => {
   assert.match(
     refreshJob,
-    /if: github\.ref_type == 'branch' && github\.ref_name == github\.event\.repository\.default_branch/
+    /if: >-\n\s+github\.ref_type == 'branch' && github\.ref_name == github\.event\.repository\.default_branch &&\n\s+vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'/
   );
   assert.match(refreshJob, /BASE_BRANCH: \$\{\{ github\.event\.repository\.default_branch \}\}/);
   assert.match(refreshJob, /PROPOSAL_BRANCH: automation\/brave-list-refresh/);

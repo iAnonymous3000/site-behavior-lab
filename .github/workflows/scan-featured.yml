@@ -125,6 +125,11 @@ env:
   # (disclosed v1 fallback).
   FEATURED_CONTROLLED_RUNNER_CONFIGURED: ${{ vars.FEATURED_RUNNER_LABEL && '1' || '' }}
   FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+  # During a measurement freeze the preflight refuses BOTH v1 lanes (scheduled
+  # fallback and manual compatibility): only controlled r2 collection may add
+  # corpus reports inside a frozen epoch. Read at run start; in-flight runs
+  # are unaffected by later variable flips.
+  SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}
   # This adjustable gate measures success among currently eligible sites.
   # Operators can raise it, but never lower its 80% floor. A separate fixed,
   # non-overridable gate in the orchestrator also requires at least 80% of the

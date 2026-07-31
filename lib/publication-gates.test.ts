@@ -91,6 +91,18 @@ test("the workflow_run promotion never checks out code the triggering event chos
   assert.doesNotMatch(checkoutStep, /repository:/, "the promotion must never check out another repository");
 });
 
+test("a measurement freeze quiesces Dependabot bookkeeping loudly", () => {
+  const workflow = source(".github/workflows/dependabot-bookkeeping.yml");
+  assert.match(
+    workflow,
+    /repair:\n\s+name: Regenerate derived manifests on Dependabot branches\n[\s\S]{0,300}?if: vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'/
+  );
+  assert.match(
+    workflow,
+    /measurement-freeze-notice:\n\s+name: Measurement freeze notice\n\s+if: vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'/
+  );
+});
+
 test("the Dependabot bookkeeping repair cannot run or be rewritten by the branch it repairs", () => {
   // This job holds contents:write and operates on branches whose contents are
   // an untrusted dependency bump, so three properties carry the whole design.

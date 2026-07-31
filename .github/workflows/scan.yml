@@ -83,6 +83,9 @@ env:
   # committed report.
   FEATURED_REPORT_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.report_mode || 'r2' }}
   FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+  # The preflight refuses the manual v1 compatibility lane during a
+  # measurement freeze; the publish job below is gated on the same variable.
+  SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}
   SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
   SCAN_URL: ${{ github.event.inputs.url || github.event.client_payload.url }}
   SCAN_DEVICE: ${{ github.event.inputs.device || github.event.client_payload.device || 'desktop' }}
@@ -287,8 +290,21 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  measurement-freeze-notice:
+    name: Measurement freeze notice
+    if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'
+    needs: scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain the withheld publication
+        run: |
+          echo "::warning title=Measurement freeze::SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1: the validated report artifact was produced and uploaded, but ad-hoc corpus publication is withheld during the measurement freeze so non-epoch reports cannot join the frozen cohort. Unset the repository variable once the freeze ends."
+
   publish:
     name: Validate and Publish Static Report
+    # The measurement freeze quiesces ad-hoc corpus publication; the scan job
+    # above still runs and uploads its bounded artifact as evidence.
+    if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'
     needs: scan
     runs-on: ubuntu-latest
     permissions:
