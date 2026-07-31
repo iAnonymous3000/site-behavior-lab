@@ -26,6 +26,25 @@
  * the full choice". Only add an entry backed by vendor documentation, and keep
  * any qualified selector LAST in its catalog entry's list so an unqualified
  * control on the same banner is always preferred (both pinned by test).
+ *
+ * Platforms audited against vendor sources so far, with the result pinned in
+ * lib/consent-interaction.test.ts rather than left to be re-derived:
+ *
+ * - Cookiebot: one qualified control, listed below.
+ * - Osano: `.osano-cm-accept`/`.osano-cm-deny` are alternate renderings of the
+ *   same allow-all and deny-all actions; the real save-selections control
+ *   (`.osano-cm-save`) is correctly absent.
+ * - OneTrust: the two `-pc-` entries are the Preference Center's own Allow All
+ *   and Reject All, symmetric across both arms.
+ * - TrustArc: `#truste-consent-required` is required-cookies-only, which is
+ *   what "reject all" means on every platform here.
+ * - Sourcepoint: its numeric action codes are the vendor's own (SPAction.swift
+ *   in SourcePointUSA/ios-cmp-app: SaveAndExit = 1, PMCancel = 2,
+ *   AcceptAll = 11, ShowPrivacyManager = 12, RejectAll = 13), so 11 and 13 are
+ *   whole-choice actions. The staged-selection action and the layer-opening
+ *   action have their own distinct codes and are correctly absent.
+ *
+ * Not yet audited: Didomi, Usercentrics, CookieYes, Complianz, Iubenda, Termly.
  */
 export const CONSENT_QUALIFIED_CHOICE_CONTROLS: Readonly<Record<string, string>> = Object.freeze({
   // Cookiebot's generic dialog accept. On a deployment that renders category
