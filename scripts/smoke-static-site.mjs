@@ -755,8 +755,14 @@ async function main() {
     await page.waitForSelector(".visit-phase-evidence", { timeout: 10_000 });
     await assertNoHorizontalOverflow(page, "static mobile r2 report");
     await assertMinimumTargetSize(page.locator(".arm-option"), 44, "static mobile evidence switcher");
+    await assertMinimumTargetSize(
+      page.locator(".report-actions .secondary-button"),
+      44,
+      "static mobile report actions"
+    );
     pass("static mobile r2 phase report fits viewport");
     pass("static mobile evidence switcher exposes 44px targets");
+    pass("static mobile report actions expose 44px targets");
 
     // Model a wide hybrid laptop explicitly: the primary pointer is fine, but
     // the available-pointer bitmask also contains a coarse touchscreen. A
@@ -792,7 +798,13 @@ async function main() {
         44,
         "wide hybrid-pointer evidence switcher"
       );
+      await assertMinimumTargetSize(
+        hybridPointerPage.locator(".report-actions .secondary-button"),
+        44,
+        "wide hybrid-pointer report actions"
+      );
       pass("wide hybrid-pointer evidence switcher exposes 44px targets");
+      pass("wide hybrid-pointer report actions expose 44px targets");
     } finally {
       await hybridPointerBrowser.close();
     }
