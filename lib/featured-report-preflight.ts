@@ -25,6 +25,12 @@ export type FeaturedReportPreflightInput = {
   chromiumSandbox: string | undefined;
   /** Whether the operator has configured the controlled r2 runner label. */
   controlledRunnerConfigured: boolean;
+  /**
+   * Whether a measurement freeze is active (repository variable
+   * SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1). During a freeze the controlled
+   * r2 lane keeps collecting; every other corpus producer is quiesced.
+   */
+  measurementFreeze: boolean;
 };
 
 export type FeaturedReportPreflightPlan = {
@@ -80,6 +86,15 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
   }
 
   if (mode === "v1") {
+    if (input.measurementFreeze) {
+      // The freeze quiesces every corpus producer except the controlled r2
+      // collection lane. A frozen-v1 report minted mid-epoch would join the
+      // corpus under a different producer identity than the epoch froze, so
+      // the manual compatibility lane is refused too, not just the fallback.
+      throw new Error(
+        "A measurement freeze is active (SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1); frozen v1 corpus production would mix a non-epoch producer into the corpus. Collect through the controlled r2 lane, or unset the repository variable once the freeze ends."
+      );
+    }
     const scheduledFallback = input.eventName !== "workflow_dispatch";
     if (scheduledFallback && input.controlledRunnerConfigured) {
       throw new Error(
@@ -171,7 +186,12 @@ export function featuredReportPreflight(input: FeaturedReportPreflightInput): Fe
       "Consent-state verification: enabled and required before scan admission.",
       "Chromium renderer sandbox: required.",
       `${comparison ? "Comparison" : "Single-run"} egress: operator-attested self-hosted lane ${configuredEgressLabel}; public label ${publicEgressLabel}; region ${egressRegion}.`,
-      "r2 scan generation does not rewrite existing report bytes; the separate retention process may delete unpinned reports."
+      "r2 scan generation does not rewrite existing report bytes; the separate retention process may delete unpinned reports.",
+      ...(input.measurementFreeze
+        ? [
+            "Measurement freeze active: this run is the controlled collection lane; every other corpus writer is quiesced until the freeze variable is unset."
+          ]
+        : [])
     ],
     warnings: []
   };

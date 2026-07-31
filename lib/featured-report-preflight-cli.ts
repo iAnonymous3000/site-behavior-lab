@@ -23,7 +23,8 @@ async function main(): Promise<void> {
     egressRegion: process.env.SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION,
     egressAttested: process.env.FEATURED_R2_EGRESS_ATTESTED,
     chromiumSandbox: process.env.SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX,
-    controlledRunnerConfigured: (process.env.FEATURED_CONTROLLED_RUNNER_CONFIGURED ?? "").trim() !== ""
+    controlledRunnerConfigured: (process.env.FEATURED_CONTROLLED_RUNNER_CONFIGURED ?? "").trim() !== "",
+    measurementFreeze: (process.env.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE ?? "").trim() === "1"
   });
 
   for (const warning of plan.warnings) {

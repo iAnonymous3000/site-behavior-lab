@@ -257,7 +257,8 @@ test("every active r2 producer lane survives managed reading, rendering, provena
     egressRegion: "iad-egress-1",
     egressAttested: "1",
     chromiumSandbox: "1",
-    controlledRunnerConfigured: true
+    controlledRunnerConfigured: true,
+    measurementFreeze: false
   });
   const featuredEnvironment = {
     NODE_ENV: "test",
@@ -365,7 +366,8 @@ test("each active producer supports its honest temporal diff surface and PageGra
     egressRegion: "iad-egress-1",
     egressAttested: "1",
     chromiumSandbox: "1",
-    controlledRunnerConfigured: true
+    controlledRunnerConfigured: true,
+    measurementFreeze: false
   });
   const featuredEnvironment = { NODE_ENV: "test", ...featuredPlan.environment } as NodeJS.ProcessEnv;
 

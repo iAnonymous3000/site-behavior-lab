@@ -400,6 +400,32 @@ unavailable or too slow):
 - Break-glass never applies to `v*` tags or to `production`; those move only
   through their own gated paths.
 
+## Measurement freeze
+
+Setting the repository variable `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE` to `1`
+quiesces every corpus writer except the controlled collection lane, so a
+measurement epoch's claim-affecting inputs cannot move while its evidence is
+being collected:
+
+- `update-brave-lists` skips its refresh (a mid-epoch filter change would move
+  the Shields methodology identity under collected evidence).
+- `dependabot-bookkeeping` skips its manifest regeneration.
+- `scan.yml` still runs the requested scan and uploads its bounded artifact,
+  but the publish job is gated off, so no ad-hoc report can join the corpus.
+- `scan-featured` keeps running ONLY as the controlled r2 collection lane; the
+  shared preflight refuses both frozen-v1 lanes (the scheduled fallback and
+  the manual compatibility dispatch) while the freeze is set, and the r2 run's
+  step summary discloses that it executed inside a freeze.
+- `production-health` and `scanner-fidelity` are observers and keep running.
+
+Each quiesced workflow runs a loud `Measurement freeze notice` job instead of
+skipping silently. The variable is read at run start; flipping it does not
+affect in-flight runs. Two rules the variable cannot enforce: do not MERGE any
+open `automation/*` proposal during a freeze window (a proposal validated
+before the freeze still carries pre-epoch inputs), and schedule the featured
+deferral re-adjudication (`reviewAfter` dates) before the window so the
+collection lane does not go red mid-epoch.
+
 One rule governs every stale report proposal: if the base branch advanced
 after the proposal was validated, close the proposal and re-run its workflow.
 That covers both the conflict case (two open proposals regenerate the report

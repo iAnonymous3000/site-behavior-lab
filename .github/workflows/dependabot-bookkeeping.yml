@@ -38,8 +38,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  measurement-freeze-notice:
+    name: Measurement freeze notice
+    if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain the withheld bookkeeping
+        run: |
+          echo "::warning title=Measurement freeze::SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1 quiesces Dependabot bookkeeping: a mid-epoch dependency manifest change is a claim-affecting input. Unset the repository variable once the freeze ends."
+
   repair:
     name: Regenerate derived manifests on Dependabot branches
+    # The measurement freeze quiesces this writer: dependency manifests are
+    # claim-affecting inputs to the frozen epoch's identity tuple.
+    if: vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
