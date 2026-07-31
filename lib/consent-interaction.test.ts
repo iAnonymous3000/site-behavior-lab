@@ -927,6 +927,42 @@ test("the allow-all control wins over the qualified one on a banner carrying bot
   }
 });
 
+test("the reviewed accept/reject pairs stay symmetric and keep their vendor semantics", () => {
+  const entryFor = (cmp: string) => {
+    const entry = CONSENT_CMP_SELECTORS.find((candidate) => candidate.cmp === cmp);
+    assert.ok(entry, `missing catalog entry for ${cmp}`);
+    return entry;
+  };
+
+  // Osano renders the same allow-all/deny-all actions under two class shapes;
+  // the genuine save-current-selections control (.osano-cm-save) is NOT a
+  // choice control and must stay out of both lists.
+  const osano = entryFor("Osano");
+  assert.deepEqual(osano.accept, [".osano-cm-accept-all", ".osano-cm-accept"]);
+  assert.deepEqual(osano.reject, [".osano-cm-denyAll", ".osano-cm-deny"]);
+  for (const selector of [...osano.accept, ...osano.reject]) {
+    assert.doesNotMatch(selector, /osano-cm-save/);
+  }
+
+  // The two OneTrust preference-center controls are a symmetric pair. Keeping
+  // one arm's -pc- control without the other would bias the accept/reject diff
+  // toward whichever arm could still find a control.
+  const oneTrust = entryFor("OneTrust");
+  assert.equal(oneTrust.accept.includes("#accept-recommended-btn-handler"), true);
+  assert.equal(oneTrust.reject.includes(".ot-pc-refuse-all-handler"), true);
+  assert.equal(oneTrust.accept.length, oneTrust.reject.length);
+
+  // TrustArc's reject is its required-cookies-only control, which is what
+  // "reject all" means on every CMP here: reject all non-essential cookies.
+  assert.deepEqual(entryFor("TrustArc").reject, ["#truste-consent-required"]);
+
+  // Every entry offers both arms, so no platform can produce a one-sided diff.
+  for (const entry of CONSENT_CMP_SELECTORS) {
+    assert.ok(entry.accept.length > 0, `${entry.cmp} has no accept control`);
+    assert.ok(entry.reject.length > 0, `${entry.cmp} has no reject control`);
+  }
+});
+
 test("every qualified-control entry names a catalogued selector and sorts last in its list", () => {
   const catalogued = new Set(
     CONSENT_CMP_SELECTORS.flatMap((entry) => [...entry.accept, ...entry.reject])
