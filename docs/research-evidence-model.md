@@ -137,6 +137,13 @@ commit and the expected runtime digest from the separately pinned execution
 plan or runtime receipt; either missing trust anchor fails closed. The expected
 runtime digest must not be copied from the study being evaluated.
 
-The public catalog reports this honestly as “external labeled corpus required”:
-acceptance-fixture coverage is real, but calibration studies and labeled
-calibration cases remain zero.
+The public catalog derives its calibration status on every build by
+re-analyzing the committed studies under `calibration/` against the exact
+current release identity. Acceptance-fixture coverage is real; the committed
+pixel-events pilot is discovered and disclosed, but it is bound to an earlier
+build and ships no independent runtime receipt, so it re-analyzes as
+ineligible and supports no rate. Eligible studies and eligible labeled cases
+therefore remain zero, and any commit that moves the release identity
+automatically demotes previously eligible studies rather than leaving stale
+copy behind. A study becomes eligible only when collected under the current
+identity with its independently written `runtime-receipt.json` sidecar.

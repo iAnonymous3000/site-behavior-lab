@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { githubSourceUrlAtBuildCommit } from "@/lib/build-source-url";
-import { detectorCalibrationReadiness } from "@/lib/detector-calibration";
+import { committedDetectorCalibrationReadiness } from "@/lib/detector-calibration-source";
 import { detectorValidationMetadata, detectorValidationRows } from "@/lib/detector-validation";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { trackerCatalogMetadata, trackerCatalogRecords } from "@/lib/tracker-catalog";
@@ -28,7 +28,7 @@ export default function CatalogPage() {
   const entities = new Set(records.map((record) => record.entity)).size;
   const categories = new Set(records.map((record) => record.category)).size;
   const realChromiumCases = validationRows.reduce((sum, row) => sum + row.realChromiumCases, 0);
-  const calibration = detectorCalibrationReadiness();
+  const calibration = committedDetectorCalibrationReadiness();
 
   return (
     <main className={styles.page}>
@@ -49,7 +49,7 @@ export default function CatalogPage() {
         <article><strong>{entities}</strong><span>named services or operators</span></article>
         <article><strong>{categories}</strong><span>functional labels</span></article>
         <article><strong>{detectorValidationMetadata.cases}</strong><span>source-pinned validation cases</span></article>
-        <article><strong>{calibration.calibrationStudies}</strong><span>representative calibration studies</span></article>
+        <article><strong>{calibration.eligibleCalibrationStudies}</strong><span>eligible calibration studies</span></article>
       </div>
 
       <section className={styles.section} aria-labelledby="catalog-heading">
@@ -83,9 +83,28 @@ export default function CatalogPage() {
           part of the result even when every fixture passes.
         </p>
         <p className={styles.note}>
-          <strong>Calibration status: external labeled corpus required.</strong> The repository currently contains{" "}
-          {calibration.calibrationStudies} representative calibration studies and {calibration.labeledCalibrationCases}{" "}
-          labeled calibration cases. {calibration.evidenceGate}
+          <strong>
+            Calibration status:{" "}
+            {calibration.status === "eligible-studies-recorded"
+              ? "eligible labeled studies recorded for this exact release."
+              : calibration.status === "committed-studies-ineligible"
+                ? "committed studies exist, but none is eligible against this exact release."
+                : "external labeled corpus required."}
+          </strong>{" "}
+          The repository contains {calibration.calibrationStudies} committed calibration{" "}
+          {calibration.calibrationStudies === 1 ? "study" : "studies"}, of which{" "}
+          {calibration.eligibleCalibrationStudies} {calibration.eligibleCalibrationStudies === 1 ? "is" : "are"}{" "}
+          eligible under the current release identity, carrying {calibration.labeledCalibrationCases} eligible
+          labeled {calibration.labeledCalibrationCases === 1 ? "case" : "cases"}
+          {calibration.ineligibleStudyLabeledCases > 0
+            ? `; a further ${calibration.ineligibleStudyLabeledCases} labeled ${
+                calibration.ineligibleStudyLabeledCases === 1 ? "case" : "cases"
+              } in ineligible studies ${
+                calibration.ineligibleStudyLabeledCases === 1 ? "supports" : "support"
+              } no rate`
+            : ""}
+          . Eligibility is re-derived on every build against the exact current release identity, so a study bound to
+          an earlier build, catalog, or filter-list revision demotes itself automatically. {calibration.evidenceGate}
         </p>
         <p className={styles.note}>
           The published <a href={calibration.studySchemaPath}>{calibration.studySchema} JSON Schema</a> keeps acceptance

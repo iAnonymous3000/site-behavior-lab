@@ -220,13 +220,32 @@ export type DetectorCalibrationAnalysis = {
   };
 };
 
+export type DetectorCalibrationStudySummary = {
+  studyId: string;
+  detector: DetectorId | null;
+  /** Analyzer verdict against the CURRENT release identity, never a stored one. */
+  status: DetectorCalibrationAnalysis["status"];
+  completeCases: number;
+  censoredCases: number;
+  ineligibilityReasons: DetectorCalibrationIneligibilityReason[];
+};
+
 export type DetectorCalibrationReadiness = {
-  status: "external-labeled-corpus-required";
+  status:
+    | "external-labeled-corpus-required"
+    | "committed-studies-ineligible"
+    | "eligible-studies-recorded";
   acceptanceFixtureCases: number;
   acceptanceFixturesExcludedFromCalibration: true;
-  calibrationStudies: 0;
-  labeledCalibrationCases: 0;
-  calibrationRateClaimsAvailable: false;
+  calibrationStudies: number;
+  /** Studies whose re-analysis against the current release is not ineligible/invalid. */
+  eligibleCalibrationStudies: number;
+  /** Complete (fully labeled and adjudicated) cases across ELIGIBLE studies only. */
+  labeledCalibrationCases: number;
+  /** Complete cases across committed studies that failed the eligibility gates. */
+  ineligibleStudyLabeledCases: number;
+  calibrationRateClaimsAvailable: boolean;
+  studies: DetectorCalibrationStudySummary[];
   studySchema: "detector-calibration-study.v1";
   studySchemaPath: "/schemas/detector-calibration-study.v1.schema.json";
   releaseIdentityGate: string;
@@ -235,18 +254,52 @@ export type DetectorCalibrationReadiness = {
 };
 
 /**
- * Current repository truth. Acceptance fixtures are not silently relabeled as
- * a calibration corpus, so this remains red until an external labeled study
- * is committed and reviewed through the contract above.
+ * Derive repository truth from re-analysis of the committed studies against
+ * the CURRENT release identity. Acceptance fixtures are never relabeled as a
+ * calibration corpus; a study committed under an earlier build stays visible
+ * here but counts as ineligible until it is re-run under the exact current
+ * identity, so any commit to the release identity re-zeroes the eligible
+ * columns by construction rather than by someone remembering to.
  */
-export function detectorCalibrationReadiness(): DetectorCalibrationReadiness {
+export function detectorCalibrationReadiness(
+  analyses: ReadonlyArray<DetectorCalibrationAnalysis> = []
+): DetectorCalibrationReadiness {
+  const studies: DetectorCalibrationStudySummary[] = analyses.map((analysis) => ({
+    studyId: analysis.studyId ?? "(unidentified study)",
+    detector: analysis.detector,
+    status: analysis.status,
+    completeCases: analysis.denominators.completeCases,
+    censoredCases: analysis.denominators.censoredCases,
+    ineligibilityReasons: [...analysis.ineligibilityReasons]
+  }));
+  const eligible = analyses.filter(
+    (analysis) => analysis.status === "descriptive-only" || analysis.status === "sample-estimate"
+  );
+  const ineligible = analyses.filter(
+    (analysis) => analysis.status === "ineligible" || analysis.status === "invalid"
+  );
+  const labeledCalibrationCases = eligible.reduce(
+    (total, analysis) => total + analysis.denominators.completeCases,
+    0
+  );
   return {
-    status: "external-labeled-corpus-required",
+    status:
+      analyses.length === 0
+        ? "external-labeled-corpus-required"
+        : eligible.length === 0
+          ? "committed-studies-ineligible"
+          : "eligible-studies-recorded",
     acceptanceFixtureCases: detectorValidationMetadata.cases,
     acceptanceFixturesExcludedFromCalibration: true,
-    calibrationStudies: 0,
-    labeledCalibrationCases: 0,
-    calibrationRateClaimsAvailable: false,
+    calibrationStudies: analyses.length,
+    eligibleCalibrationStudies: eligible.length,
+    labeledCalibrationCases,
+    ineligibleStudyLabeledCases: ineligible.reduce(
+      (total, analysis) => total + analysis.denominators.completeCases,
+      0
+    ),
+    calibrationRateClaimsAvailable: eligible.some((analysis) => analysis.rates !== null),
+    studies,
     studySchema: "detector-calibration-study.v1",
     studySchemaPath: "/schemas/detector-calibration-study.v1.schema.json",
     releaseIdentityGate:
