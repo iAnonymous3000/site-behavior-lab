@@ -439,6 +439,49 @@ new one, which is exactly the transplanted-tree hazard the proposal flow
 exists to forbid. Re-running the workflow regenerates everything from one
 tree and costs only machine time.
 
+## Release 1.0 readiness manifest
+
+`RELEASE_READINESS.json` is the single machine-readable source of the 1.0
+gates; `npm run release:readiness` reports them and
+`npm run release:readiness:check` fails unless every gate passes. The 1.0
+policy widening wires the check into the release workflow as a required
+step; until then it is advisory, and a unit test pins the honest NOT READY
+state so the surface cannot drift.
+
+Three gate families, all fail-closed:
+
+- **Decisions.** Recommended values are recorded in the manifest but stay
+  red until a human edits the decision to `"status": "approved"` with
+  `decidedBy` and `decidedAt`. A recommendation in a manifest is not a
+  decision; approving one is a reviewed change like any other. The
+  `compatibilitySurface` decision additionally pins the exact sha256 of
+  `docs/compatibility-promise.md`, so editing the promise without
+  re-approving it turns the gate red.
+- **Derived gates.** Corpus denominators, A/A evaluations, calibration
+  eligibility, the third-party review ledger, runner destruction receipts,
+  the lifecycle readback receipt, and the release-receipt archive are all
+  re-evaluated from committed evidence on every run. Missing, malformed, or
+  stale evidence is a failure with a reason, never a skip.
+- **Operator attestations.** Host truths code cannot see (durable soak,
+  egress backstop, WAF ceilings, log retention, staging teardown, container
+  image licensing) require a JSON attestation under `research/ops-receipts/`
+  shaped as:
+
+  ```json
+  {
+    "kind": "site-behavior-operator-attestation",
+    "gateId": "egress-backstop",
+    "attestedBy": "iAnonymous3000",
+    "attestedAt": "2026-08-15T00:00:00Z",
+    "statements": [
+      { "claim": "Private, link-local, and metadata destinations are blocked by an independent network boundary.", "true": true }
+    ],
+    "evidenceRefs": ["actions-run-<id>", "network-policy-export-<digest>"]
+  }
+  ```
+
+  Every statement must be literally true; the validator refuses soft values.
+
 ## Rollback
 
 Nothing in this repository rewinds. `v*` tags are immutable and `production`

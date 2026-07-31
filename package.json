@@ -44,6 +44,8 @@
     "supply-chain:third-party:check": "node scripts/third-party-inventory.mjs --check",
     "supply-chain:reviews:sync": "node scripts/third-party-reviews.mjs --sync",
     "supply-chain:reviews:check": "node scripts/third-party-reviews.mjs --check",
+    "release:readiness": "node scripts/release-readiness.mjs --report",
+    "release:readiness:check": "node scripts/release-readiness.mjs --check",
     "check": "npm run typecheck && npm run cf:typecheck && npm run test:unit && npm run build",
     "corpus:pagegraph": "tsc -p tsconfig.test.json && node .unit-test-dist/lib/pagegraph-corpus-cli.js",
     "corpus:audit-neutrality": "node scripts/run-schema-cli.mjs corpus-neutrality",
