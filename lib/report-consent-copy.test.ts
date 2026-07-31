@@ -9,6 +9,7 @@ function consent(choiceState: RunConsentView["choiceState"], controlActivated = 
     interactionAttempted: true,
     controlActivated,
     cmp: null,
+    matchedControlQualification: null,
     choiceState,
     verificationObservations: null,
     reverifiedAfterReload: null,

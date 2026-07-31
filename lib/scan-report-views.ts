@@ -9,6 +9,7 @@
  * scan-report-view.ts, which is lazy-loaded via lib/client-report-reader.ts).
  */
 import { compareRunFacts, consentComparisonTitle } from "./compare-reports";
+import { consentControlQualification } from "./consent-control-semantics";
 import {
   legacyComparisonDecision,
   v2ComparisonDecision,
@@ -201,6 +202,15 @@ export type RunConsentView = {
   controlActivated: boolean;
   /** Consent platform name when a known CMP control matched (e.g. "OneTrust"). */
   cmp: string | null;
+  /**
+   * Set when the matched control is catalogued but does not necessarily
+   * express the whole requested choice, carrying the curated clause naming
+   * what it does submit. Derived read-side from the recorded selector, which
+   * both generations store, so presentation never has to restate the requested
+   * choice as though it were the observed outcome. null when the control has
+   * no such qualification, which is not itself a claim that it was audited.
+   */
+  matchedControlQualification: string | null;
   /**
    * The evaluator-derived consent choice state (RFC 6): what an interpreter
    * could VERIFY about the choice, not whether a click was dispatched. null
@@ -540,6 +550,7 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
           interactionAttempted: run.evidence.consent.interactionAttempted,
           controlActivated: run.evidence.consent.controlActivated,
           cmp: run.evidence.consent.cmp ?? null,
+          matchedControlQualification: consentControlQualification(run.evidence.consent.selector),
           choiceState: run.evidence.consent.choiceState,
           verificationObservations: run.evidence.consent.verificationObservations.map((observation) => ({ ...observation })),
           reverifiedAfterReload: run.evidence.consent.reverifiedAfterReload,
@@ -686,6 +697,7 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
           interactionAttempted: null,
           controlActivated: result.consentInteraction.clicked,
           cmp: result.consentInteraction.cmp ?? null,
+          matchedControlQualification: consentControlQualification(result.consentInteraction.selector),
           // v1 recorded click dispatch only; no interpreter ever verified the
           // resulting consent state, so the verification surface is null
           // ("never ran"), never an empty recorded ledger.

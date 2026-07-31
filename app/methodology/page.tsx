@@ -102,8 +102,9 @@ export default function MethodologyPage() {
           visible form fields, never submits, and watches whether that value leaves to a third party in plain,
           encoded, or hashed form. Second, in consent comparison mode only, the scanner clicks one accept-all or
           reject-all control on the cookie banner&apos;s first layer (known consent-platform controls first, then a
-          conservative whole-label match). Every report discloses exactly what was typed into or clicked, or that
-          nothing was.
+          conservative whole-label match). Every report discloses exactly what was typed, which consent platform or
+          labeled control was clicked (naming the control itself when that platform&apos;s control may not express the
+          whole choice), or that nothing was.
         </p>
         <p>
           Legacy v1 reports record only that a consent click was dispatched. R2 reports also record bounded

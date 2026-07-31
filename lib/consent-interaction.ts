@@ -1,6 +1,7 @@
 import type { ConsentInteractionSummary, ConsentMode } from "./types";
 
 export type { ConsentInteractionSummary } from "./types";
+export { CONSENT_QUALIFIED_CHOICE_CONTROLS, consentControlQualification } from "./consent-control-semantics";
 
 /**
  * Consent-banner interaction: the pure catalog and matching rules behind the
@@ -1123,5 +1124,12 @@ export function consentInteractionWarning(
     : summary.matchedText
       ? `a control labeled "${summary.matchedText}"`
       : "the consent banner";
+  // NOTE: a catalogued control whose submitted choice is configuration-dependent
+  // (CONSENT_QUALIFIED_CHOICE_CONTROLS) makes this sentence's `clicked "Accept
+  // all"` narrower than it reads. The qualification is disclosed READ-side, off
+  // the recorded selector, in RunConsentView.matchedControlQualification, which
+  // reaches already-published reports too. Restating it here would change an
+  // admitted public string and so retire the r2 normalization identity, which
+  // must be sequenced deliberately with the producer tuples that pin it.
   return `This visit clicked "${label}" on ${via} after page load. The click was dispatched, not verified as registered by the site, and the visit's requests, cookies, and storage include traffic from before and after the click.`;
 }
