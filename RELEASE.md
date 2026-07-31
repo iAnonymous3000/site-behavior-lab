@@ -448,20 +448,28 @@ policy widening wires the check into the release workflow as a required
 step; until then it is advisory, and a unit test pins the honest NOT READY
 state so the surface cannot drift.
 
-Three gate families, all fail-closed:
+Three gate families, all fail-closed (the manifest, not this prose, is the
+authoritative gate list):
 
 - **Decisions.** Recommended values are recorded in the manifest but stay
   red until a human edits the decision to `"status": "approved"` with
-  `decidedBy` and `decidedAt`. A recommendation in a manifest is not a
-  decision; approving one is a reviewed change like any other. The
-  `compatibilitySurface` decision additionally pins the exact sha256 of
-  `docs/compatibility-promise.md`, so editing the promise without
-  re-approving it turns the gate red.
-- **Derived gates.** Corpus denominators, A/A evaluations, calibration
+  `decidedBy` and `decidedAt`. The gate carries its own required-decision
+  list, so deleting a pending decision is a failure, not an approval. A
+  recommendation in a manifest is not a decision; approving one is a
+  reviewed change like any other. The `compatibilitySurface` decision
+  additionally pins the exact sha256 of `docs/compatibility-promise.md`, so
+  editing the promise without re-approving it turns the gate red, and the
+  open-errata gate stays red until the revision decision that can carry the
+  fixes is approved.
+- **Derived gates.** Corpus denominators, A/A studies, calibration
   eligibility, the third-party review ledger, runner destruction receipts,
   the lifecycle readback receipt, and the release-receipt archive are all
-  re-evaluated from committed evidence on every run. Missing, malformed, or
-  stale evidence is a failure with a reason, never a skip.
+  re-derived from committed evidence on every run; no artifact's
+  self-declared verdict is trusted (A/A studies are re-scored from their
+  preregistration and ledger, lifecycle rules re-validated from the recorded
+  rule bytes, runner cycles counted as distinct Actions runs). Missing,
+  malformed, future-dated, or stale evidence is a failure with a reason,
+  never a skip.
 - **Operator attestations.** Host truths code cannot see (durable soak,
   egress backstop, WAF ceilings, log retention, staging teardown, container
   image licensing) require a JSON attestation under `research/ops-receipts/`

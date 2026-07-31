@@ -112,8 +112,15 @@ export function checkReviewLedger(inventory, ledger) {
   for (const item of items) {
     if (!rowKeys.has(item.key)) problems.push(`missing ledger row: ${item.key}`);
   }
+  const itemsByKey = new Map(items.map((item) => [item.key, item]));
   for (const row of rows) {
     if (!itemKeys.has(row.key)) problems.push(`orphaned ledger row (item left the inventory): ${row.key}`);
+    const item = itemsByKey.get(row.key);
+    if (item && row.runtime !== item.runtime) {
+      // The runtime flag decides release-review scope; it is inventory truth
+      // copied at sync time, so a hand-edited flag is drift, not opinion.
+      problems.push(`row ${row.key} declares runtime=${String(row.runtime)} but the inventory says ${String(item.runtime)}`);
+    }
     if (row.status === "reviewed") {
       for (const field of ["reviewer", "reviewedAt", "determinedLicense"]) {
         if (typeof row[field] !== "string" || row[field].trim().length === 0) {
