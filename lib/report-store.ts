@@ -364,30 +364,43 @@ export type StoredReportReadOutcome =
  * crashing a renderer downstream. `wire` is the stored bytes; API responses
  * serve it as-is so the wire form is never re-synthesized.
  */
-export async function readStoredScanReportById(id: string): Promise<StoredReportReadOutcome> {
+export async function readStoredScanReportById(
+  id: string,
+  options: ReportStoreOperationOptions = {}
+): Promise<StoredReportReadOutcome> {
   if (!REPORT_ID_PATTERN.test(id)) return { outcome: "not-found" };
   const backend = resolveReportStoreBackend();
-  const blob = await backend.read(id);
-  if (!blob) return { outcome: "not-found" };
+  // This is the public permalink read, and it was the only store entry point
+  // with no whole-operation deadline and no signal reaching the backend. Every
+  // R2 call then ran its own full retry budget, so during a bucket brownout a
+  // single unauthenticated GET occupied a Node request for the report, again
+  // for the sidecar, and again for each delete on the expired path. Bound the
+  // whole thing the way commit, prune, and retention status already are.
+  return withReportStoreOperationDeadline(options, async (boundedOptions) => {
+    const blob = await backend.read(id, boundedOptions);
+    if (!blob) return { outcome: "not-found" };
 
-  if (blob.retention && isExpired(blob.retention)) {
-    await deleteWithRetentionDebt(backend, { id, scope: "bundle" }).catch(() => undefined);
-    return { outcome: "not-found" };
-  }
-  const managed = readManagedReport({
-    reportId: id,
-    reportContents: blob.contents,
-    sidecarContents: await backend.readSidecar(id),
-    retention: blob.retention
+    if (blob.retention && isExpired(blob.retention)) {
+      await deleteWithRetentionDebt(backend, { id, scope: "bundle" }, boundedOptions).catch(
+        () => undefined
+      );
+      return { outcome: "not-found" };
+    }
+    const managed = readManagedReport({
+      reportId: id,
+      reportContents: blob.contents,
+      sidecarContents: await backend.readSidecar(id, boundedOptions),
+      retention: blob.retention
+    });
+    if (!managed.ok) {
+      return {
+        outcome: "unreadable",
+        error: managed.error,
+        ...(managed.violations ? { violations: managed.violations } : {})
+      };
+    }
+    return { outcome: "found", stored: managed.stored, wire: managed.wire };
   });
-  if (!managed.ok) {
-    return {
-      outcome: "unreadable",
-      error: managed.error,
-      ...(managed.violations ? { violations: managed.violations } : {})
-    };
-  }
-  return { outcome: "found", stored: managed.stored, wire: managed.wire };
 }
 
 export function pruneStoredReports(now = Date.now()): Promise<void> {

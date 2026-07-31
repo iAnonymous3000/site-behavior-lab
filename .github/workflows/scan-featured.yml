@@ -657,8 +657,14 @@ jobs:
           steps.refresh_alert.outputs.authoritative == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          ISSUE_TITLE: Repair the weekly featured corpus refresh
-          MANAGED_ISSUE_LABEL: site-behavior-lab-featured-refresh
+          # Scoped per catalog. Both scheduled legs are authoritative and the
+          # seed leg always runs after the gallery leg, so one shared issue let
+          # a healthy seed run close a genuinely failing gallery refresh two
+          # hours later.
+          ISSUE_TITLE: Repair the weekly featured corpus refresh (${{ steps.refresh_alert.outputs.catalog }})
+          MANAGED_ISSUE_LABEL: site-behavior-lab-featured-refresh-${{ steps.refresh_alert.outputs.catalog }}
+          REFRESH_MARKER: ${{ steps.refresh_alert.outputs.marker }}
+          REFRESH_CATALOG: ${{ steps.refresh_alert.outputs.catalog }}
           REFRESH_REPORT_FILE: ${{ runner.temp }}/featured-corpus-refresh.md
           REFRESH_FAILED: ${{ steps.refresh_alert.outputs.failed }}
         run: |
@@ -682,7 +688,20 @@ jobs:
             let source = "";
             process.stdin.on("data", (chunk) => { source += chunk; });
             process.stdin.on("end", () => {
-              const marker = "<!-- site-behavior-lab:featured-corpus-refresh -->";
+              const marker = process.env.REFRESH_MARKER;
+              // An empty marker would make String#includes match every issue
+              // and let this step retitle or close an unrelated one.
+              if (!marker || !marker.startsWith("<!-- site-behavior-lab:featured-corpus-refresh:")) {
+                throw new Error("Refusing to reconcile without a scoped featured-refresh marker.");
+              }
+              // An issue filed before the markers were scoped carries only the
+              // shared marker. Let the gallery leg adopt it so it keeps being
+              // managed instead of being orphaned by the rename; the seed leg
+              // must not, or both legs would fight over it again.
+              const legacyMarker = "<!-- site-behavior-lab:featured-corpus-refresh -->";
+              const adoptsLegacy = process.env.REFRESH_CATALOG === "gallery";
+              const carriesMarker = (body) =>
+                body.includes(marker) || (adoptsLegacy && !body.includes(":seed -->") && body.includes(legacyMarker));
               const managedLabel = process.env.MANAGED_ISSUE_LABEL;
               const trusted = JSON.parse(source)
                 .flat()
@@ -694,7 +713,7 @@ jobs:
                     issue.user?.login === "github-actions[bot]" &&
                     issue.user?.type === "Bot" &&
                     typeof issue.body === "string" &&
-                    issue.body.includes(marker) ? { issue, labels } : null;
+                    carriesMarker(issue.body) ? { issue, labels } : null;
                 })
                 .filter(Boolean);
               const managed = trusted.filter(({ labels }) => labels.includes(managedLabel));

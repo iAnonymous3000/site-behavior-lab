@@ -1251,3 +1251,40 @@ test("a bounded delete backlog keeps publishing while retention still reports ma
   assert.equal(status.healthy, false);
   assert.equal(status.debtCount, 0, "nothing actually failed to delete");
 });
+
+test("the public permalink read is bounded by the same whole-operation deadline", async () => {
+  // This is the only store entry point a visitor can reach unauthenticated, and
+  // it was the only one that passed no options to the backend. Every R2 call
+  // then ran its own full retry budget, so during a bucket brownout one GET
+  // held a Node request for the report, again for the sidecar, and again for
+  // each delete on the expired path.
+  process.env[REPORT_STORE_OPERATION_TIMEOUT_MS_ENV] = "10";
+  configureFakeR2(async () => new Promise<Response>(() => undefined));
+  let unhandled: unknown;
+  const onUnhandled = (reason: unknown) => {
+    unhandled = reason;
+  };
+  process.on("unhandledRejection", onUnhandled);
+  const startedAt = Date.now();
+  try {
+    await assert.rejects(
+      () => readStoredScanReportById(`20260714-${"e".repeat(32)}`),
+      /whole-operation deadline|exceeded its 10 ms/i
+    );
+    assert.ok(Date.now() - startedAt < 1_000, "a public read must not inherit a hung backend lifetime");
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    assert.equal(unhandled, undefined);
+  } finally {
+    process.removeListener("unhandledRejection", onUnhandled);
+  }
+});
+
+test("a caller that disconnects aborts the report read it started", async () => {
+  process.env[REPORT_STORE_OPERATION_TIMEOUT_MS_ENV] = "60000";
+  configureFakeR2(async () => new Promise<Response>(() => undefined));
+  const controller = new AbortController();
+  const pending = readStoredScanReportById(`20260714-${"f".repeat(32)}`, { signal: controller.signal });
+  const rejects = assert.rejects(() => pending, /abort/i);
+  controller.abort();
+  await rejects;
+});

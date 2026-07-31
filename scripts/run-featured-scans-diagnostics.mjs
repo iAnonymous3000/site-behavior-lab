@@ -8,7 +8,27 @@ const CONTROL_CHARACTER_PATTERN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f
 const URL_PATTERN = /https?:\/\/\S+/gi;
 const MAX_DIAGNOSTIC_LENGTH = 500;
 const MAX_PUBLIC_SUMMARY_BYTES = 4 * 1024;
+/**
+ * The canonical refresh issue is scoped PER CATALOG.
+ *
+ * Both scheduled legs are authoritative, and the seed leg always runs after the
+ * gallery leg. With one shared marker the later leg closed whatever the earlier
+ * one had filed, so a genuinely failing gallery refresh was silently marked
+ * resolved two hours later by an unrelated healthy seed run.
+ */
 const FEATURED_REFRESH_MARKER = "<!-- site-behavior-lab:featured-corpus-refresh -->";
+
+export const FEATURED_SEED_CATALOG = "public/corpus-seed-sites.json";
+
+/** Stable slug for the catalog a refresh leg walked. */
+export function featuredRefreshCatalogSlug(environment) {
+  return (environment.FEATURED_SITES_FILE?.trim() ?? "") === FEATURED_SEED_CATALOG ? "seed" : "gallery";
+}
+
+/** The per-catalog body marker the reconcile step selects on. */
+export function featuredRefreshMarker(catalogSlug) {
+  return `<!-- site-behavior-lab:featured-corpus-refresh:${catalogSlug} -->`;
+}
 const FEATURED_UNAVAILABLE_REASONS = new Set([
   "automation-blocked",
   "navigation-incomplete",
@@ -345,14 +365,19 @@ function workflowRunUrl({ serverUrl, repository, runId }) {
   return repo && id ? `${server}/${repo}/actions/runs/${id}` : null;
 }
 
-export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serverUrl, repository, runId }) {
+export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serverUrl, repository, runId, catalogSlug }) {
   const aggregate = publicFeaturedScanSummary(summary);
   const runUrl = workflowRunUrl({ serverUrl, repository, runId });
   const safeBranch = inlineCode(branch, "default branch");
+  const slug = catalogSlug === "seed" ? "seed" : "gallery";
+  const catalogName = slug === "seed" ? "corpus de-bias seed list" : "featured gallery catalog";
   const lines = [
+    featuredRefreshMarker(slug),
+    // Kept so an issue filed before the markers were scoped is still
+    // discoverable by the leg that adopts it.
     FEATURED_REFRESH_MARKER,
     "",
-    "# Featured corpus refresh status",
+    `# Featured corpus refresh status (${catalogName})`,
     "",
     failed
       ? "The authoritative featured-corpus run did not meet every health gate."
@@ -460,8 +485,10 @@ async function prepareAlertFromEnvironment() {
   }
   const aggregate = publicFeaturedScanSummary(summary);
   const { authoritative, failed } = featuredRefreshAlertDecision(process.env, aggregate);
+  const catalogSlug = featuredRefreshCatalogSlug(process.env);
   const report = buildFeaturedRefreshIssueReport({
     failed,
+    catalogSlug,
     summary: aggregate,
     branch: process.env.GITHUB_REF_NAME,
     serverUrl: process.env.GITHUB_SERVER_URL,
@@ -472,7 +499,11 @@ async function prepareAlertFromEnvironment() {
 
   const outputPath = process.env.GITHUB_OUTPUT?.trim();
   if (outputPath) {
-    await appendFile(outputPath, `failed=${failed}\nauthoritative=${authoritative}\n`, "utf8");
+    await appendFile(
+      outputPath,
+      `failed=${failed}\nauthoritative=${authoritative}\ncatalog=${catalogSlug}\nmarker=${featuredRefreshMarker(catalogSlug)}\n`,
+      "utf8"
+    );
   }
 }
 
