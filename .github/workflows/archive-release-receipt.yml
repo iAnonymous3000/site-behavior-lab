@@ -49,10 +49,13 @@ jobs:
             ''|*[!0-9]*) echo "::error title=Refused::release_run_id must be numeric"; exit 1 ;;
           esac
 
-          workflow_path=$(gh run view "$RELEASE_RUN_ID" --repo "$GITHUB_REPOSITORY" --json workflowName,conclusion \
-            --jq 'if .conclusion != "success" then error("release run did not conclude successfully") else .workflowName end')
-          if [ "$workflow_path" != "Release" ]; then
-            echo "::error title=Refused::run $RELEASE_RUN_ID is \"$workflow_path\", not the Release workflow"
+          # Bind to the workflow FILE, not its display name: names are prose
+          # and this one is "Cut Release Tag" (learned from the first live
+          # dispatch, which this guard wrongly refused).
+          workflow_path=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN_ID}" \
+            --jq 'if .conclusion != "success" then error("release run did not conclude successfully") else .path end')
+          if [ "$workflow_path" != ".github/workflows/release.yml" ]; then
+            echo "::error title=Refused::run $RELEASE_RUN_ID is $workflow_path, not .github/workflows/release.yml"
             exit 1
           fi
 

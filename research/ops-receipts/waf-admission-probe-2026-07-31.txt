@@ -1,0 +1,14 @@
+WAF admission-route ceiling probe, 2026-07-31T15:55:29Z
+Target: GET https://scan.sitebehavior.org/api/scan/admission, 11 requests inside one 10s window
+Documented ceiling: 10 requests / 10 seconds / IP; the 11th must be 429 with Retry-After
+request 1: HTTP 400
+request 2: HTTP 400
+request 3: HTTP 400
+request 4: HTTP 400
+request 5: HTTP 400
+request 6: HTTP 400
+request 7: HTTP 400
+request 8: HTTP 400
+request 9: HTTP 400
+request 10: HTTP 400
+request 11: HTTP 429 Retry-After: 10
