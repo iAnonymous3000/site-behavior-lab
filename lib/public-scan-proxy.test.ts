@@ -1074,3 +1074,57 @@ async function rawProxyUpgrade(proxyServer: string, targetUrl: string): Promise<
     socket.on("error", reject);
   });
 }
+
+test("a client that resets during the CONNECT preflight cannot crash the process", async (t) => {
+  // Node removes its own socket 'error' listener before emitting 'connect' and
+  // 'upgrade'. Every refusal branch and the DNS await used to run before this
+  // handler attached one, so an ordinary Chromium reset (cancelled fetch,
+  // navigated-away iframe, aborted scan) surfaced as an unhandled 'error'
+  // event, which Node escalates to an uncaughtException that exits the
+  // scanner container mid-scan.
+  const uncaught: Error[] = [];
+  const existing = process.listeners("uncaughtException");
+  for (const listener of existing) process.off("uncaughtException", listener);
+  const capture = (error: Error): void => {
+    uncaught.push(error);
+  };
+  process.on("uncaughtException", capture);
+
+  // Hold the preflight open so the reset lands inside the window that had no
+  // listener, rather than after the handler finished wiring one up.
+  const proxy = await startPublicScanProxy({
+    allowNonStandardPortsForTests: true,
+    resolveHost: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      return [{ address: "203.0.113.10", family: 4 }];
+    }
+  });
+
+  t.after(async () => {
+    process.off("uncaughtException", capture);
+    for (const listener of existing) process.on("uncaughtException", listener as never);
+    await proxy.close();
+  });
+
+  const port = Number(new URL(proxy.server).port);
+  for (const opening of [
+    "CONNECT example.com:443 HTTP/1.1\r\nHost: example.com:443\r\n\r\n",
+    "GET / HTTP/1.1\r\nHost: example.com\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n"
+  ]) {
+    await new Promise<void>((resolve) => {
+      const socket = net.connect(port, "127.0.0.1", () => {
+        socket.write(opening);
+        setTimeout(() => socket.resetAndDestroy(), 40);
+      });
+      socket.on("error", () => undefined);
+      socket.on("close", () => setTimeout(resolve, 120));
+    });
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  assert.deepEqual(
+    uncaught.map((error) => (error as NodeJS.ErrnoException).code ?? error.message),
+    [],
+    "a client reset must never reach the process as an uncaught exception"
+  );
+});

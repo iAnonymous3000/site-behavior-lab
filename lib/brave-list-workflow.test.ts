@@ -111,3 +111,32 @@ test("manual runs and the separate drift job cannot reconcile Brave-list refresh
   assert.equal(reconcileStep.includes("workflow_dispatch"), false);
   assert.equal(refreshJob.includes("steps.drift"), false);
 });
+
+test("the scheduled refresh does not queue behind the featured-scan writer group", () => {
+  // GitHub keeps at most one PENDING run per concurrency group and cancels the
+  // earlier one to make room. scan-featured.yml runs two long scheduled legs
+  // every Monday, so while this refresh shared their group its 06:17 run queued
+  // behind the first leg and was evicted by the second. A run cancelled while
+  // pending starts no job, so every alert step here is guarded by `always()`
+  // yet never ran: the refresh silently stopped happening.
+  const concurrency = workflow.slice(workflow.indexOf("concurrency:"), workflow.indexOf("env:"));
+  assert.match(concurrency, /group: brave-list-refresh-/);
+  assert.equal(
+    concurrency.includes("site-behavior-repo-writers-${{ github.ref }}"),
+    false,
+    "sharing the writers group lets a featured-scan leg cancel this refresh while it is pending"
+  );
+  // Cancelling a refresh already in progress would abandon a pushed proposal
+  // branch, so only the queueing behaviour changes.
+  assert.match(concurrency, /cancel-in-progress: false/);
+
+  const featured = readFileSync(
+    path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"),
+    "utf8"
+  );
+  const schedules = [...featured.matchAll(/- cron: "([^"]+)"/g)].map((match) => match[1]);
+  assert.ok(
+    schedules.length >= 2,
+    "this guard exists because scan-featured runs more than one scheduled leg"
+  );
+});

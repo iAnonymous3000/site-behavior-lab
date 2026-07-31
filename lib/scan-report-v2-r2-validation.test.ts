@@ -116,9 +116,15 @@ test("a post-boundary Shields straggler is retained without failing the build", 
   // deliberately uncounted. An exact-equality rule turned that ordinary
   // straggler into a thrown build and failed a healthy user-facing scan.
   const report = makeShieldsInterventionReportV2R2();
-  const arm = report.variant;
+  // The classification arm is the BASELINE. Binding this to `variant` and
+  // narrowing with `if (... !== "classification") return;` made the whole test
+  // body dead: the guard returned on its first evaluated statement, both rules
+  // below went unexercised, and the suite stayed green. Assert the precondition
+  // instead of narrowing on it, so a fixture change fails loudly rather than
+  // silently deleting the test.
+  const arm = report.baseline;
+  assert.equal(arm.conditions.shields, "classification");
   const shields = arm.verificationFacts!.shields!;
-  if (arm.conditions.shields !== "classification") return;
   const straggler = {
     ...arm.evidence.requests[0],
     id: arm.evidence.requests.length + 1,
@@ -135,8 +141,8 @@ test("a post-boundary Shields straggler is retained without failing the build", 
   // The reverse direction is still evidence loss and must still be refused: a
   // counted match with no retained flag means a flag went missing.
   const missing = makeShieldsInterventionReportV2R2();
-  const missingArm = missing.variant;
-  if (missingArm.conditions.shields !== "classification") return;
+  const missingArm = missing.baseline;
+  assert.equal(missingArm.conditions.shields, "classification");
   missingArm.verificationFacts!.shields!.requestsMatched =
     missingArm.evidence.requests.filter(
       (request) =>

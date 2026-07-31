@@ -17,6 +17,7 @@ import {
   maintainReportStoreRetention,
   prepareScanReportBundle,
   pruneStoredReports,
+  REPORT_PRUNE_MAX_DELETES_PER_PASS,
   reportStoreRetentionStatus,
   readStoredScanReportById,
   reconcilePreparedScanReportBundle,
@@ -1212,4 +1213,78 @@ test("an operator report count above the backend listing ceiling is clamped, not
     if (previous === undefined) delete process.env[REPORT_MAX_COUNT_ENV];
     else process.env[REPORT_MAX_COUNT_ENV] = previous;
   }
+});
+
+test("a bounded delete backlog keeps publishing while retention still reports maintenance", async () => {
+  // A burst of reports created together expires together, so a backlog larger
+  // than one pass's delete cap is ordinary, not a corrupt store. Refusing to
+  // publish on it rejected the next scan AFTER Chromium had already run and the
+  // caller's rate-limit token was spent. Only a delete that actually FAILED
+  // leaves physical state unknown, and only that may refuse publication.
+  process.env[REPORT_MIN_SURVIVAL_MS_ENV] = "0";
+  process.env[REPORT_MAX_COUNT_ENV] = "500";
+
+  const backlog = REPORT_PRUNE_MAX_DELETES_PER_PASS + 2;
+  for (let index = 0; index < backlog; index += 1) {
+    await saveScanReport(makeScanResult());
+  }
+  assert.equal((await readdir(reportDir)).filter(isReportFile).length, backlog);
+
+  // Now every stored report is removable at once, which is more than one pass
+  // may delete.
+  process.env[REPORT_MAX_COUNT_ENV] = "1";
+
+  const published = await saveScanReport(makeScanResult());
+  assert.ok(published.share?.id, "publication must survive a bounded delete backlog");
+
+  const remaining = (await readdir(reportDir)).filter(isReportFile);
+  assert.ok(remaining.includes(`${published.share!.id}.json`), "the new report is readable");
+  assert.ok(
+    remaining.length < backlog,
+    "the pass still deleted its bounded share of the backlog"
+  );
+
+  // The operator-visible signal is unchanged: retention stays unhealthy and
+  // keeps draining on later passes.
+  const status = await reportStoreRetentionStatus();
+  assert.equal(status.maintenanceRequired, true);
+  assert.equal(status.healthy, false);
+  assert.equal(status.debtCount, 0, "nothing actually failed to delete");
+});
+
+test("the public permalink read is bounded by the same whole-operation deadline", async () => {
+  // This is the only store entry point a visitor can reach unauthenticated, and
+  // it was the only one that passed no options to the backend. Every R2 call
+  // then ran its own full retry budget, so during a bucket brownout one GET
+  // held a Node request for the report, again for the sidecar, and again for
+  // each delete on the expired path.
+  process.env[REPORT_STORE_OPERATION_TIMEOUT_MS_ENV] = "10";
+  configureFakeR2(async () => new Promise<Response>(() => undefined));
+  let unhandled: unknown;
+  const onUnhandled = (reason: unknown) => {
+    unhandled = reason;
+  };
+  process.on("unhandledRejection", onUnhandled);
+  const startedAt = Date.now();
+  try {
+    await assert.rejects(
+      () => readStoredScanReportById(`20260714-${"e".repeat(32)}`),
+      /whole-operation deadline|exceeded its 10 ms/i
+    );
+    assert.ok(Date.now() - startedAt < 1_000, "a public read must not inherit a hung backend lifetime");
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    assert.equal(unhandled, undefined);
+  } finally {
+    process.removeListener("unhandledRejection", onUnhandled);
+  }
+});
+
+test("a caller that disconnects aborts the report read it started", async () => {
+  process.env[REPORT_STORE_OPERATION_TIMEOUT_MS_ENV] = "60000";
+  configureFakeR2(async () => new Promise<Response>(() => undefined));
+  const controller = new AbortController();
+  const pending = readStoredScanReportById(`20260714-${"f".repeat(32)}`, { signal: controller.signal });
+  const rejects = assert.rejects(() => pending, /abort/i);
+  controller.abort();
+  await rejects;
 });

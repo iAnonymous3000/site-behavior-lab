@@ -51,12 +51,19 @@ type FeaturedScanDiagnosticHelpers = {
   buildFeaturedRefreshIssueReport(input: {
     failed: boolean;
     summary: unknown;
+    catalogSlug?: string;
     branch?: string;
     serverUrl?: string;
     repository?: string;
     runId?: string;
   }): string;
   isAuthoritativeFeaturedRefresh(environment: Record<string, string | undefined>): boolean;
+  featuredRefreshAlertDecision(
+    environment: Record<string, string | undefined>,
+    aggregate: { fullCatalog: boolean; meetsFloor: boolean } | null
+  ): { authoritative: boolean; completenessGated: boolean; failed: boolean };
+  featuredRefreshCatalogSlug(environment: Record<string, string | undefined>): string;
+  featuredRefreshMarker(catalogSlug: string): string;
 };
 
 type FeaturedScanRunnerHelpers = {
@@ -506,6 +513,88 @@ test("only an unfiltered default-mode full featured refresh is authoritative", a
   assert.equal(isAuthoritativeFeaturedRefresh({ ...fullRefresh, GITHUB_REF_NAME: "experiment" }), false);
 });
 
+test("the completeness floor alerts only on the leg it was sized for", async () => {
+  const { featuredRefreshAlertDecision, publicFeaturedScanSummary } = await helpers;
+  const scheduled: Record<string, string> = {
+    GITHUB_REF_TYPE: "branch",
+    GITHUB_REF_NAME: "main",
+    FEATURED_DEFAULT_BRANCH: "main",
+    FEATURED_COMPARE_SHIELDS: "true",
+    FEATURED_COMPARE_CONSENT: "false",
+    FEATURED_COMPARE_GPC: "false",
+    FEATURED_DEVICE: "desktop",
+    FEATURED_SCAN_OUTCOME: "success",
+    FEATURED_BATCH_HEALTHY: "true",
+    FEATURED_JOB_STATUS: "success"
+  };
+  const gallery = { ...scheduled, FEATURED_SITES_FILE: "public/featured-sites.json" };
+  const seed = { ...scheduled, FEATURED_SITES_FILE: "public/corpus-seed-sites.json" };
+
+  // The seed catalog is deliberately smaller than the floor, so a flawless run
+  // reports fullCatalog=false and meetsFloor=false. Judging it by the gallery's
+  // floor raised the repair issue and failed the workflow every single Monday.
+  const perfectSeed = publicFeaturedScanSummary({
+    total: 45,
+    succeeded: 45,
+    failed: 0,
+    successRate: 1,
+    requiredSuccessRate: 0.9
+  });
+  assert.notEqual(perfectSeed, null);
+  assert.equal(perfectSeed!.meetsFloor, false);
+  const seedDecision = featuredRefreshAlertDecision(seed, perfectSeed);
+  assert.equal(seedDecision.authoritative, true, "a scheduled seed refresh still alerts on real failures");
+  assert.equal(seedDecision.completenessGated, false);
+  assert.equal(seedDecision.failed, false);
+
+  // A seed leg that actually went wrong must still go red, through the same
+  // signals the gallery leg uses beyond the floor.
+  for (const broken of [
+    { ...seed, FEATURED_BATCH_HEALTHY: "false" },
+    { ...seed, FEATURED_SCAN_OUTCOME: "failure" },
+    { ...seed, FEATURED_JOB_STATUS: "failure" }
+  ]) {
+    assert.equal(featuredRefreshAlertDecision(broken, perfectSeed).failed, true);
+  }
+  assert.equal(featuredRefreshAlertDecision(seed, null).failed, true, "a malformed summary stays a failure");
+
+  // The gallery leg keeps the floor exactly as before.
+  const fullCatalog = {
+    total: 98,
+    succeeded: 98,
+    failed: 0,
+    successRate: 1,
+    requiredSuccessRate: 0.9,
+    fullCatalog: true,
+    catalogVersion: 3,
+    catalogCoverage: 1,
+    requiredCatalogCoverage: 0.8,
+    minimumEligibleSites: 50
+  };
+  const perfectGallery = publicFeaturedScanSummary(fullCatalog);
+  assert.notEqual(perfectGallery, null);
+  const galleryDecision = featuredRefreshAlertDecision(gallery, perfectGallery);
+  assert.equal(galleryDecision.completenessGated, true);
+  assert.equal(galleryDecision.failed, false);
+
+  const belowFloor = publicFeaturedScanSummary({ ...fullCatalog, total: 40, succeeded: 40 });
+  assert.notEqual(belowFloor, null);
+  assert.equal(belowFloor!.meetsFloor, false);
+  assert.equal(featuredRefreshAlertDecision(gallery, belowFloor).failed, true);
+
+  // A scheduled gallery run that did not cover the whole catalog is still an
+  // anomaly worth the alarm.
+  const notFullCatalog = publicFeaturedScanSummary({
+    total: 98,
+    succeeded: 98,
+    failed: 0,
+    successRate: 1,
+    requiredSuccessRate: 0.9
+  });
+  assert.notEqual(notFullCatalog, null);
+  assert.equal(featuredRefreshAlertDecision(gallery, notFullCatalog).failed, true);
+});
+
 test("featured scans send GPC only when GPC is the measured axis", async () => {
   const harness = readFileSync(path.join(process.cwd(), "scripts", "run-featured-scans.mjs"), "utf8");
 
@@ -548,4 +637,32 @@ test("a scheduled refresh of either corpus catalog is authoritative for alerting
   // smaller by design and must not be measured against the gallery's size.
   assert.equal(isFullFeaturedCatalogSelection(scheduled("public/corpus-seed-sites.json")), false);
   assert.equal(isFullFeaturedCatalogSelection(scheduled("public/featured-sites.json")), true);
+});
+
+test("each scheduled catalog owns its own refresh issue", async () => {
+  const { buildFeaturedRefreshIssueReport, featuredRefreshCatalogSlug, featuredRefreshMarker } = await helpers;
+
+  assert.equal(featuredRefreshCatalogSlug({ FEATURED_SITES_FILE: "public/corpus-seed-sites.json" }), "seed");
+  assert.equal(featuredRefreshCatalogSlug({ FEATURED_SITES_FILE: "public/featured-sites.json" }), "gallery");
+  assert.equal(featuredRefreshCatalogSlug({}), "gallery", "the default catalog is the gallery");
+  assert.notEqual(featuredRefreshMarker("seed"), featuredRefreshMarker("gallery"));
+
+  // The seed leg always runs after the gallery leg. While both wrote one
+  // shared marker, a healthy seed run closed whatever the gallery leg had just
+  // filed, erasing a real failure two hours after it was reported.
+  const gallery = buildFeaturedRefreshIssueReport({ failed: true, summary: null, catalogSlug: "gallery" });
+  const seed = buildFeaturedRefreshIssueReport({ failed: false, summary: null, catalogSlug: "seed" });
+
+  assert.ok(gallery.includes(featuredRefreshMarker("gallery")));
+  assert.equal(gallery.includes(featuredRefreshMarker("seed")), false);
+  assert.ok(seed.includes(featuredRefreshMarker("seed")));
+  assert.equal(seed.includes(featuredRefreshMarker("gallery")), false);
+
+  // The reader is told which half the issue is about.
+  assert.match(gallery, /featured gallery catalog/);
+  assert.match(seed, /corpus de-bias seed list/);
+
+  // An issue filed before the markers were scoped carries only the shared
+  // marker, so the gallery leg can still adopt it rather than orphan it.
+  assert.ok(gallery.includes("<!-- site-behavior-lab:featured-corpus-refresh -->"));
 });

@@ -403,6 +403,16 @@ async function handleHttpsConnect(
   head: Buffer,
   state: ProxyState
 ): Promise<void> {
+  // FIRST, before any budget check, refusal, or await. Node removes its own
+  // 'error' listener before emitting 'connect', so until something re-attaches
+  // one an ordinary client reset is an unhandled 'error' event, which Node
+  // turns into an uncaughtException and the process exits. Chromium resets
+  // proxy sockets as a matter of course (cancelled fetch, navigated-away
+  // iframe, aborted scan), and every early return below plus the DNS await
+  // used to run with no listener attached, so a routine reset in that window
+  // took down the whole scanner container.
+  clientSocket.on("error", () => clientSocket.destroy());
+
   const targetUrl = parseConnectUrl(request.url ?? "");
   if (!state.trafficBudget.claim(targetUrl)) {
     recordBlockedTarget(state.blockedTargets, targetUrl ? safeTargetLabel(targetUrl) : request.url ?? "unknown", "resource-limit");
@@ -458,6 +468,10 @@ async function handleHttpsConnect(
 }
 
 function handleUpgradeRequest(request: IncomingMessage, socket: Duplex, state: ProxyState): void {
+  // Same reason as the CONNECT handler: 'upgrade' is emitted with no 'error'
+  // listener on the socket, and this refusal path never attached one at all.
+  socket.on("error", () => socket.destroy());
+
   // A deliberate policy refusal (plaintext WebSocket proxying is unsupported),
   // not a malformed request and not a private-network block.
   const targetUrl = parseUpgradeProxyUrl(request);

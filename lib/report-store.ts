@@ -210,10 +210,16 @@ export async function commitPreparedScanReportBundle<T extends RuntimeScanReport
     withReportStoreMutationLock(async () => {
       boundedOptions.signal?.throwIfAborted();
       // Prune before exposing new bytes, reserving one count slot for this
-      // bundle. Any durable retention debt or bounded continuation signal blocks
-      // publication until a maintenance pass physically clears it.
+      // bundle. Refuse publication only when a delete actually FAILED, which
+      // leaves physical state unknown and is the condition this guard exists
+      // for. A pass that merely hit its bounded per-pass delete cap deleted
+      // everything it attempted and simply has more to do, which is the normal
+      // shape of a burst of reports expiring on the same day. Refusing that too
+      // rejected the next scan after Chromium had already run and the caller's
+      // rate-limit token was spent. Retention still reports unhealthy and keeps
+      // draining on later passes either way.
       const pruning = await pruneStoredReportsUnlocked(backend, Date.now(), boundedOptions, 1);
-      if (pruning.maintenanceRequired) {
+      if (pruning.physicalStateUnknown) {
         throw new Error(
           "Report publication refused while physical retention maintenance is pending."
         );
@@ -358,30 +364,43 @@ export type StoredReportReadOutcome =
  * crashing a renderer downstream. `wire` is the stored bytes; API responses
  * serve it as-is so the wire form is never re-synthesized.
  */
-export async function readStoredScanReportById(id: string): Promise<StoredReportReadOutcome> {
+export async function readStoredScanReportById(
+  id: string,
+  options: ReportStoreOperationOptions = {}
+): Promise<StoredReportReadOutcome> {
   if (!REPORT_ID_PATTERN.test(id)) return { outcome: "not-found" };
   const backend = resolveReportStoreBackend();
-  const blob = await backend.read(id);
-  if (!blob) return { outcome: "not-found" };
+  // This is the public permalink read, and it was the only store entry point
+  // with no whole-operation deadline and no signal reaching the backend. Every
+  // R2 call then ran its own full retry budget, so during a bucket brownout a
+  // single unauthenticated GET occupied a Node request for the report, again
+  // for the sidecar, and again for each delete on the expired path. Bound the
+  // whole thing the way commit, prune, and retention status already are.
+  return withReportStoreOperationDeadline(options, async (boundedOptions) => {
+    const blob = await backend.read(id, boundedOptions);
+    if (!blob) return { outcome: "not-found" };
 
-  if (blob.retention && isExpired(blob.retention)) {
-    await deleteWithRetentionDebt(backend, { id, scope: "bundle" }).catch(() => undefined);
-    return { outcome: "not-found" };
-  }
-  const managed = readManagedReport({
-    reportId: id,
-    reportContents: blob.contents,
-    sidecarContents: await backend.readSidecar(id),
-    retention: blob.retention
+    if (blob.retention && isExpired(blob.retention)) {
+      await deleteWithRetentionDebt(backend, { id, scope: "bundle" }, boundedOptions).catch(
+        () => undefined
+      );
+      return { outcome: "not-found" };
+    }
+    const managed = readManagedReport({
+      reportId: id,
+      reportContents: blob.contents,
+      sidecarContents: await backend.readSidecar(id, boundedOptions),
+      retention: blob.retention
+    });
+    if (!managed.ok) {
+      return {
+        outcome: "unreadable",
+        error: managed.error,
+        ...(managed.violations ? { violations: managed.violations } : {})
+      };
+    }
+    return { outcome: "found", stored: managed.stored, wire: managed.wire };
   });
-  if (!managed.ok) {
-    return {
-      outcome: "unreadable",
-      error: managed.error,
-      ...(managed.violations ? { violations: managed.violations } : {})
-    };
-  }
-  return { outcome: "found", stored: managed.stored, wire: managed.wire };
 }
 
 export function pruneStoredReports(now = Date.now()): Promise<void> {
@@ -419,7 +438,13 @@ async function pruneStoredReportsUnlocked(
   now: number,
   options: ReportStoreOperationOptions = {},
   incomingCount = 0
-): Promise<{ maintenanceRequired: boolean }> {
+): Promise<{
+  maintenanceRequired: boolean;
+  /** The per-pass delete cap was hit; everything attempted succeeded. */
+  continuationPending: boolean;
+  /** A delete failed, so an object may outlive what retention reports. */
+  physicalStateUnknown: boolean;
+}> {
   const priorState = await backend.retentionState(options);
   const deletions: ReportRetentionDebtEntry[] = [...priorState.debts];
   const deletionKeys = new Set(deletions.map(retentionDebtKey));
@@ -495,7 +520,7 @@ async function pruneStoredReportsUnlocked(
     if (priorState.maintenanceRequired) {
       await backend.setRetentionMaintenanceRequired(false, options);
     }
-    return { maintenanceRequired: false };
+    return { maintenanceRequired: false, continuationPending: false, physicalStateUnknown: false };
   }
 
   // One save/prune invocation can never fan out into an unbounded delete storm.
@@ -508,10 +533,26 @@ async function pruneStoredReportsUnlocked(
   });
 
   const after = await backend.retentionState(options);
-  const maintenanceRequired =
-    deletions.length > selected.length || after.debts.length > 0;
+  // Two different facts, deliberately reported separately.
+  //
+  // `continuationPending` means this pass hit its own per-pass cap: every
+  // delete it attempted SUCCEEDED and more work remains. That is the normal
+  // shape of a burst expiring together (a scheduled refresh or a busy
+  // afternoon all age out on the same 7-day boundary), and it says nothing
+  // about whether the store is in a known state.
+  //
+  // `physicalStateUnknown` means a delete actually failed, so an object may
+  // still be there when retention says it is gone. That is the only condition
+  // that may refuse to publish new bytes.
+  //
+  // Conflating them refused publication on an ordinary backlog, and it did so
+  // AFTER Chromium had already run and the caller's rate-limit token was
+  // spent, turning routine retention lag into user-facing scan failures.
+  const continuationPending = deletions.length > selected.length;
+  const physicalStateUnknown = after.debts.length > 0;
+  const maintenanceRequired = continuationPending || physicalStateUnknown;
   await backend.setRetentionMaintenanceRequired(maintenanceRequired, options);
-  return { maintenanceRequired };
+  return { maintenanceRequired, continuationPending, physicalStateUnknown };
 }
 
 export function reportStoreStatus(): ReportStoreStatus {

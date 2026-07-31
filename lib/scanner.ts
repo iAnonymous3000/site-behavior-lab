@@ -2385,17 +2385,35 @@ export async function scanSiteWithMeasurement(
     };
     let privacyPolicy: PrivacyPolicySummary | null = null;
     if (policyPhaseId !== null) {
+      // The probe's own warning is BUFFERED rather than written straight to the
+      // run's collector. `withScanTimeout` abandons the loser instead of
+      // cancelling it, so a probe that finishes after the deadline would
+      // otherwise still announce "Read the site's privacy policy" into a report
+      // whose privacy-policy detector this call site has already marked failed.
+      // Draining the buffer only on the resolved path makes that impossible
+      // without needing the two to win any race.
+      const policyWarnings = new ScanWarningCollector();
       try {
-        privacyPolicy = await probePrivacyPolicy({
-          context,
-          boundedPageCollectorKey,
-          links: policyLinks,
-          firstPartyHostname: finalParsed.hostname,
-          requests: publicRequests,
-          started,
-          verifyPublicUrl,
-          warnings
-        });
+        // Every other page-creating step is deadline-bound; this one was not,
+        // and `newPage`, `route` and `close` are passed kNoTimeout by
+        // Playwright, so a browser that stops answering CDP without dropping
+        // the transport left this await pending forever. That holds a scan slot
+        // and a job worker with nothing left to release them, so two such scans
+        // retire the container's capacity until it restarts.
+        privacyPolicy = await withScanTimeout(
+          probePrivacyPolicy({
+            context,
+            boundedPageCollectorKey,
+            links: policyLinks,
+            firstPartyHostname: finalParsed.hostname,
+            requests: publicRequests,
+            started,
+            verifyPublicUrl,
+            warnings: policyWarnings
+          }),
+          started
+        );
+        for (const message of policyWarnings.list) warnings.add(message);
         // The probe found a policy, fetched it, and cross-checked its text, so
         // the detector's own work finished. A truncated candidate list means
         // the SEARCH that fed it was incomplete, which is already recorded as
