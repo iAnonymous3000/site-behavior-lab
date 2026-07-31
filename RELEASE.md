@@ -348,18 +348,22 @@ hardest:
   and `production`, kept the evidence ruleset's bypass list empty, and exposed
   the aggregate deletion, non-fast-forward, linear-history, status-check, and
   restricted-update rules;
-- no release tag exists yet: `v0.2.0` was never cut, and `v0.3.0` has not yet
-  been cut.
+- `v0.2.0` was never cut; `v0.3.0` was cut 2026-07-30 through the full
+  ceremony (attestation 38013724, receipt sha256
+  `0cc066fd00fb89cca23d591325de43aba37214bbf6f7118aca0cbd2fa3c7eb1b`
+  embedded in the annotated tag and durably archived at
+  `docs/release-receipts/0.3.0/`).
 
 The main-history, production-evidence, and immutable-tag boundaries are active,
-and the release environment now gates the workflow job that can publish a tag.
+and the release environment gates the workflow job that can publish a tag.
 The production-updater gate is closed. Tag publication is restricted by the
 main-only reviewed environment plus the workflow's actor and triggering-actor
 checks, but creation is not App-exclusive and the environment remains
 administrator-bypassable; those limits must not be described as stronger
-authorization. Before cutting `v0.3.0`, the final candidate still needs one
-exact-SHA chain of fresh CI, App-authenticated promotion, deployment
-convergence, deep Production Health, and final ruleset/ref readback.
+authorization. One live-proven caveat for automation proposals: a
+workflow-dispatched CI run does not satisfy the ruleset's required checks on
+a bot-created pull request (they stay "expected"); the parked push-event run
+must be approved before such a proposal can merge.
 
 ## Working model under branch protection
 

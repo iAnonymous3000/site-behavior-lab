@@ -7,7 +7,80 @@ public API or a 1.0 release.
 
 ## Unreleased
 
-Work landing after the 0.3.0 milestone. Nothing here is released.
+Work landing after the 0.4.0-rc.1 milestone. Nothing here is released.
+
+## [0.4.0-rc.1] - 2026-07-31
+
+Release-candidate rehearsal for the prerelease tag mechanics the 1.0 ceremony
+will use, cut on the release-1.0 preparation batch. It does not declare a
+stable public API, enable npm publication, or claim any readiness gate that
+its own evaluator reports as failing. ScanReport contracts are unchanged
+(v1 frozen, v2/r1 and v2/r2 byte-immutable).
+
+### Added
+
+- A machine-readable release-readiness manifest (`RELEASE_READINESS.json`)
+  evaluated by `npm run release:readiness`: release decisions stay red until
+  a named human approves them, derived gates re-score committed evidence on
+  every run without trusting any artifact's self-declared verdict, and
+  operator attestations bind a literally-true statement contract to the
+  target release with per-gate freshness windows. The proposed compatibility
+  promise is digest-pinned by its decision. The evaluator currently reports
+  NOT READY, and a test pins that honest state.
+- The corpus statistics artifact now keeps one distribution cohort per exact
+  schema/revision, methodology, tracker-catalog, ServiceRole-taxonomy,
+  metric-contract, producer, and requested-GPC identity, and percentile
+  wording requires both the exact cohort and the named metric to reach the
+  50-site floor. `metric-contract-v1` and `service-role-taxonomy-v1` are
+  published as digest-pinned artifacts, separating all catalog-matched
+  request rows from the read-time third-party tracking-role subset.
+- A measurement-freeze switch (`SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE`)
+  quiesces every corpus writer except the controlled collection lane, with a
+  loud notice job on each skipped writer and a preflight refusal of both
+  frozen-v1 lanes during a freeze.
+- Preregistered A/A repeatability studies: a declared-before-collection
+  preregistration (frame digest, repetitions, conditions, thresholds) and an
+  evaluator that treats binding mismatches, including a preregistration
+  declared after collection began, as identity violations rather than
+  threshold failures.
+- Detector-calibration readiness is derived by re-analyzing committed studies
+  against the exact current release identity on every build, so a study
+  bound to an earlier build, catalog, or filter-list revision demotes itself;
+  the committed pixel pilot is disclosed as ineligible instead of invisible.
+- Operational evidence became machine-readable receipts: controlled-runner
+  destruction receipts with a fail-closed verifier, an R2 lifecycle readback
+  (API-token or wrangler-OAuth sourced) that detects conflicting retention
+  rules production health cannot see, a durable archive lane that copies each
+  release receipt into the repository after digest review against the
+  annotated tag, and a third-party review ledger with one version-keyed row
+  per inventory item gated against drift in CI.
+- The report-consistency gate validates rendered semantics (absence claims,
+  identity conflicts, reassuring copy over loud findings, subject scope)
+  against structured report facts, and report identity flows through one
+  exact per-host catalog seam that never renders the lossy one-slot domain
+  summary directly.
+
+### Changed
+
+- Every pressable control meets the 44px touch-target floor whenever any
+  coarse pointer exists, without inheriting the narrow-viewport layout; the
+  static smoke asserts computed target sizes in both a mobile and a wide
+  hybrid-pointer context, and the two error boundaries gained their first
+  coverage.
+- Both production promotion workflows can mint their App token via the
+  non-deprecated client-id input the moment the operator stores the App
+  client id; the deprecated path keeps working until then.
+- The thirteen 2026-07-21 featured-site deferrals were removed ahead of
+  their hard expiry so the next scheduled cycles can generate fresh
+  adjudication evidence; deferral-exclusion mechanics remain covered by
+  synthetic tests.
+- The release runbook documents rollback (revert forward through the pull
+  request flow; tags and production never rewind), the identity-versus-bytes
+  meaning of the committed-report freeze, quantified durable-jobs soak
+  durations, and the measurement-freeze rules a repository variable cannot
+  enforce.
+- The v0.3.0 release receipt is durably archived in-repository with its
+  digest verified against the annotated tag.
 
 ## [0.3.0] - 2026-07-30
 
