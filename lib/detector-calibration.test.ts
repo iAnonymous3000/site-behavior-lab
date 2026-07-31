@@ -28,8 +28,11 @@ test("acceptance fixtures remain explicitly separate from calibration evidence",
     acceptanceFixtureCases: 18,
     acceptanceFixturesExcludedFromCalibration: true,
     calibrationStudies: 0,
+    eligibleCalibrationStudies: 0,
     labeledCalibrationCases: 0,
+    ineligibleStudyLabeledCases: 0,
     calibrationRateClaimsAvailable: false,
+    studies: [],
     studySchema: "detector-calibration-study.v1",
     studySchemaPath: "/schemas/detector-calibration-study.v1.schema.json",
     releaseIdentityGate:
@@ -39,6 +42,40 @@ test("acceptance fixtures remain explicitly separate from calibration evidence",
     evidenceGate:
       "A preselected, release-bound, independently labeled case corpus with a declared sampling frame, immutable artifacts, and complete planned denominator is still required."
   });
+});
+
+test("readiness derives from re-analysis: ineligible studies count but never claim, eligible ones flip the surface", () => {
+  // Self-consistent study bound to a DIFFERENT build: exactly the committed
+  // pilot's situation after any later commit to main.
+  const ineligible = analyze((() => {
+    const input = study("convenience");
+    input.release = currentDetectorCalibrationReleaseIdentity(
+      "fingerprint-heuristics",
+      "b".repeat(40),
+      runtimeIdentity()
+    );
+    return input;
+  })());
+  assert.equal(ineligible.status, "ineligible", ineligible.issues.join("; "));
+
+  const staleOnly = detectorCalibrationReadiness([ineligible]);
+  assert.equal(staleOnly.status, "committed-studies-ineligible");
+  assert.equal(staleOnly.calibrationStudies, 1);
+  assert.equal(staleOnly.eligibleCalibrationStudies, 0);
+  assert.equal(staleOnly.labeledCalibrationCases, 0);
+  assert.equal(staleOnly.ineligibleStudyLabeledCases, 4);
+  assert.equal(staleOnly.calibrationRateClaimsAvailable, false);
+  assert.equal(staleOnly.studies[0]?.ineligibilityReasons.includes("build-commit-mismatch"), true);
+
+  const eligible = analyze(study("convenience"));
+  assert.equal(eligible.status, "descriptive-only");
+  const flipped = detectorCalibrationReadiness([ineligible, eligible]);
+  assert.equal(flipped.status, "eligible-studies-recorded");
+  assert.equal(flipped.calibrationStudies, 2);
+  assert.equal(flipped.eligibleCalibrationStudies, 1);
+  assert.equal(flipped.labeledCalibrationCases, 4);
+  assert.equal(flipped.ineligibleStudyLabeledCases, 4);
+  assert.equal(flipped.calibrationRateClaimsAvailable, true);
 });
 
 test("a complete convenience study reports denominators and point rates without population uncertainty", () => {
