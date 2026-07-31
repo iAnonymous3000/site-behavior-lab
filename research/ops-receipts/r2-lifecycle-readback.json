@@ -1,0 +1,58 @@
+{
+  "kind": "site-behavior-r2-lifecycle-readback",
+  "receiptVersion": 1,
+  "bucket": "site-behavior-lab-reports",
+  "source": "wrangler-oauth-cli-text",
+  "recordedAt": "2026-07-31T15:55:10.384Z",
+  "rules": [
+    {
+      "id": "Default Multipart Abort Rule",
+      "enabled": true,
+      "conditions": {
+        "prefix": ""
+      },
+      "abortMultipartUploadsTransition": {
+        "condition": {
+          "type": "Age",
+          "maxAge": 604800
+        }
+      }
+    },
+    {
+      "id": "reports-retention-backstop-8d",
+      "enabled": true,
+      "conditions": {
+        "prefix": "reports/"
+      },
+      "deleteObjectsTransition": {
+        "condition": {
+          "type": "Age",
+          "maxAge": 691200
+        }
+      }
+    },
+    {
+      "id": "v2-shadow-expire-1d",
+      "enabled": true,
+      "conditions": {
+        "prefix": "v2-shadow/"
+      },
+      "deleteObjectsTransition": {
+        "condition": {
+          "type": "Age",
+          "maxAge": 86400
+        }
+      }
+    }
+  ],
+  "observedReportsDeletionRules": [
+    {
+      "id": "reports-retention-backstop-8d",
+      "prefix": "reports/",
+      "effectiveDays": 8
+    }
+  ],
+  "violations": [],
+  "ok": true,
+  "receiptDigest": "19736209c47a32fd3f36fae4bd12d8b072292ee77148c88f953bd3ce8ebe7769"
+}

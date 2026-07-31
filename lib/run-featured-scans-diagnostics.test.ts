@@ -220,13 +220,17 @@ test("the public featured catalog keeps every current deferral explicit and vali
   const deferred = catalog.sites.filter((site) => site.scanAvailability !== undefined);
 
   assert.equal(catalog.version, 2);
-  assert.equal(deferred.length, 13);
+  // 2026-07-31: the thirteen 2026-07-21 deferrals were removed so the next
+  // scheduled cycles can produce fresh adjudication run ids before the
+  // entries would have hard-expired on 2026-08-19. Any deferral present must
+  // still be explicit and valid; the count pin moves with each adjudication.
+  assert.equal(deferred.length, 0);
   for (const site of deferred) {
     assert.ok(featuredSiteUnavailability(site), site.domain);
   }
 });
 
-test("full-catalog selection keeps 68 of 81 active and refuses 17 or more deferrals", async () => {
+test("full-catalog selection keeps all 81 active and refuses 17 or more deferrals", async () => {
   const { selectSites } = await runnerHelpers;
   const catalog = JSON.parse(
     readFileSync(path.join(process.cwd(), "public", "featured-sites.json"), "utf8")
@@ -242,8 +246,10 @@ test("full-catalog selection keeps 68 of 81 active and refuses 17 or more deferr
   assert.equal(selected.fullCatalog, true);
   assert.equal(selected.catalogVersion, 2);
   assert.equal(selected.catalogTotal, 81);
-  assert.equal(selected.sites.length, 68);
-  assert.equal(selected.unavailable.length, 13);
+  // Every site is eligible while the re-adjudication window collects fresh
+  // evidence (deferrals removed 2026-07-31, see the catalog-validity test).
+  assert.equal(selected.sites.length, 81);
+  assert.equal(selected.unavailable.length, 0);
   assert.equal(selected.eligibility.meetsFloor, true);
 
   const extraDeferral = {
@@ -257,7 +263,7 @@ test("full-catalog selection keeps 68 of 81 active and refuses 17 or more deferr
   const overDeferred = {
     ...catalog,
     sites: catalog.sites.map((site) => {
-      if (site.scanAvailability !== undefined || added >= 4) return site;
+      if (site.scanAvailability !== undefined || added >= 17) return site;
       added += 1;
       return { ...site, scanAvailability: extraDeferral };
     })
@@ -266,13 +272,22 @@ test("full-catalog selection keeps 68 of 81 active and refuses 17 or more deferr
     () => selectSites(overDeferred, environment, "2026-07-21"),
     /64\/81[\s\S]*80% whole-catalog coverage/
   );
+  // Version validation applies to catalogs CARRYING availability metadata;
+  // with the live catalog currently deferral-free, give these sub-cases one
+  // synthetic deferral so the rule they pin stays exercised.
+  const withOneDeferral = {
+    ...catalog,
+    sites: catalog.sites.map((site, index) =>
+      index === 0 ? { ...site, scanAvailability: extraDeferral } : site
+    )
+  };
   assert.throws(
-    () => selectSites({ ...catalog, version: "2" }, environment, "2026-07-21"),
+    () => selectSites({ ...withOneDeferral, version: "2" }, environment, "2026-07-21"),
     /integer version of 2 or newer/
   );
   assert.throws(
     () => selectSites(
-      { ...catalog, version: "2" },
+      { ...withOneDeferral, version: "2" },
       { ...environment, FEATURED_CATEGORIES: "gov" },
       "2026-07-21"
     ),

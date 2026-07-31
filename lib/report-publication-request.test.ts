@@ -251,7 +251,12 @@ test("featured request selection is exact-SHA catalog bounded and honors filters
   });
 
   const full = await featuredReportPublicationRequest(process.cwd(), {} as NodeJS.ProcessEnv);
-  assert.equal(full.targets.includes("https://www.coinbase.com/"), false, "temporary-unavailability entries stay excluded");
+  // The 2026-07-21 deferrals were removed 2026-07-31 so the next scheduled
+  // cycles can generate fresh adjudication evidence before the entries would
+  // have hard-expired on 2026-08-19; formerly deferred sites are eligible
+  // again. Deferral EXCLUSION mechanics stay covered by the synthetic
+  // selectSites cases in run-featured-scans-diagnostics.test.ts.
+  assert.equal(full.targets.includes("https://www.coinbase.com/"), true, "re-adjudication returns formerly deferred sites to selection");
   await assert.rejects(
     () => featuredReportPublicationRequest(process.cwd(), {
       FEATURED_SITES_FILE: "package.json"

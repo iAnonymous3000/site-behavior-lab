@@ -43,9 +43,14 @@ const EXPECTED_DECISIONS = [
   "wasmReproducibility"
 ];
 
-test("the committed manifest is NOT READY, every gate is pinned by id and kind, and only the digest pin is green", async () => {
+test("the committed manifest is NOT READY, every gate is pinned by id and kind, and only evidenced gates are green", async () => {
   const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
-  const result = evaluateReleaseReadiness();
+  // Evaluated AS OF a frozen instant so freshness windows cannot redden CI by
+  // calendar: this pins the evaluator over committed evidence, and staleness
+  // enforcement is exercised by the synthetic tests below. Bump the instant
+  // whenever new evidence lands.
+  const AS_OF = Date.parse("2026-08-01T00:00:00.000Z");
+  const result = evaluateReleaseReadiness(process.cwd(), AS_OF);
   assert.equal(result.ready, false);
   assert.deepEqual(result.manifestProblems, []);
 
@@ -55,14 +60,24 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
     result.gates.map((gate: { id: string; kind: string; status: string }) => [gate.id, gate])
   );
   assert.deepEqual([...gates.keys()].sort(), Object.keys(EXPECTED_GATES).sort());
+  // Gates whose evidence lands through WORKFLOW-GENERATED proposal PRs
+  // (receipt archive, corpus regeneration) get kind-only pins: a generated
+  // proposal cannot carry the pin move its own CI would need, so a status
+  // assertion here would redden every such proposal on arrival. Their
+  // fail-closed behavior is pinned by the synthetic tests below. Every other
+  // gate's evidence is hand-committed, so its flip rides the same PR that
+  // moves this pin.
+  const automationLanded = new Set(["release-receipt-archive", "current-method-corpus"]);
+  // Hand-committed evidence that has actually landed. Every flip moves here.
+  const evidenced = new Set([
+    "compatibility-surface-pinned",
+    "r2-lifecycle" // wrangler-sourced readback receipt, 2026-07-31
+  ]);
   for (const [id, kind] of Object.entries(EXPECTED_GATES)) {
     const gate = gates.get(id) as { kind: string; status: string };
     assert.equal(gate.kind, kind, `${id} kind`);
-    assert.equal(
-      gate.status,
-      id === "compatibility-surface-pinned" ? "pass" : "fail",
-      `${id} status`
-    );
+    if (automationLanded.has(id)) continue;
+    assert.equal(gate.status, evidenced.has(id) ? "pass" : "fail", `${id} status`);
   }
 
   // Pin the governed decision set: deleting a decision must stay visible.
