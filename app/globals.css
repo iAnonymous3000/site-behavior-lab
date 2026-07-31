@@ -1981,6 +1981,38 @@ a {
     min-height: 44px;
     min-width: 44px;
   }
+
+  /* Touch-target floor for every remaining pressable control: whenever ANY
+     coarse pointer exists (or the layout is already narrow), fingers get the
+     44px minimum. Deliberately separate from the width-only layout block
+     further down: a wide touchscreen laptop must get the targets without the
+     stacked-phone layout. */
+  .ghost-button,
+  .secondary-button,
+  .scanner-health-retry {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .options-disclosure > summary {
+    min-height: 44px;
+  }
+
+  .icon-button {
+    height: 44px;
+    width: 44px;
+  }
+
+  .scan-examples button {
+    min-height: 44px;
+    padding: 10px 8px;
+  }
+
+  .topbar-nav .topbar-link {
+    align-items: center;
+    display: inline-flex;
+    min-height: 44px;
+  }
 }
 
 /* Schema-provenance chip beside the report eyebrow: always-visible origin
@@ -4271,22 +4303,9 @@ details[open] > summary .disclosure-chevron {
     padding: 16px 14px 48px;
   }
 
-  /* Comfortable touch targets on small screens: the options toggle was only as
-     tall as its 13px label, and the icon button sat under the ~44px touch
-     minimum. */
-  .options-disclosure > summary {
-    min-height: 44px;
-  }
-
-  .icon-button {
-    height: 44px;
-    width: 44px;
-  }
-
-  .scan-examples button {
-    min-height: 44px;
-    padding: 10px 8px;
-  }
+  /* Touch-target sizing lives in the combined narrow-or-coarse block beside
+     .arm-option (search: "Touch-target floor"); this block keeps only the
+     narrow-LAYOUT changes a wide touchscreen must not inherit. */
 
   .topbar {
     align-items: flex-start;
@@ -4299,21 +4318,6 @@ details[open] > summary .disclosure-chevron {
   .topbar-actions {
     justify-content: flex-start;
     width: 100%;
-  }
-
-  .topbar-nav .topbar-link {
-    align-items: center;
-    display: inline-flex;
-    min-height: 44px;
-  }
-
-  /* "Cancel scan" and "Dismiss recovery" sit 8px apart and one of them is
-     destructive, so they get the full target on touch. */
-  .scan-recovery-actions .ghost-button,
-  .scan-recovery-actions .secondary-button,
-  .request-filter-chips .ghost-button,
-  .request-filter-chips .secondary-button {
-    min-height: 44px;
   }
 
   .report-evidence-loader {
