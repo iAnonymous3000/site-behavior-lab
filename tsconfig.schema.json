@@ -34,6 +34,7 @@
     "lib/scan-report-v2-r2-aggregate.ts",
     "lib/report-facts.ts",
     "lib/report-consistency.ts",
+    "lib/detector-calibration-source.ts",
     "lib/report-headline.ts",
     "lib/report-findings.ts",
     "lib/report-jsonld.ts",

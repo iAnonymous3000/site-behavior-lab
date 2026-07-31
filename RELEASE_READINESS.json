@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "artifactKind": "site-behavior-release-readiness-manifest",
+  "targetRelease": "1.0.0",
+  "notice": "Single source the release-1.0 gate reads (scripts/release-readiness.mjs). Decisions carry recommended values but stay red until a human sets status to approved with decidedBy/decidedAt. Derived gates re-evaluate from committed evidence on every run; operator gates require an attestation file whose statements are all literally true. The 1.0 policy widening wires the --check mode into the release workflow; until then this manifest is advisory and test-pinned.",
+  "decisions": {
+    "claimBoundary": {
+      "recommended": "investigative-evidence-requiring-independent-corroboration",
+      "excludes": ["standalone-legal-determinations", "sole-court-exhibit-use"],
+      "courtGradeEvidencePackage": "deferred-to-1.1",
+      "status": "recommended-pending-approval",
+      "decidedBy": null,
+      "decidedAt": null
+    },
+    "stableApiClaim": {
+      "recommended": false,
+      "note": "1.0 promises the enumerated compatibility surfaces, not a blanket stable API; stablePublicApi stays false and npm publication stays disabled.",
+      "status": "recommended-pending-approval",
+      "decidedBy": null,
+      "decidedAt": null
+    },
+    "compatibilitySurface": {
+      "document": "docs/compatibility-promise.md",
+      "sha256": "f7ec7f95626104647d00bfcb567003f56a7b181ab4c12bac915dfff02ef88890",
+      "status": "recommended-pending-approval",
+      "decidedBy": null,
+      "decidedAt": null
+    },
+    "reportRevisionR3": {
+      "recommended": "ship-r3-before-the-final-corpus",
+      "note": "Deciding r3 also decides the public ServiceRole field and is the only lawful vehicle for erratum E2; r1/r2 stay byte-immutable either way.",
+      "status": "pending",
+      "decidedBy": null,
+      "decidedAt": null
+    },
+    "calibrationCensoringPolicy": {
+      "recommended": "settle-before-labeling",
+      "note": "The zero-censoring eligibility rule is near-unsatisfiable on the open web (pilot: 37.5% capture failure); declare the policy before paying labelers.",
+      "status": "pending",
+      "decidedBy": null,
+      "decidedAt": null
+    },
+    "wasmReproducibility": {
+      "recommended": "keep-integrity-only-disclosure",
+      "currentDisclosure": "integrity-only-not-reproducible-build",
+      "status": "recommended-pending-approval",
+      "decidedBy": null,
+      "decidedAt": null
+    }
+  },
+  "gates": {
+    "decisions-approved": {
+      "kind": "decisions",
+      "title": "Every release decision is approved by a named human"
+    },
+    "compatibility-surface-pinned": {
+      "kind": "document-digest",
+      "title": "The compatibility promise exists and matches its approved digest",
+      "document": "docs/compatibility-promise.md"
+    },
+    "errata-resolution": {
+      "kind": "errata",
+      "title": "No erratum is left without a decided vehicle",
+      "openErrata": ["E1", "E2"],
+      "resolvedBy": "reportRevisionR3"
+    },
+    "current-method-corpus": {
+      "kind": "corpus",
+      "title": "A current-method cohort clears every claim-bearing metric denominator",
+      "artifact": "public/corpus-stats.json",
+      "requiredCohort": { "schemaVersion": 2, "schemaRevision": 2 },
+      "minimumSitesPerMetric": 50,
+      "requiredMetrics": [
+        "thirdPartyRequests",
+        "thirdPartyDomains",
+        "cataloguedServiceRequests",
+        "trackingServiceRequests",
+        "thirdPartyCookies",
+        "fingerprintEvents"
+      ]
+    },
+    "aa-repeatability": {
+      "kind": "aa-study",
+      "title": "A preregistered A/A study passes its declared thresholds",
+      "directory": "research/aa-studies"
+    },
+    "detector-calibration": {
+      "kind": "calibration",
+      "title": "Every claim-bearing detector has an eligible study at the current identity",
+      "requiredDetectors": [
+        "keystroke-exfiltration",
+        "pixel-events",
+        "consent-banner",
+        "fingerprint-heuristics",
+        "cname-uncloaking",
+        "privacy-policy"
+      ]
+    },
+    "legal-review": {
+      "kind": "review-ledger",
+      "title": "Every runtime third-party item has a completed review",
+      "artifact": "THIRD_PARTY_REVIEWS.json"
+    },
+    "runner-cycles": {
+      "kind": "runner-receipts",
+      "title": "At least two controlled-runner cycles carry verifying destruction receipts",
+      "directory": "research/runner-receipts",
+      "minimumReceipts": 2
+    },
+    "r2-lifecycle": {
+      "kind": "lifecycle-receipt",
+      "title": "A fresh lifecycle readback receipt shows one healthy reports/ backstop",
+      "receipt": "research/ops-receipts/r2-lifecycle-readback.json",
+      "maxAgeDays": 30
+    },
+    "release-receipt-archive": {
+      "kind": "receipt-archive",
+      "title": "The durable release-receipt archive lane is proven with at least one archived receipt",
+      "directory": "docs/release-receipts"
+    },
+    "durable-soak": {
+      "kind": "operator-attestation",
+      "title": "Durable jobs completed the declared soak with a real restart in the window",
+      "attestation": "research/ops-receipts/durable-soak-attestation.json"
+    },
+    "egress-backstop": {
+      "kind": "operator-attestation",
+      "title": "An independent network egress boundary exists and was tested with the app guard treated as failed",
+      "attestation": "research/ops-receipts/egress-backstop-attestation.json"
+    },
+    "waf-ceilings": {
+      "kind": "operator-attestation",
+      "title": "Both WAF admission-route ceilings re-proven for this candidate",
+      "attestation": "research/ops-receipts/waf-ceilings-attestation.json"
+    },
+    "log-retention": {
+      "kind": "operator-attestation",
+      "title": "Bounded, redacted log-retention query re-captured for this candidate",
+      "attestation": "research/ops-receipts/log-retention-attestation.json"
+    },
+    "staging-teardown": {
+      "kind": "operator-attestation",
+      "title": "Staging resources torn down with same-session absence proofs for BOTH staging buckets",
+      "attestation": "research/ops-receipts/staging-teardown-attestation.json"
+    },
+    "container-image-licensing": {
+      "kind": "operator-attestation",
+      "title": "The container base image's shipped packages have a completed license review",
+      "attestation": "research/ops-receipts/container-image-licensing-attestation.json"
+    }
+  }
+}
