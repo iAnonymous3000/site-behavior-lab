@@ -59,8 +59,12 @@ jobs:
             exit 1
           fi
 
+          # The receipt artifact is site-behavior-lab-release-<semver>; the run
+          # also uploads site-behavior-lab-release-<run_id>-<attempt>.json, so
+          # a prefix match is ambiguous (learned from the second live
+          # dispatch). Bind to the version-shaped name exactly.
           artifact_name=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN_ID}/artifacts" \
-            --jq '[.artifacts[].name | select(startswith("site-behavior-lab-release-"))] | if length == 1 then .[0] else error("expected exactly one site-behavior-lab-release-* artifact") end')
+            --jq '[.artifacts[].name | select(test("^site-behavior-lab-release-[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?$"))] | if length == 1 then .[0] else error("expected exactly one version-named site-behavior-lab-release artifact") end')
           version="${artifact_name#site-behavior-lab-release-}"
           case "$version" in
             ''|*[!0-9a-zA-Z.-]*) echo "::error title=Refused::unexpected version segment: $version"; exit 1 ;;
