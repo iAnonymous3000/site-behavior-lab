@@ -1,0 +1,131 @@
+name: Archive Release Receipt
+
+# Release receipts and attestation bundles are uploaded as 90-day Actions
+# artifacts; only the receipt DIGEST embedded in the annotated tag and the
+# Sigstore bundle outlive that window. This workflow gives the receipt BYTES a
+# durable home: it downloads the validated receipt artifact from a completed
+# release run and proposes it into docs/release-receipts/<version>/ through
+# the normal reviewed automation/* pull-request path. The annotated tag's
+# embedded sha256 stays the source of truth: reviewers can recompute it from
+# the proposed bytes before merging.
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_run_id:
+        description: "Run id of the completed release.yml run whose receipt should be archived"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: archive-release-receipt
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    name: Propose the durable receipt copy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      # GITHUB_TOKEN pushes do not trigger CI; the proposal dispatches the
+      # required workflow on its branch, exactly like the other publishers.
+      actions: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Download and validate the release receipt artifact
+        id: receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_RUN_ID: ${{ inputs.release_run_id }}
+        run: |
+          set -euo pipefail
+          case "$RELEASE_RUN_ID" in
+            ''|*[!0-9]*) echo "::error title=Refused::release_run_id must be numeric"; exit 1 ;;
+          esac
+
+          workflow_path=$(gh run view "$RELEASE_RUN_ID" --repo "$GITHUB_REPOSITORY" --json workflowName,conclusion \
+            --jq 'if .conclusion != "success" then error("release run did not conclude successfully") else .workflowName end')
+          if [ "$workflow_path" != "Release" ]; then
+            echo "::error title=Refused::run $RELEASE_RUN_ID is \"$workflow_path\", not the Release workflow"
+            exit 1
+          fi
+
+          artifact_name=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RELEASE_RUN_ID}/artifacts" \
+            --jq '[.artifacts[].name | select(startswith("site-behavior-lab-release-"))] | if length == 1 then .[0] else error("expected exactly one site-behavior-lab-release-* artifact") end')
+          version="${artifact_name#site-behavior-lab-release-}"
+          case "$version" in
+            ''|*[!0-9a-zA-Z.-]*) echo "::error title=Refused::unexpected version segment: $version"; exit 1 ;;
+          esac
+
+          mkdir -p "$RUNNER_TEMP/receipt"
+          gh run download "$RELEASE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$artifact_name" --dir "$RUNNER_TEMP/receipt"
+          receipt_file=$(find "$RUNNER_TEMP/receipt" -maxdepth 1 -name '*.json' | head -1)
+          test -s "$receipt_file"
+          # The receipt must be JSON and self-identify; reviewers compare its
+          # sha256 with the digest embedded in the annotated v<version> tag.
+          node -e '
+            const { readFileSync } = require("node:fs");
+            const receipt = JSON.parse(readFileSync(process.argv[1], "utf8"));
+            if (typeof receipt !== "object" || receipt === null) throw new Error("receipt is not an object");
+          ' "$receipt_file"
+          digest=$(sha256sum "$receipt_file" | cut -d' ' -f1)
+
+          mkdir -p "docs/release-receipts/${version}"
+          cp "$receipt_file" "docs/release-receipts/${version}/release-receipt.json"
+          {
+            echo "version=$version"
+            echo "digest=$digest"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish reviewed archive proposal
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          PROPOSAL_BRANCH: automation/release-receipt-${{ steps.receipt.outputs.version }}
+          RECEIPT_VERSION: ${{ steps.receipt.outputs.version }}
+          RECEIPT_DIGEST: ${{ steps.receipt.outputs.digest }}
+        run: |
+          set -euo pipefail
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          git add "docs/release-receipts/${RECEIPT_VERSION}/release-receipt.json"
+          if git diff --cached --quiet; then
+            echo "Receipt already archived; nothing to propose."
+            exit 0
+          fi
+          git checkout -B "$PROPOSAL_BRANCH"
+          git commit -m "Archive the v${RECEIPT_VERSION} release receipt beyond the artifact window" \
+            -m "Receipt sha256 ${RECEIPT_DIGEST}; compare with the digest embedded in the annotated v${RECEIPT_VERSION} tag before merging."
+          git push --force-with-lease origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+
+          proposal_body="$RUNNER_TEMP/receipt-pr.md"
+          printf '%s\n' \
+            '<!-- site-behavior-lab:release-receipt-archive-pr -->' \
+            "# Durable archive of the v${RECEIPT_VERSION} release receipt" \
+            '' \
+            "- Receipt sha256: \`${RECEIPT_DIGEST}\`" \
+            "- Verify against the digest embedded in the annotated \`v${RECEIPT_VERSION}\` tag message before merging." \
+            '- The Actions artifact expires after 90 days; this copy is the durable one.' \
+            > "$proposal_body"
+
+          pr_error="$RUNNER_TEMP/receipt-pr-error.txt"
+          if ! gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "$BASE_BRANCH" \
+            --head "$PROPOSAL_BRANCH" \
+            --title "Archive the v${RECEIPT_VERSION} release receipt" \
+            --body-file "$proposal_body" 2>"$pr_error"; then
+            cat "$pr_error" >&2
+            if ! grep -q "not permitted to create or approve pull requests" "$pr_error"; then
+              exit 1
+            fi
+            compare_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${BASE_BRANCH}...${PROPOSAL_BRANCH}?expand=1"
+            echo "::error title=Open the proposal manually::Actions may not create PRs in this repository. Open ${compare_url}"
+          fi
+          gh workflow run ci.yml --ref "$PROPOSAL_BRANCH" --repo "$GITHUB_REPOSITORY"

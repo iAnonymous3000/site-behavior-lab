@@ -548,6 +548,15 @@ rules, obtain approval, add only an equivalent missing `reports/` rule, and read
 it back before release. Never shorten it to the application TTL, because the
 platform rule must not race the app's provenance-aware bundle deletion.
 
+The readback is scripted: `node scripts/r2-lifecycle-readback.mjs
+[receipt.json]` (with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set)
+reads the bucket's rules through the API and fails unless exactly one enabled
+`reports/` deletion backstop exists at eight days or later, with no second
+rule racing it (the observed 7-day/8-day conflict is exactly what it
+detects). Production health only sees the app-level TTL through
+`/api/health`, so run the readback and keep its receipt whenever lifecycle
+rules are touched and as part of the release evidence.
+
 For rollback or teardown, disable the required contract before removing either
 half of its configuration, then remove the GitHub URL/token and delete only the
 dedicated Worker. Never delete or rename the production reports bucket as part of
