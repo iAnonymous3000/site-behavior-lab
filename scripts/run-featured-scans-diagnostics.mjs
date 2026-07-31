@@ -405,6 +405,35 @@ export function isAuthoritativeFeaturedRefresh(environment) {
   );
 }
 
+/**
+ * Whether a refresh leg should raise the repair issue and fail the workflow.
+ *
+ * Exported and pure so the decision is testable without driving the CLI, and
+ * so it cannot drift from {@link featuredPublicationDecision}, which scopes the
+ * same completeness floor for publication.
+ *
+ * The floor belongs to the leg it was sized for. Both scheduled catalogs are
+ * authoritative for ALERTING, because a broken seed refresh must not be silent,
+ * but only the gallery is sized to clear the floor: the seed list is
+ * deliberately smaller, so a flawless seed run reports fullCatalog=false and
+ * meetsFloor=false. Applying the floor to every authoritative leg made the
+ * Monday seed refresh open a repair issue and exit non-zero every week no
+ * matter how well it went, which teaches an operator to ignore the alarm. Real
+ * seed failures still surface through the scan outcome, batch health, and job
+ * status, exactly as they do for the gallery leg.
+ */
+export function featuredRefreshAlertDecision(environment, aggregate) {
+  const authoritative = isAuthoritativeFeaturedRefresh(environment);
+  const completenessGated = authoritative && isFullFeaturedCatalogSelection(environment);
+  const failed =
+    environment.FEATURED_SCAN_OUTCOME !== "success" ||
+    environment.FEATURED_BATCH_HEALTHY === "false" ||
+    environment.FEATURED_JOB_STATUS !== "success" ||
+    aggregate === null ||
+    (completenessGated && (!aggregate.fullCatalog || !aggregate.meetsFloor));
+  return { authoritative, completenessGated, failed };
+}
+
 async function prepareAlertFromEnvironment() {
   const summaryPath = process.env.FEATURED_SUMMARY_PATH?.trim();
   const reportPath = process.env.FEATURED_ALERT_REPORT_PATH?.trim();
@@ -430,13 +459,7 @@ async function prepareAlertFromEnvironment() {
     }
   }
   const aggregate = publicFeaturedScanSummary(summary);
-  const authoritative = isAuthoritativeFeaturedRefresh(process.env);
-  const failed =
-    process.env.FEATURED_SCAN_OUTCOME !== "success" ||
-    process.env.FEATURED_BATCH_HEALTHY === "false" ||
-    process.env.FEATURED_JOB_STATUS !== "success" ||
-    aggregate === null ||
-    (authoritative && (!aggregate.fullCatalog || !aggregate.meetsFloor));
+  const { authoritative, failed } = featuredRefreshAlertDecision(process.env, aggregate);
   const report = buildFeaturedRefreshIssueReport({
     failed,
     summary: aggregate,

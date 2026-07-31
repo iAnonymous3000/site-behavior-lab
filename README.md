@@ -76,6 +76,53 @@ With optional durable execution, an attempt whose execution, publication, or sta
 
 Operators of public deployments are still responsible for abuse prevention and local legal compliance. For security-sensitive reports, follow [SECURITY.md](SECURITY.md).
 
+### What this is ready for
+
+Site Behavior Lab produces **reproducible investigative evidence**: a recorded,
+versioned account of what one automated Chromium visit observed, with its
+measurement boundaries stated in the report itself. That is a sound basis for
+research, journalism, debugging your own properties, and building a documented
+case to investigate further.
+
+It is **not** a calibrated detector suite or a compliance oracle, and the
+repository says so in machine-readable form rather than in marketing prose. Run
+the gate yourself before relying on it:
+
+```bash
+npm run release:readiness
+```
+
+Two limits matter most for serious work, and both are deliberate:
+
+- **No published detector accuracy.** No claim-bearing detector
+  (keystroke-exfiltration, pixel-events, consent-banner, fingerprint-heuristics,
+  cname-uncloaking, privacy-policy) has an eligible calibration study yet, so
+  there are no precision/recall numbers to quote. Findings are observations to
+  verify, not measurements with known error rates.
+- **The claim boundary is investigative evidence requiring independent
+  corroboration.** Standalone legal determinations and sole-court-exhibit use
+  are explicitly excluded, and that decision is still pending sign-off in
+  [`RELEASE_READINESS.json`](RELEASE_READINESS.json).
+
+Three practical consequences when interpreting a report:
+
+- A **failed or challenged load is not an absence of trackers.** Sites refuse
+  undisguised automated browsers, and the scanner reports that honestly instead
+  of evading it. Check the report's quality and bot-wall disclosures before
+  reading a low count as a clean result.
+- **Counts are a lower bound, never an inventory.** Service Workers are blocked
+  by design; Web Worker and WebSocket traffic can be incomplete; storage is read
+  from the top frame only; the service catalog is US-biased.
+- **Severity may not be corpus-ranked.** Percentile severity needs a
+  current-method cohort of at least 50 sites. Where none exists the report falls
+  back to fixed thresholds, and `public/corpus-stats.json` shows each cohort's
+  real size.
+
+If you self-host for serious use, read the Docker build-arg note below (the
+image bakes in public URLs at build time), and treat durable jobs and an
+independent egress backstop as prerequisites rather than options: both are off
+in the committed production configuration and are tracked as release gates.
+
 ## Data Attribution
 
 The tracker/service catalog is a US-biased, hand-curated, in-repo list of high-prevalence third-party services in [lib/tracker-catalog.ts](lib/tracker-catalog.ts), licensed with this repository under AGPL-3.0-or-later. It deliberately bundles no third-party dataset, so there is no separate NonCommercial term to clear before commercial use.
@@ -95,6 +142,15 @@ npm run dev
 ```
 
 Open `http://127.0.0.1:3000`.
+
+`npm run dev` needs no extra environment. Anything that runs `next build` does:
+`NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL` must be set to the public origin, and
+the build fails closed without it rather than publishing `localhost` canonical
+URLs. That covers `npm run build`, `npm run build:pages`, and `npm run check`:
+
+```bash
+NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://example.org npm run check
+```
 
 The digest-pinned Playwright container base is verified at Node 24.18.0 with npm 11.16.0 during the build, which is intentionally distinct from the host/Actions authoring toolchain above; the Docker build fails if the base versions drift. The runtime stage then removes every global package manager (npm, npx, yarn, corepack) and the WebKit-only GStreamer "bad" plugins, so the shipped image serves the built app with node alone. Container release evidence re-runs the node binary from the exact image ID with no network, a read-only root filesystem, all capabilities dropped, and no-new-privileges, and independently asserts that no npm binary answers from that image.
 
@@ -184,12 +240,26 @@ For a single-node deployment:
 Docker:
 
 ```bash
-docker build --build-arg SITE_BEHAVIOR_LAB_BUILD_COMMIT="$(git rev-parse HEAD)" -t site-behavior-lab .
+docker build \
+  --build-arg SITE_BEHAVIOR_LAB_BUILD_COMMIT="$(git rev-parse HEAD)" \
+  --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL="https://scan.example.org" \
+  --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY="0xYOUR_TURNSTILE_SITE_KEY" \
+  --build-arg NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN="https://example.org" \
+  -t site-behavior-lab .
 docker run --rm -p 3000:3000 \
   --env-file .env.production \
   -v site-behavior-lab-reports:/var/lib/site-behavior-lab/reports \
   site-behavior-lab
 ```
+
+Pass those three `NEXT_PUBLIC_*` build args when self-hosting. They are baked
+into the image at build time, so the `--env-file` at run time cannot change
+them, and the Dockerfile defaults them to the reference deployment
+(`https://scan.sitebehavior.org`, that deployment's Turnstile site key, and
+`https://sitebehavior.org`). Building without them produces an image that
+serves your scanner while advertising someone else's origin in every canonical
+URL, `sitemap.xml` entry, `robots.txt` sitemap line, report JSON-LD link, and
+social card, and that renders a Turnstile widget your secret cannot verify.
 
 Validate the container path end to end with:
 
@@ -287,7 +357,7 @@ Eligible findings use percentile wording only when the report's exact cohort and
 
 These percentiles compare a site with this **curated corpus, not a random sample of the web**. The corpus is seeded from a featured catalog of popular, mostly commercial sites plus a separate diversity list. A high mark therefore means heavy within that measured set, while a lower mark does not mean light in absolute terms. Tail marks should be read as descriptive corpus summaries, not population estimates.
 
-To reduce that popular-commercial skew, scan the **corpus de-bias seed list** in `public/corpus-seed-sites.json`, a broader, lighter mix (open source, nonprofit, education, reference, international government, community/personal) kept separate from the gallery. Run **Actions > Scan Featured Sites** with the `sites_file` input set to `public/corpus-seed-sites.json`, or locally:
+To reduce that popular-commercial skew, scan the **corpus de-bias seed list** in `public/corpus-seed-sites.json`, a broader, lighter mix (open source, nonprofit, education, reference, international government, community/personal) kept separate from the gallery. The weekly 07:23 UTC scheduled leg already walks this list (see below). To refresh it out of band, run **Actions > Scan Featured Sites** with the `sites_file` input set to `public/corpus-seed-sites.json`, or locally:
 
 ```bash
 FEATURED_SITES_FILE=public/corpus-seed-sites.json BASE_URL=http://127.0.0.1:3100 npm run scan:featured
@@ -299,7 +369,7 @@ Those scans populate `public/reports/`, the corpus stats, and `/directory/`, but
 
 The scan workflows' trusted publisher prunes committed static reports before updating the manifest. By default it keeps reports for 7 days up to a hard ceiling of 1,000 committed reports, except that the newest two reports in each exact site, kind, subject, and versioned measurement/condition cohort are exempt from age pruning (tune with `SITE_BEHAVIOR_LAB_STATIC_REPORT_KEEP_PER_SITE`; 0 restores pure age pruning). Unknown or generalized legacy identities never match one another, but the newest report for each broad site/kind remains as a disappearance guard. Report IDs referenced by the corrections ledger and their provenance sidecars are pinned against automated pruning. The directory uses the separate compatible passive-history identity described below; retention alone never makes two reports comparable. Override static retention with `SITE_BEHAVIOR_LAB_STATIC_REPORT_MAX_AGE_DAYS` and `SITE_BEHAVIOR_LAB_STATIC_REPORT_MAX_COUNT`, or use the existing `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` and `SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT` variables as shared fallbacks.
 
-The featured-scan workflow also runs on a weekly schedule (Mondays 05:23 UTC) with its default inputs (Shields comparisons over the featured catalog), so the corpus refreshes itself. Scheduled runs emit r2 when the controlled runner variable `FEATURED_RUNNER_LABEL` is set; until it is, they fall back to frozen v1 and say so loudly (a preflight `::warning`, a "scheduled fallback" summary line, and an "Add scheduled v1 fallback scan reports" commit message). Only an explicit human dispatch may select frozen v1 deliberately. See [docs/featured-corpus-r2-rollout.md](docs/featured-corpus-r2-rollout.md). Scheduled runs use an explicit 80% health gate (override it deliberately with the `FEATURED_MIN_SUCCESS_RATE` repository Actions variable); a lower-yield batch stays red and keeps its canonical repair issue open, while independently validated successful reports still publish. Retention pruning still runs after any publishable batch: the pruner preserves each cohort's newest generations and a broad newest-per-site disappearance guard, so failed targets keep evidence without letting partial refreshes grow the corpus forever. On `/directory/`, a site's newest report shows what changed only when a previous successful, uncapped report has the same kind and requested/final subject and a compatible schema revision, methodology, browser environment, device/viewport, intervention state, filter-list engine/source/count, known snapshot dates (which may differ), and tracker catalog. Unknown or generalized v1 subjects fail closed. These deltas are observed differences between two automated visits, which can also reflect ad rotation, experiments, caching, or bot detection, and the UI says so.
+The featured-scan workflow also runs on a weekly schedule, in two separate legs every Monday, so both halves of the corpus refresh themselves: 05:23 UTC walks the featured gallery catalog and 07:23 UTC walks the de-bias seed list above. Each leg opens its own `automation/*` proposal PR and consumes its own scan capacity, so a maintenance window or freeze has to account for both. Only the gallery leg is judged against the full-catalog completeness floor, because the seed list is deliberately smaller than that floor; a seed leg still goes red on scan failures, an unhealthy batch, or a malformed summary. Scheduled runs emit r2 when the controlled runner variable `FEATURED_RUNNER_LABEL` is set; until it is, they fall back to frozen v1 and say so loudly (a preflight `::warning`, a "scheduled fallback" summary line, and an "Add scheduled v1 fallback scan reports" commit message). Only an explicit human dispatch may select frozen v1 deliberately. See [docs/featured-corpus-r2-rollout.md](docs/featured-corpus-r2-rollout.md). Scheduled runs use an explicit 80% health gate (override it deliberately with the `FEATURED_MIN_SUCCESS_RATE` repository Actions variable); a lower-yield batch stays red and keeps its canonical repair issue open, while independently validated successful reports still publish. Retention pruning still runs after any publishable batch: the pruner preserves each cohort's newest generations and a broad newest-per-site disappearance guard, so failed targets keep evidence without letting partial refreshes grow the corpus forever. On `/directory/`, a site's newest report shows what changed only when a previous successful, uncapped report has the same kind and requested/final subject and a compatible schema revision, methodology, browser environment, device/viewport, intervention state, filter-list engine/source/count, known snapshot dates (which may differ), and tracker catalog. Unknown or generalized v1 subjects fail closed. These deltas are observed differences between two automated visits, which can also reflect ad rotation, experiments, caching, or bot detection, and the UI says so.
 
 **Brave-list and toolchain maintenance.** [`.github/workflows/update-brave-lists.yml`](.github/workflows/update-brave-lists.yml) runs Mondays at 06:17 UTC and can also be dispatched manually. Its refresh job verifies one commit-pinned Brave catalog against its reviewed SHA-256 and exact source set, refuses redirects and unapproved hosts or paths, caps every response and the aggregate input, proves the vendored WASM engine can load and enforce the new snapshot, and runs the unit suite. Changed third-party bytes are pushed only to the stable `automation/brave-list-refresh` proposal branch and opened or updated as a review-required PR; the workflow dispatches non-promoting CI on that branch and never advances `main` or `production`. Scheduled failures stay red and are reconciled into one canonical repair issue. A separate job compares the pinned adblock crate, Playwright package/browser, and Chrome channel with their upstream stable versions and maintains an independent toolchain-drift issue; drift is reported for review, never auto-upgraded.
 

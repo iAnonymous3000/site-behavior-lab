@@ -19,9 +19,22 @@ on:
 permissions:
   contents: read
 
-# Shared with scan.yml and scan-featured.yml: one writer at a time per ref.
+# Deliberately NOT the shared site-behavior-repo-writers group.
+#
+# GitHub keeps at most ONE pending run per concurrency group and cancels any
+# earlier pending one to make room. scan-featured.yml runs two scheduled legs
+# every Monday (05:23 and 07:23) and the first runs for hours, so this 06:17
+# refresh queued behind the first leg and was then evicted by the second. A run
+# cancelled while pending starts no job at all, so the scheduled-refresh alert
+# steps below (guarded by `if: always()`) never ran either: the weekly refresh
+# stopped happening and nothing went red to say so.
+#
+# Serializing was only ever needed when these workflows committed to the shared
+# branch directly. All three now push their own automation/* proposal branch,
+# and this one runs no scans, so it competes for neither the branch nor scanner
+# capacity.
 concurrency:
-  group: site-behavior-repo-writers-${{ github.ref }}
+  group: brave-list-refresh-${{ github.ref }}
   cancel-in-progress: false
 
 env:

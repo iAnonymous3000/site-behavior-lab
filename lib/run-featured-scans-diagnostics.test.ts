@@ -57,6 +57,10 @@ type FeaturedScanDiagnosticHelpers = {
     runId?: string;
   }): string;
   isAuthoritativeFeaturedRefresh(environment: Record<string, string | undefined>): boolean;
+  featuredRefreshAlertDecision(
+    environment: Record<string, string | undefined>,
+    aggregate: { fullCatalog: boolean; meetsFloor: boolean } | null
+  ): { authoritative: boolean; completenessGated: boolean; failed: boolean };
 };
 
 type FeaturedScanRunnerHelpers = {
@@ -504,6 +508,88 @@ test("only an unfiltered default-mode full featured refresh is authoritative", a
   assert.equal(isAuthoritativeFeaturedRefresh({ ...fullRefresh, FEATURED_COMPARE_SHIELDS: "false" }), false);
   assert.equal(isAuthoritativeFeaturedRefresh({ ...fullRefresh, FEATURED_INCLUDE_UNAVAILABLE: "true" }), false);
   assert.equal(isAuthoritativeFeaturedRefresh({ ...fullRefresh, GITHUB_REF_NAME: "experiment" }), false);
+});
+
+test("the completeness floor alerts only on the leg it was sized for", async () => {
+  const { featuredRefreshAlertDecision, publicFeaturedScanSummary } = await helpers;
+  const scheduled: Record<string, string> = {
+    GITHUB_REF_TYPE: "branch",
+    GITHUB_REF_NAME: "main",
+    FEATURED_DEFAULT_BRANCH: "main",
+    FEATURED_COMPARE_SHIELDS: "true",
+    FEATURED_COMPARE_CONSENT: "false",
+    FEATURED_COMPARE_GPC: "false",
+    FEATURED_DEVICE: "desktop",
+    FEATURED_SCAN_OUTCOME: "success",
+    FEATURED_BATCH_HEALTHY: "true",
+    FEATURED_JOB_STATUS: "success"
+  };
+  const gallery = { ...scheduled, FEATURED_SITES_FILE: "public/featured-sites.json" };
+  const seed = { ...scheduled, FEATURED_SITES_FILE: "public/corpus-seed-sites.json" };
+
+  // The seed catalog is deliberately smaller than the floor, so a flawless run
+  // reports fullCatalog=false and meetsFloor=false. Judging it by the gallery's
+  // floor raised the repair issue and failed the workflow every single Monday.
+  const perfectSeed = publicFeaturedScanSummary({
+    total: 45,
+    succeeded: 45,
+    failed: 0,
+    successRate: 1,
+    requiredSuccessRate: 0.9
+  });
+  assert.notEqual(perfectSeed, null);
+  assert.equal(perfectSeed!.meetsFloor, false);
+  const seedDecision = featuredRefreshAlertDecision(seed, perfectSeed);
+  assert.equal(seedDecision.authoritative, true, "a scheduled seed refresh still alerts on real failures");
+  assert.equal(seedDecision.completenessGated, false);
+  assert.equal(seedDecision.failed, false);
+
+  // A seed leg that actually went wrong must still go red, through the same
+  // signals the gallery leg uses beyond the floor.
+  for (const broken of [
+    { ...seed, FEATURED_BATCH_HEALTHY: "false" },
+    { ...seed, FEATURED_SCAN_OUTCOME: "failure" },
+    { ...seed, FEATURED_JOB_STATUS: "failure" }
+  ]) {
+    assert.equal(featuredRefreshAlertDecision(broken, perfectSeed).failed, true);
+  }
+  assert.equal(featuredRefreshAlertDecision(seed, null).failed, true, "a malformed summary stays a failure");
+
+  // The gallery leg keeps the floor exactly as before.
+  const fullCatalog = {
+    total: 98,
+    succeeded: 98,
+    failed: 0,
+    successRate: 1,
+    requiredSuccessRate: 0.9,
+    fullCatalog: true,
+    catalogVersion: 3,
+    catalogCoverage: 1,
+    requiredCatalogCoverage: 0.8,
+    minimumEligibleSites: 50
+  };
+  const perfectGallery = publicFeaturedScanSummary(fullCatalog);
+  assert.notEqual(perfectGallery, null);
+  const galleryDecision = featuredRefreshAlertDecision(gallery, perfectGallery);
+  assert.equal(galleryDecision.completenessGated, true);
+  assert.equal(galleryDecision.failed, false);
+
+  const belowFloor = publicFeaturedScanSummary({ ...fullCatalog, total: 40, succeeded: 40 });
+  assert.notEqual(belowFloor, null);
+  assert.equal(belowFloor!.meetsFloor, false);
+  assert.equal(featuredRefreshAlertDecision(gallery, belowFloor).failed, true);
+
+  // A scheduled gallery run that did not cover the whole catalog is still an
+  // anomaly worth the alarm.
+  const notFullCatalog = publicFeaturedScanSummary({
+    total: 98,
+    succeeded: 98,
+    failed: 0,
+    successRate: 1,
+    requiredSuccessRate: 0.9
+  });
+  assert.notEqual(notFullCatalog, null);
+  assert.equal(featuredRefreshAlertDecision(gallery, notFullCatalog).failed, true);
 });
 
 test("featured scans send GPC only when GPC is the measured axis", async () => {
