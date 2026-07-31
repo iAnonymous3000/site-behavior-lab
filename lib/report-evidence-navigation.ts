@@ -138,7 +138,7 @@ export function findingEvidenceLink(findingId: string, arm?: EvidenceArm): Findi
     case "named-platforms":
     case "ga-remarketing":
     case "pixel-events":
-      return { label: "Show known-service requests", target: withArm({ section: "requests", signal: "known-service" }) };
+      return { label: "Show catalog-matched requests", target: withArm({ section: "requests", signal: "known-service" }) };
     case "shields-blocked":
     case "shields-comparison":
       return { label: "Show matched requests", target: withArm({ section: "requests", signal: "shields-blocked" }) };

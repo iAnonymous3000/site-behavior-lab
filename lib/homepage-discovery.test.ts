@@ -29,6 +29,7 @@ function report(index: number, overrides: Partial<HomepageReportSource> = {}): H
     thirdPartyRequests: index,
     trackerRequests: index,
     requestCapped: false,
+    requestEvidenceComplete: true,
     successfulLoad: true,
     ...overrides
   };
@@ -52,6 +53,30 @@ test("featured selection prefers a comparison and excludes failed visits", () =>
   const groups = buildHomepageFeaturedGroups(config, reports);
   assert.equal(groups[0]?.items[0]?.id, "older-comparison");
   assert.equal(groups.flatMap((group) => group.items).some((item) => item.id === "failed"), false);
+});
+
+test("featured cards preserve incomplete non-cap request evidence for lower-bound labels", () => {
+  const groups = buildHomepageFeaturedGroups(config, [
+    report(0, {
+      thirdPartyRequests: 14,
+      trackerRequests: 6,
+      requestCapped: false,
+      requestEvidenceComplete: false
+    })
+  ]);
+
+  assert.deepEqual(groups[0]?.items[0], {
+    id: "report-0",
+    domain: "site-0.com",
+    siteLabel: "Site 0",
+    headline: "Report 0",
+    tone: "info",
+    scannedAt: "2026-07-01T00:00:00.000Z",
+    thirdPartyRequests: 14,
+    trackerRequests: 6,
+    requestCapped: false,
+    requestEvidenceComplete: false
+  });
 });
 
 test("discovery emits only each site's latest successful evidence", () => {

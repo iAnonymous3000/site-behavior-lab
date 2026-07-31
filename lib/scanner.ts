@@ -67,7 +67,7 @@ import {
   isTrackingTrackerMatch,
   trackerEntitySummaries
 } from "./report-insights";
-import { isThirdParty, partyKey, summarizeDomains } from "./domain-utils";
+import { isThirdParty, partyKey } from "./domain-utils";
 import {
   resolveCnameCloaks,
   type CnameChainResolver,
@@ -3681,7 +3681,7 @@ async function probePrivacyPolicy(input: {
     const observedPolicyUrl = policyPage.url();
     assertAllowedPrivacyPolicyPage(observedPolicyUrl, input.firstPartyHostname);
 
-    const trackingEntities = trackerEntitySummaries({ domains: summarizeDomains(input.requests) })
+    const trackingEntities = trackerEntitySummaries({ requests: input.requests })
       .filter(isTrackingEntity)
       .map((entity) => entity.entity);
 

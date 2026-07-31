@@ -8,7 +8,11 @@ import { displayEvidenceName, displayHost, hostMatchesQuery, plural } from "@/li
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import { listOverflowCopy } from "@/lib/report-table-copy";
-import type { RunFacts } from "@/lib/report-facts";
+import {
+  identifiedHostCatalogMatchLabel,
+  type IdentifiedHostFact,
+  type RunFacts
+} from "@/lib/report-facts";
 import {
   parseEvidenceHash,
   type EvidenceRequestSignal,
@@ -43,8 +47,13 @@ function Warnings({ warnings }: { warnings: string[] }) {
   );
 }
 
-function roleTag(domain: DomainSummary) {
-  if (domain.tracker) return <span className="role-tag role-tracker">service</span>;
+function roleTag(
+  domain: DomainSummary,
+  identity: IdentifiedHostFact | undefined
+) {
+  if ((identity?.catalogMatches.length ?? 0) > 0) {
+    return <span className="role-tag role-tracker">service</span>;
+  }
   if (domain.thirdParty) return <span className="role-tag role-third">third-party</span>;
   return <span className="role-tag role-first">first-party</span>;
 }
@@ -90,20 +99,27 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
               <th>Domain</th>
               <th>Role</th>
               <th>Requests</th>
-              <th>Known service</th>
+              <th>Catalog match</th>
               <th>Resource types</th>
             </tr>
           </thead>
           <tbody>
-            {shown.map((domain) => (
-              <tr key={domain.domain}>
-                <td className="mono" data-label="Domain">{displayHost(domain.domain)}</td>
-                <td data-label="Role">{roleTag(domain)}</td>
-                <td data-label="Requests">{domain.requests.toLocaleString("en-US")}</td>
-                <td data-label="Known service">{domain.tracker ? `${domain.tracker.entity}: ${domain.tracker.category}` : "-"}</td>
-                <td data-label="Resource types">{domain.resourceTypes.join(", ")}</td>
-              </tr>
-            ))}
+            {shown.map((domain) => {
+              const identity = facts.identity.hosts.find(
+                (entry) => entry.host === domain.domain
+              );
+              return (
+                <tr key={domain.domain}>
+                  <td className="mono" data-label="Domain">{displayHost(domain.domain)}</td>
+                  <td data-label="Role">{roleTag(domain, identity)}</td>
+                  <td data-label="Requests">{domain.requests.toLocaleString("en-US")}</td>
+                  <td data-label="Catalog match">
+                    {identifiedHostCatalogMatchLabel(identity) ?? "-"}
+                  </td>
+                  <td data-label="Resource types">{domain.resourceTypes.join(", ")}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         {filtered.length === 0 && (
@@ -373,8 +389,9 @@ const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title
   { value: "third-party", label: "Third-party", title: "Requests to any domain other than the site itself." },
   {
     value: "known-service",
-    label: "Known services",
-    title: "Third parties matched in the curated catalog of advertising, analytics, and social services."
+    label: "Catalog matches",
+    title:
+      "Retained request rows whose recorded host matched a reviewed service-catalog suffix (either the full host or a parent-domain suffix). Includes first-party and third-party matches and does not imply a tracking-related role."
   },
   {
     value: "shields-blocked",
@@ -385,7 +402,7 @@ const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title
   {
     value: "fingerprinting",
     label: "Fingerprinting",
-    title: "Requests to catalogued services associated with device fingerprinting."
+    title: "Catalog-matched request rows whose catalog entry carries a fingerprinting signal."
   },
   {
     value: "provenance",
@@ -498,13 +515,14 @@ function TopThirdParties({ facts }: { facts: RunFacts }) {
       {top.map((domain) => {
         const identity = facts.identity.hosts.find((entry) => entry.host === domain.domain);
         const names = Array.from(new Set(identity?.namers.map((namer) => namer.name) ?? []));
+        const catalogMatch = identifiedHostCatalogMatchLabel(identity);
         return (
           <div className="domain-chip" key={domain.domain}>
             <div className="chip-main">
               <strong>{displayHost(domain.domain)}</strong>
               <span className="chip-sub">
-                {domain.tracker
-                  ? `${domain.tracker.entity} · ${domain.tracker.category}`
+                {catalogMatch
+                  ? catalogMatch
                   : names.length > 0
                     ? `${names.join(", ")} · operator identified; no tracking-service classification`
                     : "operator unidentified"}

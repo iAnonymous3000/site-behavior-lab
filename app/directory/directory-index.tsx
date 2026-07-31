@@ -87,7 +87,7 @@ export async function DirectoryIndex({ page }: { page: number }) {
                 </span>
                 <span>
                   Separate medians across included sites: <b>{category.rollup.medianThirdParty.toLocaleString()}</b> third-party and{" "}
-                  <b>{category.rollup.medianTrackers.toLocaleString()}</b> catalogued tracking-service requests
+                  <b>{category.rollup.medianTrackers.toLocaleString()}</b> third-party tracking-service requests
                 </span>
                 <small>Newest included visit: {formatDate(category.lastScannedAt)}</small>
               </Link>
@@ -136,8 +136,14 @@ function DirectorySiteCard({ basePath, site }: { basePath: string; site: Directo
         </span>
         <span className={styles.headline}>{report.headline}</span>
         <span className={styles.metrics}>
-          <span><b>{report.thirdPartyRequests.toLocaleString()}</b> third-party</span>
-          <span><b>{report.trackerRequests.toLocaleString()}</b> catalogued tracking-service</span>
+          <span>
+            {!report.requestEvidenceComplete && "at least "}
+            <b>{report.thirdPartyRequests.toLocaleString()}</b> third-party requests
+          </span>
+          <span>
+            {!report.requestEvidenceComplete && "at least "}
+            <b>{report.trackerRequests.toLocaleString()}</b> third-party tracking-service requests
+          </span>
           <span>
             <b>{report.cookieEvidenceComplete ? report.thirdPartyCookies.toLocaleString() : "Not measured"}</b>{" "}
             third-party cookies

@@ -1,5 +1,9 @@
 import { canonicalJson } from "./canonical-json";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import { displayRunView, type ReportView } from "./scan-report-views";
 import {
   SERVICE_ROLE_TAXONOMY_DIGEST,
@@ -10,22 +14,24 @@ import { sha256Hex } from "./sha256";
 /**
  * Public, auditable identity for one statistical measurement cohort.
  *
- * Schema revision, methodology, tracker-catalog identity, and the read-time
- * ServiceRole taxonomy are deliberately part of the key. Producer identity is
- * included when it was recorded because PageGraph imports and browser
- * observations do not measure the same evidence surface. Build, browser patch,
- * acquisition route, and egress remain row-level provenance: splitting on
- * each of those would turn every deployment into an unusably small cohort,
- * while methodologyVersion is the producer's reviewed promise about when the
- * meaning of the measurements changes.
+ * Schema revision, methodology, tracker-catalog identity, the read-time
+ * ServiceRole taxonomy, and the metric formula contract are deliberately part
+ * of the key. Producer identity is included when it was recorded because
+ * PageGraph imports and browser observations do not measure the same evidence
+ * surface. Build, browser patch, acquisition route, and egress remain row-level
+ * provenance: splitting on each of those would turn every deployment into an
+ * unusably small cohort, while methodologyVersion is the producer's reviewed
+ * promise about when the meaning of the measurements changes.
  *
  * r2 records the tracker catalog's content digest. Frozen v1 did not, so its
  * strongest available identity is a SHA-256 hash of the catalog metadata that
  * survived into the version-aware read view. The origin stays explicit: a
  * legacy metadata hash is never represented as if v1 had recorded a content
  * digest. ServiceRole is intentionally a read-time interpretation rather than
- * a mutation of immutable report wires, so its current version and digest
- * join every cohort that derives tracking/operational semantics from it.
+ * a mutation of immutable report wires, so its current version and digest join
+ * every cohort that derives tracking/operational semantics from it. The metric
+ * contract separately binds the exact row-level formulas that consume those
+ * role decisions.
  *
  * The requested GPC state joins them because it is a measured condition, not
  * environment: comparison eligibility already refuses to compare two arms that
@@ -54,6 +60,10 @@ export type CorpusCohortIdentity = {
   serviceRoleTaxonomyVersion: string;
   /** SHA-256 identity of the exact read-time ServiceRole taxonomy. */
   serviceRoleTaxonomyDigest: string;
+  /** Current read-time request-metric formula contract. */
+  metricContractVersion: string;
+  /** SHA-256 identity of the exact request-metric formula contract. */
+  metricContractDigest: string;
 };
 
 export type CorpusCohortIdentityComponents = Omit<CorpusCohortIdentity, "id">;
@@ -77,11 +87,14 @@ export function corpusCohortIdForIdentity(cohort: CorpusCohortIdentityComponents
   const producer = cohort.producer ?? "producer-unrecorded";
   const roleTaxonomy =
     `${encodeURIComponent(cohort.serviceRoleTaxonomyVersion)}-${cohort.serviceRoleTaxonomyDigest}`;
+  const metricContract =
+    `${encodeURIComponent(cohort.metricContractVersion)}-${cohort.metricContractDigest}`;
   return (
     `${schema}:${encodeURIComponent(cohort.methodologyVersion)}:${encodeURIComponent(producer)}` +
     `:gpc-${cohort.gpc ? "on" : "off"}` +
     `:catalog-${cohort.trackerCatalogOrigin}-${cohort.trackerCatalogDigest}` +
-    `:roles-${roleTaxonomy}`
+    `:roles-${roleTaxonomy}` +
+    `:metrics-${metricContract}`
   );
 }
 
@@ -192,7 +205,9 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
       other.identity.trackerCatalogDigest !== candidate.identity.trackerCatalogDigest ||
       other.identity.trackerCatalogOrigin !== candidate.identity.trackerCatalogOrigin ||
       other.identity.serviceRoleTaxonomyVersion !== candidate.identity.serviceRoleTaxonomyVersion ||
-      other.identity.serviceRoleTaxonomyDigest !== candidate.identity.serviceRoleTaxonomyDigest
+      other.identity.serviceRoleTaxonomyDigest !== candidate.identity.serviceRoleTaxonomyDigest ||
+      other.identity.metricContractVersion !== candidate.identity.metricContractVersion ||
+      other.identity.metricContractDigest !== candidate.identity.metricContractDigest
     ) {
       return false;
     }
@@ -209,8 +224,8 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
 /**
  * Reader-facing name for a cohort, covering every component of its id.
  *
- * The gate keys on schema, methodology, catalog, ServiceRole taxonomy,
- * producer, AND the requested GPC condition, so naming a cohort by its
+ * The gate keys on schema, methodology, catalog, ServiceRole taxonomy, metric
+ * contract, producer, AND the requested GPC condition, so naming a cohort by its
  * methodology alone can print byte-identical labels for two cohorts the gate
  * holds apart: after the gpc-off refresh, two categories differing only in the
  * requested signal both read "measured under one methodology cohort
@@ -232,7 +247,9 @@ export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
       : `legacy catalog-metadata hash ${cohort.trackerCatalogDigest}`;
   const serviceRoles =
     `ServiceRole taxonomy ${cohort.serviceRoleTaxonomyVersion} digest ${cohort.serviceRoleTaxonomyDigest}`;
-  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}, ${catalog}, ${serviceRoles}`;
+  const metricContract =
+    `metric contract ${cohort.metricContractVersion} digest ${cohort.metricContractDigest}`;
+  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}, ${catalog}, ${serviceRoles}, ${metricContract}`;
 }
 
 /**
@@ -253,6 +270,9 @@ export function corpusCohortDifferences(cohorts: readonly CorpusCohortIdentity[]
   }
   if (distinct((cohort) => `${cohort.serviceRoleTaxonomyVersion}:${cohort.serviceRoleTaxonomyDigest}`)) {
     differences.push("different ServiceRole taxonomies");
+  }
+  if (distinct((cohort) => `${cohort.metricContractVersion}:${cohort.metricContractDigest}`)) {
+    differences.push("different metric contracts");
   }
   return differences;
 }
@@ -276,7 +296,9 @@ export function corpusCohortIdentityForView(view: ReportView): CorpusCohortIdent
     trackerCatalogDigest: trackerCatalog.digest,
     trackerCatalogOrigin: trackerCatalog.origin,
     serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
-    serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
+    serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
+    metricContractVersion: METRIC_CONTRACT_VERSION,
+    metricContractDigest: METRIC_CONTRACT_DIGEST
   };
   return { id: corpusCohortIdForIdentity(components), ...components };
 }

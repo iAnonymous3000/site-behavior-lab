@@ -105,6 +105,10 @@ test("per-domain request deltas include shared and one-arm domains and rank by a
 });
 
 test("findings link only to evidence tables that contain their supporting rows", () => {
+  assert.deepEqual(findingEvidenceLink("named-platforms", "variant"), {
+    label: "Show catalog-matched requests",
+    target: { section: "requests", signal: "known-service", arm: "variant" }
+  });
   assert.deepEqual(findingEvidenceLink("shields-comparison", "variant"), {
     label: "Show matched requests",
     target: { section: "requests", signal: "shields-blocked", arm: "variant" }
@@ -138,6 +142,8 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
   assert.match(comparison, /<DomainRequestDeltaList changes=\{perDomainDeltas\} labels=\{labels\} \/>/);
   assert.match(comparison, /comparisonSupportsExactClaimDelta\(\s*view,\s*facts,\s*"fingerprint-apis"\s*\)/);
   assert.match(comparison, /comparisonSupportsExactClaimDelta\(\s*view,\s*facts,\s*"pixel-events"\s*\)/);
+  assert.match(comparison, /Catalog-matched request and entity deltas/);
+  assert.doesNotMatch(comparison, /Known-service and entity deltas/);
   assert.match(renderer, /<ComparisonPanel view=\{reportView\} facts=\{reportFacts\} \/>/);
 
   const timeline = overview.slice(overview.indexOf("function RequestTimeline"));

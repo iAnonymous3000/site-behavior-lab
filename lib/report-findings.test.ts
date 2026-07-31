@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
   PAGE_SUBJECT_UNVERIFIED_WARNING,
@@ -8,6 +10,9 @@ import { createConsentComparisonReport, createGpcComparisonReport, createShields
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
+import { buildReportHeadline } from "./report-headline";
+import { HEADLINE_PLATFORMS, isTrackingTrackerMatch } from "./report-insights";
+import { reviewedOwnershipRelationship } from "./reviewed-ownership";
 import type { CorpusStats } from "./corpus-stats";
 import { readStoredScanReport } from "./scan-report-reader";
 import {
@@ -37,6 +42,7 @@ import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
   type FingerprintDetectionSummary,
+  type NetworkRequestRecord,
   type ScanResult
 } from "./types";
 
@@ -328,6 +334,137 @@ test("names major platforms and escalates the third-party card", () => {
   assert.doesNotMatch(services.detail, /Observed categories/);
 });
 
+test("major-platform evidence counts exact tracking-role request rows on a mixed matched host", () => {
+  const result = makeResult({
+    firstPartyDomain: "news.example",
+    domains: [makeTrackerDomain("{label}.google.com", 56, "Google", "advertising")],
+    thirdPartyRequests: 56,
+    thirdPartyDomains: 1
+  });
+  // The host summary preserves the catalog identity because some rows match,
+  // but these eight exact request rows did not match the catalog.
+  for (const request of result.requests.slice(48)) request.tracker = null;
+  result.summary.knownTrackerRequests = 48;
+
+  const platforms = byId(buildFindings(viewFromV1Report(result), null), "named-platforms");
+  assert.match(platforms.lead, /catalogued domains for Google/);
+  assert.equal(platforms.evidence, "48 requests to these platforms.");
+  assert.doesNotMatch(platforms.evidence, /56/);
+});
+
+test("receipt wording attributes a shared-host response to its exact request entity", () => {
+  const result = makeResult({
+    domains: [makeTrackerDomain("shared-vendor.example", 2, "Pinterest", "advertising")],
+    totalRequests: 2,
+    thirdPartyRequests: 2,
+    thirdPartyDomains: 1
+  });
+  result.requests[0].status = null;
+  result.requests[1].tracker = {
+    domain: "sentry.io",
+    entity: "Sentry",
+    category: "error monitoring",
+    confidence: "curated"
+  };
+
+  // The v1 host summary retains Pinterest from the first request and the 200
+  // response from Sentry's second request. The generic reader accepts this
+  // legitimate mixed-match shape, so presentation code must not attribute
+  // Sentry's response to Pinterest through that lossy summary.
+  const read = readStoredScanReport(result);
+  assert.equal(read.ok, true, "shared-host fixture must remain reader-valid");
+  if (!read.ok || read.stored.schemaVersion !== 1) assert.fail("expected a valid v1 report");
+  const view = viewFromV1Report(read.stored.report);
+
+  const headline = buildReportHeadline(view);
+  assert.match(headline.headline, /contacted catalogued Pinterest domains/);
+  assert.match(headline.subhead, /had requests dispatched, though no response was recorded/);
+  assert.doesNotMatch(headline.subhead, /Pinterest recorded responses/);
+
+  const services = byId(buildFindings(view, null), "third-party-services");
+  assert.equal(services.title, "Requests were dispatched to catalogued service domains");
+  assert.notEqual(services.title, "Catalogued service domains recorded responses during this visit");
+});
+
+test("major-platform discovery reads exact request matches instead of a lossy host summary", () => {
+  const result = makeResult({
+    firstPartyDomain: "news.example",
+    domains: [
+      makeTrackerDomain(
+        "mixed-vendor.example",
+        2,
+        "Sentry",
+        "error monitoring"
+      )
+    ],
+    thirdPartyRequests: 2,
+    thirdPartyDomains: 1
+  });
+  // A v1 host summary carries one catalog identity for the host, while exact
+  // request rows can carry different reviewed matches. The Meta row must not
+  // disappear merely because the lossy summary retained Sentry.
+  result.requests[1].tracker = {
+    domain: "facebook.net",
+    entity: "Meta",
+    category: "social / advertising pixel",
+    confidence: "curated"
+  };
+
+  const platforms = byId(
+    buildFindings(viewFromV1Report(result), null),
+    "named-platforms"
+  );
+  assert.match(platforms.title, /catalogued major-platform domains/);
+  assert.match(platforms.lead, /Meta/);
+  assert.equal(platforms.evidence, "1 request to these platforms.");
+  assert.doesNotMatch(
+    `${platforms.title} ${platforms.lead}`,
+    /No requests to major-platform/
+  );
+});
+
+test("committed major-platform evidence reconciles to retained request rows, not host summaries", () => {
+  const reportName = "20260727-3f4388acdcec5a5a1883ad2909ebf88b.json";
+  const raw: unknown = JSON.parse(
+    readFileSync(path.join(process.cwd(), "public", "reports", reportName), "utf8")
+  );
+  const read = readStoredScanReport(raw);
+  assert.equal(read.ok, true, `reader rejected committed report ${reportName}`);
+  if (!read.ok || read.stored.schemaVersion !== 1) {
+    assert.fail(`expected committed v1 report ${reportName}`);
+  }
+  const report = read.stored.report;
+  assert.equal(report.reportType, "comparison");
+  if (report.reportType !== "comparison") assert.fail("expected comparison report");
+
+  const baseline = report.baseline;
+  const inheritedHostSummaryCount = baseline.domains
+    .filter(
+      (domain) =>
+        domain.thirdParty &&
+        domain.tracker !== null &&
+        HEADLINE_PLATFORMS.includes(domain.tracker.entity) &&
+        isTrackingTrackerMatch(domain.tracker) &&
+        reviewedOwnershipRelationship(baseline.summary.firstPartyDomain, domain.domain).kind !==
+          "same-organization"
+    )
+    .reduce((total, domain) => total + domain.requests, 0);
+  const exactRequestCount = baseline.requests.filter(
+    (request) =>
+      request.thirdParty &&
+      request.tracker !== null &&
+      HEADLINE_PLATFORMS.includes(request.tracker.entity) &&
+      isTrackingTrackerMatch(request.tracker) &&
+      reviewedOwnershipRelationship(baseline.summary.firstPartyDomain, request.domain).kind !==
+        "same-organization"
+  ).length;
+
+  assert.equal(inheritedHostSummaryCount, 56, "fixture must preserve the overcounting shape");
+  assert.equal(exactRequestCount, 48, "fixture must preserve the exact retained-row count");
+  const platforms = byId(buildFindings(viewFromV1Report(report), null), "named-platforms");
+  assert.equal(platforms.evidence, "48 requests to these platforms.");
+});
+
 test("flags Google Analytics remarketing only when the DoubleClick sync is present", () => {
   const withSync = makeResult({
     domains: [
@@ -428,10 +565,10 @@ test("uses measured percentile wording when the corpus is usable, fixed threshol
 });
 
 test("a v2 view is never benchmarked against the v1-only corpus", () => {
-  // The published percentiles are built from v1 reports only (the builder
-  // excludes v2 as non-comparable), so ranking a v2 report against them
-  // would compare across methodologies; v2 falls back to fixed thresholds
-  // until a matching cohort exists.
+  // A legacy v1-only artifact carries no v2 cohort, so ranking a v2 report
+  // against its compatibility projection would compare across methodologies.
+  // V2 falls back to fixed thresholds until the supplied artifact contains
+  // its exact cohort.
   const view = viewFromV2(makePublicSingleReportV2(), 1);
   const findings = buildFindings(view, makeCorpus(60));
   assert.doesNotMatch(byId(findings, "third-party-services").benchmark ?? "", /fully measured sites/);
@@ -464,7 +601,7 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
   );
   assert.match(
     byId(matched, "bottom-line").detail,
-    /exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, producer, and Global Privacy Control cohort/
+    /exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort/
   );
   assert.doesNotMatch(byId(matched, "bottom-line").detail, /legacy-v1 distribution/);
 
@@ -951,7 +1088,7 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
   });
   const card = byId(buildFindings(viewFromV1Report(withCmp), null), "consent-banner");
   assert.equal(card.level, "warn");
-  assert.match(card.title, /tracker requests appeared before any choice/);
+  assert.match(card.title, /requests to tracking-service entities appeared before any choice/);
   assert.match(card.lead, /OneTrust/);
   assert.match(card.lead, /before the scanner made any consent choice/);
   assert.match(card.detail, /records requests made before the scanner made a consent choice/);
@@ -1517,6 +1654,25 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
   const domains = overrides.domains ?? [];
   const thirdPartyRequests = overrides.thirdPartyRequests ?? domains.reduce((total, domain) => total + domain.requests, 0);
   const knownTrackerRequests = domains.filter((domain) => domain.tracker).reduce((total, domain) => total + domain.requests, 0);
+  let nextRequestId = 1;
+  const requests = domains.flatMap((domain) =>
+    Array.from({ length: domain.requests }, (): NetworkRequestRecord => {
+      const id = nextRequestId;
+      nextRequestId += 1;
+      return {
+        id,
+        url: `https://fixture.invalid/request-${id}`,
+        domain: domain.domain,
+        method: "GET",
+        resourceType: domain.resourceTypes[0] ?? "other",
+        status: domain.statuses[0] ?? null,
+        thirdParty: domain.thirdParty,
+        tracker: domain.tracker,
+        blockedByShields: domain.blockedByShields,
+        startedAtMs: id
+      };
+    })
+  );
 
   return {
     ok: true,
@@ -1554,7 +1710,7 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
       trackerCatalog: { source: "test", version: "test", region: "test", entries: 0, curatedOverrides: 0, license: "test" },
       scannerDisclosure: "test"
     },
-    requests: [],
+    requests,
     domains,
     cookies: [],
     storage: [],
@@ -1847,6 +2003,12 @@ test("a fingerprint observer that never read a frame cannot publish a clean abse
   const card = byId(buildFindings(view, null), "fingerprint-apis");
   assert.notEqual(card.level, "ok");
   assert.match(card.detail, /covers only what was recorded before the cutoff/);
+  const bottomLine = byId(buildFindings(view, null), "bottom-line");
+  assert.doesNotMatch(bottomLine.title, /activity evidence was cut short/);
+  assert.match(bottomLine.lead, /detector evidence was incomplete/);
+  assert.match(bottomLine.lead, /completed request, cookie, and storage measurements keep their recorded exactness/);
+  assert.doesNotMatch(bottomLine.lead, /activity counts are floors|request counts are retained lower bounds/);
+  assert.doesNotMatch(bottomLine.evidence, /at least|retained/);
 
   // The reason reaches the reader as prose, never as a wire slug.
   for (const note of runCensorshipNotes(run)) {
@@ -2065,7 +2227,7 @@ test("an uncatalogued platform domain is not reported as no platform requests", 
   assert.doesNotMatch(platforms.lead, /No requests to catalogued Google/);
   assert.match(platforms.lead, /dispatched requests to Google domains/);
   // Naming the operator must not inflate the tracker counts.
-  assert.match(platforms.detail, /not counted as catalogued tracker requests/);
+  assert.match(platforms.detail, /not counted as catalog-matched requests/);
 
   // A visit that really contacted no platform domain keeps the clean absence.
   const clean = buildFindings(

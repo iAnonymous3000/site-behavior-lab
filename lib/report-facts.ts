@@ -118,6 +118,8 @@ export type IdentifiedHostFact = {
   requests: number;
   namers: IdentityNamer[];
   relationship: ReviewedOwnershipRelationship["kind"];
+  /** Every exact third-party request-row catalog identity recorded for this host. */
+  catalogMatches: TrackerEntitySummary[];
   /** Catalog classification remains separate from operator identity. */
   tracker: TrackerEntitySummary | null;
 };
@@ -490,6 +492,27 @@ export function retainedCountPhrase(
     : `${value.toLocaleString("en-US")} ${noun}`;
 }
 
+/**
+ * Compact exact-match copy for host-level summaries.
+ *
+ * The compatibility `DomainSummary.tracker` slot cannot represent a shared
+ * host carrying multiple request-row matches. Renderers use this helper over
+ * `IdentifiedHostFact.catalogMatches`, keeping every exact name/category and
+ * directing readers to the row-level evidence when the host is mixed.
+ */
+export function identifiedHostCatalogMatchLabel(
+  host: IdentifiedHostFact | undefined
+): string | null {
+  const matches = host?.catalogMatches ?? [];
+  if (matches.length === 0) return null;
+  const labels = matches.map(
+    (match) => `${match.entity}: ${match.categories.join(", ")}`
+  );
+  return matches.length === 1
+    ? labels[0]
+    : `${labels.join("; ")} (multiple exact matches; see request rows)`;
+}
+
 function evidenceFamilyFact(run: RunView, family: EvidenceFamily): EvidenceFamilyFact {
   const state: EvidenceState = familyUnsupportedOnRun(run, family)
     ? "unsupported"
@@ -634,12 +657,71 @@ function claimFamilyState(
     : "complete";
 }
 
+/**
+ * Aggregate the catalog matches the DOMAIN summaries carry. Request rows
+ * stay the primary identity source (a shared host can carry several entities
+ * across its rows while its summary keeps one). Stored reports cannot
+ * diverge here: the reader's reconciliation rule requires domains to equal
+ * summarizeDomains(rows). But presentation code also renders locally
+ * constructed views that never passed the reader, and on those a party named
+ * only by a summary was still named; the identity union (and the consistency
+ * gate that reads it) must not lose the name.
+ */
+function domainTrackerEntitySummaries(
+  domains: RunView["evidence"]["domains"]
+): TrackerEntitySummary[] {
+  const byEntity = new Map<string, TrackerEntitySummary>();
+  for (const domain of domains) {
+    if (!domain.thirdParty || !domain.tracker) continue;
+    const current = byEntity.get(domain.tracker.entity) ?? {
+      entity: domain.tracker.entity,
+      requests: 0,
+      domains: 0,
+      categories: []
+    };
+    current.requests += domain.requests;
+    current.domains += 1;
+    if (!current.categories.includes(domain.tracker.category)) {
+      current.categories.push(domain.tracker.category);
+    }
+    byEntity.set(domain.tracker.entity, current);
+  }
+  return [...byEntity.values()];
+}
+
+/**
+ * Union row-derived and domain-derived entity summaries. Row-derived entries
+ * are exact and stay untouched: a shared host's summary count spans rows that
+ * belong to OTHER entities, so folding it into a row-present entity would
+ * misattribute those rows. Domain summaries only contribute entities the
+ * rows never named at all, where the summary is the only place the view
+ * recorded that party.
+ */
+function mergeEntitySummaries(
+  rowDerived: TrackerEntitySummary[],
+  domainDerived: TrackerEntitySummary[]
+): TrackerEntitySummary[] {
+  const rowNamed = new Set(rowDerived.map((entity) => entity.entity));
+  const additions = domainDerived.filter((candidate) => !rowNamed.has(candidate.entity));
+  if (additions.length === 0) return rowDerived;
+  return [...rowDerived, ...additions].sort(
+    (a, b) => b.requests - a.requests || a.entity.localeCompare(b.entity)
+  );
+}
+
 function identityFacts(run: RunView): RunIdentityFacts {
-  const catalogEntities = trackerEntitySummaries(run.evidence);
+  const catalogEntities = mergeEntitySummaries(
+    trackerEntitySummaries(run.evidence),
+    domainTrackerEntitySummaries(run.evidence.domains)
+  );
   const trackingEntities = catalogEntities.filter(isTrackingEntity);
   const operationalEntities = catalogEntities.filter(isOperationalEntity);
   const unclassifiedEntities = catalogEntities.filter(isUnclassifiedEntity);
   const ownership = trackerOwnershipBreakdown(run.evidence, run.domain);
+  // Responded stays row-derived on purpose: a host summary aggregates its
+  // statuses across rows that can carry DIFFERENT entities, so the summary's
+  // (tracker, statuses) pair cannot prove that ITS entity was the one that
+  // responded. A party named only by a summary renders as dispatched-only.
   const respondedEntities = respondedTrackerEntityNames(run.evidence);
   const hosts: IdentifiedHostFact[] = [];
   const cmpNames = new Set<string>();
@@ -648,7 +730,21 @@ function identityFacts(run: RunView): RunIdentityFacts {
   for (const domain of run.evidence.domains) {
     if (!domain.thirdParty) continue;
     const namers: IdentityNamer[] = [];
-    if (domain.tracker) {
+    const exactHostEntities = trackerEntitySummaries({
+      requests: run.evidence.requests.filter(
+        (request) =>
+          request.thirdParty && request.domain === domain.domain
+      )
+    });
+    for (const entity of exactHostEntities) {
+      namers.push({ source: "catalog", name: entity.entity });
+    }
+    if (
+      domain.tracker &&
+      !exactHostEntities.some((entity) => entity.entity === domain.tracker?.entity)
+    ) {
+      // The host's own summary named an entity no row carries. Impossible on
+      // a reader-validated report, but locally constructed views render too.
       namers.push({ source: "catalog", name: domain.tracker.entity });
     }
     const cmp = consentPlatformForDomain(domain.domain);
@@ -661,14 +757,28 @@ function identityFacts(run: RunView): RunIdentityFacts {
       ownershipNames.add(owner);
       namers.push({ source: "ownership", name: owner });
     }
-    const tracker = domain.tracker
-      ? catalogEntities.find((entity) => entity.entity === domain.tracker?.entity) ?? null
-      : null;
+    // The historical domain summary can retain only one match for a shared
+    // host. Keep the singular compatibility field only when the exact rows
+    // support one unambiguous entity; `namers` above preserves every match.
+    // With no retained rows at all, the summary's own match is the one
+    // unambiguous identity the report recorded for this host.
+    const tracker =
+      exactHostEntities.length === 1
+        ? exactHostEntities[0]
+        : exactHostEntities.length === 0 && domain.tracker
+          ? {
+              entity: domain.tracker.entity,
+              requests: domain.requests,
+              domains: 1,
+              categories: [domain.tracker.category]
+            }
+          : null;
     hosts.push({
       host: domain.domain,
       requests: domain.requests,
       namers: dedupeNamers(namers),
       relationship: reviewedOwnershipRelationship(run.domain, domain.domain).kind,
+      catalogMatches: exactHostEntities,
       tracker
     });
   }

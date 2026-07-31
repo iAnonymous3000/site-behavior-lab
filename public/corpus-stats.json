@@ -1,13 +1,15 @@
 {
-  "version": 3,
-  "generatedAt": "2026-07-30T20:07:46.186Z",
+  "version": 4,
+  "generatedAt": "2026-07-30T22:49:49.066Z",
+  "metricContractVersion": "metric-contract-v1",
+  "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "sampleSize": 69,
   "coverageSiteCount": 99,
   "cappedSiteCount": 3,
-  "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+  "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "cohorts": [
     {
-      "id": "v1:legacy-v1-methodology-unspecified:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "id": "v1:legacy-v1-methodology-unspecified:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "schemaVersion": 1,
       "schemaRevision": null,
       "methodologyVersion": "legacy-v1-methodology-unspecified",
@@ -18,6 +20,8 @@
       "trackerCatalogOrigin": "legacy-metadata-hash",
       "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "metricContractVersion": "metric-contract-v1",
+      "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 85,
       "latestRunAt": "2026-07-06T09:35:14.875Z",
       "metrics": {
@@ -39,7 +43,7 @@
           "p90": 32,
           "p95": 47
         },
-        "knownTrackerRequests": {
+        "cataloguedServiceRequests": {
           "count": 85,
           "min": 0,
           "max": 154,
@@ -47,6 +51,15 @@
           "p75": 21,
           "p90": 43,
           "p95": 53
+        },
+        "trackingServiceRequests": {
+          "count": 85,
+          "min": 0,
+          "max": 154,
+          "p50": 2,
+          "p75": 15,
+          "p90": 41,
+          "p95": 51
         },
         "thirdPartyCookies": {
           "count": 85,
@@ -69,7 +82,7 @@
       }
     },
     {
-      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-off:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-off:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "schemaVersion": 1,
       "schemaRevision": null,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1",
@@ -80,6 +93,8 @@
       "trackerCatalogOrigin": "legacy-metadata-hash",
       "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "metricContractVersion": "metric-contract-v1",
+      "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 59,
       "latestRunAt": "2026-07-27T10:27:57.414Z",
       "metrics": {
@@ -101,13 +116,22 @@
           "p90": 55,
           "p95": 114
         },
-        "knownTrackerRequests": {
+        "cataloguedServiceRequests": {
           "count": 59,
           "min": 0,
           "max": 259,
           "p50": 17,
           "p75": 48,
           "p90": 110,
+          "p95": 210
+        },
+        "trackingServiceRequests": {
+          "count": 59,
+          "min": 0,
+          "max": 255,
+          "p50": 15,
+          "p75": 45,
+          "p90": 102,
           "p95": 210
         },
         "thirdPartyCookies": {
@@ -131,7 +155,7 @@
       }
     },
     {
-      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "schemaVersion": 1,
       "schemaRevision": null,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1",
@@ -142,6 +166,8 @@
       "trackerCatalogOrigin": "legacy-metadata-hash",
       "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "metricContractVersion": "metric-contract-v1",
+      "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 69,
       "latestRunAt": "2026-07-25T18:23:27.733Z",
       "metrics": {
@@ -163,13 +189,22 @@
           "p90": 24,
           "p95": 29
         },
-        "knownTrackerRequests": {
+        "cataloguedServiceRequests": {
           "count": 69,
           "min": 0,
           "max": 152,
           "p50": 1,
           "p75": 10,
           "p90": 29,
+          "p95": 36
+        },
+        "trackingServiceRequests": {
+          "count": 69,
+          "min": 0,
+          "max": 152,
+          "p50": 1,
+          "p75": 10,
+          "p90": 27,
           "p95": 36
         },
         "thirdPartyCookies": {
@@ -193,7 +228,7 @@
       }
     },
     {
-      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0%2Bsubject-validity-v2%2Bdetector-coverage-v2:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-5e73ad577074eabc09f10938fd0d395edec261e6516d74a339442436d7488222:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0%2Bsubject-validity-v2%2Bdetector-coverage-v2:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-5e73ad577074eabc09f10938fd0d395edec261e6516d74a339442436d7488222:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "schemaVersion": 1,
       "schemaRevision": null,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2",
@@ -204,6 +239,8 @@
       "trackerCatalogOrigin": "legacy-metadata-hash",
       "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "metricContractVersion": "metric-contract-v1",
+      "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 1,
       "latestRunAt": "2026-07-30T07:31:01.830Z",
       "metrics": {
@@ -225,7 +262,16 @@
           "p90": 0,
           "p95": 0
         },
-        "knownTrackerRequests": {
+        "cataloguedServiceRequests": {
+          "count": 1,
+          "min": 0,
+          "max": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0
+        },
+        "trackingServiceRequests": {
           "count": 1,
           "min": 0,
           "max": 0,
@@ -255,7 +301,7 @@
       }
     },
     {
-      "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-off:catalog-recorded-b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-off:catalog-recorded-b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "schemaVersion": 2,
       "schemaRevision": 2,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.0-request-method-v1+phase-kernel-v1+boundary-state-v1+consent-r2-v1+resource-budget-v1",
@@ -266,6 +312,8 @@
       "trackerCatalogOrigin": "recorded",
       "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "metricContractVersion": "metric-contract-v1",
+      "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 1,
       "latestRunAt": "2026-07-14T03:18:40.331Z",
       "metrics": {
@@ -287,7 +335,16 @@
           "p90": 0,
           "p95": 0
         },
-        "knownTrackerRequests": {
+        "cataloguedServiceRequests": {
+          "count": 1,
+          "min": 0,
+          "max": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0
+        },
+        "trackingServiceRequests": {
           "count": 1,
           "min": 0,
           "max": 0,
@@ -317,7 +374,7 @@
       }
     },
     {
-      "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-on:catalog-recorded-b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-on:catalog-recorded-b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "schemaVersion": 2,
       "schemaRevision": 2,
       "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.0-request-method-v1+phase-kernel-v1+boundary-state-v1+consent-r2-v1+resource-budget-v1",
@@ -328,6 +385,8 @@
       "trackerCatalogOrigin": "recorded",
       "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "metricContractVersion": "metric-contract-v1",
+      "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 1,
       "latestRunAt": "2026-07-14T03:24:56.423Z",
       "metrics": {
@@ -349,7 +408,16 @@
           "p90": 0,
           "p95": 0
         },
-        "knownTrackerRequests": {
+        "cataloguedServiceRequests": {
+          "count": 1,
+          "min": 0,
+          "max": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0
+        },
+        "trackingServiceRequests": {
           "count": 1,
           "min": 0,
           "max": 0,
@@ -398,13 +466,22 @@
       "p90": 24,
       "p95": 29
     },
-    "knownTrackerRequests": {
+    "cataloguedServiceRequests": {
       "count": 69,
       "min": 0,
       "max": 152,
       "p50": 1,
       "p75": 10,
       "p90": 29,
+      "p95": 36
+    },
+    "trackingServiceRequests": {
+      "count": 69,
+      "min": 0,
+      "max": 152,
+      "p50": 1,
+      "p75": 10,
+      "p90": 27,
       "p95": 36
     },
     "thirdPartyCookies": {

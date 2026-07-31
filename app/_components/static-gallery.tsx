@@ -16,6 +16,11 @@ import { readClientFileText } from "@/lib/client-file-policy";
 import { committedReportLocation } from "@/lib/report-locator";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
+import {
+  staticReportCardLabel,
+  staticReportRequestCountLabel,
+  staticReportRequestEvidenceStatus
+} from "@/lib/static-report-card-copy";
 import { plural } from "@/lib/text-format";
 import {
   createLoadedTemporalComparison,
@@ -335,11 +340,11 @@ function StaticReportGallery({
           <select value={sortBy} onChange={(event) => setSortBy(event.currentTarget.value as "newest" | "domain" | "thirdParty" | "trackers")}>
             <option value="newest">Newest</option>
             <option value="domain">Domain</option>
-            <option value="thirdParty">Most third-party</option>
+            <option value="thirdParty">Most retained third-party request rows</option>
             {/* Sorts on summary.knownTrackerRequests, which counts every catalog
                 match including operational-only services, and counts REQUESTS,
                 not distinct services, so the label must say both. */}
-            <option value="trackers">Most catalogued-service requests</option>
+            <option value="trackers">Most retained catalog matches</option>
           </select>
         </label>
       </div>
@@ -468,6 +473,7 @@ function StaticReportCard({
   report: StaticReportManifestEntry;
   focusRef?: Ref<HTMLAnchorElement>;
 }) {
+  const requestEvidenceStatus = staticReportRequestEvidenceStatus(report);
   return (
     <a
       className="static-report-card"
@@ -482,11 +488,16 @@ function StaticReportCard({
         <em>{report.requestedUrl}</em>
       </span>
       <span className="static-report-meta" aria-label={staticReportCardLabel(report)}>
-        <b>{report.metrics.thirdPartyRequests.toLocaleString("en-US")} third-party</b>
+        <b>{staticReportRequestCountLabel(report, report.metrics.thirdPartyRequests, "third-party request")}</b>
         <small>
           {report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0
-            ? `${(report.metrics.shieldsBlockedRequests ?? 0).toLocaleString("en-US")} matched Shields lists · ${report.device}`
+            ? `${staticReportRequestCountLabel(
+                report,
+                report.metrics.shieldsBlockedRequests ?? 0,
+                "request"
+              )} matched Shields lists · ${report.device}`
             : `${report.reportType === "comparison" ? "Comparison" : "Single"} · ${report.device}`}
+          {requestEvidenceStatus ? ` · ${requestEvidenceStatus}` : ""}
         </small>
       </span>
     </a>
@@ -636,18 +647,6 @@ function buildHistoryGroups(reports: StaticReportManifestEntry[]): HistoryGroup[
       };
     })
     .sort((left, right) => left.label.localeCompare(right.label));
-}
-
-function staticReportCardLabel(report: StaticReportManifestEntry): string {
-  const parts = [
-    plural(report.metrics.thirdPartyRequests, "third-party request"),
-    plural(report.metrics.knownTrackerRequests, "catalogued service request"),
-    plural(report.metrics.thirdPartyDomains, "third-party domain")
-  ];
-  if (report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0) {
-    parts.push(`${plural(report.metrics.shieldsBlockedRequests ?? 0, "request")} matched Brave Shields filter lists`);
-  }
-  return parts.join(", ");
 }
 
 function formatDateTime(value: string): string {

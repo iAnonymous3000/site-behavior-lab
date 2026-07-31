@@ -174,7 +174,7 @@ type BenchmarkMetric = "thirdPartyDomains" | "trackerEntities" | "thirdPartyCook
  */
 const FINDING_BENCHMARKS: Record<BenchmarkMetric, { label: string; elevated: number; high: number }> = {
   thirdPartyDomains: { label: "third-party domains", elevated: 15, high: 30 },
-  trackerEntities: { label: "tracking services", elevated: 6, high: 12 },
+  trackerEntities: { label: "distinct tracking-service entities", elevated: 6, high: 12 },
   thirdPartyCookies: { label: "third-party cookies", elevated: 5, high: 12 },
   fingerprintEvents: { label: "fingerprint-like API calls", elevated: 4, high: 12 }
 };
@@ -211,7 +211,7 @@ const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this cover
 function corpusBenchmarkScope(corpus: CorpusStats): string {
   const coverage = corpus.coverageSiteCount;
   if (corpus.cohorts && corpus.primaryCohortId) {
-    return `report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, producer, and Global Privacy Control cohort, with each percentile card naming its metric-specific measured-site denominator${
+    return `report's exact schema, methodology, tracker-catalog, ServiceRole-taxonomy, metric-contract, producer, and Global Privacy Control cohort, with each percentile card naming its metric-specific measured-site denominator${
       typeof coverage === "number" && coverage > corpus.sampleSize
         ? ` (among ${coverage.toLocaleString("en-US")} sites with a successful load across all cohorts; other methodologies, request-capped visits, and post-choice consent visits are excluded from this denominator, while failed or block-page attempts are outside that coverage)`
         : ""
@@ -244,7 +244,6 @@ export function buildFindings(
   const arms = comparisonArmViews(view);
   const axis = view.comparison?.axis ?? null;
   const ownership = facts.identity.ownership;
-  const recipientEntities = ownership.otherOrUnreviewed;
   const trackingEntities = facts.identity.trackingEntities;
   const operationalEntities = facts.identity.operationalEntities;
   const unclassifiedEntities = facts.identity.unclassifiedEntities;
@@ -349,18 +348,38 @@ export function buildFindings(
       ? ` Catalog labels include session-replay or behavior-analytics services: ${humanList(sessionReplayNames)}; the domain match alone does not prove that a recording occurred.`
       : "";
 
-  const headlineEntities = recipientEntities
-    .filter(isTrackingEntity)
-    .filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
-  const cataloguedNonTrackingHeadlineEntities = recipientEntities
-    .filter((entity) => !isTrackingEntity(entity))
-    .filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
-  const sameOrganizationHeadlineEntities = ownership.sameOrganization
-    .filter(isTrackingEntity)
-    .filter((entity) => HEADLINE_PLATFORMS.includes(entity.entity));
-  const headlineNames = headlineEntities.map((entity) => entity.entity);
-  const cataloguedNonTrackingHeadlineNames = cataloguedNonTrackingHeadlineEntities.map(
-    (entity) => entity.entity
+  // Major-platform findings are request-row claims. Domain/entity summaries
+  // are intentionally lossy and can preserve only one of several exact
+  // catalog matches on a shared host, so they must not decide which platform
+  // names exist or how many requests belong to them.
+  const cataloguedPlatformRequestRows = run.evidence.requests.filter(
+    (request) =>
+      request.thirdParty &&
+      request.tracker !== null &&
+      HEADLINE_PLATFORMS.includes(request.tracker.entity)
+  );
+  const outsideCataloguedPlatformRequestRows = cataloguedPlatformRequestRows.filter(
+    (request) =>
+      reviewedOwnershipRelationship(run.domain, request.domain).kind !==
+      "same-organization"
+  );
+  const headlineRequestRows = outsideCataloguedPlatformRequestRows.filter(
+    (request) => request.tracker !== null && isTrackingTrackerMatch(request.tracker)
+  );
+  const cataloguedNonTrackingHeadlineRequestRows =
+    outsideCataloguedPlatformRequestRows.filter(
+      (request) =>
+        request.tracker !== null && !isTrackingTrackerMatch(request.tracker)
+    );
+  const platformNamesForRows = (
+    rows: typeof cataloguedPlatformRequestRows
+  ): string[] =>
+    HEADLINE_PLATFORMS.filter((platform) =>
+      rows.some((request) => request.tracker?.entity === platform)
+    );
+  const headlineNames = platformNamesForRows(headlineRequestRows);
+  const cataloguedNonTrackingHeadlineNames = platformNamesForRows(
+    cataloguedNonTrackingHeadlineRequestRows
   );
   // Platform domains the ownership map names but the service catalog does not
   // carry, for example fonts.googleapis.com and gstatic.com. The card's absence
@@ -368,33 +387,47 @@ export function buildFindings(
   // a green "no requests to Google domains were observed" over an observed
   // request to exactly such a domain.
   const cataloguedHeadlineNames = new Set(
-    [...recipientEntities, ...ownership.sameOrganization]
-      .map((entity) => entity.entity)
-      .filter((entity) => HEADLINE_PLATFORMS.includes(entity))
+    cataloguedPlatformRequestRows.flatMap((request) =>
+      request.tracker ? [request.tracker.entity] : []
+    )
   );
-  const sameOrganizationPlatformNames = Array.from(
-    new Set([
-      ...sameOrganizationHeadlineEntities.map((entity) => entity.entity),
-      ...facts.identity.sameOrganizationNames.filter((name) =>
-        HEADLINE_PLATFORMS.includes(name)
-      )
-    ])
-  ).sort();
+  const sameOrganizationPlatformRequestRows = run.evidence.requests.filter(
+    (request) => {
+      if (!request.thirdParty) return false;
+      const relationship = reviewedOwnershipRelationship(
+        run.domain,
+        request.domain
+      );
+      return (
+        relationship.kind === "same-organization" &&
+        HEADLINE_PLATFORMS.includes(relationship.organization)
+      );
+    }
+  );
+  const sameOrganizationPlatformNames = HEADLINE_PLATFORMS.filter(
+    (platform) =>
+      facts.identity.sameOrganizationNames.includes(platform) ||
+      sameOrganizationPlatformRequestRows.some((request) => {
+        const relationship = reviewedOwnershipRelationship(
+          run.domain,
+          request.domain
+        );
+        return (
+          relationship.kind === "same-organization" &&
+          relationship.organization === platform
+        );
+      })
+  );
   const uncataloguedPlatformOrganizations = facts.identity.outsideNames.filter(
     (organization) =>
       HEADLINE_PLATFORMS.includes(organization) &&
       !cataloguedHeadlineNames.has(organization)
   );
-  const sameOrganizationPlatformRequests = facts.identity.hosts
-    .filter(
-      (host) =>
-        host.relationship === "same-organization" &&
-        host.namers.some((namer) => sameOrganizationPlatformNames.includes(namer.name))
-    )
-    .reduce((total, host) => total + host.requests, 0);
-  const headlineRequests = headlineEntities.reduce((total, entity) => total + entity.requests, 0);
+  const sameOrganizationPlatformRequests =
+    sameOrganizationPlatformRequestRows.length;
+  const headlineRequests = headlineRequestRows.length;
   const cataloguedNonTrackingHeadlineRequests =
-    cataloguedNonTrackingHeadlineEntities.reduce((total, entity) => total + entity.requests, 0);
+    cataloguedNonTrackingHeadlineRequestRows.length;
   const provenanceHighlights = requestProvenanceHighlights(run.evidence.requests);
   const requestsWithProvenance = run.evidence.requests.filter((request) => request.provenance).length;
 
@@ -482,7 +515,7 @@ export function buildFindings(
       level: preConsentTrackers > 0 ? "warn" : "info",
       title:
         preConsentTrackers > 0
-          ? "Consent tooling and tracker requests appeared before any choice"
+          ? "Consent tooling and requests to tracking-service entities appeared before any choice"
           : consentPlatformAnswered
             ? "A consent management platform answered"
             : "A consent management platform was requested",
@@ -490,8 +523,8 @@ export function buildFindings(
         preConsentTrackers > 0
           ? `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), and the request log included ${retainedCountPhrase(
               preConsentTrackers,
-              "catalogued tracking-related service",
-              "catalogued tracking-related services",
+              "distinct catalogued tracking-related service",
+              "distinct catalogued tracking-related services",
               facts.evidence.requests.state
             )} before the scanner made any consent choice${
               answeredPreConsentTrackers > 0
@@ -502,7 +535,7 @@ export function buildFindings(
             }.`
           : `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), before the scanner made any consent choice. Tracker-service observations are reported separately so this positive tooling signal does not imply an absence.`,
       detail:
-        'A request to the platform\'s loader proves the page attempted to fetch consent tooling; an observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More trackers may appear after "Accept" than this report captures, so tracker counts here are a lower bound for users who consent.',
+        'A request to the platform\'s loader proves the page attempted to fetch consent tooling; an observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More tracking-service entities or requests may appear after "Accept" than this report captures, so the counts here are lower bounds for users who consent.',
       evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`,
       claim: findingClaim(facts, "consent-banner", "presence")
     });
@@ -785,7 +818,7 @@ export function buildFindings(
         : sameOrganizationPlatformNames.length > 0
           ? "Cross-registrable-domain traffic remains counted in the report, but this reviewed ownership relationship does not support an outside-recipient disclosure claim. Naming the operator also does not prove request purpose."
           : uncataloguedPlatformOrganizations.length > 0
-            ? `Asset and font hosts reach this state often: the ownership map establishes who operates the domain, and nothing here establishes the request's purpose or payload. These domains are not counted as catalogued tracker requests.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
+            ? `Asset and font hosts reach this state often: the ownership map establishes who operates the domain, and nothing here establishes the request's purpose or payload. These domains are not counted as catalog-matched requests.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`
             : `Major-platform domains were not observed in this single passive visit; interaction-gated requests could still load for real users.${requestsCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence:
       headlineNames.length > 0
@@ -1489,10 +1522,10 @@ export function buildFindings(
       // The catalog count is run-wide: it is a separate labeling layer, not a
       // proven subset of the Shields-matched requests, so the sentence must
       // not chain the two sets together.
-      evidence: `The hand-curated service catalog separately labels ${retainedCountPhrase(
+      evidence: `The hand-curated service catalog separately matched ${retainedCountPhrase(
         run.counts.knownTrackerRequests,
-        "request",
-        "requests",
+        "request row",
+        "request rows",
         requestState
       )} in this visit.`,
       claim: findingClaim(facts, "shields-blocked", blocked > 0 ? "presence" : "absence")
@@ -1501,15 +1534,42 @@ export function buildFindings(
 
   const censorshipNotes = runCensorshipNotes(run);
   const unsupportedFamilies = unsupportedEvidenceFamilies(run);
+  const activityCensoredFamilies = [
+    facts.evidence.requests.state === "censored"
+      ? {
+          label: "request evidence",
+          effect: "request counts are retained lower bounds"
+        }
+      : null,
+    facts.evidence.cookies.state === "censored"
+      ? {
+          label: "cookie evidence",
+          effect: "cookie counts are an incomplete end-state snapshot"
+        }
+      : null,
+    facts.evidence.storage.state === "censored"
+      ? {
+          label: "storage evidence",
+          effect: "storage counts are an incomplete end-state snapshot"
+        }
+      : null
+  ].filter(
+    (entry): entry is { label: string; effect: string } => entry !== null
+  );
+  const activityEvidenceCensored = activityCensoredFamilies.length > 0;
+  const activityCensoringEffects = humanList(
+    activityCensoredFamilies.map((entry) => entry.effect)
+  );
   // Methodology cards (an ineligible pair) are about this report, not the
   // site: "review-worthy signals" must reflect observed behavior only.
   const overallLevel = strongestLevel(
     findings.filter((finding) => finding.methodology !== true).map((finding) => finding.level)
   );
   const censoredQuiet =
-    censorshipNotes.length > 0 && (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
+    activityEvidenceCensored &&
+    (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
   const unsupportedQuiet =
-    censorshipNotes.length === 0 &&
+    !activityEvidenceCensored &&
     unsupportedFamilies.length > 0 &&
     (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
   findings.unshift({
@@ -1517,21 +1577,29 @@ export function buildFindings(
     icon: overallLevel === "ok" && !censoredQuiet && !unsupportedQuiet ? "check" : "alert",
     level: censoredQuiet || unsupportedQuiet ? "info" : overallLevel,
     title: censoredQuiet
-      ? "Bottom line: the visit was cut short, so few signals is not a verdict"
+      ? "Bottom line: activity evidence was cut short, so few signals is not a verdict"
       : unsupportedQuiet
         ? "Bottom line: this PageGraph report covers requests; other evidence was not captured"
       : overallLevel === "ok"
         ? "Bottom line: few review signals in this visit"
         : "Bottom line: this visit has review-worthy signals",
     lead: censoredQuiet
-      ? `Evidence collection did not finish (${humanList(censorshipNotes, 2)}), so the quiet result reflects an interrupted recording, not a verdict about the site.`
+      ? `Evidence collection did not finish for ${humanList(
+          activityCensoredFamilies.map((entry) => entry.label)
+        )}, so the quiet result reflects incomplete activity evidence, not a verdict about the site. The scoped effect is that ${activityCensoringEffects}.${
+          censorshipNotes.length > 0
+            ? ` Recorded cause: ${humanList(censorshipNotes, 2)}.`
+            : ""
+        }`
       : unsupportedQuiet
         ? `Request evidence was recorded, but ${humanList(unsupportedFamilies)} evidence is unsupported by this producer. Those zero-valued fields are unavailable measurements, not observed absences.`
       : overallLevel === "ok"
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
         : `The scan observed signals a non-expert should not have to decode from raw request tables.${
-            censorshipNotes.length > 0
-              ? ` Evidence collection was also cut short (${humanList(censorshipNotes, 2)}), so activity counts are floors for this visit and end-state figures are snapshots of an interrupted recording.`
+            activityEvidenceCensored
+              ? ` Some activity evidence was also incomplete: ${activityCensoringEffects}.`
+              : censorshipNotes.length > 0
+                ? " Some detector evidence was incomplete; each affected detector card states its own retained or unavailable scope, while completed request, cookie, and storage measurements keep their recorded exactness."
               : ""
           }`,
     detail: corpusIsUsable(corpus) && (domainsBenchmarkAllowed || cookiesBenchmarkAllowed)
@@ -1539,7 +1607,12 @@ export function buildFindings(
       : corpusIsUsable(corpus)
         ? "The cards below translate the evidence into plain language. This failed or incomplete evidence is not ranked against corpus percentiles; positive signals remain visible as lower bounds. The request log, domain table, and methodology remain below for verification."
         : "The cards below translate the evidence into plain language; severity reflects fixed reference thresholds, not measured population percentiles. The request log, domain table, and methodology remain below for verification.",
-    evidence: `${plural(run.counts.totalRequests, "request")} observed in one controlled visit.`
+    evidence: `${retainedCountPhrase(
+      run.counts.totalRequests,
+      "request",
+      "requests",
+      facts.evidence.requests.state
+    )} observed in one controlled visit.`
   });
 
   // Emit every finding. The conditionals above bound this to at most ~9 cards,
@@ -1704,13 +1777,13 @@ function buildConsentComparisonFinding(
       id: "consent-comparison",
       icon: "cookie",
       level: "warn",
-      title: `Requests were sent to ${plural(rejectTracking.length, "catalogued tracking-related service")} in the visit that clicked Reject all`,
+      title: `Requests were sent to ${plural(rejectTracking.length, "distinct catalogued tracking-related service")} in the visit that clicked Reject all`,
       // The cross-arm contrast ("N appeared in the accept-click visit") is a
       // classification-family juxtaposition; without that family the card
       // keeps the reject-click visit's own facts only.
       lead: `In the visit where the scanner clicked Reject all, ${humanList(rejectTracking.map((entity) => entity.entity))} ${trackerResponseQualification(rejectTracking, rejectResponded)}${
         classificationAllowed
-          ? ` (${plural(acceptTracking.length, "catalogued tracking-related service")} appeared in the request log for the visit that clicked Accept all)`
+          ? ` (${plural(acceptTracking.length, "distinct catalogued tracking-related service")} appeared in the request log for the visit that clicked Accept all)`
           : ""
       }.`,
       detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the visit that clicked Accept all.`,
@@ -1736,7 +1809,7 @@ function buildConsentComparisonFinding(
       classificationAllowed && acceptTracking.length > 0
         ? `The visit where the scanner clicked Reject all recorded no request to a catalogued tracking-related service, while the visit that clicked Accept all recorded requests to ${plural(
             acceptTracking.length,
-            "catalogued tracking-related service"
+            "distinct catalogued tracking-related service"
           )}.`
         : classificationAllowed
           ? "No request to a catalogued tracking-related service was recorded in either visit; this describes only the two observed visits, not whether there was little to consent to."

@@ -67,7 +67,9 @@ const corpusJsonCohortIdentityFields = [
   "trackerCatalogDigest",
   "trackerCatalogOrigin",
   "serviceRoleTaxonomyVersion",
-  "serviceRoleTaxonomyDigest"
+  "serviceRoleTaxonomyDigest",
+  "metricContractVersion",
+  "metricContractDigest"
 ];
 const corpusCsvDecisionColumns = [
   "consent_choice_state",
@@ -97,6 +99,15 @@ const corpusCsvProvenanceColumns = [
   "tracker_catalog_origin",
   "service_role_taxonomy_version",
   "service_role_taxonomy_digest"
+];
+const corpusCsvMetricContractColumns = [
+  "corpus_export_schema_version",
+  "metric_contract_version",
+  "metric_contract_digest",
+  "catalogued_service_requests",
+  "tracking_service_requests",
+  "delta_catalogued_service_requests",
+  "delta_tracking_service_requests"
 ];
 const recordedConsentChoiceStates = ["verified", "contradicted", "weak-signal", "unavailable", "failed"];
 
@@ -345,6 +356,24 @@ async function main() {
     }
     pass(`static deployment provenance identifies ${deployment.deployment}`);
 
+    const { response: metricContractResponse, value: metricContract } = await fetchJsonResource(
+      `${baseUrl}/metric-contract.v1.json`,
+      {},
+      "published metric contract",
+      controlResponseMaxBytes
+    );
+    if (!metricContractResponse.ok) fail(`published metric contract not served (${metricContractResponse.status})`);
+    const publishedMetricContractVersion = metricContract?.metadata?.version;
+    const publishedMetricContractDigest = metricContract?.metadata?.digest;
+    if (
+      typeof publishedMetricContractVersion !== "string" ||
+      typeof publishedMetricContractDigest !== "string" ||
+      !sha256Pattern.test(publishedMetricContractDigest) ||
+      metricContract?.contract?.version !== publishedMetricContractVersion
+    ) {
+      fail("published metric contract does not expose a valid, self-consistent identity");
+    }
+
     const { response: corpusJsonResponse, value: corpus } = await fetchJsonResource(
       `${baseUrl}/corpus.json`,
       {},
@@ -354,6 +383,24 @@ async function main() {
     if (!corpusJsonResponse.ok) fail(`researcher JSON export not served (${corpusJsonResponse.status})`);
     if (!Array.isArray(corpus?.reports) || corpus.reportCount !== corpus.reports.length) {
       fail("researcher JSON export does not contain its declared report rows");
+    }
+    if (
+      corpus.exportSchemaVersion !== 1 ||
+      corpus.metricContractVersion !== publishedMetricContractVersion ||
+      corpus.metricContractDigest !== publishedMetricContractDigest ||
+      !Array.isArray(corpus.cohorts) ||
+      corpus.reports.some(
+        (report) =>
+          report?.metricContractVersion !== publishedMetricContractVersion ||
+          report?.metricContractDigest !== publishedMetricContractDigest
+      ) ||
+      corpus.cohorts.some(
+        (cohort) =>
+          cohort?.metricContractVersion !== publishedMetricContractVersion ||
+          cohort?.metricContractDigest !== publishedMetricContractDigest
+      )
+    ) {
+      fail("researcher JSON export is not bound to the published metric contract identity");
     }
     const phaseReportExportRow = corpus.reports.find((report) => report?.id === phaseReport.id);
     if (!phaseReportExportRow) fail("researcher JSON export omits the committed r2 phase smoke report");
@@ -372,8 +419,12 @@ async function main() {
       phaseReportExportRow.trackerCatalogOrigin !== "recorded" ||
       typeof phaseReportExportRow.serviceRoleTaxonomyVersion !== "string" ||
       !sha256Pattern.test(phaseReportExportRow.serviceRoleTaxonomyDigest) ||
+      phaseReportExportRow.metricContractVersion !== publishedMetricContractVersion ||
+      phaseReportExportRow.metricContractDigest !== publishedMetricContractDigest ||
       !phaseReportExportRow.corpusCohortId.includes(phaseReportExportRow.trackerCatalogDigest) ||
-      !phaseReportExportRow.corpusCohortId.includes(phaseReportExportRow.serviceRoleTaxonomyDigest)
+      !phaseReportExportRow.corpusCohortId.includes(phaseReportExportRow.serviceRoleTaxonomyDigest) ||
+      !phaseReportExportRow.corpusCohortId.includes(phaseReportExportRow.metricContractVersion) ||
+      !phaseReportExportRow.corpusCohortId.includes(phaseReportExportRow.metricContractDigest)
     ) {
       fail("researcher JSON export flattened the committed r2 comparison or cohort identity incorrectly");
     }
@@ -387,16 +438,20 @@ async function main() {
     if (!corpusCsvResponse.ok) fail(`researcher CSV export not served (${corpusCsvResponse.status})`);
     const corpusCsvHeader = corpusCsv.split(/\r?\n/, 1)[0].split(",");
     const legacyTailIndex = corpusCsvHeader.indexOf("limited");
-    const expectedAppendedTail = [...corpusCsvDecisionColumns, ...corpusCsvProvenanceColumns];
+    const expectedAppendedTail = [
+      ...corpusCsvDecisionColumns,
+      ...corpusCsvProvenanceColumns,
+      ...corpusCsvMetricContractColumns
+    ];
     if (
       legacyTailIndex < 0 ||
       corpusCsvHeader.slice(legacyTailIndex + 1).join(",") !== expectedAppendedTail.join(",")
     ) {
       fail(
-        "researcher CSV export did not append the decision-context and provenance/cohort columns after the legacy contract"
+        "researcher CSV export did not append the complete decision, provenance/cohort, and metric-contract tail after the legacy contract"
       );
     }
-    pass("researcher exports publish the appended r2 decision context and provenance/cohort columns in JSON and CSV");
+    pass("researcher exports publish the complete appended contract and bind JSON to the published metric identity");
 
     if (liveScanApiBase) {
       await expectText(page.locator(".status-pill"), "Live");
@@ -681,7 +736,7 @@ async function main() {
     }
     await page.getByRole("button", { name: "Third-party" }).click();
     await expectRequestRowCount(page, 2);
-    await page.getByRole("button", { name: "Known services" }).click();
+    await page.getByRole("button", { name: "Catalog matches" }).click();
     await expectRequestRowCount(page, 1);
     await page.getByLabel("Resource type").selectOption("script");
     await expectRequestRowCount(page, 0);
@@ -699,7 +754,48 @@ async function main() {
     await page.getByRole("button", { name: "Explore full evidence" }).click();
     await page.waitForSelector(".visit-phase-evidence", { timeout: 10_000 });
     await assertNoHorizontalOverflow(page, "static mobile r2 report");
+    await assertMinimumTargetSize(page.locator(".arm-option"), 44, "static mobile evidence switcher");
     pass("static mobile r2 phase report fits viewport");
+    pass("static mobile evidence switcher exposes 44px targets");
+
+    // Model a wide hybrid laptop explicitly: the primary pointer is fine, but
+    // the available-pointer bitmask also contains a coarse touchscreen. A
+    // `(pointer: coarse)` rule cannot see this state; `(any-pointer: coarse)`
+    // can. These are Blink's own pointer bit values (fine 4, coarse 2).
+    const hybridPointerBrowser = await chromium.launch({
+      headless: true,
+      args: ["--blink-settings=primaryPointerType=4,availablePointerTypes=6"]
+    });
+    try {
+      const hybridPointerPage = await hybridPointerBrowser.newPage({ viewport: { width: 1024, height: 900 } });
+      await hybridPointerPage.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
+      const pointerMedia = await hybridPointerPage.evaluate(() => ({
+        primaryFine: matchMedia("(pointer: fine)").matches,
+        primaryCoarse: matchMedia("(pointer: coarse)").matches,
+        anyFine: matchMedia("(any-pointer: fine)").matches,
+        anyCoarse: matchMedia("(any-pointer: coarse)").matches,
+        narrow: matchMedia("(max-width: 720px)").matches
+      }));
+      if (
+        !pointerMedia.primaryFine ||
+        pointerMedia.primaryCoarse ||
+        !pointerMedia.anyFine ||
+        !pointerMedia.anyCoarse ||
+        pointerMedia.narrow
+      ) {
+        fail(`wide hybrid-pointer smoke has the wrong media state: ${JSON.stringify(pointerMedia)}`);
+      }
+      await hybridPointerPage.getByRole("button", { name: "Explore full evidence" }).click();
+      await hybridPointerPage.waitForSelector(".visit-phase-evidence", { timeout: 10_000 });
+      await assertMinimumTargetSize(
+        hybridPointerPage.locator(".arm-option"),
+        44,
+        "wide hybrid-pointer evidence switcher"
+      );
+      pass("wide hybrid-pointer evidence switcher exposes 44px targets");
+    } finally {
+      await hybridPointerBrowser.close();
+    }
 
     await page.setViewportSize({ width: 320, height: 900 });
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
@@ -1136,6 +1232,29 @@ async function expectCardCount(page, expected) {
 async function expectRequestRowCount(page, expected) {
   const actual = await page.locator(".request-table tbody tr").count();
   if (actual !== expected) fail(`expected ${expected} request rows, got ${actual}`);
+}
+
+async function assertMinimumTargetSize(locator, minimumCssPixels, label) {
+  const targets = await locator.evaluateAll((elements) =>
+    elements.map((element) => {
+      const bounds = element.getBoundingClientRect();
+      return {
+        text: element.textContent?.replace(/\s+/g, " ").trim() || "(unlabelled)",
+        width: bounds.width,
+        height: bounds.height
+      };
+    })
+  );
+  if (targets.length === 0) fail(`${label} has no rendered targets`);
+  const undersized = targets.filter(
+    ({ width, height }) => width < minimumCssPixels || height < minimumCssPixels
+  );
+  if (undersized.length > 0) {
+    const details = undersized
+      .map(({ text, width, height }) => `${JSON.stringify(text)} ${width.toFixed(1)}x${height.toFixed(1)}`)
+      .join(", ");
+    fail(`${label} has targets smaller than ${minimumCssPixels}px: ${details}`);
+  }
 }
 
 async function assertNoHorizontalOverflow(page, label) {

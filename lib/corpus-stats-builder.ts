@@ -6,15 +6,21 @@ import {
 import { preferCorpusRepresentative } from "./corpus-representative";
 import { corpusSiteDomainKey } from "./corpus-site-domain";
 import {
+  CORPUS_METRIC_KEYS,
   CORPUS_MIN_SAMPLE,
   CORPUS_STATS_ARTIFACT_VERSION,
   type CorpusMetricKey,
-  type CorpusStats,
+  type CurrentCorpusStats,
   type CorpusStatsCohort,
   type MetricDistribution
 } from "./corpus-stats";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { buildRunFacts } from "./report-facts";
+import { trackingServiceRequests } from "./report-insights";
 import { displayRunView, familyCensoredOnRun, runHitRequestRecordingCap, toReportView } from "./scan-report-view";
 import {
   listDanglingStaticSidecarIds,
@@ -45,16 +51,8 @@ import {
  * and workflows invoke. Never imported by app, worker, or browser code.
  */
 
-const METRIC_KEYS: CorpusMetricKey[] = [
-  "thirdPartyRequests",
-  "thirdPartyDomains",
-  "knownTrackerRequests",
-  "thirdPartyCookies",
-  "fingerprintEvents"
-];
-
 export type CorpusStatsBuildResult = {
-  stats: CorpusStats;
+  stats: CurrentCorpusStats;
   /** One line per skipped file, already formatted for the build log. */
   warnings: string[];
 };
@@ -155,14 +153,16 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
       metrics: {
         thirdPartyRequests: result.counts.thirdPartyRequests,
         thirdPartyDomains: result.counts.thirdPartyDomains,
-        knownTrackerRequests: result.counts.knownTrackerRequests,
+        cataloguedServiceRequests: result.counts.knownTrackerRequests,
+        trackingServiceRequests: trackingServiceRequests(result.evidence),
         thirdPartyCookies: result.counts.thirdPartyCookies,
         fingerprintEvents: result.counts.fingerprintEvents
       },
       metricAvailability: {
         thirdPartyRequests: facts.claims["third-party-services"].benchmarkAllowed,
         thirdPartyDomains: facts.claims["third-party-services"].benchmarkAllowed,
-        knownTrackerRequests: facts.claims["third-party-services"].benchmarkAllowed,
+        cataloguedServiceRequests: facts.claims["third-party-services"].benchmarkAllowed,
+        trackingServiceRequests: facts.claims["third-party-services"].benchmarkAllowed,
         thirdPartyCookies: facts.claims["third-party-cookies"].benchmarkAllowed,
         fingerprintEvents: facts.claims["fingerprint-apis"].benchmarkAllowed
       }
@@ -205,6 +205,8 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     stats: {
       version: CORPUS_STATS_ARTIFACT_VERSION,
       generatedAt: now.toISOString(),
+      metricContractVersion: METRIC_CONTRACT_VERSION,
+      metricContractDigest: METRIC_CONTRACT_DIGEST,
       sampleSize: primary?.sampleSize ?? 0,
       coverageSiteCount: coverageDomains.size,
       cappedSiteCount: cappedDomains.size,
@@ -223,7 +225,7 @@ function metricDistributions(
   }[]
 ): Partial<Record<CorpusMetricKey, MetricDistribution>> {
   const metrics: Partial<Record<CorpusMetricKey, MetricDistribution>> = {};
-  for (const key of METRIC_KEYS) {
+  for (const key of CORPUS_METRIC_KEYS) {
     const values = sites
       .filter((site) => site.metricAvailability[key])
       .map((site) => site.metrics[key])

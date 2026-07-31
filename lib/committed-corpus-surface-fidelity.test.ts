@@ -3,7 +3,11 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { readLoadedReport } from "./client-report-reader";
-import { buildCorpusExportPayload, buildCorpusExportRows } from "./corpus-export";
+import {
+  buildCorpusExportPayload,
+  buildCorpusExportRows,
+  CORPUS_EXPORT_SCHEMA_VERSION
+} from "./corpus-export";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { loadCorpusOverview } from "./corpus-overview";
 import { corpusSiteDomainKey } from "./corpus-site-domain";
@@ -12,6 +16,10 @@ import { serializeJsonLd } from "./jsonld-script";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { validateReportPresentation } from "./report-consistency";
 import { trackingServiceRequests } from "./report-insights";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import { buildReportDataset } from "./report-jsonld";
 import {
   loadedReportFromStored,
@@ -315,7 +323,27 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     assert.equal(row.domain, bundle.presentation.headline.domain, `${row.id}: corpus domain`);
     assert.equal(row.headline, bundle.presentation.headline.headline, `${row.id}: corpus headline`);
     assert.equal(row.thirdPartyRequests, run.counts.thirdPartyRequests, `${row.id}: corpus request count`);
+    assert.equal(
+      row.cataloguedServiceRequests,
+      run.counts.knownTrackerRequests,
+      `${row.id}: corpus catalogued-service count`
+    );
+    assert.equal(
+      row.trackingServiceRequests,
+      trackingServiceRequests(run.evidence),
+      `${row.id}: corpus tracking-service count`
+    );
     assert.equal(row.trackerRequests, trackingServiceRequests(run.evidence), `${row.id}: corpus tracker count`);
+    assert.equal(
+      row.trackerRequests,
+      row.trackingServiceRequests,
+      `${row.id}: deprecated tracker alias`
+    );
+    assert.equal(
+      row.deltaTrackerRequests,
+      row.deltaTrackingServiceRequests,
+      `${row.id}: deprecated delta alias`
+    );
     assert.equal(row.thirdPartyCookies, run.counts.thirdPartyCookies, `${row.id}: corpus cookie count`);
     assert.equal(row.shieldsThirdPartyChange, expectedShieldsChange, `${row.id}: corpus Shields change`);
     assert.equal(row.scannedAt, bundle.view.scannedAt, `${row.id}: corpus scan time`);
@@ -392,6 +420,9 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     measuredSampleSize: corpus.sampleSize,
     primaryCohortId: corpus.primaryCohortId
   });
+  assert.equal(payload.exportSchemaVersion, CORPUS_EXPORT_SCHEMA_VERSION, "corpus JSON export schema");
+  assert.equal(payload.metricContractVersion, METRIC_CONTRACT_VERSION, "corpus JSON metric-contract version");
+  assert.equal(payload.metricContractDigest, METRIC_CONTRACT_DIGEST, "corpus JSON metric-contract digest");
   assert.equal(payload.reportCount, expectedIds.length, "corpus JSON report count");
   assert.equal(payload.reports.length, expectedIds.length, "corpus JSON row count");
   assert.equal(payload.siteCount, expectedCounts.coverage, "corpus JSON site count");
@@ -426,6 +457,16 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
       cohort.serviceRoleTaxonomyDigest,
       representative.serviceRoleTaxonomyDigest,
       `${cohort.id}: exported cohort ServiceRole digest`
+    );
+    assert.equal(
+      cohort.metricContractVersion,
+      representative.metricContractVersion,
+      `${cohort.id}: exported cohort metric-contract version`
+    );
+    assert.equal(
+      cohort.metricContractDigest,
+      representative.metricContractDigest,
+      `${cohort.id}: exported cohort metric-contract digest`
     );
     assert.equal(cohort.denominator, denominator, `${cohort.id}: exported cohort denominator`);
     assert.equal(cohort.includedRows, included.length, `${cohort.id}: exported included rows`);
@@ -547,6 +588,7 @@ function expectedManifestEntry(bundle: AcceptedBundle): StaticReportManifestEntr
     device: (comparison ? tail : lead).conditions.viewport.isMobile ? "mobile" : "desktop",
     gpcEnabled: comparison ? "comparison" : lead.conditions.gpcEnabled,
     ...(runHitRequestRecordingCap(lead) ? { requestCapped: true } : {}),
+    requestEvidenceComplete: !familyCensoredOnRun(lead, "requests"),
     ...(historyKey ? { historyKey } : {}),
     ...(comparisonHistoryKey ? { comparisonHistoryKey } : {}),
     metrics: {

@@ -556,7 +556,7 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
       <h2 id="corpus-hero-title">What websites actually load: measured, not claimed.</h2>
       <p className="corpus-hero-lead">
         The public library covers {plural(highlights.loadedSiteCount, "successfully loaded site")} from controlled
-        visits. Each report records observable requests, cookies, and catalogued services from one visit:
+        visits. Each report records request rows, cookie records, and service-catalog matches from one visit:
         reproducible evidence, not a privacy score or verdict.
       </p>
       {highlights.topCategories.length > 0 && (
@@ -568,7 +568,7 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
             </div>
           ))}
           <span className="corpus-hero-cat-note">
-            median catalogued tracking-service requests per site, by category
+            median third-party tracking-service requests per site, by category
             {cohortSplitNote(highlights.topCategories.map((category) => category.cohort))}
           </span>
         </div>
@@ -730,13 +730,23 @@ function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }
                 >
                   <span className="featured-card-top">
                     <span className="featured-card-site">{item.siteLabel}</span>
-                    {item.requestCapped && <span className="capped-chip">recording capped</span>}
+                    {!item.requestEvidenceComplete && (
+                      <span className="capped-chip">
+                        {item.requestCapped ? "recording capped" : "request evidence incomplete"}
+                      </span>
+                    )}
                     <span className="featured-card-dot" aria-hidden="true" />
                   </span>
                   <span className="featured-card-headline">{item.headline}</span>
                   <span className="featured-card-stats">
-                    <span className="featured-card-stat"><b>{item.thirdPartyRequests.toLocaleString("en-US")}</b> third-party</span>
-                    <span className="featured-card-stat"><b>{item.trackerRequests.toLocaleString("en-US")}</b> catalogued-service</span>
+                    <span className="featured-card-stat">
+                      {!item.requestEvidenceComplete && "at least "}
+                      <b>{item.thirdPartyRequests.toLocaleString("en-US")}</b> third-party requests
+                    </span>
+                    <span className="featured-card-stat">
+                      {!item.requestEvidenceComplete && "at least "}
+                      <b>{item.trackerRequests.toLocaleString("en-US")}</b> third-party tracking-service requests
+                    </span>
                   </span>
                 </a>
               ))}
@@ -749,7 +759,7 @@ function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }
 }
 
 const SCAN_CHECKS: { icon: typeof Eye; label: string; question: string }[] = [
-  { icon: Radar, label: "Catalogued services", question: "Which advertising or analytics service domains had requests dispatched?" },
+  { icon: Radar, label: "Catalog matches", question: "Which request rows matched the reviewed service catalog, and what roles does that catalog assign?" },
   { icon: Cookie, label: "Third-party cookie records", question: "Which cookie records crossed the site's registrable-domain boundary?" },
   { icon: Network, label: "Named platforms", question: "Were requests dispatched to catalogued Google, Meta, TikTok, or X domains?" },
   { icon: Radar, label: "Google Analytics remarketing", question: "Did the scan see the Analytics-to-DoubleClick request marker?" },

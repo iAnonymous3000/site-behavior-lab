@@ -164,6 +164,7 @@ function directoryEntry(artifact: ManagedArtifact): DirectoryEntry {
     tone: headline.tone,
     headline: headline.headline,
     thirdPartyRequests: run.counts.thirdPartyRequests,
+    cataloguedServiceRequests: run.counts.knownTrackerRequests,
     trackerRequests: trackingServiceRequests(run.evidence),
     thirdPartyCookies: run.counts.thirdPartyCookies,
     // Derived through the loader's own gate, never restated here: this is the

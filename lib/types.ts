@@ -569,6 +569,12 @@ export type StaticReportManifestEntry = {
   // (activity floors and interrupted-visit snapshots) and cards must flag it.
   requestCapped?: boolean;
   /**
+   * Whether the lead run retained the complete request evidence family.
+   * False covers the request cap and every other request-family capture loss;
+   * request-derived manifest metrics are then lower bounds.
+   */
+  requestEvidenceComplete: boolean;
+  /**
    * Exact, versioned subject/method/condition identity for temporal history.
    * Absent means the setup is incomplete or generalized and cannot pair.
    */

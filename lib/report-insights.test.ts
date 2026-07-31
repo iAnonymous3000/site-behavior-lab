@@ -14,28 +14,51 @@ import {
   trackerResponseQualification,
   trackingServiceRequests
 } from "./report-insights";
-import type { DomainSummary } from "./types";
+import type { DomainSummary, NetworkRequestRecord } from "./types";
+
+function requestRows(
+  count: number,
+  input: Pick<NetworkRequestRecord, "domain" | "thirdParty" | "tracker">,
+  firstId = 1,
+  status: number | null = 200
+): NetworkRequestRecord[] {
+  return Array.from({ length: count }, (_, index) => ({
+    id: firstId + index,
+    url: `https://${input.domain}/request-${firstId + index}`,
+    domain: input.domain,
+    method: "GET",
+    resourceType: "script",
+    status,
+    thirdParty: input.thirdParty,
+    tracker: input.tracker,
+    startedAtMs: firstId + index
+  }));
+}
 
 test("receipt facts distinguish dispatched requests from observed responses", () => {
-  const domains: DomainSummary[] = [
-    {
-      domain: "quiet.example",
-      requests: 2,
-      thirdParty: true,
-      tracker: { domain: "quiet.example", entity: "Quiet", category: "analytics", confidence: "curated" },
-      statuses: [],
-      resourceTypes: ["script"]
-    },
-    {
-      domain: "answered.example",
-      requests: 1,
-      thirdParty: true,
-      tracker: { domain: "answered.example", entity: "Answered", category: "advertising", confidence: "curated" },
-      statuses: [204],
-      resourceTypes: ["fetch"]
-    }
+  const requests = [
+    ...requestRows(
+      2,
+      {
+        domain: "quiet.example",
+        thirdParty: true,
+        tracker: { domain: "quiet.example", entity: "Quiet", category: "analytics", confidence: "curated" }
+      },
+      1,
+      null
+    ),
+    ...requestRows(
+      1,
+      {
+        domain: "answered.example",
+        thirdParty: true,
+        tracker: { domain: "answered.example", entity: "Answered", category: "advertising", confidence: "curated" }
+      },
+      100,
+      204
+    )
   ];
-  assert.deepEqual([...respondedTrackerEntityNames({ domains })], ["Answered"]);
+  assert.deepEqual([...respondedTrackerEntityNames({ requests })], ["Answered"]);
   assert.equal(
     trackerResponseQualification([{ entity: "Quiet" }, { entity: "Answered" }], new Set(["Answered"])),
     "were sent requests (1 answered; the rest recorded no response)"
@@ -66,7 +89,10 @@ test("ownership interpretation does not turn cross-domain counts into outside-co
     }
   ];
 
-  const breakdown = trackerOwnershipBreakdown({ domains }, "youtube.com");
+  const requests = domains.flatMap((domain, index) =>
+    requestRows(domain.requests, domain, index * 100 + 1)
+  );
+  const breakdown = trackerOwnershipBreakdown({ requests }, "youtube.com");
   assert.equal(breakdown.sameOrganizationName, "Google");
   assert.equal(breakdown.sameOrganizationDomainCount, 1);
   assert.deepEqual(breakdown.sameOrganization.map((entry) => entry.entity), ["Google"]);
@@ -242,7 +268,10 @@ test("tracking totals use positive service-role assignments and preserve unknown
     }
   ];
 
-  const entities = trackerEntitySummaries({ domains });
+  const requests = domains.flatMap((domain, index) =>
+    requestRows(domain.requests, domain, index * 100 + 1)
+  );
+  const entities = trackerEntitySummaries({ requests });
   const ad = entities.find((entity) => entity.entity === "AdCo");
   const experiment = entities.find((entity) => entity.entity === "Experiment Co");
   const support = entities.find((entity) => entity.entity === "Support Co");
@@ -260,7 +289,7 @@ test("tracking totals use positive service-role assignments and preserve unknown
   assert.equal(isOperationalEntity(support), true);
   assert.equal(isUnclassifiedEntity(support), false);
 
-  assert.equal(trackingServiceRequests({ domains }), 5);
+  assert.equal(trackingServiceRequests({ requests }), 5);
 
   const mixed = {
     entity: "Mixed Co",
@@ -284,4 +313,85 @@ test("tracking totals use positive service-role assignments and preserve unknown
     }),
     false
   );
+});
+
+test("tracking request totals classify each exact third-party match instead of its entity", () => {
+  const requests = [
+    ...requestRows(
+      4,
+      {
+        domain: "mixed.example",
+        thirdParty: true,
+        tracker: {
+          domain: "mixed.example",
+          entity: "Mixed Co",
+          category: "analytics",
+          confidence: "curated"
+        }
+      },
+      1
+    ),
+    ...requestRows(
+      9,
+      {
+        // Same host and entity: a domain/entity-first reduction would cause
+        // these CDN rows to inherit the analytics role above.
+        domain: "mixed.example",
+        thirdParty: true,
+        tracker: {
+          domain: "mixed.example",
+          entity: "Mixed Co",
+          category: "cdn / hosting",
+          confidence: "curated"
+        }
+      },
+      100
+    ),
+    ...requestRows(
+      7,
+      {
+        domain: "first-party-analytics.example",
+        thirdParty: false,
+        tracker: {
+          domain: "first-party-analytics.example",
+          entity: "First Party Match",
+          category: "analytics",
+          confidence: "curated"
+        }
+      },
+      200
+    )
+  ];
+
+  assert.equal(trackingServiceRequests({ requests }), 4);
+});
+
+test("tracking request totals count retained direct matches only", () => {
+  const cnameOnlyEvidence = {
+    requests: requestRows(2, {
+      domain: "first-party.example",
+      thirdParty: false,
+      tracker: null
+    }),
+    // CNAME evidence is intentionally outside the request-row formula.
+    cnameCloaks: [{ hostname: "first-party.example", resolvedHostname: "analytics.example" }]
+  };
+  assert.equal(trackingServiceRequests(cnameOnlyEvidence), 0);
+
+  const incompleteEvidence = {
+    requests: requestRows(3, {
+      domain: "analytics.example",
+      thirdParty: true,
+      tracker: {
+        domain: "analytics.example",
+        entity: "Analytics Co",
+        category: "analytics",
+        confidence: "curated"
+      }
+    }),
+    quality: { requests: "incomplete" }
+  };
+  // Eligibility/censoring is enforced by aggregate consumers. At report scope
+  // the retained rows remain a lower bound instead of being silently discarded.
+  assert.equal(trackingServiceRequests(incompleteEvidence), 3);
 });

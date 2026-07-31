@@ -13,6 +13,10 @@ import {
   type DirectoryEntry
 } from "./corpus-overview";
 import { makeConsentInterventionReportV2R2, makeConsentSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import { SCAN_REPORT_SCHEMA_VERSION, type ConsentInteractionSummary, type ScanResult } from "./types";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import {
@@ -22,7 +26,9 @@ import {
 
 const SERVICE_ROLE_IDENTITY = {
   serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
-  serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
+  serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
+  metricContractVersion: METRIC_CONTRACT_VERSION,
+  metricContractDigest: METRIC_CONTRACT_DIGEST
 } as const;
 
 function makeResult(overrides: { consentInteraction?: ConsentInteractionSummary } = {}): ScanResult {
@@ -110,6 +116,8 @@ test("researcher-export metadata keeps v1 derivation and r2 recorded states dist
   assert.match(v1.corpusCohort.trackerCatalogDigest, /^[a-f0-9]{64}$/);
   assert.equal(v1.corpusCohort.serviceRoleTaxonomyVersion, SERVICE_ROLE_TAXONOMY_VERSION);
   assert.equal(v1.corpusCohort.serviceRoleTaxonomyDigest, SERVICE_ROLE_TAXONOMY_DIGEST);
+  assert.equal(v1.corpusCohort.metricContractVersion, METRIC_CONTRACT_VERSION);
+  assert.equal(v1.corpusCohort.metricContractDigest, METRIC_CONTRACT_DIGEST);
   assert.equal(v1.producer, null);
   assert.equal(v1.acquisition, null);
   assert.equal(v1.browserName, null);
@@ -127,6 +135,8 @@ test("researcher-export metadata keeps v1 derivation and r2 recorded states dist
   assert.match(r2Pair.corpusCohort.trackerCatalogDigest, /^[a-f0-9]{64}$/);
   assert.equal(r2Pair.corpusCohort.serviceRoleTaxonomyVersion, SERVICE_ROLE_TAXONOMY_VERSION);
   assert.equal(r2Pair.corpusCohort.serviceRoleTaxonomyDigest, SERVICE_ROLE_TAXONOMY_DIGEST);
+  assert.equal(r2Pair.corpusCohort.metricContractVersion, METRIC_CONTRACT_VERSION);
+  assert.equal(r2Pair.corpusCohort.metricContractDigest, METRIC_CONTRACT_DIGEST);
   assert.equal(r2Pair.producer, "node-playwright");
   assert.equal(r2Pair.acquisition, "operator-cli");
   assert.equal(r2Pair.browserName, "chromium");
@@ -146,6 +156,7 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     tone: "warn",
     headline: "shop.example told Google you were here.",
     thirdPartyRequests: 100,
+    cataloguedServiceRequests: 50,
     trackerRequests: 40,
     thirdPartyCookies: 8,
     shieldsThirdPartyChange: -20,

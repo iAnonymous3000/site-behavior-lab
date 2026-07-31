@@ -453,7 +453,7 @@ export function buildReportHeadline(
     if (rejectTracking.length > 0) {
       return finish(
         "warn",
-        `${domain} still contacted ${plural(rejectTracking.length, "catalogued tracking-related service")} in the visit that clicked Reject all.`,
+        `${domain} still contacted ${plural(rejectTracking.length, "distinct catalogued tracking-related service")} in the visit that clicked Reject all.`,
         `In the visit where the scanner clicked Reject all, ${joinNames(
           rejectTracking.map((entity) => entity.entity)
         )} ${trackerResponseQualification(rejectTracking, rejectResponded)}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} The diff lists the services that appeared only in the visit that clicked Accept all.`,
@@ -472,7 +472,7 @@ export function buildReportHeadline(
         `${domain} recorded no requests to catalogued trackers in the visit that clicked Reject all.`,
         `The visit that clicked Reject all recorded no request to a catalogued tracking-related service, while the visit that clicked Accept all recorded requests to ${plural(
           trackingEntities.length,
-          "catalogued tracking-related service"
+          "distinct catalogued tracking-related service"
         )}: ${plural(arms.baseline.counts.thirdPartyRequests, "third-party request")} became ${arms.variant.counts.thirdPartyRequests.toLocaleString("en-US")}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT}`,
         buildStats(reportFacts.arms?.variant ?? facts, 0),
         "variant",
@@ -504,10 +504,10 @@ export function buildReportHeadline(
     if (classificationDeltasUsable && gpcOnTracking.length > 0 && after > 0 && reductionPct < 25) {
       return finish(
         "alarm",
-        `${domain} still contacted ${plural(gpcOnTracking.length, "catalogued tracking-related service")} with a privacy signal configured.`,
+        `${domain} still contacted ${plural(gpcOnTracking.length, "distinct catalogued tracking-related service")} with a privacy signal configured.`,
         `The visit configured with a "do not sell or share" (GPC) signal still contacted ${plural(
           gpcOnTracking.length,
-          "catalogued tracking-related service"
+          "distinct catalogued tracking-related service"
         )}: ${plural(after, "third-party request")}, versus ${n(before)} in the visit without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what was requested.`,
         buildStats(reportFacts.arms?.variant ?? facts, gpcOnTracking.length),
         "variant",
@@ -600,7 +600,7 @@ export function buildReportHeadline(
     const clause =
       trackingEntities.length > 0
         ? receiptClause(
-            plural(trackingEntities.length, "catalogued service"),
+            plural(trackingEntities.length, "distinct catalogued tracking-service entity", "distinct catalogued tracking-service entities"),
             trackingEntities.length,
             trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length
           )
@@ -626,11 +626,11 @@ export function buildReportHeadline(
       requestState === "censored"
         ? `${domain}'s retained request log includes ${plural(
             trackingEntities.length,
-            "catalogued tracking-related service"
+            "distinct catalogued tracking-related service"
           )}.`
         : `${domain} contacted ${plural(
             trackingEntities.length,
-            "catalogued tracking-related service"
+            "distinct catalogued tracking-related service"
           )} during this visit.`,
       `${
         requestState === "censored"
@@ -1001,11 +1001,11 @@ function buildStats(facts: RunFacts, trackingCount: number): ReportHeadlineStat[
       label:
         requestState === "censored"
           ? trackingCount === 1
-            ? "catalogued service retained"
-            : "catalogued services retained"
+            ? "tracking-service entity retained"
+            : "tracking-service entities retained"
           : trackingCount === 1
-            ? "catalogued service"
-            : "catalogued services",
+            ? "tracking-service entity"
+            : "tracking-service entities",
       value: requestState === "censored" ? `≥${n(trackingCount)}` : n(trackingCount),
       emphasis: true
     });

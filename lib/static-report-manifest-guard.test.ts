@@ -18,6 +18,7 @@ const ENTRY = {
   reportType: "single",
   device: "desktop",
   gpcEnabled: false,
+  requestEvidenceComplete: true,
   metrics: {
     totalRequests: 1,
     thirdPartyRequests: 0,
@@ -79,4 +80,19 @@ test("the manifest guard requires an exact positive byte length and lowercase SH
   const missingDigest = { ...ENTRY } as Record<string, unknown>;
   delete missingDigest.reportWireSha256;
   assert.equal(isStaticReportManifest({ generatedAt, reports: [missingDigest] }), false);
+});
+
+test("request completeness is mandatory and cannot contradict the cap flag", () => {
+  const generatedAt = "2026-07-21T00:00:00.000Z";
+  const missingCompleteness = { ...ENTRY } as Record<string, unknown>;
+  delete missingCompleteness.requestEvidenceComplete;
+  assert.equal(isStaticReportManifest({ generatedAt, reports: [missingCompleteness] }), false);
+  assert.equal(isStaticReportManifest({
+    generatedAt,
+    reports: [{ ...ENTRY, requestEvidenceComplete: false }]
+  }), true);
+  assert.equal(isStaticReportManifest({
+    generatedAt,
+    reports: [{ ...ENTRY, requestCapped: true, requestEvidenceComplete: true }]
+  }), false);
 });

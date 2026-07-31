@@ -43,6 +43,7 @@ import {
 } from "@/lib/report-evidence-navigation";
 import { gpcRunMeasurement } from "@/lib/report-insights";
 import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
+import { buildRequestComposition } from "@/lib/request-composition";
 import { buildRequestTimelineModel } from "@/lib/request-timeline";
 import type { ReportView } from "@/lib/scan-report-views";
 import { plural } from "@/lib/text-format";
@@ -399,7 +400,9 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
     {
       label: "Third-party domains",
       value: retainedCountLabel(run.counts.thirdPartyDomains, facts.evidence.requests.state),
-      detail: `${knownServices.toLocaleString("en-US")} catalogued ${knownServices === 1 ? "service" : "services"}${
+      detail: `${knownServices.toLocaleString("en-US")} distinct catalogued service ${
+        knownServices === 1 ? "entity" : "entities"
+      }${
         facts.evidence.requests.state === "censored" ? " retained" : ""
       }`,
       icon: Globe2
@@ -495,14 +498,16 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
 
 export function TrafficViz({ facts }: { facts: RunFacts }) {
   const run = facts.run;
-  // Clamp so the three segments always partition the total exactly, even in the
-  // edge case of scanning a tracker's own domain (where a first-party request can
-  // match the catalog and knownTrackerRequests can exceed thirdPartyRequests).
   const total = run.counts.totalRequests;
-  const thirdParty = Math.min(run.counts.thirdPartyRequests, total);
-  const tracker = Math.min(run.counts.knownTrackerRequests, thirdParty);
-  const otherThirdParty = thirdParty - tracker;
-  const first = total - thirdParty;
+  const {
+    firstPartyRequests: first,
+    otherThirdPartyRequests: otherThirdParty,
+    catalogMatchedThirdPartyRequests: catalogMatchedThirdParty
+  } = buildRequestComposition({
+    totalRequests: total,
+    thirdPartyRequests: run.counts.thirdPartyRequests,
+    requests: run.evidence.requests
+  });
 
   const pct = (n: number) => (total > 0 ? `${Math.round((n / total) * 10000) / 100}%` : "0%");
 
@@ -512,24 +517,27 @@ export function TrafficViz({ facts }: { facts: RunFacts }) {
       <div
         className="party-bar"
         role="img"
-        aria-label={`${facts.evidence.requests.state === "censored" ? "Retained requests: " : ""}${first} first-party, ${otherThirdParty} other third-party, ${tracker} known-service requests`}
+        aria-label={`${facts.evidence.requests.state === "censored" ? "Retained requests: " : ""}${first} first-party, ${otherThirdParty} other third-party, ${catalogMatchedThirdParty} catalog-matched third-party requests`}
       >
         {first > 0 && <span className="party-seg-first" style={{ width: pct(first) }} />}
         {otherThirdParty > 0 && <span className="party-seg-third" style={{ width: pct(otherThirdParty) }} />}
-        {tracker > 0 && <span className="party-seg-track" style={{ width: pct(tracker) }} />}
+        {catalogMatchedThirdParty > 0 && (
+          <span className="party-seg-track" style={{ width: pct(catalogMatchedThirdParty) }} />
+        )}
       </div>
       <div className="party-legend">
         <div>
           <span className="legend-swatch party-seg-first" />
-          First-party <span className="legend-count">{first.toLocaleString("en-US")}</span>
+          First-party requests <span className="legend-count">{first.toLocaleString("en-US")}</span>
         </div>
         <div>
           <span className="legend-swatch party-seg-third" />
-          Other third-party <span className="legend-count">{otherThirdParty.toLocaleString("en-US")}</span>
+          Other third-party requests <span className="legend-count">{otherThirdParty.toLocaleString("en-US")}</span>
         </div>
         <div>
           <span className="legend-swatch party-seg-track" />
-          Known service <span className="legend-count">{tracker.toLocaleString("en-US")}</span>
+          Catalog-matched third-party requests{" "}
+          <span className="legend-count">{catalogMatchedThirdParty.toLocaleString("en-US")}</span>
         </div>
       </div>
       <RequestTimeline requests={run.evidence.requests} />

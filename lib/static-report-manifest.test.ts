@@ -307,10 +307,13 @@ test("manifest requestCapped marks the request-count cap, not generic request-fa
   assert.ok(responseCappedEntry, "the response-byte-capped report must be published");
   assert.ok(v2Entry, "the incomplete v2 report must be published");
   assert.equal(requestCappedEntry.requestCapped, true);
+  assert.equal(requestCappedEntry.requestEvidenceComplete, false);
   // requestCapped is the exact 1,000-request recording cap, so a byte-capped
   // run and an incomplete v2 run must not claim it.
   assert.equal(responseCappedEntry.requestCapped, undefined);
+  assert.equal(responseCappedEntry.requestEvidenceComplete, false);
   assert.equal(v2Entry.requestCapped, undefined);
+  assert.equal(v2Entry.requestEvidenceComplete, false);
 });
 
 test("manifest headlines preserve failed-load evidence instead of inferring calm from counts", async () => {

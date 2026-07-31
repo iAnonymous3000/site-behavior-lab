@@ -7,6 +7,10 @@ import { createComparisonReport } from "./compare-reports";
 import { buildCorpusStats } from "./corpus-stats-builder";
 import { loadCorpusOverview } from "./corpus-overview";
 import { LEGACY_V1_METHODOLOGY_UNSPECIFIED, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
@@ -146,6 +150,40 @@ test("one data point per site, newest scan wins, percentiles over real sites", a
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
 });
 
+test("v4 publishes distinct catalogued-service and tracking-service distributions", async () => {
+  const report = makeResult({ firstPartyDomain: "dual-metric-fixture.dev" });
+  report.requests = [
+    {
+      id: 1,
+      url: "https://dual-metric-fixture.dev/pixel",
+      domain: "dual-metric-fixture.dev",
+      method: "GET",
+      resourceType: "image",
+      status: 200,
+      thirdParty: false,
+      tracker: {
+        domain: "dual-metric-fixture.dev",
+        entity: "dual-metric-fixture.dev",
+        category: "tracking (Brave Shields list)",
+        confidence: "shields-list"
+      },
+      startedAtMs: 0
+    }
+  ];
+  report.summary.totalRequests = 1;
+  report.summary.thirdPartyRequests = 0;
+  report.summary.knownTrackerRequests = 1;
+  await writeReport("20260701-dddddddddddddddddddddddddddddddd", report);
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  assert.equal(stats.version, 4);
+  assert.equal(stats.metricContractVersion, METRIC_CONTRACT_VERSION);
+  assert.equal(stats.metricContractDigest, METRIC_CONTRACT_DIGEST);
+  assert.equal(stats.metrics.cataloguedServiceRequests?.min, 1);
+  assert.equal(stats.metrics.trackingServiceRequests?.max, 0);
+  assert.equal("knownTrackerRequests" in stats.metrics, false);
+});
+
 test("equal timestamps choose the lexicographically larger immutable report id", async () => {
   const scannedAt = "2026-07-01T00:00:00.000Z";
   await writeReport(
@@ -269,7 +307,7 @@ test("r2 reports get a separate methodology cohort and never enter the legacy v1
   assert.equal(stats.metrics.thirdPartyRequests?.min, 20);
   assert.equal(stats.metrics.thirdPartyRequests?.max, 20);
   assert.equal(stats.coverageSiteCount, 2);
-  assert.equal(stats.version, 3);
+  assert.equal(stats.version, 4);
   assert.equal(stats.cohorts?.length, 2);
   const r2Cohort = stats.cohorts?.find((cohort) => cohort.schemaVersion === 2);
   assert.equal(r2Cohort?.sampleSize, 1);
@@ -281,6 +319,8 @@ test("r2 reports get a separate methodology cohort and never enter the legacy v1
   assert.equal(r2Cohort?.trackerCatalogOrigin, "recorded");
   assert.match(r2Cohort?.serviceRoleTaxonomyVersion ?? "", /^service-role-taxonomy-v\d+$/);
   assert.match(r2Cohort?.serviceRoleTaxonomyDigest ?? "", /^[a-f0-9]{64}$/);
+  assert.equal(r2Cohort?.metricContractVersion, METRIC_CONTRACT_VERSION);
+  assert.equal(r2Cohort?.metricContractDigest, METRIC_CONTRACT_DIGEST);
   assert.deepEqual(warnings, []);
 });
 

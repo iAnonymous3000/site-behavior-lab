@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "version": "metric-contract-v1",
+    "digest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680"
+  },
+  "contract": {
+    "domain": "site-behavior-lab-metric-contract",
+    "version": "metric-contract-v1",
+    "metrics": [
+      {
+        "id": "knownTrackerRequests",
+        "status": "frozen-report-wire",
+        "unit": "retained-request-row",
+        "definition": {
+          "directCatalogMatchRequired": true,
+          "thirdPartyRequired": false,
+          "serviceRoleRequired": false,
+          "matchScope": "exact-request-row",
+          "includesCnameOnlyEvidence": false
+        },
+        "incompleteEvidenceMeaning": "retained-lower-bound"
+      },
+      {
+        "id": "trackingServiceRequests",
+        "status": "read-time-derived",
+        "unit": "retained-request-row",
+        "definition": {
+          "directCatalogMatchRequired": true,
+          "thirdPartyRequired": true,
+          "serviceRoleRequired": true,
+          "matchScope": "exact-tracker-match-category",
+          "trackingServiceRoles": [
+            "tracking-analytics",
+            "advertising",
+            "session-replay",
+            "tag-customer-data"
+          ],
+          "includesCnameOnlyEvidence": false
+        },
+        "incompleteEvidenceMeaning": "retained-lower-bound"
+      }
+    ],
+    "publicAliases": [
+      {
+        "id": "cataloguedServiceRequests",
+        "valueSource": "knownTrackerRequests",
+        "relationship": "exact-value-alias",
+        "wireFieldRemains": "knownTrackerRequests"
+      }
+    ],
+    "deltaCompatibility": {
+      "trackingServiceRequests": {
+        "requiresIdentical": [
+          "tracker-catalog-identity",
+          "service-role-taxonomy-identity",
+          "metric-contract-identity"
+        ]
+      }
+    },
+    "dependencies": {
+      "serviceRoleTaxonomy": {
+        "version": "service-role-taxonomy-v1",
+        "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+      },
+      "trackerCatalog": "recorded-report-catalog-identity"
+    }
+  }
+}

@@ -182,17 +182,21 @@ export default function MethodologyPage() {
       <section className="legal-section">
         <h2>The corpus and percentiles</h2>
         <p>
-          Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; currently use a
-          legacy-v1 cohort: one newest eligible passive lead run per distinct site. Failed or no-response loads,
-          request-incomplete runs, accept/reject consent arms, reserved domains, and every v2 run are excluded from that
-          distribution. Corpus coverage counts distinct sites with a successful single run or primary comparison arm,
+          Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; use one exact
+          measurement cohort: report schema and revision, methodology, tracker catalog, read-time ServiceRole
+          taxonomy, metric contract, producer, and requested-GPC condition must all match. Each cohort keeps one newest
+          eligible passive lead run per distinct site. Failed or no-response loads, request-incomplete runs,
+          accept/reject consent arms, and reserved domains are excluded from statistical measurement; v1 and v2 runs
+          can contribute only inside their own exact cohorts. The v4 artifact separately publishes all
+          catalog-matched request rows and the third-party tracking-role subset defined by metric-contract-v1.
+          Corpus coverage counts distinct sites with a successful single run or primary comparison arm,
           including capped recordings; two successful primary arms still count the site once. A site
           represented only by failed or block-page visits was attempted but is outside that loaded coverage count.
           Each metric&apos;s measured sample can be narrower still when that evidence family was censored.
           Percentile wording activates only after both the exact methodology cohort and that metric&apos;s own
           distribution contain at least 50 eligible sites; each percentile card names the metric-specific
-          denominator. V2 reports use fixed reference thresholds until a matching-methodology cohort and metric
-          sample reach that gate.
+          denominator. Any report whose exact cohort or metric sample remains below that gate uses fixed reference
+          thresholds.
           The wording is anchored to the stored percentile mark, not the percentage of sites strictly below a value,
           because ties can make those different. The corpus is curated, not a random sample of the web. Site history
           pages compare a site only against its own earlier reports with a compatible schema, method, browser, device,

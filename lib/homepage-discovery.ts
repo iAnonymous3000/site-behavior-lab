@@ -15,6 +15,7 @@ export type HomepageReportSource = {
   thirdPartyRequests: number;
   trackerRequests: number;
   requestCapped: boolean;
+  requestEvidenceComplete: boolean;
   successfulLoad: boolean;
 };
 
@@ -28,6 +29,7 @@ export type HomepageFeaturedCard = {
   thirdPartyRequests: number;
   trackerRequests: number;
   requestCapped: boolean;
+  requestEvidenceComplete: boolean;
 };
 
 export type HomepageFeaturedGroup = {
@@ -92,7 +94,8 @@ function toFeaturedCard(
     scannedAt: source.scannedAt,
     thirdPartyRequests: source.thirdPartyRequests,
     trackerRequests: source.trackerRequests,
-    requestCapped: source.requestCapped
+    requestCapped: source.requestCapped,
+    requestEvidenceComplete: source.requestEvidenceComplete
   };
 }
 

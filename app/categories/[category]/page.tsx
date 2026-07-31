@@ -88,7 +88,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         </div>
         <dl className={styles.metrics}>
           <div><dt>Third-party requests</dt><dd>{rollup.medianThirdParty.toLocaleString()}</dd></div>
-          <div><dt>Catalogued tracking-service requests</dt><dd>{rollup.medianTrackers.toLocaleString()}</dd></div>
+          <div><dt>Third-party tracking-service requests</dt><dd>{rollup.medianTrackers.toLocaleString()}</dd></div>
           <div>
             <dt>Third-party cookies</dt>
             <dd>
@@ -125,8 +125,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
               </div>
               <p>{site.latest.headline}</p>
               <dl>
-                <div><dt>Third-party</dt><dd>{site.latest.thirdPartyRequests.toLocaleString()}</dd></div>
-                <div><dt>Catalogued tracking-service</dt><dd>{site.latest.trackerRequests.toLocaleString()}</dd></div>
+                <div><dt>Third-party requests</dt><dd>{site.latest.thirdPartyRequests.toLocaleString()}</dd></div>
+                <div><dt>Third-party tracking-service requests</dt><dd>{site.latest.trackerRequests.toLocaleString()}</dd></div>
                 <div>
                   <dt>Third-party cookies</dt>
                   <dd>{site.latest.cookieEvidenceComplete ? site.latest.thirdPartyCookies.toLocaleString() : "Not measured"}</dd>
@@ -152,7 +152,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
             comparable within this page and not against another category&apos;s.
           </li>
           <li>Failed loads, incomplete recordings and accept/reject consent-interaction arms are excluded.</li>
-          <li>Catalogued tracking-service counts are a lower bound based on the project&apos;s reviewed service catalog.</li>
+          <li>
+            Third-party tracking-service request counts are lower bounds derived from retained request rows whose
+            recorded host matched a reviewed service-catalog suffix and from the recorded ServiceRole taxonomy.
+          </li>
           <li>Category membership is editorial. The corpus is curated and is not a random or representative web sample.</li>
           <li>A controlled visit is one observation. Ads, experiments, caching, location and bot detection can change what loads.</li>
           <li>Blocking pairs simulate Brave&apos;s ad-block engine and default lists in the scanner; they are not live Brave-browser visits or counts of individually blocked requests.</li>

@@ -3,12 +3,19 @@ import {
   legacyTemporalCohortFingerprint
 } from "./comparison-decision";
 import { runRequestEvidenceCapped } from "./comparison-eligibility";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import { safeNavigableHttpUrl, safeParseUrl } from "./report-url";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 import type { StoredScanReport } from "./scan-report-reader";
 import { comparisonArmViews, displayRunView, type ReportView } from "./scan-report-view";
 import { sha256Hex } from "./sha256";
+
+const METRIC_CONTRACT_HISTORY_IDENTITY =
+  `metrics-${encodeURIComponent(METRIC_CONTRACT_VERSION)}-${METRIC_CONTRACT_DIGEST}`;
 
 /** Consent interaction state that must remain fixed across automatic history. */
 export type ConsentClicks = "accept-and-reject" | "accept-only" | "reject-only" | "none";
@@ -52,12 +59,15 @@ export function temporalCohortForStoredReport(stored: StoredScanReport, view: Re
     }
     const sourceRun = legacyDisplayRun(stored, view);
     const cohort = legacyTemporalCohortFingerprint(sourceRun);
-    return cohort ? `v1:${cohort}` : null;
+    return cohort ? `v1:${cohort}:${METRIC_CONTRACT_HISTORY_IDENTITY}` : null;
   }
 
   const fingerprints = run.fingerprints;
   if (!fingerprints) return null;
-  return `v2-r${stored.schemaRevision}:${fingerprints.measurementEnvironment}:${fingerprints.condition}`;
+  return (
+    `v2-r${stored.schemaRevision}:${fingerprints.measurementEnvironment}:${fingerprints.condition}` +
+    `:${METRIC_CONTRACT_HISTORY_IDENTITY}`
+  );
 }
 
 /**
@@ -94,7 +104,7 @@ export function comparisonHistoryCohortForStoredReport(
         normalizationVersion: sourceRun.toolchain.normalizationVersion,
         trackerCatalogDigest: sourceRun.toolchain.trackerCatalog.digest
       })
-    )}`;
+    )}:${METRIC_CONTRACT_HISTORY_IDENTITY}`;
   }
 
   if (!safeNavigableHttpUrl(run.conditions.requestedUrl) || !knownPublicHistorySubject(run.conditions.finalUrl)) {
@@ -107,7 +117,9 @@ export function comparisonHistoryCohortForStoredReport(
     return null;
   }
   const cohort = legacyComparisonHistoryCohortFingerprint(sourceRun);
-  return cohort ? `v1-comparison-history:${cohort}` : null;
+  return cohort
+    ? `v1-comparison-history:${cohort}:${METRIC_CONTRACT_HISTORY_IDENTITY}`
+    : null;
 }
 
 function r2DisplayRun(stored: Extract<StoredScanReport, { schemaVersion: 2; schemaRevision: 2 }>): ScanRunV2R2 {

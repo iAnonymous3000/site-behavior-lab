@@ -45,6 +45,9 @@ export type TemporalDeltaInput = {
   requestedUrl: string;
   finalUrl: string;
   thirdPartyRequests: number;
+  /** Frozen report-wire count of retained rows with any direct catalog match. */
+  cataloguedServiceRequests: number;
+  /** Read-time metric-contract count of third-party tracking-service rows. */
   trackerRequests: number;
   /**
    * Complete, versioned measurement + condition cohort. Null means the
@@ -58,12 +61,13 @@ export type SinceLastScan = {
   previousScannedAt: string;
   /** Current minus previous. */
   thirdPartyRequests: number;
+  cataloguedServiceRequests: number;
   trackerRequests: number;
 };
 
 export type ComparisonHistoryDeltaInput = Pick<
   TemporalDeltaInput,
-  "id" | "scannedAt" | "thirdPartyRequests" | "trackerRequests"
+  "id" | "scannedAt" | "thirdPartyRequests" | "cataloguedServiceRequests" | "trackerRequests"
 > & {
   /** Precomputed, versioned passive-history identity; null never pairs. */
   comparisonHistoryKey: string | null;
@@ -129,7 +133,12 @@ export function computeComparableSinceLastScan(
   return computeDeltas(entries, (entry) => entry.comparisonHistoryKey);
 }
 
-function computeDeltas<T extends Pick<TemporalDeltaInput, "id" | "scannedAt" | "thirdPartyRequests" | "trackerRequests">>(
+function computeDeltas<
+  T extends Pick<
+    TemporalDeltaInput,
+    "id" | "scannedAt" | "thirdPartyRequests" | "cataloguedServiceRequests" | "trackerRequests"
+  >
+>(
   entries: T[],
   keyFor: (entry: T) => string | null
 ): Map<string, SinceLastScan> {
@@ -152,6 +161,8 @@ function computeDeltas<T extends Pick<TemporalDeltaInput, "id" | "scannedAt" | "
       previousId: previous.id,
       previousScannedAt: previous.scannedAt,
       thirdPartyRequests: current.thirdPartyRequests - previous.thirdPartyRequests,
+      cataloguedServiceRequests:
+        current.cataloguedServiceRequests - previous.cataloguedServiceRequests,
       trackerRequests: current.trackerRequests - previous.trackerRequests
     });
   }

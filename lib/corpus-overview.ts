@@ -57,6 +57,9 @@ export type DirectoryEntry = {
   tone: HeadlineTone;
   headline: string;
   thirdPartyRequests: number;
+  /** Frozen report-wire count: every retained row with any direct catalog match. */
+  cataloguedServiceRequests: number;
+  /** Derived third-party tracking-service count; kept as `trackerRequests` for UI compatibility. */
   trackerRequests: number;
   thirdPartyCookies: number;
   /**
@@ -174,6 +177,40 @@ type CorpusExportMetadata = Pick<
   | "egressLabel"
   | "egressRegion"
 >;
+
+export type DirectoryReportPresentation = Pick<
+  DirectoryEntry,
+  | "domain"
+  | "tone"
+  | "headline"
+  | "thirdPartyRequests"
+  | "cataloguedServiceRequests"
+  | "trackerRequests"
+  | "thirdPartyCookies"
+>;
+
+/**
+ * Reader-derived directory copy and request metrics for one report.
+ *
+ * Kept as a pure seam so the directory cannot quietly fall back to the
+ * one-identity-per-host domain summary while report pages use exact request
+ * rows. Shared hosts can carry multiple exact catalog matches.
+ */
+export function directoryReportPresentationForView(
+  view: ReportView
+): DirectoryReportPresentation {
+  const run = displayRunView(view);
+  const headline = buildReportHeadline(view);
+  return {
+    domain: headline.domain,
+    tone: headline.tone,
+    headline: headline.headline,
+    thirdPartyRequests: run.counts.thirdPartyRequests,
+    cataloguedServiceRequests: run.counts.knownTrackerRequests,
+    trackerRequests: trackingServiceRequests(run.evidence),
+    thirdPartyCookies: run.counts.thirdPartyCookies
+  };
+}
 
 /**
  * Cross-generation metadata for the flattened researcher export. Read only
@@ -508,7 +545,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
     // Keep reserved/test domains out of the public directory, mirroring the gallery
     // manifest exclusion (a reserved-domain report is reachable by permalink only).
     if (isReservedReportDomain(run.domain)) continue;
-    const headline = buildReportHeadline(view);
+    const presentation = directoryReportPresentationForView(view);
     const { id: category, label: categoryLabel } = categoryFor(run.domain, catalog);
     // The observed signed third-party change of an ELIGIBLE Shields pair
     // (blocking visit minus unblocked baseline; negative = fewer with
@@ -521,15 +558,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
 
     const entry: DirectoryEntry = {
       id,
-      domain: headline.domain,
-      tone: headline.tone,
-      headline: headline.headline,
-      thirdPartyRequests: run.counts.thirdPartyRequests,
-      // Tracking services only: counts.knownTrackerRequests also counts
-      // operational-only matches (error monitoring, support chat), which must
-      // not rank sites on a surface labeled "tracker".
-      trackerRequests: trackingServiceRequests(run.evidence),
-      thirdPartyCookies: run.counts.thirdPartyCookies,
+      ...presentation,
       shieldsThirdPartyChange,
       category,
       categoryLabel,
