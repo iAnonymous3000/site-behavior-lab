@@ -18,6 +18,7 @@ import { viewFromV1Report, viewFromV2, type RunView } from "./scan-report-views"
 import type {
   DomainSummary,
   FingerprintDetectionSummary,
+  NetworkRequestRecord,
   ScanResult
 } from "./types";
 
@@ -132,6 +133,7 @@ test("identity coverage unions catalog, CMP, reviewed ownership, and CNAME namer
   result.summary.thirdPartyDomains = result.domains.length;
   result.summary.thirdPartyRequests = result.domains.length;
   result.summary.knownTrackerRequests = 1;
+  result.requests = requestRowsForDomains(result.domains);
   result.cnameCloaks = [
     {
       host: "metrics.example.com",
@@ -188,6 +190,7 @@ test("identity facts keep unclassified catalog services out of tracking totals",
   result.summary.thirdPartyDomains = 1;
   result.summary.thirdPartyRequests = 2;
   result.summary.knownTrackerRequests = 2;
+  result.requests = requestRowsForDomains(result.domains);
 
   const identity = factsForV1(result).identity;
   assert.deepEqual(identity.catalogEntities.map((entity) => entity.entity), ["Experiment Co"]);
@@ -339,6 +342,30 @@ function thirdPartyDomain(
     statuses: [200],
     resourceTypes: ["script"]
   };
+}
+
+function requestRowsForDomains(
+  domains: readonly DomainSummary[]
+): NetworkRequestRecord[] {
+  let nextId = 1;
+  return domains.flatMap((domain) =>
+    Array.from({ length: domain.requests }, () => {
+      const id = nextId;
+      nextId += 1;
+      return {
+        id,
+        url: `https://${domain.domain}/request-${id}`,
+        domain: domain.domain,
+        method: "GET",
+        resourceType: domain.resourceTypes[0] ?? "other",
+        status: domain.statuses[0] ?? null,
+        thirdParty: domain.thirdParty,
+        tracker: domain.tracker,
+        blockedByShields: domain.blockedByShields,
+        startedAtMs: id
+      };
+    })
+  );
 }
 
 function inputMonitoringDetection(): FingerprintDetectionSummary {

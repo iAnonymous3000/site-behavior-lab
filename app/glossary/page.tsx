@@ -6,7 +6,7 @@ export const dynamic = "force-static";
 export const metadata = publicPageMetadata({
   title: "Glossary: the terms reports use",
   description:
-    "Plain-language definitions of the terms Site Behavior Lab reports use: Brave Shields, Global Privacy Control, third parties, known services, provenance, fingerprinting, and more.",
+    "Plain-language definitions of the terms Site Behavior Lab reports use: Brave Shields, Global Privacy Control, third parties, catalog matches, tracking-service requests, provenance, fingerprinting, and more.",
   path: "/glossary/"
 });
 
@@ -42,13 +42,25 @@ const ENTRIES: GlossaryEntry[] = [
     id: "third-party",
     term: "Third party",
     definition:
-      "Any domain other than the site you scanned and its subdomains. A third-party request is not automatically tracking: content delivery networks and embeds are third parties too. That is why reports separately label known services."
+      "Any domain other than the site you scanned and its subdomains. A third-party request is not automatically tracking: content delivery networks and embeds are third parties too. Reports therefore keep the third-party boundary separate from service-catalog matches and tracking-role classification."
   },
   {
     id: "known-service",
-    term: "Known service",
+    term: "Catalog-matched request",
     definition:
-      "A third-party domain that matched a curated catalog of recognizable advertising, analytics, social, and session-replay services. The catalog is a lower bound: a third party the catalog does not name can still track."
+      "One retained direct request row whose recorded host matched a reviewed service-catalog suffix (either the full host or a parent-domain suffix). This count includes first-party and third-party matches and every catalog role, including operational services; it is a request-row count, not a count of distinct services or a claim that every match was tracking-related."
+  },
+  {
+    id: "tracking-service-request",
+    term: "Third-party tracking-service request",
+    definition:
+      "One retained third-party request row whose recorded host matched a reviewed service-catalog suffix classified with a tracking-related ServiceRole. It is a request-row count, not a count of distinct companies. The catalog is a lower bound: an unmatched third party can still track, and CNAME-only identity evidence does not create a request-row match."
+  },
+  {
+    id: "tracking-service-entity",
+    term: "Tracking-service entity",
+    definition:
+      "One distinct named catalog entity represented among third-party tracking-service request rows. Several domains and many requests can belong to one entity, so reports label entity counts separately from request counts."
   },
   {
     id: "fingerprinting",

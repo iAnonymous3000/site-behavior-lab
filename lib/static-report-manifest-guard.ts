@@ -18,6 +18,7 @@ const ENTRY_KEYS = new Set([
   "metrics",
   "reportType",
   "requestCapped",
+  "requestEvidenceComplete",
   "reportWireBytes",
   "reportWireSha256",
   "requestedUrl",
@@ -74,6 +75,8 @@ function isStaticReportManifestEntry(value: unknown): value is StaticReportManif
     (value.reportType !== "single" && value.reportType !== "comparison") ||
     (value.device !== "desktop" && value.device !== "mobile") ||
     (value.requestCapped !== undefined && typeof value.requestCapped !== "boolean") ||
+    typeof value.requestEvidenceComplete !== "boolean" ||
+    (value.requestCapped === true && value.requestEvidenceComplete) ||
     !isOptionalBoundedText(value.historyKey) ||
     !isOptionalBoundedText(value.comparisonHistoryKey) ||
     !isRecord(value.metrics) ||

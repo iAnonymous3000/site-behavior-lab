@@ -1,7 +1,17 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildCorpusExportPayload, buildCorpusExportRows, CORPUS_EXPORT_NOTE, corpusExportToCsv } from "./corpus-export";
+import {
+  buildCorpusExportPayload,
+  buildCorpusExportRows,
+  CORPUS_EXPORT_NOTE,
+  CORPUS_EXPORT_SCHEMA_VERSION,
+  corpusExportToCsv
+} from "./corpus-export";
 import type { DirectoryEntry } from "./corpus-overview";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import {
   SERVICE_ROLE_TAXONOMY_DIGEST,
   SERVICE_ROLE_TAXONOMY_VERSION
@@ -9,7 +19,9 @@ import {
 
 const SERVICE_ROLE_IDENTITY = {
   serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
-  serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
+  serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
+  metricContractVersion: METRIC_CONTRACT_VERSION,
+  metricContractDigest: METRIC_CONTRACT_DIGEST
 } as const;
 const LEGACY_CATALOG_IDENTITY = {
   trackerCatalogDigest: "a".repeat(64),
@@ -26,6 +38,7 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     tone: "warn",
     headline: "shop.example told Google you were here.",
     thirdPartyRequests: 120,
+    cataloguedServiceRequests: 55,
     trackerRequests: 40,
     thirdPartyCookies: 8,
     shieldsThirdPartyChange: -90,
@@ -87,6 +100,7 @@ test("rows carry absolute report URLs and since-last-scan deltas", () => {
           previousId: "20260625-" + "b".repeat(32),
           previousScannedAt: "2026-06-25T00:00:00.000Z",
           thirdPartyRequests: 12,
+          cataloguedServiceRequests: -5,
           trackerRequests: -3
         }
       }),
@@ -106,7 +120,13 @@ test("rows carry absolute report URLs and since-last-scan deltas", () => {
   assert.equal(rows[0].reportUrl, `https://sitebehavior.org/reports/20260702-${"a".repeat(32)}/`);
   assert.equal(rows[0].jsonUrl, `https://sitebehavior.org/reports/20260702-${"a".repeat(32)}.json`);
   assert.equal(rows[0].deltaThirdPartyRequests, 12);
+  assert.equal(rows[0].deltaCataloguedServiceRequests, -5);
+  assert.equal(rows[0].deltaTrackingServiceRequests, -3);
   assert.equal(rows[0].deltaTrackerRequests, -3);
+  assert.equal(rows[0].deltaTrackerRequests, rows[0].deltaTrackingServiceRequests);
+  assert.equal(rows[0].cataloguedServiceRequests, 55);
+  assert.equal(rows[0].trackingServiceRequests, 40);
+  assert.equal(rows[0].trackerRequests, rows[0].trackingServiceRequests);
   assert.equal(rows[0].previousReportId, `20260625-${"b".repeat(32)}`);
   // No delta claimed for a report without a same-kind predecessor.
   assert.equal(rows[1].deltaThirdPartyRequests, null);
@@ -127,6 +147,9 @@ test("the JSON payload embeds the measured-corpus framing", () => {
   });
 
   assert.equal(payload.reportCount, 1);
+  assert.equal(payload.exportSchemaVersion, CORPUS_EXPORT_SCHEMA_VERSION);
+  assert.equal(payload.metricContractVersion, METRIC_CONTRACT_VERSION);
+  assert.equal(payload.metricContractDigest, METRIC_CONTRACT_DIGEST);
   // Coverage and measurement are separate concepts: siteCount is every site
   // that loaded (capped recordings included), measuredSampleSize is tied to
   // one named methodology cohort, and the note defines both.
@@ -144,6 +167,9 @@ test("the JSON payload embeds the measured-corpus framing", () => {
   assert.equal(payload.cohorts[0].trackerCatalogOrigin, "legacy-metadata-hash");
   assert.equal(payload.cohorts[0].serviceRoleTaxonomyVersion, SERVICE_ROLE_TAXONOMY_VERSION);
   assert.equal(payload.cohorts[0].serviceRoleTaxonomyDigest, SERVICE_ROLE_TAXONOMY_DIGEST);
+  assert.equal(payload.cohorts[0].metricContractVersion, METRIC_CONTRACT_VERSION);
+  assert.equal(payload.cohorts[0].metricContractDigest, METRIC_CONTRACT_DIGEST);
+  assert.match(payload.note, /deprecated 1\.x compatibility aliases/);
   // Capped counts are floors/snapshots, never measured behavior.
   assert.match(payload.note, /floors cut off mid-collection/);
   assert.match(payload.note, /end-state snapshots of an interrupted visit/);
@@ -309,7 +335,7 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched,run_outcome,producer,acquisition,build_commit,methodology_version,methodology_origin,browser_name,browser_version,egress_label,egress_region,corpus_cohort_id,corpus_cohort_denominator,corpus_inclusion,corpus_exclusion_reasons,tracker_catalog_digest,tracker_catalog_origin,service_role_taxonomy_version,service_role_taxonomy_digest"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched,run_outcome,producer,acquisition,build_commit,methodology_version,methodology_origin,browser_name,browser_version,egress_label,egress_region,corpus_cohort_id,corpus_cohort_denominator,corpus_inclusion,corpus_exclusion_reasons,tracker_catalog_digest,tracker_catalog_origin,service_role_taxonomy_version,service_role_taxonomy_digest,corpus_export_schema_version,metric_contract_version,metric_contract_digest,catalogued_service_requests,tracking_service_requests,delta_catalogued_service_requests,delta_tracking_service_requests"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);
@@ -483,6 +509,8 @@ test("rows export provenance and auditable cohort inclusion without fingerprint 
   assert.equal(rows[1].trackerCatalogOrigin, "recorded");
   assert.equal(rows[1].serviceRoleTaxonomyVersion, SERVICE_ROLE_TAXONOMY_VERSION);
   assert.equal(rows[1].serviceRoleTaxonomyDigest, SERVICE_ROLE_TAXONOMY_DIGEST);
+  assert.equal(rows[1].metricContractVersion, METRIC_CONTRACT_VERSION);
+  assert.equal(rows[1].metricContractDigest, METRIC_CONTRACT_DIGEST);
   assert.equal(rows[1].acquisition, "ci-workflow");
   assert.equal(rows[1].buildCommit, "d".repeat(40));
   assert.equal(rows[1].browserName, "chromium");
@@ -544,6 +572,16 @@ test("the CSV header and the row projection stay bound to the same columns", () 
   assert.equal(cellOf(truncated.id, "request_evidence_complete"), "false");
   assert.equal(cellOf(truncated.id, "corpus_inclusion"), "excluded");
   assert.match(cellOf(truncated.id, "corpus_exclusion_reasons"), /request-evidence-incomplete/);
+  assert.equal(cellOf(complete.id, "corpus_export_schema_version"), String(CORPUS_EXPORT_SCHEMA_VERSION));
+  assert.equal(cellOf(complete.id, "metric_contract_version"), METRIC_CONTRACT_VERSION);
+  assert.equal(cellOf(complete.id, "metric_contract_digest"), METRIC_CONTRACT_DIGEST);
+  assert.equal(cellOf(complete.id, "catalogued_service_requests"), "55");
+  assert.equal(cellOf(complete.id, "tracking_service_requests"), "40");
+  assert.equal(
+    cellOf(complete.id, "tracker_requests"),
+    cellOf(complete.id, "tracking_service_requests"),
+    "deprecated alias stays exact throughout export schema 1.x"
+  );
 });
 
 /** Minimal RFC 4180 field splitter for one already-complete record. */

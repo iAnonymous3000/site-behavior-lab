@@ -44,6 +44,76 @@ test("catalog and project trust surfaces are linked from both primary footers", 
   }
 });
 
+test("public metric copy keeps request rows and distinct service entities separate", () => {
+  const home = source("app/site-behavior-app.tsx");
+  const directory = source("app/directory/directory-index.tsx");
+  const category = source("app/categories/[category]/page.tsx");
+  const site = source("app/sites/[domain]/page.tsx");
+  const siteFeed = source("app/sites/[domain]/feed.xml/route.ts");
+  const glossary = source("app/glossary/page.tsx");
+  const overview = source("app/_components/report-overview.tsx");
+  const requestTable = source("app/_components/report-tables.tsx");
+  const phaseTable = source("app/_components/visit-phases-and-state-changes.tsx");
+  const comparison = source("app/_components/comparison-panel.tsx");
+  const staticGallery = source("app/_components/static-gallery.tsx");
+  const evidenceNavigation = source("lib/report-evidence-navigation.ts");
+  const corpusExport = source("lib/corpus-export.ts");
+  const readme = source("README.md");
+  const methodology = source("app/methodology/page.tsx");
+
+  assert.match(home, /median third-party tracking-service requests per site/);
+  assert.match(home, /third-party tracking-service requests/);
+  assert.match(home, /!item\.requestEvidenceComplete && "at least "/);
+  assert.match(home, /item\.requestCapped \? "recording capped" : "request evidence incomplete"/);
+  assert.match(source("app/page.tsx"), /requestEvidenceComplete: entry\.requestEvidenceComplete/);
+  assert.match(directory, /third-party tracking-service requests/);
+  assert.match(directory, /!report\.requestEvidenceComplete && "at least "/);
+  assert.match(category, /Third-party tracking-service requests/);
+  assert.match(category, /recorded host matched a reviewed service-catalog suffix/);
+  assert.match(site, /Third-party tracking-service requests/);
+  assert.match(site, /!latest\.requestEvidenceComplete && "at least "/);
+  assert.match(site, /!entry\.requestEvidenceComplete && "at least "/);
+  assert.match(site, /its request counts are lower bounds/);
+  assert.match(siteFeed, /const requestPrefix = entry\.requestEvidenceComplete \? "" : "at least "/);
+  assert.match(siteFeed, /request counts are lower bounds/);
+  assert.doesNotMatch(siteFeed, /; counts are lower bounds\./);
+
+  assert.match(glossary, /term: "Catalog-matched request"/);
+  assert.match(glossary, /recorded host matched a reviewed service-catalog suffix/);
+  assert.match(glossary, /includes first-party and third-party matches/);
+  assert.match(glossary, /term: "Third-party tracking-service request"/);
+  assert.match(glossary, /term: "Tracking-service entity"/);
+
+  assert.match(overview, /buildRequestComposition\(/);
+  assert.doesNotMatch(overview, /Math\.min\(run\.counts\.knownTrackerRequests/);
+  assert.match(overview, /distinct catalogued service/);
+  assert.match(requestTable, /label: "Catalog matches"/);
+  assert.match(requestTable, /recorded host matched a reviewed service-catalog suffix/);
+  assert.match(requestTable, /Includes first-party and third-party matches/);
+  assert.match(phaseTable, /<th>Catalog-matched requests<\/th>/);
+  assert.match(comparison, /Catalog-matched request and entity deltas/);
+  assert.match(staticGallery, /Most retained third-party request rows/);
+  assert.match(staticGallery, /Most retained catalog matches/);
+  assert.doesNotMatch(staticGallery, /Most third-party</);
+  assert.doesNotMatch(staticGallery, /Most catalogued-service requests</);
+  assert.match(evidenceNavigation, /label: "Show catalog-matched requests"/);
+  assert.match(readme, /builds the v4 corpus artifact/);
+  assert.match(readme, /v1 and v2 runs can contribute only to their own exact cohorts/);
+  assert.match(methodology, /v1 and v2 runs\s+can contribute only inside their own exact cohorts/);
+  assert.doesNotMatch(readme, /every v2 lead run (?:is|are) excluded/);
+  assert.doesNotMatch(methodology, /every v2 run (?:is|are) excluded/);
+
+  for (const publicSource of [home, directory, category, site]) {
+    assert.doesNotMatch(publicSource, /catalogued tracking requests|catalogued tracking-service requests/);
+  }
+  for (const publicSource of [glossary, requestTable, comparison, evidenceNavigation, corpusExport]) {
+    assert.doesNotMatch(
+      publicSource,
+      /exact domain matched|own exact catalog match|Known-service and entity deltas|Show known-service requests/
+    );
+  }
+});
+
 test("a rejected URL stays a field problem instead of erasing the homepage", () => {
   const hook = source("app/_hooks/use-scan-runtime.ts");
   const home = source("app/site-behavior-app.tsx");

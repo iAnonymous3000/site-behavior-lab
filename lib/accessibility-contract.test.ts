@@ -115,6 +115,22 @@ test("clipped disclosure cards draw keyboard focus inside their boundaries", () 
   assert.match(css, /\.data-section > summary:focus-visible,[\s\S]*\.state-change-disclosure > summary:focus-visible[\s\S]*box-shadow: inset 0 0 0 3px var\(--accent\)/);
 });
 
+test("comparison evidence switchers keep 44px targets on wide touch-capable devices", () => {
+  const css = source("app/globals.css");
+  const staticSmoke = source("scripts/smoke-static-site.mjs");
+
+  assert.match(
+    css,
+    /@media \(max-width: 720px\), \(any-pointer: coarse\) \{[\s\S]*?\.arm-option \{[\s\S]*?min-height: 44px;[\s\S]*?min-width: 44px;/
+  );
+  assert.doesNotMatch(css, /@media \(max-width: 720px\), \(pointer: coarse\)/);
+  assert.match(staticSmoke, /primaryPointerType=4,availablePointerTypes=6/);
+  assert.match(staticSmoke, /primaryFine: matchMedia\("\(pointer: fine\)"\)\.matches/);
+  assert.match(staticSmoke, /primaryCoarse: matchMedia\("\(pointer: coarse\)"\)\.matches/);
+  assert.match(staticSmoke, /matchMedia\("\(any-pointer: coarse\)"\)\.matches/);
+  assert.match(staticSmoke, /!pointerMedia\.primaryFine[\s\S]*pointerMedia\.primaryCoarse[\s\S]*!pointerMedia\.anyCoarse/);
+});
+
 test("visual request timelines expose one text equivalent without duplicating SVG noise", () => {
   const overview = source("app/_components/report-overview.tsx");
   assert.match(overview, /<svg[\s\S]*aria-hidden="true"[\s\S]*focusable="false"/);

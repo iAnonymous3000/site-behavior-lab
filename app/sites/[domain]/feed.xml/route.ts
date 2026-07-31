@@ -75,11 +75,12 @@ function entrySummary(entry: DirectoryEntry): string {
   const cookies = entry.cookieEvidenceComplete
     ? `${entry.thirdPartyCookies.toLocaleString("en-US")} third-party cookies`
     : "third-party cookies not measured";
-  const metrics = `${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${entry.trackerRequests.toLocaleString(
+  const requestPrefix = entry.requestEvidenceComplete ? "" : "at least ";
+  const metrics = `${requestPrefix}${entry.thirdPartyRequests.toLocaleString("en-US")} third-party requests, ${requestPrefix}${entry.trackerRequests.toLocaleString(
     "en-US"
-  )} catalogued tracking requests, ${cookies}.`;
+  )} third-party tracking-service requests, ${cookies}.`;
   if (entry.requestEvidenceComplete) return metrics;
-  return `${metrics} Request evidence incomplete${entry.capped ? " (recording capped)" : ""}; counts are lower bounds.`;
+  return `${metrics} Request evidence incomplete${entry.capped ? " (recording capped)" : ""}; request counts are lower bounds.`;
 }
 
 function feedTimestamp(entry: DirectoryEntry): string {

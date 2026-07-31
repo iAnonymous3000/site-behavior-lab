@@ -118,8 +118,14 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           </p>
         </div>
         <dl className="site-profile-metrics">
-          <div><dt>Third-party requests</dt><dd>{latest.thirdPartyRequests.toLocaleString()}</dd></div>
-          <div><dt>Catalogued tracking requests</dt><dd>{latest.trackerRequests.toLocaleString()}</dd></div>
+          <div>
+            <dt>Third-party requests</dt>
+            <dd>{!latest.requestEvidenceComplete && "at least "}{latest.thirdPartyRequests.toLocaleString()}</dd>
+          </div>
+          <div>
+            <dt>Third-party tracking-service requests</dt>
+            <dd>{!latest.requestEvidenceComplete && "at least "}{latest.trackerRequests.toLocaleString()}</dd>
+          </div>
           {/* The directory and the category pages already withhold this count
               when the cookie family was censored mid-collection. Publishing a
               bare number here made the two surfaces disagree about the same
@@ -172,7 +178,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
                 <span><strong>{formatDate(entry.scannedAt)}</strong> · {reportKindLabel(entry)} · {entry.device}</span>
                 <span>{entry.headline}</span>
                 <small>
-                  {entry.thirdPartyRequests.toLocaleString()} third-party · {entry.trackerRequests.toLocaleString()} catalogued tracking · schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}
+                  {!entry.requestEvidenceComplete && "at least "}{entry.thirdPartyRequests.toLocaleString()} third-party requests · {!entry.requestEvidenceComplete && "at least "}{entry.trackerRequests.toLocaleString()} third-party tracking-service requests · schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}
                   {!entry.requestEvidenceComplete && <> · <IncompleteEvidenceChip capped={entry.capped} /></>}
                 </small>
               </Link>
@@ -200,8 +206,8 @@ function IncompleteEvidenceChip({ capped }: { capped: boolean }) {
       className="capped-chip"
       title={
         capped
-          ? "This visit hit the exact request-recording cap: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
-          : "This visit has incomplete request evidence from another bounded capture loss: its counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+          ? "This visit hit the exact request-recording cap: its request counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+          : "This visit has incomplete request evidence from another bounded capture loss: its request counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
       }
     >
       {capped ? "recording capped" : "request evidence incomplete"}
@@ -267,7 +273,7 @@ function formatSince(entry: DirectoryEntry): string {
   if (!delta) return "";
   return `${formatMetricDelta(delta.thirdPartyRequests, "third-party requests")}, ${formatMetricDelta(
     delta.trackerRequests,
-    "catalogued tracking requests"
+    "third-party tracking-service requests"
   )} compared with ${formatDate(delta.previousScannedAt)}`;
 }
 

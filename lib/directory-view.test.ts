@@ -8,13 +8,19 @@ import {
   directoryPageSlice
 } from "./directory-view";
 import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
+import {
   SERVICE_ROLE_TAXONOMY_DIGEST,
   SERVICE_ROLE_TAXONOMY_VERSION
 } from "./service-role";
 
 const SERVICE_ROLE_IDENTITY = {
   serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
-  serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
+  serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
+  metricContractVersion: METRIC_CONTRACT_VERSION,
+  metricContractDigest: METRIC_CONTRACT_DIGEST
 } as const;
 
 function entry(id: string, overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
@@ -24,6 +30,7 @@ function entry(id: string, overrides: Partial<DirectoryEntry> = {}): DirectoryEn
     tone: "info",
     headline: "Observed evidence.",
     thirdPartyRequests: 12,
+    cataloguedServiceRequests: 6,
     trackerRequests: 4,
     thirdPartyCookies: 2,
     shieldsThirdPartyChange: null,

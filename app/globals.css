@@ -1976,6 +1976,13 @@ a {
   color: var(--accent-strong);
 }
 
+@media (max-width: 720px), (any-pointer: coarse) {
+  .arm-option {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
 /* Schema-provenance chip beside the report eyebrow: always-visible origin
    labeling (legacy-derived / limited), never buried in the sidebar. */
 .report-provenance {

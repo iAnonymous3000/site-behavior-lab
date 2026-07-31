@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
   SERVICE_ROLES,
@@ -52,6 +54,25 @@ test("service-role taxonomy metadata covers the canonical exact policy", () => {
   assert.equal(
     createHash("sha256").update(canonical).digest("hex"),
     serviceRoleTaxonomyMetadata.digest
+  );
+});
+
+test("published ServiceRole taxonomy exactly matches the canonical policy and digest", () => {
+  const artifact = JSON.parse(
+    readFileSync(
+      path.join(process.cwd(), "public", "service-role-taxonomy.v1.json"),
+      "utf8"
+    )
+  ) as {
+    metadata: typeof serviceRoleTaxonomyMetadata;
+    contract: unknown;
+  };
+
+  assert.deepEqual(artifact.metadata, serviceRoleTaxonomyMetadata);
+  assert.deepEqual(artifact.contract, JSON.parse(canonicalServiceRoleTaxonomyContents()));
+  assert.equal(
+    createHash("sha256").update(JSON.stringify(artifact.contract)).digest("hex"),
+    artifact.metadata.digest
   );
 });
 

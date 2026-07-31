@@ -14,6 +14,7 @@ import { humanList, plural } from "./text-format";
 import type {
   DomainSummary,
   FingerprintDetectionSummary,
+  NetworkRequestRecord,
   PixelEventSummary,
   PixelMatchField,
   ScanResult,
@@ -53,9 +54,17 @@ export type TrackerEntitySummary = {
   categories: string[];
 };
 
-/** Group a scan's third-party tracker domains by entity, busiest first. */
-export function trackerEntitySummaries(result: Pick<ScanResult, "domains">): TrackerEntitySummary[] {
-  return summarizeTrackerDomains(result.domains);
+/**
+ * Group exact retained third-party catalog matches by entity, busiest first.
+ *
+ * A {@link DomainSummary} can preserve only one tracker match for a host. A
+ * shared host can therefore carry Sentry on one request row and Meta on
+ * another while its summary exposes only Sentry. Identity and category claims
+ * must use the request rows or they silently omit the later match and assign
+ * every request on the host to whichever match the summary retained.
+ */
+export function trackerEntitySummaries(result: Pick<ScanResult, "requests">): TrackerEntitySummary[] {
+  return summarizeTrackerRequests(result.requests);
 }
 
 export type TrackerOwnershipBreakdown = {
@@ -73,64 +82,80 @@ export type TrackerOwnershipBreakdown = {
 };
 
 export function trackerOwnershipBreakdown(
-  result: Pick<ScanResult, "domains">,
+  result: Pick<ScanResult, "requests">,
   subjectDomain: string
 ): TrackerOwnershipBreakdown {
-  const sameOrganizationDomains: DomainSummary[] = [];
-  const otherOrUnreviewedDomains: DomainSummary[] = [];
+  const sameOrganizationRequests: NetworkRequestRecord[] = [];
+  const otherOrUnreviewedRequests: NetworkRequestRecord[] = [];
 
-  for (const domain of result.domains) {
-    if (isReviewedSameOrganizationDomain(subjectDomain, domain.domain)) {
-      sameOrganizationDomains.push(domain);
+  for (const request of result.requests) {
+    if (!request.thirdParty || !request.tracker) continue;
+    if (isReviewedSameOrganizationDomain(subjectDomain, request.domain)) {
+      sameOrganizationRequests.push(request);
     } else {
-      otherOrUnreviewedDomains.push(domain);
+      otherOrUnreviewedRequests.push(request);
     }
   }
 
   return {
-    sameOrganization: summarizeTrackerDomains(sameOrganizationDomains),
-    otherOrUnreviewed: summarizeTrackerDomains(otherOrUnreviewedDomains),
+    sameOrganization: summarizeTrackerRequests(sameOrganizationRequests),
+    otherOrUnreviewed: summarizeTrackerRequests(otherOrUnreviewedRequests),
     sameOrganizationName: reviewedOrganizationForDomain(subjectDomain),
-    sameOrganizationDomainCount: sameOrganizationDomains.filter(
-      (domain) => domain.thirdParty && domain.tracker
-    ).length
+    sameOrganizationDomainCount: new Set(
+      sameOrganizationRequests.map((request) => request.domain)
+    ).size
   };
 }
 
-function summarizeTrackerDomains(domains: readonly DomainSummary[]): TrackerEntitySummary[] {
-  const summaries = new Map<string, TrackerEntitySummary>();
+function summarizeTrackerRequests(
+  requests: readonly NetworkRequestRecord[]
+): TrackerEntitySummary[] {
+  const summaries = new Map<
+    string,
+    { summary: TrackerEntitySummary; domains: Set<string> }
+  >();
 
-  for (const domain of domains) {
-    if (!domain.thirdParty || !domain.tracker) continue;
-    const current = summaries.get(domain.tracker.entity) ?? {
-      entity: domain.tracker.entity,
-      requests: 0,
-      domains: 0,
-      categories: []
+  for (const request of requests) {
+    if (!request.thirdParty || !request.tracker) continue;
+    const current = summaries.get(request.tracker.entity) ?? {
+      summary: {
+        entity: request.tracker.entity,
+        requests: 0,
+        domains: 0,
+        categories: []
+      },
+      domains: new Set<string>()
     };
-    current.requests += domain.requests;
-    current.domains += 1;
-    if (!current.categories.includes(domain.tracker.category)) {
-      current.categories.push(domain.tracker.category);
+    current.summary.requests += 1;
+    current.domains.add(request.domain);
+    current.summary.domains = current.domains.size;
+    if (!current.summary.categories.includes(request.tracker.category)) {
+      current.summary.categories.push(request.tracker.category);
     }
-    summaries.set(domain.tracker.entity, current);
+    summaries.set(request.tracker.entity, current);
   }
 
-  return Array.from(summaries.values()).sort((a, b) => b.requests - a.requests || a.entity.localeCompare(b.entity));
+  return Array.from(summaries.values())
+    .map(({ summary }) => summary)
+    .sort(
+      (a, b) =>
+        b.requests - a.requests || a.entity.localeCompare(b.entity)
+    );
 }
 
 /**
  * Catalogued entities for which at least one HTTP response was observed.
- * Domain rows are created when a request is dispatched, so an empty
- * `statuses` array proves only an attempted send. Receipt-oriented report
- * wording must consult this set before saying an entity "saw", "received",
- * or "loaded" the visit.
+ * Receipt attribution stays on the exact retained request row: a lossy host
+ * summary can retain one entity while its response status came from another
+ * entity's request on the same host. Receipt-oriented report wording must
+ * consult this set before saying an entity "saw", "received", or "loaded" the
+ * visit.
  */
-export function respondedTrackerEntityNames(result: Pick<ScanResult, "domains">): Set<string> {
+export function respondedTrackerEntityNames(result: Pick<ScanResult, "requests">): Set<string> {
   const names = new Set<string>();
-  for (const domain of result.domains) {
-    if (domain.thirdParty && domain.tracker && domain.statuses.length > 0) {
-      names.add(domain.tracker.entity);
+  for (const request of result.requests) {
+    if (request.thirdParty && request.tracker && request.status !== null) {
+      names.add(request.tracker.entity);
     }
   }
   return names;
@@ -152,7 +177,7 @@ export function isTrackingEntity(entity: TrackerEntitySummary): boolean {
   return hasTrackingRelatedServiceRole(entity.categories);
 }
 
-/** True only when this exact catalog match carries a reviewed tracking role. */
+/** True only when the catalog match recorded on this request row carries a reviewed tracking role. */
 export function isTrackingTrackerMatch(match: Pick<TrackerMatch, "category">): boolean {
   return hasTrackingRelatedServiceRole([match.category]);
 }
@@ -172,16 +197,22 @@ export function isUnclassifiedEntity(entity: TrackerEntitySummary): boolean {
 }
 
 /**
- * Requests to catalogued TRACKING services only. Operational and unclassified
- * entities are excluded by positive role membership rather than being treated
- * as tracking merely because their category is unfamiliar.
+ * Retained third-party request rows whose recorded catalog-suffix match
+ * carries a tracking role. Classification stays at match scope: an entity's
+ * tracking category must never cause its operational, security, or CDN
+ * matches to inherit that role.
  * `summary.knownTrackerRequests` counts every catalog match, so aggregate
  * surfaces that say "tracker" must use this instead.
  */
-export function trackingServiceRequests(result: Pick<ScanResult, "domains">): number {
-  return trackerEntitySummaries(result)
-    .filter(isTrackingEntity)
-    .reduce((total, entity) => total + entity.requests, 0);
+export function trackingServiceRequests(result: Pick<ScanResult, "requests">): number {
+  return result.requests.reduce(
+    (total, request) =>
+      total +
+      (request.thirdParty && request.tracker && isTrackingTrackerMatch(request.tracker)
+        ? 1
+        : 0),
+    0
+  );
 }
 
 export type CatalogCoverage = {

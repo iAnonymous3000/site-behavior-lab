@@ -8,7 +8,7 @@ const BRAND = "Site Behavior Lab";
 const HOME_TITLE = "Website privacy scanner and evidence library";
 const HOME_PAGE_TITLE = `${HOME_TITLE}${SITE_TITLE_SUFFIX}`;
 const DESCRIPTION =
-  "Scan a website to see the third parties, tracking requests, cookies, privacy signals, and browser behavior observed during one controlled visit.";
+  "Scan a website to see third-party requests, service-catalog matches, cookie records, privacy signals, and browser behavior observed during one controlled visit.";
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
 
 // Resolve canonical and social-card URLs against one validated origin.

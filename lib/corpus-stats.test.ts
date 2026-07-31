@@ -5,11 +5,16 @@ import {
   CORPUS_MIN_SAMPLE,
   type CorpusStats,
   type CorpusStatsCohort,
+  type LegacyCorpusStatsCohort,
   corpusBenchmark,
   corpusIsUsable,
   isCorpusStats,
   selectCorpusStatsCohort
 } from "./corpus-stats";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import {
   SERVICE_ROLE_TAXONOMY_DIGEST,
   SERVICE_ROLE_TAXONOMY_VERSION
@@ -18,8 +23,45 @@ import {
 const LEGACY_CATALOG_DIGEST = "a".repeat(64);
 const RECORDED_CATALOG_DIGEST = "b".repeat(64);
 
-function canonicalCohort(cohort: Omit<CorpusStatsCohort, "id">): CorpusStatsCohort {
-  return { id: corpusCohortIdForIdentity(cohort), ...cohort };
+const METRIC_CONTRACT_IDENTITY = {
+  metricContractVersion: METRIC_CONTRACT_VERSION,
+  metricContractDigest: METRIC_CONTRACT_DIGEST
+} as const;
+
+function canonicalCohort(
+  cohort: Omit<CorpusStatsCohort, "id" | "metricContractVersion" | "metricContractDigest">
+): CorpusStatsCohort {
+  const current = { ...cohort, ...METRIC_CONTRACT_IDENTITY };
+  return { id: corpusCohortIdForIdentity(current), ...current };
+}
+
+function recanonicalizeCohort(
+  cohort: CorpusStatsCohort,
+  changes: Partial<
+    Omit<CorpusStatsCohort, "id" | "metricContractVersion" | "metricContractDigest">
+  >
+): CorpusStatsCohort {
+  const {
+    id: _id,
+    metricContractVersion: _metricContractVersion,
+    metricContractDigest: _metricContractDigest,
+    ...identity
+  } = cohort;
+  return canonicalCohort({ ...identity, ...changes });
+}
+
+function canonicalLegacyV3Cohort(
+  cohort: Omit<LegacyCorpusStatsCohort, "id">
+): LegacyCorpusStatsCohort {
+  const schema =
+    cohort.schemaVersion === 1 ? "v1" : `v2-r${cohort.schemaRevision}`;
+  const producer = cohort.producer ?? "producer-unrecorded";
+  const id =
+    `${schema}:${encodeURIComponent(cohort.methodologyVersion)}:${encodeURIComponent(producer)}` +
+    `:gpc-${cohort.gpc ? "on" : "off"}` +
+    `:catalog-${cohort.trackerCatalogOrigin}-${cohort.trackerCatalogDigest}` +
+    `:roles-${encodeURIComponent(cohort.serviceRoleTaxonomyVersion)}-${cohort.serviceRoleTaxonomyDigest}`;
+  return { ...cohort, id };
 }
 
 function makeCorpus(sampleSize: number): CorpusStats {
@@ -50,8 +92,9 @@ test("a cohort without the requested-GPC condition is refused, never read as spl
     metrics: {}
   });
   const stats = {
-    version: 3,
+    version: 4,
     generatedAt: "2026-07-25T00:00:00.000Z",
+    ...METRIC_CONTRACT_IDENTITY,
     sampleSize: 60,
     primaryCohortId: cohort.id,
     metrics: {},
@@ -134,9 +177,413 @@ test("isCorpusStats validates shape", () => {
   assert.equal(isCorpusStats(null), false);
 });
 
+test("metric keys are fail-closed and version-specific", () => {
+  const legacy = makeCorpus(60);
+  assert.equal(
+    isCorpusStats({ ...legacy, metrics: { ...legacy.metrics, inventedMetric: legacy.metrics.thirdPartyDomains } }),
+    false,
+    "v1 refuses undeclared metric names"
+  );
+  assert.equal(
+    isCorpusStats({
+      ...legacy,
+      metrics: { ...legacy.metrics, trackingServiceRequests: legacy.metrics.thirdPartyDomains }
+    }),
+    false,
+    "v1 cannot be relabeled as if it carried the v4 formula"
+  );
+
+  const metrics = {
+    thirdPartyRequests: legacy.metrics.thirdPartyDomains,
+    thirdPartyDomains: legacy.metrics.thirdPartyDomains,
+    cataloguedServiceRequests: legacy.metrics.thirdPartyDomains,
+    trackingServiceRequests: legacy.metrics.thirdPartyDomains
+  };
+  const cohort = canonicalCohort({
+    schemaVersion: 1,
+    schemaRevision: null,
+    methodologyVersion: "method-v4",
+    methodologyOrigin: "legacy-derived",
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest: LEGACY_CATALOG_DIGEST,
+    trackerCatalogOrigin: "legacy-metadata-hash",
+    serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
+    serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
+    sampleSize: 60,
+    latestRunAt: "2026-07-06T09:35:00.000Z",
+    metrics
+  });
+  const current: CorpusStats = {
+    version: 4,
+    generatedAt: "2026-07-30T00:00:00.000Z",
+    ...METRIC_CONTRACT_IDENTITY,
+    sampleSize: 60,
+    primaryCohortId: cohort.id,
+    cohorts: [cohort],
+    metrics
+  };
+  assert.equal(isCorpusStats(current), true);
+  assert.equal(
+    isCorpusStats({
+      ...current,
+      metrics: { ...current.metrics, knownTrackerRequests: legacy.metrics.thirdPartyDomains }
+    }),
+    false,
+    "v4 refuses the retired ambiguous stats key"
+  );
+  assert.equal(
+    isCorpusStats({
+      ...current,
+      cohorts: [
+        {
+          ...cohort,
+          metrics: { ...cohort.metrics, inventedMetric: legacy.metrics.thirdPartyDomains }
+        }
+      ]
+    }),
+    false,
+    "cohort metrics use the same closed v4 key set"
+  );
+  assert.equal(
+    isCorpusStats({ ...current, futureTopLevelField: true }),
+    false,
+    "v4 rejects undeclared top-level fields"
+  );
+  assert.equal(
+    isCorpusStats({
+      ...current,
+      cohorts: [{ ...cohort, futureCohortField: true }]
+    }),
+    false,
+    "v4 rejects undeclared cohort fields"
+  );
+  const distributionWithExtraField = {
+    ...metrics.thirdPartyDomains,
+    p99: 100
+  };
+  const metricsWithExtraDistributionField = {
+    ...metrics,
+    thirdPartyDomains: distributionWithExtraField
+  };
+  assert.equal(
+    isCorpusStats({
+      ...current,
+      metrics: metricsWithExtraDistributionField,
+      cohorts: [{ ...cohort, metrics: metricsWithExtraDistributionField }]
+    }),
+    false,
+    "v4 rejects undeclared distribution fields"
+  );
+  const {
+    trackingServiceRequests: _omittedTrackingMetric,
+    ...requestMetricSubset
+  } = current.metrics;
+  assert.equal(
+    isCorpusStats({
+      ...current,
+      metrics: requestMetricSubset,
+      cohorts: [
+        {
+          ...cohort,
+          metrics: requestMetricSubset
+        }
+      ]
+    }),
+    false,
+    "v4 request distributions are all present or all absent"
+  );
+  const impossibleTrackingDistribution = {
+    ...(metrics.trackingServiceRequests as NonNullable<
+      typeof metrics.trackingServiceRequests
+    >),
+    max: 101
+  };
+  assert.equal(
+    isCorpusStats({
+      ...current,
+      metrics: {
+        ...current.metrics,
+        trackingServiceRequests: impossibleTrackingDistribution
+      },
+      cohorts: [
+        {
+          ...cohort,
+          metrics: {
+            ...cohort.metrics,
+            trackingServiceRequests: impossibleTrackingDistribution
+          }
+        }
+      ]
+    }),
+    false,
+    "a tracking-service order statistic cannot exceed its containing request metrics"
+  );
+  const mismatchedTrackingDenominator = {
+    ...(metrics.trackingServiceRequests as NonNullable<
+      typeof metrics.trackingServiceRequests
+    >),
+    count: 59
+  };
+  assert.equal(
+    isCorpusStats({
+      ...current,
+      metrics: {
+        ...current.metrics,
+        trackingServiceRequests: mismatchedTrackingDenominator
+      },
+      cohorts: [
+        {
+          ...cohort,
+          metrics: {
+            ...cohort.metrics,
+            trackingServiceRequests: mismatchedTrackingDenominator
+          }
+        }
+      ]
+    }),
+    false,
+    "current request distributions share one denominator"
+  );
+
+  for (const dependencyDrift of [
+    recanonicalizeCohort(cohort, {
+      serviceRoleTaxonomyVersion: `${SERVICE_ROLE_TAXONOMY_VERSION}-other`
+    }),
+    recanonicalizeCohort(cohort, {
+      serviceRoleTaxonomyDigest: "c".repeat(64)
+    })
+  ]) {
+    assert.equal(
+      isCorpusStats({
+        ...current,
+        primaryCohortId: dependencyDrift.id,
+        cohorts: [dependencyDrift],
+        metrics: dependencyDrift.metrics
+      }),
+      false,
+      "v4 cohorts must use the ServiceRole dependency pinned by metric-contract-v1"
+    );
+  }
+
+  const blankMethodology = recanonicalizeCohort(cohort, {
+    methodologyVersion: " \t "
+  });
+  assert.equal(
+    isCorpusStats({
+      ...current,
+      primaryCohortId: blankMethodology.id,
+      cohorts: [blankMethodology],
+      metrics: blankMethodology.metrics
+    }),
+    false,
+    "a syntactically canonical v4 cohort still requires a nonblank methodology"
+  );
+});
+
+test("the frozen v3 reader accepts only its legacy metric vocabulary", () => {
+  const distribution = makeCorpus(60).metrics.thirdPartyDomains;
+  const cohort = canonicalLegacyV3Cohort({
+    schemaVersion: 1,
+    schemaRevision: null,
+    methodologyVersion: "legacy",
+    methodologyOrigin: "legacy-derived",
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest: LEGACY_CATALOG_DIGEST,
+    trackerCatalogOrigin: "legacy-metadata-hash",
+    serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
+    serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
+    sampleSize: 60,
+    latestRunAt: "2026-07-06T09:35:00.000Z",
+    metrics: { knownTrackerRequests: distribution }
+  });
+  const stats = {
+    version: 3,
+    generatedAt: "2026-07-25T00:00:00.000Z",
+    sampleSize: 60,
+    primaryCohortId: cohort.id,
+    cohorts: [cohort],
+    metrics: cohort.metrics
+  };
+  assert.equal(isCorpusStats(stats), true);
+  assert.equal(
+    isCorpusStats({
+      ...stats,
+      metrics: { trackingServiceRequests: distribution },
+      cohorts: [{ ...cohort, metrics: { trackingServiceRequests: distribution } }]
+    }),
+    false
+  );
+  assert.equal(isCorpusStats({ ...stats, metricContractVersion: METRIC_CONTRACT_VERSION }), false);
+  assert.equal(
+    isCorpusStats({ ...stats, futureTopLevelField: true }),
+    false,
+    "v3 rejects undeclared top-level fields"
+  );
+  assert.equal(
+    isCorpusStats({
+      ...stats,
+      cohorts: [{ ...cohort, futureCohortField: true }]
+    }),
+    false,
+    "v3 rejects undeclared cohort fields"
+  );
+  const distributionWithExtraField = {
+    ...distribution,
+    p99: 100
+  };
+  const metricsWithExtraDistributionField = {
+    knownTrackerRequests: distributionWithExtraField
+  };
+  assert.equal(
+    isCorpusStats({
+      ...stats,
+      metrics: metricsWithExtraDistributionField,
+      cohorts: [{ ...cohort, metrics: metricsWithExtraDistributionField }]
+    }),
+    false,
+    "v3 rejects undeclared distribution fields"
+  );
+
+  const blankMethodology = canonicalLegacyV3Cohort({
+    ...cohort,
+    methodologyVersion: " \n "
+  });
+  assert.equal(
+    isCorpusStats({
+      ...stats,
+      primaryCohortId: blankMethodology.id,
+      cohorts: [blankMethodology],
+      metrics: blankMethodology.metrics
+    }),
+    false,
+    "a syntactically canonical v3 cohort still requires a nonblank methodology"
+  );
+
+  const blankServiceRole = canonicalLegacyV3Cohort({
+    ...cohort,
+    serviceRoleTaxonomyVersion: " \t "
+  });
+  assert.equal(
+    isCorpusStats({
+      ...stats,
+      primaryCohortId: blankServiceRole.id,
+      cohorts: [blankServiceRole],
+      metrics: blankServiceRole.metrics
+    }),
+    false,
+    "a syntactically canonical v3 cohort still requires a nonblank ServiceRole version"
+  );
+
+  const blankProducer = canonicalLegacyV3Cohort({
+    ...cohort,
+    schemaVersion: 2,
+    schemaRevision: 2,
+    methodologyVersion: "recorded",
+    methodologyOrigin: "recorded",
+    producer: " \n ",
+    trackerCatalogDigest: RECORDED_CATALOG_DIGEST,
+    trackerCatalogOrigin: "recorded"
+  });
+  assert.equal(
+    isCorpusStats({
+      ...stats,
+      primaryCohortId: blankProducer.id,
+      cohorts: [blankProducer],
+      metrics: blankProducer.metrics
+    }),
+    false,
+    "a syntactically canonical v3 v2 cohort still requires a nonblank producer"
+  );
+});
+
+test("the origin/main v3 primary projection remains compatible", () => {
+  const metrics = {
+    thirdPartyRequests: {
+      count: 69,
+      min: 0,
+      max: 382,
+      p50: 14,
+      p75: 56,
+      p90: 162,
+      p95: 185
+    },
+    thirdPartyDomains: {
+      count: 69,
+      min: 0,
+      max: 59,
+      p50: 3,
+      p75: 9,
+      p90: 24,
+      p95: 29
+    },
+    knownTrackerRequests: {
+      count: 69,
+      min: 0,
+      max: 152,
+      p50: 1,
+      p75: 10,
+      p90: 29,
+      p95: 36
+    },
+    thirdPartyCookies: {
+      count: 69,
+      min: 0,
+      max: 36,
+      p50: 0,
+      p75: 0,
+      p90: 5,
+      p95: 19
+    },
+    fingerprintEvents: {
+      count: 69,
+      min: 0,
+      max: 122,
+      p50: 0,
+      p75: 0,
+      p90: 2,
+      p95: 8
+    }
+  };
+  const cohort = canonicalLegacyV3Cohort({
+    schemaVersion: 1,
+    schemaRevision: null,
+    methodologyVersion:
+      "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1",
+    methodologyOrigin: "legacy-derived",
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest:
+      "c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593",
+    trackerCatalogOrigin: "legacy-metadata-hash",
+    serviceRoleTaxonomyVersion: "service-role-taxonomy-v1",
+    serviceRoleTaxonomyDigest:
+      "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+    sampleSize: 69,
+    latestRunAt: "2026-07-25T18:23:27.733Z",
+    metrics
+  });
+
+  assert.equal(
+    isCorpusStats({
+      version: 3,
+      generatedAt: "2026-07-30T20:07:46.186Z",
+      sampleSize: 69,
+      coverageSiteCount: 99,
+      cappedSiteCount: 3,
+      primaryCohortId: cohort.id,
+      cohorts: [cohort],
+      metrics
+    }),
+    true
+  );
+});
+
 test("methodology cohorts validate and can be selected without pooling", () => {
   const corpus = makeCorpus(60);
-  corpus.version = 3;
+  corpus.version = 4;
+  Object.assign(corpus, METRIC_CONTRACT_IDENTITY);
   corpus.cohorts = [
     canonicalCohort({
       schemaVersion: 1,
@@ -185,9 +632,10 @@ test("methodology cohorts validate and can be selected without pooling", () => {
   assert.equal(isCorpusStats({ ...corpus, cohorts: [undated] }), false);
 });
 
-test("incomplete pre-v3 cohort identities are refused rather than silently pooled", () => {
+test("incomplete v4 cohort identities are refused rather than silently pooled", () => {
   const corpus = makeCorpus(60);
-  corpus.version = 3;
+  corpus.version = 4;
+  Object.assign(corpus, METRIC_CONTRACT_IDENTITY);
   corpus.cohorts = [
     canonicalCohort({
       schemaVersion: 1,
@@ -222,7 +670,7 @@ test("incomplete pre-v3 cohort identities are refused rather than silently poole
   assert.equal(isCorpusStats({ ...corpus, version: 2 }), false);
 });
 
-test("v3 refuses identity-key drift, duplicate cohort ids, and inconsistent primary projections", () => {
+test("v4 refuses identity-key drift, duplicate cohort ids, and inconsistent primary projections", () => {
   const corpus = makeCorpus(60);
   const cohort = canonicalCohort({
     schemaVersion: 1,
@@ -241,7 +689,8 @@ test("v3 refuses identity-key drift, duplicate cohort ids, and inconsistent prim
   });
   const valid: CorpusStats = {
     ...corpus,
-    version: 3,
+    version: 4,
+    ...METRIC_CONTRACT_IDENTITY,
     primaryCohortId: cohort.id,
     cohorts: [cohort]
   };
@@ -264,7 +713,7 @@ test("v3 refuses identity-key drift, duplicate cohort ids, and inconsistent prim
   );
 });
 
-test("v3 rejects impossible schema, provenance, producer, and catalog-origin combinations", () => {
+test("v4 rejects impossible schema, provenance, producer, and catalog-origin combinations", () => {
   const metrics = makeCorpus(60).metrics;
   const v1 = canonicalCohort({
     schemaVersion: 1,
@@ -297,8 +746,9 @@ test("v3 rejects impossible schema, provenance, producer, and catalog-origin com
     metrics
   });
   const artifactFor = (cohort: CorpusStatsCohort): CorpusStats => ({
-    version: 3,
+    version: 4,
     generatedAt: "2026-07-25T00:00:00.000Z",
+    ...METRIC_CONTRACT_IDENTITY,
     sampleSize: cohort.sampleSize,
     primaryCohortId: cohort.id,
     cohorts: [cohort],
@@ -322,6 +772,7 @@ test("v3 rejects impossible schema, provenance, producer, and catalog-origin com
     recanonicalize(v2, { methodologyOrigin: "legacy-derived" }),
     recanonicalize(v2, { producer: null }),
     recanonicalize(v2, { producer: "" }),
+    recanonicalize(v2, { producer: " \t " }),
     recanonicalize(v2, { trackerCatalogOrigin: "legacy-metadata-hash" })
   ]) {
     assert.equal(
@@ -350,8 +801,9 @@ test("isCorpusStats returns false rather than throwing for hostile values", () =
     metrics
   });
   const valid: CorpusStats = {
-    version: 3,
+    version: 4,
     generatedAt: "2026-07-25T00:00:00.000Z",
+    ...METRIC_CONTRACT_IDENTITY,
     sampleSize: cohort.sampleSize,
     primaryCohortId: cohort.id,
     cohorts: [cohort],
@@ -407,9 +859,10 @@ test("isCorpusStats rejects invalid counts, dates, and distributions", () => {
     latestRunAt: "2026-07-06T09:35:00.000Z",
     metrics: validLegacy.metrics
   });
-  const validV3: CorpusStats = {
+  const validV4: CorpusStats = {
     ...validLegacy,
-    version: 3,
+    version: 4,
+    ...METRIC_CONTRACT_IDENTITY,
     primaryCohortId: cohort.id,
     cohorts: [cohort]
   };
@@ -452,22 +905,26 @@ test("isCorpusStats rejects invalid counts, dates, and distributions", () => {
     },
     {
       ...validLegacy,
+      metrics: { thirdPartyDomains: { ...validMetric, p50: 10.5 } }
+    },
+    {
+      ...validLegacy,
       metrics: { thirdPartyDomains: { ...validMetric, p50: 30, p75: 20 } }
     },
     {
-      ...validV3,
+      ...validV4,
       cohorts: [{ ...cohort, sampleSize: -1 }]
     },
     {
-      ...validV3,
+      ...validV4,
       cohorts: [{ ...cohort, sampleSize: Number.MAX_SAFE_INTEGER + 1 }]
     },
     {
-      ...validV3,
+      ...validV4,
       cohorts: [{ ...cohort, latestRunAt: "not-a-date" }]
     },
     {
-      ...validV3,
+      ...validV4,
       cohorts: [
         {
           ...cohort,

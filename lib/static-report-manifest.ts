@@ -1,7 +1,13 @@
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { buildReportFacts } from "./report-facts";
 import { buildReportHeadline } from "./report-headline";
-import { displayRunView, runHitRequestRecordingCap, toReportView, type ReportView } from "./scan-report-views";
+import {
+  displayRunView,
+  requestEvidenceState,
+  runHitRequestRecordingCap,
+  toReportView,
+  type ReportView
+} from "./scan-report-views";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportCandidateIds,
@@ -124,6 +130,7 @@ function toManifestEntry(
     device: (comparison ? tail : lead).conditions.viewport.isMobile ? "mobile" : "desktop",
     gpcEnabled: comparison ? "comparison" : lead.conditions.gpcEnabled,
     ...(runHitRequestRecordingCap(lead) ? { requestCapped: true } : {}),
+    requestEvidenceComplete: requestEvidenceState(lead) === "complete",
     ...(historyKey ? { historyKey } : {}),
     ...(comparisonHistoryKey ? { comparisonHistoryKey } : {}),
     metrics: {

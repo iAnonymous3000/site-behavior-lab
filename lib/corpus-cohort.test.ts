@@ -9,6 +9,10 @@ import {
   type CorpusCohortIdentity
 } from "./corpus-cohort";
 import { canonicalJson } from "./canonical-json";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import { makePublicSingleReportV2R2, makeScanRunV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
@@ -32,7 +36,9 @@ function identity(overrides: Partial<CorpusCohortIdentity> & { id: string }): Co
     trackerCatalogDigest: "a".repeat(64),
     trackerCatalogOrigin: "legacy-metadata-hash",
     serviceRoleTaxonomyVersion: SERVICE_ROLE_TAXONOMY_VERSION,
-    serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST
+    serviceRoleTaxonomyDigest: SERVICE_ROLE_TAXONOMY_DIGEST,
+    metricContractVersion: METRIC_CONTRACT_VERSION,
+    metricContractDigest: METRIC_CONTRACT_DIGEST
   };
   return { ...base, ...overrides };
 }
@@ -146,7 +152,9 @@ test("every component of a cohort id is distinguishable in its label", () => {
     identity({ id: "e", trackerCatalogDigest: "b".repeat(64) }),
     identity({ id: "f", trackerCatalogOrigin: "recorded" }),
     identity({ id: "g", serviceRoleTaxonomyVersion: "service-role-taxonomy-v2" }),
-    identity({ id: "h", serviceRoleTaxonomyDigest: "c".repeat(64) })
+    identity({ id: "h", serviceRoleTaxonomyDigest: "c".repeat(64) }),
+    identity({ id: "i", metricContractVersion: "metric-contract-v2" }),
+    identity({ id: "j", metricContractDigest: "d".repeat(64) })
   ];
   for (const variant of variants) {
     assert.notEqual(corpusCohortLabel(variant), corpusCohortLabel(base), JSON.stringify(variant));
@@ -170,15 +178,20 @@ test("a cohort split is attributed to the components that actually differ", () =
       identity({
         id: "x",
         trackerCatalogDigest: "b".repeat(64),
-        serviceRoleTaxonomyDigest: "c".repeat(64)
+        serviceRoleTaxonomyDigest: "c".repeat(64),
+        metricContractDigest: "d".repeat(64)
       })
     ]),
-    ["different tracker-catalog identities", "different ServiceRole taxonomies"]
+    [
+      "different tracker-catalog identities",
+      "different ServiceRole taxonomies",
+      "different metric contracts"
+    ]
   );
   assert.deepEqual(corpusCohortDifferences([identity({ id: "base" }), identity({ id: "base" })]), []);
 });
 
-test("cohort identity uses the recorded r2 catalog digest and current read-time role taxonomy", () => {
+test("cohort identity uses the recorded r2 catalog digest and current read-time formula identities", () => {
   const report = makePublicSingleReportV2R2();
   const cohort = corpusCohortIdentityForView(viewFromV2(report, 2));
 
@@ -186,8 +199,11 @@ test("cohort identity uses the recorded r2 catalog digest and current read-time 
   assert.equal(cohort.trackerCatalogOrigin, "recorded");
   assert.equal(cohort.serviceRoleTaxonomyVersion, SERVICE_ROLE_TAXONOMY_VERSION);
   assert.equal(cohort.serviceRoleTaxonomyDigest, SERVICE_ROLE_TAXONOMY_DIGEST);
+  assert.equal(cohort.metricContractVersion, METRIC_CONTRACT_VERSION);
+  assert.equal(cohort.metricContractDigest, METRIC_CONTRACT_DIGEST);
   assert.match(cohort.id, new RegExp(`catalog-recorded-${report.run.toolchain.trackerCatalog.digest}`));
   assert.match(cohort.id, new RegExp(`roles-${SERVICE_ROLE_TAXONOMY_VERSION}-${SERVICE_ROLE_TAXONOMY_DIGEST}`));
+  assert.match(cohort.id, new RegExp(`metrics-${METRIC_CONTRACT_VERSION}-${METRIC_CONTRACT_DIGEST}`));
 });
 
 test("frozen v1 gets a labeled hash of its available recorded catalog metadata without wire mutation", () => {
@@ -271,13 +287,15 @@ test("composition only constrains cohorts that are substitutable descriptions", 
   assert.equal(selectPrimaryCorpusCohort([otherLine, unknown], MIN)?.identity.id, "current");
 });
 
-test("a broader cohort with a different catalog or ServiceRole taxonomy cannot veto the current line", () => {
+test("a broader cohort with a different catalog or read-time formula identity cannot veto the current line", () => {
   const current = era("current", "shields-v2", gallerySites, "2026-07-27T00:00:00.000Z");
   const identityChanges: Partial<CorpusCohortIdentity>[] = [
     { trackerCatalogDigest: "b".repeat(64) },
     { trackerCatalogOrigin: "recorded" },
     { serviceRoleTaxonomyVersion: "service-role-taxonomy-v2" },
-    { serviceRoleTaxonomyDigest: "c".repeat(64) }
+    { serviceRoleTaxonomyDigest: "c".repeat(64) },
+    { metricContractVersion: "metric-contract-v2" },
+    { metricContractDigest: "d".repeat(64) }
   ];
 
   for (const change of identityChanges) {

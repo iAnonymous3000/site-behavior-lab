@@ -58,7 +58,7 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
               <th>Span from run start</th>
               <th>Recorded requests</th>
               <th>Third-party</th>
-              <th>Known service</th>
+              <th>Catalog-matched requests</th>
               <th>Cookie records</th>
               <th>Storage records</th>
             </tr>
@@ -85,7 +85,7 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
                     <span className="muted">No retained rows</span>
                   )}
                 </td>
-                <td data-label="Known service">
+                <td data-label="Catalog-matched requests">
                   {phase.requestCounts ? (
                     phase.requestCounts.knownTrackerRequests.toLocaleString("en-US")
                   ) : (

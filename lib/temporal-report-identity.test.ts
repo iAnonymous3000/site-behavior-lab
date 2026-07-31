@@ -2,11 +2,18 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
+import {
+  METRIC_CONTRACT_DIGEST,
+  METRIC_CONTRACT_VERSION
+} from "./metric-contract";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import type { StoredScanReport } from "./scan-report-reader";
 import { toReportView } from "./scan-report-views";
 import { comparisonHistoryPairingKey } from "./temporal-deltas";
-import { comparisonHistoryCohortForStoredReport } from "./temporal-report-identity";
+import {
+  comparisonHistoryCohortForStoredReport,
+  temporalCohortForStoredReport
+} from "./temporal-report-identity";
 
 function storedR2(report: ReturnType<typeof makePublicSingleReportV2R2>): Extract<StoredScanReport, { schemaVersion: 2; schemaRevision: 2 }> {
   return { schemaVersion: 2, schemaRevision: 2, report };
@@ -37,6 +44,10 @@ test("r2 comparison history uses a tracker-family methodology identity", () => {
   const beforeCohort = historyCohort(before);
   const afterCohort = historyCohort(after);
   assert.match(beforeCohort ?? "", /^v2-r2-comparison-history:tracker-classification:/);
+  assert.match(
+    beforeCohort ?? "",
+    new RegExp(`:metrics-${METRIC_CONTRACT_VERSION}-${METRIC_CONTRACT_DIGEST}$`)
+  );
   assert.equal(afterCohort, beforeCohort, "build provenance alone does not change tracker-family semantics");
 
   const key = comparisonHistoryPairingKey({
@@ -47,6 +58,18 @@ test("r2 comparison history uses a tracker-family methodology identity", () => {
     comparisonHistoryCohort: beforeCohort
   });
   assert.match(key ?? "", /^comparison-history-key-v2\|/);
+});
+
+test("strict temporal history also binds the read-time metric contract", () => {
+  const report = makePublicSingleReportV2R2();
+  const stored = storedR2(report);
+  const cohort = temporalCohortForStoredReport(stored, toReportView(stored));
+
+  assert.match(cohort ?? "", /^v2-r2:/);
+  assert.match(
+    cohort ?? "",
+    new RegExp(`:metrics-${METRIC_CONTRACT_VERSION}-${METRIC_CONTRACT_DIGEST}$`)
+  );
 });
 
 test("r2 history splits methodology and tracker-catalog cohorts", () => {

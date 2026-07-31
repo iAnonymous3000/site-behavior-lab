@@ -49,6 +49,7 @@ export default async function Home() {
     thirdPartyRequests: entry.thirdPartyRequests,
     trackerRequests: entry.trackerRequests,
     requestCapped: entry.capped,
+    requestEvidenceComplete: entry.requestEvidenceComplete,
     successfulLoad: entry.reportHasSuccessfulLoad
   }));
   const homepageDiscovery = buildHomepageDiscovery(featuredSiteConfigJson, discoveryReports);

@@ -97,7 +97,7 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
           { label: "Storage keys", metric: diff.storageEntries }
         ]
       : []),
-    ...(classificationAllowed ? [{ label: "Known-service requests", metric: diff.knownTrackerRequests }] : []),
+    ...(classificationAllowed ? [{ label: "Catalog-matched requests", metric: diff.knownTrackerRequests }] : []),
     ...(fingerprintDeltaAllowed
       ? [{ label: "Fingerprint events", metric: diff.fingerprintEvents }]
       : []),
@@ -132,7 +132,7 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
       familyNotes.push({ label, mode: ruling.mode === "suppressed" ? "suppressed" : "raw-only", reasons: ruling.reasons });
     };
     note("raw-counts", "Request, cookie, and storage deltas");
-    note("tracker-classification", "Known-service and entity deltas");
+    note("tracker-classification", "Catalog-matched request and entity deltas");
     note("detector-findings", "Other detector and causal-path deltas");
     // A shields ruling matters here when there is a number to withhold OR the
     // family was never measured at all (the suppressed case names why).

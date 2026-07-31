@@ -18,6 +18,7 @@ import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
   type FingerprintDetectionSummary,
+  type NetworkRequestRecord,
   type PixelEventSummary,
   type ScanResult
 } from "./types";
@@ -109,7 +110,7 @@ test("falls back to a tracking-company count when no major platform matches", ()
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /store\.example contacted 2 catalogued tracking-related services during this visit\./);
+  assert.match(headline.headline, /store\.example contacted 2 distinct catalogued tracking-related services during this visit\./);
   // Hotjar is catalogued as session replay; the copy must keep the domain match
   // separate from a claim that recording actually happened.
   assert.match(headline.subhead, /catalogued session-replay service appeared/);
@@ -186,7 +187,7 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
   assert.equal(headline.tone, "alarm");
   // V1 records configuration but no readback, so the headline must not claim
   // that the signal was verified as received or applied.
-  assert.match(headline.headline, /amazon\.com still contacted 1 catalogued tracking-related service with a privacy signal configured\./);
+  assert.match(headline.headline, /amazon\.com still contacted 1 distinct catalogued tracking-related service with a privacy signal configured\./);
   assert.match(headline.subhead, /do not sell or share/);
   assert.match(headline.subhead, /versus 420 in the visit without the signal/);
   // The lead finding quotes the GPC-on visit's numbers, so the evidence
@@ -258,13 +259,13 @@ test("the GPC alarm counts tracking companies from the GPC-on visit, not the bas
 
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.subhead, /still contacted 1 catalogued tracking-related service:/);
-  assert.doesNotMatch(headline.subhead, /3 catalogued tracking-related services/);
+  assert.match(headline.subhead, /still contacted 1 distinct catalogued tracking-related service:/);
+  assert.doesNotMatch(headline.subhead, /3 distinct catalogued tracking-related services/);
   // The stat chips and share text sit next to the sentence, so they must quote
   // the same GPC-on visit, not the baseline's three companies.
-  assert.equal(headline.stats.find((stat) => stat.label.includes("catalogued"))?.value, "1");
-  assert.match(headline.shareText, /1 catalogued service/);
-  assert.doesNotMatch(headline.shareText, /3 catalogued services/);
+  assert.equal(headline.stats.find((stat) => stat.label.includes("tracking-service"))?.value, "1");
+  assert.match(headline.shareText, /1 tracking-service entity/);
+  assert.doesNotMatch(headline.shareText, /3 tracking-service entities/);
 });
 
 test("the GPC alarm is not raised from baseline-only tracking companies", () => {
@@ -476,7 +477,7 @@ test("share text combines the headline, top stats, and the reproducibility tagli
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.shareText, /contacted 1 catalogued tracking-related service/);
+  assert.match(headline.shareText, /contacted 1 distinct catalogued tracking-related service/);
   assert.match(headline.shareText, /Open-source and reproducible:/);
 });
 
@@ -664,7 +665,7 @@ test("an unverified legacy consent pair keeps unanswered traffic in raw send-onl
   };
 
   const headline = buildReportHeadline(viewFromV1Report(consentPair(acceptRun, rejectRun)));
-  assert.match(headline.headline, /contacted 1 catalogued tracking-related service/);
+  assert.match(headline.headline, /contacted 1 distinct catalogued tracking-related service/);
   assert.match(headline.subhead, /had requests dispatched with no recorded response/);
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /received requests|still reached|Reject all|Accept all/);
 });
@@ -673,7 +674,27 @@ test("a verified r2 consent headline states registration without dropping whole-
   const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
   const variant = view.runs.find((run) => run.label === "variant");
   if (!variant) throw new Error("fixture invariant");
-  variant.evidence.domains = [makeTrackerDomain("google-analytics.com", 3, "Google", "analytics")];
+  const google = makeTrackerDomain(
+    "google-analytics.com",
+    3,
+    "Google",
+    "analytics"
+  );
+  variant.evidence.domains = [google];
+  variant.evidence.requests = Array.from(
+    { length: 3 },
+    (_, index): NetworkRequestRecord => ({
+      id: index + 1,
+      url: `https://google-analytics.com/request-${index + 1}`,
+      domain: google.domain,
+      method: "GET",
+      resourceType: "script",
+      status: 204,
+      thirdParty: true,
+      tracker: google.tracker,
+      startedAtMs: index + 1
+    })
+  );
   variant.counts.knownTrackerRequests = 3;
   variant.counts.thirdPartyRequests = 3;
   variant.counts.thirdPartyDomains = 1;
@@ -1086,6 +1107,25 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
   const domains = overrides.domains ?? [];
   const thirdPartyRequests = overrides.thirdPartyRequests ?? domains.reduce((total, domain) => total + domain.requests, 0);
   const knownTrackerRequests = domains.filter((domain) => domain.tracker).reduce((total, domain) => total + domain.requests, 0);
+  let nextRequestId = 1;
+  const requests = domains.flatMap((domain) =>
+    Array.from({ length: domain.requests }, (): NetworkRequestRecord => {
+      const id = nextRequestId;
+      nextRequestId += 1;
+      return {
+        id,
+        url: `https://fixture.invalid/request-${id}`,
+        domain: domain.domain,
+        method: "GET",
+        resourceType: domain.resourceTypes[0] ?? "other",
+        status: domain.statuses[0] ?? null,
+        thirdParty: domain.thirdParty,
+        tracker: domain.tracker,
+        blockedByShields: domain.blockedByShields,
+        startedAtMs: id
+      };
+    })
+  );
 
   return {
     ok: true,
@@ -1123,7 +1163,7 @@ function makeResult(overrides: ResultOverrides = {}): ScanResult {
       trackerCatalog: { source: "test", version: "test", region: "test", entries: 0, curatedOverrides: 0, license: "test" },
       scannerDisclosure: "test"
     },
-    requests: [],
+    requests,
     domains,
     cookies: [],
     storage: [],
@@ -1229,7 +1269,7 @@ test("unanswered tracking companies get sent-not-shared wording", () => {
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /shop\.example contacted 1 catalogued tracking-related service during this visit\./);
+  assert.match(headline.headline, /shop\.example contacted 1 distinct catalogued tracking-related service during this visit\./);
   assert.match(headline.subhead, /had requests dispatched with no recorded response/);
 });
 

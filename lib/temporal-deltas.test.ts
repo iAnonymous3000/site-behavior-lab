@@ -17,6 +17,7 @@ function entry(overrides: Partial<TemporalDeltaInput> & { id: string }): Tempora
     requestedUrl: "https://shop.example/",
     finalUrl: "https://shop.example/",
     thirdPartyRequests: 0,
+    cataloguedServiceRequests: 0,
     trackerRequests: 0,
     temporalCohort: "cohort-a",
     ...overrides
@@ -25,8 +26,8 @@ function entry(overrides: Partial<TemporalDeltaInput> & { id: string }): Tempora
 
 test("pairs the newest report with its predecessor of the same kind", () => {
   const deltas = computeSinceLastScan([
-    entry({ id: "old", scannedAt: "2026-06-20T00:00:00.000Z", thirdPartyRequests: 100, trackerRequests: 40 }),
-    entry({ id: "new", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: 112, trackerRequests: 37 }),
+    entry({ id: "old", scannedAt: "2026-06-20T00:00:00.000Z", thirdPartyRequests: 100, cataloguedServiceRequests: 50, trackerRequests: 40 }),
+    entry({ id: "new", scannedAt: "2026-07-02T00:00:00.000Z", thirdPartyRequests: 112, cataloguedServiceRequests: 44, trackerRequests: 37 }),
     entry({ id: "oldest", scannedAt: "2026-06-01T00:00:00.000Z", thirdPartyRequests: 60, trackerRequests: 10 })
   ]);
 
@@ -36,6 +37,7 @@ test("pairs the newest report with its predecessor of the same kind", () => {
     previousId: "old",
     previousScannedAt: "2026-06-20T00:00:00.000Z",
     thirdPartyRequests: 12,
+    cataloguedServiceRequests: -6,
     trackerRequests: -3
   });
 });
@@ -172,6 +174,7 @@ test("the separate passive-history key drives comparable-since-last without chan
       id: "old",
       scannedAt: "2026-06-20T00:00:00.000Z",
       thirdPartyRequests: 20,
+      cataloguedServiceRequests: 8,
       trackerRequests: 5,
       comparisonHistoryKey: key
     },
@@ -179,6 +182,7 @@ test("the separate passive-history key drives comparable-since-last without chan
       id: "new",
       scannedAt: "2026-07-02T00:00:00.000Z",
       thirdPartyRequests: 27,
+      cataloguedServiceRequests: 5,
       trackerRequests: 3,
       comparisonHistoryKey: key
     },
@@ -186,6 +190,7 @@ test("the separate passive-history key drives comparable-since-last without chan
       id: "unknown",
       scannedAt: "2026-07-03T00:00:00.000Z",
       thirdPartyRequests: 999,
+      cataloguedServiceRequests: 999,
       trackerRequests: 999,
       comparisonHistoryKey: null
     }
@@ -194,6 +199,7 @@ test("the separate passive-history key drives comparable-since-last without chan
     previousId: "old",
     previousScannedAt: "2026-06-20T00:00:00.000Z",
     thirdPartyRequests: 7,
+    cataloguedServiceRequests: -3,
     trackerRequests: -2
   });
   assert.equal(comparisonHistoryPairingKey({ ...identity, comparisonHistoryCohort: null }), null);

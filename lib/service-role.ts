@@ -27,12 +27,12 @@ export const SERVICE_ROLE_TAXONOMY_VERSION = "service-role-taxonomy-v1";
 export const SERVICE_ROLE_TAXONOMY_DIGEST =
   "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67";
 
-const TRACKING_SERVICE_ROLES = [
+export const TRACKING_SERVICE_ROLES = Object.freeze([
   "tracking-analytics",
   "advertising",
   "session-replay",
   "tag-customer-data"
-] as const satisfies readonly ServiceRole[];
+] as const satisfies readonly ServiceRole[]);
 
 /**
  * Exact assignments only. Unknown or newly introduced category strings fall
