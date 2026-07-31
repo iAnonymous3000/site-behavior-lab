@@ -1,6 +1,7 @@
 import type { ConsentInteractionSummary, ConsentMode } from "./types";
 
 export type { ConsentInteractionSummary } from "./types";
+export { CONSENT_QUALIFIED_CHOICE_CONTROLS, consentControlQualification } from "./consent-control-semantics";
 
 /**
  * Consent-banner interaction: the pure catalog and matching rules behind the
@@ -39,10 +40,23 @@ export type ConsentCmpSelectors = {
 };
 
 /**
- * Known first-layer accept/reject controls per consent platform. Selectors are
- * the CMPs' own stable ids/classes, not site-specific. A missing reject entry
- * for a site (many banners hide reject behind "settings") is an expected,
- * disclosed outcome, not an error.
+ * Known first-layer-REACHABLE accept/reject controls per consent platform.
+ * Selectors are the CMPs' own stable ids/classes, not site-specific. A missing
+ * reject entry for a site (many banners hide reject behind "settings") is an
+ * expected, disclosed outcome, not an error.
+ *
+ * "First-layer only" is a rule about what the scanner DOES, not about which
+ * layer a selector belongs to: the scanner never opens a settings or
+ * preference layer. Two OneTrust entries (#accept-recommended-btn-handler and
+ * .ot-pc-refuse-all-handler) are the Preference Center's own Allow All and
+ * Reject All. They are listed as a symmetric pair so neither arm is favoured,
+ * and the visibility gate means they can only be clicked when that layer is
+ * already the visible one, never by the scanner navigating to it.
+ *
+ * Each entry's list is ordered: the control that most fully expresses the
+ * choice comes first, because the search returns at the first visible match.
+ * See CONSENT_QUALIFIED_CHOICE_CONTROLS for the controls whose submitted
+ * choice is configuration-dependent.
  */
 export const CONSENT_CMP_SELECTORS: ConsentCmpSelectors[] = [
   {
@@ -1123,5 +1137,12 @@ export function consentInteractionWarning(
     : summary.matchedText
       ? `a control labeled "${summary.matchedText}"`
       : "the consent banner";
+  // NOTE: a catalogued control whose submitted choice is configuration-dependent
+  // (CONSENT_QUALIFIED_CHOICE_CONTROLS) makes this sentence's `clicked "Accept
+  // all"` narrower than it reads. The qualification is disclosed READ-side, off
+  // the recorded selector, in RunConsentView.matchedControlQualification, which
+  // reaches already-published reports too. Restating it here would change an
+  // admitted public string and so retire the r2 normalization identity, which
+  // must be sequenced deliberately with the producer tuples that pin it.
   return `This visit clicked "${label}" on ${via} after page load. The click was dispatched, not verified as registered by the site, and the visit's requests, cookies, and storage include traffic from before and after the click.`;
 }

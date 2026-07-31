@@ -1768,12 +1768,33 @@ test("run views carry the consent outcome and comparison views carry display lab
       interactionAttempted: null,
       controlActivated: true,
       cmp: null,
+      matchedControlQualification: null,
       choiceState: null,
       verificationObservations: null,
       reverifiedAfterReload: null,
       verificationFailureReason: null,
       bannerTransition: null
     });
+  }
+
+  // A catalogued control whose submitted choice is configuration-dependent is
+  // disclosed off the recorded selector, so an ALREADY-PUBLISHED report gains
+  // the qualification without its stored bytes changing.
+  const qualified = mutate(makeScanReportV1() as ScanResult, (draft) => {
+    (draft as AnyRecord).consentInteraction = {
+      mode: "accept-all",
+      clicked: true,
+      cmp: "Cookiebot",
+      selector: "#CybotCookiebotDialogBodyButtonAccept"
+    };
+  });
+  const qualifiedRead = readStoredScanReport(qualified);
+  assert.equal(qualifiedRead.ok, true);
+  if (qualifiedRead.ok) {
+    assert.equal(
+      toReportView(qualifiedRead.stored).runs[0].consent?.matchedControlQualification,
+      "the platform's general accept control, which on some deployments submits only the cookie categories already selected"
+    );
   }
   const v1Plain = readStoredScanReport(makeScanReportV1());
   assert.equal(v1Plain.ok, true);
@@ -1799,6 +1820,7 @@ test("run views carry the consent outcome and comparison views carry display lab
       interactionAttempted: true,
       controlActivated: true,
       cmp: null,
+      matchedControlQualification: null,
       choiceState: "verified",
       verificationObservations: [
         { phaseId: 1, method: "onetrust-cookie@1", observed: "rejected-all", consistentWithChoice: true },

@@ -3,12 +3,15 @@ import { test } from "node:test";
 import { chromium, type Browser, type Page } from "playwright";
 import {
   CONSENT_CANDIDATE_BUDGET,
+  CONSENT_CMP_SELECTORS,
   CONSENT_CONTEXT_ANCESTOR_DEPTH,
   CONSENT_CONTEXT_TEXT_MAX_LENGTH,
   CONSENT_PROBE_OUTCOMES,
+  CONSENT_QUALIFIED_CHOICE_CONTROLS,
   cmpSelectorsForChoice,
   consentChoiceLabel,
   consentClickArgs,
+  consentControlQualification,
   consentInteractionWarning,
   consentShadowRootCaptureArgs,
   consentVisibilityArgs,
@@ -876,6 +879,142 @@ test("interaction warnings disclose the click or the honest failure", () => {
   const failed = consentInteractionWarning({ mode: "reject-all", clicked: false });
   assert.match(failed, /no recognizable control was found/);
   assert.match(failed, /pre-consent state/);
+});
+
+test("the allow-all control wins over the qualified one on a banner carrying both", { timeout: 20_000 }, async () => {
+  const browser = await chromium.launch();
+  try {
+    const page = await newConsentPage(browser);
+    const reacts = (id: string): string => `<script>
+        document.querySelector("#${id}").addEventListener("click", (event) => { event.currentTarget.disabled = true; });
+      </script>`;
+
+    // Both ids visible: the dedicated allow-all must be the one clicked, which
+    // is what keeps a two-selector entry safe on a fully-featured banner.
+    await page.setContent(`<!doctype html><body>
+      <div id="CybotCookiebotDialog">
+        <button id="CybotCookiebotDialogBodyButtonAccept">OK</button>
+        <button id="CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll">Allow all</button>
+      </div>
+      ${reacts("CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll")}
+    </body>`);
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      {
+        clicked: true,
+        cmp: "Cookiebot",
+        selector: "#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll"
+      },
+      "the allow-all control must be preferred when both are present"
+    );
+
+    // Only the qualified control present: it is still clicked (dropping it
+    // would lose coverage), and the recorded selector is what makes the
+    // disclosure name it rather than claim a full accept-all.
+    await page.setContent(`<!doctype html><body>
+      <div id="CybotCookiebotDialog">
+        <button id="CybotCookiebotDialogBodyButtonAccept">OK</button>
+      </div>
+      ${reacts("CybotCookiebotDialogBodyButtonAccept")}
+    </body>`);
+    assert.deepEqual(
+      await page.evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY)),
+      { clicked: true, cmp: "Cookiebot", selector: "#CybotCookiebotDialogBodyButtonAccept" },
+      "the qualified control is still a real consent control"
+    );
+  } finally {
+    await browser.close();
+  }
+});
+
+test("the reviewed accept/reject pairs stay symmetric and keep their vendor semantics", () => {
+  const entryFor = (cmp: string) => {
+    const entry = CONSENT_CMP_SELECTORS.find((candidate) => candidate.cmp === cmp);
+    assert.ok(entry, `missing catalog entry for ${cmp}`);
+    return entry;
+  };
+
+  // Osano renders the same allow-all/deny-all actions under two class shapes;
+  // the genuine save-current-selections control (.osano-cm-save) is NOT a
+  // choice control and must stay out of both lists.
+  const osano = entryFor("Osano");
+  assert.deepEqual(osano.accept, [".osano-cm-accept-all", ".osano-cm-accept"]);
+  assert.deepEqual(osano.reject, [".osano-cm-denyAll", ".osano-cm-deny"]);
+  for (const selector of [...osano.accept, ...osano.reject]) {
+    assert.doesNotMatch(selector, /osano-cm-save/);
+  }
+
+  // The two OneTrust preference-center controls are a symmetric pair. Keeping
+  // one arm's -pc- control without the other would bias the accept/reject diff
+  // toward whichever arm could still find a control.
+  const oneTrust = entryFor("OneTrust");
+  assert.equal(oneTrust.accept.includes("#accept-recommended-btn-handler"), true);
+  assert.equal(oneTrust.reject.includes(".ot-pc-refuse-all-handler"), true);
+  assert.equal(oneTrust.accept.length, oneTrust.reject.length);
+
+  // TrustArc's reject is its required-cookies-only control, which is what
+  // "reject all" means on every CMP here: reject all non-essential cookies.
+  assert.deepEqual(entryFor("TrustArc").reject, ["#truste-consent-required"]);
+
+  // Every entry offers both arms, so no platform can produce a one-sided diff.
+  for (const entry of CONSENT_CMP_SELECTORS) {
+    assert.ok(entry.accept.length > 0, `${entry.cmp} has no accept control`);
+    assert.ok(entry.reject.length > 0, `${entry.cmp} has no reject control`);
+  }
+});
+
+test("every qualified-control entry names a catalogued selector and sorts last in its list", () => {
+  const catalogued = new Set(
+    CONSENT_CMP_SELECTORS.flatMap((entry) => [...entry.accept, ...entry.reject])
+  );
+  for (const selector of Object.keys(CONSENT_QUALIFIED_CHOICE_CONTROLS)) {
+    assert.ok(catalogued.has(selector), `${selector} is qualified but not catalogued`);
+  }
+
+  // The ordering invariant the whole disclosure rests on: findAndClickConsentControl
+  // returns at the FIRST visible match, so a control that may not express the whole
+  // choice must never be tried before one that does on the same banner.
+  for (const entry of CONSENT_CMP_SELECTORS) {
+    for (const list of [entry.accept, entry.reject]) {
+      const firstQualified = list.findIndex((selector) =>
+        Object.prototype.hasOwnProperty.call(CONSENT_QUALIFIED_CHOICE_CONTROLS, selector)
+      );
+      if (firstQualified === -1) continue;
+      const unqualifiedAfter = list
+        .slice(firstQualified + 1)
+        .filter((selector) => !Object.prototype.hasOwnProperty.call(CONSENT_QUALIFIED_CHOICE_CONTROLS, selector));
+      assert.deepEqual(
+        unqualifiedAfter,
+        [],
+        `${entry.cmp} tries qualified ${list[firstQualified]} before ${unqualifiedAfter.join(", ")}`
+      );
+    }
+  }
+});
+
+test("the qualification is carried by the recorded selector, not by the producer sentence", () => {
+  // The disclosure is derived READ-side from the recorded selector, so it
+  // reaches already-published reports too. The producer sentence is
+  // deliberately unchanged: it is an admitted public string, and moving it
+  // would retire the r2 normalization identity that live reports validate
+  // against.
+  assert.equal(
+    consentControlQualification("#CybotCookiebotDialogBodyButtonAccept"),
+    "the platform's general accept control, which on some deployments submits only the cookie categories already selected"
+  );
+  assert.equal(consentControlQualification("#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll"), null);
+  assert.equal(consentControlQualification(undefined), null);
+  // An inherited Object.prototype key must not resolve to a qualification.
+  assert.equal(consentControlQualification("constructor"), null);
+  assert.equal(consentControlQualification("toString"), null);
+
+  const warning = consentInteractionWarning({
+    mode: "accept-all",
+    clicked: true,
+    cmp: "Cookiebot",
+    selector: "#CybotCookiebotDialogBodyButtonAccept"
+  });
+  assert.equal(warning, consentInteractionWarning({ mode: "accept-all", clicked: true, cmp: "Cookiebot" }));
 });
 
 test("a consent probe that never searched does not report a completed search", () => {

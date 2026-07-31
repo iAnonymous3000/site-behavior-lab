@@ -271,8 +271,17 @@ export function ReportRenderer({
                   <dt>Consent</dt>
                   <dd>
                     {displayedRun.consent.controlActivated
-                      ? `clicked "${consentChoiceLabel(displayedRun.consent.mode)}"${
-                          displayedRun.consent.cmp ? ` (${displayedRun.consent.cmp})` : ""
+                      ? `${
+                          displayedRun.consent.matchedControlQualification
+                            ? // The click is evidence of which control was activated, not of
+                              // what it expressed, so the row states the request rather than
+                              // asserting the choice as an outcome.
+                              `asked for "${consentChoiceLabel(displayedRun.consent.mode)}"`
+                            : `clicked "${consentChoiceLabel(displayedRun.consent.mode)}"`
+                        }${displayedRun.consent.cmp ? ` (${displayedRun.consent.cmp})` : ""}${
+                          displayedRun.consent.matchedControlQualification
+                            ? `; clicked ${displayedRun.consent.matchedControlQualification}`
+                            : ""
                         }`
                       : "no control activation recorded"}
                     {` · ${consentVerificationSummary(displayedRun.consent)}`}
