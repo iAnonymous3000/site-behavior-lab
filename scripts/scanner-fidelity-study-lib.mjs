@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 const requireFromHere = createRequire(import.meta.url);
 let sharedCanonicalSerializer;
 
-const METRICS = Object.freeze([
+export const METRICS = Object.freeze([
   "totalRequests",
   "thirdPartyRequests",
   "knownTrackerRequests",
@@ -467,7 +467,7 @@ function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function canonicalize(value) {
+export function canonicalize(value) {
   if (sharedCanonicalSerializer === undefined) {
     const candidates = [
       "../dist/schema/lib/canonical-json.js",
@@ -492,6 +492,6 @@ function canonicalize(value) {
   return sharedCanonicalSerializer(value);
 }
 
-function sha256Hex(value) {
+export function sha256Hex(value) {
   return createHash("sha256").update(value).digest("hex");
 }

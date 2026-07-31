@@ -57,6 +57,30 @@ outcomes, a sample-size/power rationale, and the complete attempted-pair
 denominator. Until that design exists and is executed, the r2 wire continues to
 say `observed-difference` even when its descriptive effects align.
 
+## Preregistered A/A repeatability studies
+
+The scanner-fidelity driver records every repeated attempt (including failures
+and censored runs) into a digest-bound attempt ledger with per-target metric
+spread, third-party-domain Jaccard, AB/BA order counts, and identity-drift
+exclusions (`scripts/scanner-fidelity-study-lib.mjs`). Those numbers are
+descriptive until a study declares acceptance thresholds BEFORE collecting.
+
+`scripts/aa-study-lib.mjs` defines that contract. A preregistration fixes, in
+one committed JSON declared before any scan: the exact target-frame digest,
+the target count, at least two repetitions per target (three recommended), the
+scan conditions, the producer build commit, and numeric thresholds (per-metric
+relative-range ceilings, a minimum pairwise Jaccard floor, an eligible-target
+floor, a maximum failing-target fraction, and whether comparison orders must
+be counterbalanced). `scripts/evaluate-aa-study.mjs` then scores a collected
+ledger against its preregistration: any binding mismatch (build, frame,
+repetitions, conditions, or a trimmed attempt denominator) is an identity
+violation rather than a threshold failure, and a passing study claims only
+that repeated automated visits agreed within the preregistered thresholds on
+that frozen frame at that exact identity. It is never a population estimate
+and never evidence about a single site. Committed studies live under
+`research/aa-studies/<study-id>/` as `preregistration.json`,
+`attempt-ledger.json`, and the generated `evaluation.json`.
+
 ## Detector calibration
 
 The public detector matrix is an acceptance-fixture inventory: 18 selected
