@@ -439,6 +439,52 @@ new one, which is exactly the transplanted-tree hazard the proposal flow
 exists to forbid. Re-running the workflow regenerates everything from one
 tree and costs only machine time.
 
+## Rollback
+
+Nothing in this repository rewinds. `v*` tags are immutable and `production`
+refuses non-fast-forward pushes, so "roll back" always means moving FORWARD to
+a tree without the defect:
+
+1. Revert the offending commits on a topic branch (`git revert`, never a
+   force-push) and land the revert through the normal PR flow with all four
+   required checks.
+2. The merge triggers CI on `main`; a green run promotes `production` to the
+   reverted tree through the ordinary App-authenticated fast-forward. No
+   special rollback lane exists, on purpose: the fix travels the same gated
+   path as the defect did.
+3. If the defect shipped in a release, the tag stays: cut the next patch
+   version from the reverted tree and note the supersession in its changelog
+   section. A released tag is a historical claim about what was published,
+   not a pointer to move.
+4. If promotion itself must be held while the revert is prepared, set
+   `vars.SITE_BEHAVIOR_LAB_PROMOTION_PAUSED=1`, and unset it when the revert
+   merges.
+
+Break-glass (above) remains the only exception, and it still cannot touch
+tags or `production` directly.
+
+## What may change in a committed report
+
+Two invariants coexist and are easy to conflate; release policy freezes them
+separately:
+
+- **Report identity is frozen.** A committed report is never upgraded across
+  schema generations, and a measurement correction never edits the original:
+  the corrections ledger requires a NEW report id with its own provenance,
+  and the superseded report is pruned or annotated, never rewritten into a
+  different measurement.
+- **Report bytes are not frozen.** A reviewed security remediation (redaction
+  widening, sanitizer fix) may rewrite stored bytes in place, preserving the
+  report id and its meaning, through format-preserving string replacement
+  with a recorded remediation inventory. This is the mechanism behind every
+  historical remediation wave and remains lawful.
+
+A release therefore claims that every committed report's MEASUREMENT is the
+one its id always described, not that its bytes never changed. Anything that
+would change what a report measured requires a new id through the
+corrections ledger; anything that changes only how the same measurement is
+redacted requires a reviewed remediation, never a quiet edit.
+
 ## Widening what a release may claim
 
 The evidence schema accepts `development` and `released`, and it verifies the

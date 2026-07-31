@@ -50,6 +50,20 @@ licenses for its 31 sources; those entries remain `UNKNOWN`. A legal review
 must locate authoritative terms, decide redistribution/notice/source-offer
 obligations, and add any required license texts before a critical release.
 
+That review now has a place to land: `THIRD_PARTY_REVIEWS.json` keeps one row
+per inventory item (ecosystem, name, exact version; a bump is a new row that
+re-enters review). `npm run supply-chain:reviews:sync` creates missing rows as
+`unreviewed` and never touches reviewed rows; a human review fills reviewer,
+review date, the determined license, and the obligations list, and flips the
+row to `reviewed`. CI runs `npm run supply-chain:reviews:check`, which fails
+when the ledger drifts from the inventory or a reviewed row is incomplete, so
+a new dependency cannot merge without at least an explicit unreviewed row.
+Review COMPLETENESS is reported per ecosystem but gated only at release
+readiness, not per commit. Note the runtime/development split the ledger
+carries from the inventory: 61 of the 148 npm packages ship at runtime, and
+the container base image's system packages remain outside both files, tracked
+only by its pinned digest.
+
 ## Vendored adblock WASM
 
 `tools/adblock-wasm/reproducibility-contract.json` deterministically binds the

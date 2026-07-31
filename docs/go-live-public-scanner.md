@@ -550,6 +550,15 @@ must contain no fault-injection hook and must use the normal CI-gated promotion,
 canary, soak, and rollback path. This runbook does not authorize that flip or a
 deployment by itself.
 
+The soak is quantified, not advisory: SEVEN days of hourly production health
+with durable readiness `ready` is the declared target, and twenty-four hours
+is the minimum defensible fallback ONLY when the window also contains a real
+restart or redeploy proving recovery under the flag. During the soak, exercise
+normal completion, cancellation, restart recovery, completed-report recovery,
+and duplicate prevention at least once each. A shorter or quieter window is a
+deviation to record, never a silent pass; the same durations apply to the
+separate sharding and watches soaks below.
+
 ### Post-durability container sharding
 
 Do not combine this with durable activation. After production health reports
