@@ -243,6 +243,25 @@ test("missing or malformed preregistration fields are invalid before any scoring
   assert.equal(singleRepetition.some((issue) => /at least 2/.test(issue)), true);
 });
 
+test("a preregistration declared after collection began is an identity violation", async () => {
+  const { aaStudyLib, fidelityStudyLib } = await loadModules();
+  const evaluation = aaStudyLib.evaluateAaStudy({
+    // The ledger's createdAt is 2026-08-01T06:00; declaring at 08:00 the same
+    // day is curve-fitting, not preregistration.
+    preregistration: preregistration({ declaredAt: "2026-08-01T08:00:00.000Z" }),
+    ledger: collectedLedger(fidelityStudyLib, {
+      attempts: stableAttempts(),
+      repetitions: 3,
+      selectedTargets: 2
+    })
+  });
+  assert.equal(evaluation.status, "identity-violation");
+  assert.equal(
+    evaluation.checks.find((check) => check.id === "preregistration-precedes-collection")?.ok,
+    false
+  );
+});
+
 test("every attempt must be preserved: a trimmed denominator refuses to score", async () => {
   const { aaStudyLib, fidelityStudyLib } = await loadModules();
   const evaluation = aaStudyLib.evaluateAaStudy({

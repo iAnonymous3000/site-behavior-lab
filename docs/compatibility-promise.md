@@ -22,11 +22,12 @@ their meanings never change or disappear; new ones may appear.
    unsupported FUTURE revisions as a capability gap, never as corrupt data.
 2. **Report permalinks.** `/reports/<id>/` and its `.json` neighbor identify
    one immutable measurement for as long as that report is retained.
-   Retention itself is the documented policy (committed corpus reports:
-   retained and prunable only through the corrections/retention ledgers;
-   public-scan reports: the documented seven-day application TTL). A
-   permalink never changes meaning; it either serves the same measurement or
-   honestly ceases to exist.
+   Retention itself is the documented policy: committed corpus reports are
+   pruned by the automated retention process (age, count-ceiling, and cohort
+   rules, with corrections-ledger pins exempting named ids), and public-scan
+   reports follow the documented application TTL. A permalink never changes
+   meaning; it either serves the same measurement or honestly ceases to
+   exist, and a corrected measurement always appears under a NEW id.
 3. **Per-site Atom feeds.** `/sites/<registrable-domain>/feed.xml` remains
    the feed route. Every entry keeps carrying: a stable entry id, the report
    permalink, `updated`, and a title naming the site and visit. Feed-level

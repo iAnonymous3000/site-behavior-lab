@@ -89,6 +89,20 @@ test("check fails on drift and on incomplete reviewed rows, and summarizes cover
   assert.equal(partial.problems.some((problem: string) => /missing reviewer/.test(problem)), true);
 });
 
+test("a hand-edited runtime flag is drift, not opinion", async () => {
+  const { syncReviewLedger, checkReviewLedger } = await reviewsLib();
+  const { ledger } = syncReviewLedger(INVENTORY, null);
+  const doctored = structuredClone(ledger);
+  const runtimeRow = doctored.reviews.find((row: { key: string }) => row.key === "npm:left-pad@1.0.0");
+  runtimeRow.runtime = false;
+  const verdict = checkReviewLedger(INVENTORY, doctored);
+  assert.equal(verdict.ok, false);
+  assert.equal(
+    verdict.problems.some((problem: string) => /declares runtime=false but the inventory says true/.test(problem)),
+    true
+  );
+});
+
 test("the committed ledger is in sync with the committed inventory", async () => {
   const { checkReviewLedger } = await reviewsLib();
   const inventory = JSON.parse(readFileSync(path.join(process.cwd(), "THIRD_PARTY_INVENTORY.json"), "utf8"));

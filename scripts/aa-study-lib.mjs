@@ -170,6 +170,17 @@ export function evaluateAaStudy({ preregistration, ledger }) {
     ledger.attemptedRuns === ledger.plannedRuns,
     `every planned attempt must be preserved: recorded ${String(ledger.attemptedRuns)} of ${String(ledger.plannedRuns)}`
   );
+  // Preregistration means BEFORE: thresholds declared after the data existed
+  // are curve-fitting, not preregistration.
+  const declaredAt = Date.parse(preregistration.declaredAt);
+  const collectedAt = Date.parse(ledger.createdAt ?? "");
+  check(
+    "preregistration-precedes-collection",
+    !Number.isNaN(collectedAt) && declaredAt < collectedAt,
+    Number.isNaN(collectedAt)
+      ? "the ledger carries no valid createdAt to order against the preregistration"
+      : `preregistration declared ${preregistration.declaredAt}, collection began ${ledger.createdAt}`
+  );
 
   const bindingViolated = checks.some((entry) => !entry.ok);
   const thresholds = preregistration.thresholds;

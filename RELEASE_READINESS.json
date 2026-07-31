@@ -6,7 +6,10 @@
   "decisions": {
     "claimBoundary": {
       "recommended": "investigative-evidence-requiring-independent-corroboration",
-      "excludes": ["standalone-legal-determinations", "sole-court-exhibit-use"],
+      "excludes": [
+        "standalone-legal-determinations",
+        "sole-court-exhibit-use"
+      ],
       "courtGradeEvidencePackage": "deferred-to-1.1",
       "status": "recommended-pending-approval",
       "decidedBy": null,
@@ -21,7 +24,7 @@
     },
     "compatibilitySurface": {
       "document": "docs/compatibility-promise.md",
-      "sha256": "f7ec7f95626104647d00bfcb567003f56a7b181ab4c12bac915dfff02ef88890",
+      "sha256": "daedd28863954dda734883aa9ace42d473f35c2b53962af20d949d2ea1ae0ccf",
       "status": "recommended-pending-approval",
       "decidedBy": null,
       "decidedAt": null
@@ -51,24 +54,37 @@
   "gates": {
     "decisions-approved": {
       "kind": "decisions",
-      "title": "Every release decision is approved by a named human"
+      "title": "Every release decision is approved by a named human",
+      "requiredDecisions": [
+        "claimBoundary",
+        "stableApiClaim",
+        "compatibilitySurface",
+        "reportRevisionR3",
+        "calibrationCensoringPolicy",
+        "wasmReproducibility"
+      ]
     },
     "compatibility-surface-pinned": {
       "kind": "document-digest",
-      "title": "The compatibility promise exists and matches its approved digest",
-      "document": "docs/compatibility-promise.md"
+      "title": "The compatibility promise exists and matches its pinned digest"
     },
     "errata-resolution": {
       "kind": "errata",
       "title": "No erratum is left without a decided vehicle",
-      "openErrata": ["E1", "E2"],
+      "openErrata": [
+        "E1",
+        "E2"
+      ],
       "resolvedBy": "reportRevisionR3"
     },
     "current-method-corpus": {
       "kind": "corpus",
       "title": "A current-method cohort clears every claim-bearing metric denominator",
       "artifact": "public/corpus-stats.json",
-      "requiredCohort": { "schemaVersion": 2, "schemaRevision": 2 },
+      "requiredCohort": {
+        "schemaVersion": 2,
+        "schemaRevision": 2
+      },
       "minimumSitesPerMetric": 50,
       "requiredMetrics": [
         "thirdPartyRequests",
@@ -99,7 +115,8 @@
     "legal-review": {
       "kind": "review-ledger",
       "title": "Every runtime third-party item has a completed review",
-      "artifact": "THIRD_PARTY_REVIEWS.json"
+      "artifact": "THIRD_PARTY_REVIEWS.json",
+      "inventory": "THIRD_PARTY_INVENTORY.json"
     },
     "runner-cycles": {
       "kind": "runner-receipts",
@@ -121,32 +138,38 @@
     "durable-soak": {
       "kind": "operator-attestation",
       "title": "Durable jobs completed the declared soak with a real restart in the window",
-      "attestation": "research/ops-receipts/durable-soak-attestation.json"
+      "attestation": "research/ops-receipts/durable-soak-attestation.json",
+      "maxAgeDays": 45
     },
     "egress-backstop": {
       "kind": "operator-attestation",
       "title": "An independent network egress boundary exists and was tested with the app guard treated as failed",
-      "attestation": "research/ops-receipts/egress-backstop-attestation.json"
+      "attestation": "research/ops-receipts/egress-backstop-attestation.json",
+      "maxAgeDays": 90
     },
     "waf-ceilings": {
       "kind": "operator-attestation",
       "title": "Both WAF admission-route ceilings re-proven for this candidate",
-      "attestation": "research/ops-receipts/waf-ceilings-attestation.json"
+      "attestation": "research/ops-receipts/waf-ceilings-attestation.json",
+      "maxAgeDays": 30
     },
     "log-retention": {
       "kind": "operator-attestation",
       "title": "Bounded, redacted log-retention query re-captured for this candidate",
-      "attestation": "research/ops-receipts/log-retention-attestation.json"
+      "attestation": "research/ops-receipts/log-retention-attestation.json",
+      "maxAgeDays": 30
     },
     "staging-teardown": {
       "kind": "operator-attestation",
       "title": "Staging resources torn down with same-session absence proofs for BOTH staging buckets",
-      "attestation": "research/ops-receipts/staging-teardown-attestation.json"
+      "attestation": "research/ops-receipts/staging-teardown-attestation.json",
+      "maxAgeDays": 90
     },
     "container-image-licensing": {
       "kind": "operator-attestation",
       "title": "The container base image's shipped packages have a completed license review",
-      "attestation": "research/ops-receipts/container-image-licensing-attestation.json"
+      "attestation": "research/ops-receipts/container-image-licensing-attestation.json",
+      "maxAgeDays": 180
     }
   }
 }

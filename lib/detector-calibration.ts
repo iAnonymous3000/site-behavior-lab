@@ -261,6 +261,15 @@ export type DetectorCalibrationReadiness = {
  * identity, so any commit to the release identity re-zeroes the eligible
  * columns by construction rather than by someone remembering to.
  */
+/**
+ * The ONE definition of "this study's analysis supports calibration claims".
+ * Readiness derivation and the release gate both consume it; restating the
+ * status pair anywhere else is the drift this export exists to prevent.
+ */
+export function isEligibleCalibrationStatus(status: DetectorCalibrationAnalysis["status"]): boolean {
+  return status === "descriptive-only" || status === "sample-estimate";
+}
+
 export function detectorCalibrationReadiness(
   analyses: ReadonlyArray<DetectorCalibrationAnalysis> = []
 ): DetectorCalibrationReadiness {
@@ -272,9 +281,7 @@ export function detectorCalibrationReadiness(
     censoredCases: analysis.denominators.censoredCases,
     ineligibilityReasons: [...analysis.ineligibilityReasons]
   }));
-  const eligible = analyses.filter(
-    (analysis) => analysis.status === "descriptive-only" || analysis.status === "sample-estimate"
-  );
+  const eligible = analyses.filter((analysis) => isEligibleCalibrationStatus(analysis.status));
   const ineligible = analyses.filter(
     (analysis) => analysis.status === "ineligible" || analysis.status === "invalid"
   );
