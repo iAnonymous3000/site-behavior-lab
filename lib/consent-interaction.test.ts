@@ -956,6 +956,27 @@ test("the reviewed accept/reject pairs stay symmetric and keep their vendor sema
   // "reject all" means on every CMP here: reject all non-essential cookies.
   assert.deepEqual(entryFor("TrustArc").reject, ["#truste-consent-required"]);
 
+  // Sourcepoint numbers its actions, and the numbers are the vendor's own:
+  // SPAction.swift in SourcePointUSA/ios-cmp-app declares SaveAndExit = 1,
+  // PMCancel = 2, AcceptAll = 11, ShowPrivacyManager = 12, RejectAll = 13.
+  // So 11 and 13 are whole-choice actions, not staged selections, and the two
+  // controls that would NOT express the requested choice have their own
+  // distinct identifiers which this catalog deliberately omits: SaveAndExit
+  // (the real save-current-selection action) and ShowPrivacyManager (which
+  // only opens the settings layer this scanner never navigates).
+  const sourcepoint = entryFor("Sourcepoint");
+  assert.deepEqual(sourcepoint.accept, [".sp_choice_type_11", ".message-button.sp_choice_type_ACCEPT_ALL"]);
+  assert.deepEqual(sourcepoint.reject, [".sp_choice_type_13", ".message-button.sp_choice_type_REJECT_ALL"]);
+  for (const selector of [...sourcepoint.accept, ...sourcepoint.reject]) {
+    assert.doesNotMatch(selector, /SAVE_AND_EXIT|sp_choice_type_1\b|sp_choice_type_12\b/);
+  }
+  // The named classes are the privacy manager's rendering of the same two
+  // actions, symmetric across both arms and reached only when that layer is
+  // already the visible one, exactly like the OneTrust `-pc-` pair. The
+  // first-layer numeric control is listed first so it always wins.
+  assert.equal(sourcepoint.accept[0], ".sp_choice_type_11");
+  assert.equal(sourcepoint.reject[0], ".sp_choice_type_13");
+
   // Every entry offers both arms, so no platform can produce a one-sided diff.
   for (const entry of CONSENT_CMP_SELECTORS) {
     assert.ok(entry.accept.length > 0, `${entry.cmp} has no accept control`);
