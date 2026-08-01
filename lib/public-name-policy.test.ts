@@ -2,13 +2,22 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import allowlists from "./redaction-allowlists.json";
 import {
-  isPublicCookieName,
-  isPublicStorageKey,
   isRedactedNameMarker,
   isReviewedCookieName,
   isReviewedStorageKey,
-  omitUnreviewedNames
+  omitUnreviewedNames,
 } from "./public-name-policy";
+
+// The public-name policy is the composition of the reviewed allowlist and the
+// terminal redaction markers; the standalone composed exports were removed as
+// unused, so these tests compose the two surviving predicates the same way
+// their production consumers do.
+function isPublicCookieName(value: string): boolean {
+  return isReviewedCookieName(value) || isRedactedNameMarker(value);
+}
+function isPublicStorageKey(value: string): boolean {
+  return isReviewedStorageKey(value) || isRedactedNameMarker(value);
+}
 
 test("the reviewed GitHub literals are versioned and public while arbitrary identifiers remain private", () => {
   assert.equal(allowlists.version, "allowlists-v3");

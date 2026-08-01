@@ -1,4 +1,5 @@
 import { publicReportDigest } from "./canonical-json";
+import { isCanonicalTimestamp } from "./canonical-timestamp";
 import { readManagedReport, type ManagedReportClock } from "./managed-report-reader";
 import {
   SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES,
@@ -453,12 +454,6 @@ function isRuntimeRetention(value: unknown): value is { createdAt: string; expir
     isCanonicalTimestamp(retention.expiresAt) &&
     Date.parse(retention.expiresAt) > Date.parse(retention.createdAt)
   );
-}
-
-function isCanonicalTimestamp(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 }
 
 function uniqueMetadataValue(left: string | undefined, right: string | undefined): string | null {

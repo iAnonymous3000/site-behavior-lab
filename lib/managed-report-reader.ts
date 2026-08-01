@@ -1,4 +1,5 @@
 import { publicReportDigest } from "./canonical-json";
+import { isCanonicalTimestamp } from "./canonical-timestamp";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
 import { REDACTION_VERSION } from "./redaction-v2";
 import {
@@ -203,8 +204,3 @@ function isManagedReportClock(value: unknown): value is ManagedReportClock {
   );
 }
 
-function isCanonicalTimestamp(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
-}

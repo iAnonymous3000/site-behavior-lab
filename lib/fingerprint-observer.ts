@@ -1472,10 +1472,6 @@ export async function collectFingerprintObservationsWithCoverage(
   };
 }
 
-export async function collectFingerprintObservationsFromFrames(frames: FingerprintFrameLike[]): Promise<FingerprintObservations> {
-  return (await collectFingerprintObservationsWithCoverage(frames)).observations;
-}
-
 function normalizeFingerprintSnapshot(snapshot: unknown): {
   detections: FingerprintDetectionSummary[];
   events: Record<string, number>;

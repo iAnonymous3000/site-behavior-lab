@@ -63,27 +63,6 @@ export function encryptedWatchesFlagState(value: string | undefined): EncryptedW
   return value === "1" ? "enabled" : "misconfigured";
 }
 
-/**
- * Creation and scheduled execution are impossible until durable jobs and the
- * isolated watch key are ready. Read/delete deliberately remain rollback-safe.
- */
-export function encryptedWatchReadinessState(input: EncryptedWatchReadinessInput): EncryptedWatchReadinessState {
-  const flag = encryptedWatchesFlagState(input.flagValue);
-  if (flag === "disabled") return "disabled";
-  if (flag === "misconfigured") return "misconfigured";
-  if (!input.encryptionKeyConfigured) return "key-unavailable";
-  if (!input.encryptionKeyIsolated) return "key-not-isolated";
-  if (!input.durableJobsRequested || !input.durableJobsReady) return "durable-jobs-unavailable";
-  return "ready";
-}
-
-export function encryptedWatchOperationAllowed(
-  operation: EncryptedWatchOperation,
-  readiness: EncryptedWatchReadinessState
-): boolean {
-  return operation === "read-metadata" || operation === "delete" || readiness === "ready";
-}
-
 /** The long-lived watch key must not alias any job, token, or forwarded secret. */
 export function encryptedWatchKeyIsIsolated(
   encryptionKey: string,
@@ -187,3 +166,10 @@ function decodeCanonicalBase64Url32(value: string, pattern: RegExp): Uint8Array 
     return null;
   }
 }
+
+// NOTE: readiness/permission derivation deliberately lives in
+// cloudflare/container-worker.ts (its health patch and gate checks), not here.
+// Two tested contract functions for it existed in this module once, born in
+// the same commit as the worker's own derivation and never wired to it; a
+// contract that looks authoritative while pinning nothing is this repo's known
+// worst defect class, so they were removed rather than left as a trap.

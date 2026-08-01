@@ -30,14 +30,6 @@ export function isReviewedStorageKey(value: string): boolean {
   return REVIEWED_STORAGE_KEYS.has(value);
 }
 
-export function isPublicCookieName(value: string): boolean {
-  return isReviewedCookieName(value) || isRedactedNameMarker(value);
-}
-
-export function isPublicStorageKey(value: string): boolean {
-  return isReviewedStorageKey(value) || isRedactedNameMarker(value);
-}
-
 /**
  * Presentation-only partition for name-level comparison lists. The frozen v1
  * wire keeps terminal markers in its derived diff for byte compatibility, and

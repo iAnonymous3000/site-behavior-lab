@@ -402,10 +402,6 @@ export function buildRunFacts(run: RunView): RunFacts {
   };
 }
 
-export function claimEligibilityFor(facts: RunFacts, claim: ReportClaimId): ClaimEligibility {
-  return facts.claims[claim];
-}
-
 /**
  * A cross-arm numeric delta is exact only when both runs measured that claim
  * exactly. The wire's broad detector-findings comparison family can still be
@@ -460,10 +456,6 @@ export function comparisonSupportsExactClaimDelta(
     gates.every((gate) => gate.reasons.includes(reason))
   );
   return !globallySharedBlocker;
-}
-
-export function evidenceStateFor(facts: RunFacts, family: EvidenceFamily): EvidenceState {
-  return facts.evidence[family].state;
 }
 
 export function retainedCountLabel(value: number, state: EvidenceState): string {

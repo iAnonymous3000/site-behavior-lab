@@ -8,8 +8,6 @@ import {
   ENCRYPTED_WATCH_TTL_MS,
   deriveEncryptedWatchIdFromCapabilityToken,
   encryptedWatchKeyIsIsolated,
-  encryptedWatchOperationAllowed,
-  encryptedWatchReadinessState,
   encryptedWatchesFlagState,
   isCanonicalEncryptedWatchKeyWire,
   isEncryptedWatchCapabilityToken,
@@ -18,6 +16,15 @@ import {
 } from "./encrypted-watch-contract";
 
 const KEY = Buffer.from(Uint8Array.from({ length: 32 }, (_, index) => index + 1)).toString("base64url");
+
+test("the watches flag reads fail closed on anything but an exact 0 or 1", () => {
+  assert.equal(encryptedWatchesFlagState(undefined), "disabled");
+  assert.equal(encryptedWatchesFlagState("0"), "disabled");
+  assert.equal(encryptedWatchesFlagState("1"), "enabled");
+  // A near-miss is misconfiguration, never silently enabled or disabled.
+  assert.equal(encryptedWatchesFlagState("true"), "misconfigured");
+  assert.equal(encryptedWatchesFlagState(" 1"), "misconfigured");
+});
 
 test("encrypted-watch policy is fixed and deliberately bounded", () => {
   assert.equal(ENCRYPTED_WATCH_CADENCE_MS, 7 * 24 * 60 * 60 * 1_000);
@@ -42,40 +49,6 @@ test("payload validation is exact, single-mode, and excludes URL secrets", () =>
   assert.equal(isEncryptedWatchPayload({ ...payload, target: { url: "https://private.example/path%3Fpart%23part" } }), true);
   assert.equal(isEncryptedWatchPayload({ ...payload, target: { url: "https://user:pass@private.example/" } }), false);
   assert.equal(isEncryptedWatchPayload({ ...payload, options: { ...payload.options, comparison: "gpc" } }), false);
-});
-
-test("flag and readiness gates fail closed while metadata deletion stays rollback-safe", () => {
-  assert.equal(encryptedWatchesFlagState(undefined), "disabled");
-  assert.equal(encryptedWatchesFlagState("0"), "disabled");
-  assert.equal(encryptedWatchesFlagState("1"), "enabled");
-  assert.equal(encryptedWatchesFlagState("true"), "misconfigured");
-  assert.equal(encryptedWatchesFlagState(" 1"), "misconfigured");
-
-  const ready = encryptedWatchReadinessState({
-    flagValue: "1",
-    encryptionKeyConfigured: true,
-    encryptionKeyIsolated: true,
-    durableJobsRequested: true,
-    durableJobsReady: true
-  });
-  assert.equal(ready, "ready");
-  assert.equal(encryptedWatchOperationAllowed("create", ready), true);
-  assert.equal(encryptedWatchOperationAllowed("claim-due", ready), true);
-  assert.equal(encryptedWatchOperationAllowed("read-target", ready), true);
-
-  const unavailable = encryptedWatchReadinessState({
-    flagValue: "1",
-    encryptionKeyConfigured: false,
-    encryptionKeyIsolated: false,
-    durableJobsRequested: false,
-    durableJobsReady: false
-  });
-  assert.equal(unavailable, "key-unavailable");
-  assert.equal(encryptedWatchOperationAllowed("create", unavailable), false);
-  assert.equal(encryptedWatchOperationAllowed("claim-due", unavailable), false);
-  assert.equal(encryptedWatchOperationAllowed("read-target", unavailable), false);
-  assert.equal(encryptedWatchOperationAllowed("read-metadata", unavailable), true);
-  assert.equal(encryptedWatchOperationAllowed("delete", unavailable), true);
 });
 
 test("key, watch, and capability wires are canonical", () => {

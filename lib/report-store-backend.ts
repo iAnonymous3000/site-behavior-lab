@@ -1,4 +1,5 @@
 import { mkdir, readdir, stat, unlink, writeFile } from "node:fs/promises";
+import { isCanonicalTimestamp } from "./canonical-timestamp";
 import path from "node:path";
 import { BoundedUtf8FileReadError, readBoundedUtf8File } from "./bounded-utf8-file";
 import { committedSidecarFilename } from "./redaction-provenance";
@@ -376,12 +377,6 @@ async function removeFiles(files: string[], options?: ReportStoreOperationOption
     }
   }
   if (firstError !== undefined) throw firstError;
-}
-
-function isCanonicalTimestamp(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 }
 
 function reportStoreDir(): string {

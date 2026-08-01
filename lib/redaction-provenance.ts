@@ -1,4 +1,5 @@
 import { CANONICALIZATION_VERSION, publicReportDigest } from "./canonical-json";
+import { isCanonicalTimestamp } from "./canonical-timestamp";
 import { REDACTION_VERSION } from "./redaction-v2";
 import { REPORT_ID_PATTERN } from "./report-validation";
 
@@ -158,8 +159,3 @@ const PROVENANCE_ENTRY_KEYS = new Set<keyof RedactionProvenanceEntry>([
   "expiresAt"
 ]);
 
-function isCanonicalTimestamp(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
-}

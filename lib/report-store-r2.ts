@@ -1,4 +1,5 @@
 import { AwsClient } from "aws4fetch";
+import { isCanonicalTimestamp } from "./canonical-timestamp";
 import type {
   ReportRetentionMetadata,
   ReportStoreBackend,
@@ -839,12 +840,6 @@ function isRetentionMetadata(value: unknown): value is ReportRetentionMetadata {
     isCanonicalTimestamp(metadata.expiresAt) &&
     Date.parse(metadata.expiresAt) > Date.parse(metadata.createdAt)
   );
-}
-
-function isCanonicalTimestamp(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 }
 
 function normalizePrefix(raw: string | undefined): string {
