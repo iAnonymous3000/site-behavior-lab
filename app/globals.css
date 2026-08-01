@@ -14,7 +14,7 @@
   --surface-2: #f0f3ef;
   --surface-3: #e7ece6;
   --border: #dde4dd;
-  --border-strong: #c6d0c7;
+  --border-strong: #7c887e; /* >=3:1 on every surface token: the boundary for interactive controls (WCAG 1.4.11) */
 
   --text: #14201d;
   --text-muted: #57675f;
@@ -37,7 +37,11 @@
   --sig-ok: #137536; /* AA >=4.5:1 as text on --surface, --surface-2, and --sig-ok-soft */
   --sig-ok-soft: #ddf2e3;
 
-  --ring: 0 0 0 3px rgba(15, 118, 110, 0.32);
+  /* Two layers, because one is never enough on both a pale card and an accent-filled
+     button. The inner surface band separates the ring from the control it wraps; the
+     outer accent band is the part that has to clear 3:1 (WCAG 1.4.11) against whatever
+     the control sits on. A single translucent wash reached only 1.60:1 here. */
+  --ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
   --shadow-sm: 0 1px 2px rgba(20, 32, 29, 0.06);
   --shadow: 0 10px 30px rgba(20, 32, 29, 0.08);
   --shadow-lg: 0 24px 60px rgba(20, 32, 29, 0.12);
@@ -65,7 +69,7 @@
     --surface-2: #182220;
     --surface-3: #20302c;
     --border: #243430;
-    --border-strong: #33483f;
+    --border-strong: #5f7d6f;
 
     --text: #e7efe9;
     --text-muted: #9bb0a6;
@@ -87,7 +91,7 @@
     --sig-ok: #4ade80;
     --sig-ok-soft: #122a1a;
 
-    --ring: 0 0 0 3px rgba(45, 212, 191, 0.4);
+    --ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow: 0 12px 34px rgba(0, 0, 0, 0.5);
     --shadow-lg: 0 28px 70px rgba(0, 0, 0, 0.6);
@@ -103,7 +107,7 @@
   --surface-2: #182220;
   --surface-3: #20302c;
   --border: #243430;
-  --border-strong: #33483f;
+  --border-strong: #5f7d6f;
 
   --text: #e7efe9;
   --text-muted: #9bb0a6;
@@ -125,7 +129,7 @@
   --sig-ok: #4ade80;
   --sig-ok-soft: #122a1a;
 
-  --ring: 0 0 0 3px rgba(45, 212, 191, 0.4);
+  --ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow: 0 12px 34px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 28px 70px rgba(0, 0, 0, 0.6);
@@ -174,10 +178,31 @@ a {
   color: var(--accent-strong);
 }
 
+/* The outline is transparent rather than absent on purpose. Forced-colors mode drops
+   box-shadow entirely, so a bare `outline: none` left Windows High Contrast users with
+   no focus indicator anywhere on the site. A transparent outline is invisible normally
+   and is repainted by the UA in forced-colors mode, which restores focus for free at
+   every one of the shadow-ring sites below. */
 :focus-visible {
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   box-shadow: var(--ring);
   border-radius: 6px;
+}
+
+@media (forced-colors: active) {
+  :focus-visible,
+  .url-row:focus-within,
+  .access-control:focus-within,
+  .file-button:focus-within,
+  .static-gallery-search:focus-within,
+  .static-gallery-controls select:focus,
+  .static-compare-controls select:focus,
+  .request-log-tools select:focus,
+  .filter-input:focus {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
 }
 
 ::selection {
@@ -355,7 +380,7 @@ a {
 .icon-button {
   align-items: center;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: 10px;
   box-shadow: var(--shadow-sm);
   color: var(--text-muted);
@@ -730,7 +755,7 @@ a {
 .url-row {
   align-items: center;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   display: grid;
   gap: 8px;
@@ -745,14 +770,22 @@ a {
 }
 
 .url-row > svg {
+  align-self: center;
   color: var(--text-subtle);
 }
 
+/* The Scan button sets this grid row's height, so `align-items: center` left the input
+   as a 19px band floating in a 56px-tall field: clicking the top or bottom third of the
+   product's primary control focused nothing. Stretch the input over the whole row so the
+   visible field and the hit area are the same rectangle. 16px also stops iOS Safari
+   zooming the page on focus, which it does for any input under 16px. */
 .url-row input {
+  align-self: stretch;
   background: transparent;
   border: 0;
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: 16px;
+  min-height: 44px;
   min-width: 0;
   outline: none;
   width: 100%;
@@ -908,7 +941,7 @@ a {
 
 .segmented-control {
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   display: grid;
   gap: 4px;
@@ -958,16 +991,23 @@ a {
 
 .segmented-control button.active {
   background: var(--surface);
-  border-color: var(--border);
+  border-color: var(--border-strong);
   box-shadow: var(--shadow-sm);
   color: var(--text);
+}
+
+/* `.active` outranks the bare `:focus-visible` on box-shadow, so without this the
+   selected segment (the current Run mode, the current Device) was the one control on
+   the page that showed no focus ring at all. Compose both, the way .icon-button does. */
+.segmented-control button:focus-visible {
+  box-shadow: var(--shadow-sm), var(--ring);
 }
 
 .switch-row,
 .readonly-control {
   align-items: center;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   display: flex;
   font-size: 14px;
@@ -994,7 +1034,7 @@ a {
 .access-control {
   align-items: center;
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   display: flex;
   gap: 9px;
@@ -1271,7 +1311,7 @@ a {
 .static-compare-controls select,
 .request-log-tools select {
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: 9px;
   color: var(--text);
   min-height: 38px;
@@ -1969,7 +2009,7 @@ a {
 
 .arm-option {
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: 999px;
   color: var(--text-muted);
   cursor: pointer;
@@ -1996,10 +2036,31 @@ a {
      further down: a wide touchscreen laptop must get the targets without the
      stacked-phone layout. */
   .ghost-button,
+  .primary-button,
   .secondary-button,
+  .segmented-control button,
+  .headline-share,
   .scanner-health-retry {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Form controls: a height floor only. A 44px min-width would stretch these past
+     their content. */
+  .filter-input,
+  .static-gallery-search,
+  .static-gallery-controls select,
+  .request-log-tools select {
+    min-height: 44px;
+  }
+
+  /* Text-sized links and toggles need the box grown around the label, so they take
+     inline-flex centring rather than a bare height. */
+  .change-list-toggle,
+  .footer-link {
+    align-items: center;
+    display: inline-flex;
+    min-height: 44px;
   }
 
   .options-disclosure > summary {
@@ -2025,6 +2086,24 @@ a {
 
 /* Schema-provenance chip beside the report eyebrow: always-visible origin
    labeling (legacy-derived / limited), never buried in the sidebar. */
+/* Data-integrity chip for a visit whose request evidence is a lower bound. It has three
+   call sites and no rule, so it was inheriting .eyebrow's uppercase accent styling in the
+   report header and reading as part of the title. Warn-toned pill, never title-toned. */
+.capped-chip {
+  background: var(--sig-warn-soft);
+  border: 1px solid color-mix(in srgb, var(--sig-warn) 35%, var(--border));
+  border-radius: 999px;
+  color: var(--sig-warn);
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-left: 8px;
+  padding: 2px 8px;
+  text-transform: none;
+  vertical-align: middle;
+}
+
 .report-provenance {
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -2858,6 +2937,20 @@ a {
   color: var(--sig-quiet);
 }
 
+/* The prerendered placeholder is one line and the health summary that replaces it after
+   a cross-origin fetch runs to several, so the Check again button and the receipt links
+   used to jump down the page under the reader's cursor. Reserve the tall state instead
+   of shortening copy other audits pinned for accuracy. */
+.status-live-summary {
+  min-height: calc(3 * 1.55em);
+}
+
+@media (max-width: 720px) {
+  .status-live-summary {
+    min-height: calc(6 * 1.55em);
+  }
+}
+
 .status-fact-grid {
   display: grid;
   gap: 12px;
@@ -2902,8 +2995,14 @@ a {
   font-weight: 650;
 }
 
-.trust-links {
+/* The border and spacing move to the row so the theme toggle sits on the same rule. */
+.trust-links-row {
+  align-items: center;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
   margin-top: 32px;
   padding-top: 20px;
 }
@@ -3613,23 +3712,30 @@ a {
   width: 100%;
 }
 
+/* No opacity wash here: this diagram's whole content is which script caused which
+   request, and at 0.55 the edges measured 1.28:1 in light theme. --border-strong now
+   clears 3:1 on every surface, so the edges are drawn at full strength. */
 .causal-edge {
-  stroke: var(--border-strong, var(--border));
-  opacity: 0.55;
+  stroke: var(--border-strong);
 }
 
+/* Catalogued third parties get a second visual channel besides hue, so the distinction
+   survives for a reader who cannot separate teal from grey. */
 .causal-edge-tracker {
   stroke: var(--accent);
-  opacity: 0.75;
+  stroke-dasharray: 5 3;
+  stroke-width: 2;
 }
 
 .causal-node rect {
   fill: var(--surface-2);
-  stroke: var(--border);
+  stroke: var(--border-strong);
 }
 
 .causal-node-tracker rect {
-  stroke: color-mix(in srgb, var(--accent) 55%, var(--border));
+  stroke: var(--accent);
+  stroke-dasharray: 5 3;
+  stroke-width: 2;
 }
 
 .causal-node-label {
@@ -3677,7 +3783,7 @@ a {
 
 .filter-input {
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
   color: var(--text);
   font-size: 13px;
@@ -3702,16 +3808,17 @@ a {
   gap: 6px;
 }
 
+/* No min-height here: these chips are the primary way a reader narrows hundreds of
+   request rows, so they inherit the 44px coarse-pointer floor like every other
+   pressable control instead of opting back out of it. */
 .request-filter-chips .secondary-button,
 .request-filter-chips .ghost-button {
-  min-height: 34px;
   padding: 0 10px;
 }
 
 .request-log-tools .filter-input {
   flex: 1 1 210px;
   max-width: none;
-  min-height: 38px;
 }
 
 .request-log-tools label {
@@ -3949,6 +4056,7 @@ td .mono {
   border: 1px solid var(--border);
   border-radius: 9px;
   display: block;
+  height: auto;
   margin-top: 12px;
   width: 100%;
 }

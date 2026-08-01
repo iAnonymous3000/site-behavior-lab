@@ -192,3 +192,142 @@ test("category summaries keep valid definition-list semantics and usable touch t
   );
   assert.match(css, /\.siteActions a \{[\s\S]*display: inline-flex;[\s\S]*min-height: 44px;/);
 });
+
+test("the focus indicator survives forced-colors mode and clears 3:1 in both themes", () => {
+  const css = source("app/globals.css");
+
+  // A bare `outline: none` plus a box-shadow ring leaves Windows High Contrast users with
+  // no focus indicator at all, because forced-colors drops box-shadow and there is then
+  // nothing for the UA to repaint.
+  assert.doesNotMatch(css, /:focus-visible \{\s*outline: none;/);
+  assert.match(css, /:focus-visible \{\s*outline: 3px solid transparent;\s*outline-offset: 2px;\s*box-shadow: var\(--ring\);/);
+  assert.match(css, /@media \(forced-colors: active\) \{[\s\S]*?outline: 3px solid Highlight;/);
+
+  // The ring is two solid bands, not a translucent wash: the alpha version measured
+  // 1.60:1 in light theme against every surface token, well under WCAG 1.4.11.
+  const ringDeclarations = css.match(/--ring: [^;]+;/g) ?? [];
+  assert.equal(ringDeclarations.length, 3, "expected one --ring per theme block");
+  for (const declaration of ringDeclarations) {
+    assert.match(declaration, /0 0 0 2px var\(--surface\), 0 0 0 4px var\(--accent\)/);
+    assert.doesNotMatch(declaration, /rgba\(/, `translucent focus ring reintroduced: ${declaration}`);
+  }
+
+  // `.active` outranks the bare `:focus-visible` on box-shadow, so the selected segment
+  // needs its own rule or it is the one control that shows no ring.
+  assert.match(css, /\.segmented-control button:focus-visible \{\s*box-shadow: var\(--shadow-sm\), var\(--ring\);/);
+});
+
+test("interactive controls draw their boundary with the 3:1 token, not the hairline one", () => {
+  const css = source("app/globals.css");
+
+  // --border stays the low-contrast token for decorative separators; --border-strong is
+  // the one that has to clear 3:1 against every surface for control boundaries.
+  assert.match(css, /--border-strong: #7c887e;/);
+  assert.match(css, /--border-strong: #5f7d6f;/);
+  assert.doesNotMatch(css, /--border-strong: #c6d0c7;/);
+  assert.doesNotMatch(css, /--border-strong: #33483f;/);
+
+  for (const selector of [
+    "\\.icon-button",
+    "\\.url-row",
+    "\\.segmented-control",
+    "\\.access-control"
+  ]) {
+    const block = new RegExp(`\\n${selector} \\{[^}]*border: 1px solid var\\(--border-strong\\);`);
+    assert.match(css, block, `${selector} lost the 3:1 boundary token`);
+  }
+});
+
+test("the scan field's hit area is the whole visible field", () => {
+  const css = source("app/globals.css");
+
+  // The Scan button sets this grid row's height. With `align-items: center` inherited the
+  // input was a 19px band inside a 56px field, so clicks on the top and bottom thirds of
+  // the product's primary control focused nothing.
+  assert.match(css, /\.url-row input \{[\s\S]*?align-self: stretch;/);
+  assert.match(css, /\.url-row input \{[\s\S]*?min-height: 44px;/);
+  // Under 16px iOS Safari zooms the page on focus.
+  assert.match(css, /\.url-row input \{[\s\S]*?font-size: 16px;/);
+});
+
+test("every className token rendered by app code has a matching CSS rule", () => {
+  // `.capped-chip` shipped with three call sites and no rule at all: the data-integrity
+  // warning rendered as unstyled text and inherited `.eyebrow` in the report header.
+  // Typecheck and the unit suite are both blind to a deleted rule, so pin it here.
+  const cssFiles = [
+    "app/globals.css",
+    "app/catalog/catalog.module.css",
+    "app/directory/directory.module.css",
+    "app/categories/[category]/category.module.css"
+  ].map(source).join("\n");
+
+  for (const className of [
+    "capped-chip",
+    "trust-links-row",
+    "status-live-summary",
+    "request-evidence-explanation",
+    "report-evidence-loader"
+  ]) {
+    assert.match(cssFiles, new RegExp(`\\.${className}[\\s,{:]`), `.${className} has no CSS rule`);
+  }
+});
+
+test("no CSS file reads a custom property that is never declared", () => {
+  // `color: var(--button-text, #fff)` failed silently to its fallback for both directory
+  // submit buttons, giving 1.86:1 white-on-teal in dark theme.
+  const files = [
+    "app/globals.css",
+    "app/catalog/catalog.module.css",
+    "app/directory/directory.module.css",
+    "app/categories/[category]/category.module.css"
+  ];
+  const all = files.map(source).join("\n");
+  const declared = new Set(Array.from(all.matchAll(/(--[a-z0-9-]+)\s*:/g), (match) => match[1]));
+  const referenced = new Set(Array.from(all.matchAll(/var\((--[a-z0-9-]+)/g), (match) => match[1]));
+
+  const undeclared = [...referenced].filter((name) => !declared.has(name));
+  assert.deepEqual(undeclared, [], `CSS reads custom properties that are never declared: ${undeclared.join(", ")}`);
+});
+
+test("the 404 page carries its own metadata instead of inheriting the home page's", () => {
+  const notFound = source("app/not-found.tsx");
+  assert.match(notFound, /export const metadata: Metadata = \{/);
+  assert.match(notFound, /title: "Report or page not available"/);
+  assert.match(notFound, /robots: \{ index: false/);
+});
+
+test("scan failures and evidence-load failures relocate keyboard focus", () => {
+  const home = source("app/site-behavior-app.tsx");
+  const permalink = source("app/reports/[id]/saved-report-client.tsx");
+  const banner = source("app/_components/scan-recovery-banner.tsx");
+
+  // Both paths disable the control that holds focus, which browsers resolve by blurring
+  // to <body> at the top of the document.
+  assert.match(home, /if \(scanFailure && !hadScanFailure\.current\) recoveryBannerRef\.current\?\.focus\(\)/);
+  assert.match(home, /<ScanRecoveryBanner\s*\n\s*bannerRef=\{recoveryBannerRef\}/);
+  assert.match(banner, /ref=\{bannerRef\}[\s\S]*tabIndex=\{-1\}/);
+  assert.match(permalink, /window\.requestAnimationFrame\(\(\) => evidenceLoaderRef\.current\?\.focus\(\)\)/);
+});
+
+test("every route reaches the trust surfaces and the theme control", () => {
+  const trust = source("app/_components/trust-links.tsx");
+  assert.match(trust, /<ThemeToggle \/>/);
+  assert.match(trust, /href="\/glossary\/"/);
+
+  // The toggle used to exist on the home and report shells only, so a reader arriving
+  // from search on any indexed library or policy page could not change theme.
+  for (const file of [
+    "app/catalog/page.tsx",
+    "app/glossary/page.tsx",
+    "app/methodology/page.tsx",
+    "app/directory/directory-index.tsx",
+    "app/categories/[category]/page.tsx",
+    "app/sites/[domain]/page.tsx",
+    "app/status/page.tsx",
+    "app/privacy/page.tsx",
+    "app/security/page.tsx",
+    "app/corrections/page.tsx"
+  ]) {
+    assert.match(source(file), /<TrustLinks \/>/, `${file} renders no trust surface`);
+  }
+});
