@@ -192,9 +192,17 @@ export function ReportRenderer({
           {screenshot && (
             <section className="side-card screenshot-card">
               <h2>Viewport</h2>
+              {/* Intrinsic size from the recorded viewport, which is exact for the
+                  non-fullPage capture this is. Without it the image had no reserved
+                  box and its arrival pushed the whole evidence sidebar down. */}
               <img
                 src={screenshot}
                 alt={`Screenshot of ${screenshotSubject}`}
+                width={displayedRun.conditions.viewport.width}
+                height={displayedRun.conditions.viewport.height}
+                style={{
+                  aspectRatio: `${displayedRun.conditions.viewport.width} / ${displayedRun.conditions.viewport.height}`
+                }}
                 loading="lazy"
                 decoding="async"
               />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { publicPageMetadata } from "@/lib/seo-metadata";
-import { TrustLinks } from "@/app/_components/trust-links";
+import { TrustLinks } from "../_components/trust-links";
 
 export const dynamic = "force-static";
 

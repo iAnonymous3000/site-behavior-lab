@@ -119,7 +119,7 @@ export function LiveDeploymentStatus() {
         </div>
         <span className={`status-badge state-${checking ? "checking" : evaluation.state}`}>{badgeLabel}</span>
       </div>
-      <p aria-live="polite">
+      <p aria-live="polite" className="status-live-summary">
         {checking ? "Checking the public deployment and scanner health endpoints…" : evaluation.summary}
       </p>
       <dl className="status-fact-grid">

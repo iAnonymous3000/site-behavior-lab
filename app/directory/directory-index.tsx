@@ -14,7 +14,7 @@ import { sitePagesBasePath } from "@/lib/site-url";
 import { reportKindLabel } from "@/lib/text-format";
 import { DirectoryControls } from "./directory-controls";
 import styles from "./directory.module.css";
-import { TrustLinks } from "@/app/_components/trust-links";
+import { TrustLinks } from "../_components/trust-links";
 
 export async function DirectoryIndex({ page }: { page: number }) {
   const { entries } = await loadCorpusOverview();

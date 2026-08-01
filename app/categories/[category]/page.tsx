@@ -9,7 +9,7 @@ import { reportPagePath } from "@/lib/report-locator";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { siteBaseUrl, sitePagesBasePath } from "@/lib/site-url";
 import styles from "./category.module.css";
-import { TrustLinks } from "@/app/_components/trust-links";
+import { TrustLinks } from "../../_components/trust-links";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;

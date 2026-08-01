@@ -10,7 +10,7 @@ import { formatDelta } from "@/lib/temporal-deltas";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { sitePagesBasePath, siteUrl } from "@/lib/site-url";
 import { reportKindLabel } from "@/lib/text-format";
-import { TrustLinks } from "@/app/_components/trust-links";
+import { TrustLinks } from "../../_components/trust-links";
 
 export const dynamic = "force-static";
 

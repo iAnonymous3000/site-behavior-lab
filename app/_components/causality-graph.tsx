@@ -5,8 +5,12 @@ import { plural } from "@/lib/text-format";
 import type { NetworkRequestRecord } from "@/lib/types";
 
 type CausalEdge = { source: string; dest: string; requests: number; tracker: boolean };
+type CausalEdgeSet = { edges: CausalEdge[]; totalEdges: number };
 
-function buildCausalEdges(requests: NetworkRequestRecord[]): CausalEdge[] {
+/** Drawing every edge of a busy capture makes the map unreadable; the tail is disclosed. */
+const MAX_DRAWN_EDGES = 12;
+
+function buildCausalEdges(requests: NetworkRequestRecord[]): CausalEdgeSet {
   const map = new Map<string, CausalEdge>();
 
   for (const request of requests) {
@@ -25,9 +29,13 @@ function buildCausalEdges(requests: NetworkRequestRecord[]): CausalEdge[] {
     map.set(key, { source, dest, requests: 1, tracker: Boolean(request.tracker) });
   }
 
-  return Array.from(map.values())
-    .sort((a, b) => b.requests - a.requests || a.source.localeCompare(b.source))
-    .slice(0, 12);
+  const all = Array.from(map.values()).sort(
+    (a, b) => b.requests - a.requests || a.source.localeCompare(b.source)
+  );
+  // The node labels count only what is drawn, so the total has to travel with the
+  // slice: without it a busy capture rendered per-node counts that looked like
+  // totals while edges past the twelfth were dropped with no note anywhere.
+  return { edges: all.slice(0, MAX_DRAWN_EDGES), totalEdges: all.length };
 }
 
 function orderedUnique(values: string[]): string[] {
@@ -48,7 +56,7 @@ function truncateMiddle(value: string, max = 30): string {
 }
 
 function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
-  const edges = useMemo(() => buildCausalEdges(requests), [requests]);
+  const { edges, totalEdges } = useMemo(() => buildCausalEdges(requests), [requests]);
   const headingId = useId();
   const scrollDescriptionId = useId();
   if (edges.length === 0) return null;
@@ -88,7 +96,7 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
         <span className="muted">Which script caused which third-party request, from PageGraph provenance.</span>
       </div>
       <p className="visually-hidden" id={scrollDescriptionId}>
-        Horizontally scrollable visual map. A complete text list of the displayed relationships follows it.
+        Horizontally scrollable visual map. A text list of every relationship drawn in it follows.
       </p>
       <div
         className="causal-graph-scroll"
@@ -157,6 +165,12 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
           })}
         </svg>
       </div>
+      {totalEdges > edges.length && (
+        <p className="muted row-more">
+          Showing the {edges.length} highest-volume causal paths of {plural(totalEdges, "recorded path")}.
+          The per-domain counts above cover only the paths drawn here; open the report JSON for the full set.
+        </p>
+      )}
       <h3 className="visually-hidden">Relationships shown in the causal map</h3>
       <ol className="visually-hidden">
         {edges.map((edge) => (
