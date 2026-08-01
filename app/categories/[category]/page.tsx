@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { corpusCohortLabel } from "@/lib/corpus-cohort";
+import { corpusCohortLabel, corpusCohortSummaryLabel } from "@/lib/corpus-cohort";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { loadCorpusOverview } from "@/lib/corpus-overview";
@@ -9,6 +9,7 @@ import { reportPagePath } from "@/lib/report-locator";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { siteBaseUrl, sitePagesBasePath } from "@/lib/site-url";
 import styles from "./category.module.css";
+import { TrustLinks } from "@/app/_components/trust-links";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -63,8 +64,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   return (
     <main className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }} />
+      {/* Matches the /sites and /reports breadcrumbs: list semantics for the item count,
+          aria-hidden separators so the slashes are not spoken, aria-current on the leaf. */}
       <nav className={styles.breadcrumbs} aria-label="Breadcrumb">
-        <Link href="/">Site Behavior Lab</Link><span>/</span><Link href="/directory/">Directory</Link><span>/</span><span>{category.label}</span>
+        <ol>
+          <li><Link href="/">Site Behavior Lab</Link></li>
+          <li aria-hidden="true">/</li>
+          <li><Link href="/directory/">Directory</Link></li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page">{category.label}</li>
+        </ol>
       </nav>
 
       <header className={styles.header}>
@@ -146,10 +155,18 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
         <h2 id="method-title">Eligibility and limits</h2>
         <ul>
           <li>Each row is the newest successful, request-complete, uncapped passive lead visit for one canonical site.</li>
+          {/* The full identity carries three 64-character digests. Inline they were most
+              of a mobile screen of hex in the one section labelled "How to read this
+              page", so the readable half stays in the sentence and the digests move
+              behind a disclosure for anyone verifying the cohort. */}
           <li>
-            Every row here was measured under one cohort ({corpusCohortLabel(category.cohort)}), which is
+            Every row here was measured under one cohort ({corpusCohortSummaryLabel(category.cohort)}), which is
             this page&apos;s denominator. Another category can publish a different cohort, so these medians are
             comparable within this page and not against another category&apos;s.
+            <details className={styles.cohortDetails}>
+              <summary>Full measurement identity</summary>
+              <p className="mono">{corpusCohortLabel(category.cohort)}</p>
+            </details>
           </li>
           <li>Failed loads, incomplete recordings and accept/reject consent-interaction arms are excluded.</li>
           <li>
@@ -166,6 +183,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           <a href={`${base}/corpus.json`}>Current versioned JSON export</a>
         </div>
       </section>
+      <TrustLinks />
     </main>
   );
 }

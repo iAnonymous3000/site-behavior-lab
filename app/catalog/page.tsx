@@ -6,6 +6,7 @@ import { publicPageMetadata } from "@/lib/seo-metadata";
 import { trackerCatalogMetadata, trackerCatalogRecords } from "@/lib/tracker-catalog";
 import { CatalogSearch } from "./catalog-search";
 import styles from "./catalog.module.css";
+import { TrustLinks } from "@/app/_components/trust-links";
 
 export const dynamic = "force-static";
 
@@ -150,6 +151,7 @@ export default function CatalogPage() {
           {BUILD_COMMIT && <> · build <code>{BUILD_COMMIT}</code></>}
         </p>
       </section>
+      <TrustLinks />
     </main>
   );
 }

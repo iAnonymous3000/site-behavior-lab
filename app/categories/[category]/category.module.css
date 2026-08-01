@@ -6,13 +6,19 @@
 }
 
 .breadcrumbs {
-  align-items: center;
   color: var(--text-subtle);
+  font-size: 12px;
+  margin-bottom: 28px;
+}
+
+.breadcrumbs ol {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
-  font-size: 12px;
   gap: 7px;
-  margin-bottom: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .breadcrumbs a,
@@ -312,4 +318,20 @@
   .siteHeading time {
     white-space: normal;
   }
+}
+
+.cohortDetails {
+  margin-top: 8px;
+}
+
+.cohortDetails summary {
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.cohortDetails p {
+  font-size: 11px;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
 }
