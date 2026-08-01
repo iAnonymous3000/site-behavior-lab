@@ -20,9 +20,12 @@ type EntitySource = {
   reviewedAt?: string;
 };
 
-export const TRACKER_CATALOG_REVIEW_VERSION = "catalog-review-v2";
+export const TRACKER_CATALOG_REVIEW_VERSION = "catalog-review-v3";
 /** Release date for this reviewed-catalog revision and its newly added sources. */
-export const TRACKER_CATALOG_REVIEW_DATE = "2026-07-28";
+export const TRACKER_CATALOG_REVIEW_DATE = "2026-08-01";
+/* Earlier revisions' entries keep the date they were actually reviewed on:
+   bumping the revision must never silently re-date an existing review. */
+const CATALOG_REVIEW_V2_DATE = "2026-07-28";
 const PRIOR_CATALOG_ENTRY_REVIEW_DATE = "2026-07-21";
 
 /*
@@ -44,6 +47,11 @@ const ENTITY_SOURCES: Readonly<Record<string, EntitySource>> = {
   "Braze": { title: "Braze", url: "https://www.braze.com/" },
   "Bugsnag": { title: "Bugsnag", url: "https://www.bugsnag.com/" },
   "Chartbeat": { title: "Chartbeat", url: "https://chartbeat.com/" },
+  "Cloudflare": {
+    title: "Cloudflare Web Analytics",
+    url: "https://www.cloudflare.com/web-analytics/",
+    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+  },
   "Comscore": { title: "Comscore", url: "https://www.comscore.com/" },
   "Contentsquare": { title: "Contentsquare", url: "https://contentsquare.com/" },
   "Crazy Egg": { title: "Crazy Egg", url: "https://www.crazyegg.com/" },
@@ -52,13 +60,13 @@ const ENTITY_SOURCES: Readonly<Record<string, EntitySource>> = {
   "DoubleVerify": {
     title: "DoubleVerify company overview",
     url: "https://doubleverify.com/company/about",
-    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+    reviewedAt: CATALOG_REVIEW_V2_DATE
   },
   "Drift": { title: "Drift", url: "https://www.drift.com/" },
   "Equativ": {
     title: "Equativ Smart AdServer ads.txt implementation",
     url: "https://help.equativ.com/implement-adstxt-specification",
-    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+    reviewedAt: CATALOG_REVIEW_V2_DATE
   },
   "Fathom": { title: "Fathom Analytics", url: "https://usefathom.com/" },
   "FullStory": { title: "Fullstory", url: "https://www.fullstory.com/" },
@@ -66,6 +74,11 @@ const ENTITY_SOURCES: Readonly<Record<string, EntitySource>> = {
   "Heap": { title: "Heap", url: "https://www.heap.io/" },
   "Hotjar": { title: "Hotjar", url: "https://www.hotjar.com/" },
   "HubSpot": { title: "HubSpot Marketing Hub", url: "https://www.hubspot.com/products/marketing" },
+  "HUMAN Security": {
+    title: "HUMAN Sensor CSP requirements",
+    url: "https://docs.humansecurity.com/docs/sensor",
+    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+  },
   "Index Exchange": { title: "Index Exchange", url: "https://www.indexexchange.com/" },
   "Inspectlet": { title: "Inspectlet", url: "https://www.inspectlet.com/" },
   "Intercom": { title: "Intercom", url: "https://www.intercom.com/" },
@@ -82,6 +95,11 @@ const ENTITY_SOURCES: Readonly<Record<string, EntitySource>> = {
   "Media.net": { title: "Media.net", url: "https://www.media.net/" },
   "Meta": { title: "Meta Pixel", url: "https://www.facebook.com/business/tools/meta-pixel" },
   "Microsoft": { title: "Microsoft Advertising", url: "https://about.ads.microsoft.com/" },
+  "Microsoft Azure": {
+    title: "Azure Content Delivery Network overview",
+    url: "https://learn.microsoft.com/en-us/azure/cdn/cdn-overview",
+    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+  },
   "Microsoft Clarity": { title: "Microsoft Clarity", url: "https://clarity.microsoft.com/" },
   "Mixpanel": { title: "Mixpanel", url: "https://mixpanel.com/" },
   "Mouseflow": { title: "Mouseflow", url: "https://mouseflow.com/" },
@@ -107,17 +125,21 @@ const ENTITY_SOURCES: Readonly<Record<string, EntitySource>> = {
   "StackAdapt": {
     title: "StackAdapt platform",
     url: "https://www.stackadapt.com/platform",
-    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+    reviewedAt: CATALOG_REVIEW_V2_DATE
   },
   "Statsig": { title: "Statsig", url: "https://www.statsig.com/" },
   "Taboola": { title: "Taboola", url: "https://www.taboola.com/" },
-  "Tealium": { title: "Tealium", url: "https://tealium.com/" },
+  "Tealium": {
+    title: "Tealium content security policy reference",
+    url: "https://docs.tealium.com/server-side/settings/tealium-content-security-policies-reference-guide/",
+    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+  },
   "The Trade Desk": { title: "The Trade Desk", url: "https://www.thetradedesk.com/" },
   "TikTok": { title: "TikTok Pixel", url: "https://ads.tiktok.com/business/en-US/solutions/tiktok-pixel" },
   "TripleLift": {
     title: "TripleLift advertising technology platform cookie notice",
     url: "https://triplelift.com/advertising-technology-platform-cookie-notice/",
-    reviewedAt: TRACKER_CATALOG_REVIEW_DATE
+    reviewedAt: CATALOG_REVIEW_V2_DATE
   },
   "Twilio Segment": { title: "Twilio Segment", url: "https://segment.com/" },
   "VWO": { title: "VWO", url: "https://vwo.com/" },

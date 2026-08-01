@@ -365,7 +365,7 @@ const catalog: CatalogEntry[] = [
     category: "customer engagement"
   },
   {
-    suffixes: ["tealium.com", "tealiumiq.com"],
+    suffixes: ["tealium.com", "tealiumiq.com", "tiqcdn.com"],
     entity: "Tealium",
     category: "tag management / customer data"
   },
@@ -408,6 +408,21 @@ const catalog: CatalogEntry[] = [
     suffixes: ["lijit.com", "sovrn.com"],
     entity: "Sovrn",
     category: "advertising / publisher monetization"
+  },
+  {
+    suffixes: ["perimeterx.net", "px-cdn.net", "px-cloud.net", "px-client.net", "pxchk.net"],
+    entity: "HUMAN Security",
+    category: "security / anti-abuse"
+  },
+  {
+    suffixes: ["cloudflareinsights.com"],
+    entity: "Cloudflare",
+    category: "web analytics"
+  },
+  {
+    suffixes: ["azureedge.net", "azurefd.net"],
+    entity: "Microsoft Azure",
+    category: "cdn / hosting"
   }
 ];
 
@@ -422,7 +437,7 @@ if (catalogValidationIssues.length > 0) {
 
 export const trackerCatalogMetadata = {
   source: "Hand-curated service catalog",
-  version: "hand-curated-2026.07",
+  version: "hand-curated-2026.08",
   region: "US-biased",
   entries: curatedOverrideCount,
   curatedOverrides: curatedOverrideCount,
@@ -433,7 +448,7 @@ export const trackerCatalogMetadata = {
   // SHA-256 of canonicalTrackerCatalogContents(). Kept as a checked-in
   // constant so this shared Node/Cloudflare module does not require a
   // runtime-specific crypto API merely to expose immutable build metadata.
-  digest: "7cade02ae20c3bb88e28e0de1135ef63c48f586e7196de3c02c13478f70c95bc"
+  digest: "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
 };
 
 /**

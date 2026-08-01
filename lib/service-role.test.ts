@@ -81,7 +81,7 @@ test("every current curated catalog category has an explicit reviewed assignment
   const missing = categories.filter((category) => serviceRoleAssignmentForCategory(category) === null);
 
   assert.deepEqual(missing, []);
-  assert.equal(categories.length, 38);
+  assert.equal(categories.length, 41);
 });
 
 test("exact matching never infers tracking from unknown category substrings", () => {
@@ -151,6 +151,6 @@ test("roles remain outside detector matches and the frozen catalog identity", ()
   assert.equal("serviceRoles" in match, false);
   assert.equal(
     trackerCatalogMetadata.digest,
-    "7cade02ae20c3bb88e28e0de1135ef63c48f586e7196de3c02c13478f70c95bc"
+    "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
   );
 });

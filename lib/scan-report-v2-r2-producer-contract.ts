@@ -402,7 +402,10 @@ const PRE_ACCOUNTABILITY_FIELDS: NodeTupleFields = Object.freeze({
   detectorStatusContractVersion: "detector-status-v1",
   detectorObligations: null,
   serviceRoleTaxonomy: null,
-  trackerCatalog: ACTIVE_TRACKER_CATALOG,
+  // Frozen to the exact 2026.07 identity this epoch published under. This used to
+  // alias ACTIVE_TRACKER_CATALOG, which was only correct while the active catalog
+  // still WAS 2026.07; a catalog revision must never rewrite a closed epoch.
+  trackerCatalog: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG,
   publicLimits: NODE_R2_PUBLIC_LIMITS,
   phaseOmissionContractVersion: "phase-omission-v1"
 });

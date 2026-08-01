@@ -132,6 +132,14 @@ const HISTORICAL_TRACKER_CATALOGS = Object.freeze([
     entries: 133,
     curatedOverrides: 133,
     license: "AGPL-3.0-or-later"
+  }),
+  Object.freeze({
+    source: "Hand-curated service catalog",
+    version: "hand-curated-2026.07",
+    region: "US-biased",
+    entries: 137,
+    curatedOverrides: 137,
+    license: "AGPL-3.0-or-later"
   })
 ] satisfies readonly ScanConditions["trackerCatalog"][]);
 
