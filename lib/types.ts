@@ -541,8 +541,6 @@ export type ScanJobStatusResponse = {
 };
 
 export type ScanReport = ScanResult | ComparisonScanResult;
-export type ScanApiResponse = ScanReport | ScanJobSubmissionResponse | ScanError;
-export type ScanJobApiResponse = ScanJobStatusResponse | ScanError;
 
 export type StaticReportManifestEntry = {
   // Location is derived from `id` via the report locator, not stored, so the

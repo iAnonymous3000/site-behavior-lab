@@ -49,7 +49,11 @@ export function median(values: number[]): number {
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   const value = sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
-  return Math.round(value);
+  // Half-values round away from zero. Math.round alone rounds toward +Infinity
+  // (+2.5 -> 3 but -2.5 -> -2), which on SIGNED shields deltas biased an
+  // even-count median toward zero on exactly one side, quietly understating
+  // negative medians relative to positive ones.
+  return Math.sign(value) * Math.round(Math.abs(value));
 }
 
 /**

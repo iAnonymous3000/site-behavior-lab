@@ -7,6 +7,10 @@ test("median handles empty, odd, and even lengths", () => {
   assert.equal(median([5]), 5);
   assert.equal(median([3, 1, 2]), 2);
   assert.equal(median([1, 2, 3, 4]), 3); // (2+3)/2 = 2.5 -> rounds to 3
+  // Signed deltas round half AWAY from zero on both sides. Math.round alone
+  // sent -2.5 to -2, biasing even-count negative medians toward zero.
+  assert.equal(median([-1, -2, -3, -4]), -3);
+  assert.equal(median([-5]), -5);
 });
 
 function site(partial: Partial<RollupSite>): RollupSite {

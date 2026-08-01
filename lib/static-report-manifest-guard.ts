@@ -1,4 +1,5 @@
 import { isRecord } from "./guards";
+import { isCanonicalTimestamp } from "./canonical-timestamp";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ComparisonType, StaticReportManifest } from "./types";
 
@@ -138,8 +139,3 @@ function isPositiveCount(value: unknown): value is number {
   return isCount(value) && value > 0;
 }
 
-function isCanonicalTimestamp(value: unknown): value is string {
-  if (typeof value !== "string" || value.length > 64) return false;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
-}

@@ -2,11 +2,18 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { chromium } from "playwright";
 import {
-  collectFingerprintObservationsFromFrames,
   collectFingerprintObservationsWithCoverage,
   fingerprintObserverInitScript
 } from "./fingerprint-observer";
 import type { FingerprintDetectionSummary } from "./types";
+
+// The production API returns observations plus frame-coverage counters; these
+// merging tests only assert on the observations half.
+async function collectFingerprintObservationsFromFrames(
+  frames: Parameters<typeof collectFingerprintObservationsWithCoverage>[0]
+) {
+  return (await collectFingerprintObservationsWithCoverage(frames)).observations;
+}
 
 test("collectFingerprintObservationsFromFrames merges, sorts, and ignores inaccessible frames", async () => {
   const { events } = await collectFingerprintObservationsFromFrames([

@@ -403,5 +403,6 @@ activation gate has passed or that the corresponding production control is live.
   authorizes enabling the currently off feature flags.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
+[0.4.0-rc.1]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.4.0-rc.1
 [0.3.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.3.0
 [0.2.0]: https://github.com/iAnonymous3000/site-behavior-lab/commit/4240d32d1fa987e8d61d74fe719f6a8382422efa

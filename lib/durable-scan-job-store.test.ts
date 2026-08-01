@@ -25,7 +25,6 @@ import {
   createDurableScanJobLeaseCredentials,
   decryptDurableScanJobClaim,
   earliestDurableScanJobPurgeAt,
-  enforceDurableScanJobRowLimit,
   ensureDurableScanJobStore,
   expireDurableScanJob,
   findDurableScanJobSnapshot,
@@ -34,7 +33,6 @@ import {
   importDurableScanJobEncryptionKey,
   listExpiredDurableScanJobLeases,
   listPastDeadlineDurableScanJobs,
-  nextDurableScanJobWakeAt,
   purgeDurableScanJobs,
   reconcileExpiredPublishingDurableScanJob,
   requeueOrFailExpiredDurableScanJobLease,
@@ -204,7 +202,6 @@ test("claiming is FIFO and capacity means total leased plus publishing work", as
       credentials: await createDurableScanJobLeaseCredentials(2)
     });
     assert.deepEqual(blocked, []);
-    assert.equal(nextDurableScanJobWakeAt(sql, 20_001, 2), first[0].leaseExpiresAt);
 
     const firstHash = await hashDurableScanJobLeaseToken(first[0].leaseToken);
     beginPublishingDurableScanJob(sql, {
@@ -221,7 +218,6 @@ test("claiming is FIFO and capacity means total leased plus publishing work", as
       now: 20_003,
       outcome: "succeeded"
     });
-    assert.equal(nextDurableScanJobWakeAt(sql, 20_004, 2), 20_004);
 
     const oneSlot = claimDurableScanJobs(sql, {
       now: 20_004,
@@ -230,7 +226,6 @@ test("claiming is FIFO and capacity means total leased plus publishing work", as
     });
     assert.equal(oneSlot.length, 1);
     assert.equal(oneSlot[0].jobId, idFor(12));
-    assert.equal(nextDurableScanJobWakeAt(sql, 20_005, 2), first[1].leaseExpiresAt);
   });
 });
 
@@ -607,7 +602,7 @@ test("publication reserves timeout, settlement, and final reconciliation before 
   });
 });
 
-test("deadline, wake, and purge boundaries are exact", async () => {
+test("deadline and purge boundaries are exact", async () => {
   await withDatabase(async (_database, sql) => {
     const key = await importDurableScanJobEncryptionKey(KEY_WIRE);
     const createdAt = 200_000;
@@ -616,7 +611,6 @@ test("deadline, wake, and purge boundaries are exact", async () => {
     admitDurableScanJob(sql, admission);
     admitDurableScanJob(sql, laterAdmission);
     assert.equal(earliestDurableScanJobPurgeAt(sql), admission.purgeAt);
-    assert.equal(nextDurableScanJobWakeAt(sql, createdAt), createdAt);
     assert.deepEqual(listPastDeadlineDurableScanJobs(sql, admission.deadlineAt - 1), []);
     assert.equal(listPastDeadlineDurableScanJobs(sql, admission.deadlineAt)[0]?.jobId, admission.jobId);
 
@@ -704,7 +698,7 @@ test("the 500-row policy evicts only oldest terminal tombstones", async () => {
 
     insertRawTerminal(database, 700, 1_000_000);
     insertRawTerminal(database, 701, 1_000_001);
-    assert.equal(enforceDurableScanJobRowLimit(sql), 2);
+    assert.equal(purgeDurableScanJobs(sql, 0), 2);
     assert.equal(rowCount(database), DURABLE_SCAN_JOB_MAX_ROWS);
     assert.equal(findDurableScanJobSnapshot(sql, idFor(1)), null);
     assert.equal(findDurableScanJobSnapshot(sql, idFor(2)), null);

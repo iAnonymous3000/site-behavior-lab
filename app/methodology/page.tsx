@@ -217,6 +217,31 @@ export default function MethodologyPage() {
         </p>
       </section>
 
+      <section className="legal-section" id="trust-boundaries">
+        <h2>What you must trust, and what you can check</h2>
+        <p>
+          Independently checkable, with no trust in this operator: every committed corpus report&apos;s exact bytes
+          are hashed into a per-commit evidence manifest that a separate, checkout-free CI job attests with Sigstore,
+          so a third party can verify a committed report back to a public git commit (
+          <a href="https://github.com/iAnonymous3000/site-behavior-lab/blob/main/docs/verify-a-report.md">
+            step-by-step guide
+          </a>
+          ). Also checkable: a report&apos;s structural validity against the frozen published schemas, its internal
+          consistency (the validators are open source), and that the corpus statistics regenerate from the same
+          committed files this site renders.
+        </p>
+        <p>
+          Taken on trust in this operator today: that the deployed scanner ran the attested code for any individual
+          live scan (the deployment&apos;s self-reported build is checked hourly, but no per-scan record binds a
+          specific visit to an attested image), every timestamp (server clocks, with no external time anchor), and
+          the retention of ephemeral share reports, which expire and are attested by nothing outside this
+          deployment&apos;s storage. The methodology-identity digests in each report bind declared vocabularies and
+          contracts, not the implementation code itself; the implementation is bound by the commit-level attestation
+          above, at the covering git SHA. Closing the per-scan and time-anchor gaps is tracked release work, not a
+          disclosed aspiration of the current system.
+        </p>
+      </section>
+
       <section className="legal-section" id="schema-errata">
         <h2>Published schema errata</h2>
         <p>

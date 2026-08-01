@@ -1,3 +1,4 @@
+import { isCanonicalTimestamp } from "./canonical-timestamp";
 import {
   DURABLE_SCAN_JOB_ENCRYPTION_KEY_ENV,
   DURABLE_SCAN_JOB_RECONCILIATION_TIMEOUT_MS,
@@ -911,41 +912,13 @@ export function settlePastPurgeDurableScanJobs(
   return settled;
 }
 
-/** Earliest time at which claim, lease recovery, deadline expiry, or purge is due. */
-export function nextDurableScanJobWakeAt(
-  sql: DurableScanJobStoreSql,
-  now: number,
-  executionCapacity = 2
-): number | null {
-  ensureDurableScanJobStore(sql);
-  assertTimestamp(now, "wake timestamp");
-  if (
-    !Number.isSafeInteger(executionCapacity) ||
-    executionCapacity < 0 ||
-    executionCapacity > DURABLE_SCAN_JOB_MAX_NONTERMINAL
-  ) {
-    throw new DurableScanJobValidationError("Invalid durable scan-job wake capacity.");
-  }
-  const row = sql
-    .exec<Record<string, SqlValue> & { wake_at: number | null }>(
-      `SELECT MIN(wake_at) AS wake_at FROM (
-         SELECT ? AS wake_at FROM durable_scan_jobs
-         WHERE state = 'queued' AND deadline_at > ? AND (
-           SELECT COUNT(*) FROM durable_scan_jobs WHERE state IN ('leased','publishing')
-         ) < ?
-         UNION ALL SELECT lease_expires_at FROM durable_scan_jobs WHERE state = 'leased'
-         UNION ALL SELECT MIN(lease_expires_at + ?, deadline_at) FROM durable_scan_jobs WHERE state = 'publishing'
-         UNION ALL SELECT deadline_at FROM durable_scan_jobs WHERE state IN ('queued','leased','publishing')
-         UNION ALL SELECT purge_at FROM durable_scan_jobs
-       )`,
-      now,
-      now,
-      executionCapacity,
-      DURABLE_SCAN_JOB_PUBLICATION_SETTLEMENT_MS
-    )
-    .toArray()[0];
-  return row?.wake_at === null || row?.wake_at === undefined ? null : integer(row.wake_at, "next wake timestamp");
-}
+// NOTE: there is deliberately no wake computation in this module. The single
+// authority for "when should the durable pump wake" is the transactionSync SQL
+// in cloudflare/container-worker.ts, which joins the reconciliation-backoff
+// table this module predates. A tested store-side twin existed here once,
+// never wired, and had already diverged from the shipping query; a contract
+// that looks authoritative while pinning nothing is this repo's known worst
+// defect class, so it was removed rather than left as a trap.
 
 /** Earliest immutable row-retention boundary across the whole durable store. */
 export function earliestDurableScanJobPurgeAt(sql: DurableScanJobStoreSql): number | null {
@@ -993,16 +966,6 @@ export function purgeDurableScanJobs(sql: DurableScanJobStoreSql, now: number): 
     now
   );
   return count + evictTerminalRowsToTarget(sql, DURABLE_SCAN_JOB_MAX_ROWS);
-}
-
-/**
- * Maintenance hook for stores created by an older schema or restored from a
- * snapshot. Only the oldest terminal tombstones are evicted; unfinished work
- * is never removed to make room.
- */
-export function enforceDurableScanJobRowLimit(sql: DurableScanJobStoreSql): number {
-  ensureDurableScanJobStore(sql);
-  return evictTerminalRowsToTarget(sql, DURABLE_SCAN_JOB_MAX_ROWS);
 }
 
 function requireCurrentLease(
@@ -1324,12 +1287,6 @@ function assertPublicationManifest(manifest: string, expectedReportId: string): 
   ) {
     throw new DurableScanJobValidationError("The durable publication sidecar does not match its manifest.");
   }
-}
-
-function isCanonicalTimestamp(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
 }
 
 function isRecordWithExactKeys(
