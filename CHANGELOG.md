@@ -7,15 +7,16 @@ public API or a 1.0 release.
 
 ## Unreleased
 
-Work landing after the 0.4.0-rc.1 milestone. Nothing here is released.
+Work landing after the 0.4.0 milestone. Nothing here is released.
 
-## [0.4.0-rc.1] - 2026-08-01
+## [0.4.0] - 2026-08-01
 
-Release-candidate rehearsal for the prerelease tag mechanics the 1.0 ceremony
-will use, cut on the release-1.0 preparation batch. Re-dated from 2026-07-31:
-the first tag ceremony failed before creating any tag (the ceremony can only
-tag the current head of main), so this section was re-declared at the current
-head and now also covers the work below that landed in between. It does not declare a
+Promotes 0.4.0-rc.1 unchanged: the release-candidate rehearsal of the
+prerelease tag mechanics the 1.0 ceremony will use, cut on the release-1.0
+preparation batch. The rc was re-dated from 2026-07-31 after its first tag
+ceremony failed before creating any tag (the ceremony can only tag the
+current head of main), so this section also covers the work that landed
+between those attempts. It does not declare a
 stable public API, enable npm publication, or claim any readiness gate that
 its own evaluator reports as failing. ScanReport contracts are unchanged
 (v1 frozen, v2/r1 and v2/r2 byte-immutable).
@@ -442,6 +443,7 @@ activation gate has passed or that the corresponding production control is live.
   authorizes enabling the currently off feature flags.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
+[0.4.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.4.0
 [0.4.0-rc.1]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.4.0-rc.1
 [0.3.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.3.0
 [0.2.0]: https://github.com/iAnonymous3000/site-behavior-lab/commit/4240d32d1fa987e8d61d74fe719f6a8382422efa
