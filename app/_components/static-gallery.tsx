@@ -487,7 +487,8 @@ function StaticReportCard({
         </small>
         <em>{report.requestedUrl}</em>
       </span>
-      <span className="static-report-meta" aria-label={staticReportCardLabel(report)}>
+      <span className="static-report-meta">
+        <span className="visually-hidden">{staticReportCardLabel(report)}</span>
         <b>{staticReportRequestCountLabel(report, report.metrics.thirdPartyRequests, "third-party request")}</b>
         <small>
           {report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0
@@ -652,12 +653,18 @@ function buildHistoryGroups(reports: StaticReportManifestEntry[]): HistoryGroup[
 function formatDateTime(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
+  // The gallery is sorted by date, so a bare local-looking time made the ordering appear
+  // to contradict the labels for any reader east of UTC. Year is included once a row is
+  // no longer from the current year, matching app/reports/[id]/page.tsx.
+  const sameYear = date.getUTCFullYear() === new Date().getUTCFullYear();
   return date.toLocaleString("en-US", {
+    ...(sameYear ? {} : { year: "numeric" }),
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    timeZone: "UTC"
+    timeZone: "UTC",
+    timeZoneName: "short"
   });
 }
 

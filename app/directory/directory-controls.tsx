@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { normalizeDirectorySearchQuery } from "@/lib/directory-search";
+import { plural } from "@/lib/text-format";
 import styles from "./directory.module.css";
 
 type SearchSite = { domain: string; path: string; category: string; categoryPath: string };
@@ -46,11 +47,18 @@ export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; 
           />
           <button disabled={matches.length === 0} type="submit">Open profile</button>
         </div>
+        {/* The has-matches branch used to reuse the idle sentence verbatim, so the region
+            never changed and the success path was the only silent one: suggestions
+            appeared and the submit button went live with nothing announced. */}
         <p aria-live="polite" id="directory-search-status" role="status">
-          {normalizedQuery && matches.length === 0 ? "No matching published site profile." : "Searches canonical domains across every directory page."}
+          {matches.length > 0
+            ? `${plural(matches.length, "matching site")} listed below. Enter opens the first.`
+            : normalizedQuery
+              ? "No matching published site profile."
+              : "Searches canonical domains across every directory page."}
         </p>
         {matches.length > 0 && (
-          <ul className={styles.searchMatches}>
+          <ul aria-label="Matching site profiles" className={styles.searchMatches}>
             {matches.map((site) => (
               <li key={site.domain}>
                 <a href={site.path}>{site.domain}</a>

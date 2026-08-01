@@ -155,6 +155,7 @@ export function SiteBehaviorApp({
   const [staticReportsError, setStaticReportsError] = useState<string | null>(null);
   const [archiveRequested, setArchiveRequested] = useState(false);
   const reportRegionRef = useRef<HTMLElement | null>(null);
+  const recoveryBannerRef = useRef<HTMLElement | null>(null);
   const archiveOperationRef = useRef<LatestClientOperation | null>(null);
   const reportOpenOperationRef = useRef<LatestClientOperation | null>(null);
   if (!archiveOperationRef.current) archiveOperationRef.current = new LatestClientOperation();
@@ -173,6 +174,16 @@ export function SiteBehaviorApp({
   useEffect(() => {
     if (loaded) reportRegionRef.current?.focus();
   }, [loaded]);
+
+  // A failure replaces the loading panel that held the focused Cancel button, so without
+  // this a keyboard user is dropped to <body> at the top of the document exactly when the
+  // recovery controls they now need are the thing to read.
+  const scanFailure = error ?? cancelScanError;
+  const hadScanFailure = useRef(false);
+  useEffect(() => {
+    if (scanFailure && !hadScanFailure.current) recoveryBannerRef.current?.focus();
+    hadScanFailure.current = Boolean(scanFailure);
+  }, [scanFailure]);
 
   async function loadStaticArchive() {
     setArchiveRequested(true);
@@ -394,6 +405,7 @@ export function SiteBehaviorApp({
         )}
 
         <ScanRecoveryBanner
+          bannerRef={recoveryBannerRef}
           error={error}
           notice={scanNotice}
           acceptedJob={Boolean(activeScanJob)}
@@ -428,7 +440,9 @@ export function SiteBehaviorApp({
           {loading && (
             <LoadingState
               mode={
-                !scanning
+                recoveringScanAdmission
+                  ? "recovering"
+                  : !scanning
                   ? "opening"
                   : form.compareGpc
                     ? "gpc"
@@ -626,7 +640,7 @@ function EmptyState({
   onLoadArchive: () => void;
 }) {
   const latestReport = homepageDiscovery?.latestReport ?? null;
-  const archiveToolsRef = useRef<HTMLDivElement | null>(null);
+  const archiveToolsRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (archiveRequested) archiveToolsRef.current?.focus();
@@ -642,7 +656,11 @@ function EmptyState({
         {homepageDiscovery
           ? `${plural(homepageDiscovery.reportCount, "public report")} ${
               homepageDiscovery.reportCount === 1 ? "is" : "are"
-            } available now. Open existing evidence instantly, or scan a site above for a new controlled visit.`
+            } available now. Open existing evidence instantly, or ${
+              liveScanEnabled
+                ? "scan a site above for a new controlled visit."
+                : "open a report file someone shared with you."
+            }`
           : liveScanEnabled
             ? "Run a controlled browser visit and inspect the observable behavior from that one session."
             : "Open a saved report, or open a report file someone shared with you."}
@@ -690,7 +708,7 @@ function EmptyState({
             Unsupported evidence families remain censored rather than guessed.
           </p>
           {staticExport && archiveRequested && (
-            <div aria-label="Saved-report tools" ref={archiveToolsRef} tabIndex={-1}>
+            <section aria-label="Saved-report tools" ref={archiveToolsRef} tabIndex={-1}>
               <Suspense fallback={<p className="muted" role="status">Loading saved-report tools…</p>}>
                 <LazyStaticReportGallery
                   reports={staticReports}
@@ -703,7 +721,7 @@ function EmptyState({
                   onComparisonError={onComparisonError}
                 />
               </Suspense>
-            </div>
+            </section>
           )}
         </div>
       </details>
@@ -780,14 +798,14 @@ function LoadingState({
   cancellationError = null,
   progress = null
 }: {
-  mode: "single" | "gpc" | "shields" | "consent" | "opening";
+  mode: "single" | "gpc" | "shields" | "consent" | "opening" | "recovering";
   onCancel?: () => void;
   cancelLabel?: string;
   cancelling?: boolean;
   cancellationError?: string | null;
   progress?: ScanJobProgress | null;
 }) {
-  const isScanning = mode !== "opening";
+  const isScanning = mode !== "opening" && mode !== "recovering";
   const scanningRegionRef = useRef<HTMLElement | null>(null);
 
   // Submitting disables the Scan button while it still holds focus, which browsers
@@ -800,12 +818,18 @@ function LoadingState({
 
   // Opening a saved report is a quick fetch, not a controlled browser visit, so it
   // gets a lightweight state without the elapsed timer or the "what we check" list.
+  // Admission recovery reuses the same lightweight shape but must not claim to be
+  // opening a report: at that point it is still asking whether a scan was accepted.
   if (!isScanning) {
     return (
       <section className="loading-state" role="status">
         <span className="pulse-dot" />
-        <h2>Opening saved report</h2>
-        <p>Loading the saved evidence for this report.</p>
+        <h2>{mode === "recovering" ? "Checking the previous scan request" : "Opening saved report"}</h2>
+        <p>
+          {mode === "recovering"
+            ? "Asking whether the previous scan request was accepted before starting anything new."
+            : "Loading the saved evidence for this report."}
+        </p>
         <div className="progress-track" aria-hidden="true">
           <div className="progress-fill" />
         </div>
