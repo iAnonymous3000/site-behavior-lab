@@ -30,7 +30,7 @@ import { sha256BytesHex } from "./sha256";
 import { publicReportDigest } from "./canonical-json";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { SUPERSEDED_R2_NORMALIZATIONS } from "./scan-report-v2-normalization";
-import { HISTORICAL_R2_2026_06_TRACKER_CATALOG } from "./scan-report-v2-r2-producer-contract";
+import { PAGEGRAPH_R2_PRODUCER_TUPLES } from "./scan-report-v2-r2-producer-contract";
 import {
   R2RedactionRemediationError,
   redactPublicScanReportV2R2
@@ -110,9 +110,15 @@ test("real PageGraph capture emits one passive, request-only, valid r2 report", 
 
 test("superseded PageGraph normalizations retain their historical catalog epoch", () => {
   for (const normalizationVersion of SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"]) {
+    // Each retired identity replays with the exact catalog its frozen producer
+    // row binds; the b68c retirement ended the era when 2026.06 fit them all.
+    const frozenTuple = PAGEGRAPH_R2_PRODUCER_TUPLES.find(
+      (tuple) => tuple.normalizationVersion === normalizationVersion
+    );
+    assert.notEqual(frozenTuple, undefined, `no frozen PageGraph row for ${normalizationVersion}`);
     const report = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
     report.run.toolchain.normalizationVersion = normalizationVersion;
-    report.run.toolchain.trackerCatalog = { ...HISTORICAL_R2_2026_06_TRACKER_CATALOG };
+    report.run.toolchain.trackerCatalog = { ...frozenTuple!.trackerCatalog };
     report.run.fingerprints = buildFingerprints({
       conditions: report.run.conditions,
       provenance: report.run.provenance,

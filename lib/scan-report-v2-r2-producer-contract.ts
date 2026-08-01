@@ -132,6 +132,8 @@ export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_VERSIONS = Object.fre
   "consent-banner": "consent-control-and-state@2",
   "privacy-policy": "policy-text-cross-check@3"
 } satisfies Readonly<Record<DetectorId, string>>);
+export const HISTORICAL_ACCOUNTABILITY_V1_PAGEGRAPH_R2_NORMALIZATION_VERSION =
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION =
   "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1";
 export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG = Object.freeze({
@@ -213,6 +215,13 @@ export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   [NODE_68C3_NORMALIZATION]: Object.freeze([
     HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
     HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION
+  ]),
+  // The b68c identity closed when catalog-review-v3 widened the sanitizer's
+  // reviewed historical-catalog list. Its era spans the pre-accountability and
+  // accountability-v1 methodologies, matching its two frozen tuple families.
+  [HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION]: Object.freeze([
+    PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION
   ])
 });
 
@@ -470,14 +479,14 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v4-b68c-active-lists-2026-07-25",
+        "node-v4-ec26-active-lists-2026-07-25",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v4-b68c-active-no-adblock",
+        "node-v4-ec26-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -619,16 +628,19 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_V4_FIELDS,
     null
   ),
+  // Pinned to the b68c literal, not the computed active constant: these rows
+  // describe a closed epoch, and the active identity moved on when
+  // catalog-review-v3 changed the policy digest.
   nodeTuple(
     "node-v4-b68c-pre-accountability-lists-2026-07-25",
-    NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION,
     PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
     PRE_ACCOUNTABILITY_FIELDS,
     NODE_R2_CURRENT_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-b68c-pre-accountability-no-adblock",
-    NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION,
     PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
     PRE_ACCOUNTABILITY_FIELDS,
     null
@@ -677,6 +689,11 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
   pageGraphTuple("pagegraph-v4-5b1f", PAGEGRAPH_5B1F_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
   pageGraphTuple("pagegraph-v4-6131", PAGEGRAPH_6131_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
   pageGraphTuple("pagegraph-v4-68c3", PAGEGRAPH_68C3_NORMALIZATION, HISTORICAL_R2_2026_06_TRACKER_CATALOG),
+  pageGraphTuple(
+    "pagegraph-v4-b68c",
+    HISTORICAL_ACCOUNTABILITY_V1_PAGEGRAPH_R2_NORMALIZATION_VERSION,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG
+  ),
   pageGraphTuple("pagegraph-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG)
 ]);
 

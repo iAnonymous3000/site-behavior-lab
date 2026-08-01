@@ -69,14 +69,21 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by the accuracy hardening release, which adds only controlled
     // scanner warnings to the admitted public vocabulary.
-    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1",
+    // Retired by catalog-review-v3 / hand-curated-2026.08: the sanitizer's
+    // reviewed historical-catalog list (a policy-digest input) gained the
+    // closing 2026.07 identity, and the catalog additions only admit new
+    // entity, category, and suffix strings. Nothing an older pass admitted
+    // was removed, so every published report stays a fixed point.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
-    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1"
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1"
   ]),
   "browser-run-worker": Object.freeze([])
 });
