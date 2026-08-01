@@ -62,6 +62,41 @@ test("scan URL normalization preserves route intent while stripping private data
   assert.equal(normalizeScanUrl("   "), null);
 });
 
+/**
+ * These cases used to pass here for the wrong reason. This module runs in the browser,
+ * and rejection used to depend on `new URL()` throwing: Node throws on a space in the
+ * authority, Chromium percent-encodes it and returns `https://not%20a%20url/`. So the
+ * suite was green while a visitor who typed a space got no validation error, had their
+ * text silently rewritten to a percent-encoded string, and spent a real scan request on
+ * it. Assert on the shapes Chromium salvages, which Node never produced.
+ */
+test("targets Chromium salvages instead of rejecting are still refused", () => {
+  for (const input of [
+    "not a url",
+    "hello world",
+    "my notes about example",
+    "ex ample.com",
+    "a b c d"
+  ]) {
+    assert.equal(normalizeScanUrl(input), null, input);
+  }
+  // Hosts Chromium produces by percent-encoding bytes a host may not contain.
+  assert.equal(normalizeScanUrl("https://not%20a%20url/"), null);
+  // Single-label and empty-label hosts are not scannable public targets either.
+  assert.equal(normalizeScanUrl("example"), null);
+  assert.equal(normalizeScanUrl("localhost"), null);
+  assert.equal(normalizeScanUrl("a..b"), null);
+  assert.equal(normalizeScanUrl(".example.com"), null);
+  // Non-http schemes never reach the scanner.
+  assert.equal(normalizeScanUrl("javascript:alert(1)"), null);
+  assert.equal(normalizeScanUrl("file:///etc/passwd"), null);
+  // Real targets still normalize, including IDN, ports, and a trailing root dot.
+  assert.equal(normalizeScanUrl("EXAMPLE.COM"), "https://example.com/");
+  assert.equal(normalizeScanUrl("münchen.de"), "https://xn--mnchen-3ya.de/");
+  assert.equal(normalizeScanUrl("http://example.com:8080/path?q=1#f"), "http://example.com:8080/path");
+  assert.equal(normalizeScanUrl("example.com."), "https://example.com./");
+});
+
 test("all scan-prefill producers use the fragment-only helper", () => {
   const root = process.cwd();
   const runtime = readFileSync(path.join(root, "app", "_hooks", "use-scan-runtime.ts"), "utf8");
