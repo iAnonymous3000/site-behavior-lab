@@ -14,6 +14,7 @@ import { sitePagesBasePath } from "@/lib/site-url";
 import { reportKindLabel } from "@/lib/text-format";
 import { DirectoryControls } from "./directory-controls";
 import styles from "./directory.module.css";
+import { TrustLinks } from "../_components/trust-links";
 
 export async function DirectoryIndex({ page }: { page: number }) {
   const { entries } = await loadCorpusOverview();
@@ -120,6 +121,7 @@ export async function DirectoryIndex({ page }: { page: number }) {
         passive visit per canonical site. Consent-interaction arms are excluded. Visit results can vary because of ad
         rotation, experiments, caching, region and bot detection.
       </aside>
+      <TrustLinks />
     </main>
   );
 }

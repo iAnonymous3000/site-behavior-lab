@@ -3,6 +3,28 @@
  * a page by origin and path, while query strings and fragments commonly carry
  * tracking identifiers, account details, or bearer-like secrets.
  */
+/**
+ * Rejecting a malformed target must not depend on `new URL()` throwing, because the two
+ * runtimes this function ships to disagree about when it does. Node rejects a space in
+ * the authority; Chromium percent-encodes it and returns a URL whose hostname is
+ * `not%20a%20url`. So a Node-only test could assert this returned null for input the
+ * browser happily accepted, and the visitor got no "enter a valid public URL" message
+ * for the single most likely typo. Validate the parsed hostname explicitly instead.
+ */
+export function isScannableHostname(hostname: string): boolean {
+  if (!hostname) return false;
+  // Percent-encoding in a host is never a real host; it is Chromium salvaging bytes a
+  // host may not contain (spaces, control characters) rather than failing the parse.
+  if (hostname.includes("%")) return false;
+  if (/[\s_]/.test(hostname)) return false;
+  // Bracketed IPv6 and dotted IPv4/registrable names only.
+  if (hostname.startsWith("[") && hostname.endsWith("]")) return true;
+  if (!hostname.includes(".")) return false;
+  // A trailing-dot root is fine; empty labels ("a..b", ".a", "a.") are not.
+  const labels = hostname.replace(/\.$/, "").split(".");
+  return labels.length >= 2 && labels.every((label) => label.length > 0);
+}
+
 export function normalizeScanUrl(value: string): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
@@ -11,6 +33,8 @@ export function normalizeScanUrl(value: string): string | null {
   const withScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
   try {
     const parsed = new URL(withScheme);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    if (!isScannableHostname(parsed.hostname)) return null;
     parsed.search = "";
     parsed.hash = "";
     return parsed.toString();

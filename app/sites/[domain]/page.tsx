@@ -10,6 +10,7 @@ import { formatDelta } from "@/lib/temporal-deltas";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { sitePagesBasePath, siteUrl } from "@/lib/site-url";
 import { reportKindLabel } from "@/lib/text-format";
+import { TrustLinks } from "../../_components/trust-links";
 
 export const dynamic = "force-static";
 
@@ -186,6 +187,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           ))}
         </ol>
       </section>
+      <TrustLinks />
     </main>
   );
 }
@@ -200,17 +202,21 @@ async function loadProfile(rawDomain: string): Promise<{ domain: string; entries
   return matches.length > 0 ? { domain: key, entries: matches } : null;
 }
 
+/**
+ * The two-word chip is the visible label; the sentence that says what it means goes in
+ * the reading order rather than a `title`. A pointer tooltip on a non-focusable span is
+ * unreachable by touch and by keyboard, and screen readers skip `title` when the element
+ * already has text. lib/accessibility-contract.test.ts bans this pattern elsewhere.
+ */
 function IncompleteEvidenceChip({ capped }: { capped: boolean }) {
   return (
-    <span
-      className="capped-chip"
-      title={
-        capped
-          ? "This visit hit the exact request-recording cap: its request counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
-          : "This visit has incomplete request evidence from another bounded capture loss: its request counts are lower bounds, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
-      }
-    >
+    <span className="capped-chip">
       {capped ? "recording capped" : "request evidence incomplete"}
+      <span className="visually-hidden">
+        {capped
+          ? ": this visit hit the exact request-recording cap, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+          : ": this visit has incomplete request evidence from another bounded capture loss, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."}
+      </span>
     </span>
   );
 }

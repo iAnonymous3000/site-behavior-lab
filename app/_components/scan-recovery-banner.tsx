@@ -1,8 +1,10 @@
 "use client";
 
+import type { Ref } from "react";
 import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 
 export function ScanRecoveryBanner({
+  bannerRef,
   error,
   notice,
   acceptedJob,
@@ -16,6 +18,7 @@ export function ScanRecoveryBanner({
   onCancel,
   onDismiss
 }: {
+  bannerRef?: Ref<HTMLElement>;
   error: string | null;
   notice: string | null;
   acceptedJob: boolean;
@@ -38,7 +41,12 @@ export function ScanRecoveryBanner({
   const settled = Boolean(notice) && !failed;
 
   return (
-    <section className={failed ? "error-banner" : "error-banner error-banner-progress"} role={failed ? "alert" : "status"}>
+    <section
+      className={failed ? "error-banner" : "error-banner error-banner-progress"}
+      ref={bannerRef}
+      role={failed ? "alert" : "status"}
+      tabIndex={-1}
+    >
       {failed ? (
         <AlertTriangle size={18} aria-hidden="true" />
       ) : settled ? (
@@ -56,7 +64,7 @@ export function ScanRecoveryBanner({
                 ? "Cancelling the accepted scan…"
                 : "The cancellation request did not finish.")}
         </span>
-        {settled && !acceptedJob && !pendingAdmission && (
+        {(settled || (failed && !cancelling)) && !acceptedJob && !pendingAdmission && (
           <div className="scan-recovery-controls">
             <div className="scan-recovery-actions">
               <button className="ghost-button" type="button" onClick={onDismiss}>

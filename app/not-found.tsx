@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import { FileQuestion, FlaskConical } from "lucide-react";
 import { staticAssetPath } from "./client-runtime";
+
+// Without this the 404 inherits the root layout, so a dead report permalink produced a
+// tab title, bookmark, history entry, and social card that all claimed to be the scanner
+// home page while the body said the report was missing. Report links are the product's
+// main shared artifact, so expired ones are routine rather than an edge case.
+export const metadata: Metadata = {
+  title: "Report or page not available",
+  description:
+    "This link is incomplete, expired, or points to a report that was not published. Browse the retained public evidence library instead.",
+  robots: { index: false, follow: true },
+  openGraph: {
+    title: "Report or page not available · Site Behavior Lab",
+    description: "This link is incomplete, expired, or points to a report that was not published."
+  }
+};
 
 export default function NotFound() {
   return (

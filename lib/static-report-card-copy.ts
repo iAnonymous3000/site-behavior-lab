@@ -23,6 +23,22 @@ export function staticReportRequestEvidenceStatus(
   return `${reason}; retained request counts are lower bounds`;
 }
 
+/**
+ * The counts a report card carries but does not render visibly.
+ *
+ * Deliberately NOT staticReportCardLabel: that one restates the third-party request
+ * count, the evidence status, and the Shields count, all of which the card already
+ * shows. Announcing it alongside the visible text would read every one of those twice.
+ * This is the additional evidence only, so the link's accessible name stays the visible
+ * text plus what is genuinely missing from it.
+ */
+export function staticReportCardExtraEvidenceLabel(report: StaticReportManifestEntry): string {
+  return [
+    staticReportRequestCountLabel(report, report.metrics.knownTrackerRequests, "catalogued service request"),
+    staticReportRequestCountLabel(report, report.metrics.thirdPartyDomains, "third-party domain")
+  ].join(", ");
+}
+
 export function staticReportCardLabel(report: StaticReportManifestEntry): string {
   const parts = [
     staticReportRequestCountLabel(report, report.metrics.thirdPartyRequests, "third-party request"),

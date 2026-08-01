@@ -43,6 +43,7 @@ export function SavedReportClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const evidenceExplorerRef = useRef<HTMLElement | null>(null);
+  const evidenceLoaderRef = useRef<HTMLElement | null>(null);
   const evidenceOperationRef = useRef<LatestClientOperation | null>(null);
   const evidenceIdentityRef = useRef({ id, evidenceHref, expectedEvidenceSha256 });
   const autoOpenedRef = useRef(false);
@@ -102,6 +103,9 @@ export function SavedReportClient({
         onSuccess: setLoaded,
         onError: (readError) => {
           setError(readError instanceof Error ? readError.message : "The full report evidence could not be opened.");
+          // The button that held focus is still disabled at this point, so recover to
+          // the section that now carries the error and the retry.
+          window.requestAnimationFrame(() => evidenceLoaderRef.current?.focus());
         },
         onSettled: () => setLoading(false)
       }
@@ -154,7 +158,12 @@ export function SavedReportClient({
           {context}
           {!loaded && summary}
           {!loaded && (
-            <section className="report-evidence-loader" aria-labelledby="full-evidence-title">
+            <section
+              className="report-evidence-loader"
+              aria-labelledby="full-evidence-title"
+              ref={evidenceLoaderRef}
+              tabIndex={-1}
+            >
               <div>
                 <p className="eyebrow">Detailed evidence</p>
                 <h2 id="full-evidence-title">Open the interactive evidence explorer</h2>
@@ -167,6 +176,13 @@ export function SavedReportClient({
                 {loading && <Loader2 className="spin" size={17} aria-hidden="true" />}
                 {loading ? "Loading evidence…" : "Explore full evidence"}
               </button>
+              {/* The report JSON this fetches is allowed up to 8 MB, so the disabled
+                  button blurs a keyboard user to <body> for the whole wait with nothing
+                  announced. Name the wait, then land focus back on this section if it
+                  fails, since the success path already relocates to the explorer. */}
+              <p className="visually-hidden" role="status" aria-live="polite">
+                {loading ? "Loading report evidence." : ""}
+              </p>
               {error && <p className="report-evidence-load-error" role="alert">{error} Try again or open the report JSON above.</p>}
             </section>
           )}

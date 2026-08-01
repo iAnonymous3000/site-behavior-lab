@@ -236,11 +236,21 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
  * renders every field as prose, from the typed identity, so the label and the
  * gate cannot drift.
  */
-export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
+/**
+ * The human half of the cohort identity: everything a reader can act on, with the three
+ * 64-character digests left out. The digests still identify the cohort exactly, so
+ * `corpusCohortLabel` remains the full form for anyone verifying a report; this is what
+ * belongs inline in prose.
+ */
+export function corpusCohortSummaryLabel(cohort: CorpusCohortIdentity): string {
   const schema =
     cohort.schemaVersion === 1 ? "schema v1" : `schema v2 revision ${cohort.schemaRevision ?? "unrecorded"}`;
   const producer = cohort.producer ?? "producer unrecorded";
   const gpc = cohort.gpc ? "GPC requested" : "GPC not requested";
+  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}`;
+}
+
+export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
   const catalog =
     cohort.trackerCatalogOrigin === "recorded"
       ? `recorded catalog digest ${cohort.trackerCatalogDigest}`
@@ -249,7 +259,9 @@ export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
     `ServiceRole taxonomy ${cohort.serviceRoleTaxonomyVersion} digest ${cohort.serviceRoleTaxonomyDigest}`;
   const metricContract =
     `metric contract ${cohort.metricContractVersion} digest ${cohort.metricContractDigest}`;
-  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}, ${catalog}, ${serviceRoles}, ${metricContract}`;
+  // Derived, not restated: the readable half has exactly one definition, so changing a
+  // word there cannot leave the full label saying something different.
+  return `${corpusCohortSummaryLabel(cohort)}, ${catalog}, ${serviceRoles}, ${metricContract}`;
 }
 
 /**

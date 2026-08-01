@@ -4,6 +4,7 @@ import {
   corpusCohortIdentityForView,
   corpusCohortDifferences,
   corpusCohortLabel,
+  corpusCohortSummaryLabel,
   selectPrimaryCorpusCohort,
   type CorpusCohortCandidate,
   type CorpusCohortIdentity
@@ -306,5 +307,27 @@ test("a broader cohort with a different catalog or read-time formula identity ca
       "current",
       JSON.stringify(change)
     );
+  }
+});
+
+test("the summary label is the prefix of the full label, not a second copy of it", () => {
+  // These two used to restate the same four fields independently, which is this repo's
+  // recurring defect shape: a reader-facing wording change lands in one and not the
+  // other. corpusCohortLabel now derives from corpusCohortSummaryLabel; this pins that.
+  const cohorts: CorpusCohortIdentity[] = [
+    identity({ id: "a" }),
+    identity({ id: "b", gpc: false }),
+    identity({ id: "c", schemaVersion: 2, schemaRevision: 2 }),
+    identity({ id: "d", schemaVersion: 2, schemaRevision: null }),
+    identity({ id: "e", producer: "container@1" })
+  ];
+  for (const cohort of cohorts) {
+    const summary = corpusCohortSummaryLabel(cohort);
+    assert.ok(
+      corpusCohortLabel(cohort).startsWith(`${summary}, `),
+      `full label no longer starts with the summary: ${corpusCohortLabel(cohort)}`
+    );
+    // The summary is the human half only: no 64-character digests.
+    assert.doesNotMatch(summary, /[0-9a-f]{32}/);
   }
 });

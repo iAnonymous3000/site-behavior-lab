@@ -114,7 +114,9 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
                   <td data-label="Role">{roleTag(domain, identity)}</td>
                   <td data-label="Requests">{domain.requests.toLocaleString("en-US")}</td>
                   <td data-label="Catalog match">
-                    {identifiedHostCatalogMatchLabel(identity) ?? "-"}
+                    {identifiedHostCatalogMatchLabel(identity) ?? (
+                      <span className="muted">No catalog match</span>
+                    )}
                   </td>
                   <td data-label="Resource types">{domain.resourceTypes.join(", ")}</td>
                 </tr>
@@ -629,7 +631,7 @@ function StorageList({ storage, facts }: { storage: StorageRecord[]; facts: RunF
           <span>
             {displayEvidenceName(item.key, "storage", index + 1)}
             <small>
-              {item.area} · {item.valueBytes} bytes
+              {item.area} · {plural(item.valueBytes, "byte")}
             </small>
           </span>
         </div>
@@ -697,7 +699,7 @@ function FingerprintList({
           <Fingerprint className="ico-neutral" size={14} aria-hidden="true" />
           <span>
             {event.api}
-            <small>{event.count} calls</small>
+            <small>{plural(event.count, "call")}</small>
           </span>
         </div>
       ))}

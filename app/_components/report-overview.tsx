@@ -464,8 +464,14 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
     {
       label: "Duration",
       value: `${Math.round(run.durationMs / 100) / 10}s`,
+      // On the homepage scan flow this is the only clock time on the whole report, and
+      // ReportPageContext (which labels its own timestamps) renders on the permalink
+      // only. Without the zone marker a reader in Pacific reads a UTC time as local.
       detail: run.startedAt
-        ? new Date(run.startedAt).toLocaleTimeString("en-US", { timeZone: "UTC" })
+        ? new Date(run.startedAt).toLocaleTimeString("en-US", {
+            timeZone: "UTC",
+            timeZoneName: "short"
+          })
         : "start time not recorded",
       icon: Clock
     }

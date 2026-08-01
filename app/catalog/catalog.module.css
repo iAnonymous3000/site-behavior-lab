@@ -265,6 +265,17 @@
     padding: 32px 16px 60px;
   }
 
+  /* The global `table { min-width: 720px }` reaches this module table, whose wrapper is
+     a CSS-module class the global mobile reset never matches. Without this a phone
+     reader scrolls 430px sideways per row. */
+  .table {
+    min-width: 0;
+  }
+
+  .tableWrap {
+    max-height: none;
+  }
+
   .controls {
     grid-template-columns: 1fr;
   }
