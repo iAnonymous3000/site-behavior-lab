@@ -13,11 +13,11 @@ import {
 
 test("tracker catalog metadata describes the bundled source without third-party provenance claims", () => {
   assert.equal(trackerCatalogMetadata.source, "Hand-curated service catalog");
-  assert.equal(trackerCatalogMetadata.version, "hand-curated-2026.07");
+  assert.equal(trackerCatalogMetadata.version, "hand-curated-2026.08");
   assert.equal(trackerCatalogMetadata.region, "US-biased");
   assert.equal(trackerCatalogMetadata.license, "AGPL-3.0-or-later");
   assert.match(trackerCatalogMetadata.digest, /^[a-f0-9]{64}$/);
-  assert.equal(trackerCatalogMetadata.provenanceVersion, "catalog-review-v2");
+  assert.equal(trackerCatalogMetadata.provenanceVersion, "catalog-review-v3");
   assert.equal(trackerCatalogMetadata.reviewedEntries, trackerCatalogMetadata.entries);
   assert.match(trackerCatalogMetadata.provenanceDigest, /^[a-f0-9]{64}$/);
 });
@@ -28,7 +28,7 @@ test("every effective catalog domain has mechanically valid review provenance", 
   assert.deepEqual(validateTrackerCatalogRecords(records), []);
   assert.equal(records.every((record) => record.provenance.entityReferences.length > 0), true);
   assert.equal(
-    records.every((record) => ["2026-07-21", "2026-07-28"].includes(record.provenance.reviewedAt)),
+    records.every((record) => ["2026-07-21", "2026-07-28", "2026-08-01"].includes(record.provenance.reviewedAt)),
     true
   );
   assert.equal(
