@@ -61,12 +61,16 @@ const LazyReportRenderer = lazy(() =>
   import("./_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
 );
 
+// Every hint restates evidence from a committed public-corpus report (the
+// gallery carries the receipts), phrased as what was observed, never as a
+// promise about the next visit. Update hints only from committed reports.
 const EXAMPLES: { url: string; hint: string }[] = [
-  { url: "youtube.com", hint: "one mega-entity" },
-  { url: "usatoday.com", hint: "heavy trackers" },
-  { url: "amazon.com", hint: "retail + retargeting" },
-  { url: "weather.com", hint: "tracker-dense" },
-  { url: "wikipedia.org", hint: "minimal" }
+  { url: "weather.gov", hint: "typed text reached a third party" },
+  { url: "webmd.com", hint: "980 third-party requests on record" },
+  { url: "coolmathgames.com", hint: "kids' games, 164 third-party requests" },
+  { url: "capitalone.com", hint: "bank with a cloaked tracker" },
+  { url: "homedepot.com", hint: "Meta Pixel with an identity field" },
+  { url: "wikipedia.org", hint: "zero third parties on record" }
 ];
 export type CorpusHighlights = {
   /** Distinct real sites represented by any committed attempt. */
