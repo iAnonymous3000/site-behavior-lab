@@ -9,10 +9,13 @@ public API or a 1.0 release.
 
 Work landing after the 0.4.0-rc.1 milestone. Nothing here is released.
 
-## [0.4.0-rc.1] - 2026-07-31
+## [0.4.0-rc.1] - 2026-08-01
 
 Release-candidate rehearsal for the prerelease tag mechanics the 1.0 ceremony
-will use, cut on the release-1.0 preparation batch. It does not declare a
+will use, cut on the release-1.0 preparation batch. Re-dated from 2026-07-31:
+the first tag ceremony failed before creating any tag (the ceremony can only
+tag the current head of main), so this section was re-declared at the current
+head and now also covers the work below that landed in between. It does not declare a
 stable public API, enable npm publication, or claim any readiness gate that
 its own evaluator reports as failing. ScanReport contracts are unchanged
 (v1 frozen, v2/r1 and v2/r2 byte-immutable).
@@ -59,6 +62,42 @@ its own evaluator reports as failing. ScanReport contracts are unchanged
   against structured report facts, and report identity flows through one
   exact per-host catalog seam that never renders the lossy one-slot domain
   summary directly.
+
+- Four service-catalog classifications, each verified against the vendor's
+  own documentation before entry: HUMAN Security bot defense and Microsoft
+  Azure CDN endpoints (both resolve operational-only and are never counted
+  as tracking), Cloudflare Web Analytics, and Tealium's tag-serving CDN
+  domain. Catalog identity `hand-curated-2026.08`, provenance
+  `catalog-review-v3`; no ServiceRole taxonomy change, so corpus cohorts do
+  not fragment on that axis.
+- Consent-interaction reports disclose which consent control was actually
+  clicked, not only the choice that was requested.
+- The Sourcepoint consent-selector audit, with the result recorded next to
+  the selectors it reviewed.
+- An r2 normalization identity ledger: both active identities are pinned as
+  reviewed literals, and any sanitizer-input change that moves them fails
+  closed until the documented retirement ritual runs.
+- The homepage "Try" suggestions restate one committed-corpus observation
+  per domain and are rendered where a first-time visitor can see them.
+
+### Fixed
+
+- Five stability defects (an unbounded policy probe, a proxy
+  `uncaughtException`, a silently-cancelled Brave-list refresh, a false
+  weekly alarm, and a dead test) and the self-host documentation that
+  described them incorrectly.
+- The UI/UX audit findings: focus indicators and interactive-control
+  boundaries reach WCAG 1.4.11 in both themes with forced-colors support;
+  the scan field's whole visible surface is clickable; client URL
+  validation now rejects in Chromium what its Node-only test wrongly
+  pinned as rejected; the 404 page carries its own metadata; touch-target
+  floors, keyboard-focus recovery on failure paths, and number, byte, and
+  timezone formatting across report surfaces.
+- Two latent identity-aliasing defects exposed by the catalog revision: a
+  closed producer epoch tracked the active catalog identity instead of the
+  one it published under, and the v1 redactor's reviewed-identity list
+  omitted the closing catalog revision, which would have broken
+  redaction idempotence for committed reports.
 
 ### Changed
 

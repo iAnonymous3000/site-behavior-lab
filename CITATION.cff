@@ -9,7 +9,7 @@ repository-code: "https://github.com/iAnonymous3000/site-behavior-lab"
 url: "https://sitebehavior.org"
 license: "AGPL-3.0-or-later"
 version: "0.4.0-rc.1"
-date-released: "2026-07-31"
+date-released: "2026-08-01"
 keywords:
   - web transparency
   - privacy
