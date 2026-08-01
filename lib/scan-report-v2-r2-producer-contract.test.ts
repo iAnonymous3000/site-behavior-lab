@@ -116,14 +116,10 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-b68c-pre-accountability-lists-2026-07-25",
       "node-v4-b68c-pre-accountability-no-adblock",
       "node-v4-b68c-accountability-v1-lists-2026-07-25",
-      "node-v4-b68c-accountability-v1-no-adblock"
+      "node-v4-b68c-accountability-v1-no-adblock",
+      "node-v4-ec26-active-lists-2026-07-25",
+      "node-v4-ec26-active-no-adblock"
   ];
-  if (NODE_R2_PRODUCER_TUPLES.some((tuple) => tuple.id.endsWith("active-no-adblock"))) {
-    expectedTupleIds.push(
-      "node-v4-b68c-active-lists-2026-07-25",
-      "node-v4-b68c-active-no-adblock"
-    );
-  }
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
   const preAccountability = NODE_R2_PRODUCER_TUPLES.find((tuple) =>
@@ -440,23 +436,60 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
   };
   const pagegraphV3 =
     "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+pagegraph-request-evidence-v1";
-  const oracle = [
-    pagegraphV3,
-    `${pagegraphV3}+v3-to-v4-ip-port-title@1`,
-    `${V4_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${PAGEGRAPH_SUFFIX}`,
-    `${V4_PREFIX}6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b${PAGEGRAPH_SUFFIX}`,
-    `${V4_PREFIX}5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd${PAGEGRAPH_SUFFIX}`,
-    `${V4_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${PAGEGRAPH_SUFFIX}`,
-    `${V4_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${PAGEGRAPH_SUFFIX}`
+  const accountabilityTracker = {
+    source: "Hand-curated service catalog",
+    version: "hand-curated-2026.07",
+    entries: 137,
+    digest: "7cade02ae20c3bb88e28e0de1135ef63c48f586e7196de3c02c13478f70c95bc"
+  };
+  // Each retired identity replays only with the exact catalog it published
+  // under, and any other catalog version mixed into the same row must throw.
+  const oracle: Array<{ normalizationVersion: string; catalog: typeof historicalTracker; mixedVersion: string }> = [
+    { normalizationVersion: pagegraphV3, catalog: historicalTracker, mixedVersion: "hand-curated-2026.07" },
+    {
+      normalizationVersion: `${pagegraphV3}+v3-to-v4-ip-port-title@1`,
+      catalog: historicalTracker,
+      mixedVersion: "hand-curated-2026.07"
+    },
+    {
+      normalizationVersion: `${V4_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${PAGEGRAPH_SUFFIX}`,
+      catalog: historicalTracker,
+      mixedVersion: "hand-curated-2026.07"
+    },
+    {
+      normalizationVersion: `${V4_PREFIX}6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b${PAGEGRAPH_SUFFIX}`,
+      catalog: historicalTracker,
+      mixedVersion: "hand-curated-2026.07"
+    },
+    {
+      normalizationVersion: `${V4_PREFIX}5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd${PAGEGRAPH_SUFFIX}`,
+      catalog: historicalTracker,
+      mixedVersion: "hand-curated-2026.07"
+    },
+    {
+      normalizationVersion: `${V4_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${PAGEGRAPH_SUFFIX}`,
+      catalog: historicalTracker,
+      mixedVersion: "hand-curated-2026.07"
+    },
+    {
+      normalizationVersion: `${V4_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${PAGEGRAPH_SUFFIX}`,
+      catalog: historicalTracker,
+      mixedVersion: "hand-curated-2026.07"
+    },
+    {
+      normalizationVersion: `${V4_PREFIX}b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7${PAGEGRAPH_SUFFIX}`,
+      catalog: accountabilityTracker,
+      mixedVersion: "hand-curated-2026.08"
+    }
   ];
   assert.equal(PAGEGRAPH_R2_PRODUCER_TUPLES.length, oracle.length + 1);
   assert.equal(Object.isFrozen(PAGEGRAPH_R2_PRODUCER_TUPLES), true);
-  for (const normalizationVersion of oracle) {
+  for (const { normalizationVersion, catalog, mixedVersion } of oracle) {
     const run = structuredClone(active);
     run.toolchain.normalizationVersion = normalizationVersion;
-    run.toolchain.trackerCatalog = { ...historicalTracker };
+    run.toolchain.trackerCatalog = { ...catalog };
     assert.doesNotThrow(() => assertR2ProducerContract(run), normalizationVersion);
-    run.toolchain.trackerCatalog.version = "hand-curated-2026.07";
+    run.toolchain.trackerCatalog.version = mixedVersion;
     assert.throws(() => assertR2ProducerContract(run), R2ProducerContractError);
   }
   assert.doesNotThrow(() => assertR2ProducerContract(active));

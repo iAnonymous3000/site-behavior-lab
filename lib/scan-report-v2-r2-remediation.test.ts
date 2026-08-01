@@ -36,15 +36,11 @@ import {
   HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
   HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
   HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
-  HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION,
-  HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST,
-  HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION,
-  HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS,
   HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION,
   HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
   HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION,
-  HISTORICAL_NODE_R2_V4_TRACKER_CATALOG,
-  NODE_R2_PUBLIC_LIMITS
+  NODE_R2_PUBLIC_LIMITS,
+  NODE_R2_PRODUCER_TUPLES
 } from "./scan-report-v2-r2-producer-contract";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 
@@ -474,21 +470,30 @@ test("every superseded normalization reads only with its pinned historical produ
     const historicalMethodologies = HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[superseded];
     assert.notEqual(historicalMethodologies, undefined);
     for (const historicalMethodology of historicalMethodologies!) {
+      // Replay each retired identity from its own frozen producer row rather
+      // than one hard-coded epoch: the b68c retirement proved the loop's V4
+      // field set silently stops fitting when a later era joins the registry.
+      const frozenTuple = NODE_R2_PRODUCER_TUPLES.find(
+        (tuple) =>
+          tuple.normalizationVersion === superseded &&
+          tuple.methodologyVersion === historicalMethodology &&
+          tuple.adblockIdentity === null
+      );
+      assert.notEqual(
+        frozenTuple,
+        undefined,
+        `no frozen no-adblock producer row for ${superseded} + ${historicalMethodology}`
+      );
       const report = makePublicSingleReportV2R2();
       for (const run of r2ReportRuns(report)) {
         run.privacy.redactionVersion = REDACTION_VERSION;
         run.toolchain.normalizationVersion = superseded;
         run.provenance.methodologyVersion = historicalMethodology;
-        run.provenance.detectorRegistry = {
-          version: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_VERSION,
-          digest: HISTORICAL_NODE_R2_V4_DETECTOR_REGISTRY_DIGEST
-        };
-        run.toolchain.trackerCatalog = { ...HISTORICAL_NODE_R2_V4_TRACKER_CATALOG };
-        if (run.toolchain.adblock !== null) {
-          run.toolchain.adblock.engineVersion = HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION;
-        }
+        run.provenance.detectorRegistry = { ...frozenTuple!.detectorRegistry };
+        run.toolchain.trackerCatalog = { ...frozenTuple!.trackerCatalog };
+        run.toolchain.adblock = null;
         for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
-          run.detectors[id] = { ...run.detectors[id], version: HISTORICAL_NODE_R2_V4_DETECTOR_VERSIONS[id] };
+          run.detectors[id] = { ...run.detectors[id], version: frozenTuple!.detectorVersions[id] };
         }
         run.fingerprints = buildFingerprints({
           conditions: run.conditions,
