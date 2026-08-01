@@ -526,17 +526,25 @@ a {
   background: transparent;
   border: 0;
   color: var(--accent-strong);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
   font-size: 12px;
   padding: 4px 6px;
+  text-align: left;
 }
 
 .scan-examples button:hover {
   text-decoration: underline;
 }
 
+/* The hint is the hook: each restates one committed-corpus observation for
+   that domain. Hiding these reduced the row to bare domain names. */
 .scan-examples small {
   color: var(--text-subtle);
-  display: none;
+  display: block;
+  font-size: 10px;
+  line-height: 1.35;
 }
 
 .known-evidence {
