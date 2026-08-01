@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
@@ -250,10 +250,29 @@ test("the scan field's hit area is the whole visible field", () => {
   assert.match(css, /\.url-row input \{[\s\S]*?font-size: 16px;/);
 });
 
+/**
+ * Class names that are deliberately unstyled: JS/test mount points, and modifiers whose
+ * appearance comes entirely from a base class. Anything NOT on this list must have a
+ * rule, so a deleted rule with the JSX left behind fails here.
+ */
+const INTENTIONALLY_UNSTYLED_CLASS_NAMES = new Set([
+  "access-group",
+  "causal-graph-card",
+  "causal-node-dest",
+  "causal-node-source",
+  "change-list-cap-note",
+  "comparison-privacy-note",
+  "domain-request-deltas",
+  "provenance-change-list",
+  "report-title-block",
+  "turnstile-widget",
+  "visit-phase-evidence"
+]);
+
 test("every className token rendered by app code has a matching CSS rule", () => {
   // `.capped-chip` shipped with three call sites and no rule at all: the data-integrity
   // warning rendered as unstyled text and inherited `.eyebrow` in the report header.
-  // Typecheck and the unit suite are both blind to a deleted rule, so pin it here.
+  // Typecheck and the unit suite are both blind to a deleted rule, so sweep for it.
   const cssFiles = [
     "app/globals.css",
     "app/catalog/catalog.module.css",
@@ -261,15 +280,42 @@ test("every className token rendered by app code has a matching CSS rule", () =>
     "app/categories/[category]/category.module.css"
   ].map(source).join("\n");
 
-  for (const className of [
-    "capped-chip",
-    "trust-links-row",
-    "status-live-summary",
-    "request-evidence-explanation",
-    "report-evidence-loader"
-  ]) {
-    assert.match(cssFiles, new RegExp(`\\.${className}[\\s,{:]`), `.${className} has no CSS rule`);
+  function collectTsxFiles(dir: string, found: string[] = []): string[] {
+    for (const entry of readdirSync(path.join(process.cwd(), dir), { withFileTypes: true })) {
+      const next = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) collectTsxFiles(next, found);
+      else if (entry.name.endsWith(".tsx")) found.push(next);
+    }
+    return found;
   }
+
+  const tokens = new Set<string>();
+  for (const file of collectTsxFiles("app")) {
+    const contents = source(file);
+    for (const match of contents.matchAll(/className="([^"]+)"/g)) {
+      for (const token of match[1].split(/\s+/)) if (token) tokens.add(token);
+    }
+    // Template literals: drop the ${...} holes, keep the static tokens around them.
+    for (const match of contents.matchAll(/className=\{`([^`]*)`\}/g)) {
+      for (const token of match[1].replace(/\$\{[^}]*\}/g, " ").split(/\s+/)) if (token) tokens.add(token);
+    }
+  }
+
+  assert.ok(tokens.size > 200, `className sweep collected only ${tokens.size} tokens; the extraction broke`);
+
+  const unstyled = [...tokens]
+    // A trailing hyphen is the static half of an interpolated modifier (`tone-${x}`).
+    .filter((token) => !token.endsWith("-"))
+    .filter((token) => !INTENTIONALLY_UNSTYLED_CLASS_NAMES.has(token))
+    .filter((token) => !new RegExp(`\\.${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s,{:.>~+)]`).test(cssFiles))
+    .sort();
+
+  assert.deepEqual(
+    unstyled,
+    [],
+    `these class names are rendered but have no CSS rule (add the rule, or list it in ` +
+      `INTENTIONALLY_UNSTYLED_CLASS_NAMES with a reason): ${unstyled.join(", ")}`
+  );
 });
 
 test("no CSS file reads a custom property that is never declared", () => {

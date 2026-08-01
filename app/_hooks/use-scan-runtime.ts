@@ -756,8 +756,8 @@ export function useScanRuntime({
     const trimmed = form.url.trim();
     // A rejected URL never reaches the network, so it is a field-level problem and
     // stays in the field. Mirroring it into `error` would raise the scan-recovery
-    // banner (which has no dismiss control in this state), announce the same
-    // sentence twice, and hide the corpus hero until the next successful scan.
+    // banner, pull focus out of the field the visitor still has to correct, announce
+    // the same sentence twice, and hide the corpus hero until the next successful scan.
     if (!trimmed) {
       setUrlError("Enter a public URL to scan, for example https://example.com.");
       window.requestAnimationFrame(() => document.getElementById("url")?.focus());

@@ -2054,14 +2054,16 @@ a {
     min-height: 44px;
   }
 
-  /* Text-sized links and toggles need the box grown around the label, so they take
-     inline-flex centring rather than a bare height. */
-  .change-list-toggle,
+  /* The footer links are a list, so growing their boxes is fine and keeps the rows
+     cleanly separated. vertical-align pins them to the sentence rather than relying on
+     an engine's synthesised inline-flex baseline. */
   .footer-link {
     align-items: center;
     display: inline-flex;
     min-height: 44px;
+    vertical-align: middle;
   }
+
 
   .options-disclosure > summary {
     min-height: 44px;
@@ -2244,6 +2246,18 @@ a {
   font-size: 12px;
   margin-top: 8px;
   padding: 4px 0 0;
+}
+
+/* Touch target for the toggle. This has to live AFTER the base rule above, which sets
+   `padding: 4px 0 0` at the same specificity and would otherwise win on source order.
+   Padding rather than a min-height because the toggle also appears mid-sentence (the
+   "Clear filters" control inside p.table-empty): vertical padding on an inline-block
+   grows the target without changing the paragraph's leading. */
+@media (max-width: 720px), (any-pointer: coarse) {
+  .change-list-toggle {
+    padding-bottom: 13px;
+    padding-top: 17px;
+  }
 }
 
 .change-list-toggle:hover {
@@ -3721,10 +3735,13 @@ a {
 
 /* Catalogued third parties get a second visual channel besides hue, so the distinction
    survives for a reader who cannot separate teal from grey. */
+/* No stroke-width here: causality-graph.tsx encodes request volume as a per-edge
+   `strokeWidth` presentation attribute, and any author CSS declaration outranks it, so
+   setting one flattens every catalogued edge to a constant. The dash pattern alone is
+   the second, non-hue channel this rule exists for. */
 .causal-edge-tracker {
   stroke: var(--accent);
   stroke-dasharray: 5 3;
-  stroke-width: 2;
 }
 
 .causal-node rect {

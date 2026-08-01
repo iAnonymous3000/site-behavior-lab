@@ -17,7 +17,7 @@ import { committedReportLocation } from "@/lib/report-locator";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
 import {
-  staticReportCardLabel,
+  staticReportCardExtraEvidenceLabel,
   staticReportRequestCountLabel,
   staticReportRequestEvidenceStatus
 } from "@/lib/static-report-card-copy";
@@ -488,7 +488,7 @@ function StaticReportCard({
         <em>{report.requestedUrl}</em>
       </span>
       <span className="static-report-meta">
-        <span className="visually-hidden">{staticReportCardLabel(report)}</span>
+        <span className="visually-hidden">{staticReportCardExtraEvidenceLabel(report)}</span>
         <b>{staticReportRequestCountLabel(report, report.metrics.thirdPartyRequests, "third-party request")}</b>
         <small>
           {report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0

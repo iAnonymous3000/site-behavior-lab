@@ -439,8 +439,12 @@ export function SiteBehaviorApp({
           )}
           {loading && (
             <LoadingState
+              // recoveringScanAdmission stays true for the whole resumed scan (it is
+              // cleared in the recovery finally, after resumeRuntimeScan returns), so
+              // this must also require !scanning. Without that the resumed run loses its
+              // progress bar and its Cancel control for minutes.
               mode={
-                recoveringScanAdmission
+                recoveringScanAdmission && !scanning
                   ? "recovering"
                   : !scanning
                   ? "opening"

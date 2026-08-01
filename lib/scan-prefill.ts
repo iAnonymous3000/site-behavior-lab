@@ -11,7 +11,7 @@
  * browser happily accepted, and the visitor got no "enter a valid public URL" message
  * for the single most likely typo. Validate the parsed hostname explicitly instead.
  */
-function isScannableHostname(hostname: string): boolean {
+export function isScannableHostname(hostname: string): boolean {
   if (!hostname) return false;
   // Percent-encoding in a host is never a real host; it is Chromium salvaging bytes a
   // host may not contain (spaces, control characters) rather than failing the parse.

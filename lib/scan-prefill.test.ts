@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import {
+  isScannableHostname,
   normalizeScanUrl,
   resolveScanPrefillNavigation,
   scanPrefillHref
@@ -69,7 +70,35 @@ test("scan URL normalization preserves route intent while stripping private data
  * suite was green while a visitor who typed a space got no validation error, had their
  * text silently rewritten to a percent-encoded string, and spent a real scan request on
  * it. Assert on the shapes Chromium salvages, which Node never produced.
+ *
+ * NOTE the split below. Feeding raw-space input to normalizeScanUrl under Node proves
+ * almost nothing, because Node throws in the parser and the hostname predicate never
+ * runs: this suite stayed green when the percent guard was deleted. The hostname cases
+ * therefore go straight to isScannableHostname with the exact strings Chromium's parser
+ * produces, so the Chromium-only branch is actually exercised here.
  */
+test("hostnames Chromium salvages from malformed input are refused", () => {
+  // These are Chromium's real outputs for "not a url", "ex ample.com", "hello world",
+  // "a b c d" and "my notes about example". Node never produces them, so asserting on
+  // normalizeScanUrl alone cannot reach this branch.
+  for (const hostname of [
+    "not%20a%20url",
+    "ex%20ample.com",
+    "hello%20world",
+    "a%20b%20c%20d",
+    "my%20notes%20about%20example"
+  ]) {
+    assert.equal(isScannableHostname(hostname), false, hostname);
+  }
+  // And the same predicate still accepts every real target shape.
+  for (const hostname of ["example.com", "xn--mnchen-3ya.de", "sub.example.co.uk", "example.com.", "[::1]"]) {
+    assert.equal(isScannableHostname(hostname), true, hostname);
+  }
+  for (const hostname of ["", "example", "localhost", "a..b", ".example.com"]) {
+    assert.equal(isScannableHostname(hostname), false, hostname);
+  }
+});
+
 test("targets Chromium salvages instead of rejecting are still refused", () => {
   for (const input of [
     "not a url",
@@ -80,7 +109,9 @@ test("targets Chromium salvages instead of rejecting are still refused", () => {
   ]) {
     assert.equal(normalizeScanUrl(input), null, input);
   }
-  // Hosts Chromium produces by percent-encoding bytes a host may not contain.
+  // Pre-encoded input reaches the hostname predicate under Node too, so this one case
+  // does fail if the percent guard is removed.
+  assert.equal(normalizeScanUrl("https://ex%20ample.com/account"), null);
   assert.equal(normalizeScanUrl("https://not%20a%20url/"), null);
   // Single-label and empty-label hosts are not scannable public targets either.
   assert.equal(normalizeScanUrl("example"), null);

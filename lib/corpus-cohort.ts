@@ -251,10 +251,6 @@ export function corpusCohortSummaryLabel(cohort: CorpusCohortIdentity): string {
 }
 
 export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
-  const schema =
-    cohort.schemaVersion === 1 ? "schema v1" : `schema v2 revision ${cohort.schemaRevision ?? "unrecorded"}`;
-  const producer = cohort.producer ?? "producer unrecorded";
-  const gpc = cohort.gpc ? "GPC requested" : "GPC not requested";
   const catalog =
     cohort.trackerCatalogOrigin === "recorded"
       ? `recorded catalog digest ${cohort.trackerCatalogDigest}`
@@ -263,7 +259,9 @@ export function corpusCohortLabel(cohort: CorpusCohortIdentity): string {
     `ServiceRole taxonomy ${cohort.serviceRoleTaxonomyVersion} digest ${cohort.serviceRoleTaxonomyDigest}`;
   const metricContract =
     `metric contract ${cohort.metricContractVersion} digest ${cohort.metricContractDigest}`;
-  return `${cohort.methodologyVersion}, ${schema}, ${producer}, ${gpc}, ${catalog}, ${serviceRoles}, ${metricContract}`;
+  // Derived, not restated: the readable half has exactly one definition, so changing a
+  // word there cannot leave the full label saying something different.
+  return `${corpusCohortSummaryLabel(cohort)}, ${catalog}, ${serviceRoles}, ${metricContract}`;
 }
 
 /**
