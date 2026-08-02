@@ -1,0 +1,248 @@
+name: Calibration Label Roster Authorization
+run-name: "calibration-label-roster:${{ inputs.study_id }}:${{ inputs.candidate_commit }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      study_id:
+        description: Preregistered calibration study id
+        required: true
+        type: string
+      detector:
+        description: Governed detector
+        required: true
+        type: choice
+        options:
+          - fingerprint-heuristics
+          - keystroke-exfiltration
+          - cname-uncloaking
+          - pixel-events
+          - consent-banner
+          - privacy-policy
+      candidate_commit:
+        description: Frozen measurement candidate C (full lowercase SHA)
+        required: true
+        type: string
+      sources_ref:
+        description: Exact protected evidence-only carrier H containing the coordinate manifest
+        required: true
+        type: string
+      sources_path:
+        description: Canonical coordinate manifest JSON path within sources_ref
+        required: true
+        type: string
+      case_input_root:
+        description: Opaque absolute controlled-runner case-input directory; never written to the roster
+        required: true
+        type: string
+      case_input_root_sha256:
+        description: Domain-separated digest of the exact one-shot case_input_root authorization
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: calibration-label-roster-${{ inputs.study_id }}-${{ inputs.candidate_commit }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  CALIBRATION_STUDY_ID: ${{ inputs.study_id }}
+  CALIBRATION_DETECTOR: ${{ inputs.detector }}
+  CALIBRATION_CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+  SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}
+  FEATURED_RUNNER_LABEL: ${{ vars.FEATURED_RUNNER_LABEL || '' }}
+  SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || '' }}
+  SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
+  FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+
+jobs:
+  produce:
+    name: Publish one pre-acquisition roster authorization
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      attestations: read
+      contents: read
+    outputs:
+      artifact_id: ${{ steps.roster_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.roster_artifact.outputs.artifact-digest }}
+      authorization_nonce: ${{ steps.build.outputs.authorization_nonce }}
+      case_input_root_sha256: ${{ steps.build.outputs.case_input_root_sha256 }}
+      roster_sha256: ${{ steps.build.outputs.roster_sha256 }}
+      roster_run_name: ${{ steps.build.outputs.roster_run_name }}
+    steps:
+      - name: Checkout exact trusted roster producer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up exact Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify closed attempt-1 authorization identity
+        env:
+          SOURCES_REF: ${{ inputs.sources_ref }}
+          SOURCES_PATH: ${{ inputs.sources_path }}
+          CASE_INPUT_ROOT: ${{ inputs.case_input_root }}
+          CASE_INPUT_ROOT_SHA256: ${{ inputs.case_input_root_sha256 }}
+        run: |
+          set -euo pipefail
+          [[ "$CALIBRATION_STUDY_ID" =~ ^[a-z0-9][a-z0-9._-]{0,99}$ ]]
+          [[ "$CALIBRATION_CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCES_REF" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCES_PATH" =~ ^[a-z0-9][a-z0-9._/-]{0,499}\.json$ ]]
+          [[ "$SOURCES_PATH" != *..* ]]
+          [[ "$SOURCES_PATH" != *//* ]]
+          [[ "$CASE_INPUT_ROOT" == /* ]]
+          [[ "$CASE_INPUT_ROOT_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          test "$SOURCES_REF" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$CALIBRATION_CANDIDATE_COMMIT" "$GITHUB_SHA"
+          test "$GITHUB_ACTOR" = "$GITHUB_TRIGGERING_ACTOR"
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+
+      - name: Install trusted verifier dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build and verify frozen candidate context
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+          export SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1
+          npm run calibration:preflight -- --dispatch
+
+      - name: Materialize candidate and coordinate source as data only
+        env:
+          SOURCES_REF: ${{ inputs.sources_ref }}
+        run: |
+          set -euo pipefail
+          git cat-file -e "${CALIBRATION_CANDIDATE_COMMIT}^{commit}"
+          git cat-file -e "${SOURCES_REF}^{commit}"
+          test "$SOURCES_REF" = "$GITHUB_SHA"
+          git worktree add --detach "$RUNNER_TEMP/calibration-roster-candidate" "$CALIBRATION_CANDIDATE_COMMIT"
+          git worktree add --detach "$RUNNER_TEMP/calibration-roster-sources" "$SOURCES_REF"
+          test "$(git -C "$RUNNER_TEMP/calibration-roster-candidate" rev-parse HEAD)" = "$CALIBRATION_CANDIDATE_COMMIT"
+          test "$(git -C "$RUNNER_TEMP/calibration-roster-sources" rev-parse HEAD)" = "$SOURCES_REF"
+
+      - name: Authenticate and freeze the exact commitment roster
+        id: build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCES_PATH: ${{ inputs.sources_path }}
+          CASE_INPUT_ROOT: ${{ inputs.case_input_root }}
+          CASE_INPUT_ROOT_SHA256: ${{ inputs.case_input_root_sha256 }}
+        run: |
+          set -euo pipefail
+          test ! -e "$RUNNER_TEMP/calibration-roster-downloads"
+          test ! -e "$RUNNER_TEMP/calibration-roster-output"
+          node scripts/calibration-label-roster-build.mjs \
+            --study-id "$CALIBRATION_STUDY_ID" \
+            --detector "$CALIBRATION_DETECTOR" \
+            --candidate-commit "$CALIBRATION_CANDIDATE_COMMIT" \
+            --candidate-root "$RUNNER_TEMP/calibration-roster-candidate" \
+            --sources-root "$RUNNER_TEMP/calibration-roster-sources" \
+            --sources-path "$SOURCES_PATH" \
+            --case-input-root "$CASE_INPUT_ROOT" \
+            --case-input-root-sha256 "$CASE_INPUT_ROOT_SHA256" \
+            --scratch-dir "$RUNNER_TEMP/calibration-roster-downloads" \
+            --output-dir "$RUNNER_TEMP/calibration-roster-output"
+
+      - name: Upload one immutable roster authorization
+        id: roster_artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-calibration-label-roster-${{ inputs.study_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-roster-output/roster.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+
+      - name: Record immutable authorization coordinates
+        env:
+          ARTIFACT_ID: ${{ steps.roster_artifact.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.roster_artifact.outputs.artifact-digest }}
+          ROSTER_SHA256: ${{ steps.build.outputs.roster_sha256 }}
+          ROSTER_RUN_NAME: ${{ steps.build.outputs.roster_run_name }}
+          CASE_INPUT_ROOT_SHA256: ${{ steps.build.outputs.case_input_root_sha256 }}
+        run: |
+          {
+            echo "## Pre-acquisition calibration roster authorization"
+            echo
+            echo "- Run identity: \`${ROSTER_RUN_NAME}\`"
+            echo "- Run: \`${GITHUB_RUN_ID}\`"
+            echo "- Attempt: \`${GITHUB_RUN_ATTEMPT}\`"
+            echo "- Artifact id: \`${ARTIFACT_ID}\`"
+            echo "- Artifact digest: \`${ARTIFACT_DIGEST}\`"
+            echo "- Roster JSON digest: \`${ROSTER_SHA256}\`"
+            echo "- Candidate: \`${CALIBRATION_CANDIDATE_COMMIT}\`"
+            echo "- Evidence-only carrier: \`${GITHUB_SHA}\`"
+            echo "- Case-input-root digest: \`${CASE_INPUT_ROOT_SHA256}\`"
+            echo
+            echo "The artifact fixes the complete authenticated commitment roster before acquisition. It contains neither label plaintext nor the raw case-input path."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove data-only worktrees
+        if: always()
+        run: |
+          git worktree remove --force "$RUNNER_TEMP/calibration-roster-candidate" 2>/dev/null || true
+          git worktree remove --force "$RUNNER_TEMP/calibration-roster-sources" 2>/dev/null || true
+
+  dispatch_acquisition:
+    name: Dispatch the sole authorized acquisition attempt
+    needs: produce
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CASE_INPUT_ROOT: ${{ inputs.case_input_root }}
+      ROSTER_ARTIFACT_ID: ${{ needs.produce.outputs.artifact_id }}
+      ROSTER_ARTIFACT_DIGEST: ${{ needs.produce.outputs.artifact_digest }}
+      ROSTER_AUTHORIZATION_NONCE: ${{ needs.produce.outputs.authorization_nonce }}
+      ROSTER_CASE_INPUT_ROOT_SHA256: ${{ needs.produce.outputs.case_input_root_sha256 }}
+    steps:
+      - name: Dispatch acquisition exactly once
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = "1"
+          [[ "$ROSTER_ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+          [[ "$ROSTER_ARTIFACT_DIGEST" =~ ^(sha256:)?[0-9a-f]{64}$ ]]
+          [[ "$ROSTER_AUTHORIZATION_NONCE" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$ROSTER_CASE_INPUT_ROOT_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          gh workflow run calibration-study.yml \
+            --ref main \
+            -f mode=acquire \
+            -f study_id="$CALIBRATION_STUDY_ID" \
+            -f detector="$CALIBRATION_DETECTOR" \
+            -f candidate_commit="$CALIBRATION_CANDIDATE_COMMIT" \
+            -f case_input_root="$CASE_INPUT_ROOT" \
+            -f roster_run_id="$GITHUB_RUN_ID" \
+            -f roster_run_attempt="$GITHUB_RUN_ATTEMPT" \
+            -f roster_head_sha="$GITHUB_SHA" \
+            -f roster_artifact_id="$ROSTER_ARTIFACT_ID" \
+            -f roster_artifact_digest="$ROSTER_ARTIFACT_DIGEST" \
+            -f roster_authorization_nonce="$ROSTER_AUTHORIZATION_NONCE" \
+            -f roster_case_input_root_sha256="$ROSTER_CASE_INPUT_ROOT_SHA256" \
+            -f roster_authorized_run_attempt=1
+
+      - name: Record the one-shot dispatch boundary
+        run: |
+          {
+            echo
+            echo "The governed acquisition workflow accepted one dispatch from roster run \`${GITHUB_RUN_ID}\`, attempt \`${GITHUB_RUN_ATTEMPT}\`. Rerunning this roster workflow is forbidden; the acquisition preflight polls this parent to terminal success and rejects any competing same-identity roster run."
+          } >> "$GITHUB_STEP_SUMMARY"

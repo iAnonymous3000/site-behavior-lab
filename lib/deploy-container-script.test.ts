@@ -10,10 +10,18 @@ import ts from "typescript";
 const ROOT = process.cwd();
 const FIXTURE_ROOT = mkdtempSync(path.join(tmpdir(), "site-behavior-lab-container-deploy-"));
 const SCRIPT = path.join(FIXTURE_ROOT, "scripts/deploy-container.mjs");
+const MEASUREMENT_PROOF_SCRIPT = path.join(
+  FIXTURE_ROOT,
+  "scripts/measurement-candidate-build-proof.mjs"
+);
 
 after(() => rmSync(FIXTURE_ROOT, { recursive: true, force: true }));
 mkdirSync(path.dirname(SCRIPT), { recursive: true });
 copyFileSync(path.join(ROOT, "scripts/deploy-container.mjs"), SCRIPT);
+copyFileSync(
+  path.join(ROOT, "scripts/measurement-candidate-build-proof.mjs"),
+  MEASUREMENT_PROOF_SCRIPT
+);
 for (const config of [
   "wrangler.container.jsonc",
   "wrangler.container.staging.jsonc",
@@ -122,6 +130,10 @@ test("staging config is isolated, gated, and pinned to its exact coordinator ori
   assert.equal(config.containers[0].max_instances, 1);
   assert.deepEqual(config.durable_objects.bindings, [{ name: "SCANNER", class_name: "ScannerContainer" }]);
   assert.equal(source.split("__SITE_BEHAVIOR_LAB_BUILD_COMMIT__").length - 1, 1);
+  assert.equal(
+    source.split("__SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF__").length - 1,
+    1
+  );
   const requiredSecrets = [
     "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN",
     "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY",
@@ -179,6 +191,10 @@ test("watch staging is open behind Turnstile, separately authorized, and isolate
   assert.equal(config.containers[0].name, "site-behavior-lab-watch-staging-container");
   assert.equal(config.containers[0].max_instances, 1);
   assert.equal(source.split("__SITE_BEHAVIOR_LAB_BUILD_COMMIT__").length - 1, 1);
+  assert.equal(
+    source.split("__SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF__").length - 1,
+    1
+  );
   const requiredSecrets = [
     "TURNSTILE_SECRET_KEY",
     "SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY",
@@ -224,6 +240,8 @@ test("local container deployment rejects dirty provenance while CI pins an expli
   assert.match(source, /Container deployment provenance requires a clean Git worktree/);
   assert.match(source, /workersCommit !== localCommit/);
   assert.match(source, /resolveBuildCommit\(\{ requireClean: !check \}\)/);
+  assert.match(source, /measurement-candidate-build-proof\.mjs/);
+  assert.match(source, /MEASUREMENT_PROOF_PLACEHOLDER/);
 });
 
 test("container images exclude transient configs, local secrets, and Rust build output", () => {

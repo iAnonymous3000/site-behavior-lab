@@ -7,6 +7,8 @@ import process from "node:process";
 
 const FULL_SHA = /^[0-9a-f]{40}$/;
 const PLACEHOLDER = "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__";
+const MEASUREMENT_PROOF_PLACEHOLDER =
+  "__SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF__";
 const DEFAULT_CONFIG_FILENAME = "wrangler.container.jsonc";
 const SAFE_CONFIG_FILENAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,239}\.jsonc$/;
 const root = process.cwd();
@@ -99,17 +101,46 @@ async function main() {
   }
 
   const commit = resolveBuildCommit({ requireClean: !check });
+  const measurementCandidateProof = execFileSync(
+    process.execPath,
+    [path.join(root, "scripts", "measurement-candidate-build-proof.mjs")],
+    {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "inherit"]
+    }
+  ).trim();
   const source = await readFile(sourcePath, "utf8");
   const occurrences = source.split(PLACEHOLDER).length - 1;
   if (occurrences !== 1) {
     throw new Error(`Expected exactly one ${PLACEHOLDER} placeholder, found ${occurrences}.`);
   }
+  const measurementProofOccurrences =
+    source.split(MEASUREMENT_PROOF_PLACEHOLDER).length - 1;
+  if (measurementProofOccurrences !== 1) {
+    throw new Error(
+      `Expected exactly one ${MEASUREMENT_PROOF_PLACEHOLDER} placeholder, found ${measurementProofOccurrences}.`
+    );
+  }
 
   try {
-    await writeFile(generatedPath, source.replace(PLACEHOLDER, commit), { encoding: "utf8", mode: 0o600 });
+    await writeFile(
+      generatedPath,
+      source
+        .replace(PLACEHOLDER, commit)
+        .replace(MEASUREMENT_PROOF_PLACEHOLDER, measurementCandidateProof),
+      { encoding: "utf8", mode: 0o600 }
+    );
     if (check) {
       const generated = await readFile(generatedPath, "utf8");
-      if (!generated.includes(`"SITE_BEHAVIOR_LAB_BUILD_COMMIT": "${commit}"`) || generated.includes(PLACEHOLDER)) {
+      if (
+        !generated.includes(`"SITE_BEHAVIOR_LAB_BUILD_COMMIT": "${commit}"`) ||
+        !generated.includes(
+          `"SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF": "${measurementCandidateProof}"`
+        ) ||
+        generated.includes(PLACEHOLDER) ||
+        generated.includes(MEASUREMENT_PROOF_PLACEHOLDER)
+      ) {
         throw new Error("Generated container config did not pin the selected build revision.");
       }
       console.log(

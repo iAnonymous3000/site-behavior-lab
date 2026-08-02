@@ -1,0 +1,175 @@
+name: A/A Repeatability Study
+
+on:
+  workflow_dispatch:
+    inputs:
+      study_id:
+        description: Candidate-resident preregistered A/A study id
+        required: true
+        type: string
+      candidate_commit:
+        description: Frozen measurement candidate C (full lowercase SHA)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  attestations: read
+
+concurrency:
+  group: aa-repeatability-${{ inputs.study_id }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+  AA_STUDY_ID: ${{ inputs.study_id }}
+  AA_CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+  SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}
+  FEATURED_RUNNER_LABEL: ${{ vars.FEATURED_RUNNER_LABEL || '' }}
+  SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || '' }}
+  SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
+  FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+
+jobs:
+  preflight:
+    name: Verify frozen candidate, frame, freeze, and unique runner
+    runs-on: ubuntu-latest
+    outputs:
+      candidate_commit: ${{ steps.preflight.outputs.candidate_commit }}
+      carrier_commit: ${{ steps.preflight.outputs.carrier_commit }}
+      runner_label: ${{ steps.preflight.outputs.runner_label }}
+      runner_label_sha256: ${{ steps.preflight.outputs.runner_label_sha256 }}
+      runner_identity_sha256: ${{ steps.preflight.outputs.runner_identity_sha256 }}
+      egress_identity: ${{ steps.preflight.outputs.egress_identity }}
+      egress_region: ${{ steps.preflight.outputs.egress_region }}
+      egress_region_sha256: ${{ steps.preflight.outputs.egress_region_sha256 }}
+    steps:
+      - name: Checkout exact trusted carrier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use the exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install and build the trusted verifier
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Reject ambiguous dispatch inputs
+        run: |
+          set -euo pipefail
+          [[ "$AA_STUDY_ID" =~ ^[a-z0-9][a-z0-9._-]{0,99}$ ]]
+          [[ "$AA_CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+
+      - name: Verify governed A/A dispatch context
+        id: preflight
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/aa-study-preflight.mjs --dispatch
+
+  collect:
+    name: Collect the complete preregistered frame once
+    needs: preflight
+    runs-on: ${{ needs.preflight.outputs.runner_label }}
+    timeout-minutes: 720
+    permissions:
+      contents: read
+      attestations: read
+    env:
+      AA_CARRIER_COMMIT: ${{ needs.preflight.outputs.carrier_commit }}
+      AA_RUNNER_LABEL_SHA256: ${{ needs.preflight.outputs.runner_label_sha256 }}
+      AA_RUNNER_IDENTITY_SHA256: ${{ needs.preflight.outputs.runner_identity_sha256 }}
+      AA_EGRESS_IDENTITY: ${{ needs.preflight.outputs.egress_identity }}
+      AA_EGRESS_REGION_SHA256: ${{ needs.preflight.outputs.egress_region_sha256 }}
+      SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ needs.preflight.outputs.candidate_commit }}
+      SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ needs.preflight.outputs.egress_identity }}
+      SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: ${{ needs.preflight.outputs.egress_region }}
+      SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"
+      SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: "1"
+      SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: "1"
+      SITE_BEHAVIOR_LAB_REPORT_ACQUISITION: ci-workflow
+      NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: https://sitebehavior.org
+    steps:
+      - name: Checkout exact trusted carrier for host verification
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: trusted-carrier
+
+      - name: Use the exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify the executing controlled runner
+        working-directory: trusted-carrier
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          export SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1
+          node scripts/aa-study-preflight.mjs --acquisition
+
+      - name: Checkout frozen candidate C
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.preflight.outputs.candidate_commit }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: candidate
+
+      - name: Install and compile the frozen process-local scanner
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          npm ci
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          node node_modules/typescript/bin/tsc -p tsconfig.aa-study.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Verify Chromium sandbox host support
+        run: |
+          set -euo pipefail
+          if current="$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null)"; then
+            test "$current" = "0"
+          fi
+
+      - name: Install candidate Chromium without host-package mutation
+        working-directory: candidate
+        run: npx playwright install chromium
+
+      - name: Run one unsharded, exactly counterbalanced A/A collection
+        working-directory: candidate
+        run: >-
+          node scripts/aa-study-acquire.mjs
+          --study-id "$AA_STUDY_ID"
+          --output "$RUNNER_TEMP/aa-study"
+
+      - name: Upload the immutable complete study artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-aa-study-${{ inputs.study_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/aa-study/
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90

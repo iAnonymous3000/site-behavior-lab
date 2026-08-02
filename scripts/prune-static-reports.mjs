@@ -11,9 +11,21 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { requireStaticReportPruningAllowed } from "./measurement-freeze-retention-lib.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const tsc = path.join(rootDir, "node_modules", "typescript", "bin", "tsc");
+
+// This guard runs before compilation and before the pruner can enumerate a
+// report. The featured workflow intentionally skips this launcher during a
+// freeze; any accidental direct call fails instead of deleting governed
+// evidence. Malformed values fail in the same place.
+try {
+  requireStaticReportPruningAllowed(process.env);
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+}
 
 // An orchestrator that already built dist/schema for the whole run sets the
 // env flag so repeated invocations skip the recompile.

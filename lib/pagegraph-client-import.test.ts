@@ -146,6 +146,11 @@ test("compile-time public build provenance rejects invalid and conflicting sourc
     pagesBuildSource,
     /runCommand\(nextBin, \["build", "--webpack"\],[\s\S]*SITE_BEHAVIOR_LAB_BUILD_COMMIT: deployment/
   );
+  assert.match(pagesBuildSource, /measurement-candidate-build-proof\.mjs/);
+  assert.match(
+    pagesBuildSource,
+    /SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF:\s*measurementCandidateProof/
+  );
   assert.doesNotMatch(uploadButtonSource, /export function PageGraphUploadButton/);
   assert.match(uploadButtonSource, /export function PageGraphR2UploadButton/);
   const moduleUrl = pathToFileURL(path.join(process.cwd(), "scripts", "public-build-commit.mjs")).href;

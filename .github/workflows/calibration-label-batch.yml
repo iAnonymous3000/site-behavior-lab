@@ -1,0 +1,170 @@
+name: Calibration Label Commitment
+
+on:
+  workflow_dispatch:
+    inputs:
+      role:
+        description: Independent blinded labeler or blind tiebreaker commitment
+        required: true
+        type: choice
+        options:
+          - labeler
+          - tiebreaker
+      study_id:
+        description: Preregistered calibration study id
+        required: true
+        type: string
+      detector:
+        description: Governed detector
+        required: true
+        type: choice
+        options:
+          - fingerprint-heuristics
+          - keystroke-exfiltration
+          - cname-uncloaking
+          - pixel-events
+          - consent-banner
+          - privacy-policy
+      candidate_commit:
+        description: Frozen measurement candidate C (full lowercase SHA)
+        required: true
+        type: string
+      source_ref:
+        description: Full commit SHA containing the reviewer's locally sealed ciphertext envelope
+        required: true
+        type: string
+      source_path:
+        description: Canonical JSON path within source_ref
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  attestations: read
+
+concurrency:
+  group: calibration-label-${{ inputs.study_id }}-${{ inputs.role }}-${{ github.actor }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  CALIBRATION_STUDY_ID: ${{ inputs.study_id }}
+  CALIBRATION_DETECTOR: ${{ inputs.detector }}
+  CALIBRATION_CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+  SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}
+  FEATURED_RUNNER_LABEL: ${{ vars.FEATURED_RUNNER_LABEL || '' }}
+  SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || '' }}
+  SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
+  FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+
+jobs:
+  produce:
+    name: Publish one authenticated pre-acquisition ciphertext commitment
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact trusted batch producer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up exact Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify closed dispatch identity
+        env:
+          ROLE: ${{ inputs.role }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+          SOURCE_PATH: ${{ inputs.source_path }}
+        run: |
+          set -euo pipefail
+          [[ "$CALIBRATION_STUDY_ID" =~ ^[a-z0-9][a-z0-9._-]{0,99}$ ]]
+          [[ "$CALIBRATION_CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCE_REF" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCE_PATH" =~ ^[a-z0-9][a-z0-9._/-]{0,499}\.json$ ]]
+          [[ "$SOURCE_PATH" != *..* ]]
+          [[ "$SOURCE_PATH" != *//* ]]
+          test "$ROLE" = "labeler" || test "$ROLE" = "tiebreaker"
+          test "$GITHUB_ACTOR" = "$GITHUB_TRIGGERING_ACTOR"
+
+      - name: Install trusted verifier dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build and verify candidate context
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+          export SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1
+          npm run calibration:preflight -- --dispatch
+
+      - name: Materialize candidate and sealed source as data only
+        env:
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          set -euo pipefail
+          git cat-file -e "${CALIBRATION_CANDIDATE_COMMIT}^{commit}"
+          git cat-file -e "${SOURCE_REF}^{commit}"
+          git worktree add --detach "$RUNNER_TEMP/calibration-label-candidate" "$CALIBRATION_CANDIDATE_COMMIT"
+          git worktree add --detach "$RUNNER_TEMP/calibration-label-source" "$SOURCE_REF"
+          test "$(git -C "$RUNNER_TEMP/calibration-label-candidate" rev-parse HEAD)" = "$CALIBRATION_CANDIDATE_COMMIT"
+          test "$(git -C "$RUNNER_TEMP/calibration-label-source" rev-parse HEAD)" = "$SOURCE_REF"
+
+      - name: Validate and wrap the ciphertext commitment
+        env:
+          ROLE: ${{ inputs.role }}
+          SOURCE_PATH: ${{ inputs.source_path }}
+        run: |
+          set -euo pipefail
+          test ! -e "$RUNNER_TEMP/calibration-label-commitment"
+          node scripts/calibration-label-batch-build.mjs \
+            --study-id "$CALIBRATION_STUDY_ID" \
+            --detector "$CALIBRATION_DETECTOR" \
+            --candidate-commit "$CALIBRATION_CANDIDATE_COMMIT" \
+            --candidate-root "$RUNNER_TEMP/calibration-label-candidate" \
+            --role "$ROLE" \
+            --source-root "$RUNNER_TEMP/calibration-label-source" \
+            --source-path "$SOURCE_PATH" \
+            --output-dir "$RUNNER_TEMP/calibration-label-commitment"
+
+      - name: Upload one immutable ciphertext commitment
+        id: commitment_artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-calibration-label-commitment-${{ inputs.role }}-${{ inputs.study_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-label-commitment/commitment.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+
+      - name: Record immutable commitment coordinates
+        env:
+          ARTIFACT_ID: ${{ steps.commitment_artifact.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.commitment_artifact.outputs.artifact-digest }}
+        run: |
+          {
+            echo "## Authenticated calibration ciphertext commitment"
+            echo
+            echo "- Role: \`${{ inputs.role }}\`"
+            echo "- Actor: \`${GITHUB_ACTOR}\`"
+            echo "- Run: \`${GITHUB_RUN_ID}\`"
+            echo "- Attempt: \`${GITHUB_RUN_ATTEMPT}\`"
+            echo "- Artifact id: \`${ARTIFACT_ID}\`"
+            echo "- Artifact digest: \`${ARTIFACT_DIGEST}\`"
+            echo "- Candidate: \`${CALIBRATION_CANDIDATE_COMMIT}\`"
+            echo
+            echo "The hosted artifact contains ciphertext and authenticated actor/run metadata only. Label plaintext remains sealed until the protected post-acquisition reveal job."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove data-only worktrees
+        if: always()
+        run: |
+          git worktree remove --force "$RUNNER_TEMP/calibration-label-candidate" 2>/dev/null || true
+          git worktree remove --force "$RUNNER_TEMP/calibration-label-source" 2>/dev/null || true

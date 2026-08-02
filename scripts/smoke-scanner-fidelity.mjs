@@ -23,7 +23,7 @@
 // view/headline/findings/JSON-LD modules the site uses. This script only
 // drives the scans.
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { readResponseTextWithinLimit } from "./http-response.mjs";
@@ -32,6 +32,7 @@ import {
   boundedInteger,
   buildAttemptLedger,
   sanitizeAttemptReason,
+  scannerFidelitySitesOf,
   selectShard
 } from "./scanner-fidelity-study-lib.mjs";
 
@@ -123,10 +124,18 @@ async function scan(url) {
 const sitesPath = path.join(rootDir, SITES_FILE);
 const sitesBytes = readFileSync(sitesPath);
 const sitesFileDigest = createHash("sha256").update(sitesBytes).digest("hex");
+const measurementIdentityPath = path.join(
+  rootDir,
+  "research",
+  "measurement-candidate",
+  "measurement-identity.json"
+);
+const measurementIdentityDigest = existsSync(measurementIdentityPath)
+  ? createHash("sha256").update(readFileSync(measurementIdentityPath)).digest("hex")
+  : null;
 const config = JSON.parse(sitesBytes.toString("utf8"));
-const allSites = Array.isArray(config.sites) ? config.sites : [];
+const allSites = scannerFidelitySitesOf(config);
 const sites = selectShard(allSites, SHARD_INDEX, SHARD_COUNT);
-if (sites.length === 0) throw new Error(`${SITES_FILE} lists no sites.`);
 const MIN_ANSWERING_TARGETS = Math.max(1, Math.ceil(sites.length * 0.6));
 
 console.log(
@@ -139,6 +148,7 @@ const bridge = ensureRenderBridge();
 const answeredTargets = new Set();
 const censoredFamilies = new Map();
 const attempts = [];
+const collectionStartedAt = new Date().toISOString();
 
 for (const site of sites) {
   for (let repetition = 1; repetition <= REPETITIONS; repetition += 1) {
@@ -192,8 +202,13 @@ for (const site of sites) {
   }
 }
 
+const collectionCompletedAt = new Date().toISOString();
 const ledger = buildAttemptLedger({
   createdAt: new Date().toISOString(),
+  collection: {
+    startedAt: collectionStartedAt,
+    completedAt: collectionCompletedAt
+  },
   baseOrigin: new URL(BASE).origin,
   sitesFile: SITES_FILE,
   shardIndex: SHARD_INDEX,
@@ -206,6 +221,7 @@ const ledger = buildAttemptLedger({
   },
   provenance: {
     expectedBuildCommit: EXPECTED_BUILD_COMMIT,
+    measurementIdentityDigest,
     sitesFileDigest,
     driverRuntime: {
       nodeVersion: process.versions.node,

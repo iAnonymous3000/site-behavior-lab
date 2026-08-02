@@ -38,7 +38,8 @@
  */
 
 import { spawn } from "node:child_process";
-import { appendFile, readFile, writeFile } from "node:fs/promises";
+import { appendFile, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -51,6 +52,8 @@ import {
   featuredTransientRetryLimit,
   isFullFeaturedCatalogSelection
 } from "./run-featured-scans-diagnostics.mjs";
+import { FEATURED_READJUDICATION_REASONS } from "./featured-readjudication-lib.mjs";
+import { measurementFreezeRetentionPolicy } from "./measurement-freeze-retention-lib.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sitesFileEnv = process.env.FEATURED_SITES_FILE?.trim();
@@ -58,7 +61,19 @@ const configPath = sitesFileEnv ? path.resolve(rootDir, sitesFileEnv) : path.joi
 const ciScanScript = path.join(rootDir, "scripts", "run-ci-scan.mjs");
 const manifestScript = path.join(rootDir, "scripts", "build-static-report-manifest.mjs");
 
+class ClassifiedFeaturedUnavailableError extends Error {
+  constructor(message, unavailableReason) {
+    super(message);
+    this.name = "ClassifiedFeaturedUnavailableError";
+    this.unavailableReason = unavailableReason;
+  }
+}
+
 async function main(args = process.argv.slice(2)) {
+  // Resolve before reading a catalog, building, or spawning a scan. A typo in
+  // the freeze variable must fail closed rather than silently selecting the
+  // ordinary deletion policy in the later trusted publisher.
+  const retentionPolicy = measurementFreezeRetentionPolicy(process.env);
   const planOnly = parseArguments(args);
   const config = await readConfig();
   const { sites, unavailable, catalogTotal, catalogVersion, fullCatalog, eligibility } = selectSites(config);
@@ -94,7 +109,8 @@ async function main(args = process.argv.slice(2)) {
           delayMs,
           transientRetries,
           transientRetryDelayMs,
-          minSuccessRate
+          minSuccessRate,
+          retentionPolicy
         }),
         null,
         2
@@ -103,6 +119,11 @@ async function main(args = process.argv.slice(2)) {
     return;
   }
 
+  if (retentionPolicy.measurementFreeze) {
+    console.log(
+      "Measurement freeze active: collection may append candidate-bound r2 evidence, but governed report pruning is forbidden."
+    );
+  }
   console.log(
     `Scanning ${sites.length} eligible featured site${sites.length === 1 ? "" : "s"} (compareShields=${compareShields}, compareConsent=${compareConsent}, compareGpc=${compareGpc}, device=${device}, transientRetries=${transientRetries}).`
   );
@@ -125,6 +146,7 @@ async function main(args = process.argv.slice(2)) {
   let succeeded = 0;
   let retried = 0;
   const failures = [];
+  const scanResults = [];
 
   for (const [index, site] of sites.entries()) {
     console.log(`\n[${index + 1}/${sites.length}] ${site.domain}`);
@@ -136,10 +158,25 @@ async function main(args = process.argv.slice(2)) {
       );
       if (result.attempts > 1) retried += 1;
       succeeded += 1;
+      scanResults.push({
+        domain: site.domain,
+        status: "available",
+        reportId: result.reportId,
+        attemptCount: result.attempts
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`  Failed: ${message}`);
       failures.push({ site: site.domain, message });
+      scanResults.push(
+        error instanceof ClassifiedFeaturedUnavailableError
+          ? {
+              domain: site.domain,
+              status: "unavailable",
+              reason: error.unavailableReason
+            }
+          : { domain: site.domain, status: "not-attempted" }
+      );
     }
 
     if (index < sites.length - 1 && delayMs > 0) {
@@ -157,6 +194,7 @@ async function main(args = process.argv.slice(2)) {
     eligibility,
     succeeded,
     failures,
+    scanResults,
     retried,
     minSuccessRate,
     successRate
@@ -204,7 +242,8 @@ export function featuredRunPlan({
   delayMs,
   transientRetries,
   transientRetryDelayMs,
-  minSuccessRate
+  minSuccessRate,
+  retentionPolicy = measurementFreezeRetentionPolicy({})
 }) {
   const comparisonMode = compareShields ? "shields" : compareConsent ? "consent" : compareGpc ? "gpc" : "single";
   const pageVisitsPerAttempt = comparisonMode === "single" ? 1 : 2;
@@ -237,6 +276,11 @@ export function featuredRunPlan({
       minimumSuccessRate: minSuccessRate,
       requiredSuccesses: Math.ceil(sites.length * minSuccessRate)
     },
+    retention: {
+      measurementFreeze: retentionPolicy.measurementFreeze,
+      pruningAllowed: retentionPolicy.pruningAllowed,
+      mode: retentionPolicy.mode
+    },
     targets: sites.map((site) => ({ domain: site.domain, category: site.category })),
     deferred: unavailable
   };
@@ -257,6 +301,7 @@ async function publishRunDiagnostics({
   eligibility,
   succeeded,
   failures,
+  scanResults,
   retried,
   minSuccessRate,
   successRate
@@ -277,6 +322,7 @@ async function publishRunDiagnostics({
     catalogCoverage: eligibility.catalogCoverage,
     requiredCatalogCoverage: eligibility.requiredCatalogCoverage,
     minimumEligibleSites: eligibility.minimumEligibleSites,
+    scanResults,
     failures
   };
   const outputPath = process.env.FEATURED_SUMMARY_PATH?.trim();
@@ -377,8 +423,8 @@ export function selectSites(config, environment = process.env, today = new Date(
 async function runOneScanWithRetry(site, scanOptions, { transientRetries, transientRetryDelayMs }) {
   for (let attempt = 0; ; attempt += 1) {
     try {
-      await runOneScan(site, scanOptions);
-      return { attempts: attempt + 1 };
+      const reportId = await runOneScan(site, scanOptions);
+      return { attempts: attempt + 1, reportId };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       const reason = featuredScanRetryReason(message);
@@ -391,38 +437,96 @@ async function runOneScanWithRetry(site, scanOptions, { transientRetries, transi
   }
 }
 
-function runOneScan(site, { compareGpc, compareShields, compareConsent, device }) {
-  return run(
-    process.execPath,
-    [ciScanScript],
-    {
-      SCAN_URL: site.url,
-      SCAN_DEVICE: device,
-      // Only one comparison mode per scan; Shields (the tried-vs-blocked moat) wins,
-      // then the consent accept/reject diff, then GPC (main() already resolves the
-      // precedence, so these flags are mutually exclusive here).
-      SCAN_COMPARE_SHIELDS: compareShields ? "true" : "false",
-      SCAN_COMPARE_CONSENT: compareConsent ? "true" : "false",
-      SCAN_COMPARE_GPC: compareGpc ? "true" : "false",
-      // Send GPC only when GPC is the measured axis. Held ON for every scan,
-      // it made the Shields lane claim a signal it was not testing, and the
-      // GPC worker injector blocks any non-http(s) Worker because it cannot
-      // add the signal to a blob: realm without changing that realm's origin.
-      // Blob workers are ordinary on modern sites, so the block censored the
-      // request family and pushed the site out of the corpus aggregate: 80 of
-      // 451 committed reports carry that capture loss and every one of them is
-      // a Shields comparison. A Shields visit with gpcEnabled false is also the
-      // more representative baseline, since most visitors send no GPC header.
-      SCAN_GPC_ENABLED: compareGpc ? "true" : "false",
-      // Each child publisher still deep-validates the exact new report and
-      // provenance sidecar. Defer the O(corpus) remediation pass to this
-      // trusted parent, which runs it once after every child has exited.
-      CI_SCAN_DEFER_CORPUS_CHECK: "1",
-      // Avoid each child appending duplicate keys to a shared GITHUB_OUTPUT file.
-      GITHUB_OUTPUT: ""
-    },
-    { captureFailureDiagnostic: true }
-  );
+async function runOneScan(site, { compareGpc, compareShields, compareConsent, device }) {
+  const resultDir = await mkdtemp(path.join(tmpdir(), "sbl-featured-result-"));
+  const resultPath = path.join(resultDir, "scan-result.json");
+  try {
+    let childError = null;
+    try {
+      await run(
+        process.execPath,
+        [ciScanScript],
+        {
+          SCAN_URL: site.url,
+          SCAN_DEVICE: device,
+          // Only one comparison mode per scan; Shields (the tried-vs-blocked moat) wins,
+          // then the consent accept/reject diff, then GPC (main() already resolves the
+          // precedence, so these flags are mutually exclusive here).
+          SCAN_COMPARE_SHIELDS: compareShields ? "true" : "false",
+          SCAN_COMPARE_CONSENT: compareConsent ? "true" : "false",
+          SCAN_COMPARE_GPC: compareGpc ? "true" : "false",
+          // Send GPC only when GPC is the measured axis. Held ON for every scan,
+          // it made the Shields lane claim a signal it was not testing, and the
+          // GPC worker injector blocks any non-http(s) Worker because it cannot
+          // add the signal to a blob: realm without changing that realm's origin.
+          // Blob workers are ordinary on modern sites, so the block censored the
+          // request family and pushed the site out of the corpus aggregate: 80 of
+          // 451 committed reports carry that capture loss and every one of them is
+          // a Shields comparison. A Shields visit with gpcEnabled false is also the
+          // more representative baseline, since most visitors send no GPC header.
+          SCAN_GPC_ENABLED: compareGpc ? "true" : "false",
+          // Each child publisher still deep-validates the exact new report and
+          // provenance sidecar. Defer the O(corpus) remediation pass to this
+          // trusted parent, which runs it once after every child has exited.
+          CI_SCAN_DEFER_CORPUS_CHECK: "1",
+          // Avoid each child appending duplicate keys to a shared GITHUB_OUTPUT file.
+          GITHUB_OUTPUT: "",
+          // This file is created only after the child has published and validated
+          // the exact report/sidecar pair. It is the parent's narrow report-id
+          // handoff and never contains target diagnostics.
+          CI_SCAN_RESULT_PATH: resultPath
+        },
+        { captureFailureDiagnostic: true }
+      );
+    } catch (error) {
+      childError = error;
+    }
+    let value = null;
+    try {
+      const text = await readFile(resultPath, "utf8");
+      value = JSON.parse(text);
+      if (text !== `${JSON.stringify(value)}\n`) {
+        throw new Error("scan-result handoff is not canonical JSON");
+      }
+    } catch (error) {
+      if (childError) throw childError;
+      throw error;
+    }
+    if (childError) {
+      if (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        JSON.stringify(Object.keys(value).sort()) ===
+          JSON.stringify(["reason", "schemaVersion", "status"]) &&
+        value.schemaVersion === 1 &&
+        value.status === "unavailable" &&
+        FEATURED_READJUDICATION_REASONS.includes(value.reason)
+      ) {
+        throw new ClassifiedFeaturedUnavailableError(
+          childError instanceof Error ? childError.message : String(childError),
+          value.reason
+        );
+      }
+      throw childError;
+    }
+    if (
+      !value ||
+      typeof value !== "object" ||
+      Array.isArray(value) ||
+      JSON.stringify(Object.keys(value).sort()) !==
+        JSON.stringify(["reportId", "schemaVersion", "status"]) ||
+      value.schemaVersion !== 1 ||
+      value.status !== "available" ||
+      typeof value.reportId !== "string" ||
+      !/^[0-9]{8}-[0-9a-f]{32}$/.test(value.reportId)
+    ) {
+      throw new Error("run-ci-scan returned a malformed report-id handoff");
+    }
+    return value.reportId;
+  } finally {
+    await rm(resultDir, { recursive: true, force: true });
+  }
 }
 
 function run(command, args, extraEnv, { captureFailureDiagnostic = false } = {}) {

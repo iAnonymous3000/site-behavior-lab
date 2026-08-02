@@ -66,20 +66,64 @@ exclusions (`scripts/scanner-fidelity-study-lib.mjs`). Those numbers are
 descriptive until a study declares acceptance thresholds BEFORE collecting.
 
 `scripts/aa-study-lib.mjs` defines that contract. A preregistration fixes, in
-one committed JSON declared before any scan: the exact target-frame digest,
-the target count, at least two repetitions per target (three recommended), the
-scan conditions, the producer build commit, and numeric thresholds (per-metric
-relative-range ceilings, a minimum pairwise Jaccard floor, an eligible-target
-floor, a maximum failing-target fraction, and whether comparison orders must
-be counterbalanced). `scripts/evaluate-aa-study.mjs` then scores a collected
-ledger against its preregistration: any binding mismatch (build, frame,
-repetitions, conditions, or a trimmed attempt denominator) is an identity
-violation rather than a threshold failure, and a passing study claims only
-that repeated automated visits agreed within the preregistered thresholds on
-that frozen frame at that exact identity. It is never a population estimate
-and never evidence about a single site. Committed studies live under
-`research/aa-studies/<study-id>/` as `preregistration.json`,
-`attempt-ledger.json`, and the generated `evaluation.json`.
+one committed v2 JSON declared before any scan: the exact study-local
+`target-frame.json` path and digest, target count, at least two repetitions per
+target, scan conditions, the fixed
+`research/measurement-candidate/measurement-identity.json` path and exact-file
+SHA-256, and numeric thresholds (per-metric relative-range ceilings, a minimum
+pairwise Jaccard floor, an eligible-target floor, a maximum failing-target
+fraction, and whether comparison orders must be counterbalanced).
+Comparison studies use an even repetition count: the governed producer
+alternates AB then BA by repetition, so every target has equal non-zero order
+counts by construction rather than merely hoping independent random draws
+happen to counterbalance.
+
+The measurement-identity manifest is deliberately separate from
+`measurement-inputs.json`. The latter is candidate-residency evidence that
+hashes the preregistration, target frame, and policy inputs; embedding its
+digest in the preregistration would create an impossible hash cycle. The
+identity manifest excludes preregistration and target-frame artifacts and
+instead binds the claim-affecting implementation, catalog, list, and runtime
+identities. Its digest is the SHA-256 of the canonical file bytes. The attempt
+ledger retains the truthful producer build commit as provenance but A/A v2
+does not require that post-candidate evidence-carrier SHA to equal a
+preregistered build SHA.
+
+`scripts/evaluate-aa-study.mjs` scores a collected ledger against its
+preregistration. It first verifies the ledger's exact closed shape, canonical
+timestamps, driver-runtime digest, producer-runtime identity digests, and
+whole-receipt digest. Any mismatch in measurement identity, target-frame path
+or digest, repetitions, conditions, target count, collection ordering, or a
+trimmed attempt denominator is an identity violation rather than a threshold
+failure. A passing study claims only that repeated automated visits agreed
+within the preregistered thresholds on that frozen frame at that exact
+measurement identity. It is never a population estimate and never evidence
+about a single site. Committed studies live under
+`research/aa-studies/<study-id>/` as `target-frame.json`,
+`preregistration.json`, `attempt-ledger.json`, and the generated
+`evaluation.json`.
+
+Release-grade collection is deliberately separate from the scheduled
+scanner-fidelity smoke. Dispatch `.github/workflows/aa-study.yml` on `main`
+with the candidate-resident study id and frozen candidate SHA. Its hosted
+preflight verifies the candidate inputs, activated freeze, controlled egress,
+and exactly one freeze-attested online runner. One self-hosted job then runs
+the complete frame unsharded through the process-local scanner, injecting the
+private deterministic AB/BA schedule directly into the scan executor; the
+public scan API retains its ordinary randomized behavior.
+
+Only after that producer run concludes successfully does
+`.github/workflows/archive-aa-study.yml` run. A fresh hosted job reads back the
+exact run attempt and artifact metadata, verifies the archive digest,
+candidate/frame bytes, complete attempt set, evaluation, runner and egress
+bindings, and creates `producer-receipt.json`. The hosted attestation authority
+signs that receipt. The final write-capable job has no OIDC or attestation
+write permission: it verifies `producer-receipt.sigstore.json`, archives the
+exact ledger/evaluation/receipt/bundle bytes, updates the measurement binding,
+and opens an `automation/aa-study-*` proposal. Release readiness re-scores the
+study and re-verifies the certificate, workflow source/head, candidate
+checkout, successful producer run, and artifact digest. A generic
+scanner-fidelity ledger or self-authored receipt cannot satisfy the gate.
 
 ## Detector calibration
 
@@ -88,10 +132,10 @@ positive, negative, and adversarial/boundary tests pin known implementation
 behavior. Those handpicked fixtures are not a representative labeled corpus
 and do not estimate precision, recall, sensitivity, specificity, or accuracy.
 
-`lib/detector-calibration.ts` therefore accepts a separate, strict study
-artifact. A study binds:
+`lib/detector-calibration.ts` therefore accepts separate, strict historical
+and current study artifacts. A current release-grade study binds:
 
-- schema version 1 and one current detector id;
+- schema version 3 and one current detector id;
 - the exact source build plus a domain-separated detector-implementation
   digest derived from that Git commit, detector version, and detector-registry
   version/digest;
@@ -102,7 +146,7 @@ artifact. A study binds:
   system, and architecture), while each case separately records the complete
   scan-condition fingerprint;
 - a named target population, digest-bound sampling frame, selection protocol,
-  reference-label protocol, and disagreement-adjudication protocol;
+  reference-label protocol, and precommitted blind-tiebreaker protocol;
 - the planned case denominator;
 - declared sampling, independence, and prediction/reference blinding; and
 - one unique case id per planned unit, including explicit censored outcomes
@@ -110,10 +154,14 @@ artifact. A study binds:
 
 Every complete case records the immutable detector-output artifact, the
 independent evidence artifact used by reviewers, the resulting label artifact,
-at least two unique opaque labeler ids, and an explicit `labelers-agreed` or
-`disagreement-adjudicated` state. A disagreement also requires a separately
-identified adjudicator and adjudication artifact. These fields preserve
-provenance; the analyzer does not infer, generate, or repair a reference label.
+two through ten unique opaque labeler ids, and an explicit `labelers-agreed` or
+`disagreement-resolved-by-blind-tiebreaker` state. The primary labelers and one
+distinct blind tiebreaker commit their complete-frame encrypted label sources
+before acquisition starts. The tiebreaker is revealed only after acquisition
+and contributes to the final reference value only when the primary labels
+disagree; an agreed case records null tiebreaker and resolution-artifact
+fields. These fields preserve provenance; the analyzer does not infer,
+generate, or repair a reference label.
 
 Any missing planned case, censored case, stale detector identity, stale
 build, registry/toolchain/list revision, missing current-build context, or
@@ -131,8 +179,8 @@ Convenience samples and declared censuses receive descriptive point rates only.
 A study gets Wilson 95% binomial intervals and a conditional target-population
 scope only when it declares equal-probability simple-random sampling,
 independent units, detector
-predictions blinded to reference labels, and reference adjudication blinded to
-predictions. Those intervals remain conditional on truthful, externally
+predictions blinded to reference labels, and reference-label resolution
+blinded to predictions. Those intervals remain conditional on truthful, externally
 reviewed design metadata; this code cannot prove that the declared protocol was
 followed.
 
@@ -141,25 +189,37 @@ followed.
 No representative calibration study is committed today. Before publishing a
 detector-accuracy claim, the project must freeze and digest a target-population
 frame, select units without looking at detector output, establish an
-independent reference-label protocol with disagreement adjudication, blind both
-directions where practical, retain every attempted case and censor reason, run
-the exact released build and digest-bound detector, registry, catalog, list,
-methodology, normalization, and runtime identities, retain the immutable
-prediction/evidence/label/adjudication artifacts, and have the study design and
-labels reviewed independently. Browser/runtime, first- and third-party, benign
+independent reference-label protocol with two through ten primary labelers and
+a distinct precommitted blind tiebreaker, blind both directions where
+practical, retain
+every attempted case and censor reason, run the exact released build and
+digest-bound detector, registry, catalog, list, methodology, normalization, and
+runtime identities, retain the immutable prediction/evidence/label and any
+blind-tiebreaker resolution artifacts, and have the study design and labels
+reviewed independently. Browser/runtime, first- and third-party, benign
 hard-negative, and adversarial cases should match the scope of the claim.
 Sample size and any subgroup analysis must be fixed before results are opened.
 
-The machine-readable study contract is published at
-`/schemas/detector-calibration-study.v1.schema.json`. JSON Schema enforces its
-closed shape; `detectorCalibrationStudyIssues` additionally enforces bounded
-values, digest formats, unique label/adjudicator identities, canonical
-timestamps, and digest recomputation. `analyzeDetectorCalibrationStudy` then
-compares the well-formed release declaration with the current repository
-identities. Its analysis context must supply both the exact current build
-commit and the expected runtime digest from the separately pinned execution
-plan or runtime receipt; either missing trust anchor fails closed. The expected
-runtime digest must not be copied from the study being evaluated.
+The release-grade machine-readable study contract is published at
+`/schemas/detector-calibration-study.v3.schema.json`. The immutable v1 and v2
+schemas remain available for historical studies; v1 lacks the structured fixed
+measurement condition, and neither historical shape satisfies the current
+custody lane. JSON Schema enforces the v3 closed shape;
+`detectorCalibrationStudyIssues` additionally enforces bounded values, digest
+formats, unique labeler and blind-tiebreaker identities, canonical timestamps,
+digest recomputation, and the exact detector-specific desktop/GPC-disabled
+condition arm. Pixel-event rates are conditional on visits whose accept-all
+registration was verified and reverified after reload, never merely requested
+or clicked; consent-banner stays in passive observe mode; the other detectors
+use their declared passive arm.
+Analysis v3 repeats the structured condition and emits one condition-scoped
+rate-claim string so a target-population rate cannot silently generalize past
+the arm. `analyzeDetectorCalibrationStudy` then compares the well-formed
+release declaration with the current repository identities. Its analysis
+context must supply both the exact current build commit and the expected
+runtime digest from the separately pinned execution plan or runtime receipt;
+either missing trust anchor fails closed. The expected runtime digest must not
+be copied from the study being evaluated.
 
 The public catalog derives its calibration status on every build by
 re-analyzing the committed studies under `calibration/` against the exact

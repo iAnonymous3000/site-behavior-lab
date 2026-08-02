@@ -6,13 +6,38 @@
 //             widening wires into the release workflow)
 import { evaluateReleaseReadiness } from "./release-readiness-lib.mjs";
 
-const mode = process.argv[2];
+const args = process.argv.slice(2);
+const mode = args.shift();
 if (mode !== "--report" && mode !== "--check") {
-  console.error("Usage: node scripts/release-readiness.mjs --report|--check");
+  console.error(
+    "Usage: node scripts/release-readiness.mjs --report|--check [--live-artifact-context <absolute-directory> --live-artifact-context-sha256 <sha256>]"
+  );
   process.exit(1);
 }
+let liveArtifactContext;
+let liveArtifactContextSha256;
+if (args.length > 0) {
+  if (
+    args.length !== 4 ||
+    args[0] !== "--live-artifact-context" ||
+    !args[1] ||
+    args[2] !== "--live-artifact-context-sha256" ||
+    !/^[0-9a-f]{64}$/.test(args[3] ?? "")
+  ) {
+    console.error(
+      "Usage: node scripts/release-readiness.mjs --report|--check [--live-artifact-context <absolute-directory> --live-artifact-context-sha256 <sha256>]"
+    );
+    process.exit(1);
+  }
+  liveArtifactContext = args[1];
+  liveArtifactContextSha256 = args[3];
+}
 
-const result = evaluateReleaseReadiness();
+const result = evaluateReleaseReadiness(
+  process.cwd(),
+  Date.now(),
+  { liveArtifactContext, liveArtifactContextSha256 }
+);
 for (const problem of result.manifestProblems) {
   console.log(`::error title=Release readiness::${problem}`);
 }

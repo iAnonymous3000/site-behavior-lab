@@ -2,8 +2,9 @@
 
 ## Current release state
 
-Site Behavior Lab cuts curated milestones on a private, pre-1.0 development
-line. It has no stable public API and no npm publication, and a tag never
+Site Behavior Lab cuts curated milestones on its governed 0.x development line
+and, once every readiness gate passes, on the exact 1.0.0 line. It has no
+blanket stable public API and no npm publication, and a tag never
 changes either: `release-policy.json` keeps `stablePublicApi` and
 `npmPublication` disabled in both the `development` and `released` states, and
 the evidence gate refuses any policy that says otherwise. A public deployment
@@ -14,6 +15,15 @@ Do not call the project stable, generally available, or critical-software ready
 from a green local checkout, or from the existence of a tag. The
 machine-readable source of the current status is
 [`release-policy.json`](release-policy.json).
+
+The historical `v0.4.0-rc.1` ceremony is closed as a failed publish, not
+parked for approval. Run
+[`30653749957`](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30653749957)
+was approved, but its atomic tag request failed with HTTP 403 on
+2026-08-01 at 12:22:43Z; the tag does not exist. Recovery requires landing the
+distinct release-App configuration through the protected PR flow and starting
+a **fresh dispatch from the updated `main` workflow**. Do not approve or rerun
+that old workflow attempt.
 
 ## What a release tag claims
 
@@ -61,6 +71,7 @@ created only after the revision it names is already promoted:
    tag sweeps in), requires it to be an ancestor of `production`, requires a
    completed successful CI run of this repository's `main` branch for that SHA
    with every job in `.github/required-ci-jobs.json` concluding success,
+   runs `release:readiness:check` for exact `1.0.0` and `1.0.0-rc.N`,
    rebuilds the static artifact, and generates the receipt. Candidate and
    dependency code runs only in that read-only preparation job, whose checkout
    does not persist credentials. That job hands two immutable artifacts to the
@@ -77,21 +88,161 @@ created only after the revision it names is already promoted:
    symlink, or a missing static handoff all refuse before anything is signed.
    Only then does it attest, and it never holds repository-write permission.
 
-   A third fresh job has repository-write permission only: it requires an
+   A third fresh job keeps its native workflow token read-only. It requires an
    approved `github.actor` *and* `github.triggering_actor`, so re-running a
    dispatch as someone else cannot publish, and it names the `release-tag`
-   environment so an external protection rule can gate the one job that can
-   write a ref. It then rechecks branch reachability and atomically creates the
-   annotated tag through GitHub's Git database API, with no checkout,
-   dependency execution, OIDC, or attestation authority. The tag message
-   records the receipt's sha256 so it stays identifiable after the uploaded
-   artifact expires.
+   environment so an external protection rule can gate the only job capable of
+   writing a ref. After approval and a final branch-reachability check, it
+   requires the nonsecret variables `RELEASE_APP_CLIENT_ID`,
+   `RELEASE_APP_INTEGRATION_ID`, `RELEASE_TAG_CREATION_RULESET_ID`,
+   `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256`, and
+   `PROMOTION_APP_CLIENT_ID`, `PROMOTION_APP_INTEGRATION_ID`, and
+   `PROMOTION_APP_SLUG` together with the `release-tag` environment secret
+   `RELEASE_APP_PRIVATE_KEY`, then refuses if either identity is absent or the
+   two App identities overlap. Only the release credentials feed the token
+   action, which mints a current-repository contents-write token from the
+   dedicated release App. Missing or reused configuration refuses the release;
+   there is no deprecated App-ID fallback, no fallback to `GITHUB_TOKEN`, and
+   no fallback to the separately scoped production promotion App. The job then
+   atomically creates the annotated tag through GitHub's Git database API, with
+   no checkout, package-manager execution, OIDC, or attestation authority. The
+   tag message records the receipt's sha256 so it stays identifiable after the
+   uploaded artifact expires.
+
+   Configure that authority once as a distinct GitHub App installed on this
+   repository only, with metadata read and contents read/write, and no webhook.
+   Do not grant Administration permission: a tag publisher must never be able
+   to weaken the rulesets it is required to obey.
+   Store its client ID and numeric GitHub Integration id as the nonsecret
+   `RELEASE_APP_CLIENT_ID` and `RELEASE_APP_INTEGRATION_ID` variables; do not
+   configure a legacy `RELEASE_APP_ID` fallback. Store its private key
+   **only** as the `RELEASE_APP_PRIVATE_KEY` secret on the `release-tag`
+   environment; no repository- or organization-scoped secret with that name
+   may exist. Complete the promotion App's client-ID migration and keep its
+   distinct nonsecret `PROMOTION_APP_CLIENT_ID`,
+   `PROMOTION_APP_INTEGRATION_ID`, and `PROMOTION_APP_SLUG` populated for the
+   equality and public-identity refusals. Do not reuse any `PROMOTION_APP_*`
+   credential, give the release App
+   a production-ruleset bypass, or install it on unrelated repositories.
+
+   Installing the App is not the end of the authorization change. Leave
+   `Protect immutable release tags` (ruleset `20050122`) exactly as the
+   zero-bypass `refs/tags/v*` update-and-deletion boundary. Add a **second**
+   active `refs/tags/v*` ruleset containing only the tag-creation restriction,
+   with the release App as its sole bypass actor. Never put that bypass on the
+   immutable ruleset: a ruleset bypass applies to every rule in that ruleset,
+   which would let the publisher move or delete tags. Do not add the release
+   App to either production ruleset: `Protect production evidence` keeps no
+   bypass, and `Restrict production updates to promoter App` keeps only the
+   distinct promotion App. Store the numeric id of the new creation-only
+   ruleset as `RELEASE_TAG_CREATION_RULESET_ID`.
+
+   The public detailed-ruleset API does not reveal `bypass_actors` to a
+   metadata-only token. Capture them once with a maintainer credential after
+   configuring all four rulesets. The capture also requires separate,
+   short-lived `RELEASE_APP_JWT` and `PROMOTION_APP_JWT` environment values:
+   it uses each App JWT to discover the installation and mint one deliberately
+   un-narrowed, immediately revoked installation token whose repository
+   enumeration must contain this repository and nothing else. Do not treat the
+   release workflow's current-repository-scoped token as proof of the
+   underlying installation scope.
+
+   ```sh
+   GH_TOKEN=<maintainer-token> \
+   RELEASE_APP_JWT=<short-lived-release-app-jwt> \
+   PROMOTION_APP_JWT=<short-lived-promotion-app-jwt> \
+     npm run release:governance:capture -- \
+     --repository iAnonymous3000/site-behavior-lab \
+     --release-app-client-id <client-id> \
+     --release-app-integration-id <numeric-id> \
+     --release-app-slug <slug> \
+     --promotion-app-client-id <client-id> \
+     --promotion-app-integration-id <numeric-id> \
+     --promotion-app-slug <slug> \
+     --creation-ruleset-id <numeric-id> \
+     --output research/ops-receipts/release-tag-governance.json
+   ```
+
+   Review the write-once canonical receipt, set the
+   `release-tag-governance.sha256` field in `RELEASE_READINESS.json` to the
+   digest printed by the command, and commit both together. Store that same
+   digest as `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256`. The
+   pinned receipt contains the complete bypass list for all four rulesets,
+   each App's exact public permissions (`contents: write`, `metadata: read`)
+   and empty event subscriptions, both selected-repository installation
+   identities and full repository enumerations, and the exact promotion App
+   identity that alone bypasses production updates. It also carries an
+   explicitly point-in-time secret-name inventory: at capture time
+   `RELEASE_APP_PRIVATE_KEY` must exist on `release-tag`, be absent at
+   repository scope, and be absent at organization scope when the owner is an
+   organization. That inventory does not claim continuous absence; recapture
+   it on the same UTC day immediately before **every** fresh release ceremony,
+   and again after any known secret-scope change. Both readiness and the
+   post-environment-approval tag job enforce the same fixed 24-hour maximum
+   age using their trusted current time. If CI, promotion, or environment
+   review carries the receipt outside that window, recapture, commit the new
+   bytes and digest, let the new commit promote, and start a fresh dispatch;
+   never re-date an old inventory. At publication, the
+   restricted release token reads that exact committed receipt and readiness
+   manifest, checks both against the repository variable, resolves its own
+   public App identity, and reads the public shape of all four rulesets. It
+   requires every ruleset id
+   and GitHub-controlled `updated_at` value, plus the complete public conditions
+   and rules, to match the maintainer capture. In particular, production
+   evidence must retain deletion, non-fast-forward, linear history, and the
+   exact five GitHub Actions checks with Integration id `15368`; the updater's
+   live canonical rule and the immutable ruleset's update rule are both the
+   bare `{"type":"update"}` shape. A later bypass edit changes
+   `updated_at`; any public shape change or candidate-authored receipt rewrite
+   therefore refuses before the create request without granting the publisher
+   ruleset-write authority. Recapture, review, commit, and deliberately rotate
+   the pinned digest after any intentional governance change. The first fresh
+   release is the write proof that the release App can create the intended
+   immutable tag; do not create a disposable `v*` canary, because a correctly
+   protected canary cannot be deleted. The proof set is therefore: the
+   maintainer-pinned full-bypass capture, a live public-shape and `updated_at`
+   match for all four rulesets under the restricted token, and the successful
+   App-authenticated atomic tag creation.
+
+   A workflow re-run retains the original event SHA and workflow definition.
+   After any change to `.github/workflows/release.yml`, start a **fresh
+   workflow dispatch** from `main`; re-running an older attempt cannot pick up
+   the repair. On attempt 1 the tag job requires the exact ref preflight to
+   return HTTP 404. There is one narrower recovery after a current-workflow
+   attempt reaches publication: if its tag job fails after the create request
+   may have succeeded, re-run the **failed tag job only**, not all jobs. The
+   create-only path enters reconciliation only for exact HTTP 422 with message
+   `Reference already exists`; transport errors, 403, 5xx, and every other
+   response refuse. Recovery then succeeds only when the ref name, tag-object
+   type, target commit, and exact message (including the same attestation URL,
+   receipt digest, and workflow run id) match. Every mismatch remains a hard
+   refusal.
 
 Between steps 1 and 3 the policy truthfully says `released` while no tag exists
 yet. That window is expected, and the receipt records it: `release.tagExists`
 and `release.evidencesReleaseCommit` say whether the tag is present and whether
 the evidenced commit is the tagged one, so a receipt built from a later commit
 on the same version never implies it describes the released tree.
+
+## After a successful tag
+
+Do not leave the validated receipt only in a 90-day Actions artifact. Dispatch
+**Archive Release Receipt** with the completed successful release run id,
+manually approve the automation proposal's parked push-event CI run, compare
+the proposed receipt SHA-256 with the digest embedded in the annotated tag
+message, and merge the generated archive PR through the required checks. The
+durable copy must land at
+`docs/release-receipts/<version>/release-receipt.json`; never hand-transplant
+or edit the generated bytes.
+
+After a successful `v0.4.0-rc.1` rehearsal, close the prerelease line promptly
+rather than leaving the repository indefinitely in an RC-labelled released
+state. Prepare `0.4.0` through the ordinary release commit: retitle the
+`0.4.0-rc.1` changelog section as `0.4.0`, update the package, lockfile,
+citation, and release-policy version, tag, and date together, regenerate the
+third-party inventory, then repeat CI, promotion, fresh tag dispatch, and
+receipt archival. The final tag is a separate immutable ceremony; it does not
+move or replace the RC tag.
 
 ## Exact-source evidence
 
@@ -148,15 +299,19 @@ npm run release:evidence -- \
 
 CI records those receipts after the corresponding build and smoke work, and
 preserves them as `exact-sha-static-evidence-<sha>` and
-`exact-sha-container-evidence-<sha>`. A separate least-privilege job attests
-the exact bytes of those two JSON manifests and preserves its Sigstore bundles
+`exact-sha-container-evidence-<sha>`. The container artifact also carries the
+canonical `site-behavior-lab-container-package-inventory.json` generated from
+the separate Trivy OS-license pass and cross-bound to the receipt's image ID,
+rootfs layers, platform, and commit. A separate least-privilege job attests
+the exact bytes of all three JSON subjects and preserves its Sigstore bundles
 and result references as `exact-sha-provenance-attestations-<sha>`. Promotion
 depends on all three CI test jobs, the independent supply-chain job, and that
 attestation job. A receipt binds source and tested bytes and does **not** claim that a
 separately deployed Cloudflare artifact has the same image ID or static-tree
-digest. The attestation subjects are the receipt JSON files themselves, not the
-static tree, OCI image, registry image, or Cloudflare deployment they describe.
-The first live `main` CI attestation receipt and independent readback of both
+digest. The attestation subjects are the two receipt JSON files and the
+canonical container package inventory, not the raw Trivy reports, static tree,
+OCI image, registry image, or Cloudflare deployment they describe. The first
+live `main` CI attestation receipt and independent readback of all three
 subjects remain an external proof gate; a static workflow test cannot satisfy
 that requirement.
 
@@ -170,8 +325,9 @@ following refer to one reviewed commit:
 2. Fresh npm, RustSec, Trivy filesystem, and smoke-tested-image gates;
    dependency installation; app and Cloudflare typechecks; unit tests;
    production build; static build/smoke; Chromium smoke; and Docker public-R2
-   smoke are green for that SHA. The exact-SHA attestation job is green, both
-   bundles are preserved, and both evidence-manifest subjects pass an
+   smoke are green for that SHA. The exact-SHA attestation job is green, all
+   three bundles are preserved, and the two evidence manifests plus the
+   canonical container package-inventory subject pass an
    independent GitHub readback for that repository. See
    [`docs/supply-chain-assurance.md`](docs/supply-chain-assurance.md) for the
    exact claims and remaining external gates.
@@ -205,7 +361,7 @@ these exact identities converge:
 | deployment control | verified Cloudflare trigger or exact manual deploy receipt |
 | scanner runtime | `/api/health` full deployment SHA and ready posture |
 | Pages runtime | `/deployment.json` full deployment SHA |
-| CI artifacts | static evidence, container evidence, and evidence-manifest attestation bundles named for that SHA |
+| CI artifacts | static evidence, container evidence plus canonical package inventory, and all three attestation bundles named for that SHA |
 | live operations | canonical Production Health success for that SHA |
 
 A deploy operation may report success before either origin converges. Wait for
@@ -424,11 +580,101 @@ being collected:
 
 Each quiesced workflow runs a loud `Measurement freeze notice` job instead of
 skipping silently. The variable is read at run start; flipping it does not
-affect in-flight runs. Two rules the variable cannot enforce: do not MERGE any
-open `automation/*` proposal during a freeze window (a proposal validated
-before the freeze still carries pre-epoch inputs), and schedule the featured
-deferral re-adjudication (`reviewAfter` dates) before the window so the
-collection lane does not go red mid-epoch.
+affect in-flight runs.
+
+Do not activate the freeze until the deferral review has completed:
+
+1. Let the scheduled **featured-gallery** legs at 05:23 UTC on 2026-08-03 and
+   2026-08-10 attempt all 13 formerly deferred sites: `coinbase.com`,
+   `goodrx.com`, `mayoclinic.org`, `drugs.com`, `zocdoc.com`, `match.com`,
+   `okcupid.com`, `cnn.com`, `reuters.com`, `etsy.com`, `wayfair.com`,
+   `macys.com`, and `reddit.com`. Record both fresh workflow run ids and each
+   site's outcome through the separate 45-day
+   `featured-readjudication-outcomes-<run-id>-<attempt>` artifact. A missing,
+   malformed, or early-aborted scan is `not-attempted`, never inferred as a
+   deferrable site failure; both cycle artifacts must say `complete: true`.
+   The 07:23 UTC seed-catalog legs do not cover these sites.
+   If the controlled runner is not configured yet, the disclosed v1 fallback
+   is re-adjudication evidence only; it does not satisfy the current-method r2
+   corpus gate.
+2. From 2026-08-11 through 2026-08-17 inclusive, land a reviewed
+   re-adjudication PR. Its strict
+   `research/ops-receipts/featured-readjudication.json` aggregate binds the two
+   distinct scheduled-run/artifact identities, exact artifact ZIP digests and
+   canonical outcomes, each exact historical cycle-catalog digest, one shared
+   fixed-domain target-identity digest, and the final featured-catalog digest.
+   Only `scanAvailability` metadata may change without changing that target
+   identity. Re-defer only sites whose same closed unavailable reason repeated
+   in both complete cycles, bind each deferral to the two fresh run ids, and
+   set a new bounded `reviewAfter`; leave recovered sites active.
+3. Only after that PR and every other candidate input change have landed,
+   record the candidate SHA and activation time, verify the controlled r2
+   runner configuration, and set
+   `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1`. The activation workflow fetches
+   both historical run/workflow records, the historical catalog bytes at each
+   run commit, and exact artifact ZIP bytes by immutable id. It verifies them
+   against the aggregate, requires activation within 28 calendar days after
+   the Aug 10 cycle and every retained deferral's `reviewAfter` to remain later
+   than activation, and re-derives every disposition before it can mint the
+   freeze receipt.
+
+After the activation run completes, candidate readiness also authenticates the
+activation receipt itself. It uses the receipt's run id/attempt to require the
+completed successful exact workflow run, discovers exactly one non-expired
+per-attempt artifact, re-reads its immutable metadata, verifies the bounded ZIP
+digest, strict-extracts only the expected receipt filename, and byte-compares
+it to the committed carrier. Release preparation performs the GitHub fetch in
+a workflow-owned read-only-token step and passes candidate code only the four
+bounded offline context files plus the prefetch step's domain-separated digest
+of their exact names, sizes, and bytes; npm, readiness, and build steps never
+receive that token.
+
+The variable cannot police merges. An `automation/*` proposal whose
+acquisition or validation began **before** freeze activation carries
+pre-epoch inputs and must not be merged; close it and re-run its producer
+against the frozen candidate. This does not forbid the collection lane:
+post-activation `automation/featured-scan-*` proposals produced by the
+controlled r2 workflow against that candidate may be reviewed and merged
+during the freeze.
+
+The two controlled runner cycles follow the ordinary proposal rule
+sequentially. Merge a valid first-cycle proposal, then re-run the next cycle
+from the resulting evidence carrier rather than leaving two regenerated
+indexes in conflict or hand-combining them. Each report arm, A/A ledger, and
+runner receipt records its actual producer commit (`C` or a later `S_i`), and
+release readiness accepts it only when the verified measurement binding names
+that commit on the clean `C..S` carrier chain and the producer strictly
+precedes the commit that introduces its evidence. Calibration alone remains
+bound to exact `C`.
+
+A/A evidence has its own governed lane; the scheduled scanner-fidelity smoke
+is not a release evidence producer. Dispatch `aa-study.yml` from protected
+`main` only after the freeze is active. It runs the complete preregistered
+frame in one unsharded controlled-runner job and uses an even repetition count
+with deterministic AB/BA alternation for comparison studies. After that run
+has concluded successfully, `archive-aa-study.yml` independently reads back
+the exact run attempt and artifact digest, verifies the frozen candidate and
+frame, and signs a canonical producer receipt on a hosted runner. Its separate
+write-capable job verifies the Sigstore bundle before opening the
+`automation/aa-study-*` evidence proposal. The archive must retain
+`attempt-ledger.json`, `evaluation.json`, `producer-receipt.json`, and
+`producer-receipt.sigstore.json`; release readiness requires all four as one
+study-local set and re-verifies the hosted attestation.
+
+The binding keeps two candidate-resident contracts distinct. The candidate
+input manifest digest-enumerates preregistrations, target frames, calibration
+censoring policies, and the other frozen inputs at `C`; those files are not
+post-candidate evidence. The separate measurement-identity manifest covers the
+claim-affecting implementation, catalog, lists, and runtime identity without
+including a preregistration or target frame. An A/A preregistration can
+therefore bind that identity digest without forming a circular
+preregistration-to-manifest hash.
+
+The variable also quiesces only this repository's Dependabot bookkeeping, not
+GitHub's core Dependabot service. Until a later code-enforced Dependabot pause
+exists, no `dependabot/*` PR may be merged while the freeze is active. Leave
+new dependency proposals unmerged (or close them) until the epoch ends; a
+dependency-manifest change would move a claim-affecting candidate input.
 
 One rule governs every stale report proposal: if the base branch advanced
 after the proposal was validated, close the proposal and re-run its workflow.
@@ -448,9 +694,9 @@ tree and costs only machine time.
 `RELEASE_READINESS.json` is the single machine-readable source of the 1.0
 gates; `npm run release:readiness` reports them and
 `npm run release:readiness:check` fails unless every gate passes. The 1.0
-policy widening wires the check into the release workflow as a required
-step; until then it is advisory, and a unit test pins the honest NOT READY
-state so the surface cannot drift.
+release workflow now runs that check as a required step for exact `1.0.0` and
+`1.0.0-rc.N`; a unit test pins the honest NOT READY state so the surface cannot
+drift. Governed `0.x` ceremonies do not run the 1.0 gate.
 
 Three gate families, all fail-closed (the manifest, not this prose, is the
 authoritative gate list):
@@ -462,37 +708,109 @@ authoritative gate list):
   recommendation in a manifest is not a decision; approving one is a
   reviewed change like any other. The `compatibilitySurface` decision
   additionally pins the exact sha256 of `docs/compatibility-promise.md`, so
-  editing the promise without re-approving it turns the gate red, and the
-  open-errata gate stays red until the revision decision that can carry the
-  fixes is approved.
+  editing the promise without re-approving it turns the gate red. The
+  `reportRevisionR3` decision separately records an explicit selection; its
+  recommended 1.0 disposition is to keep v2/r2, publish E1 and E2 as
+  companion corrections for their immutable schema wording, and bank r3 for
+  the 1.1 evidence-package design. The errata gate pins the required erratum
+  ids and the exact digest of their published RFC text. Approval must copy the
+  validator-reported digest of that complete disposition into the decision's
+  `dispositionSha256`; changing even one required id, resolution, document,
+  document digest, or selected vehicle then requires re-approval. The gate
+  stays red until that disposition is selected and approved by a named human;
+  approving a blank selection or merely deleting an erratum cannot satisfy
+  it. The calibration decision is equally concrete: it can select only
+  `complete-case-only-zero-censoring`, must pin the exact
+  `research/measurement-candidate/calibration-censoring-policy.json` bytes,
+  and must copy the producer's domain-separated `dispositionSha256` binding
+  both the artifact and the analyzer semantics (`anyCensoredCase` makes the
+  study ineligible and the planned denominator must remain complete). A generic
+  "settled" approval, a different path, or an unbound digest stays red.
 - **Derived gates.** Corpus denominators, A/A studies, calibration
   eligibility, the third-party review ledger, runner destruction receipts,
-  the lifecycle readback receipt, and the release-receipt archive are all
+  controlled publication archives, the lifecycle readback receipt, and the
+  release-receipt archive are all
   re-derived from committed evidence on every run; no artifact's
   self-declared verdict is trusted (A/A studies are re-scored from their
-  preregistration and ledger, lifecycle rules re-validated from the recorded
-  rule bytes, runner cycles counted as distinct Actions runs). Missing,
+  preregistration, candidate-resident target-frame bytes, measurement identity,
+  and ledger; lifecycle rules are re-validated from the recorded rule bytes;
+  runner cycles are counted as distinct Actions runs; and each controlled
+  publication manifest/receipt pair is matched to its runner artifact and
+  governed report/provenance bytes). Missing,
   malformed, future-dated, or stale evidence is a failure with a reason,
-  never a skip.
-- **Operator attestations.** Host truths code cannot see (durable soak,
-  egress backstop, WAF ceilings, log retention, staging teardown, container
-  image licensing) require a JSON attestation under `research/ops-receipts/`
-  shaped as:
+  never a skip. Release-receipt archive verification additionally requires a
+  full Git checkout with tags (`fetch-depth: 0`): it resolves the historical
+  source commit/tree and input bytes, recomputes the receipt's internal static
+  manifest, and requires the annotated release tag to target that commit and
+  embed the archived receipt's sha256.
+- **Operator attestations.** Host truths code cannot see (the pre-candidate
+  durable soak, egress backstop, WAF ceilings, log retention, and container
+  image licensing) require a JSON attestation under
+  `research/ops-receipts/`. For the four post-candidate gates, first use the
+  fixed producer in
+  [`docs/operator-evidence-capture.md`](docs/operator-evidence-capture.md) to
+  create the canonical receipt under `research/ops-evidence/`. Readiness
+  re-parses that exact canonical file, re-runs its semantic verifier, and
+  derives the attestation's candidate, deployment, policy, image, and inventory
+  bindings from it; a hex digest typed into an attestation cannot satisfy a
+  gate by itself. Generate the exact non-passing scaffold for any one of the
+  five gates with:
 
-  ```json
-  {
-    "kind": "site-behavior-operator-attestation",
-    "gateId": "egress-backstop",
-    "attestedBy": "iAnonymous3000",
-    "attestedAt": "2026-08-15T00:00:00Z",
-    "statements": [
-      { "claim": "Private, link-local, and metadata destinations are blocked by an independent network boundary.", "true": true }
-    ],
-    "evidenceRefs": ["actions-run-<id>", "network-policy-export-<digest>"]
-  }
+  ```bash
+  npm run release:attestation-scaffold -- --gate egress-backstop
   ```
 
-  Every statement must be literally true; the validator refuses soft values.
+  For the pre-candidate durable soak, the command directly verifies the two
+  replay receipts, exact Git 0-to-1 config transition, transition receipt,
+  and current enabled config, so it can fill the transition-derived durable
+  bindings before candidate C exists. Copy the exact `ledger_sha256` printed by
+  the authenticated soak-ledger aggregation into the scaffold's
+  `ledgerSha256` placeholder; the hosted-evidence verifier re-derives and
+  compares it. The attestation must also name exactly the authenticated
+  monitor, restart, and exercise run/artifact digests in that order. The
+  durable-soak hosted profile refuses unless the distinct exercise workflow
+  ran from the exact enabled deployment inside the ledger window and proved
+  normal completion, cancellation, completed-report recovery, and duplicate
+  prevention; every completed report carries that deployment in its provenance
+  and retained clean health responses bracket the exercise. The restart
+  artifact proves the fifth behavior. Candidate verification additionally
+  requires the exact digest-addressed archive to be append-only,
+  carrier-resident, and digest-enumerated, while its subject attestation
+  remains candidate-resident. The monitor, restart, and exercise producer
+  closures must be byte-identical to candidate-approved source. A hand-entered
+  digest or statement cannot replace any source artifact. For the later gates
+  it loads the verified measurement
+  binding and the canonical producer receipt, then fills every subject binding,
+  `evidenceCapturedAt`, and the receipt's exact path-plus-digest reference. For
+  egress that includes `candidateCommit`,
+  `collectionEnvironmentDigest`, and `collectionProducerCommitsDigest` from
+  the exact controlled-runner receipt set. It deliberately leaves
+  only the named operator, attestation time, and any durable-only facts that
+  cannot be derived as conspicuous `<required: ...>` placeholders. It also
+  emits every claim with `"true": false`. Change a claim to true only after
+  personally verifying it. The CLI refuses to guess when candidate, runner,
+  replay, canonical operator, or container evidence that should be derivable
+  is unavailable.
+  Staging teardown is not a second post-candidate attestation gate: its
+  canonical same-session receipt is captured between replay and production
+  enablement, then digest-bound as part of the candidate-resident durable
+  prerequisite.
+
+  The manifest owns each gate's exact claim ids/text and required subject
+  bindings. The validator refuses missing, substituted, duplicate, or soft
+  claims; malformed or duplicate evidence references; noncanonical evidence
+  timestamps; stale underlying evidence hidden behind a fresh signature; and
+  malformed commit or digest bindings. The durable-soak gate additionally
+  recomputes its minimum 24-hour window (the target remains seven days),
+  requires its end to be fresh, and binds `evidenceCapturedAt` exactly to that
+  end rather than accepting a duration asserted in prose. Its
+  `restartObservedAt` must be a canonical instant inside that same window. A
+  window at or above the 168-hour target requires no deviation and binds a
+  literal `null`. A 24-to-under-168-hour window requires the separate
+  non-passing approval scaffold described in
+  [`docs/go-live-public-scanner.md`](docs/go-live-public-scanner.md), completed
+  by a named human only after candidate selection. Anything below 24 hours is
+  ineligible.
 
 ## Rollback
 
@@ -543,17 +861,18 @@ redacted requires a reviewed remediation, never a quiet edit.
 ## Widening what a release may claim
 
 The evidence schema accepts `development` and `released`, and it verifies the
-released state rather than merely permitting it. It refuses a stable-API claim,
-npm publication, a `1.0.0` or later version, and a tag that does not match
-`v<version>`. Those refusals are the contract: widening any of them is a
-separate, explicitly reviewed change to `scripts/release-evidence.mjs` and its
-tests, never a side effect of cutting a version.
+released state rather than merely permitting it. Its version vocabulary is
+deliberately bounded to the existing `0.x` line plus exact `1.0.0` and numbered
+`1.0.0-rc.N` candidates; `1.0.1`, `1.1.0`, arbitrary 1.0 prereleases, a
+blanket stable-API claim, npm publication, and a tag that does not match
+`v<version>` remain refused.
 
-Reaching a `1.0.0` therefore takes more than a version bump. It requires a
-written compatibility promise for the public report, feed, and export surfaces,
-the durability and corpus gates in `docs/go-live-public-scanner.md`, the
-supply-chain license review, and only then a reviewed widening of the evidence
-schema.
+The mechanical 1.0 vocabulary does not make the release ready. The unprivileged
+prepare job runs the canonical 20-gate `release:readiness:check` before any
+artifact handoff whenever the requested version is on the exact 1.0 line.
+Until the compatibility decision, frozen candidate, controlled corpus,
+repeatability, calibration, durable-operations, and legal gates all pass,
+`1.0.0` and its release candidates remain mechanically unpublishable.
 
 Never infer a tag, stable API, or general-availability claim from the `0.x`
 package version or from the existence of a public production deployment.

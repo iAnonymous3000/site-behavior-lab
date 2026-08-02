@@ -45,7 +45,20 @@ try {
     const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"]);
     const buildCommit = stdout.trim().toLowerCase();
     if (!/^[0-9a-f]{40}$/.test(buildCommit)) throw new Error("Could not identify the Docker smoke source revision.");
-    await run(dockerBin, ["build", "--build-arg", `SITE_BEHAVIOR_LAB_BUILD_COMMIT=${buildCommit}`, "-t", image, "."]);
+    const proofResult = await execFileAsync(process.execPath, [
+      path.resolve("scripts", "measurement-candidate-build-proof.mjs")
+    ]);
+    const measurementCandidateProof = proofResult.stdout.trim();
+    await run(dockerBin, [
+      "build",
+      "--build-arg",
+      `SITE_BEHAVIOR_LAB_BUILD_COMMIT=${buildCommit}`,
+      "--build-arg",
+      `SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=${measurementCandidateProof}`,
+      "-t",
+      image,
+      "."
+    ]);
   }
 
   await runV1ImageSmoke();

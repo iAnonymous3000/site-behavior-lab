@@ -17,6 +17,8 @@ function reviewsLib() {
 }
 
 const INVENTORY = {
+  schemaVersion: 1,
+  artifactKind: "deterministic-third-party-inventory-and-notice-evidence",
   npm: [
     { name: "left-pad", version: "1.0.0", license: "MIT", developmentOnly: false },
     { name: "dev-tool", version: "2.0.0", license: "ISC", developmentOnly: true }
@@ -27,7 +29,19 @@ const INVENTORY = {
   ],
   filterLists: {
     sources: [{ url: "https://lists.example/a.txt", sha256: "a".repeat(64), license: "UNKNOWN" }]
-  }
+  },
+  downloadedTools: [
+    {
+      id: "github-cli",
+      name: "GitHub CLI",
+      version: "2.96.0",
+      sourceUrl: "https://github.com/cli/cli/releases/tag/v2.96.0",
+      license: "MIT",
+      usage: "build-only",
+      runtime: false,
+      redistributed: false
+    }
+  ]
 };
 
 test("sync creates unreviewed rows for third-party items only and preserves reviews verbatim", async () => {
@@ -37,6 +51,7 @@ test("sync creates unreviewed rows for third-party items only and preserves revi
     first.ledger.reviews.map((row: { key: string }) => row.key).sort(),
     [
       "cargo:adblock@0.13.2",
+      "downloaded-tool:github-cli@2.96.0",
       "filter-list:https://lists.example/a.txt@sha256:" + "a".repeat(64),
       "npm:dev-tool@2.0.0",
       "npm:left-pad@1.0.0"
@@ -46,6 +61,28 @@ test("sync creates unreviewed rows for third-party items only and preserves revi
   assert.equal(
     first.ledger.reviews.find((row: { key: string }) => row.key === "npm:dev-tool@2.0.0")?.runtime,
     false
+  );
+  assert.deepEqual(
+    first.ledger.reviews.find(
+      (row: { key: string }) => row.key === "downloaded-tool:github-cli@2.96.0"
+    ),
+    {
+      key: "downloaded-tool:github-cli@2.96.0",
+      ecosystem: "downloaded-tool",
+      name: "GitHub CLI",
+      version: "2.96.0",
+      runtime: false,
+      status: "unreviewed",
+      declaredLicense: "MIT",
+      determinedLicense: null,
+      obligations: [],
+      reviewer: null,
+      reviewedAt: null,
+      notes: null,
+      redistributed: false,
+      usage: "build-only",
+      sourceUrl: "https://github.com/cli/cli/releases/tag/v2.96.0"
+    }
   );
 
   // A human review survives a resync; a version bump creates a NEW row.
@@ -86,7 +123,107 @@ test("check fails on drift and on incomplete reviewed rows, and summarizes cover
   incomplete.reviews[0].status = "reviewed";
   const partial = checkReviewLedger(INVENTORY, incomplete);
   assert.equal(partial.ok, false);
-  assert.equal(partial.problems.some((problem: string) => /missing reviewer/.test(problem)), true);
+  assert.equal(partial.problems.some((problem: string) => /reviewer must be/.test(problem)), true);
+});
+
+test("reviewed rows require canonical substantive metadata", async () => {
+  const { syncReviewLedger, checkReviewLedger } = await reviewsLib();
+  const { ledger } = syncReviewLedger(INVENTORY, null);
+  const reviewed = structuredClone(ledger);
+  const row = reviewed.reviews.find((candidate: { key: string }) => candidate.key === "npm:left-pad@1.0.0");
+  Object.assign(row, {
+    status: "reviewed",
+    reviewer: "iAnonymous3000",
+    reviewedAt: "2026-08-01",
+    determinedLicense: "MIT",
+    obligations: []
+  });
+  const valid = checkReviewLedger(INVENTORY, reviewed);
+  assert.equal(valid.ok, true, valid.problems.join("; "));
+  assert.equal(valid.summary.npm.reviewed, 1);
+  assert.equal(valid.summary.npm.unreviewedRuntime, 0);
+
+  const mutations: [string, unknown, RegExp][] = [
+    ["reviewer", " iAnonymous3000 ", /reviewer must be/],
+    ["reviewer", null, /reviewer must be/],
+    ["reviewedAt", "not-a-date", /canonical YYYY-MM-DD/],
+    ["reviewedAt", "2026-02-30", /canonical YYYY-MM-DD/],
+    ["reviewedAt", "2026-8-1", /canonical YYYY-MM-DD/],
+    ["reviewedAt", "9999-12-31", /cannot be in the future/],
+    ["determinedLicense", "?", /meaningful, non-placeholder/],
+    ["determinedLicense", "---", /meaningful, non-placeholder/],
+    ["determinedLicense", "UNKNOWN pending review", /meaningful, non-placeholder/],
+    ["determinedLicense", " MIT ", /meaningful, non-placeholder/],
+    ["determinedLicense", "M".repeat(513), /meaningful, non-placeholder/],
+    ["determinedLicense", null, /meaningful, non-placeholder/],
+    ["obligations", [null], /every obligation must be/],
+    ["obligations", [""], /every obligation must be/],
+    ["obligations", [" notice-file "], /every obligation must be/],
+    ["obligations", ["n".repeat(513)], /every obligation must be/],
+    ["obligations", ["notice-file", "notice-file"], /duplicate entry/],
+    ["obligations", Array.from({ length: 65 }, (_, index) => `obligation-${index}`), /at most 64/],
+    ["obligations", null, /obligations must be an array/]
+  ];
+  for (const [field, value, expected] of mutations) {
+    const malformed = structuredClone(reviewed);
+    const target = malformed.reviews.find(
+      (candidate: { key: string }) => candidate.key === "npm:left-pad@1.0.0"
+    );
+    target[field] = value;
+    const verdict = checkReviewLedger(INVENTORY, malformed);
+    assert.equal(verdict.ok, false, `${field}=${JSON.stringify(value)} should fail`);
+    assert.match(verdict.problems.join(" "), expected);
+    assert.equal(verdict.summary.npm.reviewed, 0);
+    assert.equal(verdict.summary.npm.unreviewedRuntime, 1);
+  }
+});
+
+test("review ledger rejects malformed and duplicate rows without throwing", async () => {
+  const { syncReviewLedger, checkReviewLedger } = await reviewsLib();
+  const { ledger } = syncReviewLedger(INVENTORY, null);
+
+  const malformed = structuredClone(ledger);
+  malformed.reviews.push(null);
+  malformed.reviews.push(structuredClone(malformed.reviews[0]));
+  const verdict = checkReviewLedger(INVENTORY, malformed);
+  assert.equal(verdict.ok, false);
+  assert.equal(verdict.problems.some((problem: string) => /must be an object/.test(problem)), true);
+  assert.equal(verdict.problems.some((problem: string) => /duplicate ledger row/.test(problem)), true);
+});
+
+test("review ledger binds both artifact schemas and every copied inventory identity field", async () => {
+  const { syncReviewLedger, checkReviewLedger } = await reviewsLib();
+  const { ledger } = syncReviewLedger(INVENTORY, null);
+
+  const wrongLedgerSchema = structuredClone(ledger);
+  delete wrongLedgerSchema.schemaVersion;
+  assert.match(
+    checkReviewLedger(INVENTORY, wrongLedgerSchema).problems.join(" "),
+    /review ledger schemaVersion/
+  );
+
+  const wrongInventorySchema = structuredClone(INVENTORY);
+  wrongInventorySchema.artifactKind = "not-the-inventory";
+  assert.match(
+    checkReviewLedger(wrongInventorySchema, ledger).problems.join(" "),
+    /third-party inventory artifactKind/
+  );
+
+  for (const [field, value] of [
+    ["ecosystem", "cargo"],
+    ["name", "another-package"],
+    ["version", "9.9.9"],
+    ["declaredLicense", "Apache-2.0"]
+  ] as const) {
+    const doctored = structuredClone(ledger);
+    const row = doctored.reviews.find(
+      (candidate: { key: string }) => candidate.key === "npm:left-pad@1.0.0"
+    );
+    row[field] = value;
+    const verdict = checkReviewLedger(INVENTORY, doctored);
+    assert.equal(verdict.ok, false, `${field} drift must fail`);
+    assert.match(verdict.problems.join(" "), new RegExp(`declares ${field}=`));
+  }
 });
 
 test("a hand-edited runtime flag is drift, not opinion", async () => {
@@ -103,6 +240,25 @@ test("a hand-edited runtime flag is drift, not opinion", async () => {
   );
 });
 
+test("downloaded build-tool scope and redistribution posture are inventory truth", async () => {
+  const { syncReviewLedger, checkReviewLedger } = await reviewsLib();
+  const { ledger } = syncReviewLedger(INVENTORY, null);
+  for (const [field, value] of [
+    ["redistributed", true],
+    ["usage", "runtime"],
+    ["sourceUrl", "https://example.invalid/not-the-release"]
+  ] as const) {
+    const doctored = structuredClone(ledger);
+    const row = doctored.reviews.find(
+      (candidate: { key: string }) => candidate.key === "downloaded-tool:github-cli@2.96.0"
+    );
+    row[field] = value;
+    const verdict = checkReviewLedger(INVENTORY, doctored);
+    assert.equal(verdict.ok, false, `${field} drift must fail`);
+    assert.match(verdict.problems.join(" "), new RegExp(`declares ${field}=`));
+  }
+});
+
 test("the committed ledger is in sync with the committed inventory", async () => {
   const { checkReviewLedger } = await reviewsLib();
   const inventory = JSON.parse(readFileSync(path.join(process.cwd(), "THIRD_PARTY_INVENTORY.json"), "utf8"));
@@ -112,4 +268,9 @@ test("the committed ledger is in sync with the committed inventory", async () =>
   assert.equal(verdict.summary.npm.total, 148);
   assert.equal(verdict.summary.cargo.total, 68);
   assert.equal(verdict.summary["filter-list"].total, 31);
+  assert.deepEqual(verdict.summary["downloaded-tool"], {
+    total: 1,
+    reviewed: 0,
+    unreviewedRuntime: 0
+  });
 });

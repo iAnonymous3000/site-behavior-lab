@@ -14,6 +14,7 @@ function fixtureRoot(): string {
   const root = mkdtempSync(path.join(tmpdir(), "sbl-third-party-inventory-"));
   mkdirSync(path.join(root, "tools", "adblock-wasm"), { recursive: true });
   mkdirSync(path.join(root, "lib", "adblock-wasm"), { recursive: true });
+  mkdirSync(path.join(root, "scripts"), { recursive: true });
 
   writeFileSync(
     path.join(root, "package-lock.json"),
@@ -76,6 +77,18 @@ function fixtureRoot(): string {
       null,
       2
     )}\n`,
+    "utf8"
+  );
+  writeFileSync(
+    path.join(root, "scripts", "github-cli-build-tool-manifest.json"),
+    readFileSync(
+      path.join(
+        process.cwd(),
+        "scripts",
+        "github-cli-build-tool-manifest.json"
+      ),
+      "utf8"
+    ),
     "utf8"
   );
   return root;
@@ -146,6 +159,67 @@ test("third-party inventory generation is deterministic and evidence-conservativ
     commit: "d".repeat(40),
     sha256: SHA_C
   });
+  assert.deepEqual(first.summary.downloadedTools, {
+    total: 1,
+    declared: 1,
+    unknown: 0
+  });
+  assert.deepEqual(first.downloadedTools, [
+    {
+      id: "github-cli",
+      name: "GitHub CLI",
+      version: "2.96.0",
+      sourceUrl: "https://github.com/cli/cli/releases/tag/v2.96.0",
+      checksumManifest: {
+        url: "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_checksums.txt",
+        sha256: "fc046371efa250e2875208341a786a35a01717d5eebec6903e199a9b8a3f3565"
+      },
+      license: "MIT",
+      licenseStatus: "declared-in-tagged-upstream-license",
+      licenseEvidence: "https://github.com/cli/cli/blob/v2.96.0/LICENSE",
+      usage: "build-only",
+      runtime: false,
+      redistributed: false,
+      assets: [
+        {
+          platform: "linux-x64",
+          archive: "gh_2.96.0_linux_amd64.tar.gz",
+          directory: "gh_2.96.0_linux_amd64",
+          format: "tar.gz",
+          url: "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_linux_amd64.tar.gz",
+          archiveSha256: "83d5c2ccad5498f58bf6368acb1ab32588cf43ab3a4b1c301bf36328b1c8bd60",
+          binarySha256: "56b8bbbb27b066ecb33dbef9a256dc9d1314adaeff0908a752feba6c34053b40"
+        },
+        {
+          platform: "linux-arm64",
+          archive: "gh_2.96.0_linux_arm64.tar.gz",
+          directory: "gh_2.96.0_linux_arm64",
+          format: "tar.gz",
+          url: "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_linux_arm64.tar.gz",
+          archiveSha256: "06f86ec7103d41993b76cd78072f43595c34aaa56506d971d9860e67140bf909",
+          binarySha256: "f903d2fa04ae78ee8f8df0186364d0b92f078d2720053941a47e0a3beaef54f0"
+        },
+        {
+          platform: "darwin-x64",
+          archive: "gh_2.96.0_macOS_amd64.zip",
+          directory: "gh_2.96.0_macOS_amd64",
+          format: "zip",
+          url: "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_macOS_amd64.zip",
+          archiveSha256: "4bd449df9ad639391bc62b8032546f0fe9edcd8526e06682a4f88abd8c5d163c",
+          binarySha256: "49380b19e758c14ce5509afe0ced58777fe45cfbcd5989941f7314d5f7e468c8"
+        },
+        {
+          platform: "darwin-arm64",
+          archive: "gh_2.96.0_macOS_arm64.zip",
+          directory: "gh_2.96.0_macOS_arm64",
+          format: "zip",
+          url: "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_macOS_arm64.zip",
+          archiveSha256: "f23a0c37d963aacc3bed703ccbd59b41c5ca22101fab7f00eb2b7cad23aba463",
+          binarySha256: "b1d6c442fde99ca27c04e1e74d624895abe37785f4a3e9e9b684bf7586ce4bc8"
+        }
+      ]
+    }
+  ]);
 
   const regenerated = run(root);
   assert.equal(regenerated.status, 0, regenerated.stderr);
@@ -182,4 +256,66 @@ test("generation fails closed when filter provenance is internally inconsistent"
   assert.equal(generated.status, 1);
   assert.match(generated.stderr, /sourceCount must match sources\.length/);
   assert.equal(generated.stdout, "");
+});
+
+test("generation fails closed when a downloaded-tool byte pin is malformed", (context) => {
+  const root = fixtureRoot();
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  const manifestPath = path.join(
+    root,
+    "scripts",
+    "github-cli-build-tool-manifest.json"
+  );
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  manifest.assets[3].binarySha256 = "not-a-digest";
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+
+  const generated = run(root);
+  assert.equal(generated.status, 1);
+  assert.match(generated.stderr, /binarySha256 must be a lowercase SHA-256 digest/);
+  assert.equal(generated.stdout, "");
+});
+
+test("one manifest drives the inventory and all GitHub CLI verifier byte pins", () => {
+  const inventory = JSON.parse(
+    readFileSync(path.join(process.cwd(), "THIRD_PARTY_INVENTORY.json"), "utf8")
+  );
+  const manifest = JSON.parse(
+    readFileSync(
+      path.join(
+        process.cwd(),
+        "scripts",
+        "github-cli-build-tool-manifest.json"
+      ),
+      "utf8"
+    )
+  );
+  const verifierSource = readFileSync(
+    path.join(process.cwd(), "scripts", "ensure-gh-attestation-verifier.mjs"),
+    "utf8"
+  );
+  const githubCli = inventory.downloadedTools.find(
+    (tool: { id: string }) => tool.id === "github-cli"
+  );
+
+  assert.equal(githubCli.version, "2.96.0");
+  assert.equal(githubCli.usage, "build-only");
+  assert.equal(githubCli.runtime, false);
+  assert.equal(githubCli.redistributed, false);
+  const manifestTool = structuredClone(manifest);
+  delete manifestTool.schemaVersion;
+  delete manifestTool.artifactKind;
+  assert.deepEqual(githubCli, manifestTool);
+  assert.match(verifierSource, /github-cli-build-tool-manifest\.json/);
+  assert.match(verifierSource, /parseGithubCliBuildToolManifest/);
+  assert.match(verifierSource, /asset\.archiveSha256/);
+  assert.match(verifierSource, /asset\.binarySha256/);
+  assert.deepEqual(
+    githubCli.assets.map((asset: { platform: string }) => asset.platform),
+    ["linux-x64", "linux-arm64", "darwin-x64", "darwin-arm64"]
+  );
+  for (const asset of githubCli.assets) {
+    assert.match(asset.archiveSha256, /^[a-f0-9]{64}$/);
+    assert.match(asset.binarySha256, /^[a-f0-9]{64}$/);
+  }
 });

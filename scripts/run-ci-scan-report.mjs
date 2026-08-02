@@ -51,6 +51,53 @@ export function botBlockReason(report) {
 }
 
 /**
+ * Closed evidentiary classifier for a report that botBlockReason rejected.
+ * This deliberately reads structured report facts, never the English
+ * diagnostic string. Failures before a report exists remain unclassified and
+ * therefore become `not-attempted` in the re-adjudication artifact.
+ */
+export function botBlockUnavailableReason(report) {
+  for (const run of reportRuns(report)) {
+    const title = String(run.summary?.pageTitle || "").trim();
+    const totalRequests =
+      Number(
+        run.summary?.counts?.totalRequests ?? run.summary?.totalRequests
+      ) || 0;
+    if (
+      isLikelyBotWallPage({
+        pageTitle: title,
+        status:
+          typeof run.summary?.status === "number"
+            ? run.summary.status
+            : null,
+        navigationSettled: run.qualityFacts?.navigationSettled !== false,
+        totalRequests
+      }) ||
+      (Array.isArray(run.warnings) &&
+        run.warnings.includes(SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING))
+    ) {
+      return "automation-blocked";
+    }
+    const status = run.summary?.status;
+    if (status === 429) return "rate-limited";
+    if (status === 401) return "authentication-required";
+    if (status === 403) return "access-denied";
+    if (
+      typeof status !== "number" ||
+      status >= 400 ||
+      run.qualityFacts?.navigationSettled === false ||
+      run.quality?.run?.outcome === "failed" ||
+      (Array.isArray(run.warnings) &&
+        run.warnings.includes(PAGE_SUBJECT_UNVERIFIED_WARNING)) ||
+      totalRequests <= 1
+    ) {
+      return "navigation-incomplete";
+    }
+  }
+  return null;
+}
+
+/**
  * Prefer the report's recorded/evaluator-derived quality facts to an English
  * title heuristic. A generic HTTP error page can make several requests and
  * use a title such as "Forbidden", while a v2/r2 run can fail quality for a

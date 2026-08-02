@@ -1,0 +1,92 @@
+name: Durable Soak Restart
+
+# Ceremony prerequisites: configure matching, distinct
+# SITE_BEHAVIOR_LAB_DURABLE_RESTART_TOKEN (Worker secret) and
+# DURABLE_RESTART_CONTROL_TOKEN (release-evidence environment secret), then
+# remove both only after the soak-end evidence and attestation are complete.
+# The control HMAC-binds the stable GitHub run_id and atomically consumes that
+# run id before the fixed Container.destroy() RPC. A job or workflow rerun
+# cannot destroy a second runtime. SSH is neither enabled nor used.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: durable-soak-restart
+  cancel-in-progress: false
+
+jobs:
+  restart:
+    name: Restart runtime and prove queued work recovery
+    if: >-
+      github.repository == 'iAnonymous3000/site-behavior-lab' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: release-evidence
+    timeout-minutes: 30
+    steps:
+      - name: Require an isolated GitHub-hosted runner
+        env:
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = "github-hosted"
+
+      - name: Check out the trusted main revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install the lockfile dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Compile the shared canonical evidence serializer
+        run: npm run build:schema
+
+      - name: Capture provider runtime transition and queued recovery
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          DURABLE_RESTART_CONTROL_TOKEN: ${{ secrets.DURABLE_RESTART_CONTROL_TOKEN }}
+          DURABLE_RESTART_GITHUB_RUN_ID: ${{ github.run_id }}
+          DURABLE_RESTART_PROVIDER_KIND: cloudflare-containers
+          DURABLE_RESTART_PROVIDER_API_TOKEN: ${{ secrets.DURABLE_RESTART_PROVIDER_API_TOKEN }}
+          PRODUCTION_SYNTHETIC_MONITOR_TOKEN: ${{ secrets.PRODUCTION_SYNTHETIC_MONITOR_TOKEN }}
+          EXPECTED_PRODUCTION_SHA: ${{ github.sha }}
+          SCAN_BASE_URL: https://scan.sitebehavior.org
+        run: |
+          set -euo pipefail
+          node scripts/durable-soak-restart-evidence.mjs \
+            --capture \
+            --output-dir "$RUNNER_TEMP/durable-restart-evidence"
+          node scripts/durable-soak-restart-evidence.mjs \
+            --verify \
+            --directory "$RUNNER_TEMP/durable-restart-evidence"
+
+      - name: Upload exact restart and queued-recovery evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-durable-soak-restart-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/durable-restart-evidence/post-health.json
+            ${{ runner.temp }}/durable-restart-evidence/pre-health.json
+            ${{ runner.temp }}/durable-restart-evidence/queued-work-recovery.json
+            ${{ runner.temp }}/durable-restart-evidence/restart-evidence.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+          compression-level: 0

@@ -7,17 +7,38 @@ import Ajv from "ajv";
 import { createGenerator } from "ts-json-schema-generator";
 import {
   currentDetectorCalibrationReleaseIdentity,
+  detectorCalibrationMeasurementCondition,
   detectorCalibrationRuntimeDigest,
   detectorCalibrationStudyIssues,
   DETECTOR_CALIBRATION_STUDY_SCHEMA_ID,
+  DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_ID,
+  DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_ID,
   type DetectorCalibrationRuntimeIdentity,
-  type DetectorCalibrationStudy
+  type DetectorCalibrationStudy,
+  type DetectorCalibrationStudyV2,
+  type DetectorCalibrationStudyV3
 } from "./detector-calibration";
 import { sha256Hex } from "./sha256";
 
 const ROOT = process.cwd();
 const SCHEMA_PATH = path.join(ROOT, "public", "schemas", "detector-calibration-study.v1.schema.json");
 const FROZEN_SCHEMA_SHA256 = "420cb5db0992cf11a1145fef594d6aeb61dc29cc87ea521a559f1b3c3e538694";
+const V2_SCHEMA_PATH = path.join(
+  ROOT,
+  "public",
+  "schemas",
+  "detector-calibration-study.v2.schema.json"
+);
+const FROZEN_V2_SCHEMA_SHA256 =
+  "bff4614bb10c983ec4222707309f184aa20ee0f26737a25f46d3ea4256b826ff";
+const V3_SCHEMA_PATH = path.join(
+  ROOT,
+  "public",
+  "schemas",
+  "detector-calibration-study.v3.schema.json"
+);
+const FROZEN_V3_SCHEMA_SHA256 =
+  "2ac4d02b7d2d1d9906d574f0022f58a829748fd6ea804c635bf0cad033e98f25";
 
 function generatedSchema(): Record<string, unknown> {
   const schema = createGenerator({
@@ -30,11 +51,102 @@ function generatedSchema(): Record<string, unknown> {
   return { $id: DETECTOR_CALIBRATION_STUDY_SCHEMA_ID, ...schema };
 }
 
+function generatedV2Schema(): Record<string, unknown> {
+  const schema = createGenerator({
+    path: path.join(ROOT, "lib", "detector-calibration.ts"),
+    type: "DetectorCalibrationStudyV2",
+    skipTypeCheck: true,
+    additionalProperties: false,
+    topRef: true
+  }).createSchema("DetectorCalibrationStudyV2");
+  return { $id: DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_ID, ...schema };
+}
+
+function generatedV3Schema(): Record<string, unknown> {
+  const schema = createGenerator({
+    path: path.join(ROOT, "lib", "detector-calibration.ts"),
+    type: "DetectorCalibrationStudyV3",
+    skipTypeCheck: true,
+    additionalProperties: false,
+    topRef: true
+  }).createSchema("DetectorCalibrationStudyV3");
+  return { $id: DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_ID, ...schema };
+}
+
 test("the committed detector-calibration schema equals a fresh generation from the study type", () => {
   const bytes = readFileSync(SCHEMA_PATH);
   assert.equal(createHash("sha256").update(bytes).digest("hex"), FROZEN_SCHEMA_SHA256);
   const committed = JSON.parse(bytes.toString("utf8"));
   assert.deepEqual(committed, generatedSchema(), "run `npm run build:schema` and commit the result");
+});
+
+test("the release-grade v2 schema binds the fixed measurement condition", () => {
+  const bytes = readFileSync(V2_SCHEMA_PATH);
+  assert.equal(
+    createHash("sha256").update(bytes).digest("hex"),
+    FROZEN_V2_SCHEMA_SHA256
+  );
+  const committed = JSON.parse(bytes.toString("utf8"));
+  assert.deepEqual(
+    committed,
+    generatedV2Schema(),
+    "run `npm run build:schema` and commit the result"
+  );
+  const validate = new Ajv({ allErrors: true, strict: false }).compile(
+    generatedV2Schema()
+  );
+  const valid = fixtureV2();
+  assert.equal(validate(valid), true, JSON.stringify(validate.errors));
+  assert.deepEqual(detectorCalibrationStudyIssues(valid), []);
+
+  const wrongArm = structuredClone(valid);
+  wrongArm.design.measurementCondition.consentMode = "accept-all";
+  assert.equal(
+    validate(wrongArm),
+    true,
+    "JSON Schema checks shape; runtime policy pins the detector-specific arm"
+  );
+  assert.match(
+    detectorCalibrationStudyIssues(wrongArm).join("\n"),
+    /canonical detector-specific measurement arm/
+  );
+});
+
+test("the current v3 schema preserves the v2 measurement arm and binds blind-tiebreaker semantics", () => {
+  const bytes = readFileSync(V3_SCHEMA_PATH);
+  assert.equal(
+    createHash("sha256").update(bytes).digest("hex"),
+    FROZEN_V3_SCHEMA_SHA256
+  );
+  const committed = JSON.parse(bytes.toString("utf8"));
+  assert.deepEqual(
+    committed,
+    generatedV3Schema(),
+    "run `npm run build:schema` and commit the result"
+  );
+  const validateV3 = new Ajv({ allErrors: true, strict: false }).compile(
+    generatedV3Schema()
+  );
+  const valid = fixtureV3();
+  assert.equal(validateV3(valid), true, JSON.stringify(validateV3.errors));
+  assert.deepEqual(detectorCalibrationStudyIssues(valid), []);
+
+  const v2WithV3Custody = structuredClone(fixtureV2()) as Record<
+    string,
+    unknown
+  >;
+  const firstCase = (v2WithV3Custody.cases as Array<Record<string, unknown>>)[0];
+  const reference = firstCase.reference as Record<string, unknown>;
+  reference.adjudication = {
+    status: "labelers-agreed",
+    tiebreakerId: null,
+    artifactDigest: null
+  };
+  const validateV2 = new Ajv({ allErrors: true, strict: false }).compile(
+    generatedV2Schema()
+  );
+  assert.equal(validateV2(v2WithV3Custody), false);
+  assert.notDeepEqual(detectorCalibrationStudyIssues(v2WithV3Custody), []);
 });
 
 test("schema and runtime validation agree on the complete strict study shape", () => {
@@ -116,6 +228,56 @@ function fixture(): DetectorCalibrationStudy {
         }
       }
     ]
+  };
+}
+
+function fixtureV2(): DetectorCalibrationStudyV2 {
+  const legacy = fixture();
+  return {
+    ...legacy,
+    schemaVersion: 2,
+    design: {
+      ...legacy.design,
+      measurementCondition: detectorCalibrationMeasurementCondition(
+        legacy.detector
+      )
+    }
+  };
+}
+
+function fixtureV3(): DetectorCalibrationStudyV3 {
+  const legacy = fixture();
+  return {
+    ...legacy,
+    schemaVersion: 3,
+    labelRosterAuthorizationSha256: digest(
+      "label-roster-authorization"
+    ),
+    rosterSelectionLedgerSha256: digest("roster-selection-ledger"),
+    acquisitionAttemptLedgerSha256: digest(
+      "acquisition-attempt-ledger"
+    ),
+    design: {
+      ...legacy.design,
+      measurementCondition: detectorCalibrationMeasurementCondition(
+        legacy.detector
+      )
+    },
+    cases: legacy.cases.map((entry) =>
+      entry.outcome === "complete"
+        ? {
+            ...entry,
+            reference: {
+              ...entry.reference,
+              adjudication: {
+                status: "labelers-agreed" as const,
+                tiebreakerId: null,
+                artifactDigest: null
+              }
+            }
+          }
+        : entry
+    )
   };
 }
 

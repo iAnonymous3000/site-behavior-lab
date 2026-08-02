@@ -3460,6 +3460,23 @@
       "reviewer": null,
       "reviewedAt": null,
       "notes": null
+    },
+    {
+      "key": "downloaded-tool:github-cli@2.96.0",
+      "ecosystem": "downloaded-tool",
+      "name": "GitHub CLI",
+      "version": "2.96.0",
+      "runtime": false,
+      "status": "unreviewed",
+      "declaredLicense": "MIT",
+      "determinedLicense": null,
+      "obligations": [],
+      "reviewer": null,
+      "reviewedAt": null,
+      "notes": null,
+      "redistributed": false,
+      "usage": "build-only",
+      "sourceUrl": "https://github.com/cli/cli/releases/tag/v2.96.0"
     }
   ]
 }

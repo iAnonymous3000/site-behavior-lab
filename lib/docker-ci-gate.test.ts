@@ -7,7 +7,7 @@ const root = process.cwd();
 
 test("CI requires the deployable Docker image and public-v2/R2 smoke before promotion", () => {
   const workflow = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
-  const dockerJob = workflow.slice(workflow.indexOf("\n  docker:"), workflow.indexOf("\n  promote:"));
+  const dockerJob = workflow.slice(workflow.indexOf("\n  docker:"), workflow.indexOf("\n  attest:"));
   const promoteJob = workflow.slice(workflow.indexOf("\n  promote:"));
 
   assert.match(dockerJob, /npm run test:smoke:docker/);

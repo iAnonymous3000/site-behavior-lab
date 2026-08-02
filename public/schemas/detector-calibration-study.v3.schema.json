@@ -1,0 +1,487 @@
+{
+  "$id": "https://sitebehavior.org/schemas/detector-calibration-study.v3.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/DetectorCalibrationStudyV3",
+  "definitions": {
+    "DetectorCalibrationStudyV3": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 3
+        },
+        "studyId": {
+          "type": "string"
+        },
+        "detector": {
+          "$ref": "#/definitions/DetectorId"
+        },
+        "release": {
+          "$ref": "#/definitions/DetectorCalibrationReleaseIdentity"
+        },
+        "targetPopulation": {
+          "type": "string"
+        },
+        "plannedCases": {
+          "type": "number"
+        },
+        "labelRosterAuthorizationSha256": {
+          "type": "string"
+        },
+        "rosterSelectionLedgerSha256": {
+          "type": "string"
+        },
+        "acquisitionAttemptLedgerSha256": {
+          "type": "string"
+        },
+        "design": {
+          "type": "object",
+          "properties": {
+            "sampling": {
+              "$ref": "#/definitions/DetectorCalibrationSampling"
+            },
+            "samplingFrame": {
+              "type": "string"
+            },
+            "samplingFrameDigest": {
+              "type": "string"
+            },
+            "selectionProtocol": {
+              "type": "string"
+            },
+            "referenceProtocol": {
+              "type": "string"
+            },
+            "referenceProtocolDigest": {
+              "type": "string"
+            },
+            "adjudicationProtocol": {
+              "type": "string"
+            },
+            "adjudicationProtocolDigest": {
+              "type": "string"
+            },
+            "measurementCondition": {
+              "$ref": "#/definitions/DetectorCalibrationMeasurementCondition"
+            },
+            "independentUnits": {
+              "type": "boolean"
+            },
+            "predictionBlindedToReference": {
+              "type": "boolean"
+            },
+            "referenceBlindedToPrediction": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "sampling",
+            "samplingFrame",
+            "samplingFrameDigest",
+            "selectionProtocol",
+            "referenceProtocol",
+            "referenceProtocolDigest",
+            "adjudicationProtocol",
+            "adjudicationProtocolDigest",
+            "measurementCondition",
+            "independentUnits",
+            "predictionBlindedToReference",
+            "referenceBlindedToPrediction"
+          ],
+          "additionalProperties": false
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DetectorCalibrationCaseV3"
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "studyId",
+        "detector",
+        "release",
+        "targetPopulation",
+        "plannedCases",
+        "labelRosterAuthorizationSha256",
+        "rosterSelectionLedgerSha256",
+        "acquisitionAttemptLedgerSha256",
+        "design",
+        "cases"
+      ],
+      "additionalProperties": false,
+      "description": "Current custody-lane studies use v3. It preserves v2 measurement-condition binding while making the precommitted blind-tiebreaker semantics explicit."
+    },
+    "DetectorId": {
+      "type": "string",
+      "enum": [
+        "fingerprint-heuristics",
+        "keystroke-exfiltration",
+        "cname-uncloaking",
+        "pixel-events",
+        "consent-banner",
+        "privacy-policy"
+      ],
+      "description": "Normative initial registry, version \"1\" (RFC 5.4). The ledger must contain an entry for every detector in the referenced registry version."
+    },
+    "DetectorCalibrationReleaseIdentity": {
+      "type": "object",
+      "properties": {
+        "buildCommit": {
+          "type": "string"
+        },
+        "detectorVersion": {
+          "type": "string"
+        },
+        "detectorImplementationDigest": {
+          "type": "string"
+        },
+        "registryVersion": {
+          "type": "string"
+        },
+        "registryDigest": {
+          "type": "string"
+        },
+        "methodologyVersion": {
+          "type": "string"
+        },
+        "normalizationVersion": {
+          "type": "string"
+        },
+        "trackerCatalog": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string"
+            },
+            "provenanceVersion": {
+              "type": "string"
+            },
+            "provenanceDigest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "version",
+            "digest",
+            "provenanceVersion",
+            "provenanceDigest"
+          ],
+          "additionalProperties": false
+        },
+        "braveLists": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "catalogCommit": {
+              "type": "string"
+            },
+            "catalogDigest": {
+              "type": "string"
+            },
+            "lists": {
+              "type": "number"
+            },
+            "fetchedAt": {
+              "type": "string"
+            },
+            "manifestDigest": {
+              "type": "string"
+            },
+            "rulesDigest": {
+              "type": "string"
+            },
+            "engineVersion": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source",
+            "catalogCommit",
+            "catalogDigest",
+            "lists",
+            "fetchedAt",
+            "manifestDigest",
+            "rulesDigest",
+            "engineVersion"
+          ],
+          "additionalProperties": false
+        },
+        "runtime": {
+          "$ref": "#/definitions/DetectorCalibrationRuntimeIdentity"
+        }
+      },
+      "required": [
+        "buildCommit",
+        "detectorVersion",
+        "detectorImplementationDigest",
+        "registryVersion",
+        "registryDigest",
+        "methodologyVersion",
+        "normalizationVersion",
+        "trackerCatalog",
+        "braveLists",
+        "runtime"
+      ],
+      "additionalProperties": false
+    },
+    "DetectorCalibrationRuntimeIdentity": {
+      "type": "object",
+      "properties": {
+        "observer": {
+          "type": "string",
+          "const": "node-playwright"
+        },
+        "automation": {
+          "type": "string",
+          "const": "playwright-chromium"
+        },
+        "nodeVersion": {
+          "type": "string"
+        },
+        "playwrightVersion": {
+          "type": "string"
+        },
+        "browserName": {
+          "type": "string",
+          "const": "chromium"
+        },
+        "browserVersion": {
+          "type": "string"
+        },
+        "operatingSystem": {
+          "type": "string"
+        },
+        "architecture": {
+          "type": "string"
+        },
+        "runtimeDigest": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "observer",
+        "automation",
+        "nodeVersion",
+        "playwrightVersion",
+        "browserName",
+        "browserVersion",
+        "operatingSystem",
+        "architecture",
+        "runtimeDigest"
+      ],
+      "additionalProperties": false
+    },
+    "DetectorCalibrationSampling": {
+      "type": "string",
+      "enum": [
+        "simple-random",
+        "census",
+        "convenience"
+      ]
+    },
+    "DetectorCalibrationMeasurementCondition": {
+      "type": "object",
+      "properties": {
+        "device": {
+          "type": "string",
+          "const": "desktop"
+        },
+        "gpcEnabled": {
+          "type": "boolean",
+          "const": false
+        },
+        "consentMode": {
+          "type": "string",
+          "enum": [
+            "observe",
+            "accept-all"
+          ]
+        },
+        "interpretation": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "device",
+        "gpcEnabled",
+        "consentMode",
+        "interpretation"
+      ],
+      "additionalProperties": false
+    },
+    "DetectorCalibrationCaseV3": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "caseId": {
+              "type": "string"
+            },
+            "outcome": {
+              "type": "string",
+              "const": "complete"
+            },
+            "conditionDigest": {
+              "type": "string"
+            },
+            "prediction": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "enum": [
+                    "detected",
+                    "not-detected"
+                  ]
+                },
+                "artifactDigest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value",
+                "artifactDigest"
+              ],
+              "additionalProperties": false
+            },
+            "reference": {
+              "$ref": "#/definitions/DetectorCalibrationReferenceV3"
+            }
+          },
+          "required": [
+            "caseId",
+            "outcome",
+            "conditionDigest",
+            "prediction",
+            "reference"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "caseId": {
+              "type": "string"
+            },
+            "outcome": {
+              "type": "string",
+              "const": "censored"
+            },
+            "reason": {
+              "$ref": "#/definitions/DetectorCalibrationCensorReason"
+            },
+            "conditionDigest": {
+              "type": "string"
+            },
+            "attemptArtifactDigest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "caseId",
+            "outcome",
+            "reason",
+            "conditionDigest",
+            "attemptArtifactDigest"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "DetectorCalibrationReferenceV3": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "enum": [
+            "present",
+            "absent"
+          ]
+        },
+        "evidenceArtifactDigest": {
+          "type": "string"
+        },
+        "labelArtifactDigest": {
+          "type": "string"
+        },
+        "labelerIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2
+        },
+        "adjudication": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "const": "labelers-agreed"
+                },
+                "tiebreakerId": {
+                  "type": "null"
+                },
+                "artifactDigest": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "status",
+                "tiebreakerId",
+                "artifactDigest"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "const": "disagreement-resolved-by-blind-tiebreaker"
+                },
+                "tiebreakerId": {
+                  "type": "string"
+                },
+                "artifactDigest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "status",
+                "tiebreakerId",
+                "artifactDigest"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "evidenceArtifactDigest",
+        "labelArtifactDigest",
+        "labelerIds",
+        "adjudication"
+      ],
+      "additionalProperties": false
+    },
+    "DetectorCalibrationCensorReason": {
+      "type": "string",
+      "enum": [
+        "capture-failed",
+        "reference-label-uncertain",
+        "artifact-unreadable",
+        "eligibility-criteria-not-met"
+      ]
+    }
+  }
+}

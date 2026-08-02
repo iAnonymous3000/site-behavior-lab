@@ -4,6 +4,10 @@ import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sha256Hex } from "./brave-list-digests.mjs";
+import {
+  GITHUB_CLI_BUILD_TOOL_MANIFEST_PATH,
+  parseGithubCliBuildToolManifest
+} from "./github-cli-build-tool-lib.mjs";
 
 const SCRIPT_PATH = "scripts/third-party-inventory.mjs";
 const DEFAULT_OUTPUT = "THIRD_PARTY_INVENTORY.json";
@@ -11,7 +15,8 @@ const INPUT_PATHS = Object.freeze({
   packageLock: "package-lock.json",
   cargoLock: "tools/adblock-wasm/Cargo.lock",
   cargoManifest: "tools/adblock-wasm/Cargo.toml",
-  filterMetadata: "lib/adblock-wasm/brave-default-filters.meta.json"
+  filterMetadata: "lib/adblock-wasm/brave-default-filters.meta.json",
+  githubCliBuildTool: GITHUB_CLI_BUILD_TOOL_MANIFEST_PATH
 });
 const UNKNOWN_LICENSE = "UNKNOWN";
 const SHA256_PATTERN = /^[a-f0-9]{64}$/;
@@ -298,10 +303,22 @@ function summarizeLicenseEvidence(entries) {
   };
 }
 
+function buildDownloadedToolInventory(source) {
+  const manifest = parseGithubCliBuildToolManifest(
+    source,
+    INPUT_PATHS.githubCliBuildTool
+  );
+  const tool = structuredClone(manifest);
+  delete tool.schemaVersion;
+  delete tool.artifactKind;
+  return [tool];
+}
+
 export function buildThirdPartyInventory(inputSources) {
   const npm = buildNpmInventory(inputSources.packageLock);
   const cargo = buildCargoInventory(inputSources.cargoLock, inputSources.cargoManifest);
   const filterLists = buildFilterInventory(inputSources.filterMetadata);
+  const downloadedTools = buildDownloadedToolInventory(inputSources.githubCliBuildTool);
   const cargoThirdParty = cargo.filter((entry) => entry.kind === "third-party");
 
   return {
@@ -322,11 +339,13 @@ export function buildThirdPartyInventory(inputSources) {
         ...summarizeLicenseEvidence(cargoThirdParty),
         workspacePackages: cargo.length - cargoThirdParty.length
       },
-      filterLists: summarizeLicenseEvidence(filterLists.sources)
+      filterLists: summarizeLicenseEvidence(filterLists.sources),
+      downloadedTools: summarizeLicenseEvidence(downloadedTools)
     },
     npm,
     cargo,
-    filterLists
+    filterLists,
+    downloadedTools
   };
 }
 

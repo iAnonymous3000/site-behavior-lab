@@ -13,6 +13,7 @@ import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fix
 type RunCiReportHelpers = {
   isPublishableScanReport(value: unknown): boolean;
   botBlockReason(value: unknown): string | null;
+  botBlockUnavailableReason(value: unknown): string | null;
 };
 
 // Preserve native import() after this test is compiled to CommonJS; TypeScript
@@ -188,6 +189,46 @@ test("the CI bot-wall gate does not treat generic title prose as a failed visit"
   primaryVariant.summary.counts.totalRequests = 2;
   primaryVariant.summary.pageTitle = "Enable JavaScript";
   assert.equal(botBlockReason(report), null, "generic exact titles and sparse pages are both site-controlled");
+});
+
+test("the re-adjudication classifier derives only closed reasons from structured report facts", async () => {
+  const { botBlockUnavailableReason } = await helpers;
+  const challenge = makeHealthySupportingComparison();
+  supportingArms(challenge).primaryBaseline.summary.pageTitle =
+    "Attention Required";
+  supportingArms(challenge).primaryBaseline.qualityFacts.navigationSettled =
+    false;
+  assert.equal(botBlockUnavailableReason(challenge), "automation-blocked");
+
+  for (const [status, expected] of [
+    [429, "rate-limited"],
+    [401, "authentication-required"],
+    [403, "access-denied"],
+    [500, "navigation-incomplete"]
+  ] as const) {
+    const report = makeHealthySupportingComparison();
+    const arm = supportingArms(report).primaryBaseline;
+    arm.summary.status = status;
+    arm.qualityFacts.status = status;
+    assert.equal(botBlockUnavailableReason(report), expected);
+  }
+
+  const incomplete = makeHealthySupportingComparison();
+  supportingArms(incomplete).primaryVariant.qualityFacts.navigationSettled =
+    false;
+  assert.equal(
+    botBlockUnavailableReason(incomplete),
+    "navigation-incomplete"
+  );
+  assert.equal(
+    botBlockUnavailableReason(makeHealthySupportingComparison()),
+    null
+  );
+  assert.equal(
+    botBlockUnavailableReason({ error: "arbitrary 403 rate limit prose" }),
+    null,
+    "free-form failure prose is never classified as site unavailability"
+  );
 });
 
 function makeHealthySupportingComparison() {

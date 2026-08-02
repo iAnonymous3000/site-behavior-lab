@@ -1,0 +1,140 @@
+name: Durable Soak Monitor
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_at:
+        description: Canonical UTC start of the bounded health query
+        required: true
+        type: string
+      end_at:
+        description: Canonical UTC end after the last completed health run
+        required: true
+        type: string
+      restart_run_id:
+        description: Exact dedicated restart Actions run id
+        required: true
+        type: string
+      restart_run_attempt:
+        description: Exact dedicated restart run attempt
+        required: true
+        default: "1"
+        type: string
+      restart_artifact_id:
+        description: Exact dedicated restart evidence artifact id
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: durable-soak-monitor
+  cancel-in-progress: false
+
+jobs:
+  aggregate:
+    name: Aggregate authenticated hourly durable health
+    if: >-
+      github.repository == 'iAnonymous3000/site-behavior-lab' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Require an isolated GitHub-hosted runner
+        env:
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = "github-hosted"
+
+      - name: Checkout the exact protected-main monitor
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Use the exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      # The native workflow token shares a 1,000-request/hour repository
+      # bucket. This bounded multi-day collection instead reuses the
+      # repository-only read App, while narrowing this installation token to
+      # Actions:read for this repository and granting it no write authority.
+      # Missing App configuration or Actions:read permission fails closed.
+      - name: Mint repository-only Actions read token
+        id: actions_read_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RUNNER_READ_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RUNNER_READ_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: site-behavior-lab
+          permission-actions: read
+
+      - name: Collect and rederive the bounded hourly ledger
+        id: ledger
+        env:
+          GH_TOKEN: ${{ steps.actions_read_token.outputs.token }}
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          SOAK_START_AT: ${{ inputs.start_at }}
+          SOAK_END_AT: ${{ inputs.end_at }}
+          RESTART_RUN_ID: ${{ inputs.restart_run_id }}
+          RESTART_RUN_ATTEMPT: ${{ inputs.restart_run_attempt }}
+          RESTART_ARTIFACT_ID: ${{ inputs.restart_artifact_id }}
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          output="$RUNNER_TEMP/durable-soak-ledger"
+          test ! -e "$output"
+          node scripts/durable-soak-ledger.mjs \
+            --start-at "$SOAK_START_AT" \
+            --end-at "$SOAK_END_AT" \
+            --restart-run-id "$RESTART_RUN_ID" \
+            --restart-run-attempt "$RESTART_RUN_ATTEMPT" \
+            --restart-artifact-id "$RESTART_ARTIFACT_ID" \
+            --output "$output"
+
+      - name: Preserve canonical ledger and exact bounded source bytes
+        id: evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-durable-soak-ledger-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/durable-soak-ledger/
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+          compression-level: 0
+
+      - name: Summarize the derived observation window
+        env:
+          SAMPLE_COUNT: ${{ steps.ledger.outputs.sample_count }}
+          OBSERVED_SECONDS: ${{ steps.ledger.outputs.observed_seconds }}
+          TARGET_ACHIEVED: ${{ steps.ledger.outputs.target_achieved }}
+          DEPLOYMENT_COMMIT: ${{ steps.ledger.outputs.deployment_commit }}
+          LEDGER_SHA256: ${{ steps.ledger.outputs.ledger_sha256 }}
+          REST_REQUEST_COUNT: ${{ steps.ledger.outputs.rest_request_count }}
+          REST_REQUEST_CAP: ${{ steps.ledger.outputs.rest_request_cap }}
+          ARTIFACT_ID: ${{ steps.evidence.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.evidence.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Durable hourly health ledger"
+            echo
+            echo "- Authenticated deep-health samples: **${SAMPLE_COUNT}**"
+            echo "- Observed seconds: **${OBSERVED_SECONDS}**"
+            echo "- Seven-day target achieved: **${TARGET_ACHIEVED}**"
+            echo "- Exact deployment: \`${DEPLOYMENT_COMMIT}\`"
+            echo "- Canonical ledger SHA-256: \`${LEDGER_SHA256}\`"
+            echo "- GitHub REST requests: **${REST_REQUEST_COUNT}/${REST_REQUEST_CAP}**"
+            echo "- Aggregate artifact id: \`${ARTIFACT_ID}\`"
+            echo "- Aggregate artifact digest: \`${ARTIFACT_DIGEST}\`"
+            echo
+            echo "This run is only the authenticated aggregate source. Archive it with the exact restart source through the protected Archive Hosted Evidence workflow before the durable-soak gate can pass."
+          } >> "$GITHUB_STEP_SUMMARY"

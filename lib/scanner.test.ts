@@ -52,7 +52,10 @@ import {
   typeSentinelIntoFields,
   type ScanEvidenceDiagnostics
 } from "./scanner";
-import { createNodeScanMeasurementEnvelope } from "./node-scan-measurement";
+import {
+  consentBannerObserveCalibrationFact,
+  createNodeScanMeasurementEnvelope
+} from "./node-scan-measurement";
 import {
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
@@ -2869,7 +2872,7 @@ test("observe-mode consent timeout anchors detector and loss to the passive phas
 
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const { measurement: staged } = await scanSiteWithMeasurement(
+    const envelope = await scanSiteWithMeasurement(
       {
         url: "http://consent-timeout.test/",
         device: "desktop",
@@ -2889,6 +2892,7 @@ test("observe-mode consent timeout anchors detector and loss to the passive phas
       }
     );
 
+    const staged = envelope.measurement;
     const passivePhase = staged.measurement.phases.find(
       (phase) => phase.kind === "passive-load"
     );
@@ -2913,6 +2917,7 @@ test("observe-mode consent timeout anchors detector and loss to the passive phas
         detail: "consent-banner"
       }
     );
+    assert.equal(consentBannerObserveCalibrationFact(envelope), undefined);
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     await closeSharedBrowserForTests();
@@ -2962,7 +2967,7 @@ test("observe-mode verification sees a closed Usercentrics root without invoking
 
   process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
   try {
-    const { result, measurement: staged } = await scanSiteWithMeasurement(
+    const envelope = await scanSiteWithMeasurement(
       {
         url: "http://closed-consent-observe.test/",
         device: "desktop",
@@ -2978,10 +2983,72 @@ test("observe-mode verification sees a closed Usercentrics root without invoking
       }
     );
 
+    const { result, measurement: staged } = envelope;
     assert.equal(result.consentInteraction, undefined);
     assert.equal(closedRootProbeRequests, 0, "trusted geometry must bypass the element's own override");
     assert.equal(clickRequests, 0);
     assert.equal(staged?.measurement.detectors["consent-banner"].status, "complete");
+    const passivePhase = staged.measurement.phases.find(
+      (phase) => phase.kind === "passive-load"
+    );
+    assert.ok(passivePhase);
+    assert.deepEqual(consentBannerObserveCalibrationFact(envelope), {
+      detector: "consent-banner",
+      method: "banner-visibility@1",
+      phaseId: passivePhase.phaseId,
+      outcome: "complete",
+      visible: true
+    });
+  } finally {
+    delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("observe-mode verification retains a fully covered no-banner result", { timeout: 20_000 }, async () => {
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end("<!doctype html><title>No consent banner fixture</title>");
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+  try {
+    const envelope = await scanSiteWithMeasurement(
+      {
+        url: "http://no-consent-banner.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [
+          { address: "93.184.216.34", family: 4 }
+        ],
+        connectProxyUpstreamForTests: () =>
+          connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    const passivePhase = envelope.measurement.measurement.phases.find(
+      (phase) => phase.kind === "passive-load"
+    );
+    assert.ok(passivePhase);
+    assert.deepEqual(consentBannerObserveCalibrationFact(envelope), {
+      detector: "consent-banner",
+      method: "banner-visibility@1",
+      phaseId: passivePhase.phaseId,
+      outcome: "complete",
+      visible: false
+    });
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
     await closeSharedBrowserForTests();

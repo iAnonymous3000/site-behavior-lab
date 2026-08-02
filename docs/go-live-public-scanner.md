@@ -294,6 +294,13 @@ abandoned before resolution. Set `DURABLE_REPLAY_NO_POLL_MS` at or above the
 deployment-advertised lease-expiry plus scheduled-replay margin:
 
 ```bash
+DURABLE_REPLAY_RECEIPT_DIR=research/ops-receipts/durable-replay
+mkdir -p "$DURABLE_REPLAY_RECEIPT_DIR"
+LEASE_EXPIRY_RECEIPT="$DURABLE_REPLAY_RECEIPT_DIR/${DURABLE_REPLAY_EXPECTED_SHA}-lease-expiry.json"
+LOST_RESOLVE_RECEIPT="$DURABLE_REPLAY_RECEIPT_DIR/${DURABLE_REPLAY_EXPECTED_SHA}-lost-resolve.json"
+test ! -e "$LEASE_EXPIRY_RECEIPT"
+test ! -e "$LOST_RESOLVE_RECEIPT"
+
 DURABLE_REPLAY_BASE_URL=https://<gated-staging-scanner> \
 DURABLE_REPLAY_ACCESS_TOKEN=<staging-access-token> \
 DURABLE_REPLAY_TARGET_URL=https://example.com/ \
@@ -301,13 +308,17 @@ DURABLE_REPLAY_FAULT_TOKEN=<staging-fault-token> \
 DURABLE_REPLAY_FAULT_MODE=lease-expiry \
 DURABLE_REPLAY_NO_POLL_MS=600000 \
 DURABLE_REPLAY_EXPECTED_SHA="$DURABLE_REPLAY_EXPECTED_SHA" \
+DURABLE_REPLAY_ORIGIN_LABEL=durable-replay-staging \
+DURABLE_REPLAY_RECEIPT_PATH="$LEASE_EXPIRY_RECEIPT" \
 DURABLE_REPLAY_CONFIRM=I_ACKNOWLEDGE_THIS_SUBMITS_A_LIVE_SCAN \
 DURABLE_REPLAY_STAGING_CONFIRM=I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT \
 npm run test:smoke:durable-job-replay
 ```
 
 Then run the same command with `DURABLE_REPLAY_FAULT_MODE=lost-resolve`, keeping
-the same `DURABLE_REPLAY_EXPECTED_SHA`. The hook drops every successful callback
+the same `DURABLE_REPLAY_EXPECTED_SHA` and
+`DURABLE_REPLAY_ORIGIN_LABEL`, but set
+`DURABLE_REPLAY_RECEIPT_PATH="$LOST_RESOLVE_RECEIPT"`. The hook drops every successful callback
 from the exact first-generation owner after the report is committed, so a retry
 cannot bypass scheduled reconciliation. The script deliberately sends no
 status, report, or health request during the wait. Its first post-window status
@@ -320,6 +331,29 @@ staging `durable` evidence envelope, and R2 readback under the same
 admission-minted `reportId`. Lease expiry must show exactly two fenced claims
 (generation one is abandoned before Node activation); lost resolve must show
 exactly one fenced execution claim reconciled to success.
+
+Each successful canary exclusively creates one mode-`0600` JSON receipt and
+refuses an existing path rather than overwriting evidence. The receipt contains
+the exact mode/build, a bounded operator origin label plus SHA-256 of the
+staging origin, pre/post health identities and digests, timestamps, the job and
+report ids, attempt count, pre-status completion fact, and exact evidence
+references. It contains neither staging credentials nor the scanned target URL.
+Before teardown or any production secret/change, require both receipts to
+validate as one ordered pair on the exact reviewed SHA:
+
+```bash
+node scripts/validate-durable-replay-receipts.mjs \
+  "$DURABLE_REPLAY_EXPECTED_SHA" \
+  "$LEASE_EXPIRY_RECEIPT" \
+  "$LOST_RESOLVE_RECEIPT"
+```
+
+The validator requires exactly one `lease-expiry` receipt followed by exactly
+one `lost-resolve` receipt, distinct job/report ids, the same full deployment
+SHA, the same labeled origin digest, and the same exact staging health identity.
+Preserve its receipt-set digest with the two receipt files. Re-running one mode
+after a staging redeploy requires re-running both modes into new append-only
+paths; never combine receipts across builds.
 
 Before changing the production flag to `1`, record evidence that:
 
@@ -441,13 +475,13 @@ exact absence receipts complete a partial-attempt abort.
 
 After both canary receipts are captured, perform this name- and ID-pinned
 teardown. Substitute only the two exact `reportId` values printed by the
-canaries. Each R2 runtime report is a two-object bundle; an unexpected third
+canaries and recorded in the validated receipts. Each R2 runtime report is a two-object bundle; an unexpected third
 object makes bucket deletion fail closed:
 
 ```bash
 set -euo pipefail
-export LEASE_EXPIRY_REPORT_ID=<exact-lease-expiry-reportId>
-export LOST_RESOLVE_REPORT_ID=<exact-lost-resolve-reportId>
+export LEASE_EXPIRY_REPORT_ID="$(jq -er '.execution.reportId' "$LEASE_EXPIRY_RECEIPT")"
+export LOST_RESOLVE_REPORT_ID="$(jq -er '.execution.reportId' "$LOST_RESOLVE_RECEIPT")"
 export STAGING_CONTAINER_ID=<exact-ID-from-the-full-Cloudflare-Containers-dashboard>
 
 for report_id in "$LEASE_EXPIRY_REPORT_ID" "$LOST_RESOLVE_REPORT_ID"; do
@@ -550,14 +584,83 @@ must contain no fault-injection hook and must use the normal CI-gated promotion,
 canary, soak, and rollback path. This runbook does not authorize that flip or a
 deployment by itself.
 
-The soak is quantified, not advisory: SEVEN days of hourly production health
-with durable readiness `ready` is the declared target, and twenty-four hours
-is the minimum defensible fallback ONLY when the window also contains a real
+The soak is quantified, not advisory: SEVEN days (168 hours) of hourly
+production health with durable readiness `ready` is the declared target, and
+twenty-four hours is the hard minimum ONLY when the window also contains a real
 restart or redeploy proving recovery under the flag. During the soak, exercise
 normal completion, cancellation, restart recovery, completed-report recovery,
-and duplicate prevention at least once each. A shorter or quieter window is a
-deviation to record, never a silent pass; the same durations apply to the
-separate sharding and watches soaks below.
+and duplicate prevention at least once each. Below 24 hours, or a window
+missing any one of those five behaviors, is a refusal and cannot be waived.
+From 24 hours through anything shorter than 168 hours, the complete five-
+behavior window is eligible only with the explicit candidate-bound deviation
+approval below. The same durations apply to the separate sharding and watches
+soaks below.
+
+At or above 168 hours, the candidate binding must record
+`targetDeviationApproval: null`. From 24 hours through anything shorter than
+168 hours, readiness requires an explicit named-human approval bound to the
+exact candidate commit, soak deployment, authenticated ledger digest, complete
+window (including the restart instant), and the 24/168-hour policy. The
+approval must postdate both the completed window and candidate selection.
+Below 24 hours always fails and cannot be waived.
+
+Run the four non-restart exercises once while protected `main` is still the
+exact durable-enabled deployment commit:
+
+```bash
+gh workflow run durable-soak-exercises.yml \
+  --ref main \
+  -f deployment_commit=<exact-durable-enabled-40-sha>
+```
+
+The workflow refuses if `github.sha`, live health, or the committed
+`wrangler.container.jsonc` identity differs from that deployment. It mints its
+own request-bound admissions for two fixed synthetic targets and derives the
+artifact directly from live responses: one job must return the same job/report
+tuple for an exact admission replay, complete to one persisted report, and
+recover that same report from terminal status; a distinct job must cancel and
+remain cancelled on readback. There is no receipt/evidence input and no manual
+substitute. Every completed or recovered report must carry the exact deployment
+commit in its own provenance, and a second retained clean health response after
+the cancellation readback proves that production did not converge to another
+build during the exercise. The dedicated restart workflow remains the only
+accepted proof of the fifth behavior.
+
+At soak end, dispatch `durable-soak-monitor.yml` for the exact window and
+restart artifact. The durable-soak attestation must bind its recomputed
+`ledgerSha256` and exactly three
+`github-actions-run:<id>:artifact-sha256:<digest>` references in this order:
+monitor, restart, exercises. Archive that subject with the same three ordered
+source roles through `archive-hosted-evidence.yml`. Candidate and release
+verification reject an absent/extra role, an expired or unauthenticated
+artifact, a source commit other than the durable deployment, an exercise
+session outside the ledger window or Actions job, any changed deployment/config
+or behavior identity, and any archive byte or Sigstore mismatch. Commit the
+digest-addressed durable-soak archive through the append-only evidence carrier
+after selecting candidate `C`. The soak attestation itself is candidate
+resident; candidate verification requires its carrier archive to be
+digest-enumerated and set-equal to the authenticated context inventory,
+including the retained subject and every source byte. It also requires the
+monitor, restart, and exercise workflow plus every invoked
+producer/semantic-verifier source file to be byte-identical between the
+authenticated source commit and candidate `C`.
+
+After candidate `C` exists, generate the non-passing approval scaffold from
+the verified soak evidence:
+
+```bash
+npm run release:attestation-scaffold -- \
+  --gate durable-soak \
+  --target-deviation-approval \
+  --candidate-commit <exact-40-character-candidate-C>
+```
+
+The command derives every identity and duration binding and leaves the approval
+status, human name, time, and rationale as conspicuous `<required: ...>`
+placeholders. It does not approve the deviation. A reviewer must inspect that
+exact candidate and replace the placeholders deliberately; stale, unnamed,
+missing, or drifted approvals fail both candidate verification and release
+readiness.
 
 ### Post-durability container sharding
 

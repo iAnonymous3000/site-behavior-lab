@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noEmit": false,
+    "outDir": "dist/aa-study",
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": [
+    "lib/scan-api.ts",
+    "lib/url-safety.ts"
+  ],
+  "exclude": ["node_modules", ".next", ".unit-test-dist", "dist"]
+}

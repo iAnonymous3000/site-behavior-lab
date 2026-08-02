@@ -42,6 +42,21 @@ export type NodeScanMeasurement = {
   };
 };
 
+/**
+ * A process-local detector result for calibration. This value is never a
+ * member of NodeScanMeasurement or NodeScanMeasurementEnvelope: the exact
+ * envelope instance is the capability used to retrieve it from a private
+ * WeakMap, so object spread, structuredClone and JSON serialization cannot
+ * transport the fact.
+ */
+export type ConsentBannerObserveCalibrationFact = Readonly<{
+  detector: "consent-banner";
+  method: "banner-visibility@1";
+  phaseId: number;
+  outcome: "complete";
+  visible: boolean;
+}>;
+
 export type DeepReadonly<T> =
   T extends string | number | boolean | bigint | symbol | null | undefined | Function
     ? T
@@ -59,6 +74,11 @@ export type NodeScanMeasurementEnvelope = Readonly<{
   measurement: DeepReadonly<NodeScanMeasurement>;
 }>;
 
+const consentBannerObserveFacts = new WeakMap<
+  NodeScanMeasurementEnvelope,
+  ConsentBannerObserveCalibrationFact
+>();
+
 /**
  * Capture an owned snapshot of the measurement while preserving the exact v1
  * object returned by the scanner. Builders also clone before sanitizing, so
@@ -66,7 +86,8 @@ export type NodeScanMeasurementEnvelope = Readonly<{
  */
 export function createNodeScanMeasurementEnvelope(
   result: ScanResult,
-  measurement: NodeScanMeasurement
+  measurement: NodeScanMeasurement,
+  consentBannerObserve?: ConsentBannerObserveCalibrationFact
 ): NodeScanMeasurementEnvelope {
   const envelope = { result, measurement: deepFreeze(structuredClone(measurement)) };
   Object.defineProperty(envelope, "toJSON", {
@@ -77,7 +98,25 @@ export function createNodeScanMeasurementEnvelope(
       throw new Error("Node scan measurement envelopes are process-local and cannot be serialized.");
     }
   });
-  return Object.freeze(envelope);
+  const frozenEnvelope = Object.freeze(envelope);
+  if (consentBannerObserve !== undefined) {
+    consentBannerObserveFacts.set(
+      frozenEnvelope,
+      deepFreeze(structuredClone(consentBannerObserve))
+    );
+  }
+  return frozenEnvelope;
+}
+
+/**
+ * Retrieve the private fact only for the exact envelope created in this
+ * process. Cloned or spread objects are intentionally treated as untrusted and
+ * return undefined.
+ */
+export function consentBannerObserveCalibrationFact(
+  envelope: NodeScanMeasurementEnvelope
+): ConsentBannerObserveCalibrationFact | undefined {
+  return consentBannerObserveFacts.get(envelope);
 }
 
 function deepFreeze<T>(value: T, seen = new WeakSet<object>()): DeepReadonly<T> {

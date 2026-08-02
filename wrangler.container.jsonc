@@ -117,7 +117,8 @@
       // (or the exact local HEAD). The Dockerfile rejects the placeholder, so
       // a raw wrangler deploy can never publish unverifiable build provenance.
       "image_vars": {
-        "SITE_BEHAVIOR_LAB_BUILD_COMMIT": "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__"
+        "SITE_BEHAVIOR_LAB_BUILD_COMMIT": "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__",
+        "SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF": "__SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF__"
       },
       // standard-2 = 6 GiB RAM / 12 GB disk: Chromium needs ~2 GB and the
       // Playwright image (~2-3 GB) must fit the instance disk. standard-1 is the

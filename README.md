@@ -98,7 +98,13 @@ Two limits matter most for serious work, and both are deliberate:
   (keystroke-exfiltration, pixel-events, consent-banner, fingerprint-heuristics,
   cname-uncloaking, privacy-policy) has an eligible calibration study yet, so
   there are no precision/recall numbers to quote. Findings are observations to
-  verify, not measurements with known error rates.
+  verify, not measurements with known error rates. Any future published rate
+  must use the v2 study schema and is conditional on its exact structured
+  measurement arm; in particular, pixel-event sensitivity is measured only in
+  the desktop, GPC-disabled arm where accept-all registration was verified
+  again after reload, never from a requested click alone and never generalized
+  to all visits. The release-grade, role-separated producer and operator sequence are documented in
+  [docs/calibration-study-operations.md](docs/calibration-study-operations.md).
 - **The claim boundary is investigative evidence requiring independent
   corroboration.** Standalone legal determinations and sole-court-exhibit use
   are explicitly excluded, and that decision is still pending sign-off in

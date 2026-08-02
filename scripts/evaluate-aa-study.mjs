@@ -17,8 +17,18 @@ if (!dir) {
 }
 
 const preregistration = JSON.parse(readFileSync(path.join(dir, "preregistration.json"), "utf8"));
+const targetFrameText = readFileSync(
+  path.join(dir, "target-frame.json"),
+  "utf8"
+);
+const targetFrame = JSON.parse(targetFrameText);
 const ledger = JSON.parse(readFileSync(path.join(dir, "attempt-ledger.json"), "utf8"));
-const evaluation = evaluateAaStudy({ preregistration, ledger });
+const evaluation = evaluateAaStudy({
+  preregistration,
+  targetFrame,
+  targetFrameText,
+  ledger
+});
 writeFileSync(path.join(dir, "evaluation.json"), `${JSON.stringify(evaluation, null, 2)}\n`);
 
 console.log(`status: ${evaluation.status}`);

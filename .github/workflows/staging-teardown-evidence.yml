@@ -1,0 +1,77 @@
+name: Staging Teardown Evidence
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-teardown-evidence
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    name: Capture sanitized staging teardown evidence
+    if: >-
+      github.repository == 'iAnonymous3000/site-behavior-lab' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: release-evidence
+    timeout-minutes: 20
+    steps:
+      - name: Require an isolated GitHub-hosted runner
+        env:
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = "github-hosted"
+
+      - name: Check out the trusted main revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up the exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify the exact runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install the lockfile dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Compile the shared canonical evidence serializer
+        run: node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+
+      - name: Capture, sanitize, and destroy private provider responses
+        env:
+          STAGING_TEARDOWN_PROVIDER_KIND: ${{ vars.STAGING_TEARDOWN_PROVIDER_KIND || '' }}
+          STAGING_TEARDOWN_PROVIDER_API_TOKEN: ${{ secrets.STAGING_TEARDOWN_PROVIDER_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          node scripts/staging-teardown-hosted-capture.mjs \
+            --capture \
+            --output-dir "$RUNNER_TEMP/staging-teardown-safe"
+          node scripts/staging-teardown-hosted-capture.mjs \
+            --verify \
+            --directory "$RUNNER_TEMP/staging-teardown-safe"
+
+      - name: Upload only the privacy-safe receipt and manifest
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-staging-teardown-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/staging-teardown-safe/receipt.json
+            ${{ runner.temp }}/staging-teardown-safe/sanitized-provider-manifest.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+          compression-level: 0

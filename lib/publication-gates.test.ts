@@ -189,11 +189,11 @@ test("featured refresh failures publish only validated successes, stay loud, and
   assert.match(workflow, /--classify-publication/);
   assert.match(
     workflow,
-    /- name: Rebuild trusted retention and aggregate outputs[\s\S]*?npm run reports:prune[\s\S]*?npm run reports:remediate -- --check[\s\S]*?npm run reports:manifest[\s\S]*?npm run corpus:stats/
+    /- name: Apply retention policy and rebuild trusted aggregate outputs[\s\S]*?npm run reports:prune[\s\S]*?npm run reports:remediate -- --check[\s\S]*?npm run reports:manifest[\s\S]*?npm run corpus:stats/
   );
   assert.match(workflow, /- name: Verify report redaction and provenance[\s\S]*?steps\.refresh_policy\.outputs\.publishable == 'true'/);
   assert.match(workflow, /- name: Build corpus stats[\s\S]*?steps\.report_manifest\.outcome == 'success'/);
-  assert.match(workflow, /- name: Rebuild trusted retention and aggregate outputs[\s\S]*?- name: Commit static reports/);
+  assert.match(workflow, /- name: Apply retention policy and rebuild trusted aggregate outputs[\s\S]*?- name: Commit static reports/);
   assert.match(workflow, /steps\.refresh_alert\.outputs\.authoritative == 'true'/);
   assert.match(workflow, /site-behavior-lab:featured-corpus-refresh/);
   assert.match(workflow, /MANAGED_ISSUE_LABEL: site-behavior-lab-featured-refresh/);

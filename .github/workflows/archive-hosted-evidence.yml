@@ -1,0 +1,273 @@
+name: Archive Hosted Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Exact hosted-evidence profile
+        required: true
+        type: choice
+        options:
+          - controlled-publication
+          - runner-destruction
+          - durable-transition
+          - durable-soak
+          - lifecycle
+          - staging-teardown
+          - waf-ceilings
+      subject_path:
+        description: Candidate-resident JSON subject path
+        required: true
+        type: string
+      subject_commit:
+        description: Full commit containing the exact subject bytes
+        required: true
+        type: string
+      sources_json:
+        description: Exact ordered run and artifact-id selections
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: hosted-evidence-${{ inputs.profile }}-${{ inputs.subject_commit }}
+  cancel-in-progress: false
+
+jobs:
+  attest:
+    name: Collect and attest authenticated hosted evidence
+    if: >-
+      github.repository == 'iAnonymous3000/site-behavior-lab' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    outputs:
+      relative_path: ${{ steps.collect.outputs.relative_path }}
+      subject_sha256: ${{ steps.collect.outputs.subject_sha256 }}
+      context_sha256: ${{ steps.collect.outputs.context_sha256 }}
+      handoff_artifact_id: ${{ steps.handoff.outputs.artifact-id }}
+      archiver_commit: ${{ github.sha }}
+    steps:
+      - name: Require an isolated GitHub-hosted runner
+        env:
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = "github-hosted"
+
+      - name: Checkout the exact protected-main archiver
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Use the exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Install the WAF subject verifier dependency graph
+        if: inputs.profile == 'waf-ceilings'
+        run: npm ci --ignore-scripts
+
+      - name: Compile the WAF subject's canonical evidence serializer
+        if: inputs.profile == 'waf-ceilings'
+        run: node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+
+      - name: Materialize only the declared candidate subject and source plan
+        env:
+          SUBJECT_COMMIT: ${{ inputs.subject_commit }}
+          SUBJECT_PATH: ${{ inputs.subject_path }}
+          SOURCES_JSON: ${{ inputs.sources_json }}
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          [[ "$SUBJECT_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SUBJECT_PATH" =~ ^[A-Za-z0-9._/-]+$ ]]
+          [[ "$SUBJECT_PATH" != /* ]]
+          [[ "$SUBJECT_PATH" != *".."* ]]
+          git merge-base --is-ancestor "$SUBJECT_COMMIT" "$GITHUB_SHA"
+          git show "${SUBJECT_COMMIT}:${SUBJECT_PATH}" \
+            > "$RUNNER_TEMP/hosted-subject.json"
+          node -e '
+            const fs = require("node:fs");
+            const value = JSON.parse(process.env.SOURCES_JSON);
+            fs.writeFileSync(
+              `${process.env.RUNNER_TEMP}/hosted-sources.json`,
+              `${JSON.stringify(value)}\n`,
+              { flag: "wx", mode: 0o600 }
+            );
+          '
+
+      - name: Collect immutable Actions metadata and artifact bytes
+        id: collect
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          SUBJECT_COMMIT: ${{ inputs.subject_commit }}
+          SUBJECT_PATH: ${{ inputs.subject_path }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$RUNNER_TEMP/hosted-output"
+          node scripts/archive-hosted-evidence.mjs \
+            --collect \
+            --profile "${{ inputs.profile }}" \
+            --subject-file "$RUNNER_TEMP/hosted-subject.json" \
+            --subject-path "$SUBJECT_PATH" \
+            --subject-commit "$SUBJECT_COMMIT" \
+            --sources "$RUNNER_TEMP/hosted-sources.json" \
+            --output-root "$RUNNER_TEMP/hosted-output"
+
+      - name: Attest the exact canonical context
+        id: provenance
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: ${{ steps.collect.outputs.context_path }}
+
+      - name: Complete and bound the durable handoff
+        env:
+          ARCHIVE_DIRECTORY: ${{ steps.collect.outputs.directory }}
+          BUNDLE_PATH: ${{ steps.provenance.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          test -s "$BUNDLE_PATH"
+          install -m 600 "$BUNDLE_PATH" \
+            "$ARCHIVE_DIRECTORY/context.sigstore.json"
+          total_bytes=$(find "$ARCHIVE_DIRECTORY" -type f -exec stat -c '%s' {} + \
+            | awk '{ total += $1 } END { print total + 0 }')
+          test "$total_bytes" -gt 0
+          test "$total_bytes" -le 67108864
+          install -d -m 700 "$RUNNER_TEMP/hosted-handoff"
+          cp -R "$ARCHIVE_DIRECTORY/." "$RUNNER_TEMP/hosted-handoff/"
+
+      - name: Preserve exact context, bundle, source metadata, and public artifacts
+        id: handoff
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hosted-evidence-${{ inputs.profile }}-${{ steps.collect.outputs.subject_sha256 }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/hosted-handoff/
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+          compression-level: 0
+
+  propose:
+    name: Verify and propose immutable hosted evidence
+    needs: attest
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+      attestations: read
+    env:
+      PROPOSAL_BRANCH: automation/hosted-evidence-${{ inputs.profile }}-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Checkout the exact archiver carrier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.attest.outputs.archiver_commit }}
+          fetch-depth: 0
+
+      - name: Use the exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Download only the exact attested handoff
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.attest.outputs.handoff_artifact_id }}
+          path: ${{ runner.temp }}/hosted-handoff
+          digest-mismatch: error
+
+      - name: Reconstruct and verify the canonical archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELATIVE_PATH: ${{ needs.attest.outputs.relative_path }}
+          SUBJECT_SHA256: ${{ needs.attest.outputs.subject_sha256 }}
+          ARCHIVER_COMMIT: ${{ needs.attest.outputs.archiver_commit }}
+          HOSTED_PROFILE: ${{ inputs.profile }}
+          SUBJECT_PATH: ${{ inputs.subject_path }}
+          SUBJECT_COMMIT: ${{ inputs.subject_commit }}
+        run: |
+          set -euo pipefail
+          verify_root="$RUNNER_TEMP/hosted-verify"
+          verify_directory="${verify_root}/${RELATIVE_PATH}"
+          install -d -m 700 "$verify_directory"
+          cp -R "$RUNNER_TEMP/hosted-handoff/." "$verify_directory/"
+          node scripts/archive-hosted-evidence.mjs \
+            --verify \
+            --root "$verify_root" \
+            --directory "$verify_directory" \
+            --profile "$HOSTED_PROFILE" \
+            --subject-path "$SUBJECT_PATH" \
+            --subject-sha256 "$SUBJECT_SHA256" \
+            --subject-commit "$SUBJECT_COMMIT" \
+            --archiver-commit "$ARCHIVER_COMMIT"
+          test ! -e "$GITHUB_WORKSPACE/$RELATIVE_PATH"
+          install -d -m 700 "$(dirname "$GITHUB_WORKSPACE/$RELATIVE_PATH")"
+          cp -R "$verify_directory" "$GITHUB_WORKSPACE/$RELATIVE_PATH"
+          node scripts/archive-hosted-evidence.mjs \
+            --verify \
+            --root "$GITHUB_WORKSPACE" \
+            --directory "$GITHUB_WORKSPACE/$RELATIVE_PATH" \
+            --profile "$HOSTED_PROFILE" \
+            --subject-path "$SUBJECT_PATH" \
+            --subject-sha256 "$SUBJECT_SHA256" \
+            --subject-commit "$SUBJECT_COMMIT" \
+            --archiver-commit "$ARCHIVER_COMMIT"
+
+      - name: Commit and propose the exact archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELATIVE_PATH: ${{ needs.attest.outputs.relative_path }}
+        run: |
+          set -euo pipefail
+          unexpected=$(git status --porcelain=v1 --untracked-files=all \
+            | awk '{print $2}' \
+            | grep -v -E "^${RELATIVE_PATH}/" || true)
+          if [[ -n "$unexpected" ]]; then
+            echo "::error::Hosted archive changed paths outside its canonical directory."
+            printf '%s\n' "$unexpected"
+            exit 1
+          fi
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          git add -- "$RELATIVE_PATH"
+          git diff --cached --check
+          git commit -m "Archive authenticated ${{ inputs.profile }} evidence"
+          git push origin "HEAD:refs/heads/$PROPOSAL_BRANCH"
+          body="$RUNNER_TEMP/hosted-evidence-pr.md"
+          printf '%s\n' \
+            '## Authenticated hosted evidence' \
+            '' \
+            "- Profile: \`${{ inputs.profile }}\`" \
+            "- Subject: \`${{ inputs.subject_path }}\` at \`${{ inputs.subject_commit }}\`" \
+            "- Context: \`${{ needs.attest.outputs.context_sha256 }}\`" \
+            '- The archive retains exact Actions run/job/artifact metadata, public artifact bytes, required members, and the Sigstore bundle for offline recomputation.' \
+            "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
+            "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
+            '- If this generated archive conflicts with another evidence proposal, close it and rerun the archive workflow; do not hand-merge or transplant generated evidence.' \
+            > "$body"
+          gh pr create \
+            --base main \
+            --head "$PROPOSAL_BRANCH" \
+            --title "Archive authenticated ${{ inputs.profile }} evidence" \
+            --body-file "$body"
+
+      - name: Dispatch proposal CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref "$PROPOSAL_BRANCH"

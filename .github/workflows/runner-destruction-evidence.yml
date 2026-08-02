@@ -1,0 +1,108 @@
+name: Runner Destruction Evidence
+
+# The job and immutable artifact contract are release-pinned now, but capture
+# deliberately remains fail-closed until the controlled-runner VM provider is
+# selected and an exact authenticated API adapter is reviewed in-repository.
+on:
+  workflow_dispatch:
+    inputs:
+      collection_run_id:
+        description: Exact scan-featured.yml collection Actions run id
+        required: true
+        type: string
+      collection_run_attempt:
+        description: Exact collection run attempt
+        required: true
+        default: "1"
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: runner-destruction-evidence
+  cancel-in-progress: false
+
+jobs:
+  readback:
+    name: Read back provider destruction and absence
+    if: >-
+      github.repository == 'iAnonymous3000/site-behavior-lab' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: release-evidence
+    timeout-minutes: 10
+    steps:
+      - name: Check out the trusted main revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install the lockfile dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Compile the shared canonical evidence serializer
+        run: npm run build:schema
+
+      - name: Capture the exact provider readback
+        env:
+          RUNNER_DESTRUCTION_PROVIDER_KIND: ${{ vars.RUNNER_DESTRUCTION_PROVIDER_KIND || '' }}
+          RUNNER_DESTRUCTION_PROVIDER_API_URL: ${{ secrets.RUNNER_DESTRUCTION_PROVIDER_API_URL }}
+          RUNNER_DESTRUCTION_PROVIDER_API_TOKEN: ${{ secrets.RUNNER_DESTRUCTION_PROVIDER_API_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          COLLECTION_RUN_ID: ${{ inputs.collection_run_id }}
+          COLLECTION_RUN_ATTEMPT: ${{ inputs.collection_run_attempt }}
+        run: |
+          set -euo pipefail
+          mkdir -p hosted-runner-destruction-evidence
+          node scripts/run-schema-cli.mjs runner-destruction-evidence \
+            --capture \
+            --output hosted-runner-destruction-evidence/destruction-evidence.json
+
+      - name: Upload the exact provider readback
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-runner-destruction-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: hosted-runner-destruction-evidence/destruction-evidence.json
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+          include-hidden-files: false
+
+      - name: Record the immutable v3 receipt inputs
+        env:
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          readback_sha256="$(shasum -a 256 hosted-runner-destruction-evidence/destruction-evidence.json | awk '{print $1}')"
+          {
+            echo "### Controlled-runner destruction evidence"
+            echo
+            echo "- destruction workflow run: \`${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}\`"
+            echo "- destruction workflow head: \`${GITHUB_SHA}\`"
+            echo "- artifact id: \`${ARTIFACT_ID}\`"
+            echo "- artifact digest: \`${ARTIFACT_DIGEST}\`"
+            echo "- artifact URL: ${ARTIFACT_URL}"
+            echo "- readback path: \`destruction-evidence.json\`"
+            echo "- readback sha256: \`${readback_sha256}\`"
+            echo
+            echo "Create the version 3 runner receipt only after these immutable values are available."
+          } >> "$GITHUB_STEP_SUMMARY"

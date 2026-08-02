@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 
@@ -38,6 +40,11 @@ test("durable replay smoke is positively staging-gated with no production overri
   assert.match(source, /finishedBeforeStatusRequest !== true/);
   assert.match(source, /health\.deployment !== expectedDeployment/);
   assert.match(source, /readAttestedStagingHealth\("post-recovery"\)/);
+  assert.match(source, /DURABLE_REPLAY_RECEIPT_PATH/);
+  assert.match(source, /DURABLE_REPLAY_ORIGIN_LABEL/);
+  assert.match(source, /buildDurableReplayReceipt\(/);
+  assert.match(source, /flag: "wx"/);
+  assert.match(source, /mode: 0o600/);
   assert.match(source, /withHttpOperationDeadline\(/);
   assert.match(source, /timeoutMs: REQUEST_TIMEOUT_MS/);
   assert.match(source, /readResponseJsonWithinLimit\(response/);
@@ -80,6 +87,44 @@ test("durable replay smoke requires independent operator staging confirmation be
   assert.match(result.stderr, /DURABLE_REPLAY_STAGING_CONFIRM/);
 });
 
+test("durable replay smoke rejects an unreceiptable no-poll interval before health", () => {
+  const result = spawnSync(process.execPath, [SCRIPT], {
+    encoding: "utf8",
+    env: {
+      ...SAFE_BASE_ENV,
+      DURABLE_REPLAY_NO_POLL_MS: "3600001",
+      DURABLE_REPLAY_BASE_URL: "https://staging-scanner.example"
+    }
+  });
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /DURABLE_REPLAY_NO_POLL_MS must be an integer from 1 to 3600000/);
+});
+
+test("durable replay smoke requires an append-only receipt path before health", () => {
+  const directory = mkdtempSync(path.join(tmpdir(), "sbl-durable-replay-existing-"));
+  const receiptPath = path.join(directory, "receipt.json");
+  writeFileSync(receiptPath, "do-not-overwrite\n");
+  try {
+    const result = spawnSync(process.execPath, [SCRIPT], {
+      encoding: "utf8",
+      env: {
+        ...SAFE_BASE_ENV,
+        DURABLE_REPLAY_BASE_URL: "https://staging-scanner.example",
+        DURABLE_REPLAY_STAGING_CONFIRM: "I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT",
+        DURABLE_REPLAY_ORIGIN_LABEL: "test-staging",
+        DURABLE_REPLAY_RECEIPT_PATH: receiptPath
+      }
+    });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /already exists.*never overwritten/i);
+    assert.equal(readFileSync(receiptPath, "utf8"), "do-not-overwrite\n");
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test("durable replay runbook binds coordinator and secrets to staging", async () => {
   const source = await readFile(path.join(process.cwd(), "docs/go-live-public-scanner.md"), "utf8");
 
@@ -91,6 +136,9 @@ test("durable replay runbook binds coordinator and secrets to staging", async ()
   );
   assert.match(source, /staging-only key and internal token/i);
   assert.match(source, /production Durable Object namespace[\s\S]*R2 bucket/);
+  assert.match(source, /DURABLE_REPLAY_RECEIPT_PATH="\$LEASE_EXPIRY_RECEIPT"/);
+  assert.match(source, /validate-durable-replay-receipts\.mjs/);
+  assert.match(source, /same full deployment[\s\S]*same labeled origin digest/);
 });
 
 test("durable replay refuses a nonterminal first post-idle snapshot without polling again", async () => {
@@ -158,7 +206,19 @@ test("durable replay re-attests the exact staging deployment after recovery", as
 
   assert.equal(result.status, 0, result.stderr);
   assert.equal(healthReads, 2);
+  assert.ok(result.receipt);
+  assert.equal(result.receipt.mode, "lease-expiry");
+  assert.equal(result.receipt.expectedDeploymentSha, SAFE_BASE_ENV.DURABLE_REPLAY_EXPECTED_SHA);
+  assert.equal(result.receipt.execution.jobId, JOB_ID);
+  assert.equal(result.receipt.execution.reportId, REPORT_ID);
+  assert.equal(result.receipt.execution.attempts, 2);
+  assert.equal(result.receipt.execution.finishedBeforeStatusRequest, true);
+  assert.equal(result.receipt.preHealth.identitySha256, result.receipt.postHealth.identitySha256);
+  const receiptWire = JSON.stringify(result.receipt);
+  assert.doesNotMatch(receiptWire, /test-access-token|test-fault-token|https:\/\/example\.com/);
+  assert.doesNotMatch(receiptWire, /http:\/\/127\.0\.0\.1/);
   assert.match(result.stdout, /PASS lease-expiry recovered the same reportId/);
+  assert.match(result.stdout, /replay receipt.*sha256:/i);
 });
 
 test("durable replay refuses degraded staging before submitting a scan", async () => {
@@ -188,8 +248,15 @@ type CanaryHandler = (
 const JOB_ID = "20260719-11111111111111111111111111111111";
 const REPORT_ID = "20260719-22222222222222222222222222222222";
 
-async function runLocalCanary(handler: CanaryHandler): Promise<{ status: number | null; stdout: string; stderr: string }> {
+async function runLocalCanary(handler: CanaryHandler): Promise<{
+  status: number | null;
+  stdout: string;
+  stderr: string;
+  receipt?: Record<string, any>;
+}> {
   let baseUrl = "";
+  const receiptDirectory = mkdtempSync(path.join(tmpdir(), "sbl-durable-replay-"));
+  const receiptPath = path.join(receiptDirectory, "receipt.json");
   const server = createServer((request, response) => handler(request, response, baseUrl));
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   const address = server.address();
@@ -197,14 +264,16 @@ async function runLocalCanary(handler: CanaryHandler): Promise<{ status: number 
   baseUrl = `http://127.0.0.1:${address.port}`;
 
   try {
-    return await new Promise((resolve, reject) => {
+    const result = await new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
       const child = spawn(process.execPath, [SCRIPT], {
         env: {
           ...SAFE_BASE_ENV,
           DURABLE_REPLAY_BASE_URL: baseUrl,
           DURABLE_REPLAY_NO_POLL_MS: "1",
           DURABLE_REPLAY_REQUEST_TIMEOUT_MS: "2000",
-          DURABLE_REPLAY_STAGING_CONFIRM: "I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT"
+          DURABLE_REPLAY_STAGING_CONFIRM: "I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT",
+          DURABLE_REPLAY_ORIGIN_LABEL: "test-staging",
+          DURABLE_REPLAY_RECEIPT_PATH: receiptPath
         }
       });
       let stdout = "";
@@ -218,10 +287,17 @@ async function runLocalCanary(handler: CanaryHandler): Promise<{ status: number 
       child.once("error", reject);
       child.once("close", (status) => resolve({ status, stdout, stderr }));
     });
+    try {
+      return { ...result, receipt: JSON.parse(readFileSync(receiptPath, "utf8")) };
+    } catch (error) {
+      if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") return result;
+      throw error;
+    }
   } finally {
     await new Promise<void>((resolve, reject) =>
       server.close((error) => (error ? reject(error) : resolve()))
     );
+    rmSync(receiptDirectory, { recursive: true, force: true });
   }
 }
 

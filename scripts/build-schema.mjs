@@ -29,6 +29,10 @@ export const SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r1.sch
 export const R2_SCHEMA_ID = "https://sitebehavior.org/schemas/scan-report.v2.r2.schema.json";
 export const DETECTOR_CALIBRATION_SCHEMA_ID =
   "https://sitebehavior.org/schemas/detector-calibration-study.v1.schema.json";
+export const DETECTOR_CALIBRATION_V2_SCHEMA_ID =
+  "https://sitebehavior.org/schemas/detector-calibration-study.v2.schema.json";
+export const DETECTOR_CALIBRATION_V3_SCHEMA_ID =
+  "https://sitebehavior.org/schemas/detector-calibration-study.v3.schema.json";
 const REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.v2.r1.schema.json");
 const R2_REVISIONED_PATH = path.join(rootDir, "public", "schemas", "scan-report.v2.r2.schema.json");
 const DETECTOR_CALIBRATION_PATH = path.join(
@@ -36,6 +40,18 @@ const DETECTOR_CALIBRATION_PATH = path.join(
   "public",
   "schemas",
   "detector-calibration-study.v1.schema.json"
+);
+const DETECTOR_CALIBRATION_V2_PATH = path.join(
+  rootDir,
+  "public",
+  "schemas",
+  "detector-calibration-study.v2.schema.json"
+);
+const DETECTOR_CALIBRATION_V3_PATH = path.join(
+  rootDir,
+  "public",
+  "schemas",
+  "detector-calibration-study.v3.schema.json"
 );
 // The stable alias serves the current revision (r2). The immutable r1 and r2
 // files above remain independently published for exact historical reads.
@@ -61,6 +77,10 @@ export const R2_SCHEMA_SHA256 = "37775a2692dba7ef247cea6047d9da0f355d7084483fda3
 /** Published detector-calibration study v1 is immutable; incompatible changes require v2. */
 export const DETECTOR_CALIBRATION_SCHEMA_SHA256 =
   "420cb5db0992cf11a1145fef594d6aeb61dc29cc87ea521a559f1b3c3e538694";
+export const DETECTOR_CALIBRATION_V2_SCHEMA_SHA256 =
+  "bff4614bb10c983ec4222707309f184aa20ee0f26737a25f46d3ea4256b826ff";
+export const DETECTOR_CALIBRATION_V3_SCHEMA_SHA256 =
+  "abcbd56177ffcd2d609502251180806bf90b509c11720eae8a205e33d62188b3";
 
 export function generateScanReportV2Schema() {
   const schema = createGenerator({
@@ -95,6 +115,28 @@ export function generateDetectorCalibrationStudySchema() {
   return { $id: DETECTOR_CALIBRATION_SCHEMA_ID, ...schema };
 }
 
+export function generateDetectorCalibrationStudyV2Schema() {
+  const schema = createGenerator({
+    path: path.join(rootDir, "lib", "detector-calibration.ts"),
+    type: "DetectorCalibrationStudyV2",
+    skipTypeCheck: true,
+    additionalProperties: false,
+    topRef: true
+  }).createSchema("DetectorCalibrationStudyV2");
+  return { $id: DETECTOR_CALIBRATION_V2_SCHEMA_ID, ...schema };
+}
+
+export function generateDetectorCalibrationStudyV3Schema() {
+  const schema = createGenerator({
+    path: path.join(rootDir, "lib", "detector-calibration.ts"),
+    type: "DetectorCalibrationStudyV3",
+    skipTypeCheck: true,
+    additionalProperties: false,
+    topRef: true
+  }).createSchema("DetectorCalibrationStudyV3");
+  return { $id: DETECTOR_CALIBRATION_V3_SCHEMA_ID, ...schema };
+}
+
 function main() {
   // Atomicity: verify the freeze BEFORE any other side effect (including the
   // validator-artifact compile), so a rejected mutation leaves nothing behind.
@@ -104,6 +146,14 @@ function main() {
   const r2Serialized = `${JSON.stringify(r2Schema, null, 2)}\n`;
   const detectorCalibrationSchema = generateDetectorCalibrationStudySchema();
   const detectorCalibrationSerialized = `${JSON.stringify(detectorCalibrationSchema, null, 2)}\n`;
+  const detectorCalibrationV2Schema =
+    generateDetectorCalibrationStudyV2Schema();
+  const detectorCalibrationV2Serialized =
+    `${JSON.stringify(detectorCalibrationV2Schema, null, 2)}\n`;
+  const detectorCalibrationV3Schema =
+    generateDetectorCalibrationStudyV3Schema();
+  const detectorCalibrationV3Serialized =
+    `${JSON.stringify(detectorCalibrationV3Schema, null, 2)}\n`;
   const digest = createHash("sha256").update(serialized).digest("hex");
   if (digest !== R1_SCHEMA_SHA256) {
     console.error(
@@ -133,6 +183,32 @@ function main() {
     );
     process.exit(1);
   }
+  const detectorCalibrationV2Digest = createHash("sha256")
+    .update(detectorCalibrationV2Serialized)
+    .digest("hex");
+  if (
+    detectorCalibrationV2Digest !==
+    DETECTOR_CALIBRATION_V2_SCHEMA_SHA256
+  ) {
+    console.error(
+      `FATAL: generated detector-calibration v2 schema hash ${detectorCalibrationV2Digest} does not match the frozen ` +
+        `${DETECTOR_CALIBRATION_V2_SCHEMA_SHA256}. The release-grade v2 shape is immutable after publication.`
+    );
+    process.exit(1);
+  }
+  const detectorCalibrationV3Digest = createHash("sha256")
+    .update(detectorCalibrationV3Serialized)
+    .digest("hex");
+  if (
+    detectorCalibrationV3Digest !==
+    DETECTOR_CALIBRATION_V3_SCHEMA_SHA256
+  ) {
+    console.error(
+      `FATAL: generated detector-calibration v3 schema hash ${detectorCalibrationV3Digest} does not match the pinned ` +
+        `${DETECTOR_CALIBRATION_V3_SCHEMA_SHA256}. New v3 drift requires an explicit schema revision.`
+    );
+    process.exit(1);
+  }
 
   execFileSync(process.execPath, [path.join(rootDir, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.schema.json"], {
     cwd: rootDir,
@@ -143,12 +219,22 @@ function main() {
   writeFileSync(REVISIONED_PATH, serialized);
   writeFileSync(R2_REVISIONED_PATH, r2Serialized);
   writeFileSync(DETECTOR_CALIBRATION_PATH, detectorCalibrationSerialized);
+  writeFileSync(
+    DETECTOR_CALIBRATION_V2_PATH,
+    detectorCalibrationV2Serialized
+  );
+  writeFileSync(
+    DETECTOR_CALIBRATION_V3_PATH,
+    detectorCalibrationV3Serialized
+  );
   // Dual-read migration is complete: the stable alias now serves r2. This
   // does not mutate either revisioned file or rewrite historical reports.
   writeFileSync(ALIAS_PATH, r2Serialized);
   console.log(
     `Schemas written: ${path.relative(rootDir, REVISIONED_PATH)}, ${path.relative(rootDir, R2_REVISIONED_PATH)}, ` +
-      `${path.relative(rootDir, DETECTOR_CALIBRATION_PATH)} (+ stable alias on r2), validator artifact in dist/schema/.`
+      `${path.relative(rootDir, DETECTOR_CALIBRATION_PATH)}, ${path.relative(rootDir, DETECTOR_CALIBRATION_V2_PATH)}, ` +
+      `${path.relative(rootDir, DETECTOR_CALIBRATION_V3_PATH)} ` +
+      `(+ stable alias on r2), validator artifact in dist/schema/.`
   );
 }
 

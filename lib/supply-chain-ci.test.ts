@@ -23,7 +23,7 @@ test("supply-chain CI uses a read-only job and blocks production promotion", () 
   assert.match(promoteJob, /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke\n\s+- attest/);
 });
 
-test("provenance attestation is isolated, immutable, and limited to exact evidence manifests", () => {
+test("provenance attestation is isolated, immutable, and limited to exact evidence subjects", () => {
   assert.notEqual(attestStart, -1);
   assert.ok(dockerStart < attestStart && attestStart < promoteStart);
   assert.match(
@@ -49,10 +49,16 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.match(attestJob, /name: exact-sha-static-evidence-\$\{\{ github\.sha \}\}/);
   assert.match(attestJob, /name: exact-sha-container-evidence-\$\{\{ github\.sha \}\}/);
   assert.match(attestJob, /receipt\?\.source\?\.commit !== process\.env\.GITHUB_SHA/);
+  assert.match(attestJob, /CONTAINER_PACKAGE_INVENTORY_PATH:/);
+  assert.match(attestJob, /site-behavior-lab-container-package-inventory\.json/);
+  assert.match(attestJob, /inventory\?\.source\?\.commit !== process\.env\.GITHUB_SHA/);
+  assert.match(attestJob, /inventory\?\.image\?\.id !== image\.imageId/);
+  assert.match(attestJob, /inventory\.packageSetDigest !== sha256\(JSON\.stringify\(inventory\.packages\)\)/);
+  assert.match(attestJob, /Container package inventory is not canonical JSON/);
 
   assert.equal(
     (attestJob.match(/actions\/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4\.2\.0/g) ?? []).length,
-    2
+    3
   );
   assert.match(
     attestJob,
@@ -62,10 +68,17 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
     attestJob,
     /subject-path: \$\{\{ runner\.temp \}\}\/site-behavior-lab-attestation-subjects\/container\/site-behavior-lab-container-release-evidence\.json/
   );
+  assert.match(
+    attestJob,
+    /subject-path: \$\{\{ runner\.temp \}\}\/site-behavior-lab-attestation-subjects\/container\/site-behavior-lab-container-package-inventory\.json/
+  );
   assert.doesNotMatch(attestJob, /subject-path:[^\n]*(?:out|site-behavior-lab:smoke|Cloudflare)/);
 
   assert.match(attestJob, /steps\.attest_static\.outputs\.bundle-path/);
   assert.match(attestJob, /steps\.attest_container\.outputs\.bundle-path/);
+  assert.match(attestJob, /steps\.attest_container_packages\.outputs\.bundle-path/);
+  assert.match(attestJob, /container-package-inventory\.bundle\.json/);
+  assert.match(attestJob, /containerPackageInventory:/);
   assert.match(attestJob, /attestation-results\.json/);
   assert.match(
     attestJob,
@@ -190,40 +203,142 @@ test("all machine-readable reports upload on failure before outcomes are enforce
   assert.match(steps, /exit "\$failed"/);
 });
 
-test("the smoke-tested container image has its own fresh blocking Trivy gate", () => {
+test("the smoke-tested container image keeps its fresh blocking vulnerability gate", () => {
   const smoke = dockerJob.indexOf("npm run test:smoke:docker");
-  const scan = dockerJob.indexOf("- name: Scan smoke-tested container image with Trivy");
+  const scanStart = dockerJob.indexOf("- name: Scan smoke-tested container image with Trivy");
+  const scanEnd = dockerJob.indexOf("- name: Validate Trivy container machine-readable report", scanStart);
+  const scan = dockerJob.slice(scanStart, scanEnd);
+  const reportStart = scanEnd;
+  const reportEnd = dockerJob.indexOf(
+    "- name: Inventory smoke-tested container OS-package licenses with Trivy",
+    reportStart
+  );
+  const report = dockerJob.slice(reportStart, reportEnd);
   const evidence = dockerJob.indexOf("- name: Record exact-SHA container build evidence");
-  assert.ok(smoke < scan && scan < evidence);
+  assert.ok(smoke < scanStart && scanStart < evidence);
 
-  assert.match(dockerJob, /id: trivy_image_scan\n\s+continue-on-error: true/);
+  assert.match(scan, /id: trivy_image_scan\n\s+continue-on-error: true/);
   assert.match(
-    dockerJob,
+    scan,
     /uses: aquasecurity\/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0\.36\.0/
   );
-  assert.match(dockerJob, /version: v0\.70\.0/);
-  assert.match(dockerJob, /scan-type: image/);
-  assert.match(dockerJob, /image-ref: site-behavior-lab:smoke/);
-  assert.match(dockerJob, /scanners: vuln/);
-  assert.match(dockerJob, /format: json/);
-  assert.match(dockerJob, /trivy-container-image\.json/);
-  assert.match(dockerJob, /exit-code: "1"/);
-  assert.match(dockerJob, /severity: HIGH,CRITICAL/);
-  assert.match(dockerJob, /ignore-unfixed: "false"/);
-  assert.match(dockerJob, /cache: "false"/);
-  assert.match(dockerJob, /cache-dir: \$\{\{ runner\.temp \}\}\/trivy-cache/);
+  assert.match(scan, /version: v0\.70\.0/);
+  assert.match(scan, /scan-type: image/);
+  assert.match(scan, /image-ref: site-behavior-lab:smoke/);
+  assert.match(scan, /scanners: vuln/);
+  assert.match(scan, /format: json/);
+  assert.match(scan, /output: \$\{\{ runner\.temp \}\}\/trivy-container-image\.json/);
+  assert.match(scan, /exit-code: "1"/);
+  assert.match(scan, /severity: HIGH,CRITICAL/);
+  assert.match(scan, /ignore-unfixed: "false"/);
+  assert.match(scan, /cache: "false"/);
+  assert.match(scan, /cache-dir: \$\{\{ runner\.temp \}\}\/trivy-cache/);
   assert.match(dockerJob, /Both[\s\S]*fixed and unfixed HIGH\/CRITICAL findings are blocking/);
-  assert.match(dockerJob, /id: trivy_image_report\n\s+if: always\(\)\n\s+continue-on-error: true/);
+  assert.match(report, /id: trivy_image_report\n\s+if: always\(\)\n\s+continue-on-error: true/);
+});
+
+test("exact-image OS licenses are normalized, review-bound, preserved, and independently attested", () => {
+  const licenseStart = dockerJob.indexOf(
+    "- name: Inventory smoke-tested container OS-package licenses with Trivy"
+  );
+  const licenseEnd = dockerJob.indexOf(
+    "- name: Validate Trivy container license inventory report",
+    licenseStart
+  );
+  const licenseScan = dockerJob.slice(licenseStart, licenseEnd);
+  const licenseReportEnd = dockerJob.indexOf(
+    "- name: Record exact-SHA container build evidence",
+    licenseEnd
+  );
+  const licenseReport = dockerJob.slice(licenseEnd, licenseReportEnd);
+  const evidence = dockerJob.indexOf("- name: Record exact-SHA container build evidence");
+  const normalize = dockerJob.indexOf("- name: Normalize exact-image OS-package license inventory");
+  const review = dockerJob.indexOf("- name: Verify exact-image package review coverage");
+  const evidenceUpload = dockerJob.indexOf("- name: Preserve exact-SHA container build evidence");
+  const rawUpload = dockerJob.indexOf("- name: Preserve raw container security reports");
+  const enforce = dockerJob.indexOf("- name: Enforce container security and package-evidence gates");
+
+  assert.ok(
+    licenseStart < evidence &&
+      evidence < normalize &&
+      normalize < review &&
+      review < evidenceUpload &&
+      evidenceUpload < rawUpload &&
+      rawUpload < enforce
+  );
+  assert.equal(
+    (
+      dockerJob.match(
+        /uses: aquasecurity\/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0\.36\.0/g
+      ) ?? []
+    ).length,
+    2
+  );
+  assert.match(licenseScan, /id: trivy_image_license_scan\n\s+continue-on-error: true/);
+  assert.match(licenseScan, /version: v0\.70\.0/);
+  assert.match(licenseScan, /scan-type: image/);
+  assert.match(licenseScan, /image-ref: site-behavior-lab:smoke/);
+  assert.match(licenseScan, /scanners: license/);
+  assert.match(licenseScan, /vuln-type: os/);
+  assert.match(licenseScan, /list-all-pkgs: "true"/);
+  assert.match(licenseScan, /format: json/);
+  assert.match(
+    licenseScan,
+    /output: \$\{\{ runner\.temp \}\}\/trivy-container-image-licenses\.json/
+  );
+  assert.match(licenseScan, /exit-code: "0"/);
+  assert.match(licenseScan, /severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL/);
+  assert.match(licenseScan, /cache: "false"/);
+  assert.match(
+    licenseScan,
+    /cache-dir: \$\{\{ runner\.temp \}\}\/trivy-license-cache/
+  );
+  assert.match(
+    licenseReport,
+    /id: trivy_image_license_report\n\s+if: always\(\)\n\s+continue-on-error: true/
+  );
+  assert.match(
+    dockerJob,
+    /npm run supply-chain:container-inventory --[\s\S]*--trivy-report "\$RUNNER_TEMP\/trivy-container-image-licenses\.json"[\s\S]*--container-evidence "\$RUNNER_TEMP\/site-behavior-lab-container-release-evidence\.json"[\s\S]*--source-commit "\$GITHUB_SHA"[\s\S]*--output "\$RUNNER_TEMP\/site-behavior-lab-container-package-inventory\.json"/
+  );
+  assert.match(
+    dockerJob,
+    /npm run supply-chain:container-reviews:check --[\s\S]*--inventory "\$RUNNER_TEMP\/site-behavior-lab-container-package-inventory\.json"/
+  );
+  assert.match(
+    dockerJob,
+    /name: exact-sha-container-evidence-\$\{\{ github\.sha \}\}[\s\S]*site-behavior-lab-container-release-evidence\.json[\s\S]*site-behavior-lab-container-package-inventory\.json/
+  );
+  assert.match(
+    dockerJob,
+    /name: container-security-\$\{\{ github\.sha \}\}[\s\S]*trivy-container-image\.json[\s\S]*trivy-container-image-licenses\.json/
+  );
   assert.match(dockerJob, /id: trivy_image_report_upload\n\s+if: always\(\)/);
   assert.match(
     dockerJob,
     /uses: actions\/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7\.0\.1/
   );
   assert.match(dockerJob, /if-no-files-found: error/);
-  assert.match(dockerJob, /- name: Enforce container vulnerability gate\n\s+if: always\(\)/);
-  for (const outcome of ["TRIVY_IMAGE_SCAN_OUTCOME", "TRIVY_IMAGE_REPORT_OUTCOME", "TRIVY_IMAGE_UPLOAD_OUTCOME"]) {
-    assert.match(dockerJob, new RegExp(`${outcome}: \\$\\{\\{ steps\\.`));
-    assert.match(dockerJob, new RegExp(`\\$${outcome}`));
+  assert.match(
+    dockerJob,
+    /- name: Enforce container security and package-evidence gates\n\s+if: always\(\)/
+  );
+  const outcomes = {
+    TRIVY_IMAGE_SCAN_OUTCOME: "trivy_image_scan",
+    TRIVY_IMAGE_REPORT_OUTCOME: "trivy_image_report",
+    TRIVY_IMAGE_LICENSE_SCAN_OUTCOME: "trivy_image_license_scan",
+    TRIVY_IMAGE_LICENSE_REPORT_OUTCOME: "trivy_image_license_report",
+    CONTAINER_PACKAGE_INVENTORY_OUTCOME: "container_package_inventory",
+    CONTAINER_PACKAGE_REVIEWS_OUTCOME: "container_package_reviews",
+    CONTAINER_EVIDENCE_UPLOAD_OUTCOME: "container_evidence_upload",
+    TRIVY_IMAGE_UPLOAD_OUTCOME: "trivy_image_report_upload"
+  };
+  for (const [variable, step] of Object.entries(outcomes)) {
+    assert.match(
+      dockerJob,
+      new RegExp(`${variable}: \\\$\\{\\{ steps\\.${step}\\.outcome \\}\\}`)
+    );
+    assert.match(dockerJob, new RegExp(`\\$${variable}`));
   }
 });
 

@@ -1,5 +1,13 @@
 name: Production Health
 
+run-name: >-
+  ${{ github.event_name == 'schedule' &&
+  github.event.schedule == '7 * * * *' &&
+  'production-health/deep-hourly-v1' ||
+  github.event_name == 'schedule' &&
+  'production-health/shallow-quarter-hour-v1' ||
+  'production-health/manual-or-dispatch-v1' }}
+
 on:
   schedule:
     # GitHub schedule delivery is best-effort, not a 15-minute SLA. These still
@@ -38,6 +46,17 @@ jobs:
     # headroom instead of letting the job-level timeout race the canary.
     timeout-minutes: 12
     steps:
+      # The Actions workflow-runs API does not expose which cron expression
+      # delivered a scheduled run. Keep this marker first so the governed soak
+      # ledger can distinguish the hourly deep lane from the three shallow
+      # posture lanes using the authenticated Jobs API, including failed deep
+      # attempts. A skipped marker identifies a non-deep lane.
+      - name: Mark hourly deep-health sample
+        if: github.event_name == 'schedule' && github.event.schedule == '7 * * * *'
+        run: |
+          set -euo pipefail
+          echo "Hourly deep-health sample delivered."
+
       - name: Resolve expected production revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -432,6 +451,21 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary}\n`);
           console.log(`Production scanner is healthy at ${health.timestamp}.`);
           NODE
+
+      - name: Preserve exact production-health evidence
+        if: steps.posture.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-production-health-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/production-health.json
+            ${{ runner.temp }}/production-pages-deployment.json
+            ${{ runner.temp }}/production-public-ingress.json
+            ${{ runner.temp }}/production-scan-report-schema.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+          compression-level: 0
 
       - name: Resolve synthetic-monitor activation
         id: synthetic_monitor

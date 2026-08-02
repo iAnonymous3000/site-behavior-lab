@@ -420,6 +420,12 @@ repository dispatch; GitHub cron delivery can be delayed.
 Keep these as four separate operator receipts; neither `/api/health` nor the
 active scan/write/read/render synthetic can attest them:
 
+Use the create-only canonical producers in
+[`operator-evidence-capture.md`](operator-evidence-capture.md) for the WAF,
+log-retention, egress, staging-teardown, and exact-image licensing evidence.
+The later human release attestations bind their digests; they do not replace
+the underlying receipts.
+
 1. Verify that the Cloudflare WAF ceiling covers both `POST /api/scan` and
    `GET /api/scan/admission`, sits above each stricter in-app quota, and has a
    bounded proof that it rejects traffic at the intended boundary.
@@ -549,13 +555,29 @@ it back before release. Never shorten it to the application TTL, because the
 platform rule must not race the app's provenance-aware bundle deletion.
 
 The readback is scripted: `node scripts/r2-lifecycle-readback.mjs
-[receipt.json]` (with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` set)
+[new-receipt.json]` (with `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID` set)
 reads the bucket's rules through the API and fails unless exactly one enabled
 `reports/` deletion backstop exists at eight days or later, with no second
-rule racing it (the observed 7-day/8-day conflict is exactly what it
-detects). Production health only sees the app-level TTL through
+rule whose ancestor, child, exact, or bucket-wide scope intersects it. The
+command enforces a whole-operation network deadline, refuses redirects, and
+publishes only to a new symlink-safe path. Its version-2 receipt embeds the
+bounded exact provider response bytes and re-derives the rules, verdict, and
+receipt digest from those bytes. The observed 7-day/8-day conflict is exactly
+what it detects. Production health only sees the app-level TTL through
 `/api/health`, so run the readback and keep its receipt whenever lifecycle
 rules are touched and as part of the release evidence.
+
+For release provenance, do not run the local command and then submit its hash
+to Actions. Create the protected `release-evidence` environment, configure its
+`CLOUDFLARE_ACCOUNT_ID` variable and scoped read-only
+`CLOUDFLARE_R2_LIFECYCLE_READ_TOKEN` secret, then dispatch
+`.github/workflows/r2-lifecycle-evidence.yml` from `main`. Its fixed
+GitHub-hosted job calls the API producer directly and uploads exactly
+`receipt.json` as
+`site-behavior-r2-lifecycle-evidence-<run-id>-<run-attempt>`. The hosted
+provenance archive must authenticate that exact run, job, artifact digest, and
+receipt before the lifecycle gate can pass.
 
 For rollback or teardown, disable the required contract before removing either
 half of its configuration, then remove the GitHub URL/token and delete only the

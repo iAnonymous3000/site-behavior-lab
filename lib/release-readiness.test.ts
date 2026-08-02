@@ -1,10 +1,17 @@
 import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { corpusCohortIdentityForView } from "./corpus-cohort";
+import {
+  makePublicSingleReportV2R2,
+  makeSupportingPairInterventionReportV2R2
+} from "./scan-report-v2-r2-fixtures";
+import { toReportView } from "./scan-report-view";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ScriptExports = Record<string, (...args: any[]) => any>;
@@ -16,8 +23,20 @@ function script(name: string) {
   return nativeImport(pathToFileURL(path.join(process.cwd(), "scripts", name)).href);
 }
 
+function testGit(root: string, args: string[], env: Record<string, string> = {}) {
+  return execFileSync("git", args, {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, ...env },
+    stdio: ["ignore", "pipe", "pipe"]
+  }).trim();
+}
+
 const EXPECTED_GATES: Record<string, string> = {
   "decisions-approved": "decisions",
+  "release-tag-governance": "release-tag-governance",
+  "measurement-candidate-binding": "measurement-candidate-binding",
+  "measurement-freeze": "measurement-freeze",
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "current-method-corpus": "corpus",
@@ -25,14 +44,15 @@ const EXPECTED_GATES: Record<string, string> = {
   "detector-calibration": "calibration",
   "legal-review": "review-ledger",
   "runner-cycles": "runner-receipts",
+  "controlled-publications": "controlled-publications",
   "r2-lifecycle": "lifecycle-receipt",
   "release-receipt-archive": "receipt-archive",
-  "durable-soak": "operator-attestation",
+  "durable-soak": "durable-soak",
   "egress-backstop": "operator-attestation",
   "waf-ceilings": "operator-attestation",
   "log-retention": "operator-attestation",
-  "staging-teardown": "operator-attestation",
-  "container-image-licensing": "operator-attestation"
+  "container-image-licensing": "operator-attestation",
+  "container-package-review": "container-package-review"
 };
 const EXPECTED_DECISIONS = [
   "claimBoundary",
@@ -70,8 +90,7 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   const automationLanded = new Set(["release-receipt-archive", "current-method-corpus"]);
   // Hand-committed evidence that has actually landed. Every flip moves here.
   const evidenced = new Set([
-    "compatibility-surface-pinned",
-    "r2-lifecycle" // wrangler-sourced readback receipt, 2026-07-31
+    "compatibility-surface-pinned"
   ]);
   for (const [id, kind] of Object.entries(EXPECTED_GATES)) {
     const gate = gates.get(id) as { kind: string; status: string };
@@ -79,16 +98,143 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
     if (automationLanded.has(id)) continue;
     assert.equal(gate.status, evidenced.has(id) ? "pass" : "fail", `${id} status`);
   }
+  const releaseGovernance = gates.get("release-tag-governance") as {
+    reasons: string[];
+  };
+  assert.equal(
+    releaseGovernance.reasons.some((reason) =>
+      /release-tag-governance\.json does not exist/.test(reason)
+    ),
+    true
+  );
+  assert.equal(
+    releaseGovernance.reasons.some((reason) =>
+      /deprecated promotion App-id fallback/.test(reason)
+    ),
+    true
+  );
 
   // Pin the governed decision set: deleting a decision must stay visible.
   const { readFileSync } = await import("node:fs");
   const manifest = JSON.parse(
     readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
   );
+  assert.equal(
+    manifest.gates["release-tag-governance"].maxAgeDays,
+    1,
+    "release governance secret-scope capture must expire after one day"
+  );
   assert.deepEqual(Object.keys(manifest.decisions).sort(), [...EXPECTED_DECISIONS].sort());
   assert.deepEqual(
     [...manifest.gates["decisions-approved"].requiredDecisions].sort(),
     [...EXPECTED_DECISIONS].sort()
+  );
+  assert.equal(
+    manifest.gates["measurement-candidate-binding"].requiredEvidenceCategories.includes(
+      "operator-evidence"
+    ),
+    true
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      [
+        "egress-backstop",
+        "waf-ceilings",
+        "log-retention",
+        "container-image-licensing"
+      ].map((id) => [id, manifest.gates[id].evidence])
+    ),
+    {
+      "egress-backstop": "research/ops-evidence/egress-backstop.json",
+      "waf-ceilings": "research/ops-evidence/waf-ceilings.json",
+      "log-retention": "research/ops-evidence/log-retention.json",
+      "container-image-licensing":
+        "research/ops-evidence/container-image-licensing.json"
+    }
+  );
+  assert.equal(
+    Object.hasOwn(
+      manifest.decisions.calibrationCensoringPolicy,
+      "recommended"
+    ),
+    false
+  );
+  assert.match(
+    manifest.decisions.calibrationCensoringPolicy.methodologicalAssessment,
+    /not a recommendation to approve or use it/
+  );
+  assert.match(
+    manifest.notice,
+    /release workflow for exact 1\.0\.0 and 1\.0\.0-rc\.N/
+  );
+  assert.doesNotMatch(manifest.notice, /advisory|until then/i);
+});
+
+test("release readiness CLI requires the trusted freeze context and digest together", () => {
+  const cli = path.join(process.cwd(), "scripts", "release-readiness.mjs");
+  for (const args of [
+    ["--report", "--live-artifact-context", "/tmp/freeze-context"],
+    [
+      "--report",
+      "--live-artifact-context",
+      "/tmp/freeze-context",
+      "--live-artifact-context-sha256",
+      "not-a-digest"
+    ]
+  ]) {
+    const result = spawnSync(process.execPath, [cli, ...args], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Usage:/);
+  }
+});
+
+test("release readiness propagates an explicit trusted freeze context into candidate verification", async () => {
+  const { measurementCandidateBindingVerificationOptions } = await script(
+    "release-readiness-lib.mjs"
+  );
+  const source = readFileSync(
+    path.join(process.cwd(), "scripts", "release-readiness-lib.mjs"),
+    "utf8"
+  );
+  const directory = path.resolve(
+    tmpdir(),
+    "site-behavior-lab-freeze-artifact-context"
+  );
+  const sha256 = "a".repeat(64);
+  assert.deepEqual(
+    measurementCandidateBindingVerificationOptions({
+      liveArtifactContext: directory,
+      liveArtifactContextSha256: sha256
+    }),
+    {
+      freezeArtifactContext: {
+        directory,
+        sha256
+      }
+    }
+  );
+  assert.deepEqual(measurementCandidateBindingVerificationOptions({}), {});
+  assert.throws(
+    () =>
+      measurementCandidateBindingVerificationOptions({
+        liveArtifactContext: directory
+      }),
+    /must be supplied together/
+  );
+  assert.throws(
+    () =>
+      measurementCandidateBindingVerificationOptions({
+        liveArtifactContext: "relative/context",
+        liveArtifactContextSha256: sha256
+      }),
+    /absolute path/
+  );
+  assert.match(
+    source,
+    /bindingModule\.verifiedMeasurementCandidateBinding\(\s*rootDir,\s*measurementCandidateBindingVerificationOptions\(options\)\s*\)/
   );
 });
 
@@ -101,32 +247,135 @@ function approvedDecision(extra: Record<string, unknown> = {}) {
   };
 }
 
+function errataDispositionDigest(gate: Record<string, unknown>) {
+  return createHash("sha256")
+    .update(
+      JSON.stringify({
+        requiredErrata: gate.requiredErrata,
+        resolution: gate.resolution,
+        document: gate.document,
+        sha256: gate.sha256,
+        resolvedBy: gate.resolvedBy,
+        requiredSelection: gate.requiredSelection
+      })
+    )
+    .digest("hex");
+}
+
+const SYNTHETIC_ATTESTATION_CONTRACTS: Record<
+  string,
+  {
+    requiredClaims: { id: string; claim: string }[];
+    requiredBindings: string[];
+    minimumEvidenceHours?: number;
+  }
+> = {
+  "durable-soak": {
+    requiredClaims: [
+      { id: "replay-passed", claim: "Both replay modes passed." },
+      { id: "restart-observed", claim: "A real restart recovered queued work." }
+    ],
+    requiredBindings: ["candidateCommit", "deploymentDigest"],
+    minimumEvidenceHours: 24
+  },
+  "egress-backstop": {
+    requiredClaims: [
+      { id: "independent-boundary", claim: "An independent boundary blocked forbidden destinations." }
+    ],
+    requiredBindings: ["candidateCommit", "networkPolicyDigest"]
+  }
+};
+
 function attestation(gateId: string, attestedAt = "2026-08-09T00:00:00.000Z") {
+  const contract = SYNTHETIC_ATTESTATION_CONTRACTS[gateId] ?? SYNTHETIC_ATTESTATION_CONTRACTS["egress-backstop"];
+  const bindings = Object.fromEntries(
+    contract.requiredBindings.map((name) => [
+      name,
+      name.endsWith("Commit") ? "a".repeat(40) : name.endsWith("Digest") ? "b".repeat(64) : "subject"
+    ])
+  );
   return {
     kind: "site-behavior-operator-attestation",
     gateId,
     targetRelease: "1.0.0",
     attestedBy: "iAnonymous3000",
     attestedAt,
-    statements: [{ claim: `${gateId} evidence captured for this candidate`, true: true }],
-    evidenceRefs: [`actions-run-${gateId}`]
+    evidenceCapturedAt: "2026-08-09T00:00:00.000Z",
+    bindings,
+    statements: contract.requiredClaims.map((entry) => ({
+      claimId: entry.id,
+      claim: entry.claim,
+      true: true
+    })),
+    evidenceRefs: [`actions-run-${gateId}`],
+    ...(contract.minimumEvidenceHours
+      ? {
+          evidenceWindow: {
+            startedAt: "2026-08-08T00:00:00.000Z",
+            restartObservedAt: "2026-08-08T12:00:00.000Z",
+            endedAt: "2026-08-09T00:00:00.000Z"
+          }
+        }
+      : {})
   };
 }
 
 function runnerReceipt(actionsRunId: number) {
+  const day = actionsRunId === 1 ? "2026-08-03" : "2026-08-10";
+  const jobId = 1_000 + actionsRunId;
+  const artifactId = 2_000 + actionsRunId;
+  const destructionRunId = 10_000 + actionsRunId;
+  const destructionJobId = 11_000 + actionsRunId;
+  const destructionArtifactId = 12_000 + actionsRunId;
+  const destructionArtifactSha = (
+    actionsRunId === 1 ? "e" : "f"
+  ).repeat(64);
+  const destructionReadbackSha = (
+    actionsRunId === 1 ? "c" : "d"
+  ).repeat(64);
   return {
     kind: "site-behavior-controlled-runner-destruction-receipt",
-    receiptVersion: 1,
+    receiptVersion: 3,
     actionsRunId,
     actionsRunAttempt: 1,
     workflow: "scan-featured.yml",
-    runnerLabel: "sbl-controlled-r2",
-    recordedAt: "2026-08-03T08:00:00.000Z",
+    runnerLabelRef:
+      "sha256:6786aaad2225cf8b2d9659dc71941110c1db9ff797ed417e6aaf6da85215f609",
+    recordedAt: `${day}T08:00:00.000Z`,
     provisioning: {
-      provisionedAt: "2026-08-03T05:00:00.000Z",
-      hostImageIdentity: "ami-1",
+      provisionedAt: `${day}T05:00:00.000Z`,
+      hostImageIdentityRef:
+        "sha256:d5a94e7f8eb5e312a18d3d31491990da4e7e55b9687bb35d4cf76a4f74636e40",
       singleUse: true,
-      registration: { repository: "o/r", labels: ["sbl-controlled-r2"], ephemeral: true }
+      registration: {
+        repository: "iAnonymous3000/site-behavior-lab",
+        labelRefs: [
+          "sha256:6786aaad2225cf8b2d9659dc71941110c1db9ff797ed417e6aaf6da85215f609",
+          "sha256:837bb135955dd22e9d056991fba31bccf91761ffbc07d2bc6c03003ad906ad32"
+        ],
+        ephemeral: true
+      }
+    },
+    runEvidence: {
+      conclusion: "success",
+      reportMode: "r2",
+      acquisition: "ci-workflow",
+      headSha: "a".repeat(40),
+      catalog: "public/featured-sites.json",
+      collectionDate: day,
+      job: {
+        id: jobId,
+        name: "Populate Featured Gallery",
+        startedAt: `${day}T05:23:00.000Z`,
+        completedAt: `${day}T07:40:00.000Z`,
+        url: `https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/${actionsRunId}/job/${jobId}`
+      },
+      artifact: {
+        id: artifactId,
+        name: `site-behavior-featured-publication-${actionsRunId}-1`,
+        sha256: "b".repeat(64),
+        url: `https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/${actionsRunId}/artifacts/${artifactId}`
+      }
     },
     isolation: {
       cloudMetadataBlocked: true,
@@ -135,31 +384,91 @@ function runnerReceipt(actionsRunId: number) {
     },
     egress: {
       declaredRegion: "us-east",
-      natIdentity: "nat-1",
+      natIdentityRef:
+        "sha256:48aedb89df46ba5c745fd8eb856443eca6cdc963e622d471b322ad8803f47268",
       independentPolicyEnforced: true,
       blockedClasses: ["private", "link-local", "metadata"]
     },
     destruction: {
-      destroyedAt: "2026-08-03T07:00:00.000Z",
-      verifiedAbsentAt: "2026-08-03T07:05:00.000Z",
-      method: "terminate",
-      verification: "absence proof"
+      destroyedAt: `${day}T07:45:00.000Z`,
+      verifiedAbsentAt: `${day}T07:50:00.000Z`,
+      method: "instance-terminate",
+      verification: `sha256:${destructionReadbackSha}`
     },
-    operator: { attestedBy: "iAnonymous3000", evidenceRefs: [`run-${actionsRunId}`] }
+    destructionEvidence: {
+      workflow: ".github/workflows/runner-destruction-evidence.yml",
+      runId: destructionRunId,
+      runAttempt: 1,
+      headSha: "a".repeat(40),
+      conclusion: "success",
+      job: {
+        id: destructionJobId,
+        name: "Read back provider destruction and absence",
+        startedAt: `${day}T07:51:00.000Z`,
+        completedAt: `${day}T07:55:00.000Z`,
+        url: `https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/${destructionRunId}/job/${destructionJobId}`
+      },
+      artifact: {
+        id: destructionArtifactId,
+        name:
+          `site-behavior-runner-destruction-evidence-${destructionRunId}-1`,
+        sha256: destructionArtifactSha,
+        url: `https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/${destructionRunId}/artifacts/${destructionArtifactId}`
+      },
+      readback: {
+        path: "destruction-evidence.json",
+        sha256: destructionReadbackSha
+      }
+    },
+    operator: {
+      attestedBy: "iAnonymous3000",
+      evidenceRefs: [
+        {
+          kind: "github-actions-run-evidence",
+          actionsRunId,
+          runUrl: `https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/${actionsRunId}`,
+          artifactName:
+            `site-behavior-featured-publication-${actionsRunId}-1`,
+          artifactRef: `https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/${actionsRunId}/artifacts/${artifactId}`,
+          artifactSha256: "b".repeat(64)
+        },
+        {
+          kind: "github-actions-run-evidence",
+          actionsRunId: destructionRunId,
+          runUrl: `https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/${destructionRunId}`,
+          artifactName:
+            `site-behavior-runner-destruction-evidence-${destructionRunId}-1`,
+          artifactRef: `https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/${destructionRunId}/artifacts/${destructionArtifactId}`,
+          artifactSha256: destructionArtifactSha
+        }
+      ]
+    }
   };
 }
 
 const AA_BUILD = "a".repeat(40);
-const AA_FRAME = "b".repeat(64);
+const AA_TARGET_FRAME = [
+  { targetId: "one-example", url: "https://one.example/" }
+];
+const AA_TARGET_FRAME_TEXT = JSON.stringify(AA_TARGET_FRAME);
+const AA_FRAME = createHash("sha256")
+  .update(AA_TARGET_FRAME_TEXT)
+  .digest("hex");
+const AA_IDENTITY = "9".repeat(64);
+const AA_SITES_FILE =
+  "research/aa-studies/aa-synthetic/target-frame.json";
 const AA_CONDITIONS = { device: "desktop", gpcEnabled: false, consentMode: "observe" };
 
 function aaPreregistration() {
   return {
     kind: "site-behavior-aa-preregistration",
-    studyVersion: 1,
+    studyVersion: 2,
     studyId: "aa-synthetic",
     declaredAt: "2026-08-01T00:00:00.000Z",
-    buildCommit: AA_BUILD,
+    measurementIdentityManifestPath:
+      "research/measurement-candidate/measurement-identity.json",
+    measurementIdentityDigest: AA_IDENTITY,
+    sitesFile: AA_SITES_FILE,
     sitesFileDigest: AA_FRAME,
     targetCount: 1,
     repetitionsPerTarget: 2,
@@ -167,7 +476,12 @@ function aaPreregistration() {
     thresholds: {
       minimumEligibleTargets: 1,
       maximumFailingTargetFraction: 0,
-      maximumMetricRelativeRange: { thirdPartyRequests: 0.25 },
+      maximumMetricRelativeRange: {
+        totalRequests: 0.25,
+        thirdPartyRequests: 0.25,
+        knownTrackerRequests: 0.5,
+        thirdPartyDomains: 0.25
+      },
       minimumThirdPartyDomainJaccard: 0.7,
       requireCounterbalancedOrders: false
     }
@@ -220,8 +534,12 @@ async function aaLedger() {
   }));
   return fidelityStudyLib.buildAttemptLedger({
     createdAt: "2026-08-02T06:00:00.000Z",
+    collection: {
+      startedAt: "2026-08-02T05:00:00.000Z",
+      completedAt: "2026-08-02T05:59:00.000Z"
+    },
     baseOrigin: "http://127.0.0.1:3000",
-    sitesFile: "public/scanner-fidelity-sites.json",
+    sitesFile: AA_SITES_FILE,
     conditions: AA_CONDITIONS,
     repetitions: 2,
     selectedTargets: 1,
@@ -231,6 +549,7 @@ async function aaLedger() {
     acceptanceThresholds: { minimumAnsweringTargets: 1, minimumRepeatableTargets: 1 },
     provenance: {
       expectedBuildCommit: AA_BUILD,
+      measurementIdentityDigest: AA_IDENTITY,
       sitesFileDigest: AA_FRAME,
       driverRuntime: { nodeVersion: "v24.14.1", platform: "linux", architecture: "x64" }
     }
@@ -239,9 +558,26 @@ async function aaLedger() {
 
 async function syntheticWorld(root: string) {
   const aaStudyLib = await script("aa-study-lib.mjs");
+  const lifecycleLib = await script("r2-lifecycle-lib.mjs");
+  const runnerReceiptLib = await script("runner-receipt-lib.mjs");
   const doc = "# Promise\nExactly these surfaces.\n";
   writeFileSync(path.join(root, "promise.md"), doc);
   const digest = createHash("sha256").update(doc).digest("hex");
+  const errataDoc =
+    "# Published errata\n\n**E1 (published erratum)**: first corrected statement.\n\n" +
+    "**E2 (published erratum)**: second corrected statement.\n";
+  writeFileSync(path.join(root, "errata.md"), errataDoc);
+  const errataDigest = createHash("sha256").update(errataDoc).digest("hex");
+  const errataGate = {
+    kind: "errata",
+    title: "errata",
+    requiredErrata: ["E1", "E2"],
+    resolution: "published-errata-for-1.0",
+    document: "errata.md",
+    sha256: errataDigest,
+    resolvedBy: "reportRevisionR3",
+    requiredSelection: "no-r3-for-1.0"
+  };
 
   const metrics = Object.fromEntries(
     ["thirdPartyRequests", "thirdPartyDomains"].map((metric) => [
@@ -269,9 +605,18 @@ async function syntheticWorld(root: string) {
 
   const studyDir = path.join(root, "research", "aa-studies", "aa-synthetic");
   mkdirSync(studyDir, { recursive: true });
+  writeFileSync(
+    path.join(studyDir, "target-frame.json"),
+    AA_TARGET_FRAME_TEXT
+  );
   const preregistration = aaPreregistration();
   const ledger = await aaLedger();
-  const evaluation = aaStudyLib.evaluateAaStudy({ preregistration, ledger });
+  const evaluation = aaStudyLib.evaluateAaStudy({
+    preregistration,
+    targetFrame: AA_TARGET_FRAME,
+    targetFrameText: AA_TARGET_FRAME_TEXT,
+    ledger
+  });
   assert.equal(evaluation.status, "pass", JSON.stringify(evaluation.checks));
   writeFileSync(path.join(studyDir, "preregistration.json"), JSON.stringify(preregistration));
   writeFileSync(path.join(studyDir, "attempt-ledger.json"), JSON.stringify(ledger));
@@ -280,6 +625,7 @@ async function syntheticWorld(root: string) {
   writeFileSync(
     path.join(root, "reviews.json"),
     JSON.stringify({
+      schemaVersion: 1,
       artifactKind: "site-behavior-third-party-review-ledger",
       reviews: [
         {
@@ -288,6 +634,7 @@ async function syntheticWorld(root: string) {
           name: "left-pad",
           version: "1.0.0",
           runtime: true,
+          declaredLicense: "MIT",
           status: "reviewed",
           reviewer: "iAnonymous3000",
           reviewedAt: "2026-08-01",
@@ -300,6 +647,8 @@ async function syntheticWorld(root: string) {
   writeFileSync(
     path.join(root, "inventory.json"),
     JSON.stringify({
+      schemaVersion: 1,
+      artifactKind: "deterministic-third-party-inventory-and-notice-evidence",
       npm: [{ name: "left-pad", version: "1.0.0", license: "MIT", developmentOnly: false }],
       cargo: [],
       filterLists: { sources: [] }
@@ -310,39 +659,153 @@ async function syntheticWorld(root: string) {
   for (const runId of [1, 2]) {
     writeFileSync(
       path.join(root, "research", "runner-receipts", `${runId}.json`),
-      JSON.stringify(runnerReceipt(runId))
+      runnerReceiptLib.serializeRunnerDestructionReceipt(
+        runnerReceipt(runId)
+      )
     );
   }
 
   const day = 86_400;
   mkdirSync(path.join(root, "research", "ops-receipts"), { recursive: true });
+  const lifecycleRules = [
+    {
+      id: "reports-retention-backstop-8d",
+      enabled: true,
+      conditions: { prefix: "reports/" },
+      deleteObjectsTransition: {
+        condition: { type: "Age", maxAge: 8 * day }
+      }
+    }
+  ];
   writeFileSync(
     path.join(root, "research", "ops-receipts", "r2-lifecycle-readback.json"),
-    JSON.stringify({
-      kind: "site-behavior-r2-lifecycle-readback",
-      ok: true,
-      recordedAt: "2026-08-09T00:00:00.000Z",
-      rules: [
+    JSON.stringify(
+      lifecycleLib.buildR2LifecycleReadbackReceipt({
+        bucket: "site-behavior-lab-reports",
+        source: "cloudflare-api",
+        recordedAt: "2026-08-09T00:00:00.000Z",
+        sourceBytes: Buffer.from(
+          JSON.stringify({
+            success: true,
+            result: { rules: lifecycleRules }
+          })
+        )
+      })
+    )
+  );
+  // Build a real miniature source commit and annotated tag. The archive gate
+  // must prove the committed receipt against Git history, not just recognize a
+  // receipt-shaped JSON object.
+  const sourceInputBytes = {
+    packageLock: { path: "package-lock.json", bytes: "{\"lockfileVersion\":3}\n" },
+    dockerfile: { path: "Dockerfile", bytes: "FROM scratch\n" },
+    productionContainerConfig: { path: "wrangler.container.jsonc", bytes: "{}\n" },
+    releasePolicy: { path: "release-policy.json", bytes: "{\"status\":\"released\"}\n" }
+  };
+  for (const input of Object.values(sourceInputBytes)) {
+    writeFileSync(path.join(root, input.path), input.bytes);
+  }
+  testGit(root, ["init", "-q"]);
+  testGit(root, ["config", "user.name", "Synthetic Release"]);
+  testGit(root, ["config", "user.email", "release@example.test"]);
+  testGit(root, ["add", ...Object.values(sourceInputBytes).map((input) => input.path)]);
+  const releaseGitEnv = {
+    GIT_AUTHOR_DATE: "2026-08-01T00:00:00Z",
+    GIT_COMMITTER_DATE: "2026-08-01T00:00:00Z"
+  };
+  testGit(root, ["-c", "commit.gpgsign=false", "commit", "-q", "-m", "Synthetic release source"], releaseGitEnv);
+  const sourceCommit = testGit(root, ["rev-parse", "HEAD"]);
+  const sourceTree = testGit(root, ["rev-parse", "HEAD^{tree}"]);
+  const committedAt = new Date(
+    Date.parse(testGit(root, ["show", "-s", "--format=%cI", sourceCommit]))
+  ).toISOString();
+  const inputs = Object.fromEntries(
+    Object.entries(sourceInputBytes).map(([name, input]) => {
+      const bytes = Buffer.from(input.bytes);
+      return [
+        name,
         {
-          id: "reports-retention-backstop-8d",
-          enabled: true,
-          conditions: { prefix: "reports/" },
-          deleteObjectsTransition: { condition: { type: "Age", maxAge: 8 * day } }
+          path: input.path,
+          bytes: bytes.length,
+          sha256: createHash("sha256").update(bytes).digest("hex")
         }
-      ]
+      ];
     })
   );
-  for (const gateId of ["durable-soak", "egress-backstop"]) {
-    writeFileSync(
-      path.join(root, "research", "ops-receipts", `${gateId}-attestation.json`),
-      JSON.stringify(attestation(gateId))
-    );
-  }
-
-  mkdirSync(path.join(root, "docs", "release-receipts", "0.3.0"), { recursive: true });
-  writeFileSync(
-    path.join(root, "docs", "release-receipts", "0.3.0", "release-receipt.json"),
-    JSON.stringify({ receiptVersion: 1, tag: "v0.3.0" })
+  const staticFileBytes = Buffer.from("<h1>release</h1>\n");
+  const staticFiles = [
+    {
+      path: "index.html",
+      bytes: staticFileBytes.length,
+      sha256: createHash("sha256").update(staticFileBytes).digest("hex")
+    }
+  ];
+  const archivedReceipt = {
+    schemaVersion: 1,
+    evidenceKind: "exact-source-and-tested-artifact-manifest",
+    release: {
+      status: "released",
+      version: "0.3.0",
+      tag: "v0.3.0",
+      releaseDate: "2026-08-01",
+      stablePublicApi: false,
+      npmPublication: "disabled",
+      requiredNode: "24.14.1",
+      requiredNpm: "11.11.0",
+      repository: "https://github.com/iAnonymous3000/site-behavior-lab",
+      tagExists: false,
+      evidencesReleaseCommit: false
+    },
+    source: {
+      repository: "https://github.com/iAnonymous3000/site-behavior-lab",
+      commit: sourceCommit,
+      tree: sourceTree,
+      requiredNode: "24.14.1",
+      requiredNpm: "11.11.0"
+    },
+    inputs,
+    artifacts: [
+      {
+        name: "static-pages",
+        kind: "directory-manifest",
+        path: "out",
+        deployment: {
+          schemaVersion: 1,
+          deployment: sourceCommit,
+          revisionCommittedAt: committedAt
+        },
+        digestAlgorithm: "sha256",
+        manifestSha256: createHash("sha256").update(JSON.stringify(staticFiles)).digest("hex"),
+        fileCount: staticFiles.length,
+        bytes: staticFileBytes.length,
+        files: staticFiles
+      }
+    ]
+  };
+  const archivedReceiptBytes = JSON.stringify(archivedReceipt);
+  const archivedReceiptPath = path.join(
+    root,
+    "docs",
+    "release-receipts",
+    "0.3.0",
+    "release-receipt.json"
+  );
+  mkdirSync(path.dirname(archivedReceiptPath), { recursive: true });
+  writeFileSync(archivedReceiptPath, archivedReceiptBytes);
+  const archivedReceiptSha256 = createHash("sha256").update(archivedReceiptBytes).digest("hex");
+  testGit(
+    root,
+    [
+      "-c",
+      "tag.gpgSign=false",
+      "tag",
+      "-a",
+      "v0.3.0",
+      "-m",
+      `Synthetic release\n\nRelease receipt sha256: ${archivedReceiptSha256}`,
+      sourceCommit
+    ],
+    releaseGitEnv
   );
 
   // The calibration gate is deliberately absent: an eligible study cannot be
@@ -354,7 +817,12 @@ async function syntheticWorld(root: string) {
     targetRelease: "1.0.0",
     decisions: {
       claimBoundary: approvedDecision(),
-      compatibilitySurface: approvedDecision({ document: "promise.md", sha256: digest })
+      compatibilitySurface: approvedDecision({ document: "promise.md", sha256: digest }),
+      reportRevisionR3: approvedDecision({
+        recommended: "no-r3-for-1.0",
+        selected: "no-r3-for-1.0",
+        dispositionSha256: errataDispositionDigest(errataGate)
+      })
     },
     gates: {
       "decisions-approved": {
@@ -363,7 +831,7 @@ async function syntheticWorld(root: string) {
         requiredDecisions: ["claimBoundary", "compatibilitySurface"]
       },
       "compatibility-surface-pinned": { kind: "document-digest", title: "digest" },
-      "errata-resolution": { kind: "errata", title: "errata", openErrata: [], resolvedBy: "reportRevisionR3" },
+      "errata-resolution": errataGate,
       "current-method-corpus": {
         kind: "corpus",
         title: "corpus",
@@ -395,18 +863,6 @@ async function syntheticWorld(root: string) {
         kind: "receipt-archive",
         title: "archive",
         directory: "docs/release-receipts"
-      },
-      "durable-soak": {
-        kind: "operator-attestation",
-        title: "soak",
-        attestation: "research/ops-receipts/durable-soak-attestation.json",
-        maxAgeDays: 45
-      },
-      "egress-backstop": {
-        kind: "operator-attestation",
-        title: "egress",
-        attestation: "research/ops-receipts/egress-backstop-attestation.json",
-        maxAgeDays: 90
       }
     }
   };
@@ -432,6 +888,97 @@ test("a fully evidenced synthetic world is READY", async () => {
   }
 });
 
+test("calibration approval binds one fixed policy artifact and semantic disposition", async () => {
+  const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
+  const { calibrationPolicyDispositionSha256 } = await script(
+    "calibration-study-lib.mjs"
+  );
+  const CALIBRATION_CENSORING_POLICY_ID =
+    "complete-case-only-zero-censoring";
+  const CALIBRATION_CENSORING_POLICY_PATH =
+    "research/measurement-candidate/calibration-censoring-policy.json";
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-calibration-decision-"));
+  try {
+    const manifest = await syntheticWorld(root);
+    const decisions = manifest.decisions as unknown as Record<
+      string,
+      Record<string, unknown>
+    >;
+    const policy = `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        artifactKind: "site-behavior-detector-calibration-censoring-policy",
+        id: CALIBRATION_CENSORING_POLICY_ID,
+        allowedReasons: [
+          "capture-failed",
+          "reference-label-uncertain",
+          "artifact-unreadable",
+          "eligibility-criteria-not-met"
+        ],
+        releaseEligibility: {
+          anyCensoredCase: "study-ineligible",
+          plannedDenominator: "must-remain-complete"
+        }
+      },
+      null,
+      2
+    )}\n`;
+    const policyAbsolute = path.join(
+      root,
+      ...CALIBRATION_CENSORING_POLICY_PATH.split("/")
+    );
+    mkdirSync(path.dirname(policyAbsolute), { recursive: true });
+    writeFileSync(policyAbsolute, policy);
+    const policySha256 = createHash("sha256").update(policy).digest("hex");
+    decisions.calibrationCensoringPolicy = approvedDecision({
+      currentlySupportedSelections: [CALIBRATION_CENSORING_POLICY_ID],
+      recommendedDisposition: "human-decision-required-before-labeling",
+      methodologicalAssessment:
+        "Supported by the current analyzer; not a recommendation to approve or use it.",
+      selected: CALIBRATION_CENSORING_POLICY_ID,
+      policyArtifactPath: CALIBRATION_CENSORING_POLICY_PATH,
+      policyArtifactSha256: policySha256,
+      semanticDisposition: {
+        anyCensoredCase: "study-ineligible",
+        plannedDenominator: "must-remain-complete"
+      },
+      dispositionSha256:
+        calibrationPolicyDispositionSha256(policySha256)
+    });
+    manifest.gates["decisions-approved"].requiredDecisions.push(
+      "calibrationCensoringPolicy"
+    );
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    const approved = evaluateReleaseReadiness(root, NOW);
+    assert.equal(
+      approved.gates.find(
+        (gate: { id: string }) => gate.id === "decisions-approved"
+      )?.status,
+      "pass"
+    );
+
+    decisions.calibrationCensoringPolicy.dispositionSha256 = "0".repeat(64);
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    const substituted = evaluateReleaseReadiness(root, NOW);
+    const decisionGate = substituted.gates.find(
+      (gate: { id: string }) => gate.id === "decisions-approved"
+    );
+    assert.equal(decisionGate?.status, "fail");
+    assert.match(
+      decisionGate?.reasons.join(" ") ?? "",
+      /calibrationCensoringPolicy dispositionSha256/
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("the hardened failure modes stay closed", async () => {
   const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
   const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-hard-"));
@@ -447,6 +994,14 @@ test("the hardened failure modes stay closed", async () => {
     const missingDecision = byId(evaluateReleaseReadiness(root, NOW), "decisions-approved");
     assert.equal(missingDecision.status, "fail");
     assert.match(missingDecision.reasons.join(" "), /claimBoundary is missing/);
+
+    // An approval cannot be dated in the future.
+    const futureDecision = JSON.parse(JSON.stringify(manifest));
+    futureDecision.decisions.claimBoundary.decidedAt = "2027-01-01T00:00:00.000Z";
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(futureDecision));
+    const futureDecisionGate = byId(evaluateReleaseReadiness(root, NOW), "decisions-approved");
+    assert.equal(futureDecisionGate.status, "fail");
+    assert.match(futureDecisionGate.reasons.join(" "), /future/);
 
     // A hand-written passing evaluation without a preregistration re-derives red.
     writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(manifest));
@@ -465,77 +1020,172 @@ test("the hardened failure modes stay closed", async () => {
     // Duplicate receipt bytes are one cycle, not two.
     writeFileSync(
       path.join(root, "research", "runner-receipts", "2.json"),
-      JSON.stringify(runnerReceipt(1))
+      (
+        await script("runner-receipt-lib.mjs")
+      ).serializeRunnerDestructionReceipt(runnerReceipt(1))
     );
     const dupes = byId(evaluateReleaseReadiness(root, NOW), "runner-cycles");
     assert.equal(dupes.status, "fail");
-    assert.match(dupes.reasons[0], /1 of 2 required distinct/);
+    assert.match(dupes.reasons.join(" "), /duplicates|distinct/);
     writeFileSync(
       path.join(root, "research", "runner-receipts", "2.json"),
-      JSON.stringify(runnerReceipt(2))
+      (
+        await script("runner-receipt-lib.mjs")
+      ).serializeRunnerDestructionReceipt(runnerReceipt(2))
     );
+    writeFileSync(
+      path.join(root, "research", "runner-receipts", "malformed.json"),
+      '{"kind":"not-a-runner-receipt"}\n'
+    );
+    const malformedRunnerReceipt = byId(evaluateReleaseReadiness(root, NOW), "runner-cycles");
+    assert.equal(malformedRunnerReceipt.status, "fail");
+    assert.match(malformedRunnerReceipt.reasons.join(" "), /malformed\.json/);
+    rmSync(path.join(root, "research", "runner-receipts", "malformed.json"));
 
     // A lifecycle receipt whose ok flag disagrees with its recorded rules fails.
     const receiptPath = path.join(root, "research", "ops-receipts", "r2-lifecycle-readback.json");
+    const validLifecycleReceipt = JSON.parse(
+      readFileSync(receiptPath, "utf8")
+    );
     writeFileSync(
       receiptPath,
-      JSON.stringify({
-        kind: "site-behavior-r2-lifecycle-readback",
-        ok: true,
-        recordedAt: "2026-08-09T00:00:00.000Z",
-        rules: []
-      })
+      JSON.stringify({ ...validLifecycleReceipt, ok: false })
     );
     const flipped = byId(evaluateReleaseReadiness(root, NOW), "r2-lifecycle");
     assert.equal(flipped.status, "fail");
-    assert.match(flipped.reasons.join(" "), /recorded rules|disagrees/);
+    assert.match(
+      flipped.reasons.join(" "),
+      /ok must exactly match re-validation|receiptDigest/
+    );
 
     // A future-dated receipt is invalid, not eternally fresh.
     writeFileSync(
       receiptPath,
       JSON.stringify({
-        kind: "site-behavior-r2-lifecycle-readback",
-        ok: true,
+        ...validLifecycleReceipt,
         recordedAt: "2027-01-01T00:00:00.000Z",
-        rules: [
-          {
-            id: "reports-retention-backstop-8d",
-            enabled: true,
-            conditions: { prefix: "reports/" },
-            deleteObjectsTransition: { condition: { type: "Age", maxAge: 8 * 86_400 } }
-          }
-        ]
       })
     );
     const future = byId(evaluateReleaseReadiness(root, NOW), "r2-lifecycle");
     assert.equal(future.status, "fail");
     assert.match(future.reasons.join(" "), /future/);
 
-    // An attestation for another release, or a stale one, never satisfies 1.0.
-    const soakPath = path.join(root, "research", "ops-receipts", "durable-soak-attestation.json");
-    writeFileSync(
-      soakPath,
-      JSON.stringify({ ...attestation("durable-soak"), targetRelease: "0.3.0" })
-    );
-    const wrongRelease = byId(evaluateReleaseReadiness(root, NOW), "durable-soak");
-    assert.equal(wrongRelease.status, "fail");
-    assert.match(wrongRelease.reasons.join(" "), /targetRelease/);
-    writeFileSync(
-      soakPath,
-      JSON.stringify(attestation("durable-soak", "2026-01-01T00:00:00.000Z"))
-    );
-    const stale = byId(evaluateReleaseReadiness(root, NOW), "durable-soak");
-    assert.equal(stale.status, "fail");
-    assert.match(stale.reasons.join(" "), /older than 45 days/);
-
     // Malformed gate config fails closed: empty metric list, stringy errata.
     const doctored = JSON.parse(JSON.stringify(manifest));
     doctored.gates["current-method-corpus"].requiredMetrics = [];
-    doctored.gates["errata-resolution"].openErrata = "E1, E2";
+    doctored.gates["errata-resolution"].requiredErrata = "E1, E2";
     writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(doctored));
     const doctoredResult = evaluateReleaseReadiness(root, NOW);
     assert.equal(byId(doctoredResult, "current-method-corpus").status, "fail");
     assert.equal(byId(doctoredResult, "errata-resolution").status, "fail");
+
+    // Errata cannot be cleared by deleting ids, approving no selection, or
+    // changing the published bytes without moving the digest.
+    for (const mutation of [
+      (value: typeof manifest) => {
+        value.gates["errata-resolution"].requiredErrata = [];
+      },
+      (value: typeof manifest) => {
+        value.gates["errata-resolution"].requiredErrata = ["E1"];
+      },
+      (value: typeof manifest) => {
+        (value.decisions.reportRevisionR3 as Record<string, unknown>).selected = null;
+      },
+      (value: typeof manifest) => {
+        value.gates["errata-resolution"].sha256 = "0".repeat(64);
+      }
+    ]) {
+      const malformed = JSON.parse(JSON.stringify(manifest));
+      mutation(malformed);
+      writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(malformed));
+      const errata = byId(evaluateReleaseReadiness(root, NOW), "errata-resolution");
+      assert.equal(errata.status, "fail");
+    }
+
+    // Moving the errata document and its gate digest together still requires
+    // a fresh human disposition digest.
+    const changedErrataDoc =
+      "# Published errata\n\n**E1 (published erratum)**: revised first statement.\n\n" +
+      "**E2 (published erratum)**: second corrected statement.\n";
+    const changedErrata = JSON.parse(JSON.stringify(manifest));
+    changedErrata.gates["errata-resolution"].sha256 = createHash("sha256")
+      .update(changedErrataDoc)
+      .digest("hex");
+    writeFileSync(path.join(root, "errata.md"), changedErrataDoc);
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(changedErrata));
+    const movedDisposition = byId(evaluateReleaseReadiness(root, NOW), "errata-resolution");
+    assert.equal(movedDisposition.status, "fail");
+    assert.match(movedDisposition.reasons.join(" "), /approve disposition sha256/);
+    writeFileSync(
+      path.join(root, "errata.md"),
+      "# Published errata\n\n**E1 (published erratum)**: first corrected statement.\n\n" +
+        "**E2 (published erratum)**: second corrected statement.\n"
+    );
+
+    // A nonempty arbitrary JSON file is not a release receipt.
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    const archivePath = path.join(root, "docs", "release-receipts", "0.3.0", "release-receipt.json");
+    const validArchiveBytes = readFileSync(archivePath);
+    writeFileSync(archivePath, JSON.stringify({ anything: true }));
+    const fakeArchive = byId(evaluateReleaseReadiness(root, NOW), "release-receipt-archive");
+    assert.equal(fakeArchive.status, "fail");
+    assert.match(fakeArchive.reasons.join(" "), /schemaVersion|evidenceKind/);
+    writeFileSync(archivePath, validArchiveBytes);
+
+    const wrongInputArchive = JSON.parse(validArchiveBytes.toString("utf8"));
+    wrongInputArchive.inputs.packageLock.sha256 = "0".repeat(64);
+    writeFileSync(archivePath, JSON.stringify(wrongInputArchive));
+    const wrongInput = byId(evaluateReleaseReadiness(root, NOW), "release-receipt-archive");
+    assert.equal(wrongInput.status, "fail");
+    assert.match(wrongInput.reasons.join(" "), /packageLock does not match/);
+    writeFileSync(archivePath, validArchiveBytes);
+
+    const wrongTreeArchive = JSON.parse(validArchiveBytes.toString("utf8"));
+    wrongTreeArchive.source.tree = "0".repeat(40);
+    writeFileSync(archivePath, JSON.stringify(wrongTreeArchive));
+    const wrongTree = byId(evaluateReleaseReadiness(root, NOW), "release-receipt-archive");
+    assert.equal(wrongTree.status, "fail");
+    assert.match(wrongTree.reasons.join(" "), /source\.tree does not match/);
+    writeFileSync(archivePath, validArchiveBytes);
+
+    const unboundArchive = JSON.parse(validArchiveBytes.toString("utf8"));
+    unboundArchive.release.releaseDate = "2026-08-02";
+    writeFileSync(archivePath, JSON.stringify(unboundArchive));
+    const wrongTagDigest = byId(evaluateReleaseReadiness(root, NOW), "release-receipt-archive");
+    assert.equal(wrongTagDigest.status, "fail");
+    assert.match(wrongTagDigest.reasons.join(" "), /does not embed the archived receipt sha256/);
+    writeFileSync(archivePath, validArchiveBytes);
+
+    testGit(root, ["tag", "-d", "v0.3.0"]);
+    const missingTag = byId(evaluateReleaseReadiness(root, NOW), "release-receipt-archive");
+    assert.equal(missingTag.status, "fail");
+    assert.match(missingTag.reasons.join(" "), /must be an available annotated tag/);
+    const validArchiveSha256 = createHash("sha256").update(validArchiveBytes).digest("hex");
+    testGit(root, [
+      "-c",
+      "tag.gpgSign=false",
+      "tag",
+      "-a",
+      "v0.3.0",
+      "-m",
+      `Synthetic release\n\nRelease receipt sha256: ${validArchiveSha256}`,
+      testGit(root, ["rev-parse", "HEAD"])
+    ]);
+
+    // One valid historical archive cannot mask a malformed sibling.
+    const malformedArchiveDir = path.join(root, "docs", "release-receipts", "0.2.0");
+    mkdirSync(malformedArchiveDir, { recursive: true });
+    writeFileSync(
+      path.join(malformedArchiveDir, "release-receipt.json"),
+      JSON.stringify({ schemaVersion: 1 })
+    );
+    const malformedArchive = byId(evaluateReleaseReadiness(root, NOW), "release-receipt-archive");
+    assert.equal(malformedArchive.status, "fail");
+    assert.match(malformedArchive.reasons.join(" "), /0\.2\.0/);
+    rmSync(malformedArchiveDir, { recursive: true, force: true });
 
     // A clearing cohort that is not the primary claim-backing cohort fails.
     writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(manifest));
@@ -614,8 +1264,35 @@ test("the calibration gate fails closed without eligible studies and rejects reg
 });
 
 test("operator attestations refuse soft truths, mismatched gates, and wrong releases", async () => {
-  const { operatorAttestationIssues } = await script("release-readiness-lib.mjs");
-  const binding = { targetRelease: "1.0.0", maxAgeDays: 45, now: NOW };
+  const {
+    operatorAttestationIssues,
+    trustedProviderCapturePreflightIssue
+  } = await script("release-readiness-lib.mjs");
+  for (const gateId of [
+    "egress-backstop",
+    "log-retention"
+  ]) {
+    assert.match(
+      trustedProviderCapturePreflightIssue(gateId),
+      /trusted GitHub-hosted.*provider capture is unavailable/
+    );
+  }
+  assert.equal(
+    trustedProviderCapturePreflightIssue("waf-ceilings"),
+    null
+  );
+  assert.equal(
+    trustedProviderCapturePreflightIssue(
+      "container-image-licensing"
+    ),
+    null
+  );
+  const binding = {
+    targetRelease: "1.0.0",
+    maxAgeDays: 45,
+    now: NOW,
+    ...SYNTHETIC_ATTESTATION_CONTRACTS["egress-backstop"]
+  };
   assert.deepEqual(operatorAttestationIssues(attestation("egress-backstop"), "egress-backstop", binding), []);
 
   const soft = attestation("egress-backstop");
@@ -626,6 +1303,151 @@ test("operator attestations refuse soft truths, mismatched gates, and wrong rele
     ),
     true
   );
+
+  const extraTopLevel = {
+    ...attestation("egress-backstop"),
+    unreviewedNarrative: "this field is not part of the evidence contract"
+  };
+  assert.equal(
+    operatorAttestationIssues(
+      extraTopLevel,
+      "egress-backstop",
+      binding
+    ).some((issue: string) => /must contain exactly/.test(issue)),
+    true
+  );
+
+  const exactReleaseBindings = {
+    ...binding,
+    expectedBindings: {
+      candidateCommit: "c".repeat(40),
+      networkPolicyDigest: "d".repeat(64)
+    }
+  };
+  const substitutedSubjects = attestation("egress-backstop");
+  substitutedSubjects.bindings.candidateCommit = "a".repeat(40);
+  substitutedSubjects.bindings.networkPolicyDigest = "b".repeat(64);
+  const subjectIssues = operatorAttestationIssues(
+    substitutedSubjects,
+    "egress-backstop",
+    exactReleaseBindings
+  );
+  assert.equal(
+    subjectIssues.some((issue: string) =>
+      /candidateCommit does not match the release-derived/.test(issue)
+    ),
+    true
+  );
+  assert.equal(
+    subjectIssues.some((issue: string) =>
+      /networkPolicyDigest does not match the release-derived/.test(issue)
+    ),
+    true
+  );
+  const wrongEvidenceRef = attestation("egress-backstop");
+  const evidenceRefIssues = operatorAttestationIssues(
+    wrongEvidenceRef,
+    "egress-backstop",
+    {
+      ...binding,
+      expectedEvidenceRefs: [
+        `research/ops-evidence/egress-backstop.json#sha256:${"e".repeat(64)}`
+      ]
+    }
+  );
+  assert.equal(
+    evidenceRefIssues.some((issue: string) =>
+      /must exactly bind the canonical underlying evidence/.test(issue)
+    ),
+    true
+  );
+
+  const unrelated = attestation("egress-backstop");
+  unrelated.statements = [{ claimId: "math", claim: "2 + 2 = 4", true: true }];
+  unrelated.evidenceRefs = [null] as unknown as string[];
+  const unrelatedIssues = operatorAttestationIssues(unrelated, "egress-backstop", binding);
+  assert.equal(unrelatedIssues.some((issue: string) => /required claim/.test(issue)), true);
+  assert.equal(unrelatedIssues.some((issue: string) => /evidenceRefs/.test(issue)), true);
+
+  const wrongBinding = attestation("egress-backstop");
+  wrongBinding.bindings.candidateCommit = "short";
+  assert.equal(
+    operatorAttestationIssues(wrongBinding, "egress-backstop", binding).some((issue: string) =>
+      /candidateCommit/.test(issue)
+    ),
+    true
+  );
+
+  const staleEvidence = attestation("egress-backstop");
+  staleEvidence.evidenceCapturedAt = "2026-01-01T00:00:00.000Z";
+  assert.equal(
+    operatorAttestationIssues(staleEvidence, "egress-backstop", binding).some((issue: string) =>
+      /evidenceCapturedAt is older/.test(issue)
+    ),
+    true
+  );
+
+  const impossibleDate = attestation("egress-backstop");
+  impossibleDate.attestedAt = "2026-02-30T00:00:00.000Z";
+  impossibleDate.evidenceCapturedAt = "2026-02-30T00:00:00.000Z";
+  assert.equal(
+    operatorAttestationIssues(impossibleDate, "egress-backstop", binding).some((issue: string) =>
+      /real canonical UTC instant/.test(issue)
+    ),
+    true
+  );
+
+  const durableBinding = {
+    targetRelease: "1.0.0",
+    maxAgeDays: 45,
+    now: NOW,
+    ...SYNTHETIC_ATTESTATION_CONTRACTS["durable-soak"]
+  };
+  const ancientWindow = attestation("durable-soak");
+  ancientWindow.evidenceWindow = {
+    startedAt: "2010-01-01T00:00:00.000Z",
+    restartObservedAt: "2010-01-01T12:00:00.000Z",
+    endedAt: "2010-01-02T00:00:00.000Z"
+  };
+  const ancientIssues = operatorAttestationIssues(ancientWindow, "durable-soak", durableBinding);
+  assert.equal(ancientIssues.some((issue: string) => /evidenceWindow\.endedAt is older/.test(issue)), true);
+  assert.equal(ancientIssues.some((issue: string) => /must equal evidenceWindow\.endedAt/.test(issue)), true);
+
+  const captureMismatch = attestation("durable-soak", "2026-08-09T00:02:00.000Z");
+  captureMismatch.evidenceCapturedAt = "2026-08-09T00:01:00.000Z";
+  assert.equal(
+    operatorAttestationIssues(captureMismatch, "durable-soak", durableBinding).some((issue: string) =>
+      /must equal evidenceWindow\.endedAt/.test(issue)
+    ),
+    true
+  );
+
+  const restartOutside = attestation("durable-soak");
+  restartOutside.evidenceWindow!.restartObservedAt =
+    "2026-08-07T23:59:59.000Z";
+  assert.equal(
+    operatorAttestationIssues(
+      restartOutside,
+      "durable-soak",
+      durableBinding
+    ).some((issue: string) => /restartObservedAt must fall inside/.test(issue)),
+    true
+  );
+
+  const futureWindow = attestation("durable-soak", "2027-01-01T00:00:00.000Z");
+  futureWindow.evidenceCapturedAt = "2027-01-01T00:00:00.000Z";
+  futureWindow.evidenceWindow = {
+    startedAt: "2026-12-31T00:00:00.000Z",
+    restartObservedAt: "2026-12-31T12:00:00.000Z",
+    endedAt: "2027-01-01T00:00:00.000Z"
+  };
+  assert.equal(
+    operatorAttestationIssues(futureWindow, "durable-soak", durableBinding).some((issue: string) =>
+      /evidenceWindow\.endedAt .*future/.test(issue)
+    ),
+    true
+  );
+
   assert.equal(
     operatorAttestationIssues(attestation("egress-backstop"), "durable-soak", binding).some(
       (issue: string) => /gateId/.test(issue)
@@ -639,4 +1461,914 @@ test("operator attestations refuse soft truths, mismatched gates, and wrong rele
     }).some((issue: string) => /targetRelease/.test(issue)),
     true
   );
+});
+
+test("the attestation scaffold covers every release attestation without inventing claims", async () => {
+  const {
+    buildReleaseAttestationScaffold,
+    operatorAttestationIssues
+  } = await script("release-readiness-lib.mjs");
+  const manifest = JSON.parse(
+    readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
+  );
+  const gateIds = [
+    "durable-soak",
+    "egress-backstop",
+    "waf-ceilings",
+    "log-retention",
+    "container-image-licensing"
+  ];
+  for (const gateId of gateIds) {
+    const gate = manifest.gates[gateId];
+    const scaffold = buildReleaseAttestationScaffold(
+      manifest,
+      gateId,
+      {
+        candidateCommit: "a".repeat(40),
+        ...(gateId === "egress-backstop"
+          ? {
+              collectionEnvironmentDigest: "b".repeat(64),
+              collectionProducerCommitsDigest: "c".repeat(64)
+            }
+          : {})
+      }
+    );
+    assert.deepEqual(
+      Object.keys(scaffold.bindings),
+      gate.requiredBindings
+    );
+    assert.deepEqual(
+      scaffold.statements.map(
+        (statement: { claimId: string; claim: string; true: boolean }) => ({
+          id: statement.claimId,
+          claim: statement.claim,
+          true: statement.true
+        })
+      ),
+      gate.requiredClaims.map(
+        (claim: { id: string; claim: string }) => ({
+          ...claim,
+          true: false
+        })
+      )
+    );
+    assert.equal(
+      operatorAttestationIssues(scaffold, gateId, {
+        targetRelease: manifest.targetRelease,
+        maxAgeDays: gate.maxAgeDays,
+        now: NOW,
+        requiredClaims: gate.requiredClaims,
+        requiredBindings: gate.requiredBindings,
+        minimumEvidenceHours: gate.minimumEvidenceHours
+      }).length > 0,
+      true,
+      "a newly generated scaffold must remain non-passing"
+    );
+  }
+
+  const egress = buildReleaseAttestationScaffold(
+    manifest,
+    "egress-backstop",
+    {
+      candidateCommit: "a".repeat(40),
+      deploymentCommit: "d".repeat(40),
+      networkPolicyDigest: "e".repeat(64),
+      collectionEnvironmentDigest: "b".repeat(64),
+      collectionProducerCommitsDigest: "c".repeat(64)
+    },
+    {
+      evidenceCapturedAt: "2026-08-09T00:00:00.000Z",
+      evidenceRefs: [
+        `research/ops-evidence/egress-backstop.json#sha256:${"f".repeat(64)}`
+      ]
+    }
+  );
+  assert.equal(egress.bindings.candidateCommit, "a".repeat(40));
+  assert.equal(
+    egress.bindings.collectionEnvironmentDigest,
+    "b".repeat(64)
+  );
+  assert.equal(
+    egress.bindings.collectionProducerCommitsDigest,
+    "c".repeat(64)
+  );
+  assert.equal(
+    egress.bindings.networkPolicyDigest,
+    "e".repeat(64)
+  );
+  assert.equal(
+    egress.evidenceCapturedAt,
+    "2026-08-09T00:00:00.000Z"
+  );
+  assert.deepEqual(
+    egress.evidenceRefs,
+    [
+      `research/ops-evidence/egress-backstop.json#sha256:${"f".repeat(64)}`
+    ]
+  );
+
+  for (const gateId of [
+    "egress-backstop",
+    "waf-ceilings",
+    "log-retention",
+    "container-image-licensing"
+  ]) {
+    const gate = manifest.gates[gateId];
+    const expectedBindings = Object.fromEntries(
+      gate.requiredBindings.map((name: string) => [
+        name,
+        name.endsWith("Commit")
+          ? "a".repeat(40)
+          : name.endsWith("Digest")
+            ? "b".repeat(64)
+            : name === "effectiveSourceObservedAt"
+              ? "2026-08-09T00:00:00.000Z"
+              : "canonical-value"
+      ])
+    );
+    const evidenceRef =
+      `research/ops-evidence/${gateId}.json#sha256:${"f".repeat(64)}`;
+    const passing = buildReleaseAttestationScaffold(
+      manifest,
+      gateId,
+      expectedBindings,
+      {
+        evidenceCapturedAt: "2026-08-09T00:00:00.000Z",
+        evidenceRefs: [evidenceRef]
+      }
+    );
+    passing.attestedBy = "Release operator";
+    passing.attestedAt = "2026-08-09T00:01:00.000Z";
+    for (const statement of passing.statements) statement.true = true;
+    assert.deepEqual(
+      operatorAttestationIssues(passing, gateId, {
+        targetRelease: manifest.targetRelease,
+        maxAgeDays: gate.maxAgeDays,
+        now: NOW,
+        requiredClaims: gate.requiredClaims,
+        requiredBindings: gate.requiredBindings,
+        expectedBindings,
+        expectedEvidenceRefs: [evidenceRef]
+      }),
+      [],
+      `${gateId} must have a satisfiable exact attestation contract once trusted provider capture exists`
+    );
+  }
+});
+
+test("durable target deviations require an exact candidate-bound named-human approval", async () => {
+  const {
+    buildDurableTargetDeviationApprovalScaffold,
+    durableTargetDeviationApprovalProblems
+  } = await script("release-readiness-lib.mjs");
+  const candidateCommit = testGit(process.cwd(), ["rev-parse", "HEAD"]);
+  const candidateMillis = Date.parse(
+    testGit(process.cwd(), [
+      "show",
+      "-s",
+      "--format=%cI",
+      candidateCommit
+    ])
+  );
+  const endedAt = new Date(
+    candidateMillis - 3_600_000
+  ).toISOString();
+  const startedAt = new Date(
+    Date.parse(endedAt) - 24 * 3_600_000
+  ).toISOString();
+  const restartObservedAt = new Date(
+    Date.parse(startedAt) + 12 * 3_600_000
+  ).toISOString();
+  const expected = {
+    rootDir: process.cwd(),
+    candidateCommit,
+    soakDeploymentCommit: "a".repeat(40),
+    ledgerSha256: "b".repeat(64),
+    evidenceWindow: {
+      startedAt,
+      restartObservedAt,
+      endedAt
+    },
+    minimumEvidenceHours: 24,
+    targetEvidenceHours: 168
+  };
+  const approval = {
+    status: "approved",
+    approverType: "named-human",
+    approvedBy: "Release Evidence Reviewer",
+    approvedAt: new Date(candidateMillis).toISOString(),
+    reason:
+      "The exact candidate met the hard minimum; release timing requires a reviewed deviation from the seven-day target.",
+    candidateCommit,
+    soakDeploymentCommit: expected.soakDeploymentCommit,
+    ledgerSha256: expected.ledgerSha256,
+    evidenceWindow: { ...expected.evidenceWindow },
+    minimumEvidenceHours: 24,
+    targetEvidenceHours: 168
+  };
+  assert.deepEqual(
+    durableTargetDeviationApprovalProblems({
+      approval,
+      ...expected
+    }),
+    []
+  );
+  assert.match(
+    durableTargetDeviationApprovalProblems({
+      approval: null,
+      ...expected
+    }).join("; "),
+    /requires an exact named-human/
+  );
+  assert.match(
+    durableTargetDeviationApprovalProblems({
+      approval: { ...approval, approvedBy: "automation" },
+      ...expected
+    }).join("; "),
+    /named human approver/
+  );
+  assert.match(
+    durableTargetDeviationApprovalProblems({
+      approval: {
+        ...approval,
+        approvedAt: endedAt
+      },
+      ...expected
+    }).join("; "),
+    /approval is stale/
+  );
+  assert.match(
+    durableTargetDeviationApprovalProblems({
+      approval: {
+        ...approval,
+        ledgerSha256: "c".repeat(64)
+      },
+      ...expected
+    }).join("; "),
+    /does not bind the exact candidate, deployment, ledger, window/
+  );
+  assert.match(
+    durableTargetDeviationApprovalProblems({
+      approval: {
+        ...approval,
+        candidateCommit: "d".repeat(40),
+        evidenceWindow: {
+          ...approval.evidenceWindow,
+          endedAt: new Date(
+            Date.parse(approval.evidenceWindow.endedAt) - 1_000
+          ).toISOString()
+        }
+      },
+      ...expected
+    }).join("; "),
+    /does not bind the exact candidate, deployment, ledger, window/
+  );
+  const belowMinimum = {
+    ...expected,
+    evidenceWindow: {
+      ...expected.evidenceWindow,
+      startedAt: new Date(
+        Date.parse(endedAt) - 23 * 3_600_000
+      ).toISOString()
+    }
+  };
+  assert.match(
+    durableTargetDeviationApprovalProblems({
+      approval,
+      ...belowMinimum
+    }).join("; "),
+    /below the 24-hour hard minimum/
+  );
+  const targetWindow = {
+    ...expected,
+    evidenceWindow: {
+      ...expected.evidenceWindow,
+      startedAt: new Date(
+        Date.parse(endedAt) - 168 * 3_600_000
+      ).toISOString()
+    }
+  };
+  assert.deepEqual(
+    durableTargetDeviationApprovalProblems({
+      approval: null,
+      ...targetWindow
+    }),
+    []
+  );
+  assert.match(
+    durableTargetDeviationApprovalProblems({
+      approval,
+      ...targetWindow
+    }).join("; "),
+    /must be null when the 168-hour target is met/
+  );
+
+  const scaffold =
+    buildDurableTargetDeviationApprovalScaffold(expected);
+  assert.match(scaffold.status, /^<required:/);
+  assert.match(scaffold.approvedBy, /^<required:/);
+  assert.equal(scaffold.candidateCommit, candidateCommit);
+  assert.equal(scaffold.ledgerSha256, expected.ledgerSha256);
+  assert.notEqual(scaffold.status, "approved");
+});
+
+test("measurement report chronology includes single, primary, and supporting runs", async () => {
+  const { reportAcquisitionRuns } = await script("release-readiness-lib.mjs");
+  const single = makePublicSingleReportV2R2();
+  const singleRuns = reportAcquisitionRuns(single);
+  assert.deepEqual(singleRuns.reasons, []);
+  assert.deepEqual(
+    singleRuns.runs.map((entry: { label: string }) => entry.label),
+    ["run"]
+  );
+
+  const comparison = makeSupportingPairInterventionReportV2R2();
+  const comparisonRuns = reportAcquisitionRuns(comparison);
+  assert.deepEqual(comparisonRuns.reasons, []);
+  assert.deepEqual(
+    comparisonRuns.runs.map((entry: { label: string }) => entry.label),
+    [
+      "baseline",
+      "variant",
+      "supporting pair 1 baseline",
+      "supporting pair 1 variant"
+    ]
+  );
+});
+
+test("hosted evidence cannot reuse a successful run from older workflow bytes", async () => {
+  const {
+    hostedSubjectFinalizationCommit,
+    hostedEvidenceSourceTrustProblems
+  } = await script("release-readiness-lib.mjs");
+  const hosted = await script(
+    "hosted-evidence-provenance-lib.mjs"
+  );
+  const root = mkdtempSync(path.join(tmpdir(), "hosted-workflow-trust-"));
+  const workflowPath = ".github/workflows/durable-soak-restart.yml";
+  try {
+    mkdirSync(path.join(root, ".github", "workflows"), {
+      recursive: true
+    });
+    writeFileSync(
+      path.join(root, workflowPath),
+      "name: Old weak producer\n"
+    );
+    for (const relativePath of
+      hosted.hostedEvidenceCollectionContract("durable-soak")
+        .sources.restart.trustedSourcePaths as string[]) {
+      const absolutePath = path.join(
+        root,
+        ...relativePath.split("/")
+      );
+      mkdirSync(path.dirname(absolutePath), {
+        recursive: true
+      });
+      writeFileSync(
+        absolutePath,
+        `${relativePath}: candidate-approved\n`
+      );
+    }
+    testGit(root, ["init", "-q"]);
+    testGit(root, ["config", "user.name", "Hosted Evidence Test"]);
+    testGit(root, ["config", "user.email", "hosted@example.test"]);
+    testGit(root, ["add", "."]);
+    testGit(root, [
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "-q",
+      "-m",
+      "Old workflow"
+    ]);
+    const oldSource = testGit(root, ["rev-parse", "HEAD"]);
+
+    const subjectBytes = '{"kind":"durable-soak"}\n';
+    writeFileSync(path.join(root, "durable-subject.json"), subjectBytes);
+    testGit(root, ["add", "durable-subject.json"]);
+    testGit(root, [
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "-q",
+      "-m",
+      "Finalize durable subject"
+    ]);
+    const subjectCarrier = testGit(root, ["rev-parse", "HEAD"]);
+
+    writeFileSync(
+      path.join(root, workflowPath),
+      "name: Candidate-approved producer\n"
+    );
+    testGit(root, ["add", workflowPath]);
+    testGit(root, [
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "-q",
+      "-m",
+      "Approve workflow"
+    ]);
+    const candidateCommit = testGit(root, ["rev-parse", "HEAD"]);
+
+    writeFileSync(path.join(root, "evidence.json"), "{}\n");
+    testGit(root, ["add", "evidence.json"]);
+    testGit(root, [
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "-q",
+      "-m",
+      "Carry evidence"
+    ]);
+    const carrierCommit = testGit(root, ["rev-parse", "HEAD"]);
+    const context = {
+      binding: {
+        candidateCommit,
+        carrierCommit,
+        acceptedProducerCommits: [candidateCommit, carrierCommit]
+      },
+      module: null
+    };
+    assert.equal(
+      hostedSubjectFinalizationCommit(
+        root,
+        candidateCommit,
+        "durable-subject.json",
+        createHash("sha256").update(subjectBytes).digest("hex")
+      ),
+      subjectCarrier,
+      "the hosted subject commit is the commit containing exact subject bytes, not the earlier deployment source"
+    );
+    const source = {
+      role: "restart",
+      workflowPath,
+      headSha: oldSource
+    };
+    assert.match(
+      hostedEvidenceSourceTrustProblems(
+        root,
+        context,
+        "durable-soak",
+        oldSource,
+        [source]
+      ).join(" "),
+      /workflow bytes that do not equal the candidate-approved/
+    );
+    assert.deepEqual(
+      hostedEvidenceSourceTrustProblems(
+        root,
+        context,
+        "durable-soak",
+        candidateCommit,
+        [{ ...source, headSha: candidateCommit }]
+      ),
+      []
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("every durable soak source rejects stale producer or semantic-verifier bytes", async () => {
+  const {
+    hostedEvidenceSourceTrustProblems
+  } = await script("release-readiness-lib.mjs");
+  const hosted = await script(
+    "hosted-evidence-provenance-lib.mjs"
+  );
+  const contract =
+    hosted.hostedEvidenceCollectionContract("durable-soak");
+  const cases = [
+    {
+      role: "monitor",
+      changedPath: "scripts/durable-soak-ledger.mjs"
+    },
+    {
+      role: "restart",
+      changedPath:
+        "scripts/durable-soak-restart-evidence.mjs"
+    },
+    {
+      role: "exercises",
+      changedPath:
+        "scripts/durable-soak-exercise-evidence.mjs"
+    }
+  ] as const;
+  for (const { role, changedPath } of cases) {
+    const root = mkdtempSync(
+      path.join(tmpdir(), `hosted-${role}-source-trust-`)
+    );
+    const sourceContract = contract.sources[role];
+    const workflowPath = sourceContract.workflows[0];
+    try {
+      for (const relativePath of [
+        workflowPath,
+        ...sourceContract.trustedSourcePaths
+      ]) {
+        const absolutePath = path.join(
+          root,
+          ...relativePath.split("/")
+        );
+        mkdirSync(path.dirname(absolutePath), {
+          recursive: true
+        });
+        writeFileSync(
+          absolutePath,
+          `${relativePath}: candidate-approved\n`
+        );
+      }
+      testGit(root, ["init", "-q"]);
+      testGit(root, [
+        "config",
+        "user.name",
+        "Hosted Evidence Test"
+      ]);
+      testGit(root, [
+        "config",
+        "user.email",
+        "hosted@example.test"
+      ]);
+      testGit(root, ["add", "."]);
+      testGit(root, [
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-q",
+        "-m",
+        `Durable ${role} deployment`
+      ]);
+      const deploymentCommit = testGit(root, [
+        "rev-parse",
+        "HEAD"
+      ]);
+
+      writeFileSync(
+        path.join(root, "candidate-marker"),
+        "candidate\n"
+      );
+      testGit(root, ["add", "candidate-marker"]);
+      testGit(root, [
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-q",
+        "-m",
+        "Select matching candidate"
+      ]);
+      const matchingCandidate = testGit(root, [
+        "rev-parse",
+        "HEAD"
+      ]);
+      const source = {
+        role,
+        workflowPath,
+        headSha: deploymentCommit
+      };
+      assert.deepEqual(
+        hostedEvidenceSourceTrustProblems(
+          root,
+          {
+            binding: {
+              candidateCommit: matchingCandidate,
+              carrierCommit: matchingCandidate,
+              acceptedProducerCommits: [matchingCandidate]
+            }
+          },
+          "durable-soak",
+          deploymentCommit,
+          [source]
+        ),
+        []
+      );
+
+      writeFileSync(
+        path.join(root, ...changedPath.split("/")),
+        "stale producer was replaced after the evidence run\n"
+      );
+      testGit(root, ["add", changedPath]);
+      testGit(root, [
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-q",
+        "-m",
+        `Change ${role} producer`
+      ]);
+      const changedCandidate = testGit(root, [
+        "rev-parse",
+        "HEAD"
+      ]);
+      assert.match(
+        hostedEvidenceSourceTrustProblems(
+          root,
+          {
+            binding: {
+              candidateCommit: changedCandidate,
+              carrierCommit: changedCandidate,
+              acceptedProducerCommits: [changedCandidate]
+            }
+          },
+          "durable-soak",
+          deploymentCommit,
+          [source]
+        ).join(" "),
+        new RegExp(
+          `producer bytes that do not equal the candidate-approved ${changedPath.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          )}`
+        )
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test("durable soak hourly sources use the candidate-approved Production Health workflow", async () => {
+  const {
+    durableSoakNestedWorkflowTrustProblems
+  } = await script("release-readiness-lib.mjs");
+  const root = mkdtempSync(
+    path.join(tmpdir(), "durable-soak-nested-workflow-trust-")
+  );
+  const workflowPath =
+    ".github/workflows/production-health.yml";
+  try {
+    mkdirSync(path.join(root, ".github", "workflows"), {
+      recursive: true
+    });
+    writeFileSync(
+      path.join(root, workflowPath),
+      "name: Candidate-approved hourly health\n"
+    );
+    testGit(root, ["init", "-q"]);
+    testGit(root, ["config", "user.name", "Hosted Evidence Test"]);
+    testGit(root, [
+      "config",
+      "user.email",
+      "hosted@example.test"
+    ]);
+    testGit(root, ["add", workflowPath]);
+    testGit(root, [
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "-q",
+      "-m",
+      "Durable deployment"
+    ]);
+    const deploymentCommit = testGit(root, [
+      "rev-parse",
+      "HEAD"
+    ]);
+
+    writeFileSync(path.join(root, "candidate-marker"), "candidate\n");
+    testGit(root, ["add", "candidate-marker"]);
+    testGit(root, [
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "-q",
+      "-m",
+      "Select candidate"
+    ]);
+    const matchingCandidate = testGit(root, [
+      "rev-parse",
+      "HEAD"
+    ]);
+    assert.deepEqual(
+      durableSoakNestedWorkflowTrustProblems(
+        root,
+        matchingCandidate,
+        deploymentCommit
+      ),
+      []
+    );
+
+    writeFileSync(
+      path.join(root, workflowPath),
+      "name: Changed after the soak\n"
+    );
+    testGit(root, ["add", workflowPath]);
+    testGit(root, [
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "-q",
+      "-m",
+      "Change hourly health"
+    ]);
+    const changedCandidate = testGit(root, [
+      "rev-parse",
+      "HEAD"
+    ]);
+    assert.match(
+      durableSoakNestedWorkflowTrustProblems(
+        root,
+        changedCandidate,
+        deploymentCommit
+      ).join(" "),
+      /workflow bytes that do not equal the candidate-approved/
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("report and A/A producer identities must match the candidate-derived identity", async () => {
+  const {
+    aaMeasurementIdentityProblems,
+    measurementIdentityRunProblems
+  } = await script("release-readiness-lib.mjs");
+  const report = makePublicSingleReportV2R2();
+  const run = report.run;
+  const reportIdentity = {
+    value: {
+      implementation: {
+        detectorRegistryVersion: run.provenance.detectorRegistry.version,
+        detectorRegistryDigest: run.provenance.detectorRegistry.digest,
+        methodologyVersion: run.provenance.methodologyVersion,
+        normalizationVersion: run.toolchain.normalizationVersion
+      },
+      catalogs: {
+        trackerCatalogVersion: run.toolchain.trackerCatalog.version,
+        trackerCatalogDigest: run.toolchain.trackerCatalog.digest,
+        braveManifestDigest: run.toolchain.adblock!.manifestDigest,
+        braveEngineVersion: run.toolchain.adblock!.engineVersion
+      }
+    }
+  };
+  assert.deepEqual(
+    measurementIdentityRunProblems(reportIdentity, run),
+    []
+  );
+  const staleReport = structuredClone(run);
+  staleReport.toolchain.trackerCatalog.digest = "0".repeat(64);
+  staleReport.provenance.detectorRegistry.version = "stale-registry";
+  const reportIssues = measurementIdentityRunProblems(
+    reportIdentity,
+    staleReport
+  ).join(" ");
+  assert.match(reportIssues, /detector registry/);
+  assert.match(reportIssues, /tracker catalog/);
+
+  const ledger = await aaLedger();
+  const producer =
+    ledger.attempts[0].observation.arms.run.producerRuntime;
+  const aaIdentity = {
+    value: {
+      implementation: {
+        methodologyVersion: producer.methodologyVersion,
+        detectorRegistryVersion: producer.detectorRegistry.version,
+        detectorRegistryDigest: producer.detectorRegistry.digest
+      }
+    }
+  };
+  assert.deepEqual(
+    aaMeasurementIdentityProblems(aaIdentity, ledger),
+    []
+  );
+  const staleLedger = structuredClone(ledger);
+  staleLedger.attempts[1].observation.arms.run.producerRuntime.methodologyVersion =
+    "stale-methodology";
+  assert.match(
+    aaMeasurementIdentityProblems(aaIdentity, staleLedger).join(" "),
+    /methodologyVersion/
+  );
+});
+
+test("A/A target-frame bytes defeat a matching fabricated preregistration and ledger digest", async () => {
+  const { aaTargetFrameDigestIssues } = await script(
+    "release-readiness-lib.mjs"
+  );
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-aa-frame-"));
+  try {
+    const targetFramePath =
+      "research/aa-studies/fabricated/target-frame.json";
+    mkdirSync(path.dirname(path.join(root, targetFramePath)), {
+      recursive: true
+    });
+    writeFileSync(
+      path.join(root, targetFramePath),
+      `${JSON.stringify([
+        { targetId: "real", url: "https://real.example/" }
+      ])}\n`
+    );
+    const fabricated = "f".repeat(64);
+    const issues = aaTargetFrameDigestIssues(
+      root,
+      targetFramePath,
+      { sitesFile: targetFramePath, sitesFileDigest: fabricated },
+      {
+        sitesFile: targetFramePath,
+        provenance: { sitesFileDigest: fabricated }
+      }
+    );
+    assert.match(issues.join(" "), /exact study-local target-frame bytes/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("evidence dated after its introduction commit cannot become green later", async () => {
+  const { producerEvidenceProblems } = await script(
+    "release-readiness-lib.mjs"
+  );
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-causality-"));
+  try {
+    testGit(root, ["init", "-q"]);
+    testGit(root, ["config", "user.name", "Causality Test"]);
+    testGit(root, ["config", "user.email", "causality@example.test"]);
+    writeFileSync(path.join(root, "candidate.txt"), "candidate\n");
+    testGit(root, ["add", "candidate.txt"]);
+    testGit(
+      root,
+      ["-c", "commit.gpgsign=false", "commit", "-q", "-m", "candidate"],
+      {
+        GIT_AUTHOR_DATE: "2026-08-01T00:00:00Z",
+        GIT_COMMITTER_DATE: "2026-08-01T00:00:00Z"
+      }
+    );
+    const producer = testGit(root, ["rev-parse", "HEAD"]);
+    const evidencePath = "research/evidence.json";
+    mkdirSync(path.join(root, "research"), { recursive: true });
+    writeFileSync(path.join(root, evidencePath), "{}\n");
+    testGit(root, ["add", evidencePath]);
+    testGit(
+      root,
+      ["-c", "commit.gpgsign=false", "commit", "-q", "-m", "evidence"],
+      {
+        GIT_AUTHOR_DATE: "2026-08-02T00:00:00Z",
+        GIT_COMMITTER_DATE: "2026-08-02T00:00:00Z"
+      }
+    );
+    const carrier = testGit(root, ["rev-parse", "HEAD"]);
+    const issues = producerEvidenceProblems(
+      root,
+      {
+        binding: {
+          candidateCommit: producer,
+          carrierCommit: carrier,
+          acceptedProducerCommits: [producer]
+        }
+      },
+      evidencePath,
+      producer,
+      "2026-08-03T00:00:00.000Z"
+    );
+    assert.match(issues.join(" "), /must not follow its introduction commit/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("bound corpus derivation collapses two cycles for one site to the newest representative", async () => {
+  const { deriveBoundCorpusCohort } = await script(
+    "release-readiness-lib.mjs"
+  );
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-corpus-"));
+  try {
+    const reportsDir = path.join(root, "public", "reports");
+    mkdirSync(reportsDir, { recursive: true });
+    const older = makePublicSingleReportV2R2();
+    const subject = {
+      origin: "https://duplicate-cycle-fixture.dev",
+      registrableDomain: "duplicate-cycle-fixture.dev",
+      routeShape: "/"
+    };
+    older.run.subject = {
+      requested: subject,
+      observed: { ...subject }
+    };
+    const newer = structuredClone(older);
+    newer.run.startedAt = "2026-07-09T11:00:00.000Z";
+    const olderId = "20260709-11111111111111111111111111111111";
+    const newerId = "20260709-22222222222222222222222222222222";
+    const olderPath = `public/reports/${olderId}.json`;
+    const newerPath = `public/reports/${newerId}.json`;
+    writeFileSync(path.join(root, ...olderPath.split("/")), JSON.stringify(older));
+    writeFileSync(path.join(root, ...newerPath.split("/")), JSON.stringify(newer));
+    const identity = corpusCohortIdentityForView(
+      toReportView({ schemaVersion: 2, schemaRevision: 2, report: older })
+    );
+    const derived = deriveBoundCorpusCohort(
+      root,
+      {
+        binding: {
+          evidence: [olderPath, newerPath].map((evidencePath) => ({
+            category: "featured-report",
+            path: evidencePath
+          }))
+        }
+      },
+      identity.id
+    );
+    assert.deepEqual(derived.reasons, []);
+    assert.equal(derived.sampleSize, 1);
+    assert.equal(derived.latestRunAt, newer.run.startedAt);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

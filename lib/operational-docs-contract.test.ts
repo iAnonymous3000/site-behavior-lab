@@ -153,6 +153,34 @@ test("durable rollout docs require isolated staging teardown before production a
   assert.match(envExample, /Do not enable it[\s\S]*isolated,[\s\S]*token-gated staging topology/i);
 });
 
+test("measurement-freeze policy distinguishes stale proposals from the controlled collection lane", () => {
+  const release = source("RELEASE.md");
+
+  assert.match(release, /featured-gallery[\s\S]{0,100}05:23 UTC on 2026-08-03 and\s+2026-08-10/);
+  assert.match(release, /all 13 formerly deferred sites/);
+  assert.match(release, /07:23 UTC seed-catalog legs do not cover these sites/);
+  assert.match(release, /2026-08-11 through 2026-08-17 inclusive/);
+  assert.match(
+    release,
+    /Re-defer only[\s\S]{0,80}same closed unavailable reason repeated\s+in both complete\s+cycles/
+  );
+  assert.match(release, /Only after that PR[\s\S]{0,220}SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1/);
+
+  assert.match(
+    release,
+    /`automation\/\*` proposal whose[\s\S]{0,100}began \*\*before\*\* freeze activation[\s\S]{0,100}must not be merged/
+  );
+  assert.match(
+    release,
+    /post-activation `automation\/featured-scan-\*` proposals[\s\S]{0,120}may be reviewed and merged\s+during the freeze/
+  );
+  assert.match(
+    release,
+    /Until a later code-enforced Dependabot pause\s+exists, no `dependabot\/\*` PR may be merged while the freeze is active/
+  );
+  assert.doesNotMatch(release, /do not MERGE any\s+open `automation\/\*` proposal during a freeze window/);
+});
+
 test("operator commands and topology names target explicit Wrangler configs", () => {
   const readme = source("README.md");
   const envExample = source(".env.example");
@@ -205,6 +233,36 @@ test("release runbook matches the current Wrangler and three-gate CI contract", 
     /all\s+five promotion gates \(`supply-chain`, `app`, `smoke`, `docker`, and `attest`\)/i
   );
   assert.doesNotMatch(goLive, /After both\s+test jobs pass/i);
+});
+
+test("release operators get a fail-closed scaffold for every attestation gate", () => {
+  const release = source("RELEASE.md");
+  const packageJson = JSON.parse(source("package.json")) as {
+    scripts?: Record<string, string>;
+  };
+  const scaffold = source("scripts/release-attestation-scaffold.mjs");
+
+  assert.equal(
+    packageJson.scripts?.["release:attestation-scaffold"],
+    "node scripts/release-attestation-scaffold.mjs"
+  );
+  assert.match(
+    release,
+    /npm run release:attestation-scaffold -- --gate egress-backstop/
+  );
+  assert.match(release, /collectionEnvironmentDigest/);
+  assert.match(release, /collectionProducerCommitsDigest/);
+  assert.match(release, /docs\/operator-evidence-capture\.md/);
+  assert.match(
+    release,
+    /derives the attestation's candidate, deployment, policy, image, and inventory\s+bindings/
+  );
+  assert.match(release, /"true": false/);
+  assert.match(scaffold, /releaseAttestationScaffold/);
+  assert.doesNotMatch(
+    release,
+    /"candidateCommit": "<full-40-character-sha>"[\s\S]{0,100}"networkPolicyDigest"/
+  );
 });
 
 test("the README names the methodology version the scanner actually records", () => {
