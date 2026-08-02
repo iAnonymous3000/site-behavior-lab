@@ -603,8 +603,8 @@ jobs:
               }
             }
             const container = JSON.parse(readFileSync(process.env.CONTAINER_EVIDENCE_PATH, "utf8"));
-            const inventoryBytes = readFileSync(process.env.CONTAINER_PACKAGE_INVENTORY_PATH, "utf8");
-            const inventory = JSON.parse(inventoryBytes);
+            const inventoryBytes = readFileSync(process.env.CONTAINER_PACKAGE_INVENTORY_PATH);
+            const inventory = JSON.parse(inventoryBytes.toString("utf8"));
             const requireKeys = (value, expected, label) => {
               if (
                 !value ||
