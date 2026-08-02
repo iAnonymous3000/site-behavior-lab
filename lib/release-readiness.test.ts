@@ -32,6 +32,19 @@ function testGit(root: string, args: string[], env: Record<string, string> = {})
   }).trim();
 }
 
+// The runtime container image builds from a git-less context by design (.git
+// never enters the Docker build context), so inside the image's `npm run
+// check` the repository head is unavailable. State that environmental
+// precondition as an explicit skip; every host lane runs the gated test.
+const repositoryHeadSkip = (() => {
+  try {
+    testGit(process.cwd(), ["rev-parse", "HEAD"]);
+    return false as const;
+  } catch {
+    return "the build context has no .git, so the repository head is unavailable; host lanes run this test";
+  }
+})();
+
 const EXPECTED_GATES: Record<string, string> = {
   "decisions-approved": "decisions",
   "release-tag-governance": "release-tag-governance",
@@ -1616,7 +1629,7 @@ test("the attestation scaffold covers every release attestation without inventin
   }
 });
 
-test("durable target deviations require an exact candidate-bound named-human approval", async () => {
+test("durable target deviations require an exact candidate-bound named-human approval", { skip: repositoryHeadSkip }, async () => {
   const {
     buildDurableTargetDeviationApprovalScaffold,
     durableTargetDeviationApprovalProblems

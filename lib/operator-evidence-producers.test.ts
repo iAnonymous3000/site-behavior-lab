@@ -33,6 +33,15 @@ const REPOSITORY_HEAD = spawnSync("git", ["rev-parse", "HEAD"], {
   cwd: process.cwd(),
   encoding: "utf8"
 }).stdout.trim();
+
+// The runtime container image builds from a git-less context by design (.git
+// never enters the Docker build context), so inside the image's `npm run
+// check` the repository head is unavailable. State that environmental
+// precondition as an explicit skip; every host lane runs this test.
+const repositoryHeadSkip =
+  REPOSITORY_HEAD === ""
+    ? "the build context has no .git, so the repository head is unavailable; host lanes run this test"
+    : false;
 const STAGING_SESSION_ID = "123e4567-e89b-42d3-a456-426614174000";
 const LOCAL_LEGAL_EVIDENCE_REF =
   "repo:LICENSE#sha256=0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0";
@@ -1443,7 +1452,7 @@ async function makeContainerEvidence({
   };
 }
 
-test("container licensing receipt derives image and package digests from exact reviewed inputs", async () => {
+test("container licensing receipt derives image and package digests from exact reviewed inputs", { skip: repositoryHeadSkip }, async () => {
   const {
     buildContainerImageLicensingEvidence,
     validateContainerImageLicensingEvidence
