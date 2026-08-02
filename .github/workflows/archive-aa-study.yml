@@ -64,6 +64,12 @@ jobs:
           node-version: 24.14.1
           cache: npm
 
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
       - name: Install and build the protected attestation verifier
         run: |
           set -euo pipefail
@@ -201,6 +207,12 @@ jobs:
         with:
           node-version: 24.14.1
           cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install and build the archive verifier
         run: |

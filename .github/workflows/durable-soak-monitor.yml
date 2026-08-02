@@ -90,6 +90,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
           output="$RUNNER_TEMP/durable-soak-ledger"
           test ! -e "$output"
           node scripts/durable-soak-ledger.mjs \

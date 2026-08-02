@@ -7,6 +7,7 @@ import {
   verifiedMeasurementCandidateBuildProof,
   verifiedMeasurementCandidateBinding,
   VERIFIED_MEASUREMENT_CANDIDATE_PROOF_ENV,
+  type MeasurementCalibrationCeremonyVerificationRequest,
   type MeasurementCandidateAttestationRequest,
   type MeasurementDurableReplayVerificationRequest,
   type MeasurementDurableSoakProvenanceVerificationRequest,
@@ -69,6 +70,9 @@ export type CommittedCalibrationSourceOptions = {
   ) => void;
   durableSoakProvenanceVerifier?: (
     request: MeasurementDurableSoakProvenanceVerificationRequest
+  ) => void;
+  calibrationCeremonyVerifier?: (
+    request: MeasurementCalibrationCeremonyVerificationRequest
   ) => void;
   requireCleanWorktree?: boolean;
 };

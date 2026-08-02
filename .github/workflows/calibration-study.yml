@@ -267,6 +267,12 @@ jobs:
         with:
           node-version: 24.14.1
 
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
       - name: Install carrier verifier dependencies
         working-directory: trusted-carrier
         run: npm ci --ignore-scripts
@@ -390,6 +396,12 @@ jobs:
           node-version: 24.14.1
           cache: npm
 
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
       - name: Install trusted assembly dependencies
         run: npm ci --ignore-scripts
 
@@ -428,6 +440,18 @@ jobs:
             "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ACQUISITION_ARTIFACT_ID}/zip" \
             > "$RUNNER_TEMP/calibration-acquisition.zip"
 
+      - name: Materialize the frozen label coordinates in a separate lane
+        id: labels_lane
+        run: |
+          set -euo pipefail
+          LABELS_REF="$(jq -r '.head_sha // empty' "$RUNNER_TEMP/calibration-run.json")"
+          [[ "$LABELS_REF" =~ ^[0-9a-f]{40}$ ]]
+          git cat-file -e "$LABELS_REF^{commit}"
+          test ! -e "$RUNNER_TEMP/calibration-labels-lane"
+          git worktree add --detach "$RUNNER_TEMP/calibration-labels-lane" "$LABELS_REF"
+          echo "labels_commit=$LABELS_REF" >> "$GITHUB_OUTPUT"
+          echo "labels_tree=$(git rev-parse "$LABELS_REF^{tree}")" >> "$GITHUB_OUTPUT"
+
       - name: Authenticate archive and assemble governed study
         env:
           GH_TOKEN: ${{ github.token }}
@@ -445,6 +469,10 @@ jobs:
             --artifact-metadata "$RUNNER_TEMP/calibration-artifacts.json" \
             --archive "$RUNNER_TEMP/calibration-acquisition.zip" \
             --extracted-dir "$RUNNER_TEMP/calibration-acquisition" \
+            --labels-dir "$RUNNER_TEMP/calibration-labels-lane/calibration-labels/$CALIBRATION_STUDY_ID" \
+            --labels-commit "${{ steps.labels_lane.outputs.labels_commit }}" \
+            --labels-tree "${{ steps.labels_lane.outputs.labels_tree }}" \
+            --labels-path "calibration-labels/$CALIBRATION_STUDY_ID" \
             --run-id "$ACQUISITION_RUN_ID" \
             --run-attempt "$ACQUISITION_RUN_ATTEMPT" \
             --artifact-id "$ACQUISITION_ARTIFACT_ID" \
@@ -614,6 +642,12 @@ jobs:
         with:
           node-version: 24.14.1
           cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install only trusted finalizer dependencies
         run: npm ci --ignore-scripts

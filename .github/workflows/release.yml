@@ -1163,6 +1163,10 @@ jobs:
             -H "Accept: application/vnd.github.raw+json" \
             "repos/${GITHUB_REPOSITORY}/contents/RELEASE_READINESS.json?ref=${RELEASE_SHA}" \
             > "$context/readiness.json"
+          gh api \
+            -H "Accept: application/vnd.github.raw+json" \
+            "repos/${GITHUB_REPOSITORY}/contents/.github/required-ci-jobs.json?ref=${RELEASE_SHA}" \
+            > "$context/required-ci-jobs.json"
           gh api "apps/${RELEASE_APP_SLUG}" > "$context/release-app.json"
           gh api "apps/${PROMOTION_APP_SLUG}" > "$context/promotion-app.json"
           gh api \
@@ -1612,13 +1616,21 @@ jobs:
               "The production evidence ruleset must retain zero bypass actors and exactly four rules."
             );
           }
-          const expectedChecks = [
-            "Supply-chain Security",
-            "Typecheck, Unit Tests, Build",
-            "Chromium Smoke Test",
-            "Docker Runtime and Public R2 Smoke",
-            "Attest exact-SHA evidence manifests"
-          ];
+          const requiredCiJobs = read("required-ci-jobs.json");
+          if (
+            requiredCiJobs?.schemaVersion !== 1 ||
+            !Array.isArray(requiredCiJobs.jobs) ||
+            requiredCiJobs.jobs.length === 0 ||
+            requiredCiJobs.jobs.some(
+              (job) => typeof job !== "string" || job.trim() === ""
+            ) ||
+            new Set(requiredCiJobs.jobs).size !== requiredCiJobs.jobs.length
+          ) {
+            fail(
+              "required-ci-jobs.json at the release SHA must list unique required job names under schemaVersion 1."
+            );
+          }
+          const expectedChecks = requiredCiJobs.jobs;
           const [
             deletion,
             nonFastForward,

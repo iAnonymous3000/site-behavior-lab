@@ -176,10 +176,16 @@ test("published v1 studies remain readable but cannot publish an unconditioned r
   const current = study("simple-random");
   const legacy = structuredClone(current) as unknown as {
     schemaVersion: number;
+    labelRosterAuthorizationSha256?: string;
+    rosterSelectionLedgerSha256?: string;
+    acquisitionAttemptLedgerSha256?: string;
     design: Record<string, unknown>;
     cases: Array<Record<string, unknown>>;
   };
   legacy.schemaVersion = 1;
+  delete legacy.labelRosterAuthorizationSha256;
+  delete legacy.rosterSelectionLedgerSha256;
+  delete legacy.acquisitionAttemptLedgerSha256;
   delete legacy.design.measurementCondition;
   for (const calibrationCase of legacy.cases) {
     if (calibrationCase.outcome !== "complete") continue;

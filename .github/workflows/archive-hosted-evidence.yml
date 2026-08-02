@@ -76,6 +76,12 @@ jobs:
         with:
           node-version: 24.14.1
 
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
       - name: Install the WAF subject verifier dependency graph
         if: inputs.profile == 'waf-ceilings'
         run: npm ci --ignore-scripts
@@ -91,7 +97,6 @@ jobs:
           SOURCES_JSON: ${{ inputs.sources_json }}
         run: |
           set -euo pipefail
-          test "$(node --version)" = "v24.14.1"
           [[ "$SUBJECT_COMMIT" =~ ^[0-9a-f]{40}$ ]]
           [[ "$SUBJECT_PATH" =~ ^[A-Za-z0-9._/-]+$ ]]
           [[ "$SUBJECT_PATH" != /* ]]
@@ -184,6 +189,12 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24.14.1
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       - name: Download only the exact attested handoff
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1

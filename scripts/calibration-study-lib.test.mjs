@@ -1571,6 +1571,62 @@ function rosterSelectionSnapshot(fixture) {
   });
 }
 
+function calibrationCustodyFixture(fixture, commitments) {
+  const { authenticatedCommitments, commitmentSetSha256 } =
+    authenticatedCalibrationCommitmentSummaries({
+      candidate: fixture.candidate,
+      candidateCommit: CANDIDATE,
+      commitments
+    });
+  const studyRoot = `calibration/${fixture.studyId}`;
+  const custodyFile = (name, value) => {
+    const text = canonicalPrettyJson(value);
+    return {
+      path: `${studyRoot}/${name}`,
+      text,
+      sha256: sha256Hex(text)
+    };
+  };
+  const files = {
+    labelRosterAuthorization: custodyFile(
+      "label-roster-authorization.json",
+      {
+        studyId: fixture.studyId,
+        detector: fixture.candidate.detector,
+        candidateCommit: CANDIDATE,
+        carrierCommit: CARRIER,
+        authenticatedCommitments,
+        commitmentSetSha256
+      }
+    ),
+    rosterSelectionLedger: custodyFile("roster-selection-ledger.json", {
+      studyId: fixture.studyId,
+      selectedRunId: 122,
+      runs: [122]
+    }),
+    acquisitionAttemptLedger: custodyFile(
+      "acquisition-attempt-ledger.json",
+      {
+        studyId: fixture.studyId,
+        attempts: [{ runId: 123, runAttempt: 1 }]
+      }
+    )
+  };
+  return {
+    roster: {
+      authorizationPath: files.labelRosterAuthorization.path,
+      authorizationSha256: files.labelRosterAuthorization.sha256,
+      selectionLedgerPath: files.rosterSelectionLedger.path,
+      selectionLedgerSha256: files.rosterSelectionLedger.sha256,
+      candidateCommit: CANDIDATE,
+      carrierCommit: CARRIER,
+      authenticatedCommitments,
+      commitmentSetSha256
+    },
+    files
+  };
+}
+
 function caseInputValues(studyId, detector, url) {
   const measurementCondition = calibrationMeasurementCondition(detector);
   const selection = {

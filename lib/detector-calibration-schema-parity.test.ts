@@ -38,7 +38,7 @@ const V3_SCHEMA_PATH = path.join(
   "detector-calibration-study.v3.schema.json"
 );
 const FROZEN_V3_SCHEMA_SHA256 =
-  "2ac4d02b7d2d1d9906d574f0022f58a829748fd6ea804c635bf0cad033e98f25";
+  "abcbd56177ffcd2d609502251180806bf90b509c11720eae8a205e33d62188b3";
 
 function generatedSchema(): Record<string, unknown> {
   const schema = createGenerator({

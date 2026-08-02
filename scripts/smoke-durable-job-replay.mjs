@@ -103,6 +103,19 @@ const { jobId, reportId, statusPath } = submission;
 const submittedAt = new Date().toISOString();
 console.log(`Accepted job ${jobId} with report ${reportId}. Entering the deliberate no-poll window.`);
 await sleep(noPollMs);
+// Timers may wake before the wall clock advances a full millisecond, and the
+// receipt validator requires the stamped window to cover the declared margin.
+// The monotonic deadline keeps a backward wall-clock step from extending the
+// ceremony indefinitely.
+const catchUpDeadline = performance.now() + 300_000;
+while (Date.now() - Date.parse(submittedAt) < noPollMs) {
+  if (performance.now() > catchUpDeadline) {
+    fail(
+      "The wall clock moved backward during the no-poll window and did not recover within 5 minutes; preserve no partial claim."
+    );
+  }
+  await sleep(1);
+}
 const blindWindowEndedAt = new Date().toISOString();
 console.log("No-poll window complete; reading exactly one terminal status snapshot.");
 

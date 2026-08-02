@@ -1,6 +1,7 @@
 import {
   exactKeys,
   isRecord,
+  serializeCanonicalEvidence,
   sha256Bytes
 } from "./operator-evidence-common.mjs";
 
@@ -103,29 +104,6 @@ function positiveSafeInteger(value) {
 
 function cloneJson(value) {
   return JSON.parse(JSON.stringify(value));
-}
-
-function canonicalJson(value) {
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "boolean"
-  ) {
-    return JSON.stringify(value);
-  }
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map(canonicalJson).join(",")}]`;
-  }
-  if (isRecord(value)) {
-    return `{${Object.keys(value)
-      .sort()
-      .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`)
-      .join(",")}}`;
-  }
-  throw new Error("release governance receipt contains a non-JSON value");
 }
 
 function normalizeBypassActor(actor, label) {
@@ -632,7 +610,7 @@ export function serializeReleaseTagGovernanceReceipt(receipt) {
   if (problems.length > 0) {
     throw new Error(`invalid release governance receipt: ${problems.join("; ")}`);
   }
-  return `${canonicalJson(receipt)}\n`;
+  return serializeCanonicalEvidence(receipt);
 }
 
 export function releaseTagGovernanceReceiptSha256(receipt) {

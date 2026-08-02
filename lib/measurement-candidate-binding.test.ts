@@ -57,6 +57,7 @@ import {
   type MeasurementDurableSoakProvenanceVerificationRequest,
   type MeasurementOperatorEvidenceVerificationRequest,
   type MeasurementStagingTeardownProvenanceVerificationRequest,
+  type MeasurementCalibrationCeremonyVerificationRequest,
   type MeasurementEvidenceCategory,
   type MeasurementFreezeReceiptVerificationRequest
 } from "./measurement-candidate-binding";
@@ -181,6 +182,12 @@ type BindingJson = {
     runtimeReceiptSha256: string;
     runtimeReceiptBundlePath: string;
     runtimeReceiptBundleSha256: string;
+    labelRosterAuthorizationPath: string;
+    labelRosterAuthorizationSha256: string;
+    rosterSelectionLedgerPath: string;
+    rosterSelectionLedgerSha256: string;
+    acquisitionAttemptLedgerPath: string;
+    acquisitionAttemptLedgerSha256: string;
     artifactManifestPath: string;
     artifactManifestSha256: string;
   }>;
@@ -230,6 +237,9 @@ const PASS_STAGING_TEARDOWN_PROVENANCE = (
 ): void => undefined;
 const PASS_DURABLE_SOAK_PROVENANCE = (
   _request: MeasurementDurableSoakProvenanceVerificationRequest
+): void => undefined;
+const PASS_CALIBRATION_CEREMONY = (
+  _request: MeasurementCalibrationCeremonyVerificationRequest
 ): void => undefined;
 
 function inspectFixture(root: string) {
@@ -300,7 +310,8 @@ test("one verified candidate covers the complete fixed post-freeze evidence carr
     stagingTeardownProvenanceVerifier:
       PASS_STAGING_TEARDOWN_PROVENANCE,
     durableSoakProvenanceVerifier:
-      PASS_DURABLE_SOAK_PROVENANCE
+      PASS_DURABLE_SOAK_PROVENANCE,
+    calibrationCeremonyVerifier: PASS_CALIBRATION_CEREMONY
   });
   assert.ok(verified);
   assert.equal(
@@ -332,7 +343,8 @@ test("one verified candidate covers the complete fixed post-freeze evidence carr
       stagingTeardownProvenanceVerifier:
         PASS_STAGING_TEARDOWN_PROVENANCE,
       durableSoakProvenanceVerifier:
-        PASS_DURABLE_SOAK_PROVENANCE
+        PASS_DURABLE_SOAK_PROVENANCE,
+      calibrationCeremonyVerifier: PASS_CALIBRATION_CEREMONY
     }
   );
   const study = analyses.find((entry) => entry.studyDir === fixture.studyId);
@@ -560,7 +572,8 @@ test("the hostless build projection requires the dedicated exact candidate and n
     stagingTeardownProvenanceVerifier:
       PASS_STAGING_TEARDOWN_PROVENANCE,
     durableSoakProvenanceVerifier:
-      PASS_DURABLE_SOAK_PROVENANCE
+      PASS_DURABLE_SOAK_PROVENANCE,
+    calibrationCeremonyVerifier: PASS_CALIBRATION_CEREMONY
   });
   assert.ok(verified);
   const proof = verifiedMeasurementCandidateBuildProof(verified);
@@ -619,7 +632,8 @@ test("the acquisition preflight alone permits the first study to bootstrap from 
     stagingTeardownProvenanceVerifier:
       PASS_STAGING_TEARDOWN_PROVENANCE,
     durableSoakProvenanceVerifier:
-      PASS_DURABLE_SOAK_PROVENANCE
+      PASS_DURABLE_SOAK_PROVENANCE,
+    calibrationCeremonyVerifier: PASS_CALIBRATION_CEREMONY
   };
   assert.throws(
     () => verifiedMeasurementCandidateBinding(fixture.root, verificationOptions),
@@ -1854,6 +1868,12 @@ RUN test "$(node --version)" = "v24.18.0"
     `calibration/${studyId}/runtime-receipt.sigstore.json`;
   const artifactManifestPath = `calibration/${studyId}/artifact-manifest.json`;
   const labelsManifestPath = `calibration/${studyId}/labels-manifest.json`;
+  const labelRosterAuthorizationPath =
+    `calibration/${studyId}/label-roster-authorization.json`;
+  const rosterSelectionLedgerPath =
+    `calibration/${studyId}/roster-selection-ledger.json`;
+  const acquisitionAttemptLedgerPath =
+    `calibration/${studyId}/acquisition-attempt-ledger.json`;
   const labelSealingPublicKeyPath =
     `calibration/${studyId}/label-sealing-public-key.pem`;
   const labelSealingKey = {
@@ -2141,6 +2161,18 @@ RUN test "$(node --version)" = "v24.18.0"
     options.adequateCalibrationStudy === true
   );
   if (options.includeCalibrationStudy !== false) {
+    writeFileSync(
+      path.join(root, ...labelRosterAuthorizationPath.split("/")),
+      `${studyId}-label-roster-authorization`
+    );
+    writeFileSync(
+      path.join(root, ...rosterSelectionLedgerPath.split("/")),
+      `${studyId}-roster-selection-ledger`
+    );
+    writeFileSync(
+      path.join(root, ...acquisitionAttemptLedgerPath.split("/")),
+      `${studyId}-acquisition-attempt-ledger`
+    );
     createCalibrationArtifacts(
       root,
       studyValue,
@@ -2424,6 +2456,9 @@ RUN test "$(node --version)" = "v24.18.0"
         receiptPath,
         receiptBundlePath,
         artifactManifestPath,
+        labelRosterAuthorizationPath,
+        rosterSelectionLedgerPath,
+        acquisitionAttemptLedgerPath,
         evidence,
         options.includeCalibrationStudy !== false
       )
@@ -3080,6 +3115,9 @@ function bindingJson(
   receiptPath: string,
   receiptBundlePath: string,
   artifactManifestPath: string,
+  labelRosterAuthorizationPath: string,
+  rosterSelectionLedgerPath: string,
+  acquisitionAttemptLedgerPath: string,
   evidence: EvidenceJson[],
   includeCalibrationStudy: boolean = true
 ): BindingJson {
@@ -3204,6 +3242,18 @@ function bindingJson(
         runtimeReceiptBundlePath: receiptBundlePath,
         runtimeReceiptBundleSha256: sha256File(
           path.join(root, ...receiptBundlePath.split("/"))
+        ),
+        labelRosterAuthorizationPath,
+        labelRosterAuthorizationSha256: sha256File(
+          path.join(root, ...labelRosterAuthorizationPath.split("/"))
+        ),
+        rosterSelectionLedgerPath,
+        rosterSelectionLedgerSha256: sha256File(
+          path.join(root, ...rosterSelectionLedgerPath.split("/"))
+        ),
+        acquisitionAttemptLedgerPath,
+        acquisitionAttemptLedgerSha256: sha256File(
+          path.join(root, ...acquisitionAttemptLedgerPath.split("/"))
         ),
         artifactManifestPath,
         artifactManifestSha256: sha256File(

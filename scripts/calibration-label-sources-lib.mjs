@@ -299,38 +299,41 @@ export function fetchAuthenticatedCalibrationLabelCommitments(input) {
 }
 
 export function assembleAuthenticatedCalibrationLabels(input) {
-  requireRecord(input.roster, "calibration label roster custody");
-  exactKeys(
-    input.roster,
-    [
-      "authorizationPath",
-      "authorizationSha256",
-      "selectionLedgerPath",
-      "selectionLedgerSha256",
-      "candidateCommit",
-      "carrierCommit",
-      "authenticatedCommitments",
-      "commitmentSetSha256"
-    ],
-    "calibration label roster custody"
-  );
-  const expectedRosterRoot =
-    `calibration/${input.candidate.studyId}`;
-  if (
-    input.roster.authorizationPath !==
-      `${expectedRosterRoot}/label-roster-authorization.json` ||
-    input.roster.selectionLedgerPath !==
-      `${expectedRosterRoot}/roster-selection-ledger.json` ||
-    !SHA256.test(input.roster.authorizationSha256) ||
-    !SHA256.test(input.roster.selectionLedgerSha256) ||
-    input.roster.candidateCommit !== input.candidateCommit ||
-    !FULL_SHA.test(input.roster.carrierCommit) ||
-    !Array.isArray(input.roster.authenticatedCommitments) ||
-    !SHA256.test(input.roster.commitmentSetSha256)
-  ) {
-    throw new Error(
-      "calibration label roster custody does not bind the fixed study paths, candidate, carrier, and hosted commitment set"
+  const roster = input.roster ?? null;
+  if (roster !== null) {
+    requireRecord(roster, "calibration label roster custody");
+    exactKeys(
+      roster,
+      [
+        "authorizationPath",
+        "authorizationSha256",
+        "selectionLedgerPath",
+        "selectionLedgerSha256",
+        "candidateCommit",
+        "carrierCommit",
+        "authenticatedCommitments",
+        "commitmentSetSha256"
+      ],
+      "calibration label roster custody"
     );
+    const expectedRosterRoot =
+      `calibration/${input.candidate.studyId}`;
+    if (
+      roster.authorizationPath !==
+        `${expectedRosterRoot}/label-roster-authorization.json` ||
+      roster.selectionLedgerPath !==
+        `${expectedRosterRoot}/roster-selection-ledger.json` ||
+      !SHA256.test(roster.authorizationSha256) ||
+      !SHA256.test(roster.selectionLedgerSha256) ||
+      roster.candidateCommit !== input.candidateCommit ||
+      !FULL_SHA.test(roster.carrierCommit) ||
+      !Array.isArray(roster.authenticatedCommitments) ||
+      !SHA256.test(roster.commitmentSetSha256)
+    ) {
+      throw new Error(
+        "calibration label roster custody does not bind the fixed study paths, candidate, carrier, and hosted commitment set"
+      );
+    }
   }
   const retainedCaseIds = new Set(input.retainedCaseIds);
   if (
@@ -605,11 +608,12 @@ export function assembleAuthenticatedCalibrationLabels(input) {
     `${canonicalizeCalibrationValue(authenticatedCommitments)}`
   );
   if (
-    canonicalizeCalibrationValue(authenticatedCommitments) !==
+    roster !== null &&
+    (canonicalizeCalibrationValue(authenticatedCommitments) !==
       canonicalizeCalibrationValue(
-        input.roster.authenticatedCommitments
+        roster.authenticatedCommitments
       ) ||
-    commitmentSetSha256 !== input.roster.commitmentSetSha256
+      commitmentSetSha256 !== roster.commitmentSetSha256)
   ) {
     throw new Error(
       "revealed calibration commitments do not exactly equal the pre-acquisition authorized roster"
@@ -621,14 +625,18 @@ export function assembleAuthenticatedCalibrationLabels(input) {
     studyId: input.candidate.studyId,
     detector: input.candidate.detector,
     source: input.source,
-    roster: {
-      authorizationPath: input.roster.authorizationPath,
-      authorizationSha256: input.roster.authorizationSha256,
-      selectionLedgerPath: input.roster.selectionLedgerPath,
-      selectionLedgerSha256: input.roster.selectionLedgerSha256,
-      candidateCommit: input.roster.candidateCommit,
-      carrierCommit: input.roster.carrierCommit
-    },
+    ...(roster === null
+      ? {}
+      : {
+          roster: {
+            authorizationPath: roster.authorizationPath,
+            authorizationSha256: roster.authorizationSha256,
+            selectionLedgerPath: roster.selectionLedgerPath,
+            selectionLedgerSha256: roster.selectionLedgerSha256,
+            candidateCommit: roster.candidateCommit,
+            carrierCommit: roster.carrierCommit
+          }
+        }),
     labelSealingKey: input.candidate.labelSealingKey,
     authenticatedCommitments,
     commitmentSetSha256,
@@ -641,7 +649,7 @@ export function assembleAuthenticatedCalibrationLabels(input) {
     manifest,
     manifestText: canonicalPrettyJson(manifest),
     source: input.source,
-    roster: input.roster,
+    roster,
     labelSealingKey: input.candidate.labelSealingKey,
     authenticatedCommitments,
     commitmentSetSha256,

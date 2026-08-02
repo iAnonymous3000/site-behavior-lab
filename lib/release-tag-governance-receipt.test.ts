@@ -501,6 +501,10 @@ test("release workflow executes the pinned governance validator against exact li
   write("tag-creation.json", creation);
   write("production-evidence.json", productionEvidence);
   write("production-updater.json", productionUpdater);
+  writeFileSync(
+    path.join(context, "required-ci-jobs.json"),
+    readFileSync(path.join(process.cwd(), ".github", "required-ci-jobs.json"))
+  );
 
   const workflow = readFileSync(
     path.join(process.cwd(), ".github", "workflows", "release.yml"),

@@ -119,6 +119,12 @@ jobs:
         with:
           node-version: 24.14.1
 
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
       - name: Verify the executing controlled runner
         working-directory: trusted-carrier
         env:

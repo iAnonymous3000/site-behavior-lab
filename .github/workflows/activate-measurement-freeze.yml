@@ -51,8 +51,11 @@ jobs:
         with:
           node-version: 24.14.1
 
-      - name: Verify pinned Node
-        run: test "$(node --version)" = "v24.14.1"
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
 
       # Repository runner inventory can require Administration:read even when
       # the workflow token has Actions:read. The optional App is repository
