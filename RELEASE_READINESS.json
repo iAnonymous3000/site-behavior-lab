@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifactKind": "site-behavior-release-readiness-manifest",
   "targetRelease": "1.0.0",
-  "notice": "Single source the release-1.0 gate reads (scripts/release-readiness.mjs). Decisions carry recommended values but stay red until a human sets status to approved with decidedBy/decidedAt. Derived gates re-evaluate from committed evidence on every run; operator gates require an attestation file whose statements are all literally true. The 1.0 policy widening wires the --check mode into the release workflow; until then this manifest is advisory and test-pinned.",
+  "notice": "Single source enforced by scripts/release-readiness.mjs and the release workflow for exact 1.0.0 and 1.0.0-rc.N. Decisions carry recommended values but stay red until a human sets status to approved with decidedBy/decidedAt. Derived gates re-evaluate from committed evidence on every run; operator gates require an attestation file whose statements are all literally true. Governed 0.x release ceremonies remain unaffected by the 1.0 readiness check.",
   "decisions": {
     "claimBoundary": {
       "recommended": "investigative-evidence-requiring-independent-corroboration",
@@ -30,15 +30,29 @@
       "decidedAt": null
     },
     "reportRevisionR3": {
-      "recommended": "ship-r3-before-the-final-corpus",
-      "note": "Deciding r3 also decides the public ServiceRole field and is the only lawful vehicle for erratum E2; r1/r2 stay byte-immutable either way.",
+      "recommended": "no-r3-for-1.0",
+      "selected": null,
+      "dispositionSha256": null,
+      "note": "Keep 1.0 on v2/r2, publish E1 and E2 as companion corrections for their immutable schema wording, and bank r3 for the 1.1 evidence-package wire design. The versioned ServiceRole taxonomy remains public but is not added to the 1.0 report wire.",
       "status": "pending",
       "decidedBy": null,
       "decidedAt": null
     },
     "calibrationCensoringPolicy": {
-      "recommended": "settle-before-labeling",
-      "note": "The zero-censoring eligibility rule is near-unsatisfiable on the open web (pilot: 37.5% capture failure); declare the policy before paying labelers.",
+      "currentlySupportedSelections": [
+        "complete-case-only-zero-censoring"
+      ],
+      "recommendedDisposition": "human-decision-required-before-labeling",
+      "methodologicalAssessment": "The currently supported analyzer policy is near-unsatisfiable on the open web (pilot capture failure: 37.5%). Its presence in currentlySupportedSelections is not a recommendation to approve or use it.",
+      "selected": null,
+      "policyArtifactPath": "research/measurement-candidate/calibration-censoring-policy.json",
+      "policyArtifactSha256": null,
+      "semanticDisposition": {
+        "anyCensoredCase": "study-ineligible",
+        "plannedDenominator": "must-remain-complete"
+      },
+      "dispositionSha256": null,
+      "note": "Approve the exact candidate-resident policy artifact and its domain-separated analyzer disposition before acquisition or labeling. Any censored case makes a study release-ineligible; the planned denominator must remain complete.",
       "status": "pending",
       "decidedBy": null,
       "decidedAt": null
@@ -64,18 +78,65 @@
         "wasmReproducibility"
       ]
     },
+    "release-tag-governance": {
+      "kind": "release-tag-governance",
+      "title": "Dedicated release and promotion Apps are identity-bound under pinned tag governance",
+      "artifact": "research/ops-receipts/release-tag-governance.json",
+      "sha256": null,
+      "maxAgeDays": 1,
+      "promotionWorkflows": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/promote-production.yml"
+      ],
+      "releaseWorkflow": ".github/workflows/release.yml"
+    },
+    "measurement-candidate-binding": {
+      "kind": "measurement-candidate-binding",
+      "title": "One Sigstore-verified candidate binds every post-freeze evidence carrier",
+      "artifact": "research/measurement-candidate-binding.json",
+      "requiredEvidenceCategories": [
+        "featured-report",
+        "featured-provenance",
+        "generated-report-index",
+        "generated-corpus-stats",
+        "runner-receipt",
+        "controlled-publication-manifest",
+        "controlled-publication-receipt",
+        "aa-attempt-ledger",
+        "aa-evaluation",
+        "aa-producer-receipt",
+        "aa-producer-attestation",
+        "hosted-evidence-archive",
+        "measurement-freeze-receipt",
+        "lifecycle-receipt",
+        "operator-evidence",
+        "operator-attestation",
+        "release-policy-finalization",
+        "citation-finalization",
+        "changelog-finalization"
+      ]
+    },
+    "measurement-freeze": {
+      "kind": "measurement-freeze",
+      "title": "The measurement freeze was activated on the verified candidate with no parked proposal",
+      "receipt": "research/ops-receipts/measurement-freeze-activation.json"
+    },
     "compatibility-surface-pinned": {
       "kind": "document-digest",
       "title": "The compatibility promise exists and matches its pinned digest"
     },
     "errata-resolution": {
       "kind": "errata",
-      "title": "No erratum is left without a decided vehicle",
-      "openErrata": [
+      "title": "Every known frozen-schema erratum has an approved, digest-pinned disposition",
+      "requiredErrata": [
         "E1",
         "E2"
       ],
-      "resolvedBy": "reportRevisionR3"
+      "resolution": "published-errata-for-1.0",
+      "document": "docs/scan-report-v2-rfc.md",
+      "sha256": "614bf64d0e18e2b808cd65f32a59dba6d8263c3d867ac8c01a98d346becabf2c",
+      "resolvedBy": "reportRevisionR3",
+      "requiredSelection": "no-r3-for-1.0"
     },
     "current-method-corpus": {
       "kind": "corpus",
@@ -122,7 +183,15 @@
       "kind": "runner-receipts",
       "title": "At least two controlled-runner cycles carry verifying destruction receipts",
       "directory": "research/runner-receipts",
-      "minimumReceipts": 2
+      "minimumReceipts": 2,
+      "expectedEnvironmentDigest": null,
+      "maxAgeDays": 45
+    },
+    "controlled-publications": {
+      "kind": "controlled-publications",
+      "title": "Exactly two controlled publication archives bind the runner cycles to every governed report",
+      "directory": "research/controlled-publications",
+      "requiredPublications": 2
     },
     "r2-lifecycle": {
       "kind": "lifecycle-receipt",
@@ -136,40 +205,176 @@
       "directory": "docs/release-receipts"
     },
     "durable-soak": {
-      "kind": "operator-attestation",
-      "title": "Durable jobs completed the declared soak with a real restart in the window",
+      "kind": "durable-soak",
+      "title": "Durable jobs completed the declared soak with all five behaviors authenticated in the window",
       "attestation": "research/ops-receipts/durable-soak-attestation.json",
-      "maxAgeDays": 45
+      "maxAgeDays": 45,
+      "minimumEvidenceHours": 24,
+      "targetEvidenceHours": 168,
+      "targetDeviationApprovalPolicy": {
+        "requiredBelowTarget": true,
+        "forbiddenAtOrAboveTarget": true,
+        "status": "approved",
+        "approverType": "named-human",
+        "requiredBindings": [
+          "candidateCommit",
+          "soakDeploymentCommit",
+          "ledgerSha256",
+          "evidenceWindow",
+          "minimumEvidenceHours",
+          "targetEvidenceHours"
+        ]
+      },
+      "requiredBindings": [
+        "replayDeploymentCommit",
+        "soakDeploymentCommit",
+        "durableConfigDigest",
+        "durableEnableReceiptDigest",
+        "replayReceiptsDigest",
+        "deploymentDigest",
+        "ledgerSha256"
+      ],
+      "requiredClaims": [
+        {
+          "id": "lease-expiry-replay-passed",
+          "claim": "The lease-expiry replay canary passed against the bound pre-enable deployment."
+        },
+        {
+          "id": "lost-resolve-replay-passed",
+          "claim": "The lost-resolve replay canary passed against the bound pre-enable deployment."
+        },
+        {
+          "id": "durable-hourly-health-observed",
+          "claim": "Every authenticated hourly deep-health sample in the bound soak window observed durable jobs enabled and ready on the exact production deployment; no sample gap exceeded 90 minutes."
+        },
+        {
+          "id": "real-restart-observed",
+          "claim": "A real runtime restart occurred inside the soak window, and the queued job recovered on a second fenced attempt to one authenticated report identity and readback."
+        },
+        {
+          "id": "durable-behavior-exercises-observed",
+          "claim": "An authenticated production exercise run inside the soak window proved normal completion, cancellation, completed-report recovery, and duplicate prevention on the bound durable deployment."
+        }
+      ]
     },
     "egress-backstop": {
       "kind": "operator-attestation",
       "title": "An independent network egress boundary exists and was tested with the app guard treated as failed",
+      "evidence": "research/ops-evidence/egress-backstop.json",
       "attestation": "research/ops-receipts/egress-backstop-attestation.json",
-      "maxAgeDays": 90
+      "maxAgeDays": 90,
+      "requiredBindings": [
+        "candidateCommit",
+        "deploymentCommit",
+        "networkPolicyDigest",
+        "networkPolicyExportDigest",
+        "failureProbeTranscriptDigest",
+        "collectionEnvironmentDigest",
+        "collectionProducerCommitsDigest",
+        "effectiveSourceObservedAt"
+      ],
+      "requiredClaims": [
+        {
+          "id": "independent-boundary-enforced",
+          "claim": "An enforcement boundary independent of application code blocks private, link-local, and cloud-metadata destinations."
+        },
+        {
+          "id": "failed-app-guard-tested",
+          "claim": "The independent boundary was tested while the application egress guard was deliberately treated as failed."
+        },
+        {
+          "id": "collection-egress-bound",
+          "claim": "The stable egress identity and region match the bound current-method collection candidate."
+        }
+      ]
     },
     "waf-ceilings": {
       "kind": "operator-attestation",
       "title": "Both WAF admission-route ceilings re-proven for this candidate",
+      "evidence": "research/ops-evidence/waf-ceilings.json",
       "attestation": "research/ops-receipts/waf-ceilings-attestation.json",
-      "maxAgeDays": 30
+      "maxAgeDays": 30,
+      "requiredBindings": [
+        "candidateCommit",
+        "deploymentCommit",
+        "wafRulesDigest",
+        "providerEventReadbackDigest",
+        "probeTranscriptDigest",
+        "providerEventsExportDigest",
+        "effectiveSourceObservedAt"
+      ],
+      "requiredClaims": [
+        {
+          "id": "get-admission-ceiling",
+          "claim": "The GET admission route returned 429 with Retry-After at the configured ceiling for the bound candidate."
+        },
+        {
+          "id": "post-admission-ceiling",
+          "claim": "The POST admission route returned 429 with Retry-After at the configured ceiling for the bound candidate."
+        }
+      ]
     },
     "log-retention": {
       "kind": "operator-attestation",
       "title": "Bounded, redacted log-retention query re-captured for this candidate",
+      "evidence": "research/ops-evidence/log-retention.json",
       "attestation": "research/ops-receipts/log-retention-attestation.json",
-      "maxAgeDays": 30
-    },
-    "staging-teardown": {
-      "kind": "operator-attestation",
-      "title": "Staging resources torn down with same-session absence proofs for BOTH staging buckets",
-      "attestation": "research/ops-receipts/staging-teardown-attestation.json",
-      "maxAgeDays": 90
+      "maxAgeDays": 30,
+      "requiredBindings": [
+        "candidateCommit",
+        "deploymentCommit",
+        "logPolicyDigest",
+        "providerExportDigest",
+        "providerQueryRef",
+        "retentionReadbackDigest",
+        "sourceTool",
+        "effectiveSourceObservedAt"
+      ],
+      "requiredClaims": [
+        {
+          "id": "bounded-redacted-query",
+          "claim": "The retained-log query was bounded and its committed evidence contains no target URL, query value, raw credential, or personal-data payload."
+        },
+        {
+          "id": "retention-window-verified",
+          "claim": "The configured log-retention window was verified against the bound production candidate."
+        }
+      ]
     },
     "container-image-licensing": {
       "kind": "operator-attestation",
       "title": "The container base image's shipped packages have a completed license review",
+      "evidence": "research/ops-evidence/container-image-licensing.json",
       "attestation": "research/ops-receipts/container-image-licensing-attestation.json",
-      "maxAgeDays": 180
+      "maxAgeDays": 180,
+      "requiredBindings": [
+        "candidateCommit",
+        "deploymentCommit",
+        "containerImageDigest",
+        "packageInventoryDigest",
+        "legalEvidenceDigest"
+      ],
+      "requiredClaims": [
+        {
+          "id": "exact-image-inventoried",
+          "claim": "The exact candidate container image was inventoried down to its shipped system packages."
+        },
+        {
+          "id": "image-license-review-complete",
+          "claim": "Every shipped package in the bound image inventory has a reviewed license determination and recorded obligations."
+        },
+        {
+          "id": "distribution-obligations-satisfied",
+          "claim": "The candidate image distribution satisfies every recorded license and notice obligation."
+        }
+      ]
+    },
+    "container-package-review": {
+      "kind": "container-package-review",
+      "title": "Every exact-candidate container OS package has a reviewed determination",
+      "inventory": "research/measurement-candidate/site-behavior-lab-container-package-inventory.json",
+      "bundle": "research/measurement-candidate/container-package-inventory.bundle.json",
+      "ledger": "CONTAINER_IMAGE_PACKAGE_REVIEWS.json"
     }
   }
 }

@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noEmit": false,
+    "outDir": "dist/calibration",
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": [
+    "lib/calibration-scan-runtime.ts"
+  ],
+  "exclude": ["node_modules", ".next", ".unit-test-dist", "dist"]
+}

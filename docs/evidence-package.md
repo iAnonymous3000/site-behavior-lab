@@ -50,9 +50,11 @@ offline, given only the package and public trust roots.
 ## Sequencing
 
 Items 2 and 3 are repo-side and small. Item 4 is operator work in the existing
-attestation pattern. Item 5 is a design decision (ledger vs Rekor) that should
-ride the `reportRevisionR3` decision window since it may want a wire field.
-Items 6-8 are documentation once calibration (3B) and the claim-boundary
-sign-off exist. None of it is meaningful before detector calibration: a
-perfectly verified report whose detector accuracy is unquantified is still
-investigative evidence, and the package must not imply otherwise.
+attestation pattern. Item 5 is a design decision (ledger vs Rekor) deferred to
+the 1.1 evidence-package window. If it needs a report wire field, that is the
+time to evaluate r3; 1.0 deliberately keeps v2/r2 and banks the revision
+instead of minting it for schema-prose errata alone. Items 6-8 are
+documentation once calibration (3B) and the claim-boundary sign-off exist.
+None of it is meaningful before detector calibration: a perfectly verified
+report whose detector accuracy is unquantified is still investigative
+evidence, and the package must not imply otherwise.

@@ -112,9 +112,9 @@ jobs:
 
       # Remote list bytes are third-party measurement inputs. Validation may
       # prepare a proposal, but it must never advance main or production without
-      # a human-reviewed PR. GITHUB_TOKEN-created PRs do not trigger CI, so the
-      # following step dispatches CI on the proposal branch only; its promotion
-      # guard requires refs/heads/main and therefore cannot deploy the proposal.
+      # a human-reviewed PR. The proposal's push-event run is parked for manual
+      # approval; the following separate dispatch starts non-promoting branch
+      # validation, but cannot satisfy the PR's required checks or deploy.
       - name: Publish reviewed refresh proposal
         id: commit
         env:
@@ -157,7 +157,8 @@ jobs:
             '- The fetcher forbids redirects and non-approved hosts or paths.' \
             '- Every source and the combined ruleset are byte-capped and SHA-256 recorded.' \
             '- The WASM engine check and unit suite passed before this proposal was published.' \
-            '- Merging still requires normal review and a fresh main-branch CI run.' \
+            "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
+            "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
             > "$proposal_body"
 
           pr_number=$(gh pr list \
@@ -205,6 +206,8 @@ jobs:
           echo "proposed=true" >> "$GITHUB_OUTPUT"
 
       - name: Trigger non-promoting CI on the proposal branch
+        # This workflow_dispatch run validates the branch but does not replace
+        # the parked push-event run that must be approved before merge.
         if: steps.commit.outputs.proposed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}

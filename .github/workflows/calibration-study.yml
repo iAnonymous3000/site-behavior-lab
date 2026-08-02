@@ -1,0 +1,767 @@
+name: Detector Calibration Study
+
+run-name: >-
+  ${{
+    inputs.mode == 'acquire' &&
+    format(
+      'calibration-acquire:{0}:{1}:{2}:{3}',
+      inputs.study_id,
+      inputs.roster_run_id,
+      inputs.roster_artifact_id,
+      inputs.roster_authorization_nonce
+    ) ||
+    format(
+      'calibration-assemble:{0}:{1}:{2}',
+      inputs.study_id,
+      inputs.acquisition_run_id,
+      inputs.acquisition_run_attempt
+    )
+  }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Produce a label-free acquisition, or assemble reviewed labels into an evidence PR
+        required: true
+        type: choice
+        options:
+          - acquire
+          - assemble
+      study_id:
+        description: Preregistered calibration study id
+        required: true
+        type: string
+      detector:
+        description: Governed detector
+        required: true
+        type: choice
+        options:
+          - fingerprint-heuristics
+          - keystroke-exfiltration
+          - cname-uncloaking
+          - pixel-events
+          - consent-banner
+          - privacy-policy
+      candidate_commit:
+        description: Frozen measurement candidate C (full lowercase SHA)
+        required: true
+        type: string
+      case_input_root:
+        description: Acquire only; absolute controlled-runner directory containing the frozen case inputs
+        required: false
+        type: string
+      roster_run_id:
+        description: Acquire only; unique hosted label-roster authorization run id
+        required: false
+        type: string
+      roster_run_attempt:
+        description: Acquire only; label-roster authorization run attempt (must be 1)
+        required: false
+        type: string
+      roster_head_sha:
+        description: Acquire only; exact evidence-only carrier H of the roster authorization run
+        required: false
+        type: string
+      roster_artifact_id:
+        description: Acquire only; immutable label-roster authorization artifact id
+        required: false
+        type: string
+      roster_artifact_digest:
+        description: Acquire only; label-roster upload-artifact sha256 output
+        required: false
+        type: string
+      roster_authorization_nonce:
+        description: Acquire only; 64-hex nonce precommitted by the roster authorization
+        required: false
+        type: string
+      roster_case_input_root_sha256:
+        description: Acquire only; domain-separated digest of the raw controlled-runner case path
+        required: false
+        type: string
+      roster_authorized_run_attempt:
+        description: Acquire only; preauthorized acquisition attempt (must be 1)
+        required: false
+        type: string
+      acquisition_run_id:
+        description: Assemble only; successful acquisition workflow run id
+        required: false
+        type: string
+      acquisition_run_attempt:
+        description: Assemble only; acquisition run attempt
+        required: false
+        type: string
+      acquisition_artifact_id:
+        description: Assemble only; immutable acquisition artifact id
+        required: false
+        type: string
+      acquisition_artifact_digest:
+        description: Assemble only; upload-artifact sha256 output
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  attestations: read
+
+concurrency:
+  group: detector-calibration-${{ inputs.study_id }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  NEXT_TELEMETRY_DISABLED: "1"
+  CALIBRATION_STUDY_ID: ${{ inputs.study_id }}
+  CALIBRATION_DETECTOR: ${{ inputs.detector }}
+  CALIBRATION_CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
+  SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}
+  FEATURED_RUNNER_LABEL: ${{ vars.FEATURED_RUNNER_LABEL || '' }}
+  SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || '' }}
+  SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
+  FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+
+jobs:
+  preflight:
+    name: Verify candidate, policy decision, freeze, and controlled lane
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      attestations: read
+    outputs:
+      candidate_commit: ${{ steps.preflight.outputs.candidate_commit }}
+      carrier_commit: ${{ steps.preflight.outputs.carrier_commit }}
+      detector: ${{ steps.preflight.outputs.detector }}
+      runner_label: ${{ steps.preflight.outputs.runner_label }}
+      runner_label_sha256: ${{ steps.preflight.outputs.runner_label_sha256 }}
+      egress_identity: ${{ steps.preflight.outputs.egress_identity }}
+      egress_region: ${{ steps.preflight.outputs.egress_region }}
+      egress_region_sha256: ${{ steps.preflight.outputs.egress_region_sha256 }}
+      acquisition_authorization_base64: ${{ steps.preflight.outputs.acquisition_authorization_base64 }}
+      roster_selection_snapshot_base64: ${{ steps.preflight.outputs.roster_selection_snapshot_base64 }}
+      roster_selection_snapshot_sha256: ${{ steps.preflight.outputs.roster_selection_snapshot_sha256 }}
+    steps:
+      - name: Checkout exact trusted carrier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up exact Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install trusted verifier dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build the trusted verifier once
+        run: |
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Reject ambiguous dispatch inputs
+        env:
+          MODE: ${{ inputs.mode }}
+          CASE_INPUT_ROOT: ${{ inputs.case_input_root }}
+          ROSTER_RUN_ID: ${{ inputs.roster_run_id }}
+          ROSTER_RUN_ATTEMPT: ${{ inputs.roster_run_attempt }}
+          ROSTER_HEAD_SHA: ${{ inputs.roster_head_sha }}
+          ROSTER_ARTIFACT_ID: ${{ inputs.roster_artifact_id }}
+          ROSTER_ARTIFACT_DIGEST: ${{ inputs.roster_artifact_digest }}
+          ROSTER_AUTHORIZATION_NONCE: ${{ inputs.roster_authorization_nonce }}
+          ROSTER_CASE_INPUT_ROOT_SHA256: ${{ inputs.roster_case_input_root_sha256 }}
+          ROSTER_AUTHORIZED_RUN_ATTEMPT: ${{ inputs.roster_authorized_run_attempt }}
+          ACQUISITION_RUN_ID: ${{ inputs.acquisition_run_id }}
+          ACQUISITION_RUN_ATTEMPT: ${{ inputs.acquisition_run_attempt }}
+          ACQUISITION_ARTIFACT_ID: ${{ inputs.acquisition_artifact_id }}
+          ACQUISITION_ARTIFACT_DIGEST: ${{ inputs.acquisition_artifact_digest }}
+        run: |
+          set -euo pipefail
+          [[ "$CALIBRATION_STUDY_ID" =~ ^[a-z0-9][a-z0-9._-]{0,99}$ ]]
+          [[ "$CALIBRATION_CANDIDATE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          if [[ "$MODE" == "acquire" ]]; then
+            test "$GITHUB_SHA" = "$ROSTER_HEAD_SHA"
+            [[ "$CASE_INPUT_ROOT" == /* ]]
+            [[ "$ROSTER_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+            test "$ROSTER_RUN_ATTEMPT" = "1"
+            [[ "$ROSTER_HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]
+            [[ "$ROSTER_ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+            [[ "$ROSTER_ARTIFACT_DIGEST" =~ ^(sha256:)?[0-9a-f]{64}$ ]]
+            [[ "$ROSTER_AUTHORIZATION_NONCE" =~ ^[0-9a-f]{64}$ ]]
+            [[ "$ROSTER_CASE_INPUT_ROOT_SHA256" =~ ^[0-9a-f]{64}$ ]]
+            test "$ROSTER_AUTHORIZED_RUN_ATTEMPT" = "1"
+            test -z "$ACQUISITION_RUN_ID$ACQUISITION_RUN_ATTEMPT$ACQUISITION_ARTIFACT_ID$ACQUISITION_ARTIFACT_DIGEST"
+          else
+            [[ "$ACQUISITION_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+            [[ "$ACQUISITION_RUN_ATTEMPT" =~ ^[1-9][0-9]?$|^100$ ]]
+            [[ "$ACQUISITION_ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+            [[ "$ACQUISITION_ARTIFACT_DIGEST" =~ ^(sha256:)?[0-9a-f]{64}$ ]]
+            test -z "$CASE_INPUT_ROOT$ROSTER_RUN_ID$ROSTER_RUN_ATTEMPT$ROSTER_HEAD_SHA$ROSTER_ARTIFACT_ID$ROSTER_ARTIFACT_DIGEST$ROSTER_AUTHORIZATION_NONCE$ROSTER_CASE_INPUT_ROOT_SHA256$ROSTER_AUTHORIZED_RUN_ATTEMPT"
+          fi
+
+      - name: Verify acquisition context
+        id: preflight
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CALIBRATION_MODE: ${{ inputs.mode }}
+          CASE_INPUT_ROOT: ${{ inputs.case_input_root }}
+          CALIBRATION_ROSTER_RUN_ID: ${{ inputs.roster_run_id }}
+          CALIBRATION_ROSTER_RUN_ATTEMPT: ${{ inputs.roster_run_attempt }}
+          CALIBRATION_ROSTER_HEAD_SHA: ${{ inputs.roster_head_sha }}
+          CALIBRATION_ROSTER_ARTIFACT_ID: ${{ inputs.roster_artifact_id }}
+          CALIBRATION_ROSTER_ARTIFACT_DIGEST: ${{ inputs.roster_artifact_digest }}
+          CALIBRATION_ROSTER_AUTHORIZATION_NONCE: ${{ inputs.roster_authorization_nonce }}
+          CALIBRATION_ROSTER_CASE_INPUT_ROOT_SHA256: ${{ inputs.roster_case_input_root_sha256 }}
+          CALIBRATION_ROSTER_AUTHORIZED_RUN_ATTEMPT: ${{ inputs.roster_authorized_run_attempt }}
+        run: npm run calibration:preflight -- --dispatch
+
+  acquire:
+    name: Acquire blinded detector predictions
+    needs: preflight
+    if: inputs.mode == 'acquire'
+    runs-on: ${{ needs.preflight.outputs.runner_label }}
+    timeout-minutes: 360
+    outputs:
+      artifact_id: ${{ steps.acquisition_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.acquisition_artifact.outputs.artifact-digest }}
+    permissions:
+      contents: read
+      attestations: read
+    env:
+      CALIBRATION_CARRIER_COMMIT: ${{ needs.preflight.outputs.carrier_commit }}
+      CALIBRATION_RUNNER_LABEL_SHA256: ${{ needs.preflight.outputs.runner_label_sha256 }}
+      CALIBRATION_EGRESS_IDENTITY: ${{ needs.preflight.outputs.egress_identity }}
+      CALIBRATION_EGRESS_REGION: ${{ needs.preflight.outputs.egress_region }}
+      CALIBRATION_EGRESS_REGION_SHA256: ${{ needs.preflight.outputs.egress_region_sha256 }}
+      SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ needs.preflight.outputs.candidate_commit }}
+      SITE_BEHAVIOR_LAB_SCANNER_EGRESS: ${{ needs.preflight.outputs.egress_identity }}
+      SITE_BEHAVIOR_LAB_SCANNER_EGRESS_REGION: ${{ needs.preflight.outputs.egress_region }}
+      SITE_BEHAVIOR_LAB_CHROMIUM_SANDBOX: "1"
+      SITE_BEHAVIOR_LAB_PUBLIC_R2_REPORTS: "1"
+      SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION: "1"
+      SITE_BEHAVIOR_LAB_REPORT_ACQUISITION: ci-workflow
+      NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: https://sitebehavior.org
+      CALIBRATION_ACQUISITION_AUTHORIZATION_BASE64: ${{ needs.preflight.outputs.acquisition_authorization_base64 }}
+      CALIBRATION_ROSTER_SELECTION_SNAPSHOT_BASE64: ${{ needs.preflight.outputs.roster_selection_snapshot_base64 }}
+      CALIBRATION_ROSTER_SELECTION_SNAPSHOT_SHA256: ${{ needs.preflight.outputs.roster_selection_snapshot_sha256 }}
+    steps:
+      - name: Checkout exact trusted carrier for runner verification
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: trusted-carrier
+
+      - name: Set up exact Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install carrier verifier dependencies
+        working-directory: trusted-carrier
+        run: npm ci --ignore-scripts
+
+      - name: Build and run controlled-runner preflight
+        id: runner_preflight
+        working-directory: trusted-carrier
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+          export SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1
+          npm run calibration:preflight -- --acquisition
+
+      - name: Checkout frozen candidate C
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.preflight.outputs.candidate_commit }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: candidate
+
+      - name: Install frozen candidate dependencies
+        working-directory: candidate
+        run: npm ci
+
+      - name: Build candidate schema and process-local calibration artifacts
+        working-directory: candidate
+        run: |
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          node node_modules/typescript/bin/tsc -p tsconfig.calibration.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+          echo "SITE_BEHAVIOR_LAB_CALIBRATION_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Verify Chromium sandbox host support
+        run: |
+          set -euo pipefail
+          if current="$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null)"; then
+            test "$current" = "0"
+          fi
+
+      - name: Install candidate Chromium without mutating host packages
+        working-directory: candidate
+        run: npx playwright install chromium
+
+      - name: Acquire label-free prediction/evidence records
+        working-directory: candidate
+        env:
+          CALIBRATION_RUNNER_IDENTITY_SHA256: ${{ steps.runner_preflight.outputs.runner_identity_sha256 }}
+          CASE_INPUT_ROOT: ${{ inputs.case_input_root }}
+          ACQUISITION_OUTPUT: ${{ runner.temp }}/calibration-acquisition
+        run: |
+          set -euo pipefail
+          test -n "$CALIBRATION_RUNNER_IDENTITY_SHA256"
+          test ! -e "$ACQUISITION_OUTPUT"
+          npm run calibration:acquire -- \
+            --study-id "$CALIBRATION_STUDY_ID" \
+            --detector "$CALIBRATION_DETECTOR" \
+            --case-input-root "$CASE_INPUT_ROOT" \
+            --output-dir "$ACQUISITION_OUTPUT"
+
+      - name: Upload immutable label-free acquisition
+        id: acquisition_artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-calibration-${{ inputs.study_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-acquisition/
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+
+      - name: Record immutable acquisition coordinates
+        env:
+          ARTIFACT_ID: ${{ steps.acquisition_artifact.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.acquisition_artifact.outputs.artifact-digest }}
+        run: |
+          {
+            echo "## Calibration acquisition ready for hosted assembly"
+            echo
+            echo "- Run: \`${GITHUB_RUN_ID}\`"
+            echo "- Attempt: \`${GITHUB_RUN_ATTEMPT}\`"
+            echo "- Artifact id: \`${ARTIFACT_ID}\`"
+            echo "- Artifact digest: \`${ARTIFACT_DIGEST}\`"
+            echo "- Candidate: \`${CALIBRATION_CANDIDATE_COMMIT}\`"
+            echo
+            echo "All authenticated labeler and blind-tiebreaker ciphertext commitments must already predate this acquisition. The acquisition artifact contains predictions/attempts and no reference labels, reference evidence, or reveal key."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  prepare:
+    name: Protected reveal and calibration evidence preparation
+    needs: preflight
+    if: inputs.mode == 'assemble'
+    runs-on: ubuntu-latest
+    environment: calibration-label-reveal
+    timeout-minutes: 60
+    outputs:
+      prepared_commit: ${{ steps.commit_prepared.outputs.prepared_commit }}
+    permissions:
+      contents: read
+      actions: read
+      attestations: read
+    env:
+      ACQUISITION_RUN_ID: ${{ inputs.acquisition_run_id }}
+      ACQUISITION_RUN_ATTEMPT: ${{ inputs.acquisition_run_attempt }}
+      ACQUISITION_ARTIFACT_ID: ${{ inputs.acquisition_artifact_id }}
+      ACQUISITION_ARTIFACT_DIGEST: ${{ inputs.acquisition_artifact_digest }}
+      ARTIFACT_NAME: site-behavior-calibration-${{ inputs.study_id }}-${{ inputs.acquisition_run_id }}-${{ inputs.acquisition_run_attempt }}
+    steps:
+      - name: Checkout exact trusted assembly carrier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up exact Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install trusted assembly dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build the trusted assembly verifier once
+        run: |
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Fetch exact acquisition metadata and raw archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${ACQUISITION_RUN_ID}" \
+            > "$RUNNER_TEMP/calibration-run.json"
+          gh api --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -f filter=all \
+            -f per_page=100 \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${ACQUISITION_RUN_ID}/jobs" \
+            > "$RUNNER_TEMP/calibration-jobs.json"
+          gh api --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -f "name=$ARTIFACT_NAME" \
+            -f per_page=100 \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${ACQUISITION_RUN_ID}/artifacts" \
+            > "$RUNNER_TEMP/calibration-artifacts.json"
+          gh api --method GET \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ACQUISITION_ARTIFACT_ID}/zip" \
+            > "$RUNNER_TEMP/calibration-acquisition.zip"
+
+      - name: Materialize the frozen label coordinates in a separate lane
+        id: labels_lane
+        run: |
+          set -euo pipefail
+          LABELS_REF="$(jq -r '.head_sha // empty' "$RUNNER_TEMP/calibration-run.json")"
+          [[ "$LABELS_REF" =~ ^[0-9a-f]{40}$ ]]
+          git cat-file -e "$LABELS_REF^{commit}"
+          test ! -e "$RUNNER_TEMP/calibration-labels-lane"
+          git worktree add --detach "$RUNNER_TEMP/calibration-labels-lane" "$LABELS_REF"
+          echo "labels_commit=$LABELS_REF" >> "$GITHUB_OUTPUT"
+          echo "labels_tree=$(git rev-parse "$LABELS_REF^{tree}")" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate archive and assemble governed study
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CALIBRATION_LABEL_REVEAL_PRIVATE_KEY: ${{ secrets.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          test ! -e "$RUNNER_TEMP/calibration-acquisition"
+          npm run calibration:assemble -- \
+            --study-id "$CALIBRATION_STUDY_ID" \
+            --detector "$CALIBRATION_DETECTOR" \
+            --candidate-commit "$CALIBRATION_CANDIDATE_COMMIT" \
+            --assembly-head-commit "$GITHUB_SHA" \
+            --run-metadata "$RUNNER_TEMP/calibration-run.json" \
+            --job-metadata "$RUNNER_TEMP/calibration-jobs.json" \
+            --artifact-metadata "$RUNNER_TEMP/calibration-artifacts.json" \
+            --archive "$RUNNER_TEMP/calibration-acquisition.zip" \
+            --extracted-dir "$RUNNER_TEMP/calibration-acquisition" \
+            --labels-dir "$RUNNER_TEMP/calibration-labels-lane/calibration-labels/$CALIBRATION_STUDY_ID" \
+            --labels-commit "${{ steps.labels_lane.outputs.labels_commit }}" \
+            --labels-tree "${{ steps.labels_lane.outputs.labels_tree }}" \
+            --labels-path "calibration-labels/$CALIBRATION_STUDY_ID" \
+            --run-id "$ACQUISITION_RUN_ID" \
+            --run-attempt "$ACQUISITION_RUN_ATTEMPT" \
+            --artifact-id "$ACQUISITION_ARTIFACT_ID" \
+            --artifact-name "$ARTIFACT_NAME" \
+            --archive-sha256 "$ACQUISITION_ARTIFACT_DIGEST" \
+            --runner-label "${{ needs.preflight.outputs.runner_label }}" \
+            --runner-label-sha256 "${{ needs.preflight.outputs.runner_label_sha256 }}" \
+            --egress-identity "${{ needs.preflight.outputs.egress_identity }}" \
+            --egress-region-sha256 "${{ needs.preflight.outputs.egress_region_sha256 }}"
+
+      - name: Commit the prepared evidence without its future attestation
+        id: commit_prepared
+        run: |
+          set -euo pipefail
+          study_root="calibration/$CALIBRATION_STUDY_ID"
+          git status --short
+          unexpected="$(git status --porcelain=v1 --untracked-files=all | awk '{print $2}' | grep -v -E "^(${study_root}/(study|analysis|runtime-receipt|artifact-manifest|labels-manifest|label-roster-authorization|roster-selection-ledger|acquisition-attempt-ledger)\\.json|${study_root}/artifacts/)$" || true)"
+          if [[ -n "$unexpected" ]]; then
+            echo "::error::Calibration assembly changed paths outside its governed evidence set."
+            printf '%s\n' "$unexpected"
+            exit 1
+          fi
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          git add -- \
+            "$study_root/study.json" \
+            "$study_root/analysis.json" \
+            "$study_root/runtime-receipt.json" \
+            "$study_root/artifact-manifest.json" \
+            "$study_root/labels-manifest.json" \
+            "$study_root/label-roster-authorization.json" \
+            "$study_root/roster-selection-ledger.json" \
+            "$study_root/acquisition-attempt-ledger.json" \
+            "$study_root/artifacts"
+          git diff --cached --check
+          git commit -m "Prepare detector calibration study $CALIBRATION_STUDY_ID"
+          echo "prepared_commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Package the exact prepared commit without publishing a branch
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "$GITHUB_SHA"
+          git branch prepared-calibration-evidence HEAD
+          git bundle create \
+            "$RUNNER_TEMP/calibration-prepared.bundle" \
+            refs/heads/prepared-calibration-evidence \
+            "^$GITHUB_SHA"
+          git bundle verify "$RUNNER_TEMP/calibration-prepared.bundle"
+
+      - name: Upload the exact prepared commit bundle
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: calibration-prepared-commit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-prepared.bundle
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+
+      - name: Upload the exact runtime receipt for isolated attestation
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: calibration-runtime-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: calibration/${{ inputs.study_id }}/runtime-receipt.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+
+  attest-receipt:
+    name: Attest the calibration runtime receipt
+    needs:
+      - preflight
+      - prepare
+    if: inputs.mode == 'assemble'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Download only the exact prepared runtime receipt
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: calibration-runtime-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-runtime-receipt
+
+      - name: Validate the isolated attestation subject
+        env:
+          RECEIPT: ${{ runner.temp }}/calibration-runtime-receipt/runtime-receipt.json
+        run: |
+          set -euo pipefail
+          test -s "$RECEIPT"
+          test "$(find "$RUNNER_TEMP/calibration-runtime-receipt" -type f | wc -l | tr -d ' ')" = "1"
+          node - "$RECEIPT" <<'NODE'
+          const { readFileSync } = require("node:fs");
+          const receipt = JSON.parse(readFileSync(process.argv[2], "utf8"));
+          if (
+            receipt?.schemaVersion !== 3 ||
+            receipt?.artifactKind !== "site-behavior-detector-calibration-runtime-receipt" ||
+            receipt?.studyId !== process.env.CALIBRATION_STUDY_ID ||
+            receipt?.detector !== process.env.CALIBRATION_DETECTOR ||
+            receipt?.candidateCommit !== process.env.CALIBRATION_CANDIDATE_COMMIT ||
+            receipt?.producerCommit !== process.env.GITHUB_SHA
+          ) {
+            throw new Error("isolated calibration receipt identity is invalid");
+          }
+          NODE
+
+      - name: Attest the exact runtime receipt
+        id: attest
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: ${{ runner.temp }}/calibration-runtime-receipt/runtime-receipt.json
+
+      - name: Preserve the exact attestation bundle
+        env:
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+          ATTESTATION_ID: ${{ steps.attest.outputs.attestation-id }}
+          ATTESTATION_URL: ${{ steps.attest.outputs.attestation-url }}
+        run: |
+          set -euo pipefail
+          test -s "$BUNDLE_PATH"
+          test -n "$ATTESTATION_ID"
+          test -n "$ATTESTATION_URL"
+          install -d -m 700 "$RUNNER_TEMP/calibration-runtime-attestation"
+          install -m 600 "$BUNDLE_PATH" "$RUNNER_TEMP/calibration-runtime-attestation/runtime-receipt.sigstore.json"
+
+      - name: Upload the attestation bundle for finalization
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: calibration-runtime-attestation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-runtime-attestation/runtime-receipt.sigstore.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+
+  propose:
+    name: Finalize and propose attested calibration evidence
+    needs:
+      - preflight
+      - prepare
+      - attest-receipt
+    if: inputs.mode == 'assemble'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+      attestations: read
+    env:
+      ACQUISITION_RUN_ID: ${{ inputs.acquisition_run_id }}
+      ACQUISITION_RUN_ATTEMPT: ${{ inputs.acquisition_run_attempt }}
+      ACQUISITION_ARTIFACT_ID: ${{ inputs.acquisition_artifact_id }}
+      PROPOSAL_BRANCH: automation/calibration-${{ inputs.study_id }}-${{ inputs.acquisition_run_id }}-${{ inputs.acquisition_run_attempt }}
+    steps:
+      - name: Checkout the exact trusted producer parent
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up exact Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install only trusted finalizer dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build the canonical binding verifier
+        run: |
+          node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+          echo "SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY=1" >> "$GITHUB_ENV"
+
+      - name: Download the exact prepared commit bundle
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: calibration-prepared-commit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-prepared
+
+      - name: Materialize only the governed prepared JSON diff
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/calibration-prepared/calibration-prepared.bundle"
+          test -s "$bundle"
+          git bundle verify "$bundle"
+          git fetch "$bundle" refs/heads/prepared-calibration-evidence
+          test "$(git rev-parse FETCH_HEAD)" = "${{ needs.prepare.outputs.prepared_commit }}"
+          test "$(git rev-parse FETCH_HEAD^)" = "$GITHUB_SHA"
+          unexpected="$(git diff --name-only "$GITHUB_SHA" FETCH_HEAD | grep -v -E "^calibration/${CALIBRATION_STUDY_ID}/((study|analysis|runtime-receipt|artifact-manifest|labels-manifest|label-roster-authorization|roster-selection-ledger|acquisition-attempt-ledger)\\.json|artifacts/)" || true)"
+          if [[ -n "$unexpected" ]]; then
+            echo "::error::Prepared calibration commit changes paths outside its governed evidence set."
+            printf '%s\n' "$unexpected"
+            exit 1
+          fi
+          git checkout --detach FETCH_HEAD
+
+      - name: Download only the exact attestation bundle
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: calibration-runtime-attestation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-runtime-attestation
+
+      - name: Finalize the attested binding
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ needs.prepare.outputs.prepared_commit }}"
+          test "$(git rev-parse HEAD^)" = "$GITHUB_SHA"
+          test -s "$RUNNER_TEMP/calibration-runtime-attestation/runtime-receipt.sigstore.json"
+          npm run calibration:finalize -- \
+            --study-id "$CALIBRATION_STUDY_ID" \
+            --detector "$CALIBRATION_DETECTOR" \
+            --candidate-commit "$CALIBRATION_CANDIDATE_COMMIT" \
+            --bundle-source "$RUNNER_TEMP/calibration-runtime-attestation/runtime-receipt.sigstore.json"
+
+      - name: Commit and reverify the complete attested carrier
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          study_root="calibration/$CALIBRATION_STUDY_ID"
+          unexpected="$(git status --porcelain=v1 --untracked-files=all | awk '{print $2}' | grep -v -E "^(${study_root}/runtime-receipt\\.sigstore\\.json|research/measurement-candidate-binding\\.json)$" || true)"
+          if [[ -n "$unexpected" ]]; then
+            echo "::error::Calibration finalization changed paths outside its governed evidence set."
+            printf '%s\n' "$unexpected"
+            exit 1
+          fi
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          git add -- \
+            "$study_root/runtime-receipt.sigstore.json" \
+            research/measurement-candidate-binding.json
+          git diff --cached --check
+          git commit -m "Bind attested calibration study $CALIBRATION_STUDY_ID"
+          node -e '
+            const binding = require("./dist/schema/lib/measurement-candidate-binding.js");
+            const verified = binding.verifiedMeasurementCandidateBinding(process.cwd(), { requireCleanWorktree: true });
+            if (!verified || !verified.calibrationStudies.some((study) => study.studyId === process.env.CALIBRATION_STUDY_ID)) {
+              throw new Error("committed calibration carrier did not pass the canonical measurement binding");
+            }
+          '
+
+      - name: Push the finalized proposal and open its PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          proposal_oid="$(git rev-parse HEAD)"
+          git push origin "HEAD:refs/heads/$PROPOSAL_BRANCH"
+          test "$(git ls-remote --exit-code --refs origin "refs/heads/$PROPOSAL_BRANCH" | awk '{print $1}')" = "$proposal_oid"
+          body="$RUNNER_TEMP/calibration-pr.md"
+          printf '%s\n' \
+            '<!-- site-behavior-lab:calibration-study-pr -->' \
+            "# Add detector calibration study \`$CALIBRATION_STUDY_ID\`" \
+            '' \
+            'This proposal was assembled by the trusted calibration workflow from a label-free controlled-runner acquisition and pre-acquisition authenticated hosted ciphertext commitments revealed only after acquisition.' \
+            '' \
+            "- Candidate: \`$CALIBRATION_CANDIDATE_COMMIT\`" \
+            "- Acquisition: run \`$ACQUISITION_RUN_ID\`, attempt \`$ACQUISITION_RUN_ATTEMPT\`, artifact \`$ACQUISITION_ARTIFACT_ID\`" \
+            '- Label roster authorization, roster-selection ledger, and complete acquisition-attempt ledger are archived and digest-bound; live verification rejects any competing roster run or acquisition attempt.' \
+            '- A separate hosted job with no checkout or candidate execution attested the exact runtime receipt; the committed Sigstore bundle and canonical binding were verified before publication.' \
+            "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
+            '- The separate non-promoting workflow_dispatch CI/readback validates this exact proposal branch but does not satisfy the pull request ruleset required checks; trusted main CI runs only after merge.' \
+            '- If another evidence carrier merges first and this proposal conflicts in the measurement binding, close it and rerun assembly; never hand-merge or transplant generated evidence.' \
+            > "$body"
+          gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base main \
+            --head "$PROPOSAL_BRANCH" \
+            --title "Add detector calibration study $CALIBRATION_STUDY_ID" \
+            --body-file "$body"
+          node scripts/calibration-proposal-readback.mjs \
+            --proposal-branch "$PROPOSAL_BRANCH" \
+            --proposal-oid "$proposal_oid" \
+            | tee "$RUNNER_TEMP/calibration-proposal-readback.json"
+          {
+            echo "## Exact calibration proposal readback"
+            echo
+            echo "- Branch: \`$PROPOSAL_BRANCH\`"
+            echo "- OID: \`$proposal_oid\`"
+            echo "- PR head and dispatched CI run were both read back at that exact OID."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -8,6 +8,10 @@
 // identity. There is no production override: production must never expose the hook.
 
 import { prepareScanAdmission } from "./scan-admission.mjs";
+import { randomBytes } from "node:crypto";
+import { linkSync, lstatSync, unlinkSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { buildDurableReplayReceipt } from "./durable-replay-receipt-lib.mjs";
 import {
   readResponseJsonWithinLimit,
   withHttpOperationDeadline
@@ -31,7 +35,7 @@ const accessToken = requiredHeaderValue("DURABLE_REPLAY_ACCESS_TOKEN");
 const targetUrl = requiredTargetUrl("DURABLE_REPLAY_TARGET_URL");
 const faultToken = requiredHeaderValue("DURABLE_REPLAY_FAULT_TOKEN");
 const faultMode = requiredFaultMode();
-const noPollMs = positiveIntegerEnv("DURABLE_REPLAY_NO_POLL_MS");
+const noPollMs = boundedIntegerEnv("DURABLE_REPLAY_NO_POLL_MS", undefined, 1, 3_600_000);
 const expectedDeployment = requiredCommitSha("DURABLE_REPLAY_EXPECTED_SHA");
 
 if (process.env.DURABLE_REPLAY_CONFIRM !== CONFIRMATION) {
@@ -46,8 +50,12 @@ if (process.env.DURABLE_REPLAY_STAGING_CONFIRM !== STAGING_CONFIRMATION) {
 if (normalizedHostname(baseUrl) === "scan.sitebehavior.org") {
   fail("The production scanner is never a valid durable replay canary target; use a separate gated staging deployment.");
 }
+const originLabel = requiredOriginLabel("DURABLE_REPLAY_ORIGIN_LABEL");
+const receiptOutputPath = requiredReceiptOutputPath("DURABLE_REPLAY_RECEIPT_PATH");
 
-const { hook } = await readAttestedStagingHealth("pre-submission");
+const startedAt = new Date().toISOString();
+const preHealth = await readAttestedStagingHealth("pre-submission");
+const { hook } = preHealth;
 const minimumNoPollMs = Number(hook.minimumNoPollMs);
 if (!Number.isSafeInteger(minimumNoPollMs) || minimumNoPollMs <= 0) {
   fail("The advertised fault hook does not publish a positive minimumNoPollMs lease/replay margin; no scan was submitted.");
@@ -92,11 +100,27 @@ if (submissionResponse.status !== 202 || !isDurableSubmission(submission)) {
 }
 
 const { jobId, reportId, statusPath } = submission;
+const submittedAt = new Date().toISOString();
 console.log(`Accepted job ${jobId} with report ${reportId}. Entering the deliberate no-poll window.`);
 await sleep(noPollMs);
+// Timers may wake before the wall clock advances a full millisecond, and the
+// receipt validator requires the stamped window to cover the declared margin.
+// The monotonic deadline keeps a backward wall-clock step from extending the
+// ceremony indefinitely.
+const catchUpDeadline = performance.now() + 300_000;
+while (Date.now() - Date.parse(submittedAt) < noPollMs) {
+  if (performance.now() > catchUpDeadline) {
+    fail(
+      "The wall clock moved backward during the no-poll window and did not recover within 5 minutes; preserve no partial claim."
+    );
+  }
+  await sleep(1);
+}
+const blindWindowEndedAt = new Date().toISOString();
 console.log("No-poll window complete; reading exactly one terminal status snapshot.");
 
 const terminal = await readFirstPostIdleStatus(statusPath);
+const statusObservedAt = new Date().toISOString();
 if (terminal.status !== "succeeded") {
   fail(
     `The first post-idle status snapshot was ${String(terminal.status)} instead of succeeded; ` +
@@ -126,6 +150,7 @@ if (!reportResponse.ok) {
   fail(`Saved report ${reportId} returned HTTP ${reportResponse.status} (${publicError(savedReport)}).`);
 }
 assertReportIdentity(savedReport, reportId, "saved report endpoint");
+const reportReadbackAt = new Date().toISOString();
 
 const evidence = exposedFaultEvidence(terminal);
 if (!evidence || evidence.mode !== faultMode || evidence.triggered !== true || evidence.triggeredGeneration !== 1) {
@@ -144,8 +169,43 @@ if (attempts === null) {
 
 // Refuse a mixed-version receipt if staging was redeployed during the blind
 // window. Re-run the complete attestation, not just the SHA comparison.
-await readAttestedStagingHealth("post-recovery");
+const postHealth = await readAttestedStagingHealth("post-recovery");
+const completedAt = new Date().toISOString();
 
+let receipt;
+try {
+  receipt = buildDurableReplayReceipt({
+    mode: faultMode,
+    expectedDeploymentSha: expectedDeployment,
+    origin: baseUrl,
+    originLabel,
+    timing: {
+      startedAt,
+      submittedAt,
+      noPollMs,
+      blindWindowEndedAt,
+      statusObservedAt,
+      reportReadbackAt,
+      completedAt
+    },
+    preHealth,
+    postHealth,
+    execution: {
+      terminalStatus: terminal.status,
+      jobId,
+      reportId,
+      attempts,
+      faultTriggered: evidence.triggered,
+      triggeredGeneration: evidence.triggeredGeneration,
+      finishedBeforeStatusRequest: terminal.durable.finishedBeforeStatusRequest,
+      reportReadback: true
+    }
+  });
+  writeExclusiveReceipt(receiptOutputPath, `${JSON.stringify(receipt, null, 2)}\n`);
+} catch {
+  fail("The canary passed, but its exclusive machine-readable receipt could not be written; preserve no partial claim.");
+}
+console.log(`PASS Wrote the ${faultMode} replay receipt to ${receiptOutputPath} (sha256:${receipt.receiptDigest}).`);
 console.log(`PASS ${faultMode} recovered the same reportId (${reportId}) after an idle lease/replay window.`);
 
 async function readAttestedStagingHealth(phase) {
@@ -161,7 +221,7 @@ async function readAttestedStagingHealth(phase) {
         `(${expectedDeployment}).`
     );
   }
-  return { health, hook };
+  return { health, hook, observedAt: new Date().toISOString() };
 }
 
 function assertSafeFaultInjectionPrerequisites(value) {
@@ -379,12 +439,66 @@ function requiredCommitSha(name) {
   return value;
 }
 
-function positiveIntegerEnv(name, fallback) {
-  const raw = process.env[name]?.trim();
-  if (!raw && fallback !== undefined) return fallback;
-  const value = Number(raw);
-  if (!Number.isSafeInteger(value) || value <= 0) fail(`${name} must be a positive integer.`);
+function requiredOriginLabel(name) {
+  const value = requiredEnv(name);
+  if (!/^[a-z0-9][a-z0-9._-]{0,63}$/.test(value) || value === "production") {
+    fail(`${name} must be a bounded lowercase non-production evidence label.`);
+  }
   return value;
+}
+
+function requiredReceiptOutputPath(name) {
+  const value = requiredEnv(name);
+  if (!value.endsWith(".json") || /[\u0000\r\n]/.test(value)) {
+    fail(`${name} must name an explicit .json output path.`);
+  }
+  const outputPath = path.resolve(value);
+  const relative = path.relative(process.cwd(), outputPath);
+  if (relative === "public" || relative.startsWith(`public${path.sep}`)) {
+    fail(`${name} must not put operational evidence under public/.`);
+  }
+  let parent;
+  try {
+    parent = lstatSync(path.dirname(outputPath));
+  } catch {
+    fail(`${name} parent directory must already exist.`);
+  }
+  if (!parent.isDirectory() || parent.isSymbolicLink()) {
+    fail(`${name} parent must be a real directory, not a symlink.`);
+  }
+  try {
+    lstatSync(outputPath);
+    fail(`${name} already exists; replay receipts are append-only and never overwritten.`);
+  } catch (error) {
+    if (!(error && typeof error === "object" && error.code === "ENOENT")) throw error;
+  }
+  return outputPath;
+}
+
+function writeExclusiveReceipt(outputPath, wire) {
+  const temporaryPath = `${outputPath}.pending-${process.pid}-${randomBytes(8).toString("hex")}`;
+  let temporaryCreated = false;
+  try {
+    writeFileSync(temporaryPath, wire, {
+      encoding: "utf8",
+      flag: "wx",
+      mode: 0o600
+    });
+    temporaryCreated = true;
+    // A hard-link publish is atomic and refuses an output path that appeared
+    // after preflight. Removing the private temporary name leaves the one
+    // append-only receipt inode; no rename can overwrite earlier evidence.
+    linkSync(temporaryPath, outputPath);
+  } finally {
+    if (temporaryCreated) {
+      try {
+        unlinkSync(temporaryPath);
+      } catch {
+        // If cleanup itself fails, the validator still recognizes only the
+        // exact operator-selected output path, never this pending name.
+      }
+    }
+  }
 }
 
 function boundedIntegerEnv(name, fallback, minimum, maximum) {

@@ -433,6 +433,39 @@ jobs:
           node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' \
             "$RUNNER_TEMP/trivy-container-image.json"
 
+      # A second pass inventories every final-image OS package and the license
+      # evidence Trivy observes for it. Trivy's raw report is deliberately not
+      # the attested subject: ReportID, CreatedAt, targets, and tags are
+      # scan-local noise. The repo-owned normalizer below binds only exact
+      # image/layer/package facts after the container receipt exists.
+      - name: Inventory smoke-tested container OS-package licenses with Trivy
+        id: trivy_image_license_scan
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          version: v0.70.0
+          scan-type: image
+          image-ref: site-behavior-lab:smoke
+          scanners: license
+          vuln-type: os
+          list-all-pkgs: "true"
+          format: json
+          output: ${{ runner.temp }}/trivy-container-image-licenses.json
+          exit-code: "0"
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          cache: "false"
+          cache-dir: ${{ runner.temp }}/trivy-license-cache
+
+      - name: Validate Trivy container license inventory report
+        id: trivy_image_license_report
+        if: always()
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          test -s "$RUNNER_TEMP/trivy-container-image-licenses.json"
+          node -e 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"))' \
+            "$RUNNER_TEMP/trivy-container-image-licenses.json"
+
       # Runs only after both image smoke lanes pass. The receipt records the
       # exact local image/layer identities and OCI source labels; it remains
       # distinct from the separately configured Cloudflare deployment artifact.
@@ -442,29 +475,57 @@ jobs:
           --container-image site-behavior-lab:smoke
           --output "$RUNNER_TEMP/site-behavior-lab-container-release-evidence.json"
 
+      - name: Normalize exact-image OS-package license inventory
+        id: container_package_inventory
+        continue-on-error: true
+        run: >-
+          npm run supply-chain:container-inventory --
+          --trivy-report "$RUNNER_TEMP/trivy-container-image-licenses.json"
+          --container-evidence "$RUNNER_TEMP/site-behavior-lab-container-release-evidence.json"
+          --source-commit "$GITHUB_SHA"
+          --output "$RUNNER_TEMP/site-behavior-lab-container-package-inventory.json"
+
+      - name: Verify exact-image package review coverage
+        id: container_package_reviews
+        if: always()
+        continue-on-error: true
+        run: >-
+          npm run supply-chain:container-reviews:check --
+          --inventory "$RUNNER_TEMP/site-behavior-lab-container-package-inventory.json"
+
       - name: Preserve exact-SHA container build evidence
+        id: container_evidence_upload
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: exact-sha-container-evidence-${{ github.sha }}
-          path: ${{ runner.temp }}/site-behavior-lab-container-release-evidence.json
+          path: |
+            ${{ runner.temp }}/site-behavior-lab-container-release-evidence.json
+            ${{ runner.temp }}/site-behavior-lab-container-package-inventory.json
           if-no-files-found: error
           retention-days: 90
 
-      - name: Preserve container vulnerability report
+      - name: Preserve raw container security reports
         id: trivy_image_report_upload
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: container-security-${{ github.sha }}
-          path: ${{ runner.temp }}/trivy-container-image.json
+          path: |
+            ${{ runner.temp }}/trivy-container-image.json
+            ${{ runner.temp }}/trivy-container-image-licenses.json
           if-no-files-found: error
           retention-days: 90
 
-      - name: Enforce container vulnerability gate
+      - name: Enforce container security and package-evidence gates
         if: always()
         env:
           TRIVY_IMAGE_SCAN_OUTCOME: ${{ steps.trivy_image_scan.outcome }}
           TRIVY_IMAGE_REPORT_OUTCOME: ${{ steps.trivy_image_report.outcome }}
+          TRIVY_IMAGE_LICENSE_SCAN_OUTCOME: ${{ steps.trivy_image_license_scan.outcome }}
+          TRIVY_IMAGE_LICENSE_REPORT_OUTCOME: ${{ steps.trivy_image_license_report.outcome }}
+          CONTAINER_PACKAGE_INVENTORY_OUTCOME: ${{ steps.container_package_inventory.outcome }}
+          CONTAINER_PACKAGE_REVIEWS_OUTCOME: ${{ steps.container_package_reviews.outcome }}
+          CONTAINER_EVIDENCE_UPLOAD_OUTCOME: ${{ steps.container_evidence_upload.outcome }}
           TRIVY_IMAGE_UPLOAD_OUTCOME: ${{ steps.trivy_image_report_upload.outcome }}
         run: |
           set -euo pipefail
@@ -472,20 +533,26 @@ jobs:
           for gate in \
             "Trivy image scan:$TRIVY_IMAGE_SCAN_OUTCOME" \
             "Trivy image report:$TRIVY_IMAGE_REPORT_OUTCOME" \
-            "Trivy image report upload:$TRIVY_IMAGE_UPLOAD_OUTCOME"; do
+            "Trivy image license scan:$TRIVY_IMAGE_LICENSE_SCAN_OUTCOME" \
+            "Trivy image license report:$TRIVY_IMAGE_LICENSE_REPORT_OUTCOME" \
+            "Container package inventory:$CONTAINER_PACKAGE_INVENTORY_OUTCOME" \
+            "Container package review coverage:$CONTAINER_PACKAGE_REVIEWS_OUTCOME" \
+            "Exact-SHA container evidence upload:$CONTAINER_EVIDENCE_UPLOAD_OUTCOME" \
+            "Raw container security report upload:$TRIVY_IMAGE_UPLOAD_OUTCOME"; do
             name=${gate%%:*}
             outcome=${gate#*:}
             if [ "$outcome" != "success" ]; then
-              echo "::error title=Container vulnerability gate failed::${name} finished with ${outcome}."
+              echo "::error title=Container security gate failed::${name} finished with ${outcome}."
               failed=1
             fi
           done
           exit "$failed"
 
   # This job never checks out or executes candidate code. OIDC and attestation
-  # writes are isolated here and are unavailable to pull-request code. The two
-  # subjects are the exact JSON evidence manifests produced by the tested app
-  # and Docker jobs; they are not the Cloudflare deployment or a registry image.
+  # writes are isolated here and are unavailable to pull-request code. The three
+  # subjects are the exact JSON evidence manifests and normalized image-package
+  # inventory produced by the tested app and Docker jobs; they are not the
+  # Cloudflare deployment or a registry image.
   attest:
     name: Attest exact-SHA evidence manifests
     needs:
@@ -520,17 +587,149 @@ jobs:
         env:
           STATIC_EVIDENCE_PATH: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/static/site-behavior-lab-static-release-evidence.json
           CONTAINER_EVIDENCE_PATH: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container/site-behavior-lab-container-release-evidence.json
+          CONTAINER_PACKAGE_INVENTORY_PATH: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container/site-behavior-lab-container-package-inventory.json
         run: |
           set -euo pipefail
           test -s "$STATIC_EVIDENCE_PATH"
           test -s "$CONTAINER_EVIDENCE_PATH"
+          test -s "$CONTAINER_PACKAGE_INVENTORY_PATH"
           node -e '
+            const { createHash } = require("node:crypto");
             const { readFileSync } = require("node:fs");
             for (const [label, file] of [["static", process.env.STATIC_EVIDENCE_PATH], ["container", process.env.CONTAINER_EVIDENCE_PATH]]) {
               const receipt = JSON.parse(readFileSync(file, "utf8"));
               if (receipt?.source?.commit !== process.env.GITHUB_SHA) {
                 throw new Error(`${label} evidence identifies ${receipt?.source?.commit ?? "no commit"}, expected ${process.env.GITHUB_SHA}`);
               }
+            }
+            const container = JSON.parse(readFileSync(process.env.CONTAINER_EVIDENCE_PATH, "utf8"));
+            const inventoryBytes = readFileSync(process.env.CONTAINER_PACKAGE_INVENTORY_PATH, "utf8");
+            const inventory = JSON.parse(inventoryBytes);
+            const requireKeys = (value, expected, label) => {
+              if (
+                !value ||
+                typeof value !== "object" ||
+                Array.isArray(value) ||
+                JSON.stringify(Object.keys(value)) !== JSON.stringify(expected)
+              ) {
+                throw new Error(`${label} does not contain exactly the canonical fields in canonical order`);
+              }
+            };
+            requireKeys(
+              inventory,
+              ["schemaVersion", "artifactKind", "source", "image", "scanner", "summary", "packageSetDigest", "packages"],
+              "Container package inventory"
+            );
+            requireKeys(inventory.source, ["commit"], "Container package inventory source");
+            requireKeys(
+              inventory.image,
+              ["id", "digest", "os", "architecture", "rootfsLayers"],
+              "Container package inventory image"
+            );
+            requireKeys(
+              inventory.scanner,
+              ["name", "version", "reportSchemaVersion", "scope", "licenseMode"],
+              "Container package inventory scanner"
+            );
+            requireKeys(
+              inventory.summary,
+              ["packageCount", "packagesWithDetectedLicenses", "packagesWithoutDetectedLicenses", "classifiedLicenseFindingCount"],
+              "Container package inventory summary"
+            );
+            const artifact = container?.artifacts?.filter(
+              (value) => value?.name === "container-image" && value?.kind === "docker-image-inspection"
+            );
+            if (!Array.isArray(artifact) || artifact.length !== 1) {
+              throw new Error("Container evidence does not contain exactly one inspected image");
+            }
+            const image = artifact[0];
+            if (
+              inventory?.schemaVersion !== 1 ||
+              inventory?.artifactKind !== "site-behavior-container-image-package-inventory" ||
+              inventory?.source?.commit !== process.env.GITHUB_SHA ||
+              inventory?.image?.id !== image.imageId ||
+              inventory?.image?.digest !== image.imageId?.replace(/^sha256:/, "") ||
+              inventory?.image?.os !== image.os ||
+              inventory?.image?.architecture !== image.architecture ||
+              JSON.stringify(inventory?.image?.rootfsLayers) !== JSON.stringify(image.rootfsLayers)
+            ) {
+              throw new Error("Container package inventory does not bind the exact container evidence");
+            }
+            if (
+              inventory?.scanner?.name !== "trivy" ||
+              inventory?.scanner?.version !== "0.70.0" ||
+              inventory?.scanner?.reportSchemaVersion !== 2 ||
+              inventory?.scanner?.scope !== "os-packages" ||
+              inventory?.scanner?.licenseMode !== "standard"
+            ) {
+              throw new Error("Container package inventory scanner contract is not the reviewed contract");
+            }
+            if (!Array.isArray(inventory.packages) || inventory.packages.length === 0) {
+              throw new Error("Container package inventory contains no packages");
+            }
+            const sha256 = (value) => createHash("sha256").update(value).digest("hex");
+            let previousKey = null;
+            let packagesWithDetectedLicenses = 0;
+            const keys = new Set();
+            for (const pkg of inventory.packages) {
+              const expectedFields = [
+                "key", "packageType", "name", "version", "architecture",
+                "sourceName", "sourceVersion", "detectedLicenses", "evidenceDigest"
+              ];
+              if (
+                !pkg ||
+                typeof pkg !== "object" ||
+                JSON.stringify(Object.keys(pkg)) !== JSON.stringify(expectedFields)
+              ) {
+                throw new Error("Container package inventory contains a noncanonical package row");
+              }
+              const requiredStrings = [pkg.packageType, pkg.name, pkg.version, pkg.architecture];
+              if (
+                requiredStrings.some((value) => typeof value !== "string" || value.length === 0 || value !== value.trim()) ||
+                ![pkg.sourceName, pkg.sourceVersion].every(
+                  (value) => value === null || (typeof value === "string" && value.length > 0 && value === value.trim())
+                ) ||
+                !Array.isArray(pkg.detectedLicenses) ||
+                pkg.detectedLicenses.some((value) => typeof value !== "string" || value.length === 0 || value !== value.trim()) ||
+                new Set(pkg.detectedLicenses).size !== pkg.detectedLicenses.length ||
+                JSON.stringify([...pkg.detectedLicenses].sort()) !== JSON.stringify(pkg.detectedLicenses)
+              ) {
+                throw new Error(`Container package inventory row ${pkg.key ?? "(missing key)"} is malformed`);
+              }
+              const expectedKey = `os:${pkg.packageType}:${pkg.name}@${pkg.version}#${pkg.architecture}`;
+              const evidence = {
+                packageType: pkg.packageType,
+                name: pkg.name,
+                version: pkg.version,
+                architecture: pkg.architecture,
+                sourceName: pkg.sourceName,
+                sourceVersion: pkg.sourceVersion,
+                detectedLicenses: pkg.detectedLicenses
+              };
+              if (
+                pkg.key !== expectedKey ||
+                pkg.evidenceDigest !== sha256(JSON.stringify(evidence)) ||
+                keys.has(pkg.key) ||
+                (previousKey !== null && previousKey >= pkg.key)
+              ) {
+                throw new Error(`Container package inventory row ${pkg.key ?? "(missing key)"} has stale identity or ordering`);
+              }
+              keys.add(pkg.key);
+              previousKey = pkg.key;
+              if (pkg.detectedLicenses.length > 0) packagesWithDetectedLicenses += 1;
+            }
+            if (
+              inventory.packageSetDigest !== sha256(JSON.stringify(inventory.packages)) ||
+              inventory?.summary?.packageCount !== inventory.packages.length ||
+              inventory?.summary?.packagesWithDetectedLicenses !== packagesWithDetectedLicenses ||
+              inventory?.summary?.packagesWithoutDetectedLicenses !== inventory.packages.length - packagesWithDetectedLicenses ||
+              !Number.isSafeInteger(inventory?.summary?.classifiedLicenseFindingCount) ||
+              inventory.summary.classifiedLicenseFindingCount <= 0
+            ) {
+              throw new Error("Container package inventory aggregate digests or counts are stale");
+            }
+            if (!inventoryBytes.equals(Buffer.from(`${JSON.stringify(inventory, null, 2)}\n`, "utf8"))) {
+              throw new Error("Container package inventory is not canonical JSON");
             }
           '
 
@@ -546,6 +745,12 @@ jobs:
         with:
           subject-path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container/site-behavior-lab-container-release-evidence.json
 
+      - name: Attest container OS-package inventory
+        id: attest_container_packages
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container/site-behavior-lab-container-package-inventory.json
+
       - name: Collect attestation bundles and result references
         env:
           STATIC_BUNDLE: ${{ steps.attest_static.outputs.bundle-path }}
@@ -554,6 +759,9 @@ jobs:
           CONTAINER_BUNDLE: ${{ steps.attest_container.outputs.bundle-path }}
           CONTAINER_ATTESTATION_ID: ${{ steps.attest_container.outputs.attestation-id }}
           CONTAINER_ATTESTATION_URL: ${{ steps.attest_container.outputs.attestation-url }}
+          CONTAINER_PACKAGES_BUNDLE: ${{ steps.attest_container_packages.outputs.bundle-path }}
+          CONTAINER_PACKAGES_ATTESTATION_ID: ${{ steps.attest_container_packages.outputs.attestation-id }}
+          CONTAINER_PACKAGES_ATTESTATION_URL: ${{ steps.attest_container_packages.outputs.attestation-url }}
         run: |
           set -euo pipefail
           test -s "$STATIC_BUNDLE"
@@ -562,11 +770,15 @@ jobs:
           test -s "$CONTAINER_BUNDLE"
           test -n "$CONTAINER_ATTESTATION_ID"
           test -n "$CONTAINER_ATTESTATION_URL"
+          test -s "$CONTAINER_PACKAGES_BUNDLE"
+          test -n "$CONTAINER_PACKAGES_ATTESTATION_ID"
+          test -n "$CONTAINER_PACKAGES_ATTESTATION_URL"
 
           report_dir="$RUNNER_TEMP/site-behavior-lab-attestations"
           install -d -m 700 "$report_dir"
           install -m 600 "$STATIC_BUNDLE" "$report_dir/static-evidence-manifest.bundle.json"
           install -m 600 "$CONTAINER_BUNDLE" "$report_dir/container-evidence-manifest.bundle.json"
+          install -m 600 "$CONTAINER_PACKAGES_BUNDLE" "$report_dir/container-package-inventory.bundle.json"
           node -e '
             const { writeFileSync } = require("node:fs");
             const result = {
@@ -580,6 +792,10 @@ jobs:
                 containerEvidenceManifest: {
                   attestationId: process.env.CONTAINER_ATTESTATION_ID,
                   attestationUrl: process.env.CONTAINER_ATTESTATION_URL
+                },
+                containerPackageInventory: {
+                  attestationId: process.env.CONTAINER_PACKAGES_ATTESTATION_ID,
+                  attestationUrl: process.env.CONTAINER_PACKAGES_ATTESTATION_URL
                 }
               }
             };

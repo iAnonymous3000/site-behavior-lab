@@ -67,7 +67,8 @@
       "class_name": "ScannerContainer",
       "image": "./Dockerfile",
       "image_vars": {
-        "SITE_BEHAVIOR_LAB_BUILD_COMMIT": "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__"
+        "SITE_BEHAVIOR_LAB_BUILD_COMMIT": "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__",
+        "SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF": "__SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF__"
       },
       "instance_type": "standard-2",
       "max_instances": 1

@@ -159,6 +159,8 @@ jobs:
       healthy: ${{ steps.refresh_policy.outputs.healthy }}
       public_summary: ${{ steps.refresh_policy.outputs.public_summary }}
       scan_outcome: ${{ steps.featured_scan.outcome }}
+      readjudication_artifact_id: ${{ steps.readjudication_artifact.outputs.artifact-id }}
+      readjudication_artifact_digest: ${{ steps.readjudication_artifact.outputs.artifact-digest }}
     # Manual v1 compatibility uses GitHub-hosted Ubuntu. Every r2 producer asks
     # for the controlled runner label. The ubuntu fallback is intentional: if
     # the label is absent, the job starts and the preflight fails visibly on
@@ -336,6 +338,36 @@ jobs:
           tail -n 200 /tmp/site-behavior-lab-featured.log || echo "no scanner log present"
           echo "::endgroup::"
 
+      # The Aug 3/Aug 10 gallery cycles are the bounded re-adjudication window
+      # for the fixed 13 formerly deferred domains. This evidence is separate
+      # from the publication artifact: it exists even when no report can
+      # publish, contains no free-form diagnostics, and is retained long
+      # enough for the post-cycle aggregate receipt and freeze ceremony.
+      - name: Canonicalize featured re-adjudication outcomes
+        if: always() && github.event_name == 'schedule' && github.event.schedule == '23 5 * * 1'
+        env:
+          FEATURED_SITES_FILE: public/featured-sites.json
+          GITHUB_EVENT_SCHEDULE: ${{ github.event.schedule || '' }}
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/featured-readjudication-outcomes.json"
+          test ! -e "$output"
+          node scripts/featured-readjudication.mjs \
+            --cycle \
+            --catalog "$GITHUB_WORKSPACE/public/featured-sites.json" \
+            --summary "$RUNNER_TEMP/featured-scan-summary.json" \
+            --output "$output"
+
+      - name: Upload featured re-adjudication outcomes
+        id: readjudication_artifact
+        if: always() && github.event_name == 'schedule' && github.event.schedule == '23 5 * * 1'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: featured-readjudication-outcomes-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/featured-readjudication-outcomes.json
+          if-no-files-found: error
+          retention-days: 45
+
       - name: Classify reports for partial publication
         id: refresh_policy
         if: always()
@@ -415,8 +447,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # GITHUB_TOKEN pushes do not recursively trigger CI, so the publisher
-      # explicitly dispatches the required workflow after a successful push.
+      # The bot-created proposal's push-event CI run is parked for manual
+      # approval. This permission dispatches a separate non-promoting
+      # validation run; it does not satisfy the pull request's required checks.
       actions: write
     env:
       BASE_BRANCH: ${{ github.ref_name }}
@@ -515,14 +548,106 @@ jobs:
             --kind featured \
             --report-mode "$FEATURED_REPORT_MODE"
 
-      - name: Rebuild trusted retention and aggregate outputs
+      - name: Archive exact controlled-r2 publication binding
+        id: controlled_publication
+        if: >-
+          env.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1' &&
+          env.FEATURED_REPORT_MODE == 'r2'
+        env:
+          ARTIFACT_ID: ${{ needs.scan-featured.outputs.publication_artifact_id }}
+          ARTIFACT_DIGEST: ${{ needs.scan-featured.outputs.publication_artifact_digest }}
+          ARTIFACT_NAME: ${{ needs.scan-featured.outputs.publication_artifact_name }}
+        run: |
+          set -euo pipefail
+          artifact_prefix="site-behavior-featured-publication-${GITHUB_RUN_ID}-"
+          case "$ARTIFACT_NAME" in
+            "$artifact_prefix"[1-9]*)
+              artifact_attempt="${ARTIFACT_NAME#"$artifact_prefix"}"
+              ;;
+            *)
+              echo "::error title=Controlled publication identity mismatch::Artifact name does not bind this Actions run."
+              exit 1
+              ;;
+          esac
+          if [[ ! "$artifact_attempt" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error title=Controlled publication attempt mismatch::Artifact name has an invalid acquisition attempt."
+            exit 1
+          fi
+          relative_path="research/controlled-publications/${GITHUB_RUN_ID}-${artifact_attempt}"
+          output_dir="${GITHUB_WORKSPACE}/${relative_path}"
+          node scripts/controlled-publication-receipt.mjs \
+            --create \
+            --checkout-root "$GITHUB_WORKSPACE" \
+            --metadata "$RUNNER_TEMP/report-publication-metadata.json" \
+            --archive "$RUNNER_TEMP/report-publication.zip" \
+            --artifact-id "$ARTIFACT_ID" \
+            --artifact-name "$ARTIFACT_NAME" \
+            --artifact-digest "$ARTIFACT_DIGEST" \
+            --run-id "$GITHUB_RUN_ID" \
+            --source-commit "$GITHUB_SHA" \
+            --output-dir "$output_dir"
+          node scripts/controlled-publication-receipt.mjs \
+            --verify \
+            --checkout-root "$GITHUB_WORKSPACE" \
+            --directory "$output_dir" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$artifact_attempt" \
+            --source-commit "$GITHUB_SHA" \
+            --artifact-id "$ARTIFACT_ID" \
+            --archive-digest "$ARTIFACT_DIGEST"
+          echo "relative_path=$relative_path" >> "$GITHUB_OUTPUT"
+
+      - name: Upload exact controlled-publication evidence
+        if: steps.controlled_publication.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-controlled-publication-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ github.workspace }}/${{ steps.controlled_publication.outputs.relative_path }}/
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+          compression-level: 0
+
+      - name: Apply retention policy and rebuild trusted aggregate outputs
         # Retention decisions are made in the trusted exact-SHA checkout. No
         # deletion proposed by the acquisition artifact is ever applied.
+        # During a measurement freeze, even trusted age/count pruning is
+        # forbidden: each sequential evidence-only carrier must preserve every
+        # governed report inherited from the preceding accepted producer.
         run: |
-          npm run reports:prune
+          set -euo pipefail
+          case "$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE" in
+            1)
+              echo "::notice title=Measurement freeze::Governed report pruning is disabled; this proposal may only append controlled-r2 evidence."
+              ;;
+            ''|0)
+              # Preserve the ordinary seven-day/count retention policy outside
+              # the governed evidence epoch.
+              npm run reports:prune
+              ;;
+            *)
+              echo "::error title=Ambiguous measurement freeze::SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE must be exactly 0, 1, empty, or unset."
+              exit 1
+              ;;
+          esac
           npm run reports:remediate -- --check
           npm run reports:manifest
           npm run corpus:stats
+
+      - name: Refuse freeze-time deletion of governed reports
+        if: env.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet --diff-filter=D -- public/reports; then
+            echo "::error title=Governed evidence deletion refused::A freeze-time featured proposal deleted one or more files under public/reports."
+            git diff --name-only --diff-filter=D -- public/reports
+            exit 1
+          fi
+          if ! git diff --cached --quiet --diff-filter=D -- public/reports; then
+            echo "::error title=Governed evidence deletion refused::A staged freeze-time change deleted one or more files under public/reports."
+            git diff --cached --name-only --diff-filter=D -- public/reports
+            exit 1
+          fi
 
       - name: Commit static reports
         id: commit
@@ -530,6 +655,7 @@ jobs:
         # independently validated reports can still advance the evidence base.
         env:
           GH_TOKEN: ${{ github.token }}
+          CONTROLLED_PUBLICATION_PATH: ${{ steps.controlled_publication.outputs.relative_path }}
         run: |
           echo "pushed=false" >> "$GITHUB_OUTPUT"
           if [[ "$GITHUB_REF_TYPE" != "branch" ]]; then
@@ -539,6 +665,16 @@ jobs:
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
           git add public/reports public/corpus-stats.json
+          if [[ "$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE" == "1" && "$FEATURED_REPORT_MODE" == "r2" ]]; then
+            if [[ ! "$CONTROLLED_PUBLICATION_PATH" =~ ^research/controlled-publications/[1-9][0-9]*-[1-9][0-9]*$ ]]; then
+              echo "::error title=Controlled publication archive missing::The freeze-time r2 publisher did not produce its exact cross-binding archive."
+              exit 1
+            fi
+            git add -- "$CONTROLLED_PUBLICATION_PATH"
+          elif [[ -n "$CONTROLLED_PUBLICATION_PATH" ]]; then
+            echo "::error title=Unexpected controlled publication archive::Receipt paths may be staged only during an exact freeze-time r2 publication."
+            exit 1
+          fi
           if git diff --cached --quiet; then
             echo "No report changes to commit."
             exit 0
@@ -559,14 +695,21 @@ jobs:
           echo "pushed=true" >> "$GITHUB_OUTPUT"
 
           proposal_body="$RUNNER_TEMP/report-proposal-pr.md"
+          if [[ "$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE" == "1" ]]; then
+            retention_line='- Measurement freeze active: governed report pruning was disabled and the publisher verified this proposal deletes no public report. Merge this evidence-only proposal through normal checks before dispatching the next cycle; no code, catalog, dependency, or filter-list change may land between cycles.'
+          else
+            retention_line='- The publisher applied the ordinary trusted retention policy before rebuilding manifests and corpus statistics.'
+          fi
           printf '%s\n' \
             '<!-- site-behavior-lab:featured-publication-pr -->' \
             '# Add validated featured scan report data' \
             '' \
             'This proposal contains validated, privacy-reduced featured report data produced by the trusted publisher from a bounded acquisition artifact.' \
             '' \
-            '- The publisher validated artifact identity, redaction, provenance, pruning, manifests, and corpus statistics before proposing.' \
-            '- Merging still requires normal review and a fresh main-branch CI run.' \
+            '- The publisher validated artifact identity, redaction, provenance, manifests, and corpus statistics before proposing.' \
+            "$retention_line" \
+            "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
+            "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
             '- If another proposal merges first and this one conflicts in the report manifest or corpus statistics, close it and re-run the workflow; never hand-merge regenerated output.' \
             > "$proposal_body"
           # The proposal branch is already pushed, but a proposal nobody can
@@ -598,11 +741,12 @@ jobs:
           fi
 
       - name: Trigger CI on the proposal branch
-        # Pushes made with GITHUB_TOKEN never fire `on: push` workflows, so the
-        # proposal would stay untested. Dispatch CI on the proposal branch
-        # only; its attest and promote jobs are gated on refs/heads/main, so
-        # this run tests the proposal and can never deploy it. Promotion
-        # happens from the fresh main CI run after the pull request merges.
+        # The bot-created proposal's push-event run is parked for manual
+        # approval. Dispatch CI on the proposal branch now so validation can
+        # start independently; its attest and promote jobs are gated on
+        # refs/heads/main, so it can never deploy. This dispatched run does not
+        # satisfy the pull request's required checks: approve the parked run
+        # before merge. Trusted main CI runs after merge.
         if: steps.commit.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}

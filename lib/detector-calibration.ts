@@ -26,15 +26,67 @@ import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
 import { trackerCatalogMetadata } from "./tracker-catalog";
 
-export const DETECTOR_CALIBRATION_ANALYSIS_VERSION = "detector-calibration-analysis-v2" as const;
+export const DETECTOR_CALIBRATION_ANALYSIS_VERSION = "detector-calibration-analysis-v3" as const;
 export const DETECTOR_CALIBRATION_STUDY_SCHEMA_VERSION = 1 as const;
 export const DETECTOR_CALIBRATION_STUDY_SCHEMA_ID =
   "https://sitebehavior.org/schemas/detector-calibration-study.v1.schema.json" as const;
+export const DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_VERSION = 2 as const;
+export const DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_ID =
+  "https://sitebehavior.org/schemas/detector-calibration-study.v2.schema.json" as const;
+export const DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION = 3 as const;
+export const DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_ID =
+  "https://sitebehavior.org/schemas/detector-calibration-study.v3.schema.json" as const;
 const DETECTOR_CALIBRATION_MAX_CASES = 100_000;
 const SHA256 = /^[0-9a-f]{64}$/;
 const MAX_LABELERS = 10;
 
 export type DetectorCalibrationSampling = "simple-random" | "census" | "convenience";
+export type DetectorCalibrationMeasurementCondition = {
+  device: "desktop";
+  gpcEnabled: false;
+  consentMode: "observe" | "accept-all";
+  interpretation: string;
+};
+
+const PASSIVE_CALIBRATION_CONDITION_INTERPRETATION =
+  "Rates are conditional on desktop visits with GPC disabled under passive consent observation with no consent action.";
+const PIXEL_EVENTS_CALIBRATION_CONDITION_INTERPRETATION =
+  "Rates are conditional on desktop visits where accept-all registration was verified and reverified after reload, with GPC disabled.";
+const CONSENT_BANNER_CALIBRATION_CONDITION_INTERPRETATION =
+  "Rates are conditional on desktop visits with GPC disabled under passive consent-banner observation with no consent action.";
+
+/**
+ * Canonical, detector-specific measurement arms. A calibration study cannot
+ * generalize beyond this exact condition. Pixel sensitivity deliberately uses
+ * the consent-accepted arm established by the pilot; the consent-banner
+ * detector remains passive because its private observation seam is observe-only.
+ */
+export function detectorCalibrationMeasurementCondition(
+  detector: DetectorId
+): DetectorCalibrationMeasurementCondition {
+  if (detector === "pixel-events") {
+    return {
+      device: "desktop",
+      gpcEnabled: false,
+      consentMode: "accept-all",
+      interpretation: PIXEL_EVENTS_CALIBRATION_CONDITION_INTERPRETATION
+    };
+  }
+  if (detector === "consent-banner") {
+    return {
+      device: "desktop",
+      gpcEnabled: false,
+      consentMode: "observe",
+      interpretation: CONSENT_BANNER_CALIBRATION_CONDITION_INTERPRETATION
+    };
+  }
+  return {
+    device: "desktop",
+    gpcEnabled: false,
+    consentMode: "observe",
+    interpretation: PASSIVE_CALIBRATION_CONDITION_INTERPRETATION
+  };
+}
 export type DetectorCalibrationCensorReason =
   | "capture-failed"
   | "reference-label-uncertain"
@@ -80,6 +132,24 @@ export type DetectorCalibrationReleaseIdentity = {
   runtime: DetectorCalibrationRuntimeIdentity;
 };
 
+export type DetectorCalibrationReferenceV3 = {
+  value: "present" | "absent";
+  evidenceArtifactDigest: string;
+  labelArtifactDigest: string;
+  labelerIds: [string, string, ...string[]];
+  adjudication:
+    | {
+        status: "labelers-agreed";
+        tiebreakerId: null;
+        artifactDigest: null;
+      }
+    | {
+        status: "disagreement-resolved-by-blind-tiebreaker";
+        tiebreakerId: string;
+        artifactDigest: string;
+      };
+};
+
 export type DetectorCalibrationReference = {
   value: "present" | "absent";
   evidenceArtifactDigest: string;
@@ -97,6 +167,25 @@ export type DetectorCalibrationReference = {
         artifactDigest: string;
       };
 };
+
+export type DetectorCalibrationCaseV3 =
+  | {
+      caseId: string;
+      outcome: "complete";
+      conditionDigest: string;
+      prediction: {
+        value: "detected" | "not-detected";
+        artifactDigest: string;
+      };
+      reference: DetectorCalibrationReferenceV3;
+    }
+  | {
+      caseId: string;
+      outcome: "censored";
+      reason: DetectorCalibrationCensorReason;
+      conditionDigest: string;
+      attemptArtifactDigest: string;
+    };
 
 export type DetectorCalibrationCase =
   | {
@@ -140,6 +229,59 @@ export type DetectorCalibrationStudy = {
   cases: DetectorCalibrationCase[];
 };
 
+/**
+ * Release-grade studies use v2. The published v1 type above remains intact so
+ * its immutable schema and the historical pilot remain readable; v1 studies
+ * are never eligible for rate publication because they do not bind an exact
+ * measurement condition.
+ */
+export type DetectorCalibrationStudyV2 = {
+  schemaVersion: typeof DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_VERSION;
+  studyId: string;
+  detector: DetectorId;
+  release: DetectorCalibrationReleaseIdentity;
+  targetPopulation: string;
+  plannedCases: number;
+  design: {
+    sampling: DetectorCalibrationSampling;
+    samplingFrame: string;
+    samplingFrameDigest: string;
+    selectionProtocol: string;
+    referenceProtocol: string;
+    referenceProtocolDigest: string;
+    adjudicationProtocol: string;
+    adjudicationProtocolDigest: string;
+    measurementCondition: DetectorCalibrationMeasurementCondition;
+    independentUnits: boolean;
+    predictionBlindedToReference: boolean;
+    referenceBlindedToPrediction: boolean;
+  };
+  cases: DetectorCalibrationCase[];
+};
+
+/**
+ * Current custody-lane studies use v3. It preserves v2 measurement-condition
+ * binding while making the precommitted blind-tiebreaker semantics explicit.
+ */
+export type DetectorCalibrationStudyV3 = {
+  schemaVersion: typeof DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION;
+  studyId: string;
+  detector: DetectorId;
+  release: DetectorCalibrationReleaseIdentity;
+  targetPopulation: string;
+  plannedCases: number;
+  labelRosterAuthorizationSha256: string;
+  rosterSelectionLedgerSha256: string;
+  acquisitionAttemptLedgerSha256: string;
+  design: DetectorCalibrationStudyV2["design"];
+  cases: DetectorCalibrationCaseV3[];
+};
+
+type AnalyzableDetectorCalibrationStudy =
+  | DetectorCalibrationStudy
+  | DetectorCalibrationStudyV2
+  | DetectorCalibrationStudyV3;
+
 export type DetectorCalibrationRateId =
   | "sensitivity"
   | "specificity"
@@ -173,6 +315,7 @@ export type DetectorCalibrationIneligibilityReason =
   | "playwright-version-mismatch"
   | "tracker-catalog-revision-mismatch"
   | "brave-list-revision-mismatch"
+  | "measurement-condition-unbound"
   | "no-complete-cases"
   | "missing-positive-reference-denominator"
   | "missing-negative-reference-denominator";
@@ -213,8 +356,13 @@ export type DetectorCalibrationAnalysis = {
       | "conditional-on-declared-simple-random-design";
   };
   inference: {
-    scope: "none" | "recorded-cases-only" | "conditional-on-declared-target-population";
+    scope:
+      | "none"
+      | "recorded-cases-only-under-fixed-measurement-condition"
+      | "conditional-on-declared-target-population-and-fixed-measurement-condition";
     targetPopulation: string | null;
+    measurementCondition: DetectorCalibrationMeasurementCondition | null;
+    conditionalRateClaim: string | null;
     conditionalTargetPopulationRateClaimAllowed: boolean;
     caveats: string[];
   };
@@ -246,8 +394,8 @@ export type DetectorCalibrationReadiness = {
   ineligibleStudyLabeledCases: number;
   calibrationRateClaimsAvailable: boolean;
   studies: DetectorCalibrationStudySummary[];
-  studySchema: "detector-calibration-study.v1";
-  studySchemaPath: "/schemas/detector-calibration-study.v1.schema.json";
+  studySchema: "detector-calibration-study.v3";
+  studySchemaPath: "/schemas/detector-calibration-study.v3.schema.json";
   releaseIdentityGate: string;
   labelProvenanceGate: string;
   evidenceGate: string;
@@ -267,7 +415,7 @@ export type DetectorCalibrationReadiness = {
  * status pair anywhere else is the drift this export exists to prevent.
  */
 export function isEligibleCalibrationStatus(status: DetectorCalibrationAnalysis["status"]): boolean {
-  return status === "descriptive-only" || status === "sample-estimate";
+  return status === "sample-estimate";
 }
 
 export function detectorCalibrationReadiness(
@@ -307,12 +455,12 @@ export function detectorCalibrationReadiness(
     ),
     calibrationRateClaimsAvailable: eligible.some((analysis) => analysis.rates !== null),
     studies,
-    studySchema: "detector-calibration-study.v1",
-    studySchemaPath: "/schemas/detector-calibration-study.v1.schema.json",
+    studySchema: "detector-calibration-study.v3",
+    studySchemaPath: "/schemas/detector-calibration-study.v3.schema.json",
     releaseIdentityGate:
       "Eligibility requires the exact build commit, detector implementation and registry digests, methodology, normalization, tracker-catalog revision, Brave-list revision, and an independently pinned runtime-identity digest.",
     labelProvenanceGate:
-      "Every complete case requires immutable prediction, evidence, and label artifacts plus at least two distinct labeler ids and explicit disagreement adjudication provenance.",
+      "Every complete case requires immutable prediction, evidence, and label artifacts plus at least two distinct labeler ids and an independent precommitted blind-tiebreaker identity.",
     evidenceGate:
       "A preselected, release-bound, independently labeled case corpus with a declared sampling frame, immutable artifacts, and complete planned denominator is still required."
   };
@@ -389,7 +537,7 @@ export function analyzeDetectorCalibrationStudy(
 ): DetectorCalibrationAnalysis {
   const issues = detectorCalibrationStudyIssues(input);
   if (issues.length > 0) return invalidAnalysis(input, issues);
-  const study = input as DetectorCalibrationStudy;
+  const study = input as AnalyzableDetectorCalibrationStudy;
   const complete = study.cases.filter(
     (entry): entry is Extract<DetectorCalibrationCase, { outcome: "complete" }> => entry.outcome === "complete"
   );
@@ -397,6 +545,9 @@ export function analyzeDetectorCalibrationStudy(
   const ineligibilityReasons: DetectorCalibrationIneligibilityReason[] = [];
   if (study.plannedCases !== study.cases.length) ineligibilityReasons.push("planned-denominator-mismatch");
   if (denominators.censoredCases > 0) ineligibilityReasons.push("censored-cases-present");
+  if (study.schemaVersion === 1) {
+    ineligibilityReasons.push("measurement-condition-unbound");
+  }
   const expectedBuildCommit = context
     ? normalizedBuildCommit(context.expectedBuildCommit)
     : recordedBuildCommit();
@@ -495,29 +646,65 @@ export function analyzeDetectorCalibrationStudy(
       : { method: "none", reason: designReason },
     inference: sampleDesignEligible
       ? {
-          scope: "conditional-on-declared-target-population",
+          scope:
+            "conditional-on-declared-target-population-and-fixed-measurement-condition",
           targetPopulation: study.targetPopulation,
+          measurementCondition:
+            study.schemaVersion !== 1
+              ? study.design.measurementCondition
+              : null,
+          conditionalRateClaim:
+            study.schemaVersion !== 1
+              ? conditionalCalibrationRateClaim(
+                  study.targetPopulation,
+                  study.design.measurementCondition
+                )
+              : null,
           conditionalTargetPopulationRateClaimAllowed: true,
           caveats: [
             "The interval is conditional on the study's declared equal-probability simple-random sampling, independence, and blinding metadata.",
-            "It applies only to the named target population, exact source build, detector implementation, registry, toolchain snapshots, runtime identity, and reference-label protocol."
+            "It applies only to the named target population, fixed measurement condition, exact source build, detector implementation, registry, toolchain snapshots, runtime identity, and reference-label protocol."
           ]
         }
       : {
-          scope: "recorded-cases-only",
+          scope:
+            "recorded-cases-only-under-fixed-measurement-condition",
           targetPopulation: null,
+          measurementCondition:
+            study.schemaVersion !== 1
+              ? study.design.measurementCondition
+              : null,
+          conditionalRateClaim: null,
           conditionalTargetPopulationRateClaimAllowed: false,
           caveats: [
-            "Point rates describe only the complete recorded cases and do not estimate detector accuracy in a wider population."
+            "Point rates describe only the complete recorded cases under the fixed measurement condition and do not estimate detector accuracy in a wider population."
           ]
         }
   };
+}
+
+function conditionalCalibrationRateClaim(
+  targetPopulation: string,
+  condition: DetectorCalibrationMeasurementCondition
+): string {
+  return (
+    `Rates estimate detector performance only for the declared target population ` +
+    `(${targetPopulation}) under the fixed measurement condition. ${condition.interpretation}`
+  );
 }
 
 /** Runtime structural validation for JSON-loaded study sidecars. */
 export function detectorCalibrationStudyIssues(input: unknown): string[] {
   const issues: string[] = [];
   if (!isRecord(input)) return ["study must be an object"];
+  const custodyKeys =
+    input.schemaVersion === DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION
+      ? [
+          "labelRosterAuthorizationSha256",
+          "rosterSelectionLedgerSha256",
+          "acquisitionAttemptLedgerSha256"
+        ]
+      : [];
   exactKeys(
     input,
     [
@@ -527,14 +714,21 @@ export function detectorCalibrationStudyIssues(input: unknown): string[] {
       "release",
       "targetPopulation",
       "plannedCases",
+      ...custodyKeys,
       "design",
       "cases"
     ],
     "study",
     issues
   );
-  if (input.schemaVersion !== DETECTOR_CALIBRATION_STUDY_SCHEMA_VERSION) {
-    issues.push(`schemaVersion must be ${DETECTOR_CALIBRATION_STUDY_SCHEMA_VERSION}`);
+  if (
+    input.schemaVersion !== DETECTOR_CALIBRATION_STUDY_SCHEMA_VERSION &&
+    input.schemaVersion !== DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_VERSION &&
+    input.schemaVersion !== DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION
+  ) {
+    issues.push(
+      `schemaVersion must be ${DETECTOR_CALIBRATION_STUDY_SCHEMA_VERSION}, ${DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_VERSION}, or ${DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION}`
+    );
   }
   if (!boundedToken(input.studyId)) issues.push("studyId must be a bounded opaque token");
   const detectorValid =
@@ -553,8 +747,30 @@ export function detectorCalibrationStudyIssues(input: unknown): string[] {
   ) {
     issues.push(`plannedCases must be an integer from 1 through ${DETECTOR_CALIBRATION_MAX_CASES}`);
   }
+  if (input.schemaVersion === DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION) {
+    validateSha256(
+      input.labelRosterAuthorizationSha256,
+      "labelRosterAuthorizationSha256",
+      issues
+    );
+    validateSha256(
+      input.rosterSelectionLedgerSha256,
+      "rosterSelectionLedgerSha256",
+      issues
+    );
+    validateSha256(
+      input.acquisitionAttemptLedgerSha256,
+      "acquisitionAttemptLedgerSha256",
+      issues
+    );
+  }
 
-  validateDesign(input.design, issues);
+  validateDesign(
+    input.design,
+    detectorValid ? (input.detector as DetectorId) : null,
+    input.schemaVersion,
+    issues
+  );
   if (!Array.isArray(input.cases)) {
     issues.push("cases must be an array");
     return issues;
@@ -579,7 +795,12 @@ export function detectorCalibrationStudyIssues(input: unknown): string[] {
       exactKeys(entry, ["caseId", "outcome", "conditionDigest", "reference", "prediction"], label, issues);
       validateSha256(entry.conditionDigest, `${label} conditionDigest`, issues);
       validatePrediction(entry.prediction, label, issues);
-      validateReference(entry.reference, label, issues);
+      validateReference(
+        entry.reference,
+        label,
+        input.schemaVersion,
+        issues
+      );
     } else if (entry.outcome === "censored") {
       exactKeys(entry, ["caseId", "outcome", "reason", "conditionDigest", "attemptArtifactDigest"], label, issues);
       if (!CENSOR_REASONS.has(entry.reason as DetectorCalibrationCensorReason)) {
@@ -601,29 +822,34 @@ const CENSOR_REASONS = new Set<DetectorCalibrationCensorReason>([
   "eligibility-criteria-not-met"
 ]);
 
-function validateDesign(value: unknown, issues: string[]): void {
+function validateDesign(
+  value: unknown,
+  detector: DetectorId | null,
+  schemaVersion: unknown,
+  issues: string[]
+): void {
   if (!isRecord(value)) {
     issues.push("design must be an object");
     return;
   }
-  exactKeys(
-    value,
-    [
-      "sampling",
-      "samplingFrame",
-      "samplingFrameDigest",
-      "selectionProtocol",
-      "referenceProtocol",
-      "referenceProtocolDigest",
-      "adjudicationProtocol",
-      "adjudicationProtocolDigest",
-      "independentUnits",
-      "predictionBlindedToReference",
-      "referenceBlindedToPrediction"
-    ],
-    "design",
-    issues
-  );
+  const keys = [
+    "sampling",
+    "samplingFrame",
+    "samplingFrameDigest",
+    "selectionProtocol",
+    "referenceProtocol",
+    "referenceProtocolDigest",
+    "adjudicationProtocol",
+    "adjudicationProtocolDigest",
+    ...(schemaVersion === DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_VERSION ||
+    schemaVersion === DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION
+      ? ["measurementCondition"]
+      : []),
+    "independentUnits",
+    "predictionBlindedToReference",
+    "referenceBlindedToPrediction"
+  ];
+  exactKeys(value, keys, "design", issues);
   if (value.sampling !== "simple-random" && value.sampling !== "census" && value.sampling !== "convenience") {
     issues.push("design.sampling must be simple-random, census, or convenience");
   }
@@ -640,12 +866,44 @@ function validateDesign(value: unknown, issues: string[]): void {
     issues.push("design.adjudicationProtocol must be a bounded non-empty string");
   }
   validateSha256(value.adjudicationProtocolDigest, "design.adjudicationProtocolDigest", issues);
+  if (
+    schemaVersion === DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_VERSION ||
+    schemaVersion === DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION
+  ) {
+    validateMeasurementCondition(value.measurementCondition, detector, issues);
+  }
   for (const field of [
     "independentUnits",
     "predictionBlindedToReference",
     "referenceBlindedToPrediction"
   ] as const) {
     if (typeof value[field] !== "boolean") issues.push(`design.${field} must be boolean`);
+  }
+}
+
+function validateMeasurementCondition(
+  value: unknown,
+  detector: DetectorId | null,
+  issues: string[]
+): void {
+  if (!isRecord(value)) {
+    issues.push("design.measurementCondition must be an object");
+    return;
+  }
+  exactKeys(
+    value,
+    ["device", "gpcEnabled", "consentMode", "interpretation"],
+    "design.measurementCondition",
+    issues
+  );
+  if (detector === null) return;
+  if (
+    canonicalJson(value) !==
+    canonicalJson(detectorCalibrationMeasurementCondition(detector))
+  ) {
+    issues.push(
+      "design.measurementCondition must equal the canonical detector-specific measurement arm"
+    );
   }
 }
 
@@ -841,7 +1099,12 @@ function validatePrediction(value: unknown, label: string, issues: string[]): vo
   validateSha256(value.artifactDigest, `${label} prediction.artifactDigest`, issues);
 }
 
-function validateReference(value: unknown, label: string, issues: string[]): void {
+function validateReference(
+  value: unknown,
+  label: string,
+  schemaVersion: unknown,
+  issues: string[]
+): void {
   if (!isRecord(value)) {
     issues.push(`${label} reference must be an object`);
     return;
@@ -868,36 +1131,58 @@ function validateReference(value: unknown, label: string, issues: string[]): voi
   } else if (new Set(labelers).size !== labelers.length) {
     issues.push(`${label} reference.labelerIds must be unique`);
   }
-  validateAdjudication(value.adjudication, Array.isArray(labelers) ? labelers : [], label, issues);
+  validateAdjudication(
+    value.adjudication,
+    Array.isArray(labelers) ? labelers : [],
+    label,
+    schemaVersion,
+    issues
+  );
 }
 
 function validateAdjudication(
   value: unknown,
   labelerIds: unknown[],
   label: string,
+  schemaVersion: unknown,
   issues: string[]
 ): void {
   if (!isRecord(value)) {
     issues.push(`${label} reference.adjudication must be an object`);
     return;
   }
-  exactKeys(value, ["status", "adjudicatorId", "artifactDigest"], `${label} reference.adjudication`, issues);
+  const isV3 =
+    schemaVersion === DETECTOR_CALIBRATION_STUDY_V3_SCHEMA_VERSION;
+  const identityField = isV3 ? "tiebreakerId" : "adjudicatorId";
+  exactKeys(
+    value,
+    ["status", identityField, "artifactDigest"],
+    `${label} reference.adjudication`,
+    issues
+  );
   if (value.status === "labelers-agreed") {
-    if (value.adjudicatorId !== null || value.artifactDigest !== null) {
-      issues.push(`${label} agreed reference must use null adjudicator and artifact fields`);
+    if (value[identityField] !== null || value.artifactDigest !== null) {
+      issues.push(
+        `${label} agreed reference must use null ${isV3 ? "tiebreaker" : "adjudicator"} and artifact fields`
+      );
     }
     return;
   }
-  if (value.status !== "disagreement-adjudicated") {
+  const expectedStatus = isV3
+    ? "disagreement-resolved-by-blind-tiebreaker"
+    : "disagreement-adjudicated";
+  if (value.status !== expectedStatus) {
     issues.push(
-      `${label} reference.adjudication status must be labelers-agreed or disagreement-adjudicated`
+      `${label} reference.adjudication status must be labelers-agreed or ${expectedStatus}`
     );
     return;
   }
-  if (!boundedToken(value.adjudicatorId)) {
-    issues.push(`${label} adjudicatorId must be a bounded opaque token`);
-  } else if (labelerIds.includes(value.adjudicatorId)) {
-    issues.push(`${label} adjudicatorId must differ from the original labeler ids`);
+  if (!boundedToken(value[identityField])) {
+    issues.push(`${label} ${identityField} must be a bounded opaque token`);
+  } else if (labelerIds.includes(value[identityField])) {
+    issues.push(
+      `${label} ${identityField} must differ from the original labeler ids`
+    );
   }
   validateSha256(value.artifactDigest, `${label} reference.adjudication.artifactDigest`, issues);
 }
@@ -936,7 +1221,7 @@ function normalizedBuildCommit(value: string | null): string | null {
 }
 
 function buildDenominators(
-  study: DetectorCalibrationStudy,
+  study: AnalyzableDetectorCalibrationStudy,
   complete: Array<Extract<DetectorCalibrationCase, { outcome: "complete" }>>
 ): DetectorCalibrationDenominators {
   return {
@@ -1010,7 +1295,7 @@ function wilson95(successes: number, denominator: number) {
 }
 
 function analysisShell(
-  study: DetectorCalibrationStudy,
+  study: AnalyzableDetectorCalibrationStudy,
   denominators: DetectorCalibrationDenominators
 ): DetectorCalibrationAnalysis {
   return {
@@ -1028,6 +1313,11 @@ function analysisShell(
     inference: {
       scope: "none",
       targetPopulation: null,
+      measurementCondition:
+        study.schemaVersion !== 1
+          ? study.design.measurementCondition
+          : null,
+      conditionalRateClaim: null,
       conditionalTargetPopulationRateClaimAllowed: false,
       caveats: ["No calibration claim is available from an ineligible study denominator."]
     }
@@ -1055,6 +1345,8 @@ function invalidAnalysis(input: unknown, issues: string[]): DetectorCalibrationA
     inference: {
       scope: "none",
       targetPopulation: null,
+      measurementCondition: null,
+      conditionalRateClaim: null,
       conditionalTargetPopulationRateClaimAllowed: false,
       caveats: ["Malformed study metadata cannot support calibration analysis."]
     }

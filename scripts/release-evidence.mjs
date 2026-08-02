@@ -20,7 +20,10 @@ const OCI_TITLE = "org.opencontainers.image.title";
 const OCI_LICENSES = "org.opencontainers.image.licenses";
 const RELEASE_POLICY_SCHEMA_VERSION = 2;
 const RELEASE_DATE_PATTERN = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
-const RELEASE_TAG_PATTERN = /^v0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
+const RELEASE_VERSION_PATTERN =
+  /^(?:0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?|1\.0\.0(?:-rc\.[1-9]\d*)?)$/;
+const RELEASE_TAG_PATTERN =
+  /^v(?:0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?|1\.0\.0(?:-rc\.[1-9]\d*)?)$/;
 const REQUIRED_NODE = "24.14.1";
 const REQUIRED_NPM = "11.11.0";
 const REQUIRED_PACKAGE_MANAGER = `npm@${REQUIRED_NPM}`;
@@ -57,7 +60,7 @@ export async function buildReleaseEvidence({
     }
   } else {
     if (!RELEASE_TAG_PATTERN.test(release.tag)) {
-      throw new Error("A released policy must name a pre-1.0 v<version> tag");
+      throw new Error("A released policy must name a supported 0.x or 1.0 v<version> tag");
     }
     if (releaseTags.length > 1 || (releaseTags.length === 1 && releaseTags[0] !== release.tag)) {
       throw new Error(`Release tag set for ${release.version} must be exactly ${release.tag}`);
@@ -121,8 +124,8 @@ async function releaseMetadata(root) {
     throw new Error("release-policy.json status must be exactly development or released");
   }
   const released = policy.status === "released";
-  // Neither state may claim a stable public API or npm publication: this line
-  // is pre-1.0 by policy, and a tagged milestone does not change that.
+  // Neither state may claim a blanket stable public API or npm publication:
+  // 1.0 promises only the governed compatibility surface.
   if (policy?.stablePublicApi !== false || policy?.npmPublication !== "disabled") {
     throw new Error("Release policy must keep stable-API and npm-publication claims disabled");
   }
@@ -142,8 +145,8 @@ async function releaseMetadata(root) {
   if (typeof packageManifest?.version !== "string" || packageManifest.version !== policy.version) {
     throw new Error("package.json and release-policy.json versions must match exactly");
   }
-  if (!/^0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(policy.version)) {
-    throw new Error("Release policy requires one pre-1.0 semantic version");
+  if (!RELEASE_VERSION_PATTERN.test(policy.version)) {
+    throw new Error("Release policy requires one supported 0.x or exact 1.0 semantic version");
   }
   if (packageManifest?.engines?.node !== REQUIRED_NODE) {
     throw new Error(`Release evidence requires the repository Node engine to remain exactly ${REQUIRED_NODE}`);

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "artifactKind": "site-behavior-downloaded-build-tool-manifest",
+  "id": "github-cli",
+  "name": "GitHub CLI",
+  "version": "2.96.0",
+  "sourceUrl": "https://github.com/cli/cli/releases/tag/v2.96.0",
+  "checksumManifest": {
+    "url": "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_checksums.txt",
+    "sha256": "fc046371efa250e2875208341a786a35a01717d5eebec6903e199a9b8a3f3565"
+  },
+  "license": "MIT",
+  "licenseStatus": "declared-in-tagged-upstream-license",
+  "licenseEvidence": "https://github.com/cli/cli/blob/v2.96.0/LICENSE",
+  "usage": "build-only",
+  "runtime": false,
+  "redistributed": false,
+  "assets": [
+    {
+      "platform": "linux-x64",
+      "archive": "gh_2.96.0_linux_amd64.tar.gz",
+      "directory": "gh_2.96.0_linux_amd64",
+      "format": "tar.gz",
+      "url": "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_linux_amd64.tar.gz",
+      "archiveSha256": "83d5c2ccad5498f58bf6368acb1ab32588cf43ab3a4b1c301bf36328b1c8bd60",
+      "binarySha256": "56b8bbbb27b066ecb33dbef9a256dc9d1314adaeff0908a752feba6c34053b40"
+    },
+    {
+      "platform": "linux-arm64",
+      "archive": "gh_2.96.0_linux_arm64.tar.gz",
+      "directory": "gh_2.96.0_linux_arm64",
+      "format": "tar.gz",
+      "url": "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_linux_arm64.tar.gz",
+      "archiveSha256": "06f86ec7103d41993b76cd78072f43595c34aaa56506d971d9860e67140bf909",
+      "binarySha256": "f903d2fa04ae78ee8f8df0186364d0b92f078d2720053941a47e0a3beaef54f0"
+    },
+    {
+      "platform": "darwin-x64",
+      "archive": "gh_2.96.0_macOS_amd64.zip",
+      "directory": "gh_2.96.0_macOS_amd64",
+      "format": "zip",
+      "url": "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_macOS_amd64.zip",
+      "archiveSha256": "4bd449df9ad639391bc62b8032546f0fe9edcd8526e06682a4f88abd8c5d163c",
+      "binarySha256": "49380b19e758c14ce5509afe0ced58777fe45cfbcd5989941f7314d5f7e468c8"
+    },
+    {
+      "platform": "darwin-arm64",
+      "archive": "gh_2.96.0_macOS_arm64.zip",
+      "directory": "gh_2.96.0_macOS_arm64",
+      "format": "zip",
+      "url": "https://github.com/cli/cli/releases/download/v2.96.0/gh_2.96.0_macOS_arm64.zip",
+      "archiveSha256": "f23a0c37d963aacc3bed703ccbd59b41c5ca22101fab7f00eb2b7cad23aba463",
+      "binarySha256": "b1d6c442fde99ca27c04e1e74d624895abe37785f4a3e9e9b684bf7586ce4bc8"
+    }
+  ]
+}

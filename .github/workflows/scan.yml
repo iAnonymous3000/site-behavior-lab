@@ -310,8 +310,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # GITHUB_TOKEN pushes do not recursively trigger CI, so the publisher
-      # explicitly dispatches the required workflow after a successful push.
+      # The bot-created proposal's push-event CI run is parked for manual
+      # approval. This permission dispatches a separate non-promoting
+      # validation run; it does not satisfy the pull request's required checks.
       actions: write
     env:
       BASE_BRANCH: ${{ github.ref_name }}
@@ -456,7 +457,8 @@ jobs:
             'This proposal contains validated, privacy-reduced report data produced by the trusted publisher from a bounded acquisition artifact.' \
             '' \
             '- The publisher validated artifact identity, redaction, provenance, pruning, manifests, and corpus statistics before proposing.' \
-            '- Merging still requires normal review and a fresh main-branch CI run.' \
+            "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
+            "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
             '- If another proposal merges first and this one conflicts in the report manifest or corpus statistics, close it and re-run the workflow; never hand-merge regenerated output.' \
             > "$proposal_body"
           # The proposal branch is already pushed, but a proposal nobody can
@@ -488,11 +490,12 @@ jobs:
           fi
 
       - name: Trigger CI on the proposal branch
-        # Pushes made with GITHUB_TOKEN never fire `on: push` workflows, so the
-        # proposal would stay untested. Dispatch CI on the proposal branch
-        # only; its attest and promote jobs are gated on refs/heads/main, so
-        # this run tests the proposal and can never deploy it. Promotion
-        # happens from the fresh main CI run after the pull request merges.
+        # The bot-created proposal's push-event run is parked for manual
+        # approval. Dispatch CI on the proposal branch now so validation can
+        # start independently; its attest and promote jobs are gated on
+        # refs/heads/main, so it can never deploy. This dispatched run does not
+        # satisfy the pull request's required checks: approve the parked run
+        # before merge. Trusted main CI runs after merge.
         if: steps.commit.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}

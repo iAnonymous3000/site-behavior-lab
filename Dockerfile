@@ -1,4 +1,5 @@
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT=""
+ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=""
 
 # Keep one literal, immutable external base so Docker Dependabot can update it.
 # lib/toolchain-provenance.test.ts ties this tag to package.json and requires
@@ -14,15 +15,18 @@ RUN test "$(node --version)" = "v24.18.0" \
 FROM playwright-base AS build
 
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
+ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF
 
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=${SITE_BEHAVIOR_LAB_BUILD_COMMIT}
+ENV SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=${SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF}
 
 # Every production image must identify the exact source revision that built it.
 # The deploy wrapper supplies Workers Builds' tested commit (or local HEAD);
 # rejecting empty/placeholders keeps health and future v2 provenance honest.
 RUN node -e "const value=process.argv[1]; if(!/^[0-9a-f]{40}$/.test(value)) throw new Error('SITE_BEHAVIOR_LAB_BUILD_COMMIT must be a full lowercase Git SHA')" "${SITE_BEHAVIOR_LAB_BUILD_COMMIT}"
+RUN node -e "const value=process.argv[1]; if(value && (value.length>4096 || !/^[A-Za-z0-9_-]+$/.test(value))) throw new Error('SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF must be empty or one bounded base64url proof')" "${SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF}"
 
 # Public origin baked into the build so shared live-scan report links unfurl with
 # their Open Graph / X card. NEXT_PUBLIC_ vars are inlined by `next build`, so a

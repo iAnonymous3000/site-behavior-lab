@@ -1,0 +1,92 @@
+name: WAF Ceiling Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact protected-main candidate currently deployed to production
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: waf-ceiling-evidence
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    name: Capture sanitized WAF ceiling evidence
+    if: >-
+      github.repository == 'iAnonymous3000/site-behavior-lab' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: release-evidence
+    timeout-minutes: 20
+    steps:
+      - name: Require an isolated GitHub-hosted runner
+        env:
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = "github-hosted"
+
+      - name: Check out the trusted main revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up the exact Node toolchain
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify the exact candidate and runtime
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+          [[ "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$CANDIDATE_SHA" = "$GITHUB_SHA"
+
+      - name: Install the lockfile dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Compile the shared canonical evidence serializer
+        run: node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+
+      - name: Capture, sanitize, and destroy private Cloudflare responses
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          WAF_RULES_API_TOKEN: ${{ secrets.WAF_RULES_API_TOKEN }}
+          WAF_ANALYTICS_API_TOKEN: ${{ secrets.WAF_ANALYTICS_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID || '' }}
+        run: |
+          set -euo pipefail
+          node scripts/waf-hosted-capture.mjs \
+            --capture \
+            --candidate-commit "$CANDIDATE_SHA" \
+            --output-dir "$RUNNER_TEMP/waf-ceiling-safe" \
+            --private-dir "$RUNNER_TEMP/waf-ceiling-private"
+          test ! -e "$RUNNER_TEMP/waf-ceiling-private"
+          node scripts/waf-hosted-capture.mjs \
+            --verify \
+            --directory "$RUNNER_TEMP/waf-ceiling-safe"
+
+      - name: Upload only the privacy-safe receipt and manifest
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-waf-ceiling-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/waf-ceiling-safe/receipt.json
+            ${{ runner.temp }}/waf-ceiling-safe/sanitized-provider-manifest.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+          compression-level: 0

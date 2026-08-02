@@ -4,14 +4,15 @@ import {
   analyzeDetectorCalibrationStudy,
   currentDetectorCalibrationReleaseIdentity,
   detectorCalibrationImplementationDigest,
+  detectorCalibrationMeasurementCondition,
   detectorCalibrationReadiness,
   detectorCalibrationRuntimeDigest,
   detectorCalibrationStudyIssues,
   DETECTOR_CALIBRATION_ANALYSIS_VERSION,
   type DetectorCalibrationAnalysisContext,
-  type DetectorCalibrationCase,
+  type DetectorCalibrationCaseV3,
   type DetectorCalibrationRuntimeIdentity,
-  type DetectorCalibrationStudy
+  type DetectorCalibrationStudyV3
 } from "./detector-calibration";
 import { sha256Hex } from "./sha256";
 
@@ -33,18 +34,18 @@ test("acceptance fixtures remain explicitly separate from calibration evidence",
     ineligibleStudyLabeledCases: 0,
     calibrationRateClaimsAvailable: false,
     studies: [],
-    studySchema: "detector-calibration-study.v1",
-    studySchemaPath: "/schemas/detector-calibration-study.v1.schema.json",
+    studySchema: "detector-calibration-study.v3",
+    studySchemaPath: "/schemas/detector-calibration-study.v3.schema.json",
     releaseIdentityGate:
       "Eligibility requires the exact build commit, detector implementation and registry digests, methodology, normalization, tracker-catalog revision, Brave-list revision, and an independently pinned runtime-identity digest.",
     labelProvenanceGate:
-      "Every complete case requires immutable prediction, evidence, and label artifacts plus at least two distinct labeler ids and explicit disagreement adjudication provenance.",
+      "Every complete case requires immutable prediction, evidence, and label artifacts plus at least two distinct labeler ids and an independent precommitted blind-tiebreaker identity.",
     evidenceGate:
       "A preselected, release-bound, independently labeled case corpus with a declared sampling frame, immutable artifacts, and complete planned denominator is still required."
   });
 });
 
-test("readiness derives from re-analysis: ineligible studies count but never claim, eligible ones flip the surface", () => {
+test("readiness derives from re-analysis: descriptive studies never clear the claim gate", () => {
   // Self-consistent study bound to a DIFFERENT build: exactly the committed
   // pilot's situation after any later commit to main.
   const ineligible = analyze((() => {
@@ -67,11 +68,26 @@ test("readiness derives from re-analysis: ineligible studies count but never cla
   assert.equal(staleOnly.calibrationRateClaimsAvailable, false);
   assert.equal(staleOnly.studies[0]?.ineligibilityReasons.includes("build-commit-mismatch"), true);
 
-  const eligible = analyze(study("convenience"));
-  assert.equal(eligible.status, "descriptive-only");
-  const flipped = detectorCalibrationReadiness([ineligible, eligible]);
+  const descriptive = analyze(study("convenience"));
+  assert.equal(descriptive.status, "descriptive-only");
+  const descriptiveOnly = detectorCalibrationReadiness([
+    ineligible,
+    descriptive
+  ]);
+  assert.equal(descriptiveOnly.status, "committed-studies-ineligible");
+  assert.equal(descriptiveOnly.eligibleCalibrationStudies, 0);
+  assert.equal(descriptiveOnly.labeledCalibrationCases, 0);
+  assert.equal(descriptiveOnly.calibrationRateClaimsAvailable, false);
+
+  const eligible = analyze(study("simple-random"));
+  assert.equal(eligible.status, "sample-estimate");
+  const flipped = detectorCalibrationReadiness([
+    ineligible,
+    descriptive,
+    eligible
+  ]);
   assert.equal(flipped.status, "eligible-studies-recorded");
-  assert.equal(flipped.calibrationStudies, 2);
+  assert.equal(flipped.calibrationStudies, 3);
   assert.equal(flipped.eligibleCalibrationStudies, 1);
   assert.equal(flipped.labeledCalibrationCases, 4);
   assert.equal(flipped.ineligibleStudyLabeledCases, 4);
@@ -107,7 +123,15 @@ test("a complete convenience study reports denominators and point rates without 
     method: "none",
     reason: "descriptive-census-or-convenience-sample"
   });
-  assert.equal(analysis.inference.scope, "recorded-cases-only");
+  assert.equal(
+    analysis.inference.scope,
+    "recorded-cases-only-under-fixed-measurement-condition"
+  );
+  assert.deepEqual(
+    analysis.inference.measurementCondition,
+    detectorCalibrationMeasurementCondition("fingerprint-heuristics")
+  );
+  assert.equal(analysis.inference.conditionalRateClaim, null);
   assert.equal(analysis.inference.conditionalTargetPopulationRateClaimAllowed, false);
 });
 
@@ -124,8 +148,19 @@ test("Wilson intervals are emitted only when every declared simple-random design
   assert.equal(sensitivity!.interval95?.method, "wilson-score");
   assert.equal((sensitivity!.interval95?.lower ?? 1) < 0.5, true);
   assert.equal((sensitivity!.interval95?.upper ?? 0) > 0.5, true);
-  assert.equal(analysis.inference.scope, "conditional-on-declared-target-population");
+  assert.equal(
+    analysis.inference.scope,
+    "conditional-on-declared-target-population-and-fixed-measurement-condition"
+  );
   assert.equal(analysis.inference.targetPopulation, "Public English-language pages in the declared July frame");
+  assert.deepEqual(
+    analysis.inference.measurementCondition,
+    detectorCalibrationMeasurementCondition("fingerprint-heuristics")
+  );
+  assert.match(
+    analysis.inference.conditionalRateClaim ?? "",
+    /fixed measurement condition/
+  );
   assert.equal(analysis.inference.conditionalTargetPopulationRateClaimAllowed, true);
 
   const unblinded = study("simple-random");
@@ -135,6 +170,52 @@ test("Wilson intervals are emitted only when every declared simple-random design
   assert.equal(downgraded.rates?.sensitivity.interval95, null);
   assert.equal(downgraded.uncertainty.reason, "simple-random-design-gates-not-met");
   assert.equal(downgraded.inference.conditionalTargetPopulationRateClaimAllowed, false);
+});
+
+test("published v1 studies remain readable but cannot publish an unconditioned rate", () => {
+  const current = study("simple-random");
+  const legacy = structuredClone(current) as unknown as {
+    schemaVersion: number;
+    labelRosterAuthorizationSha256?: string;
+    rosterSelectionLedgerSha256?: string;
+    acquisitionAttemptLedgerSha256?: string;
+    design: Record<string, unknown>;
+    cases: Array<Record<string, unknown>>;
+  };
+  legacy.schemaVersion = 1;
+  delete legacy.labelRosterAuthorizationSha256;
+  delete legacy.rosterSelectionLedgerSha256;
+  delete legacy.acquisitionAttemptLedgerSha256;
+  delete legacy.design.measurementCondition;
+  for (const calibrationCase of legacy.cases) {
+    if (calibrationCase.outcome !== "complete") continue;
+    const reference = calibrationCase.reference as Record<string, unknown>;
+    const adjudication = reference.adjudication as Record<string, unknown>;
+    reference.adjudication =
+      adjudication.status === "labelers-agreed"
+        ? {
+            status: "labelers-agreed",
+            adjudicatorId: null,
+            artifactDigest: null
+          }
+        : {
+            status: "disagreement-adjudicated",
+            adjudicatorId: adjudication.tiebreakerId,
+            artifactDigest: adjudication.artifactDigest
+          };
+  }
+  const analysis = analyzeDetectorCalibrationStudy(legacy, ANALYSIS_CONTEXT);
+  assert.equal(analysis.status, "ineligible");
+  assert.equal(
+    analysis.ineligibilityReasons.includes("measurement-condition-unbound"),
+    true
+  );
+  assert.equal(analysis.rates, null);
+  assert.equal(
+    analysis.inference.conditionalTargetPopulationRateClaimAllowed,
+    false
+  );
+  assert.equal(analysis.inference.conditionalRateClaim, null);
 });
 
 test("one censored case suppresses the complete-case confusion matrix and every rate", () => {
@@ -303,13 +384,13 @@ test("complete cases require independent label and adjudication provenance", () 
   assert.equal(second.outcome, "complete");
   if (second.outcome !== "complete") return;
   second.reference.adjudication = {
-    status: "disagreement-adjudicated",
-    adjudicatorId: "labeler-alpha",
+    status: "disagreement-resolved-by-blind-tiebreaker",
+    tiebreakerId: "labeler-alpha",
     artifactDigest: digest("adjudication")
   };
   assert.equal(
     detectorCalibrationStudyIssues(conflictedAdjudicator).some((issue) =>
-      issue.includes("adjudicatorId must differ")
+      issue.includes("tiebreakerId must differ")
     ),
     true
   );
@@ -335,7 +416,9 @@ test("undefined metric denominators stay null instead of becoming zero-rate clai
 });
 
 test("malformed, duplicate, extra-field, and over-broad study shapes are rejected", () => {
-  const duplicate = study("convenience") as DetectorCalibrationStudy & { extra?: boolean };
+  const duplicate = study("convenience") as DetectorCalibrationStudyV3 & {
+    extra?: boolean;
+  };
   duplicate.cases[1] = structuredClone(duplicate.cases[0]);
   duplicate.extra = true;
   const issues = detectorCalibrationStudyIssues(duplicate);
@@ -383,9 +466,11 @@ test("the confusion matrix distinguishes every cell, not just their total", () =
   assert.equal(analysis.rates?.specificity.denominator, 3);
 });
 
-function study(sampling: DetectorCalibrationStudy["design"]["sampling"]): DetectorCalibrationStudy {
+function study(
+  sampling: DetectorCalibrationStudyV3["design"]["sampling"]
+): DetectorCalibrationStudyV3 {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     studyId: "fp-july-calibration-v1",
     detector: "fingerprint-heuristics",
     release: currentDetectorCalibrationReleaseIdentity(
@@ -395,6 +480,9 @@ function study(sampling: DetectorCalibrationStudy["design"]["sampling"]): Detect
     ),
     targetPopulation: "Public English-language pages in the declared July frame",
     plannedCases: 4,
+    labelRosterAuthorizationSha256: digest("label-roster-authorization"),
+    rosterSelectionLedgerSha256: digest("roster-selection-ledger"),
+    acquisitionAttemptLedgerSha256: digest("acquisition-attempt-ledger"),
     design: {
       sampling,
       samplingFrame: "Frozen frame digest 0123456789abcdef",
@@ -402,8 +490,11 @@ function study(sampling: DetectorCalibrationStudy["design"]["sampling"]): Detect
       selectionProtocol: "Select case ids before detector output is available.",
       referenceProtocol: "Two blinded reviewers label presence from independent source evidence.",
       referenceProtocolDigest: digest("reference-protocol"),
-      adjudicationProtocol: "A third reviewer resolves disagreements without detector output.",
+      adjudicationProtocol: "A third blinded reviewer precommits a full-frame tiebreaker before detector acquisition.",
       adjudicationProtocolDigest: digest("adjudication-protocol"),
+      measurementCondition: detectorCalibrationMeasurementCondition(
+        "fingerprint-heuristics"
+      ),
       independentUnits: true,
       predictionBlindedToReference: true,
       referenceBlindedToPrediction: true
@@ -436,7 +527,7 @@ function completeCase(
   reference: "present" | "absent",
   prediction: "detected" | "not-detected",
   adjudicated = false
-): Extract<DetectorCalibrationCase, { outcome: "complete" }> {
+): Extract<DetectorCalibrationCaseV3, { outcome: "complete" }> {
   return {
     caseId,
     outcome: "complete",
@@ -452,13 +543,13 @@ function completeCase(
       labelerIds: ["labeler-alpha", "labeler-beta"],
       adjudication: adjudicated
         ? {
-            status: "disagreement-adjudicated",
-            adjudicatorId: "adjudicator-gamma",
+            status: "disagreement-resolved-by-blind-tiebreaker",
+            tiebreakerId: "tiebreaker-gamma",
             artifactDigest: digest(`${caseId}-adjudication`)
           }
         : {
             status: "labelers-agreed",
-            adjudicatorId: null,
+            tiebreakerId: null,
             artifactDigest: null
           }
     }

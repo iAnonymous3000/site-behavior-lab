@@ -172,6 +172,19 @@ async function main() {
   // provenance only when it matches this checkout and every copied Git input is
   // clean; dirty local builds must fail instead of publishing HEAD as a lie.
   const deployment = resolveExactStaticDeploymentCommit({ cwd: rootDir });
+  // The copied Pages worktree deliberately excludes .git. If a frozen
+  // measurement-candidate binding exists, verify its full Git history and both
+  // Sigstore bundles here on the trusted host, then pass only the bounded
+  // projection into the Git-less Next build.
+  const measurementCandidateProof = execFileSync(
+    process.execPath,
+    [path.join(rootDir, "scripts", "measurement-candidate-build-proof.mjs")],
+    {
+      cwd: rootDir,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "inherit"]
+    }
+  ).trim();
 
   if (!existsSync(nodeModulesDir)) {
     throw new Error("node_modules is missing. Run npm ci or npm install before npm run build:pages.");
@@ -260,6 +273,8 @@ async function main() {
       // public environment. Relying on optional CI variables would make local
       // Pages builds emit an empty PageGraph producer identity.
       SITE_BEHAVIOR_LAB_BUILD_COMMIT: deployment,
+      SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF:
+        measurementCandidateProof,
       SITE_BEHAVIOR_LAB_STATIC_EXPORT: "1"
     }
   });

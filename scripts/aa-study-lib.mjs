@@ -9,51 +9,252 @@
 // thresholds were declared before the data existed.
 //
 // This module adds exactly that missing half: a PREREGISTRATION (declared
-// before collection: exact target-frame digest, repetitions, conditions,
-// build commit, and numeric acceptance thresholds) and an EVALUATION that
-// binds a collected ledger to the preregistration and scores it. It never
-// infers population rates: a passing study says "under these preregistered
-// thresholds, on this frozen frame, at this exact identity, repeated scans
-// agreed this well", nothing more.
+// before collection: exact measurement-identity manifest and target-frame
+// digests, repetitions, conditions, and numeric acceptance thresholds) and an
+// EVALUATION that binds a collected ledger to the preregistration and scores
+// it. The manifest is the durable identity; the ledger still records the
+// truthful producer build SHA, but a post-candidate evidence carrier is not
+// required to pretend it has the same SHA as the frozen measurement input.
+// A passing study says "under these preregistered thresholds, on this frozen
+// frame and input identity, repeated scans agreed this well", nothing more.
 import {
   METRICS,
   canonicalize,
+  scannerFidelityAttemptLedgerIssues,
   sha256Hex
 } from "./scanner-fidelity-study-lib.mjs";
 
 const SHA256 = /^[0-9a-f]{64}$/;
-const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
+const CANONICAL_INSTANT =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const STUDY_ID = /^[a-z0-9][a-z0-9-]{0,79}$/;
 
 export const AA_PREREGISTRATION_KIND = "site-behavior-aa-preregistration";
 export const AA_EVALUATION_KIND = "site-behavior-aa-evaluation";
-export const AA_STUDY_VERSION = 1;
+export const AA_STUDY_VERSION = 2;
+export const AA_MEASUREMENT_IDENTITY_MANIFEST_PATH =
+  "research/measurement-candidate/measurement-identity.json";
+
+const PREREGISTRATION_KEYS = Object.freeze([
+  "kind",
+  "studyVersion",
+  "studyId",
+  "declaredAt",
+  "measurementIdentityManifestPath",
+  "measurementIdentityDigest",
+  "sitesFile",
+  "sitesFileDigest",
+  "targetCount",
+  "repetitionsPerTarget",
+  "conditions",
+  "thresholds"
+]);
+const THRESHOLD_KEYS = Object.freeze([
+  "minimumEligibleTargets",
+  "maximumFailingTargetFraction",
+  "maximumMetricRelativeRange",
+  "minimumThirdPartyDomainJaccard",
+  "requireCounterbalancedOrders"
+]);
 
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function exactKeys(value, expected, label, issues) {
+  if (!isRecord(value)) {
+    issues.push(`${label} must be an object`);
+    return false;
+  }
+  const actual = Object.keys(value).sort();
+  const wanted = [...expected].sort();
+  if (JSON.stringify(actual) !== JSON.stringify(wanted)) {
+    issues.push(`${label} must contain exactly: ${wanted.join(", ")}`);
+    return false;
+  }
+  return true;
+}
+
+function canonicalTimestamp(value) {
+  if (typeof value !== "string" || !CANONICAL_INSTANT.test(value)) return false;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) && new Date(parsed).toISOString() === value;
+}
+
+export function aaTargetFramePath(studyId) {
+  if (typeof studyId !== "string" || !STUDY_ID.test(studyId)) {
+    throw new TypeError("A/A studyId must use lowercase letters, digits, and hyphens");
+  }
+  return `research/aa-studies/${studyId}/target-frame.json`;
 }
 
 function isFraction(value) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
 }
 
+export function aaTargetFrameIssues({
+  targetFrame,
+  targetFrameText,
+  preregistration,
+  ledger
+}) {
+  const issues = [];
+  if (typeof targetFrameText !== "string" || targetFrameText.length === 0) {
+    return ["target frame text must contain the exact non-empty file bytes"];
+  }
+  let parsedFrame;
+  try {
+    parsedFrame = JSON.parse(targetFrameText);
+  } catch {
+    return ["target frame text must be valid JSON"];
+  }
+  if (canonicalize(parsedFrame) !== canonicalize(targetFrame)) {
+    issues.push("target frame value must be parsed from the exact supplied file bytes");
+  }
+  const frameDigest = sha256Hex(targetFrameText);
+  if (
+    preregistration?.sitesFileDigest !== frameDigest ||
+    ledger?.provenance?.sitesFileDigest !== frameDigest
+  ) {
+    issues.push(
+      "preregistration and ledger must bind the sha256 of the exact target-frame bytes"
+    );
+  }
+  if (!Array.isArray(targetFrame) || targetFrame.length === 0) {
+    return [...issues, "target frame must be a non-empty array"];
+  }
+  const urls = new Set();
+  const targetIds = new Set();
+  for (const [index, target] of targetFrame.entries()) {
+    if (!exactKeys(target, ["targetId", "url"], `target frame entry ${index + 1}`, issues)) {
+      continue;
+    }
+    if (
+      typeof target.targetId !== "string" ||
+      !/^[a-z0-9][a-z0-9._-]{0,99}$/.test(target.targetId) ||
+      targetIds.has(target.targetId)
+    ) {
+      issues.push(
+        `target frame entry ${index + 1} has an invalid or duplicate targetId`
+      );
+    } else {
+      targetIds.add(target.targetId);
+    }
+    let canonicalUrl = null;
+    try {
+      const parsed = new URL(target.url);
+      if (
+        parsed.protocol === "https:" &&
+        parsed.username === "" &&
+        parsed.password === "" &&
+        parsed.hash === "" &&
+        parsed.toString() === target.url
+      ) {
+        canonicalUrl = target.url;
+      }
+    } catch {
+      // Report the single canonical URL problem below.
+    }
+    if (canonicalUrl === null || urls.has(canonicalUrl)) {
+      issues.push(
+        `target frame entry ${index + 1} has a non-canonical or duplicate HTTPS URL`
+      );
+    } else {
+      urls.add(canonicalUrl);
+    }
+  }
+  if (
+    preregistration?.targetCount !== targetFrame.length ||
+    ledger?.selectedTargets !== targetFrame.length
+  ) {
+    issues.push(
+      "target frame size must equal preregistration.targetCount and ledger.selectedTargets"
+    );
+  }
+  const repetitions = preregistration?.repetitionsPerTarget;
+  if (!Number.isSafeInteger(repetitions) || repetitions < 2) return issues;
+  const expectedAttempts = new Set();
+  for (const url of urls) {
+    for (let repetition = 1; repetition <= repetitions; repetition += 1) {
+      expectedAttempts.add(`${url}\0${repetition}`);
+    }
+  }
+  const actualAttempts = new Set();
+  if (!Array.isArray(ledger?.attempts)) {
+    issues.push("attempt ledger must preserve an attempts array");
+    return issues;
+  }
+  for (const [index, attempt] of ledger.attempts.entries()) {
+    if (
+      !isRecord(attempt) ||
+      typeof attempt.url !== "string" ||
+      attempt.shape !== "aa" ||
+      !Number.isSafeInteger(attempt.repetition)
+    ) {
+      issues.push(
+        `attempt ${index + 1} must bind one target URL, shape aa, and an integer repetition`
+      );
+      continue;
+    }
+    const key = `${attempt.url}\0${attempt.repetition}`;
+    if (!expectedAttempts.has(key)) {
+      issues.push(
+        `attempt ${index + 1} is not in the preregistered target/repetition frame`
+      );
+    }
+    if (actualAttempts.has(key)) {
+      issues.push(`attempt ${index + 1} duplicates a target/repetition pair`);
+    }
+    actualAttempts.add(key);
+  }
+  if (
+    actualAttempts.size !== expectedAttempts.size ||
+    [...expectedAttempts].some((key) => !actualAttempts.has(key))
+  ) {
+    issues.push(
+      "attempt ledger is not set-equal to every preregistered target and repetition"
+    );
+  }
+  return issues;
+}
+
 /** Structural validation; empty array means the preregistration is usable. */
 export function aaPreregistrationIssues(preregistration) {
   const issues = [];
   const push = (message) => issues.push(message);
-  if (!isRecord(preregistration)) return ["preregistration must be an object"];
+  if (!exactKeys(preregistration, PREREGISTRATION_KEYS, "preregistration", issues)) {
+    return issues;
+  }
   if (preregistration.kind !== AA_PREREGISTRATION_KIND) push(`kind must be ${AA_PREREGISTRATION_KIND}`);
   if (preregistration.studyVersion !== AA_STUDY_VERSION) push(`studyVersion must be ${AA_STUDY_VERSION}`);
-  if (typeof preregistration.studyId !== "string" || preregistration.studyId.trim().length === 0) {
-    push("studyId must be a non-empty string");
+  if (typeof preregistration.studyId !== "string" || !STUDY_ID.test(preregistration.studyId)) {
+    push("studyId must use lowercase letters, digits, and hyphens");
+  }
+  if (!canonicalTimestamp(preregistration.declaredAt)) {
+    push("declaredAt must be a canonical UTC timestamp");
   }
   if (
-    typeof preregistration.declaredAt !== "string" ||
-    Number.isNaN(Date.parse(preregistration.declaredAt))
+    preregistration.measurementIdentityManifestPath !==
+    AA_MEASUREMENT_IDENTITY_MANIFEST_PATH
   ) {
-    push("declaredAt must be an ISO 8601 timestamp");
+    push(
+      `measurementIdentityManifestPath must be ${AA_MEASUREMENT_IDENTITY_MANIFEST_PATH}`
+    );
   }
-  if (typeof preregistration.buildCommit !== "string" || !FULL_GIT_SHA.test(preregistration.buildCommit)) {
-    push("buildCommit must be a full lowercase git SHA");
+  if (
+    typeof preregistration.measurementIdentityDigest !== "string" ||
+    !SHA256.test(preregistration.measurementIdentityDigest)
+  ) {
+    push(
+      "measurementIdentityDigest must be the sha256 of the non-self-referential measurement-identity manifest"
+    );
+  }
+  if (
+    typeof preregistration.studyId === "string" &&
+    STUDY_ID.test(preregistration.studyId) &&
+    preregistration.sitesFile !== aaTargetFramePath(preregistration.studyId)
+  ) {
+    push("sitesFile must be the study-local frozen target-frame path");
   }
   if (
     typeof preregistration.sitesFileDigest !== "string" ||
@@ -70,12 +271,11 @@ export function aaPreregistrationIssues(preregistration) {
   ) {
     push("repetitionsPerTarget must be an integer of at least 2");
   }
-  if (!isRecord(preregistration.conditions)) {
+  if (!isRecord(preregistration.conditions) || Object.keys(preregistration.conditions).length === 0) {
     push("conditions must declare the exact scan conditions object the driver will run");
   }
   const thresholds = preregistration.thresholds;
-  if (!isRecord(thresholds)) {
-    push("thresholds must be declared before collection");
+  if (!exactKeys(thresholds, THRESHOLD_KEYS, "thresholds", issues)) {
     return issues;
   }
   if (!Number.isSafeInteger(thresholds.minimumEligibleTargets) || thresholds.minimumEligibleTargets < 1) {
@@ -84,7 +284,12 @@ export function aaPreregistrationIssues(preregistration) {
   if (!isFraction(thresholds.maximumFailingTargetFraction)) {
     push("thresholds.maximumFailingTargetFraction must be a fraction from 0 through 1");
   }
-  if (!isRecord(thresholds.maximumMetricRelativeRange)) {
+  if (!exactKeys(
+    thresholds.maximumMetricRelativeRange,
+    METRICS,
+    "thresholds.maximumMetricRelativeRange",
+    issues
+  )) {
     push("thresholds.maximumMetricRelativeRange must map metric ids to ceilings");
   } else {
     for (const [metric, ceiling] of Object.entries(thresholds.maximumMetricRelativeRange)) {
@@ -108,10 +313,15 @@ export function aaPreregistrationIssues(preregistration) {
 
 /**
  * Score a collected attempt ledger against its preregistration. Fails closed:
- * any binding mismatch (build, frame, repetitions, conditions, denominator)
- * is an identity violation, never a threshold failure.
+ * any binding mismatch (measurement inputs, frame, repetitions, conditions,
+ * denominator) is an identity violation, never a threshold failure.
  */
-export function evaluateAaStudy({ preregistration, ledger }) {
+export function evaluateAaStudy({
+  preregistration,
+  targetFrame,
+  targetFrameText,
+  ledger
+}) {
   const issues = aaPreregistrationIssues(preregistration);
   if (issues.length > 0) {
     return { kind: AA_EVALUATION_KIND, studyVersion: AA_STUDY_VERSION, status: "invalid", issues, checks: [] };
@@ -122,28 +332,38 @@ export function evaluateAaStudy({ preregistration, ledger }) {
     return ok;
   };
 
-  const ledgerUsable =
-    isRecord(ledger) &&
-    ledger.kind === "site-behavior-scanner-fidelity-attempt-ledger" &&
-    ledger.receiptVersion === 2 &&
-    isRecord(ledger.repeatability) &&
-    isRecord(ledger.provenance);
-  check("ledger-shape", ledgerUsable, "the collected artifact must be a v2 fidelity attempt ledger");
+  const ledgerIssues = scannerFidelityAttemptLedgerIssues(ledger, {
+    requireMeasurementIdentityDigest: true
+  });
+  const ledgerUsable = ledgerIssues.length === 0;
+  check("ledger-shape", ledgerUsable, "the collected artifact must be a v3 fidelity attempt ledger");
   if (!ledgerUsable) {
     return {
       kind: AA_EVALUATION_KIND,
       studyVersion: AA_STUDY_VERSION,
       status: "invalid",
-      issues: ["ledger is not a v2 scanner-fidelity attempt ledger"],
+      issues: ledgerIssues.map((issue) => `ledger: ${issue}`),
       checks
     };
   }
 
   // Identity binding. Every one of these was declared before collection.
   check(
-    "build-commit-binding",
-    ledger.provenance.expectedBuildCommit === preregistration.buildCommit,
-    `ledger build ${String(ledger.provenance.expectedBuildCommit)} vs preregistered ${preregistration.buildCommit}`
+    "measurement-identity-binding",
+    ledger.provenance.measurementIdentityDigest ===
+      preregistration.measurementIdentityDigest,
+    "the ledger must bind the exact preregistered measurement-identity manifest digest"
+  );
+  check(
+    "measurement-identity-manifest-path",
+    preregistration.measurementIdentityManifestPath ===
+      AA_MEASUREMENT_IDENTITY_MANIFEST_PATH,
+    "the preregistration must name the fixed non-self-referential measurement-identity manifest"
+  );
+  check(
+    "target-frame-path-binding",
+    ledger.sitesFile === preregistration.sitesFile,
+    "the ledger must be collected from the exact preregistered study-local target frame"
   );
   check(
     "target-frame-binding",
@@ -170,16 +390,27 @@ export function evaluateAaStudy({ preregistration, ledger }) {
     ledger.attemptedRuns === ledger.plannedRuns,
     `every planned attempt must be preserved: recorded ${String(ledger.attemptedRuns)} of ${String(ledger.plannedRuns)}`
   );
+  const targetFrameIssues = aaTargetFrameIssues({
+    targetFrame,
+    targetFrameText,
+    preregistration,
+    ledger
+  });
+  check(
+    "target-frame-attempt-set",
+    targetFrameIssues.length === 0,
+    targetFrameIssues.length === 0
+      ? "the ledger is set-equal to every target and repetition in the exact digest-bound frame"
+      : targetFrameIssues.join("; ")
+  );
   // Preregistration means BEFORE: thresholds declared after the data existed
   // are curve-fitting, not preregistration.
   const declaredAt = Date.parse(preregistration.declaredAt);
-  const collectedAt = Date.parse(ledger.createdAt ?? "");
+  const collectedAt = Date.parse(ledger.collection.startedAt);
   check(
     "preregistration-precedes-collection",
-    !Number.isNaN(collectedAt) && declaredAt < collectedAt,
-    Number.isNaN(collectedAt)
-      ? "the ledger carries no valid createdAt to order against the preregistration"
-      : `preregistration declared ${preregistration.declaredAt}, collection began ${ledger.createdAt}`
+    declaredAt < collectedAt,
+    `preregistration declared ${preregistration.declaredAt}, collection began ${ledger.collection.startedAt}`
   );
 
   const bindingViolated = checks.some((entry) => !entry.ok);
@@ -215,9 +446,15 @@ export function evaluateAaStudy({ preregistration, ledger }) {
     if (
       thresholds.requireCounterbalancedOrders &&
       target.reportType === "comparison" &&
-      target.interventionOrders?.counterbalanced !== true
+      (
+        target.interventionOrders?.counterbalanced !== true ||
+        target.interventionOrders?.AB !== target.interventionOrders?.BA ||
+        target.interventionOrders?.AB < 1
+      )
     ) {
-      failures.push("intervention orders are not counterbalanced (AB and BA both required)");
+      failures.push(
+        "intervention orders are not exactly counterbalanced (equal non-zero AB and BA counts required)"
+      );
     }
     if (failures.length > 0) failingTargets.push({ url: target.url, failures });
   }
@@ -244,7 +481,7 @@ export function evaluateAaStudy({ preregistration, ledger }) {
     studyVersion: AA_STUDY_VERSION,
     studyId: preregistration.studyId,
     status,
-    issues: [],
+    issues: targetFrameIssues,
     checks,
     eligibleTargets: targets.length,
     excludedTargets: Array.isArray(repeatability.excludedTargets)
@@ -256,7 +493,7 @@ export function evaluateAaStudy({ preregistration, ledger }) {
     inference: {
       scope: "recorded-attempts-only",
       caveats: [
-        "A passing study describes agreement between repeated automated visits on the preregistered frame at one exact release identity; it is not a population estimate and not evidence about any single site's behavior."
+        "A passing study describes agreement between repeated automated visits on the preregistered frame and measurement identity; it is not a population estimate and not evidence about any single site's behavior."
       ]
     }
   };

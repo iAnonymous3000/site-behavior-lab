@@ -138,6 +138,7 @@ import type {
 } from "./scan-report-v2-r2";
 import {
   createNodeScanMeasurementEnvelope,
+  type ConsentBannerObserveCalibrationFact,
   type NodeScanMeasurement,
   type NodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
@@ -675,6 +676,16 @@ type ConsentChoiceProbeOutcome = {
   mainFrameNavigations?: number;
 };
 
+type ConsentVisibilityProbeOutcome = {
+  visible: boolean | null;
+  /**
+   * A positive observation is conclusive immediately. A negative observation
+   * is calibration-usable only when every frame completed the probe; otherwise
+   * "not found" would silently mean "not readable".
+   */
+  calibrationUsable: boolean;
+};
+
 const publicHostCheckFailures = new WeakMap<Map<string, Promise<void>>, Map<string, number>>();
 const MAX_PUBLIC_HOST_CHECK_ATTEMPTS = 2;
 
@@ -1126,38 +1137,52 @@ export async function scanSiteWithMeasurement(
     // mapped to the closed observed-state vocabulary before anything is
     // retained; raw CMP payloads never leave the read. Best-effort: a failed
     // read records its structured failure outcome and the scan continues.
-    const probeConsentBannerVisibility = async (): Promise<boolean | null> => {
-      const args = consentVisibilityArgs(consentShadowRootCapability);
-      let readableFrames = 0;
-      for (const frame of page.frames()) {
-        try {
-          const operation = frame.evaluate(findVisibleConsentControl, args);
-          const visible =
-            options.consentVisibilityProbeTimeoutMsForTests === undefined
-              ? await withScanTimeout(operation, started)
-              : await withScanDeadline(
-                  operation,
-                  Date.now(),
-                  Math.max(
-                    1,
-                    Math.floor(options.consentVisibilityProbeTimeoutMsForTests)
-                  ),
-                  scanTimeoutError
-                );
-          readableFrames += 1;
-          if (visible) return true;
-        } catch (error) {
-          if (isScanBudgetError(error)) throw error;
+    const probeConsentBannerVisibility =
+      async (): Promise<ConsentVisibilityProbeOutcome> => {
+        const args = consentVisibilityArgs(consentShadowRootCapability);
+        let readableFrames = 0;
+        let unreadableFrames = 0;
+        const frames = page.frames();
+        for (const frame of frames) {
+          try {
+            const operation = frame.evaluate(findVisibleConsentControl, args);
+            const visible =
+              options.consentVisibilityProbeTimeoutMsForTests === undefined
+                ? await withScanTimeout(operation, started)
+                : await withScanDeadline(
+                    operation,
+                    Date.now(),
+                    Math.max(
+                      1,
+                      Math.floor(
+                        options.consentVisibilityProbeTimeoutMsForTests
+                      )
+                    ),
+                    scanTimeoutError
+                  );
+            readableFrames += 1;
+            if (visible) {
+              return { visible: true, calibrationUsable: true };
+            }
+          } catch (error) {
+            if (isScanBudgetError(error)) throw error;
+            unreadableFrames += 1;
+          }
         }
-      }
-      return readableFrames > 0 ? false : null;
-    };
+        if (readableFrames === 0) {
+          return { visible: null, calibrationUsable: false };
+        }
+        return {
+          visible: false,
+          calibrationUsable: unreadableFrames === 0
+        };
+      };
     const recordBannerMoment = async (
       moment: BannerTransitionR2["observations"][number]["moment"],
       phaseId: number
     ): Promise<void> => {
       try {
-        const visible = await probeConsentBannerVisibility();
+        const { visible } = await probeConsentBannerVisibility();
         if (visible === null) return;
         // The validator requires strictly increasing moments; guard the
         // degenerate same-millisecond probe pair.
@@ -1277,6 +1302,9 @@ export async function scanSiteWithMeasurement(
     }
 
     let consentInteractionLeftSubject = false;
+    let consentBannerObserveCalibration:
+      | ConsentBannerObserveCalibrationFact
+      | undefined;
     const recordedConsentCoverageLosses = new Set<string>();
     const recordConsentCoverageLoss = (
       phaseId: number | null,
@@ -1518,18 +1546,32 @@ export async function scanSiteWithMeasurement(
     } else if (verificationFlagOn && !pageSubjectInvalid) {
       // Observe mode with the verification flag on performs ONE non-mutating
       // banner-visibility read so the always-on detector reflects a real
-      // detection (the r2 builder rejects a probe-disabled default). Only the
-      // detector outcome is recorded: observe-mode runs carry no consent
-      // evidence by schema rule.
+      // detection (the r2 builder rejects a probe-disabled default). The
+      // boolean is retained only in the process-local calibration envelope;
+      // observe-mode public runs still carry no consent evidence by schema.
       try {
-        const visible = await probeConsentBannerVisibility();
+        const visibility = await probeConsentBannerVisibility();
+        const { visible } = visibility;
         if (visible === null) {
           measurementKernel.setDetector("consent-banner", "failed", {
             reason: "engine-unavailable",
             phaseId: passivePhaseId
           });
           recordConsentCoverageLoss(passivePhaseId, "dropped", false);
+        } else if (!visibility.calibrationUsable) {
+          measurementKernel.setDetector("consent-banner", "partial", {
+            reason: "scan-failed",
+            phaseId: passivePhaseId
+          });
+          recordConsentCoverageLoss(passivePhaseId, "dropped", false);
         } else {
+          consentBannerObserveCalibration = {
+            detector: "consent-banner",
+            method: "banner-visibility@1",
+            phaseId: passivePhaseId,
+            outcome: "complete",
+            visible
+          };
           measurementKernel.setDetector("consent-banner", "complete", { phaseId: passivePhaseId });
         }
       } catch (error) {
@@ -2700,7 +2742,11 @@ export async function scanSiteWithMeasurement(
           : publicRequests.filter((item) => item.blockedByShields).length
         : undefined
     });
-    return createNodeScanMeasurementEnvelope(v1Result, measurement);
+    return createNodeScanMeasurementEnvelope(
+      v1Result,
+      measurement,
+      consentBannerObserveCalibration
+    );
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);
     const contextToClose = context;

@@ -1,6 +1,6 @@
 name: Cut Release Tag
 
-# Curated milestone releases for the pre-1.0 development line.
+# Curated milestone releases for the 0.x development line and exact 1.0 line.
 #
 # A tag here claims exactly one thing: this source revision was reviewed, passed
 # every CI gate, reached production, and has an attested exact-source evidence
@@ -238,6 +238,231 @@ jobs:
             "repos/${GITHUB_REPOSITORY}/actions/runs/${CI_RUN_ID}/jobs?per_page=100" \
             > "$RUNNER_TEMP/ci-jobs.json"
 
+      # The freeze verifier must authenticate the immutable activation handoff,
+      # but candidate-controlled readiness code must never receive an API
+      # token. This workflow-owned step fetches one bounded offline context;
+      # the next step is the token boundary for every candidate process.
+      - name: Prefetch immutable measurement-freeze evidence for release 1.0
+        id: freeze_context
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_VERSION" =~ ^1\.0\.0(-rc\.[1-9][0-9]*)?$ ]]; then
+            exit 0
+          fi
+          context="$RUNNER_TEMP/measurement-freeze-artifact-context"
+          install -d -m 0700 "$context"
+          read -r activation_run_id activation_artifact_name < <(
+            node <<'NODE'
+          const fs = require("node:fs");
+          const receipt = JSON.parse(
+            fs.readFileSync(
+              "research/ops-receipts/measurement-freeze-activation.json",
+              "utf8"
+            )
+          );
+          const runId = receipt?.activation?.runId;
+          const runAttempt = receipt?.activation?.runAttempt;
+          const expectedName =
+            Number.isSafeInteger(runId) &&
+            runId > 0 &&
+            Number.isSafeInteger(runAttempt) &&
+            runAttempt > 0
+              ? `measurement-freeze-activation-${runId}-${runAttempt}`
+              : "";
+          if (
+            receipt?.handoff?.artifactName !== expectedName ||
+            !/^[1-9][0-9]{0,19}$/.test(String(runId))
+          ) {
+            throw new Error(
+              "The committed freeze receipt does not identify one bounded activation run and artifact."
+            );
+          }
+          process.stdout.write(`${runId} ${expectedName}`);
+          NODE
+          )
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${activation_run_id}" \
+            > "$context/run.json"
+          gh api \
+            --paginate \
+            --slurp \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${activation_run_id}/artifacts?per_page=100" \
+            > "$context/artifacts-pages.json"
+          for bound in \
+            "run.json:1048576" \
+            "artifacts-pages.json:4194304"; do
+            file="${bound%%:*}"
+            maximum="${bound##*:}"
+            size="$(wc -c < "$context/$file")"
+            if [[ "$size" -lt 1 || "$size" -gt "$maximum" ]]; then
+              echo "::error title=Release refused::${file} is empty or exceeds its ${maximum}-byte prefetch bound."
+              exit 1
+            fi
+          done
+          artifact_id="$(
+            ACTIVATION_ARTIFACT_NAME="$activation_artifact_name" \
+              node <<'NODE'
+          const fs = require("node:fs");
+          const pages = JSON.parse(
+            fs.readFileSync(
+              `${process.env.RUNNER_TEMP}/measurement-freeze-artifact-context/artifacts-pages.json`,
+              "utf8"
+            )
+          );
+          if (!Array.isArray(pages) || pages.length === 0 || pages.length > 10) {
+            throw new Error("The activation artifact listing is not a bounded page array.");
+          }
+          const artifacts = pages.flatMap((page) =>
+            Array.isArray(page?.artifacts) ? page.artifacts : []
+          );
+          if (artifacts.length > 1000) {
+            throw new Error("The activation artifact listing exceeds 1000 records.");
+          }
+          const matches = artifacts.filter(
+            (artifact) => artifact?.name === process.env.ACTIVATION_ARTIFACT_NAME
+          );
+          if (
+            matches.length !== 1 ||
+            !Number.isSafeInteger(matches[0]?.id) ||
+            matches[0].id < 1
+          ) {
+            throw new Error("The activation run does not expose exactly one expected artifact.");
+          }
+          process.stdout.write(String(matches[0].id));
+          NODE
+          )"
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}" \
+            > "$context/artifact.json"
+          artifact_metadata_size="$(wc -c < "$context/artifact.json")"
+          if [[ "$artifact_metadata_size" -lt 1 ||
+                "$artifact_metadata_size" -gt 1048576 ]]; then
+            echo "::error title=Release refused::artifact.json is empty or exceeds its 1048576-byte prefetch bound."
+            exit 1
+          fi
+          ARTIFACT_ID="$artifact_id" \
+          ACTIVATION_ARTIFACT_NAME="$activation_artifact_name" \
+          ACTIVATION_RUN_ID="$activation_run_id" \
+            node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const context = path.join(
+            process.env.RUNNER_TEMP,
+            "measurement-freeze-artifact-context"
+          );
+          const receipt = JSON.parse(
+            fs.readFileSync(
+              "research/ops-receipts/measurement-freeze-activation.json",
+              "utf8"
+            )
+          );
+          const pages = JSON.parse(
+            fs.readFileSync(
+              path.join(context, "artifacts-pages.json"),
+              "utf8"
+            )
+          );
+          const artifact = JSON.parse(
+            fs.readFileSync(path.join(context, "artifact.json"), "utf8")
+          );
+          const candidate = receipt?.candidate?.commit;
+          const runId = Number(process.env.ACTIVATION_RUN_ID);
+          const artifactId = Number(process.env.ARTIFACT_ID);
+          const expectedName = process.env.ACTIVATION_ARTIFACT_NAME;
+          const normalizeDigest = (value) =>
+            typeof value === "string" && value.startsWith("sha256:")
+              ? value.slice(7)
+              : value;
+          const valid = (value) =>
+            value &&
+            !Array.isArray(value) &&
+            value.id === artifactId &&
+            value.name === expectedName &&
+            value.expired === false &&
+            Number.isSafeInteger(value.size_in_bytes) &&
+            value.size_in_bytes > 0 &&
+            value.size_in_bytes <= 1024 * 1024 &&
+            /^[0-9a-f]{64}$/.test(normalizeDigest(value.digest) ?? "") &&
+            value.workflow_run?.id === runId &&
+            value.workflow_run?.head_branch === "main" &&
+            value.workflow_run?.head_sha === candidate;
+          const listed = pages
+            .flatMap((page) =>
+              Array.isArray(page?.artifacts) ? page.artifacts : []
+            )
+            .filter((value) => value?.name === expectedName);
+          if (
+            !/^[0-9a-f]{40}$/.test(candidate ?? "") ||
+            receipt?.activation?.headSha !== candidate ||
+            listed.length !== 1 ||
+            !valid(listed[0]) ||
+            !valid(artifact) ||
+            listed[0].size_in_bytes !== artifact.size_in_bytes ||
+            normalizeDigest(listed[0].digest) !==
+              normalizeDigest(artifact.digest)
+          ) {
+            throw new Error(
+              "The activation artifact metadata is not a bounded, non-expired exact-run handoff."
+            );
+          }
+          NODE
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+            > "$context/artifact.zip"
+          for bound in \
+            "run.json:1048576" \
+            "artifacts-pages.json:4194304" \
+            "artifact.json:1048576" \
+            "artifact.zip:1048576"; do
+            file="${bound%%:*}"
+            maximum="${bound##*:}"
+            size="$(wc -c < "$context/$file")"
+            if [[ "$size" -lt 1 || "$size" -gt "$maximum" ]]; then
+              echo "::error title=Release refused::${file} is empty or exceeds its ${maximum}-byte prefetch bound."
+              exit 1
+            fi
+          done
+          chmod 0600 "$context"/*
+          CONTEXT_DIRECTORY="$context" node <<'NODE'
+          const crypto = require("node:crypto");
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const files = [
+            "artifact.json",
+            "artifact.zip",
+            "artifacts-pages.json",
+            "run.json"
+          ];
+          const digest = crypto
+            .createHash("sha256")
+            .update(
+              "site-behavior-lab-measurement-freeze-artifact-context-v1\0",
+              "utf8"
+            );
+          for (const filename of files) {
+            const bytes = fs.readFileSync(
+              path.join(process.env.CONTEXT_DIRECTORY, filename)
+            );
+            digest.update(`${filename}\0${bytes.byteLength}\0`, "utf8");
+            digest.update(bytes);
+          }
+          fs.appendFileSync(
+            process.env.GITHUB_OUTPUT,
+            `context_sha256=${digest.digest("hex")}\n`
+          );
+          NODE
+          echo "SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT=${context}" >> "$GITHUB_ENV"
+
       - name: Verify every required CI job without an API token
         run: |
           set -euo pipefail
@@ -246,10 +471,23 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Require every governed release 1.0 readiness gate
+        env:
+          SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256: ${{ steps.freeze_context.outputs.context_sha256 }}
+        run: |
+          set -euo pipefail
+          if [[ "$RELEASE_VERSION" =~ ^1\.0\.0(-rc\.[1-9][0-9]*)?$ ]]; then
+            npm run release:readiness:check -- \
+              --live-artifact-context "$RUNNER_TEMP/measurement-freeze-artifact-context" \
+              --live-artifact-context-sha256 "$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256"
+          fi
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
       - name: Build the static artifact this receipt describes
+        env:
+          SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256: ${{ steps.freeze_context.outputs.context_sha256 }}
         run: |
           set -euo pipefail
           npm run build:pages
@@ -441,8 +679,8 @@ jobs:
           if (!/^[0-9a-f]{40}$/.test(process.env.RELEASE_SHA) || requestedSha !== process.env.RELEASE_SHA) {
             fail("The resolved release SHA does not exactly match the dispatch input.");
           }
-          if (!/^0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.env.RELEASE_VERSION)) {
-            fail("The release version is not one bounded pre-1.0 semantic version.");
+          if (!/^(?:0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?|1\.0\.0(?:-rc\.[1-9]\d*)?)$/.test(process.env.RELEASE_VERSION)) {
+            fail("The release version is not one supported 0.x or exact 1.0 semantic version.");
           }
           if (process.env.RELEASE_TAG !== `v${process.env.RELEASE_VERSION}`) fail("The release tag is inconsistent.");
           if (!/^\d+$/.test(process.env.ARTIFACT_ID)) fail("The receipt artifact ID is malformed.");
@@ -778,8 +1016,11 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-  # This final fresh runner has repository-write authority only. It receives no
-  # candidate checkout, dependency, OIDC token, or attestation permission.
+  # This final fresh runner keeps its native workflow token read-only. Only
+  # after the environment review, author check, and branch-reachability check
+  # does it mint a repository-scoped token for the dedicated release App. It
+  # receives no candidate checkout, package-manager execution, OIDC token, or
+  # attestation permission.
   tag:
     name: Atomically publish the attested release tag
     needs:
@@ -793,7 +1034,7 @@ jobs:
     # the environment is unprotected.
     environment: release-tag
     permissions:
-      contents: write
+      contents: read
     steps:
       # Dispatch permission and release authority are different things. Both
       # identities are checked: `actor` is who the run is attributed to and
@@ -849,15 +1090,639 @@ jobs:
           }
           NODE
 
+      # The repository's native GITHUB_TOKEN was observed returning
+      # `Resource not accessible by integration` when the first live
+      # 0.4.0-rc.1 ceremony attempted POST /git/tags, despite the job declaring
+      # contents: write. Release authority is therefore explicit and separate:
+      # never fall back to the workflow token or to the production promoter.
+      - name: Require dedicated release App configuration
+        env:
+          RELEASE_APP_CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          RELEASE_APP_INTEGRATION_ID: ${{ vars.RELEASE_APP_INTEGRATION_ID }}
+          RELEASE_TAG_CREATION_RULESET_ID: ${{ vars.RELEASE_TAG_CREATION_RULESET_ID }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ vars.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 }}
+          RELEASE_APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          PROMOTION_APP_CLIENT_ID: ${{ vars.PROMOTION_APP_CLIENT_ID }}
+          PROMOTION_APP_INTEGRATION_ID: ${{ vars.PROMOTION_APP_INTEGRATION_ID }}
+          PROMOTION_APP_SLUG: ${{ vars.PROMOTION_APP_SLUG }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$RELEASE_APP_CLIENT_ID" || -z "$RELEASE_APP_PRIVATE_KEY" || -z "$PROMOTION_APP_CLIENT_ID" ||
+                ! "$RELEASE_APP_INTEGRATION_ID" =~ ^[1-9][0-9]*$ ||
+                ! "$RELEASE_TAG_CREATION_RULESET_ID" =~ ^[1-9][0-9]*$ ||
+                ! "$PROMOTION_APP_INTEGRATION_ID" =~ ^[1-9][0-9]*$ ||
+                ! "$PROMOTION_APP_SLUG" =~ ^[a-z0-9][a-z0-9-]{0,99}$ ||
+                ! "$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error title=Release refused::The release App client and Integration IDs; promotion App client ID, Integration ID, and slug; RELEASE_TAG_CREATION_RULESET_ID; RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256; and release-tag environment secret RELEASE_APP_PRIVATE_KEY must all be configured."
+            exit 1
+          fi
+          if [[ "$RELEASE_TAG_CREATION_RULESET_ID" == "20050122" ]]; then
+            echo "::error title=Release refused::Tag creation must use a separate ruleset from immutable update/deletion ruleset 20050122."
+            exit 1
+          fi
+          if [[ "$RELEASE_APP_CLIENT_ID" == "$PROMOTION_APP_CLIENT_ID" ||
+                "$RELEASE_APP_INTEGRATION_ID" == "$PROMOTION_APP_INTEGRATION_ID" ]]; then
+            echo "::error title=Release refused::The release App must be distinct from the production promotion App."
+            exit 1
+          fi
+
+      - name: Mint dedicated release App token
+        id: release_app_token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          # Omitting owner/repositories deliberately keeps the installation
+          # token on the action's pinned current-repository default. That
+          # narrowing does not prove the underlying installation has no other
+          # repositories; the maintainer receipt proves that separately with
+          # an App-JWT-authenticated full-installation enumeration.
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      - name: Verify pinned tag and production governance
+        env:
+          GH_TOKEN: ${{ steps.release_app_token.outputs.token }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
+          RELEASE_APP_SLUG: ${{ steps.release_app_token.outputs.app-slug }}
+          RELEASE_APP_CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          RELEASE_APP_INTEGRATION_ID: ${{ vars.RELEASE_APP_INTEGRATION_ID }}
+          RELEASE_TAG_CREATION_RULESET_ID: ${{ vars.RELEASE_TAG_CREATION_RULESET_ID }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ vars.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 }}
+          PROMOTION_APP_CLIENT_ID: ${{ vars.PROMOTION_APP_CLIENT_ID }}
+          PROMOTION_APP_INTEGRATION_ID: ${{ vars.PROMOTION_APP_INTEGRATION_ID }}
+          PROMOTION_APP_SLUG: ${{ vars.PROMOTION_APP_SLUG }}
+        run: |
+          set -euo pipefail
+          context="$RUNNER_TEMP/release-governance"
+          install -d -m 0700 "$context"
+          gh api \
+            -H "Accept: application/vnd.github.raw+json" \
+            "repos/${GITHUB_REPOSITORY}/contents/research/ops-receipts/release-tag-governance.json?ref=${RELEASE_SHA}" \
+            > "$context/receipt.json"
+          gh api \
+            -H "Accept: application/vnd.github.raw+json" \
+            "repos/${GITHUB_REPOSITORY}/contents/RELEASE_READINESS.json?ref=${RELEASE_SHA}" \
+            > "$context/readiness.json"
+          gh api \
+            -H "Accept: application/vnd.github.raw+json" \
+            "repos/${GITHUB_REPOSITORY}/contents/.github/required-ci-jobs.json?ref=${RELEASE_SHA}" \
+            > "$context/required-ci-jobs.json"
+          gh api "apps/${RELEASE_APP_SLUG}" > "$context/release-app.json"
+          gh api "apps/${PROMOTION_APP_SLUG}" > "$context/promotion-app.json"
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/rulesets/20050122" \
+            > "$context/immutable-tags.json"
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/rulesets/${RELEASE_TAG_CREATION_RULESET_ID}" \
+            > "$context/tag-creation.json"
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/rulesets/20050303" \
+            > "$context/production-evidence.json"
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/rulesets/20050309" \
+            > "$context/production-updater.json"
+          node <<'NODE'
+          const crypto = require("node:crypto");
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const fail = (message) => {
+            console.error(`::error title=Release refused::${message}`);
+            process.exit(1);
+          };
+          const bytes = (name) =>
+            fs.readFileSync(
+              path.join(process.env.RUNNER_TEMP, "release-governance", name)
+            );
+          const read = (name) => JSON.parse(bytes(name).toString("utf8"));
+          const isRecord = (value) =>
+            value !== null && typeof value === "object" && !Array.isArray(value);
+          const exactKeys = (value, expected) =>
+            isRecord(value) &&
+            JSON.stringify(Object.keys(value).sort()) ===
+              JSON.stringify([...expected].sort());
+          const canonicalJson = (value) => {
+            if (value === null || typeof value === "boolean") {
+              return JSON.stringify(value);
+            }
+            if (typeof value === "string") {
+              return JSON.stringify(value.normalize("NFC"));
+            }
+            if (typeof value === "number" && Number.isFinite(value)) {
+              return JSON.stringify(value);
+            }
+            if (Array.isArray(value)) {
+              return `[${value.map(canonicalJson).join(",")}]`;
+            }
+            if (isRecord(value)) {
+              return `{${Object.keys(value)
+                .sort()
+                .map(
+                  (key) =>
+                    `${JSON.stringify(key.normalize("NFC"))}:${canonicalJson(value[key])}`
+                )
+                .join(",")}}`;
+            }
+            fail("The governance receipt contains a non-JSON value.");
+          };
+          const releaseAppId = Number(process.env.RELEASE_APP_INTEGRATION_ID);
+          const promotionAppId = Number(
+            process.env.PROMOTION_APP_INTEGRATION_ID
+          );
+          const creationRulesetId = Number(
+            process.env.RELEASE_TAG_CREATION_RULESET_ID
+          );
+          const receiptBytes = bytes("receipt.json");
+          const receiptDigest = crypto
+            .createHash("sha256")
+            .update(receiptBytes)
+            .digest("hex");
+          if (
+            receiptDigest !==
+            process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256
+          ) {
+            fail(
+              "The committed release governance receipt does not match the maintainer-pinned digest."
+            );
+          }
+          const receipt = read("receipt.json");
+          if (`${canonicalJson(receipt)}\n` !== receiptBytes.toString("utf8")) {
+            fail("The release governance receipt is not canonical JSON.");
+          }
+          const readiness = read("readiness.json");
+          const governanceGate =
+            readiness?.gates?.["release-tag-governance"];
+          if (
+            governanceGate?.kind !== "release-tag-governance" ||
+            governanceGate?.artifact !==
+              "research/ops-receipts/release-tag-governance.json" ||
+            governanceGate?.maxAgeDays !== 1 ||
+            governanceGate?.sha256 !== receiptDigest ||
+            governanceGate.sha256 !==
+              process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256
+          ) {
+            fail(
+              "RELEASE_READINESS.json, the committed receipt, and the repository governance digest variable must bind the same bytes."
+            );
+          }
+          const app = read("release-app.json");
+          if (
+            !Number.isSafeInteger(releaseAppId) ||
+            releaseAppId < 1 ||
+            app?.id !== releaseAppId ||
+            app?.client_id !== process.env.RELEASE_APP_CLIENT_ID ||
+            app?.slug !== process.env.RELEASE_APP_SLUG ||
+            !exactKeys(app?.permissions, ["contents", "metadata"]) ||
+            app.permissions.contents !== "write" ||
+            app.permissions.metadata !== "read" ||
+            !Array.isArray(app?.events) ||
+            app.events.length !== 0
+          ) {
+            fail(
+              "The minted release token's App identity, exact contents-write/metadata-read permissions, or empty event subscription differs."
+            );
+          }
+          const promotionApp = read("promotion-app.json");
+          if (
+            !Number.isSafeInteger(promotionAppId) ||
+            promotionAppId < 1 ||
+            promotionApp?.id !== promotionAppId ||
+            promotionApp?.client_id !== process.env.PROMOTION_APP_CLIENT_ID ||
+            promotionApp?.slug !== process.env.PROMOTION_APP_SLUG ||
+            promotionAppId === releaseAppId ||
+            promotionApp?.client_id === process.env.RELEASE_APP_CLIENT_ID ||
+            promotionApp?.slug === process.env.RELEASE_APP_SLUG ||
+            !exactKeys(promotionApp?.permissions, [
+              "contents",
+              "metadata"
+            ]) ||
+            promotionApp.permissions.contents !== "write" ||
+            promotionApp.permissions.metadata !== "read" ||
+            !Array.isArray(promotionApp?.events) ||
+            promotionApp.events.length !== 0
+          ) {
+            fail(
+              "The configured promotion App identity, exact contents-write/metadata-read permissions, or empty event subscription differs or overlaps the release App."
+            );
+          }
+          if (
+            !exactKeys(receipt, [
+              "schemaVersion",
+              "artifactKind",
+              "repository",
+              "capturedAt",
+              "releaseApp",
+              "promotionApp",
+              "secretScope",
+              "rulesets"
+            ]) ||
+            receipt.schemaVersion !== 1 ||
+            receipt.artifactKind !==
+              "site-behavior-release-tag-governance-setup" ||
+            receipt.repository !== process.env.GITHUB_REPOSITORY ||
+            !Number.isFinite(Date.parse(receipt.capturedAt)) ||
+            new Date(receipt.capturedAt).toISOString() !== receipt.capturedAt ||
+            !exactKeys(receipt.releaseApp, [
+              "clientId",
+              "integrationId",
+              "slug",
+              "permissions",
+              "events",
+              "installation"
+            ]) ||
+            receipt.releaseApp.clientId !==
+              process.env.RELEASE_APP_CLIENT_ID ||
+            receipt.releaseApp.integrationId !== releaseAppId ||
+            receipt.releaseApp.slug !== process.env.RELEASE_APP_SLUG ||
+            canonicalJson(receipt.releaseApp.permissions) !==
+              canonicalJson(app.permissions) ||
+            canonicalJson(receipt.releaseApp.events) !==
+              canonicalJson(app.events) ||
+            !exactKeys(receipt.promotionApp, [
+              "clientId",
+              "integrationId",
+              "slug",
+              "permissions",
+              "events",
+              "installation"
+            ]) ||
+            receipt.promotionApp.clientId !==
+              process.env.PROMOTION_APP_CLIENT_ID ||
+            receipt.promotionApp.integrationId !== promotionAppId ||
+            receipt.promotionApp.slug !== process.env.PROMOTION_APP_SLUG ||
+            canonicalJson(receipt.promotionApp.permissions) !==
+              canonicalJson(promotionApp.permissions) ||
+            canonicalJson(receipt.promotionApp.events) !==
+              canonicalJson(promotionApp.events) ||
+            !exactKeys(receipt.rulesets, [
+              "immutableTags",
+              "tagCreation",
+              "productionEvidence",
+              "productionUpdater"
+            ])
+          ) {
+            fail(
+              "The pinned governance receipt schema, repository, or release App identity is invalid."
+            );
+          }
+          const ownerLogin = process.env.GITHUB_REPOSITORY.split("/")[0];
+          const exactInstallation = (installation) =>
+            exactKeys(installation, [
+              "id",
+              "accountLogin",
+              "accountType",
+              "repositorySelection",
+              "proofKind",
+              "repositories"
+            ]) &&
+            Number.isSafeInteger(installation.id) &&
+            installation.id > 0 &&
+            installation.accountLogin === ownerLogin &&
+            ["User", "Organization"].includes(installation.accountType) &&
+            installation.repositorySelection === "selected" &&
+            installation.proofKind ===
+              "app-jwt-full-installation-repository-enumeration" &&
+            Array.isArray(installation.repositories) &&
+            installation.repositories.length === 1 &&
+            installation.repositories[0] === process.env.GITHUB_REPOSITORY;
+          if (
+            !exactInstallation(receipt.releaseApp.installation) ||
+            !exactInstallation(receipt.promotionApp.installation) ||
+            receipt.releaseApp.installation.id ===
+              receipt.promotionApp.installation.id
+          ) {
+            fail(
+              "The maintainer capture does not bind two distinct selected-repository App installations whose full App-JWT enumerations contain only this repository."
+            );
+          }
+          const secretScope = receipt.secretScope;
+          if (
+            !exactKeys(secretScope, [
+              "name",
+              "observedAt",
+              "scopeKind",
+              "environment",
+              "environmentPresent",
+              "repositoryPresent",
+              "ownerLogin",
+              "ownerType",
+              "organizationPresent"
+            ]) ||
+            secretScope.name !== "RELEASE_APP_PRIVATE_KEY" ||
+            secretScope.scopeKind !== "point-in-time-name-inventory" ||
+            secretScope.environment !== "release-tag" ||
+            secretScope.environmentPresent !== true ||
+            secretScope.repositoryPresent !== false ||
+            secretScope.ownerLogin !== ownerLogin ||
+            !["User", "Organization"].includes(secretScope.ownerType) ||
+            !Number.isFinite(Date.parse(secretScope.observedAt)) ||
+            new Date(secretScope.observedAt).toISOString() !==
+              secretScope.observedAt ||
+            secretScope.observedAt !== receipt.capturedAt ||
+            (secretScope.ownerType === "Organization"
+              ? secretScope.organizationPresent !== false
+              : secretScope.organizationPresent !== null)
+          ) {
+            fail(
+              "The maintainer capture does not carry a valid point-in-time name inventory proving RELEASE_APP_PRIVATE_KEY existed only on release-tag and not at repository or applicable organization scope."
+            );
+          }
+          const governanceCapturedAt = Date.parse(receipt.capturedAt);
+          const ceremonyNow = Date.now();
+          if (
+            governanceCapturedAt > ceremonyNow + 10 * 60 * 1000 ||
+            ceremonyNow - governanceCapturedAt > 24 * 60 * 60 * 1000
+          ) {
+            fail(
+              "The release governance receipt is outside its fixed 24-hour ceremony window; recapture App installation and secret-scope evidence immediately before a fresh dispatch."
+            );
+          }
+          const receiptRulesetKeys = [
+            "id",
+            "name",
+            "target",
+            "sourceType",
+            "source",
+            "enforcement",
+            "conditions",
+            "rules",
+            "createdAt",
+            "updatedAt",
+            "bypassActors"
+          ];
+          const receiptBypassKeys = [
+            "actorId",
+            "actorType",
+            "bypassMode"
+          ];
+          const roles = [
+            ["immutableTags", "immutable-tags.json"],
+            ["tagCreation", "tag-creation.json"],
+            ["productionEvidence", "production-evidence.json"],
+            ["productionUpdater", "production-updater.json"]
+          ];
+          const publicProjection = (ruleset) => ({
+            id: ruleset?.id,
+            name: ruleset?.name,
+            target: ruleset?.target,
+            sourceType: ruleset?.source_type,
+            source: ruleset?.source,
+            enforcement: ruleset?.enforcement,
+            conditions: ruleset?.conditions,
+            rules: ruleset?.rules,
+            createdAt: ruleset?.created_at,
+            updatedAt: ruleset?.updated_at
+          });
+          const receiptPublicProjection = (ruleset) => ({
+            id: ruleset.id,
+            name: ruleset.name,
+            target: ruleset.target,
+            sourceType: ruleset.sourceType,
+            source: ruleset.source,
+            enforcement: ruleset.enforcement,
+            conditions: ruleset.conditions,
+            rules: ruleset.rules,
+            createdAt: ruleset.createdAt,
+            updatedAt: ruleset.updatedAt
+          });
+          for (const [role, filename] of roles) {
+            const pinned = receipt.rulesets[role];
+            if (
+              !exactKeys(pinned, receiptRulesetKeys) ||
+              !Number.isSafeInteger(pinned.id) ||
+              pinned.id < 1 ||
+              pinned.sourceType !== "Repository" ||
+              pinned.source !== process.env.GITHUB_REPOSITORY ||
+              !Array.isArray(pinned.bypassActors) ||
+              pinned.bypassActors.some(
+                (actor) =>
+                  !exactKeys(actor, receiptBypassKeys) ||
+                  !Number.isSafeInteger(actor.actorId) ||
+                  actor.actorId < 1 ||
+                  typeof actor.actorType !== "string" ||
+                  typeof actor.bypassMode !== "string"
+              ) ||
+              !Array.isArray(pinned.rules) ||
+              !isRecord(pinned.conditions) ||
+              !Number.isFinite(Date.parse(pinned.createdAt)) ||
+              !Number.isFinite(Date.parse(pinned.updatedAt))
+            ) {
+              fail(`The pinned ${role} ruleset record is malformed.`);
+            }
+            const live = publicProjection(read(filename));
+            if (
+              canonicalJson(live) !==
+              canonicalJson(receiptPublicProjection(pinned))
+            ) {
+              fail(
+                `Live ${role} public shape or GitHub updated_at differs from the maintainer-captured receipt.`
+              );
+            }
+          }
+          const immutable = receipt.rulesets.immutableTags;
+          const creation = receipt.rulesets.tagCreation;
+          const productionEvidence = receipt.rulesets.productionEvidence;
+          const productionUpdater = receipt.rulesets.productionUpdater;
+          const exactTagCondition = (ruleset) =>
+            ruleset?.target === "tag" &&
+            ruleset?.enforcement === "active" &&
+            exactKeys(ruleset?.conditions, ["ref_name"]) &&
+            exactKeys(ruleset?.conditions?.ref_name, ["include", "exclude"]) &&
+            Array.isArray(ruleset?.conditions?.ref_name?.include) &&
+            ruleset.conditions.ref_name.include.length === 1 &&
+            ruleset.conditions.ref_name.include[0] === "refs/tags/v*" &&
+            Array.isArray(ruleset?.conditions?.ref_name?.exclude) &&
+            ruleset.conditions.ref_name.exclude.length === 0;
+          const exactProductionCondition = (ruleset) =>
+            ruleset?.target === "branch" &&
+            ruleset?.enforcement === "active" &&
+            exactKeys(ruleset?.conditions, ["ref_name"]) &&
+            exactKeys(ruleset?.conditions?.ref_name, [
+              "include",
+              "exclude"
+            ]) &&
+            Array.isArray(ruleset?.conditions?.ref_name?.include) &&
+            ruleset.conditions.ref_name.include.length === 1 &&
+            ruleset.conditions.ref_name.include[0] ===
+              "refs/heads/production" &&
+            Array.isArray(ruleset?.conditions?.ref_name?.exclude) &&
+            ruleset.conditions.ref_name.exclude.length === 0;
+          if (
+            immutable?.id !== 20050122 ||
+            !exactTagCondition(immutable) ||
+            immutable.bypassActors.length !== 0 ||
+            !Array.isArray(immutable.rules) ||
+            immutable.rules.length !== 2
+          ) {
+            fail(
+              "Immutable tag ruleset 20050122 must be active on only refs/tags/v* with zero bypass and exactly update plus deletion."
+            );
+          }
+          const immutableTypes = immutable.rules.map((rule) => rule?.type).sort();
+          if (
+            JSON.stringify(immutableTypes) !==
+              JSON.stringify(["deletion", "update"]) ||
+            immutable.rules.some(
+              (rule) => !exactKeys(rule, ["type"])
+            )
+          ) {
+            fail(
+              "Immutable tag ruleset must contain only GitHub's canonical bare deletion and update rules."
+            );
+          }
+          if (
+            creation?.id !== creationRulesetId ||
+            creationRulesetId === 20050122 ||
+            !exactTagCondition(creation) ||
+            creation.bypassActors.length !== 1 ||
+            creation.bypassActors[0]?.actorId !== releaseAppId ||
+            creation.bypassActors[0]?.actorType !== "Integration" ||
+            creation.bypassActors[0]?.bypassMode !== "always" ||
+            !Array.isArray(creation.rules) ||
+            creation.rules.length !== 1 ||
+            creation.rules[0]?.type !== "creation" ||
+            Object.keys(creation.rules[0] ?? {}).sort().join(",") !== "type"
+          ) {
+            fail(
+              "The separate active tag-creation ruleset must contain only creation and the release App as its sole always bypass."
+            );
+          }
+          for (const [name, ruleset] of [
+            ["production evidence", productionEvidence],
+            ["production updater", productionUpdater]
+          ]) {
+            if (!exactProductionCondition(ruleset)) {
+              fail(
+                `${name} ruleset is not active on exactly refs/heads/production.`
+              );
+            }
+            if (
+              ruleset.bypassActors.some(
+                (actor) =>
+                  actor?.actorType === "Integration" &&
+                  actor?.actorId === releaseAppId
+              )
+            ) {
+              fail(`The release App must not bypass the ${name} ruleset.`);
+            }
+          }
+          if (
+            productionEvidence.id !== 20050303 ||
+            productionEvidence.bypassActors.length !== 0 ||
+            !Array.isArray(productionEvidence.rules) ||
+            productionEvidence.rules.length !== 4
+          ) {
+            fail(
+              "The production evidence ruleset must retain zero bypass actors and exactly four rules."
+            );
+          }
+          const requiredCiJobs = read("required-ci-jobs.json");
+          if (
+            requiredCiJobs?.schemaVersion !== 1 ||
+            !Array.isArray(requiredCiJobs.jobs) ||
+            requiredCiJobs.jobs.length === 0 ||
+            requiredCiJobs.jobs.some(
+              (job) => typeof job !== "string" || job.trim() === ""
+            ) ||
+            new Set(requiredCiJobs.jobs).size !== requiredCiJobs.jobs.length
+          ) {
+            fail(
+              "required-ci-jobs.json at the release SHA must list unique required job names under schemaVersion 1."
+            );
+          }
+          const expectedChecks = requiredCiJobs.jobs;
+          const [
+            deletion,
+            nonFastForward,
+            linearHistory,
+            requiredStatusChecks
+          ] = productionEvidence.rules;
+          if (
+            !exactKeys(deletion, ["type"]) ||
+            deletion.type !== "deletion" ||
+            !exactKeys(nonFastForward, ["type"]) ||
+            nonFastForward.type !== "non_fast_forward" ||
+            !exactKeys(linearHistory, ["type"]) ||
+            linearHistory.type !== "required_linear_history" ||
+            !exactKeys(requiredStatusChecks, ["type", "parameters"]) ||
+            requiredStatusChecks.type !== "required_status_checks" ||
+            !exactKeys(requiredStatusChecks.parameters, [
+              "do_not_enforce_on_create",
+              "required_status_checks",
+              "strict_required_status_checks_policy"
+            ]) ||
+            requiredStatusChecks.parameters.do_not_enforce_on_create !==
+              false ||
+            requiredStatusChecks.parameters
+              .strict_required_status_checks_policy !== false ||
+            !Array.isArray(
+              requiredStatusChecks.parameters.required_status_checks
+            ) ||
+            requiredStatusChecks.parameters.required_status_checks.length !==
+              expectedChecks.length ||
+            requiredStatusChecks.parameters.required_status_checks.some(
+              (check, index) =>
+                !exactKeys(check, ["context", "integration_id"]) ||
+                check.context !== expectedChecks[index] ||
+                check.integration_id !== 15368
+            )
+          ) {
+            fail(
+              `The production evidence ruleset must contain canonical deletion, non-fast-forward, linear-history, and the exact ${expectedChecks.length} GitHub Actions checks with Integration id 15368 and fixed false parameters.`
+            );
+          }
+          if (
+            productionUpdater.id !== 20050309 ||
+            !Array.isArray(productionUpdater.rules) ||
+            productionUpdater.rules.length !== 1 ||
+            !exactKeys(productionUpdater.rules[0], ["type"]) ||
+            productionUpdater.rules[0].type !== "update" ||
+            productionUpdater.bypassActors.length !== 1 ||
+            productionUpdater.bypassActors[0]?.actorType !== "Integration" ||
+            productionUpdater.bypassActors[0]?.bypassMode !== "always" ||
+            productionUpdater.bypassActors[0]?.actorId !== promotionAppId
+          ) {
+            fail(
+              "The production updater ruleset must retain the distinct promotion App as its sole always bypass."
+            );
+          }
+          console.log(
+            `Verified maintainer-pinned full bypass lists plus unchanged live public ruleset shapes for release App ${releaseAppId}.`
+          );
+          NODE
+
       - name: Create the annotated release tag atomically through the Git database API
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.release_app_token.outputs.token }}
           RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
           RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
           ATTESTATION_URL: ${{ needs.attest.outputs.attestation_url }}
           RECEIPT_SHA256: ${{ needs.attest.outputs.receipt_sha256 }}
         run: |
           set -euo pipefail
+          set +e
+          preflight_status="$(
+            curl \
+              --silent \
+              --show-error \
+              --request GET \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              --output "$RUNNER_TEMP/preflight-tag-ref.json" \
+              --write-out "%{http_code}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}"
+          )"
+          preflight_exit="$?"
+          set -e
+          if [[ "$preflight_exit" -ne 0 ||
+                ( "$preflight_status" != "200" && "$preflight_status" != "404" ) ]]; then
+            echo "::error title=Release refused::Tag-ref preflight failed with transport exit ${preflight_exit} and HTTP ${preflight_status}."
+            exit 1
+          fi
+          if [[ "$GITHUB_RUN_ATTEMPT" == "1" && "$preflight_status" != "404" ]]; then
+            echo "::error title=Release refused::A first-attempt release may proceed only when the exact tag ref returns HTTP 404."
+            exit 1
+          fi
           node <<'NODE'
           const fs = require("node:fs");
           const path = require("node:path");
@@ -866,10 +1731,13 @@ jobs:
             process.exit(1);
           };
           if (!/^[0-9a-f]{40}$/.test(process.env.RELEASE_SHA)) fail("Release SHA is malformed.");
-          if (!/^v0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.env.RELEASE_TAG)) {
+          if (!/^v(?:0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?|1\.0\.0(?:-rc\.[1-9]\d*)?)$/.test(process.env.RELEASE_TAG)) {
             fail("Release tag is malformed.");
           }
           if (!/^[0-9a-f]{64}$/.test(process.env.RECEIPT_SHA256)) fail("Receipt digest is malformed.");
+          if (!/^[1-9][0-9]*$/.test(process.env.GITHUB_RUN_ID ?? "")) {
+            fail("Workflow run id is malformed.");
+          }
           const expectedPrefix = `https://github.com/${process.env.GITHUB_REPOSITORY}/attestations/`;
           if (
             !process.env.ATTESTATION_URL.startsWith(expectedPrefix) ||
@@ -880,9 +1748,10 @@ jobs:
           const message = [
             `Site Behavior Lab ${process.env.RELEASE_TAG}`,
             "",
-            "Pre-1.0 milestone. No stable public API and no npm publication.",
+            "Curated release. No blanket stable public API and no npm publication.",
             `Attested exact-source release receipt: ${process.env.ATTESTATION_URL}`,
-            `Release receipt sha256: ${process.env.RECEIPT_SHA256}`
+            `Release receipt sha256: ${process.env.RECEIPT_SHA256}`,
+            `Release workflow run: https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
           ].join("\n");
           fs.writeFileSync(
             path.join(process.env.RUNNER_TEMP, "tag-object.json"),
@@ -916,13 +1785,115 @@ jobs:
           );
           NODE
           # POST is atomic and fails if the ref already exists. Never PATCH,
-          # force-update, delete, or move a release tag.
-          gh api \
-            --method POST \
-            "repos/${GITHUB_REPOSITORY}/git/refs" \
-            --input "$RUNNER_TEMP/tag-ref.json" \
-            > "$RUNNER_TEMP/created-tag-ref.json"
-          echo "Tagged ${RELEASE_TAG} at ${RELEASE_SHA}."
+          # force-update, delete, or move a release tag. A lost response or a
+          # later step failure can leave the exact intended ref behind while
+          # the run is marked failed, so a failed-job rerun may reconcile that
+          # immutable ref. It accepts only the exact annotated object this run
+          # intended; every mismatch remains a hard refusal.
+          set +e
+          create_status="$(
+            curl \
+              --silent \
+              --show-error \
+              --request POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              --data-binary "@$RUNNER_TEMP/tag-ref.json" \
+              --output "$RUNNER_TEMP/created-tag-ref.json" \
+              --write-out "%{http_code}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs"
+          )"
+          create_exit="$?"
+          set -e
+          if [[ "$create_exit" -ne 0 ]]; then
+            echo "::error title=Release refused::Tag creation failed at the transport layer; reconciliation is forbidden."
+            exit 1
+          fi
+          if [[ "$create_status" == "201" ]]; then
+            echo "Tagged ${RELEASE_TAG} at ${RELEASE_SHA}."
+          elif [[ "$create_status" == "422" ]] &&
+            CREATE_RESPONSE="$RUNNER_TEMP/created-tag-ref.json" node <<'NODE'
+          const fs = require("node:fs");
+          let response;
+          try {
+            response = JSON.parse(
+              fs.readFileSync(process.env.CREATE_RESPONSE, "utf8")
+            );
+          } catch {
+            process.exit(1);
+          }
+          process.exit(
+            response &&
+              !Array.isArray(response) &&
+              response.message === "Reference already exists"
+              ? 0
+              : 1
+          );
+          NODE
+          then
+            echo "::warning title=Exact tag already exists::HTTP 422 Reference already exists; checking this run's immutable intent."
+            gh api \
+              "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_TAG}" \
+              > "$RUNNER_TEMP/existing-tag-ref.json"
+            existing_tag_object_sha="$(
+              node -e '
+                const fs = require("node:fs");
+                const ref = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+                if (!/^[0-9a-f]{40}$/.test(ref?.object?.sha ?? "")) {
+                  throw new Error("The existing tag ref does not name a Git tag object.");
+                }
+                process.stdout.write(ref.object.sha);
+              ' "$RUNNER_TEMP/existing-tag-ref.json"
+            )"
+            gh api \
+              "repos/${GITHUB_REPOSITORY}/git/tags/${existing_tag_object_sha}" \
+              > "$RUNNER_TEMP/existing-tag-object.json"
+            node <<'NODE'
+            const fs = require("node:fs");
+            const path = require("node:path");
+            const fail = (message) => {
+              console.error(`::error title=Release refused::${message}`);
+              process.exit(1);
+            };
+            const read = (name) =>
+              JSON.parse(fs.readFileSync(path.join(process.env.RUNNER_TEMP, name), "utf8"));
+            const expected = read("tag-object.json");
+            const ref = read("existing-tag-ref.json");
+            const actual = read("existing-tag-object.json");
+            if (ref?.ref !== `refs/tags/${expected.tag}`) {
+              fail("The existing release ref has the wrong name.");
+            }
+            if (ref?.object?.type !== "tag") {
+              fail("The existing release ref is not annotated.");
+            }
+            if (
+              !/^[0-9a-f]{40}$/.test(actual?.sha ?? "") ||
+              ref.object.sha !== actual.sha
+            ) {
+              fail("The existing release ref does not identify the fetched tag object.");
+            }
+            if (actual?.tag !== expected.tag) {
+              fail("The existing annotated object has the wrong tag name.");
+            }
+            if (
+              actual?.object?.type !== expected.type ||
+              actual?.object?.sha !== expected.object
+            ) {
+              fail("The existing annotated object names a different release commit or object type.");
+            }
+            if (actual?.message !== expected.message) {
+              fail("The existing annotated object has different attestation or receipt evidence.");
+            }
+            console.log(
+              `Reconciled exact existing annotated tag ${expected.tag} at ${expected.object}.`
+            );
+          NODE
+          else
+            echo "::error title=Release refused::Tag creation returned HTTP ${create_status}; only exact HTTP 422 Reference already exists may enter reconciliation."
+            exit 1
+          fi
 
       - name: Record the release in the run summary
         env:
@@ -939,5 +1910,5 @@ jobs:
             echo "- Promoted to production and CI-green before tagging"
             echo "- Attested release receipt: ${ATTESTATION_URL}"
             echo "- Release receipt sha256: \`${RECEIPT_SHA256}\`"
-            echo "- Claims: pre-1.0 milestone only; no stable public API, no npm publication"
+            echo "- Claims: governed compatibility surfaces only; no blanket stable public API, no npm publication"
           } >> "$GITHUB_STEP_SUMMARY"

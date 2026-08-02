@@ -36,7 +36,8 @@ self-hosted runner with truthful placement declarations.
 Use a controlled runner whose outbound placement is stable and independently
 known. Configure these repository Actions variables:
 
-- `FEATURED_RUNNER_LABEL`: the custom label of that self-hosted runner.
+- `FEATURED_RUNNER_LABEL`: the public-safe opaque custom label
+  `sbl-controlled-r2-<16 lowercase hex>`.
 - `SCANNER_EGRESS=controlled-self-hosted`: this configuration-only alias emits
   the generic public report label. The location-specific identity belongs in
   the region field below; every other label fails committed-r2 preflight.
@@ -59,6 +60,14 @@ visits a site; there is no fallback to v1 and no invented region.
 
 Do not set the attestation merely to make the workflow green. If the controlled
 egress cannot be verified, automated corpus production must remain red.
+
+The runner is ephemeral, but its exact Jobs API metadata is retained in the
+authenticated destruction archive. Register it with the public-safe name
+`sbl-controlled-<16 lowercase hex>`, the exact GitHub `Default` runner group,
+and no labels other than `self-hosted`, `Linux`, `X64`, and the
+`FEATURED_RUNNER_LABEL` above. Never embed provider, account/project, ARN,
+instance, hostname, IP, or region identifiers in the runner name, group, or
+labels; collection refuses nonconforming metadata before it can be archived.
 
 ## Privilege boundary and unresolved runner gate
 
@@ -93,12 +102,94 @@ directories/symlinks, traversal, forged sizes/CRC, local-header disagreement,
 and aggregate/compressed/inflated limit violations; inflation is output-bounded
 and writes are exclusive into a fresh temporary directory. The publisher does
 not use `actions/download-artifact` auto-extraction. It copies only new
-report/sidecar pairs, then independently applies
-retention and rebuilds the public manifest and corpus statistics before
-pushing a per-attempt automation/* proposal branch and opening a pull request
-for review. Featured-refresh issue writes happen in a third
+report/sidecar pairs, then rebuilds the public manifest and corpus statistics
+before pushing a per-attempt automation/* proposal branch and opening a pull
+request for review. Outside a measurement freeze it first applies the ordinary
+seven-day/count retention policy. With
+`SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1`, pruning is forbidden: the publisher
+skips the pruner, fails on a malformed freeze value, and separately rejects
+any deletion under `public/reports`. The pruner launcher independently refuses
+to run during a freeze, so another caller cannot silently bypass the workflow
+condition. Featured-refresh issue writes happen in a third
 GitHub-hosted job that receives only the bounded, revalidated public aggregate;
 per-target diagnostics remain in private workflow logs.
+
+### Freeze-time publication cross-binding
+
+An exact freeze-time r2 publication also commits a create-only archive at:
+
+```text
+research/controlled-publications/<actions-run-id>-<acquisition-attempt>/
+```
+
+The directory contains exactly two regular files. `publication.json` is the
+byte-for-byte manifest extracted from the already validated immutable
+publication artifact; it is not parsed and reserialized for storage.
+`receipt.json` is canonical, recursively key-sorted, two-space JSON with one
+trailing newline and this exact schema:
+
+```json
+{
+  "actionsRun": {
+    "attempt": 2,
+    "id": 30600000001,
+    "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "artifactKind": "site-behavior-controlled-r2-publication-receipt",
+  "publicationArtifact": {
+    "archiveSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "id": 8760000001,
+    "manifestSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "name": "site-behavior-featured-publication-30600000001-2"
+  },
+  "publicationKind": "featured",
+  "reportMode": "r2",
+  "reports": [
+    {
+      "id": "20260801-11111111111111111111111111111111",
+      "provenancePath": "public/reports/20260801-11111111111111111111111111111111.provenance.json",
+      "provenanceSha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "reportPath": "public/reports/20260801-11111111111111111111111111111111.json",
+      "reportSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    }
+  ],
+  "schemaVersion": 1
+}
+```
+
+The receipt operation does not trust or accept the extraction directory used
+by the preceding publisher step. It revalidates GitHub metadata and the raw ZIP
+digest/size, then invokes the same bounded ZIP parser to extract that exact
+archive into a fresh private temporary directory. The publisher derives the
+sorted `reports` set only from that extraction's
+`publication.json.expectedReportIds`, requires each declared report and
+provenance digest/length to match both those authenticated extracted bytes and
+the newly committed `public/reports` bytes, and removes the temporary
+extraction. This prevents an unrelated caller-supplied directory from being
+paired with an authenticated archive digest.
+
+A publish-only rerun can have a different publisher attempt, so the archive's
+attempt is deliberately parsed from the immutable artifact name minted by
+acquisition, never from the current `GITHUB_RUN_ATTEMPT`.
+
+This archive is created only when
+`SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE=1` and `FEATURED_REPORT_MODE=r2`; the
+commit step stages only its exact per-run path. It is separate from, and
+cross-links rather than replaces, the controlled-runner destruction receipt.
+Reviewers can independently rebind the archived manifest, receipt, and
+committed report bytes with:
+
+```sh
+npm run reports:controlled-publication-receipt -- \
+  --verify \
+  --checkout-root "$PWD" \
+  --directory "$PWD/research/controlled-publications/<run-id>-<attempt>" \
+  --run-id <run-id> \
+  --run-attempt <attempt> \
+  --source-commit <producer-sha> \
+  --artifact-id <artifact-id> \
+  --archive-digest <artifact-sha256>
+```
 
 Request binding uses the privacy-preserving public requested-subject shape in
 the report. Redirected observed/final destinations are allowed because they are
@@ -132,12 +223,240 @@ production run (`scripts/runner-receipt-lib.mjs`, verified by
 `scripts/verify-runner-destruction-receipt.mjs`), committed under
 `research/runner-receipts/<actions-run-id>.json`. The verifier enforces
 completeness and internal consistency: every isolation and egress gate must
-be literally true, registration must be ephemeral and job-scoped, and the
-destruction timeline must be ordered, with the operator attestation and its
-evidence references bound to the exact Actions run id. A cycle without a
-verifying receipt does not count toward the two-successful-cycles milestone.
-The receipt still cannot prove host truth; it makes missing evidence loud
-and gives review something exact to check.
+be literally true; registration must be ephemeral, job-scoped, for exactly
+`iAnonymous3000/site-behavior-lab`, and include the declared runner label; and
+the provisioning, successful job, destruction, absence verification, and
+recording timestamps must be ordered. Receipt version 3 binds the exact
+`scan-featured.yml` run to its lowercase source SHA, r2/`ci-workflow`
+provenance, one of the two committed collection catalogs, the acquisition job,
+the immutable publication artifact, and a separate hosted destruction
+readback. Version 2 receipts remain readable for historical diagnosis but are
+release-ineligible. Version 3 exposes only domain-separated SHA-256 references
+for the runner label, host image, registration labels, and NAT identity:
+
+```json
+{
+  "kind": "site-behavior-controlled-runner-destruction-receipt",
+  "receiptVersion": 3,
+  "actionsRunId": 30600000001,
+  "actionsRunAttempt": 1,
+  "workflow": "scan-featured.yml",
+  "runnerLabelRef": "sha256:6786aaad2225cf8b2d9659dc71941110c1db9ff797ed417e6aaf6da85215f609",
+  "recordedAt": "2026-08-03T08:00:00.000Z",
+  "provisioning": {
+    "provisionedAt": "2026-08-03T05:20:00.000Z",
+    "hostImageIdentityRef": "sha256:213c97ea41074671d75ed417e1fae3d93ec608562d7bd89a3e6d3197cbcd8bec",
+    "singleUse": true,
+    "registration": {
+      "repository": "iAnonymous3000/site-behavior-lab",
+      "labelRefs": [
+        "sha256:6786aaad2225cf8b2d9659dc71941110c1db9ff797ed417e6aaf6da85215f609"
+      ],
+      "ephemeral": true
+    }
+  },
+  "runEvidence": {
+    "conclusion": "success",
+    "reportMode": "r2",
+    "acquisition": "ci-workflow",
+    "headSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "catalog": "public/featured-sites.json",
+    "collectionDate": "2026-08-03",
+    "job": {
+      "id": 90600000001,
+      "name": "Populate Featured Gallery",
+      "startedAt": "2026-08-03T05:23:00.000Z",
+      "completedAt": "2026-08-03T07:40:00.000Z",
+      "url": "https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30600000001/job/90600000001"
+    },
+    "artifact": {
+      "id": 8760000001,
+      "name": "site-behavior-featured-publication-30600000001-1",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "url": "https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30600000001/artifacts/8760000001"
+    }
+  },
+  "isolation": {
+    "cloudMetadataBlocked": true,
+    "controlPlaneCredentialsAbsent": true,
+    "persistentStateAbsent": true
+  },
+  "egress": {
+    "declaredRegion": "us-east",
+    "natIdentityRef": "sha256:ffe7c4ef96c80086ec086bdc71002e0d6d777011827bbf9ddd3ea6b9be0bca90",
+    "independentPolicyEnforced": true,
+    "blockedClasses": ["private", "link-local", "metadata"]
+  },
+  "destruction": {
+    "destroyedAt": "2026-08-03T07:45:00.000Z",
+    "verifiedAbsentAt": "2026-08-03T07:50:00.000Z",
+    "method": "instance-terminate",
+    "verification": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "destructionEvidence": {
+    "workflow": ".github/workflows/runner-destruction-evidence.yml",
+    "runId": 30700000001,
+    "runAttempt": 1,
+    "headSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "conclusion": "success",
+    "job": {
+      "id": 90700000001,
+      "name": "Read back provider destruction and absence",
+      "startedAt": "2026-08-03T07:51:00.000Z",
+      "completedAt": "2026-08-03T07:55:00.000Z",
+      "url": "https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30700000001/job/90700000001"
+    },
+    "artifact": {
+      "id": 8770000001,
+      "name": "site-behavior-runner-destruction-evidence-30700000001-1",
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "url": "https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30700000001/artifacts/8770000001"
+    },
+    "readback": {
+      "path": "destruction-evidence.json",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    }
+  },
+  "operator": {
+    "attestedBy": "iAnonymous3000",
+    "evidenceRefs": [
+      {
+        "kind": "github-actions-run-evidence",
+        "actionsRunId": 30600000001,
+        "runUrl": "https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30600000001",
+        "artifactName": "site-behavior-featured-publication-30600000001-1",
+        "artifactRef": "https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30600000001/artifacts/8760000001",
+        "artifactSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "kind": "github-actions-run-evidence",
+        "actionsRunId": 30700000001,
+        "runUrl": "https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30700000001",
+        "artifactName": "site-behavior-runner-destruction-evidence-30700000001-1",
+        "artifactRef": "https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/30700000001/artifacts/8770000001",
+        "artifactSha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      }
+    ]
+  }
+}
+```
+
+`collectionDate` is the UTC date on which the acquisition job started. When
+multiple receipts are verified together, those dates and Actions run ids must
+be distinct: a second job or rerun on the same date is useful evidence, but is
+not a second temporal cycle. The verifier also requires every receipt to carry
+the same controlled-environment tuple: runner-label reference, exact host-image
+reference, registration-label references, declared region, outbound-NAT
+reference, and blocked network classes. A host or
+network change starts a new evidence set rather than silently contributing a
+second supposedly comparable cycle. A cycle without a verifying receipt does
+not count toward the two-successful-cycles milestone.
+
+The verifier proves only that the receipt is complete and internally coherent,
+including exact Actions run URLs and exactly two digest-bound immutable
+operator-evidence artifacts: collection and hosted destruction. Arbitrary
+extras, strings, and moving, digest-free references are rejected. Receipt files
+must use the exact canonical JSON bytes, so duplicate keys and noncanonical
+hidden content fail before digesting. Every receipt object is exact-keyed, so an accidentally embedded
+credential, target URL, or ungoverned side claim fails validation instead of
+being committed as an ignored field. The standalone verifier does not fetch
+GitHub; release readiness separately authenticates both hosted runs, workflow
+bytes, jobs, and artifact members. Neither layer independently proves
+the operator's statements about host isolation, NAT policy, image identity, or
+destruction. Review must confirm the referenced run and artifact; the host
+truths remain supported by the referenced external evidence and human
+attestation.
+
+Release readiness must call the set validator with its own bindings:
+`expectedCandidateCommit` when every run is made from one immutable source SHA,
+`expectedEnvironmentDigest` to bind the internally compatible tuple to the
+reviewed runner/NAT configuration, `epochStartedAt` to exclude pre-freeze
+acquisition, and `now` plus `maxAgeDays` to reject future or stale evidence. If
+reviewed report-data commits are allowed to advance `HEAD` inside the freeze, do
+not misuse
+`expectedCandidateCommit`: first define and bind a separate digest for the
+claim-affecting measurement inputs, then compare that governed digest across
+the permitted source commits. The exported set verdict also returns the
+controlled-environment digest, source commits, earliest collection time, and
+latest recording time for an exact readiness or attestation binding.
+
+After both cycle receipts exist, run the set verifier over the committed
+directory and copy the **exact** 64-character value printed after
+`environment sha256:` into
+`RELEASE_READINESS.json` at
+`gates.runner-cycles.expectedEnvironmentDigest`:
+
+```bash
+node scripts/verify-runner-destruction-receipt.mjs \
+  research/runner-receipts/
+# final line: environment sha256:<copy-this-exact-64-character-digest>
+
+npm run release:readiness
+```
+
+Replace the manifest's initial `null`; do not hash a screenshot, reconstruct
+the tuple by hand, or copy an individual receipt digest. Review the manifest
+edit and the two receipts in the same protected PR. Readiness re-derives the
+set digest, so a typo, environment drift, missing receipt, or substituted cycle
+stays red.
+
+### Pre-freeze Aug 3/Aug 10 re-adjudication evidence
+
+The scheduled 05:23 UTC gallery legs on 2026-08-03 and 2026-08-10 each
+canonicalize a separate
+`featured-readjudication-outcomes-<run-id>-<attempt>` artifact even when the
+scan batch fails. It is retained for 45 days and contains exactly the fixed 13
+formerly deferred domains. Successful outcomes carry only the validated
+report id and attempt count; classified failures carry only one closed reason.
+Anything the child scanner did not classify from structured report facts is
+`not-attempted`, with no free text, and makes the cycle incomplete.
+
+The reviewed aggregate at
+`research/ops-receipts/featured-readjudication.json` accepts exactly those two
+complete scheduled cycles, their distinct immutable artifact ids/digests, and
+the final featured-catalog digest. Both cycle catalogs and the final catalog
+must preserve one digest of the fixed 13 target records; only governed
+`scanAvailability` metadata may change between them. It re-defers a site only
+when both cycles attempted it and returned the same closed unavailable reason.
+Measurement freeze activation independently downloads both exact artifact ZIPs
+by id, checks live run/artifact/workflow-at-head metadata and digests, fetches
+the historical catalog bytes at each run commit, extracts the single canonical
+JSON file with the strict ZIP reader, and re-derives the catalog dispositions.
+Activation must occur within 28 calendar days after the Aug 10 cycle, and each
+retained deferral must still have a `reviewAfter` date later than activation.
+A self-asserted boolean cannot satisfy this gate.
+
+### Post-activation governed cycles use sequential accepted producer commits
+
+After the measurement-freeze receipt names candidate `C`, run the first
+governed post-activation controlled-r2 cycle from that exact commit. Validate its
+artifact, destruction receipt, and additions-only proposal, then merge that
+proposal through the normal checks. The resulting evidence carrier is `S1`.
+Run the second cycle only after `S1` is current on `main`; the second report
+batch and runner receipt must truthfully name `S1`, not `C`. This sequential
+flow avoids conflicting generated manifest/statistics proposals and never
+requires a hand merge.
+
+Each cycle therefore has all of these properties:
+
+- acquisition `GITHUB_SHA`, report build commit, publication artifact source,
+  and runner receipt `runEvidence.headSha` equal that cycle's exact accepted
+  producer commit;
+- the controlled-publication archive preserves the artifact's exact manifest
+  bytes and binds its expected report pairs to the same committed carrier;
+- every governed report inherited from the preceding producer is preserved
+  byte-for-byte—no age/count pruning or other report deletion occurs;
+- each new report/provenance set is validated and merged as one evidence-only
+  carrier before the next cycle starts; and
+- the two cycle receipts use distinct run ids and UTC collection dates while
+  retaining the same validated controlled-environment tuple.
+
+Between `C`, `S1`, and the later carrier, no code, catalog, dependency,
+filter-list, methodology, or runtime-configuration change may land. The
+measurement-candidate binding enumerates the typed evidence-only changes and
+lists the commits that actually produced scans in `acceptedProducerCommits`.
+Calibration remains exact to `C` even though later evidence collection
+truthfully uses a reviewed carrier commit.
 
 ## Manual v1 compatibility lane
 

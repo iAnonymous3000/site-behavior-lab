@@ -34,7 +34,7 @@ const hostToolchainSkip =
     ? false
     : `release evidence runs only under the declared host Node ${HOST_TOOLCHAIN_NODE}; this runtime is ${process.versions.node}`;
 
-test("repository metadata truthfully describes one private development line", async () => {
+test("repository metadata truthfully describes the governed 0.x and exact 1.0 lines", async () => {
   const manifest = JSON.parse(await source("package.json"));
   const lock = JSON.parse(await source("package-lock.json"));
   const policy = JSON.parse(await source("release-policy.json"));
@@ -79,7 +79,18 @@ test("repository metadata truthfully describes one private development line", as
     assert.doesNotMatch(changelog, datedForVersion);
   }
   assert.equal(manifest.scripts["release:evidence"], "node scripts/release-evidence.mjs");
-  assert.match(releaseGuide, /pre-1\.0 development\s+line/);
+  assert.match(
+    releaseGuide,
+    /governed 0\.x development line[\s\S]*exact 1\.0\.0 line/
+  );
+  assert.match(
+    releaseGuide,
+    /30653749957[\s\S]*HTTP 403[\s\S]*tag does not exist[\s\S]*fresh dispatch from the updated `main` workflow/
+  );
+  assert.match(
+    releaseGuide,
+    /Do not approve or rerun\s+that old workflow attempt/
+  );
   // The guide must state what a tag does and does not claim, and must keep the
   // ordering that makes the claim true: promote first, then tag.
   assert.match(releaseGuide, /What a release tag claims/);
@@ -108,12 +119,25 @@ test("repository metadata truthfully describes one private development line", as
   assert.match(releaseGuide, /Preview deployments[\s\S]*remained public by default/);
   assert.match(
     releaseGuide,
-    /attestation subjects are the receipt JSON files themselves, not the[\s\S]*Cloudflare deployment/
+    /attestation subjects are the two receipt JSON files and the[\s\S]*canonical container package inventory[\s\S]*not the[\s\S]*Cloudflare deployment/
   );
   assert.match(
     releaseGuide,
-    /first live `main` CI attestation receipt and independent readback[\s\S]*external proof gate/
+    /first[\s\S]*live `main` CI attestation receipt and independent readback[\s\S]*external proof gate/i
   );
+  assert.match(
+    releaseGuide,
+    /private key[\s\S]*\*\*only\*\* as the `RELEASE_APP_PRIVATE_KEY` secret on the `release-tag`[\s\S]*no repository- or organization-scoped secret/
+  );
+  assert.match(
+    releaseGuide,
+    /do\s+not\s+configure a legacy `RELEASE_APP_ID` fallback/
+  );
+  assert.match(
+    releaseGuide,
+    /After any change to `\.github\/workflows\/release\.yml`, start a \*\*fresh[\s\S]*workflow dispatch\*\*/
+  );
+  assert.match(releaseGuide, /re-run the \*\*failed tag job only\*\*, not all jobs/);
 });
 
 test("container and CI source contracts preserve exact-SHA evidence after the real gates", async () => {
@@ -659,9 +683,88 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(prepare, /persist-credentials: false/);
   assert.doesNotMatch(prepare, /secrets\.|actions\/attest@|git tag|git push|uses: \.\//);
   assert.match(prepare, /npm ci/);
+  assert.match(prepare, /npm run release:readiness:check/);
+  assert.match(
+    prepare,
+    /name: Prefetch immutable measurement-freeze evidence for release 1\.0\n\s+id: freeze_context/
+  );
+  assert.match(
+    prepare,
+    /GH_TOKEN: \$\{\{ github\.token \}\}[\s\S]*artifacts-pages\.json[\s\S]*artifact\.json[\s\S]*artifact\.zip/
+  );
+  for (const bound of [
+    "run.json:1048576",
+    "artifacts-pages.json:4194304",
+    "artifact.json:1048576",
+    "artifact.zip:1048576"
+  ]) {
+    assert.match(prepare, new RegExp(bound.replace(".", "\\.")));
+  }
+  const freezeArtifactMetadataGuard = prepare.indexOf(
+    "value.size_in_bytes <= 1024 * 1024"
+  );
+  const freezeArtifactDownload = prepare.indexOf(
+    '"repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip"'
+  );
+  assert.ok(
+    freezeArtifactMetadataGuard !== -1 &&
+      freezeArtifactDownload !== -1 &&
+      freezeArtifactMetadataGuard < freezeArtifactDownload,
+    "the trusted prefetch must reject oversized artifact metadata before downloading the ZIP"
+  );
+  assert.match(prepare, /value\.expired === false/);
+  assert.match(prepare, /value\.workflow_run\?\.id === runId/);
+  assert.match(prepare, /value\.workflow_run\?\.head_sha === candidate/);
+  assert.match(
+    prepare,
+    /const files = \[\s+"artifact\.json",\s+"artifact\.zip",\s+"artifacts-pages\.json",\s+"run\.json"\s+\]/
+  );
+  assert.match(
+    prepare,
+    /site-behavior-lab-measurement-freeze-artifact-context-v1\\0/
+  );
+  assert.match(
+    prepare,
+    /context_sha256=\$\{digest\.digest\("hex"\)\}\\n/
+  );
+  assert.match(
+    prepare,
+    /SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256: \$\{\{ steps\.freeze_context\.outputs\.context_sha256 \}\}/
+  );
+  assert.match(
+    prepare,
+    /SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT=\$\{context\}" >> "\$GITHUB_ENV"/
+  );
+  assert.match(
+    prepare,
+    /npm run release:readiness:check -- \\\n\s+--live-artifact-context "\$RUNNER_TEMP\/measurement-freeze-artifact-context"/
+  );
+  assert.match(
+    prepare,
+    /--live-artifact-context-sha256 "\$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256"/
+  );
+  assert.ok(
+    prepare.indexOf(
+      "Prefetch immutable measurement-freeze evidence for release 1.0"
+    ) <
+      prepare.indexOf(
+        "Verify every required CI job without an API token"
+      ),
+    "workflow-owned API prefetch must finish before the candidate no-token boundary"
+  );
   assert.match(prepare, /npx playwright install --with-deps chromium/);
   assert.match(prepare, /npm run build:pages/);
   assert.match(prepare, /npm run test:smoke:static/);
+  assert.ok(
+    prepare.indexOf("npm ci") <
+      prepare.indexOf("npm run release:readiness:check"),
+    "release 1.0 readiness must run after the locked dependency install"
+  );
+  assert.ok(
+    prepare.indexOf("npm run release:readiness:check") <
+      prepare.indexOf("npx playwright install --with-deps chromium"),
+    "release 1.0 readiness must refuse before browser installation and artifact handoff"
+  );
   assert.ok(
     prepare.indexOf("npm ci") <
       prepare.indexOf("npx playwright install --with-deps chromium"),
@@ -751,14 +854,158 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(attest, /staticArtifact\.deployment\?\.deployment !== process\.env\.RELEASE_SHA/);
   assert.match(attest, /uses: actions\/attest@[a-f0-9]{40} # v4\.2\.0/);
 
-  // Tag authority is smaller still: contents write only, no checkout, code,
-  // dependency, OIDC, or attestation authority. It creates, never updates, the
+  // Tag authority is smaller still: the native workflow token stays read-only
+  // and a separately configured release App mints the one contents-write token
+  // only inside the environment-gated job. It creates, never updates, the
   // annotated tag through GitHub's Git database API.
   assert.match(tag, /needs:\n\s+- prepare\n\s+- attest/);
-  assert.match(tag, /permissions:\n\s+contents: write/);
+  assert.match(tag, /permissions:\n\s+contents: read/);
   assert.doesNotMatch(tag, /actions:|id-token:|attestations:|artifact-metadata:/);
   assert.doesNotMatch(tag, /actions\/checkout|actions\/setup-node|npm (?:ci|run)|node_modules|uses: \.\//);
   assert.doesNotMatch(tag, /git fetch|git checkout|git tag|git push|--method PATCH|force\s*[:=]\s*true/);
+  assert.match(tag, /name: Require dedicated release App configuration/);
+  const releaseAppConfiguration = tag.slice(
+    tag.indexOf("- name: Require dedicated release App configuration"),
+    tag.indexOf("- name: Mint dedicated release App token")
+  );
+  assert.match(
+    releaseAppConfiguration,
+    /RELEASE_APP_CLIENT_ID: \$\{\{ vars\.RELEASE_APP_CLIENT_ID \}\}/
+  );
+  assert.match(
+    releaseAppConfiguration,
+    /RELEASE_APP_INTEGRATION_ID: \$\{\{ vars\.RELEASE_APP_INTEGRATION_ID \}\}/
+  );
+  assert.match(
+    releaseAppConfiguration,
+    /RELEASE_TAG_CREATION_RULESET_ID: \$\{\{ vars\.RELEASE_TAG_CREATION_RULESET_ID \}\}/
+  );
+  assert.match(
+    releaseAppConfiguration,
+    /RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: \$\{\{ vars\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 \}\}/
+  );
+  assert.match(tag, /RELEASE_APP_PRIVATE_KEY: \$\{\{ secrets\.RELEASE_APP_PRIVATE_KEY \}\}/);
+  assert.match(
+    releaseAppConfiguration,
+    /PROMOTION_APP_CLIENT_ID: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/
+  );
+  assert.match(
+    releaseAppConfiguration,
+    /PROMOTION_APP_INTEGRATION_ID: \$\{\{ vars\.PROMOTION_APP_INTEGRATION_ID \}\}/
+  );
+  assert.match(
+    releaseAppConfiguration,
+    /PROMOTION_APP_SLUG: \$\{\{ vars\.PROMOTION_APP_SLUG \}\}/
+  );
+  assert.match(
+    releaseAppConfiguration,
+    /"\$RELEASE_APP_CLIENT_ID" == "\$PROMOTION_APP_CLIENT_ID"/
+  );
+  assert.match(releaseAppConfiguration, /release App must be distinct from the production promotion App/i);
+  assert.doesNotMatch(releaseAppConfiguration, /PROMOTION_APP_PRIVATE_KEY/);
+  assert.match(
+    tag,
+    /uses: actions\/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3\.2\.0/
+  );
+  assert.match(tag, /client-id: \$\{\{ vars\.RELEASE_APP_CLIENT_ID \}\}/);
+  assert.doesNotMatch(tag, /RELEASE_APP_ID/);
+  assert.match(tag, /private-key: \$\{\{ secrets\.RELEASE_APP_PRIVATE_KEY \}\}/);
+  assert.match(tag, /permission-contents: write/);
+  assert.doesNotMatch(tag, /permission-administration|Administration:\s*write/);
+  const tokenMint = tag.slice(
+    tag.indexOf("- name: Mint dedicated release App token"),
+    tag.indexOf("- name: Verify pinned tag and production governance")
+  );
+  assert.doesNotMatch(tokenMint, /PROMOTION_APP/);
+  assert.doesNotMatch(
+    tokenMint,
+    /^\s+(?:owner|repositories):/m,
+    "the pinned action's default must keep the release token scoped to this repository"
+  );
+  const governanceReadback = tag.slice(
+    tag.indexOf("- name: Verify pinned tag and production governance"),
+    tag.indexOf("- name: Create the annotated release tag atomically through the Git database API")
+  );
+  assert.match(
+    governanceReadback,
+    /GH_TOKEN: \$\{\{ steps\.release_app_token\.outputs\.token \}\}/
+  );
+  assert.match(
+    governanceReadback,
+    /RELEASE_APP_SLUG: \$\{\{ steps\.release_app_token\.outputs\.app-slug \}\}/
+  );
+  assert.match(governanceReadback, /apps\/\$\{RELEASE_APP_SLUG\}/);
+  assert.match(
+    governanceReadback,
+    /contents\/research\/ops-receipts\/release-tag-governance\.json\?ref=\$\{RELEASE_SHA\}/
+  );
+  assert.match(
+    governanceReadback,
+    /contents\/RELEASE_READINESS\.json\?ref=\$\{RELEASE_SHA\}/
+  );
+  assert.match(
+    governanceReadback,
+    /governanceGate\.sha256 !==\s*process\.env\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/
+  );
+  assert.match(
+    governanceReadback,
+    /receiptDigest !==\s*process\.env\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/
+  );
+  assert.match(governanceReadback, /site-behavior-release-tag-governance-setup/);
+  assert.match(governanceReadback, /canonicalJson\(live\) !==\s*canonicalJson\(receiptPublicProjection\(pinned\)\)/);
+  assert.match(governanceReadback, /pinned\.updatedAt/);
+  for (const rulesetId of ["20050122", "20050303", "20050309"]) {
+    assert.match(
+      governanceReadback,
+      new RegExp(`rulesets/${rulesetId}`)
+    );
+  }
+  assert.match(governanceReadback, /refs\/tags\/v\*/);
+  assert.match(governanceReadback, /JSON\.stringify\(\["deletion", "update"\]\)/);
+  assert.match(governanceReadback, /creation\.bypassActors\.length !== 1/);
+  assert.match(governanceReadback, /actorType !== "Integration"/);
+  assert.match(governanceReadback, /bypassMode !== "always"/);
+  assert.match(governanceReadback, /The release App must not bypass the \$\{name\} ruleset/);
+  const tagCreation = tag.slice(
+    tag.indexOf("- name: Create the annotated release tag atomically through the Git database API"),
+    tag.indexOf("- name: Record the release in the run summary")
+  );
+  assert.match(tagCreation, /GH_TOKEN: \$\{\{ steps\.release_app_token\.outputs\.token \}\}/);
+  assert.doesNotMatch(tagCreation, /github\.token/);
+  assert.match(
+    tagCreation,
+    /GITHUB_RUN_ATTEMPT" == "1" && "\$preflight_status" != "404"/
+  );
+  assert.match(tagCreation, /--write-out "%\{http_code\}"/);
+  assert.match(tagCreation, /"\$create_status" == "201"/);
+  assert.match(tagCreation, /"\$create_status" == "422"/);
+  assert.match(tagCreation, /response\.message === "Reference already exists"/);
+  assert.match(tagCreation, /only exact HTTP 422 Reference already exists may enter reconciliation/);
+  assert.match(tagCreation, /Release workflow run: https:\/\/github\.com\/\$\{process\.env\.GITHUB_REPOSITORY\}\/actions\/runs\/\$\{process\.env\.GITHUB_RUN_ID\}/);
+  assert.match(tagCreation, /repos\/\$\{GITHUB_REPOSITORY\}\/git\/ref\/tags\/\$\{RELEASE_TAG\}/);
+  assert.match(tagCreation, /ref\?\.object\?\.type !== "tag"/);
+  assert.match(tagCreation, /actual\?\.object\?\.type !== expected\.type/);
+  assert.match(tagCreation, /actual\?\.object\?\.sha !== expected\.object/);
+  assert.match(tagCreation, /actual\?\.message !== expected\.message/);
+  assert.match(tagCreation, /Reconciled exact existing annotated tag/);
+  assert.doesNotMatch(
+    tagCreation,
+    /steps\.release_app_token\.outputs\.token\s*\|\|/,
+    "tag publication must not fall back when the release App cannot mint a token"
+  );
+  assert.ok(
+    tag.indexOf("Require an approved release author") <
+      tag.indexOf("Require dedicated release App configuration") &&
+      tag.indexOf("Recheck branch reachability immediately before publication") <
+        tag.indexOf("Require dedicated release App configuration") &&
+      tag.indexOf("Require dedicated release App configuration") <
+        tag.indexOf("Mint dedicated release App token") &&
+      tag.indexOf("Mint dedicated release App token") <
+        tag.indexOf("Verify pinned tag and production governance") &&
+      tag.indexOf("Verify pinned tag and production governance") <
+        tag.indexOf("- name: Create the annotated release tag atomically through the Git database API"),
+    "release authority must be minted only after every non-secret authorization check"
+  );
   assert.match(tag, /repos\/\$\{GITHUB_REPOSITORY\}\/git\/tags/);
   assert.match(tag, /repos\/\$\{GITHUB_REPOSITORY\}\/git\/refs/);
   assert.match(tag, /ref: `refs\/tags\/\$\{process\.env\.RELEASE_TAG\}`/);
@@ -780,7 +1027,7 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
 
   // A tag must never quietly widen what the project claims.
   assert.match(workflow, /A release may not claim a stable public API or npm publication/);
-  assert.match(workflow, /no stable public API and no npm publication/i);
+  assert.match(workflow, /no blanket stable public API and no npm publication/i);
   assert.match(workflow, /permissions:\n\s+contents: read/);
 });
 
@@ -810,6 +1057,20 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
   assert.equal(receipt.release.tagExists, false);
   assert.equal(receipt.release.evidencesReleaseCommit, false);
 
+  // The governed widening is deliberately narrow: exact 1.0.0 and numbered
+  // 1.0.0 release candidates use the same disabled API/npm claims.
+  for (const version of ["1.0.0-rc.1", "1.0.0"]) {
+    const v1 = await makeFixture(t, {
+      policy: releasedPolicy({ version, releaseTag: `v${version}` }),
+      packageVersion: version,
+      citation: citation.replace('"0.1.0"', `"${version}"`),
+      changelog: changelog.replace("[0.1.0]", `[${version}]`)
+    });
+    const v1Accepted = runEvidence(v1.root, ["--static-dir", "out"]);
+    assert.equal(v1Accepted.status, 0, v1Accepted.stderr);
+    assert.equal(JSON.parse(v1Accepted.stdout).release.tag, `v${version}`);
+  }
+
   // Once the tag exists and names this commit, the receipt says so.
   const taggedOk = await makeFixture(t, { policy: releasedPolicy(), citation, changelog });
   git(taggedOk.root, ["tag", "-a", "v0.1.0", "-m", "release"]);
@@ -823,7 +1084,8 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
   for (const [overrides, pattern] of [
     [{ stablePublicApi: true }, /stable-API and npm-publication claims disabled/],
     [{ npmPublication: "enabled" }, /stable-API and npm-publication claims disabled/],
-    [{ version: "1.0.0", releaseTag: "v1.0.0" }, /pre-1\.0 semantic version/],
+    [{ version: "1.0.1", releaseTag: "v1.0.1" }, /supported 0\.x or exact 1\.0 semantic version/],
+    [{ version: "1.0.0-rc.0", releaseTag: "v1.0.0-rc.0" }, /supported 0\.x or exact 1\.0 semantic version/],
     [{ releaseTag: "0.1.0" }, /must name the tag v<version>/],
     [{ releaseDate: "July 25 2026" }, /one YYYY-MM-DD release date/],
     [{ status: "generally-available" }, /status must be exactly development or released/],
@@ -909,6 +1171,21 @@ function releaseValidatorController(workflow: string): string {
   const controllers = extractControllers(after.slice(0, end));
   assert.equal(controllers.length, 1, "the validator step must hold exactly one controller");
   return controllers[0];
+}
+
+/** The exact-existing-tag reconciler, addressed by its unique success marker. */
+function releaseTagReconciliationController(workflow: string): string {
+  const step = "- name: Create the annotated release tag atomically through the Git database API";
+  const occurrences = workflow.split(step).length - 1;
+  assert.equal(occurrences, 1, "exactly one tag-publication step must exist");
+  const after = workflow.slice(workflow.indexOf(step));
+  const end = after.indexOf("- name: Record the release in the run summary");
+  assert.notEqual(end, -1, "tag publication must precede the release summary");
+  const matching = extractControllers(after.slice(0, end)).filter((controller) =>
+    controller.includes("Reconciled exact existing annotated tag")
+  );
+  assert.equal(matching.length, 1, "the tag step must hold exactly one exact-existing-tag reconciler");
+  return matching[0];
 }
 
 const RELEASED_POLICY = {
@@ -1215,6 +1492,246 @@ test("the validator refuses wrong handoff, CI, source, and policy facts", { skip
       content: Buffer.from(`${JSON.stringify({ ...policy, status: "development" }, null, 2)}\n`).toString("base64")
     });
   }, /exact source|released|policy/i);
+});
+
+type TagReconciliationContext = {
+  runnerTemp: string;
+  expected: Record<string, unknown>;
+  ref: Record<string, unknown>;
+  actual: Record<string, unknown>;
+  write: (name: string, value: unknown) => Promise<void>;
+};
+
+async function tagReconciliationContext(t: TestContext): Promise<TagReconciliationContext> {
+  const runnerTemp = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-tag-reconcile-"));
+  t.after(() => rm(runnerTemp, { recursive: true, force: true }));
+  const target = "a".repeat(40);
+  const objectSha = "b".repeat(40);
+  const tag = "v0.4.0-rc.1";
+  const message = [
+    `Site Behavior Lab ${tag}`,
+    "",
+    "Curated release. No blanket stable public API and no npm publication.",
+    "Attested exact-source release receipt: https://github.com/iAnonymous3000/site-behavior-lab/attestations/38229999",
+    `Release receipt sha256: ${"c".repeat(64)}`
+  ].join("\n");
+  const expected = { tag, message, object: target, type: "commit" };
+  const ref = { ref: `refs/tags/${tag}`, object: { type: "tag", sha: objectSha } };
+  const actual = {
+    sha: objectSha,
+    tag,
+    message,
+    object: { type: "commit", sha: target }
+  };
+  const write = (name: string, value: unknown) =>
+    writeFile(path.join(runnerTemp, name), `${JSON.stringify(value)}\n`);
+  await Promise.all([
+    write("tag-object.json", expected),
+    write("existing-tag-ref.json", ref),
+    write("existing-tag-object.json", actual)
+  ]);
+  return { runnerTemp, expected, ref, actual, write };
+}
+
+function runTagReconciliation(controller: string, context: TagReconciliationContext) {
+  return spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
+    encoding: "utf8",
+    env: { PATH: process.env.PATH, RUNNER_TEMP: context.runnerTemp }
+  });
+}
+
+test("the tag publisher reconciles only its exact existing annotated ref", async (t) => {
+  const controller = releaseTagReconciliationController(await source(".github/workflows/release.yml"));
+  const context = await tagReconciliationContext(t);
+  const accepted = runTagReconciliation(controller, context);
+  assert.equal(accepted.status, 0, `${accepted.stderr}${accepted.stdout}`);
+  assert.match(accepted.stdout, /Reconciled exact existing annotated tag v0\.4\.0-rc\.1 at a{40}/);
+});
+
+test("the atomic tag publisher remains valid bash around its HTTP reconciliation branch", async () => {
+  const workflow = await source(".github/workflows/release.yml");
+  const step = workflow.slice(
+    workflow.indexOf(
+      "- name: Create the annotated release tag atomically through the Git database API"
+    ),
+    workflow.indexOf("- name: Record the release in the run summary")
+  );
+  const body = step.slice(step.indexOf("run: |") + "run: |".length);
+  const shell = body
+    .split("\n")
+    .map((line) => (line.startsWith(" ".repeat(10)) ? line.slice(10) : line))
+    .join("\n");
+  const syntax = spawnSync("bash", ["-n"], {
+    input: shell,
+    encoding: "utf8"
+  });
+  assert.equal(syntax.status, 0, syntax.stderr);
+});
+
+test("the tag publisher refuses every mismatched existing ref or tag object", async (t) => {
+  const controller = releaseTagReconciliationController(await source(".github/workflows/release.yml"));
+  const cases: Array<{
+    name: string;
+    mutate: (context: TagReconciliationContext) => Promise<void>;
+    expected: RegExp;
+  }> = [
+    {
+      name: "ref name",
+      mutate: (context) =>
+        context.write("existing-tag-ref.json", { ...context.ref, ref: "refs/tags/v0.4.0-rc.2" }),
+      expected: /wrong name/
+    },
+    {
+      name: "lightweight ref",
+      mutate: (context) =>
+        context.write("existing-tag-ref.json", {
+          ...context.ref,
+          object: { ...(context.ref.object as Record<string, unknown>), type: "commit" }
+        }),
+      expected: /not annotated/
+    },
+    {
+      name: "different tag object",
+      mutate: (context) =>
+        context.write("existing-tag-object.json", { ...context.actual, sha: "d".repeat(40) }),
+      expected: /does not identify the fetched tag object/
+    },
+    {
+      name: "tag name",
+      mutate: (context) =>
+        context.write("existing-tag-object.json", { ...context.actual, tag: "v0.4.0-rc.2" }),
+      expected: /wrong tag name/
+    },
+    {
+      name: "target type",
+      mutate: (context) =>
+        context.write("existing-tag-object.json", {
+          ...context.actual,
+          object: { ...(context.actual.object as Record<string, unknown>), type: "tree" }
+        }),
+      expected: /different release commit or object type/
+    },
+    {
+      name: "target commit",
+      mutate: (context) =>
+        context.write("existing-tag-object.json", {
+          ...context.actual,
+          object: { ...(context.actual.object as Record<string, unknown>), sha: "e".repeat(40) }
+        }),
+      expected: /different release commit or object type/
+    },
+    {
+      name: "evidence message",
+      mutate: (context) =>
+        context.write("existing-tag-object.json", {
+          ...context.actual,
+          message: `${context.actual.message as string}\ntampered`
+        }),
+      expected: /different attestation or receipt evidence/
+    }
+  ];
+
+  for (const candidate of cases) {
+    const context = await tagReconciliationContext(t);
+    await candidate.mutate(context);
+    const refused = runTagReconciliation(controller, context);
+    assert.equal(refused.status, 1, `${candidate.name} must be refused: ${refused.stdout}`);
+    assert.match(refused.stderr, candidate.expected, candidate.name);
+  }
+});
+
+test("the dedicated-release-App configuration executes as a real separation gate", async () => {
+  const workflow = await source(".github/workflows/release.yml");
+  const step = workflow.slice(workflow.indexOf("- name: Require dedicated release App configuration"));
+  const body = step.slice(step.indexOf("run: |") + "run: |".length, step.indexOf("- name: Mint dedicated release App token"));
+  const script = body
+    .split("\n")
+    .map((line) => (line.startsWith(" ".repeat(10)) ? line.slice(10) : line))
+    .join("\n");
+
+  const run = (
+    releaseClientId: string,
+    promotionClientId: string,
+    privateKey: string,
+    integrationId = "481516",
+    creationRulesetId = "20059999",
+    promotionIntegrationId = "481517",
+    promotionSlug = "site-behavior-promotion",
+    receiptSha256 = "a".repeat(64)
+  ) =>
+    spawnSync("bash", ["-c", script], {
+      encoding: "utf8",
+      env: {
+        PATH: process.env.PATH,
+        RELEASE_APP_CLIENT_ID: releaseClientId,
+        RELEASE_APP_INTEGRATION_ID: integrationId,
+        RELEASE_TAG_CREATION_RULESET_ID: creationRulesetId,
+        RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: receiptSha256,
+        PROMOTION_APP_CLIENT_ID: promotionClientId,
+        PROMOTION_APP_INTEGRATION_ID: promotionIntegrationId,
+        PROMOTION_APP_SLUG: promotionSlug,
+        RELEASE_APP_PRIVATE_KEY: privateKey
+      }
+    });
+
+  assert.equal(run("Iv1.release", "Iv1.promotion", "private-key").status, 0);
+  assert.equal(run("", "Iv1.promotion", "private-key").status, 1);
+  assert.equal(run("Iv1.release", "", "private-key").status, 1);
+  assert.equal(run("Iv1.release", "Iv1.promotion", "").status, 1);
+  assert.equal(
+    run("Iv1.release", "Iv1.promotion", "private-key", "", "20059999")
+      .status,
+    1
+  );
+  assert.equal(
+    run("Iv1.release", "Iv1.promotion", "private-key", "481516", "")
+      .status,
+    1
+  );
+  assert.equal(
+    run("Iv1.release", "Iv1.promotion", "private-key", "481516", "20050122")
+      .status,
+    1
+  );
+  assert.equal(
+    run(
+      "Iv1.release",
+      "Iv1.promotion",
+      "private-key",
+      "481516",
+      "20059999",
+      "481516"
+    ).status,
+    1
+  );
+  assert.equal(
+    run(
+      "Iv1.release",
+      "Iv1.promotion",
+      "private-key",
+      "481516",
+      "20059999",
+      "481517",
+      ""
+    ).status,
+    1
+  );
+  assert.equal(
+    run(
+      "Iv1.release",
+      "Iv1.promotion",
+      "private-key",
+      "481516",
+      "20059999",
+      "481517",
+      "site-behavior-promotion",
+      "bad"
+    ).status,
+    1
+  );
+  const reused = run("Iv1.same", "Iv1.same", "private-key");
+  assert.equal(reused.status, 1);
+  assert.match(reused.stdout, /must be distinct from the production promotion App/);
 });
 
 test("the approved-release-actor step executes as a real shell gate", { skip: hostToolchainSkip }, async () => {

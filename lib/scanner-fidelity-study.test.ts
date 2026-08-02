@@ -54,6 +54,7 @@ type StudyHelpers = {
     bounds: { min: number; max: number; label: string }
   ): number;
   selectShard<T>(sites: T[], index: number, count: number): T[];
+  scannerFidelitySitesOf(value: unknown): Array<{ url: string; shape: string }>;
   sanitizeAttemptReason(value: unknown): string;
   summarizeRepeatability(attempts: Attempt[]): {
     eligibleTargets: number;
@@ -61,6 +62,11 @@ type StudyHelpers = {
     targets: Array<Record<string, any>>;
   };
   buildAttemptLedger(input: Record<string, any>): Record<string, any>;
+  scannerFidelityAttemptLedgerDigest(ledger: unknown): string;
+  scannerFidelityAttemptLedgerIssues(
+    ledger: unknown,
+    options?: { requireMeasurementIdentityDigest?: boolean }
+  ): string[];
 };
 type InvariantHelpers = {
   detectorBudgetIsEvidenceBound(
@@ -75,6 +81,7 @@ type InvariantHelpers = {
 const BUILD_COMMIT = "a".repeat(40);
 const RECEIPT_PROVENANCE = {
   expectedBuildCommit: BUILD_COMMIT,
+  measurementIdentityDigest: "9".repeat(64),
   sitesFileDigest: "b".repeat(64),
   driverRuntime: {
     nodeVersion: "24.14.1",
@@ -184,6 +191,41 @@ test("scanner fidelity shards cover every target exactly once", async () => {
   assert.throws(() => selectShard(sites, 3, 3), /inside the configured shard count/);
 });
 
+test("scanner fidelity accepts the exact raw A/A frame while preserving the legacy catalog", async () => {
+  const { scannerFidelitySitesOf } = await helpers;
+  assert.deepEqual(
+    scannerFidelitySitesOf([
+      { targetId: "one", url: "https://one.example/" },
+      { targetId: "two", url: "https://two.example/" }
+    ]),
+    [
+      { url: "https://one.example/", shape: "aa" },
+      { url: "https://two.example/", shape: "aa" }
+    ]
+  );
+  assert.deepEqual(
+    scannerFidelitySitesOf({
+      sites: [{ url: "https://example.com/", shape: "legacy" }]
+    }),
+    [{ url: "https://example.com/", shape: "legacy" }]
+  );
+  assert.throws(
+    () =>
+      scannerFidelitySitesOf([
+        { targetId: "one", url: "https://one.example/", extra: true }
+      ]),
+    /exactly targetId and url/
+  );
+  assert.throws(
+    () =>
+      scannerFidelitySitesOf([
+        { targetId: "one", url: "https://one.example/" },
+        { targetId: "one", url: "https://two.example/" }
+      ]),
+    /duplicate targetId/
+  );
+});
+
 test("comparison repeatability measures both arms and excludes a censored variant", async () => {
   const { summarizeRepeatability } = await helpers;
   const censored = comparisonObservation(14, 9, ["a.example", "c.example"], "AB");
@@ -289,6 +331,10 @@ test("the fidelity receipt retains every attempt, provenance, thresholds, and no
 
   const ledger = buildAttemptLedger({
     createdAt: "2026-07-28T00:00:00.000Z",
+    collection: {
+      startedAt: "2026-07-27T23:58:00.000Z",
+      completedAt: "2026-07-27T23:59:00.000Z"
+    },
     baseOrigin: "http://127.0.0.1:3000",
     sitesFile: "public/scanner-fidelity-sites.json",
     shardIndex: 0,
@@ -304,7 +350,7 @@ test("the fidelity receipt retains every attempt, provenance, thresholds, and no
     attempts
   });
 
-  assert.equal(ledger.receiptVersion, 2);
+  assert.equal(ledger.receiptVersion, 3);
   assert.equal(ledger.plannedRuns, 2);
   assert.equal(ledger.attemptedRuns, 2);
   assert.equal(ledger.answeredTargets, 1);
@@ -315,10 +361,89 @@ test("the fidelity receipt retains every attempt, provenance, thresholds, and no
   assert.deepEqual(ledger.acceptance.reasons, []);
   assert.equal(ledger.acceptance.thresholds.minimumRepeatableTargets, 0);
   assert.equal(ledger.provenance.expectedBuildCommit, BUILD_COMMIT);
+  assert.equal(ledger.provenance.measurementIdentityDigest, "9".repeat(64));
   assert.equal(ledger.provenance.driverRuntimeDigest.length, 64);
   assert.equal(ledger.attempts[0].observation.arms.run.producerRuntime.identityDigest.length, 64);
   assert.equal(ledger.receiptDigest.length, 64);
   assert.equal(JSON.stringify(ledger).includes("private-to-the-study.example"), false);
+});
+
+test("the fidelity ledger validates exact provenance and both canonical digests", async () => {
+  const {
+    buildAttemptLedger,
+    scannerFidelityAttemptLedgerDigest,
+    scannerFidelityAttemptLedgerIssues
+  } = await helpers;
+  const ledger = buildAttemptLedger({
+    createdAt: "2026-07-28T00:00:00.000Z",
+    collection: {
+      startedAt: "2026-07-27T23:58:00.000Z",
+      completedAt: "2026-07-27T23:59:00.000Z"
+    },
+    baseOrigin: "http://127.0.0.1:3000",
+    sitesFile: "research/aa-studies/aa-fixture/target-frame.json",
+    shardIndex: 0,
+    shardCount: 1,
+    conditions: { mode: "single" },
+    provenance: RECEIPT_PROVENANCE,
+    acceptanceThresholds: {
+      minimumAnsweringTargets: 1,
+      minimumRepeatableTargets: 0
+    },
+    repetitions: 1,
+    selectedTargets: 1,
+    attempts: [attempt(1, singleObservation(10, ["a.example"]))]
+  });
+
+  assert.deepEqual(
+    scannerFidelityAttemptLedgerIssues(ledger, {
+      requireMeasurementIdentityDigest: true
+    }),
+    []
+  );
+  assert.equal(ledger.receiptDigest, scannerFidelityAttemptLedgerDigest(ledger));
+
+  const extra = structuredClone(ledger);
+  extra.provenance.unexpected = true;
+  extra.receiptDigest = scannerFidelityAttemptLedgerDigest(extra);
+  assert.equal(
+    scannerFidelityAttemptLedgerIssues(extra).some((issue: string) =>
+      /provenance.*exactly/.test(issue)
+    ),
+    true
+  );
+
+  const nonCanonicalTime = structuredClone(ledger);
+  nonCanonicalTime.createdAt = "2026-07-28T00:00:00Z";
+  nonCanonicalTime.receiptDigest = scannerFidelityAttemptLedgerDigest(nonCanonicalTime);
+  assert.equal(
+    scannerFidelityAttemptLedgerIssues(nonCanonicalTime).some((issue: string) =>
+      /canonical UTC/.test(issue)
+    ),
+    true
+  );
+
+  const alteredRuntime = structuredClone(ledger);
+  alteredRuntime.provenance.driverRuntime.platform = "darwin";
+  alteredRuntime.receiptDigest = scannerFidelityAttemptLedgerDigest(alteredRuntime);
+  assert.equal(
+    scannerFidelityAttemptLedgerIssues(alteredRuntime).some((issue: string) =>
+      /driverRuntimeDigest/.test(issue)
+    ),
+    true
+  );
+
+  const producerBuildDrift = structuredClone(ledger);
+  producerBuildDrift.attempts[0].observation.arms.run.producerRuntime.buildCommit =
+    "c".repeat(40);
+  producerBuildDrift.receiptDigest =
+    scannerFidelityAttemptLedgerDigest(producerBuildDrift);
+  assert.equal(
+    scannerFidelityAttemptLedgerIssues(producerBuildDrift).some(
+      (issue: string) => /must equal ledger\.provenance\.expectedBuildCommit/.test(issue)
+    ),
+    true
+  );
 });
 
 test("the fidelity receipt fails explicitly on impossible repeatability and wrong producer provenance", async () => {
@@ -327,6 +452,10 @@ test("the fidelity receipt fails explicitly on impossible repeatability and wron
   wrongBuild.arms.run.producerRuntime.buildCommit = "c".repeat(40);
   const ledger = buildAttemptLedger({
     createdAt: "2026-07-28T00:00:00.000Z",
+    collection: {
+      startedAt: "2026-07-27T23:58:00.000Z",
+      completedAt: "2026-07-27T23:59:00.000Z"
+    },
     baseOrigin: "http://127.0.0.1:3000",
     sitesFile: "public/scanner-fidelity-sites.json",
     shardIndex: 0,

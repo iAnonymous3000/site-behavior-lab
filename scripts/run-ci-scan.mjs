@@ -7,7 +7,11 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { awaitSubmittedScanJob } from "./run-ci-scan-job.mjs";
-import { botBlockReason, isPublishableScanReport } from "./run-ci-scan-report.mjs";
+import {
+  botBlockReason,
+  botBlockUnavailableReason,
+  isPublishableScanReport
+} from "./run-ci-scan-report.mjs";
 import {
   readResponseJsonWithinLimit,
   withHttpOperationDeadline
@@ -22,6 +26,21 @@ const reportIdPattern = /^[0-9]{8}-[0-9a-f]{32}$/;
 const scanRequestTimeoutMs = boundedIntegerEnv("CI_SCAN_REQUEST_TIMEOUT_MS", 300_000, 1_000, 600_000);
 const controlRequestTimeoutMs = 30_000;
 const jsonResponseMaxBytes = 32 * 1024 * 1024;
+const closedUnavailableReasons = new Set([
+  "automation-blocked",
+  "navigation-incomplete",
+  "authentication-required",
+  "access-denied",
+  "rate-limited"
+]);
+
+class ClassifiedScanUnavailableError extends Error {
+  constructor(message, unavailableReason) {
+    super(message);
+    this.name = "ClassifiedScanUnavailableError";
+    this.unavailableReason = unavailableReason;
+  }
+}
 
 if (!targetUrl) {
   console.error("SCAN_URL is required.");
@@ -69,8 +88,16 @@ try {
   // trackers). Refuse to commit those; the caller logs it as a skipped site.
   const blockReason = botBlockReason(savedReport);
   if (blockReason) {
-    console.error(`Skipping scan target: ${blockReason}.`);
-    process.exit(1);
+    const unavailableReason = botBlockUnavailableReason(savedReport);
+    if (!closedUnavailableReasons.has(unavailableReason)) {
+      throw new Error(
+        "Skipping scan target without a closed structured unavailability classification."
+      );
+    }
+    throw new ClassifiedScanUnavailableError(
+      `Skipping scan target: ${blockReason}.`,
+      unavailableReason
+    );
   }
 
   // The persistence boundary is the compiled publisher CLI (RFC 10.3 dist
@@ -116,11 +143,33 @@ try {
     report_path: `public/reports/${id}.json`,
     sidecar_path: `public/reports/${id}.provenance.json`
   });
+  await writeParentScanResult({
+    schemaVersion: 1,
+    status: "available",
+    reportId: id
+  });
 
   console.log(`Wrote validated static report and sidecar ${id}.`);
 } catch (error) {
+  if (error instanceof ClassifiedScanUnavailableError) {
+    try {
+      await writeParentScanResult({
+        schemaVersion: 1,
+        status: "unavailable",
+        reason: error.unavailableReason
+      });
+    } catch (handoffError) {
+      console.error(
+        `Could not write the closed scan-result handoff: ${
+          handoffError instanceof Error
+            ? handoffError.message
+            : String(handoffError)
+        }`
+      );
+    }
+  }
   console.error(error instanceof Error ? error.message : error);
-  process.exit(1);
+  process.exitCode = 1;
 }
 
 async function fetchSavedReport(scanReport) {
@@ -217,6 +266,18 @@ async function writeGithubOutput(values) {
   if (!process.env.GITHUB_OUTPUT) return;
   const lines = Object.entries(values).map(([key, value]) => `${key}=${value}`);
   await appendFile(process.env.GITHUB_OUTPUT, `${lines.join("\n")}\n`);
+}
+
+async function writeParentScanResult(value) {
+  const output = process.env.CI_SCAN_RESULT_PATH?.trim();
+  if (!output) return;
+  if (!path.isAbsolute(output)) {
+    throw new Error("CI_SCAN_RESULT_PATH must be absolute.");
+  }
+  await writeFile(output, `${JSON.stringify(value)}\n`, {
+    flag: "wx",
+    mode: 0o600
+  });
 }
 
 function isRecord(value) {

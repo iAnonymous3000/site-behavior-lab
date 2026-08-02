@@ -179,6 +179,15 @@ import {
   type DurableScanJobEncryptionKey,
   type DurableScanJobSnapshot
 } from "../lib/durable-scan-job-store";
+import {
+  beginDurableRestartControl,
+  completeDurableRestartControl,
+  pruneDurableRestartControls
+} from "../lib/durable-restart-control-store";
+import {
+  isDurableRestartGithubRunId
+} from "../lib/durable-restart-control-auth";
+import { executeDurableRestartRoute } from "../lib/durable-restart-route-authorization";
 import { settleSynchronizeAndPurgeDurableScanJobs } from "../lib/durable-scan-job-retention";
 import {
   readDurableScanJobInternalResponseBytes,
@@ -291,6 +300,9 @@ type Env = {
   // Worker-only credential for the scheduled production synthetic. Unlike the
   // general scan token, this does not close public ingress or reach Node.
   SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN?: string;
+  // Ceremony-only second factor for the fixed provider-native container
+  // destroy boundary. Keep absent outside an approved durable-soak restart.
+  SITE_BEHAVIOR_LAB_DURABLE_RESTART_TOKEN?: string;
   TURNSTILE_SECRET_KEY?: string;
   SITE_BEHAVIOR_LAB_R2_BUCKET?: string;
   SITE_BEHAVIOR_LAB_R2_PREFIX?: string;
@@ -312,6 +324,12 @@ type ScanGatePayload = {
 };
 
 const SYNTHETIC_MONITOR_TOKEN_HEADER = "x-site-behavior-lab-synthetic-monitor-token";
+const DURABLE_RESTART_REPORT_ID_HEADER =
+  "x-site-behavior-lab-durable-restart-report-id";
+const DURABLE_RESTART_RUN_ID_HEADER =
+  "x-site-behavior-lab-durable-restart-run-id";
+const DURABLE_RESTART_AUTHORIZATION_HEADER =
+  "x-site-behavior-lab-durable-restart-authorization";
 const PUBLIC_INGRESS_PREFLIGHT_CLIENT_HASH = "0".repeat(64);
 const TURNSTILE_CONFIGURATION_PROBE_CACHE_MS = 60_000;
 
@@ -334,6 +352,45 @@ type DurablePumpScheduleContext = { taskId: string };
 type DurableScanJobMutationResult =
   | { status: "success" }
   | { status: "conflict" };
+
+type DurableRestartEvidenceSnapshot = Readonly<{
+  schemaVersion: 1;
+  artifactKind: "site-behavior-durable-restart-job-snapshot";
+  jobId: string;
+  reportId: string;
+  state: "queued" | "leased" | "publishing" | "succeeded" | "failed" | "expired" | "cancelled";
+  createdAt: string;
+  finishedAt: string | null;
+  attemptCount: number;
+  leaseGeneration: number;
+}>;
+
+type DurableRestartDestroyResult =
+  | Readonly<{
+      status: "completed";
+      snapshot: DurableRestartEvidenceSnapshot;
+    }>
+  | Readonly<{ status: "pending" }>;
+
+function durableRestartEvidenceSnapshot(
+  snapshot: DurableScanJobSnapshot
+): DurableRestartEvidenceSnapshot {
+  return Object.freeze({
+    schemaVersion: 1 as const,
+    artifactKind:
+      "site-behavior-durable-restart-job-snapshot" as const,
+    jobId: snapshot.jobId,
+    reportId: snapshot.reportId,
+    state: snapshot.state,
+    createdAt: new Date(snapshot.createdAt).toISOString(),
+    finishedAt:
+      snapshot.finishedAt === null
+        ? null
+        : new Date(snapshot.finishedAt).toISOString(),
+    attemptCount: snapshot.attemptCount,
+    leaseGeneration: snapshot.leaseGeneration
+  });
+}
 
 type DurableScanJobCancellationResult =
   | {
@@ -966,6 +1023,140 @@ export class ScannerContainer extends Container<Env> {
       ensureDurableScanJobStore(this.ctx.storage.sql);
       this.purgeDurableScanJobState(now);
       return findDurableScanJobSnapshot(this.ctx.storage.sql, jobId);
+    });
+  }
+
+  /**
+   * Return the minimum private state needed by the restart ceremony.
+   *
+   * The edge authenticates both the production-monitor bearer and the original
+   * request-bound admission capability before this RPC. Repeating the binding
+   * check inside the authoritative store prevents a guessed job id from
+   * becoming an attempt-count oracle. Lease credentials, ciphertext,
+   * publication manifests, deadlines, and failure details never cross it.
+   */
+  readDurableRestartEvidence(input: {
+    key: ScanAdmissionStoreKey;
+    jobId: string;
+    reportId: string;
+  }): DurableRestartEvidenceSnapshot | null {
+    if (
+      !isScanJobId(input.jobId) ||
+      !isScanJobId(input.reportId) ||
+      input.jobId === input.reportId
+    ) {
+      return null;
+    }
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() => {
+      const admission = findScanAdmission(this.ctx.storage.sql, input.key, now);
+      if (
+        !admission ||
+        admission.jobId !== input.jobId ||
+        admission.reportId !== input.reportId
+      ) {
+        return null;
+      }
+      ensureDurableScanJobStore(this.ctx.storage.sql);
+      this.purgeDurableScanJobState(now);
+      const snapshot = findDurableScanJobSnapshot(this.ctx.storage.sql, input.jobId);
+      if (!snapshot || snapshot.reportId !== input.reportId) return null;
+      return durableRestartEvidenceSnapshot(snapshot);
+    });
+  }
+
+  /**
+   * Force the one production singleton process across a real runtime boundary.
+   *
+   * The edge supplies a distinct ceremony token plus the monitor bearer and
+   * original request-bound admission capability. This RPC rechecks that
+   * binding in the authoritative store, accepts exactly the first leased
+   * generation, and consumes the HMAC-authenticated stable GitHub run id.
+   * Reruns keep that id and cannot authorize another destroy. No caller can
+   * select an instance, signal, or arbitrary job. Container.destroy() is the
+   * provider-native SIGKILL primitive. Durable Object storage and the
+   * lease-expiry driver survive the process boundary.
+   */
+  async destroyDurableRuntimeForEvidence(input: {
+    key: ScanAdmissionStoreKey;
+    githubRunId: string;
+    jobId: string;
+    reportId: string;
+  }): Promise<DurableRestartDestroyResult | null> {
+    if (
+      !isDurableRestartGithubRunId(input.githubRunId) ||
+      !isScanJobId(input.jobId) ||
+      !isScanJobId(input.reportId) ||
+      input.jobId === input.reportId
+    ) {
+      return null;
+    }
+    const now = Date.now();
+    const decision = this.ctx.storage.transactionSync(() => {
+      const admission = findScanAdmission(
+        this.ctx.storage.sql,
+        input.key,
+        now
+      );
+      if (
+        !admission ||
+        admission.jobId !== input.jobId ||
+        admission.reportId !== input.reportId
+      ) {
+        return null;
+      }
+      ensureDurableScanJobStore(this.ctx.storage.sql);
+      this.purgeDurableScanJobState(now);
+      const current = findDurableScanJobSnapshot(
+        this.ctx.storage.sql,
+        input.jobId
+      );
+      if (!current || current.reportId !== input.reportId) {
+        return null;
+      }
+      const control = beginDurableRestartControl(this.ctx.storage.sql, {
+        githubRunId: input.githubRunId,
+        snapshot: current,
+        requestedAt: now
+      });
+      if (control.status === "pending") {
+        return Object.freeze({ status: "pending" as const });
+      }
+      if (!("receipt" in control)) {
+        return null;
+      }
+      return {
+        status: "completed" as const,
+        destroy: control.status === "execute",
+        receipt: control.receipt,
+        snapshot: Object.freeze({
+          schemaVersion: 1 as const,
+          artifactKind:
+            "site-behavior-durable-restart-job-snapshot" as const,
+          jobId: control.receipt.jobId,
+          reportId: control.receipt.reportId,
+          state: "leased" as const,
+          createdAt: new Date(control.receipt.createdAt).toISOString(),
+          finishedAt: null,
+          attemptCount: 1,
+          leaseGeneration: 1
+        })
+      };
+    });
+    if (!decision) return null;
+    if (decision.status === "pending") return decision;
+    if (decision.destroy) {
+      await this.destroy();
+      this.ctx.storage.transactionSync(() => {
+        completeDurableRestartControl(
+          this.ctx.storage.sql,
+          decision.receipt
+        );
+      });
+    }
+    return Object.freeze({
+      status: "completed" as const,
+      snapshot: decision.snapshot
     });
   }
 
@@ -2253,6 +2444,7 @@ export class ScannerContainer extends Container<Env> {
     // cleanup to every normal maintenance pass so a completed canary cannot
     // leave staging-only rows behind until another fault-specific request.
     purgeDurableReplayFaults(this.ctx.storage.sql, now);
+    pruneDurableRestartControls(this.ctx.storage.sql, now);
     pruneDurableContainerShardRoutes(this.ctx.storage.sql);
     return purged;
   }
@@ -2585,6 +2777,36 @@ export default {
     }
     const scanJobId =
       request.method === "GET" || request.method === "DELETE" ? scanJobIdFromPath(url.pathname) : null;
+
+    const durableRestartEvidenceJobId = parseDurableRestartEvidencePath(
+      url.pathname
+    );
+    if (durableRestartEvidenceJobId) {
+      if (request.method !== "GET" || url.search) return privateRouteNotFound();
+      return handleDurableRestartEvidenceRequest(
+        request,
+        env,
+        durableRestartEvidenceJobId
+      );
+    }
+
+    const durableRestartRuntimeJobId = parseDurableRestartRuntimePath(
+      url.pathname
+    );
+    if (durableRestartRuntimeJobId) {
+      if (
+        request.method !== "POST" ||
+        url.search ||
+        request.body !== null
+      ) {
+        return privateRouteNotFound();
+      }
+      return handleDurableRestartRuntimeRequest(
+        request,
+        env,
+        durableRestartRuntimeJobId
+      );
+    }
 
     if (scanJobId) {
       // Existing Phase-2 rows remain authoritative through a flag rollback or
@@ -3624,6 +3846,154 @@ async function handleDurableScanJobRequest(
   });
 }
 
+function parseDurableRestartEvidencePath(pathname: string): string | null {
+  const prefix = "/api/scans/";
+  const suffix = "/restart-evidence";
+  if (!pathname.startsWith(prefix) || !pathname.endsWith(suffix)) return null;
+  const jobId = pathname.slice(prefix.length, -suffix.length);
+  return isScanJobId(jobId) ? jobId : null;
+}
+
+function parseDurableRestartRuntimePath(pathname: string): string | null {
+  const prefix = "/api/scans/";
+  const suffix = "/restart-runtime";
+  if (!pathname.startsWith(prefix) || !pathname.endsWith(suffix)) return null;
+  const jobId = pathname.slice(prefix.length, -suffix.length);
+  return isScanJobId(jobId) ? jobId : null;
+}
+
+async function handleDurableRestartEvidenceRequest(
+  request: Request,
+  env: Env,
+  jobId: string
+): Promise<Response> {
+  const expectedMonitorToken =
+    env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN?.trim();
+  const suppliedMonitorToken = request.headers
+    .get(SYNTHETIC_MONITOR_TOKEN_HEADER)
+    ?.trim();
+  if (
+    !isProductionSyntheticMonitorToken(expectedMonitorToken) ||
+    !suppliedMonitorToken ||
+    !(await constantTimeEqual(suppliedMonitorToken, expectedMonitorToken))
+  ) {
+    return privateRouteNotFound();
+  }
+
+  const key = await scanAdmissionStoreKeyFromRecoveryHeaders(request.headers);
+  const reportId = request.headers
+    .get(DURABLE_RESTART_REPORT_ID_HEADER)
+    ?.trim();
+  if (!key || !isScanJobId(reportId) || reportId === jobId) {
+    return privateRouteNotFound();
+  }
+
+  try {
+    const snapshot = await getContainer(env.SCANNER).readDurableRestartEvidence({
+      key,
+      jobId,
+      reportId
+    });
+    if (!snapshot) return privateRouteNotFound();
+    return new Response(JSON.stringify(snapshot), {
+      status: 200,
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store"
+      }
+    });
+  } catch (error) {
+    console.error("Could not read bounded durable restart evidence.", error);
+    return privateControlResponse(503);
+  }
+}
+
+async function handleDurableRestartRuntimeRequest(
+  request: Request,
+  env: Env,
+  jobId: string
+): Promise<Response> {
+  const key = await scanAdmissionStoreKeyFromRecoveryHeaders(
+    request.headers
+  );
+  // The pure gate owns verifyDurableRestartControlAuthorization together with
+  // the monitor, collision, identifier, and admission-presence decisions.
+  try {
+    const result = await executeDurableRestartRoute(
+      {
+        expectedMonitorToken:
+          env.SITE_BEHAVIOR_LAB_SYNTHETIC_MONITOR_TOKEN,
+        suppliedMonitorToken: request.headers.get(
+          SYNTHETIC_MONITOR_TOKEN_HEADER
+        ),
+        expectedRestartToken:
+          env.SITE_BEHAVIOR_LAB_DURABLE_RESTART_TOKEN,
+        secretCollisionCandidates: [
+          env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
+          env.SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY,
+          env.SITE_BEHAVIOR_LAB_DURABLE_JOBS_INTERNAL_TOKEN,
+          env.SITE_BEHAVIOR_LAB_DURABLE_REPLAY_FAULT_TOKEN,
+          env.SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID,
+          env.SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY,
+          env.SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_KEY,
+          env.SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_PREVIOUS_KEY,
+          env.SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES_ACCESS_TOKEN,
+          env.TURNSTILE_SECRET_KEY
+        ],
+        githubRunId: request.headers.get(
+          DURABLE_RESTART_RUN_ID_HEADER
+        ),
+        jobId,
+        reportId: request.headers.get(
+          DURABLE_RESTART_REPORT_ID_HEADER
+        ),
+        restartAuthorization: request.headers.get(
+          DURABLE_RESTART_AUTHORIZATION_HEADER
+        ),
+        admissionKey: key
+      },
+      {
+        admissionMatches: async (authorization) =>
+          (await getContainer(
+            env.SCANNER
+          ).readDurableRestartEvidence({
+            key: authorization.admissionKey,
+            jobId: authorization.jobId,
+            reportId: authorization.reportId
+          })) !== null,
+        destroyRuntime: (authorization) =>
+          getContainer(
+            env.SCANNER
+          ).destroyDurableRuntimeForEvidence({
+            key: authorization.admissionKey,
+            githubRunId: authorization.githubRunId,
+            jobId: authorization.jobId,
+            reportId: authorization.reportId
+          })
+      }
+    );
+    if (result.status === "not-found") {
+      return privateRouteNotFound();
+    }
+    if (result.status === "pending") {
+      return privateControlResponse(503);
+    }
+    return new Response(JSON.stringify(result.snapshot), {
+      status: 200,
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store"
+      }
+    });
+  } catch (error) {
+    console.error(
+      "Could not cross the bounded durable runtime destroy boundary.",
+      error
+    );
+    return privateControlResponse(503);
+  }
+}
+
 /**
  * Refuse an unauthenticated control request before ANY Durable Object RPC, so
  * a guessed job id cannot wake the singleton or become an existence oracle.
@@ -4003,6 +4373,9 @@ function scanForwardHeaders(input: Headers): Headers {
   headers.delete(DURABLE_REPLAY_FAULT_MODE_HEADER);
   headers.delete(DURABLE_REPLAY_FAULT_TOKEN_HEADER);
   headers.delete(SYNTHETIC_MONITOR_TOKEN_HEADER);
+  headers.delete(DURABLE_RESTART_REPORT_ID_HEADER);
+  headers.delete(DURABLE_RESTART_RUN_ID_HEADER);
+  headers.delete(DURABLE_RESTART_AUTHORIZATION_HEADER);
   headers.delete(SCAN_ADMISSION_CAPABILITY_HEADER);
   headers.delete(SCAN_ADMISSION_COMMITMENT_HEADER);
   return headers;
@@ -4027,6 +4400,11 @@ async function forwardToContainer(
   // The synthetic credential is an edge-only capability on every route, not
   // just the scan handler that consumes it.
   headers.delete(SYNTHETIC_MONITOR_TOKEN_HEADER);
+  // The restart ceremony's report binding is edge-only alongside its monitor
+  // and admission capabilities; Node never needs or records it.
+  headers.delete(DURABLE_RESTART_REPORT_ID_HEADER);
+  headers.delete(DURABLE_RESTART_RUN_ID_HEADER);
+  headers.delete(DURABLE_RESTART_AUTHORIZATION_HEADER);
   // Accountless watch credentials terminate at the edge and must never appear
   // in Node request logs, report material, assets, or fallback routes.
   headers.delete(ENCRYPTED_WATCH_ACCESS_TOKEN_HEADER);

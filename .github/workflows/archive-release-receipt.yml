@@ -31,8 +31,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # GITHUB_TOKEN pushes do not trigger CI; the proposal dispatches the
-      # required workflow on its branch, exactly like the other publishers.
+      # The proposal's push-event CI run is parked for manual approval. This
+      # permission starts separate non-promoting branch validation; that
+      # workflow_dispatch run does not satisfy the PR's required checks.
       actions: write
     steps:
       - name: Checkout
@@ -119,6 +120,8 @@ jobs:
             "- Receipt sha256: \`${RECEIPT_DIGEST}\`" \
             "- Verify against the digest embedded in the annotated \`v${RECEIPT_VERSION}\` tag message before merging." \
             '- The Actions artifact expires after 90 days; this copy is the durable one.' \
+            "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
+            "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
             > "$proposal_body"
 
           pr_error="$RUNNER_TEMP/receipt-pr-error.txt"

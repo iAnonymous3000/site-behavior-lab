@@ -610,6 +610,29 @@ test("featured scans send GPC only when GPC is the measured axis", async () => {
   assert.match(harness, /SCAN_COMPARE_GPC: compareGpc \? "true" : "false"/);
 });
 
+test("featured re-adjudication tracking uses only the child's closed structured handoff", () => {
+  const harness = readFileSync(
+    path.join(process.cwd(), "scripts", "run-featured-scans.mjs"),
+    "utf8"
+  );
+  const child = readFileSync(
+    path.join(process.cwd(), "scripts", "run-ci-scan.mjs"),
+    "utf8"
+  );
+  assert.match(harness, /CI_SCAN_RESULT_PATH: resultPath/);
+  assert.match(harness, /status: "available"[\s\S]*reportId: result\.reportId/);
+  assert.match(harness, /error instanceof ClassifiedFeaturedUnavailableError/);
+  assert.match(harness, /status: "not-attempted"/);
+  assert.match(harness, /scanResults,/);
+  assert.doesNotMatch(harness, /normalizedFeaturedUnavailableReason/);
+  assert.match(child, /botBlockUnavailableReason\(savedReport\)/);
+  assert.match(child, /status: "unavailable"[\s\S]*reason: error\.unavailableReason/);
+  assert.doesNotMatch(
+    child,
+    /unavailableReason\s*=\s*error instanceof Error \? error\.message/
+  );
+});
+
 test("a scheduled refresh of either corpus catalog is authoritative for alerting", async () => {
   const { isAuthoritativeFeaturedRefresh, isFullFeaturedCatalogSelection } = await helpers;
   const scheduled = (sitesFile: string) => ({

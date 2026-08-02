@@ -1,0 +1,144 @@
+name: Activate Measurement Freeze
+
+# This is an evidence-only, manually dispatched lane. It cannot change the
+# repository variable, push a branch, merge a proposal, or publish corpus
+# bytes. The operator sets the freeze variable in repository settings first;
+# this workflow then proves the exact main candidate and controlled-r2
+# configuration that were visible at the activation boundary.
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: "Exact 40-character main commit to freeze"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+concurrency:
+  group: measurement-freeze-activation
+  cancel-in-progress: false
+
+jobs:
+  activate:
+    name: Capture Measurement Freeze Activation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Refuse a non-main or ambiguous candidate
+        env:
+          DECLARED_CANDIDATE: ${{ inputs.candidate_sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == "iAnonymous3000/site-behavior-lab" ]]
+          [[ "$DEFAULT_BRANCH" == "main" ]]
+          [[ "$GITHUB_REF" == "refs/heads/main" ]]
+          [[ "$DECLARED_CANDIDATE" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$DECLARED_CANDIDATE" == "$GITHUB_SHA" ]]
+
+      - name: Checkout the exact event candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up pinned Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      # Repository runner inventory can require Administration:read even when
+      # the workflow token has Actions:read. The optional App is repository
+      # scoped, read-only, and has no publication authority. If neither token
+      # can read the inventory, capture fails closed.
+      - name: Mint optional read-only runner-inventory token
+        id: runner_read_token
+        if: vars.RUNNER_READ_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RUNNER_READ_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RUNNER_READ_APP_PRIVATE_KEY }}
+          permission-administration: read
+
+      # Unlike release preparation, this ceremony does not install or execute
+      # npm dependencies. One reviewed candidate-owned, built-in-only Node
+      # capture script receives repository-scoped read tokens because the
+      # runner/main/PR observations must be ordered at the activation instant.
+      # Checkout credentials are absent, every token lacks write authority,
+      # and the independent validator and upload steps receive no token.
+      - name: Capture the read-only activation evidence
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUNNER_READ_TOKEN: ${{ steps.runner_read_token.outputs.token || github.token }}
+          SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}
+          FEATURED_RUNNER_LABEL: ${{ vars.FEATURED_RUNNER_LABEL || '' }}
+          SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || '' }}
+          SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
+          FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+        run: |
+          set -euo pipefail
+          receipt="$RUNNER_TEMP/measurement-freeze-activation-receipt.json"
+          test ! -e "$receipt"
+          node scripts/capture-measurement-freeze-activation.mjs \
+            --candidate "$GITHUB_SHA" \
+            --output "$receipt"
+
+      - name: Independently validate the canonical receipt
+        env:
+          SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE: ${{ vars.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE || '' }}
+          FEATURED_RUNNER_LABEL: ${{ vars.FEATURED_RUNNER_LABEL || '' }}
+          SCANNER_EGRESS: ${{ vars.SCANNER_EGRESS || '' }}
+          SCANNER_EGRESS_REGION: ${{ vars.SCANNER_EGRESS_REGION || '' }}
+          FEATURED_R2_EGRESS_ATTESTED: ${{ vars.FEATURED_R2_EGRESS_ATTESTED || '' }}
+        run: |
+          set -euo pipefail
+          node scripts/validate-measurement-freeze-activation-receipt.mjs \
+            --receipt "$RUNNER_TEMP/measurement-freeze-activation-receipt.json" \
+            --repository "$GITHUB_REPOSITORY" \
+            --candidate "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --activation-workflow ".github/workflows/activate-measurement-freeze.yml" \
+            --featured-workflow ".github/workflows/scan-featured.yml" \
+            --readjudication-receipt "research/ops-receipts/featured-readjudication.json" \
+            --featured-sites "public/featured-sites.json"
+
+      - name: Preserve the append-only activation receipt
+        id: receipt_artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: measurement-freeze-activation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/measurement-freeze-activation-receipt.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Record immutable artifact identity
+        env:
+          ARTIFACT_ID: ${{ steps.receipt_artifact.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.receipt_artifact.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          [[ "$ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+          [[ "$ARTIFACT_DIGEST" =~ ^(sha256:)?[0-9a-f]{64}$ ]]
+          receipt_sha=$(sha256sum "$RUNNER_TEMP/measurement-freeze-activation-receipt.json" | cut -d' ' -f1)
+          {
+            echo "## Measurement freeze activation"
+            echo ""
+            echo "- Candidate: \`${GITHUB_SHA}\`"
+            echo "- Activation run: \`${GITHUB_RUN_ID}\` attempt \`${GITHUB_RUN_ATTEMPT}\`"
+            echo "- Receipt sha256: \`${receipt_sha}\`"
+            echo "- Artifact id: \`${ARTIFACT_ID}\`"
+            echo "- Artifact digest: \`${ARTIFACT_DIGEST}\`"
+            echo ""
+            echo "The receipt contains only public repository evidence and digests of the runner label and region; it contains no token or secret value."
+          } >> "$GITHUB_STEP_SUMMARY"

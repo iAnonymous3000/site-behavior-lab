@@ -22,8 +22,38 @@ const [target, ...forwarded] = process.argv.slice(2);
 // never assembled from a caller-supplied path.
 const TARGETS = {
   "aggregate-v2-shadow": ["dist", "schema", "lib", "aggregate-v2-shadow-cli.js"],
+  "calibration-acquire": ["scripts", "calibration-study-acquire.mjs"],
+  "calibration-archive": ["scripts", "calibration-study-archive.mjs"],
+  "calibration-assemble": ["scripts", "calibration-study-assemble.mjs"],
+  "calibration-finalize": ["scripts", "calibration-study-finalize.mjs"],
+  "calibration-preflight": ["scripts", "calibration-study-preflight.mjs"],
+  "calibration-producer-test": ["scripts", "calibration-study-lib.test.mjs"],
+  "calibration-scaffold": ["scripts", "calibration-study-scaffold.mjs"],
   "corpus-neutrality": ["dist", "schema", "lib", "corpus-neutrality-cli.js"],
   "corrections-ledger-history": ["dist", "schema", "lib", "corrections-ledger-history-cli.js"],
+  "operator-evidence-container-licensing": [
+    "scripts",
+    "build-container-image-licensing-evidence.mjs"
+  ],
+  "operator-evidence-egress": ["scripts", "build-egress-backstop-evidence.mjs"],
+  "operator-evidence-log-retention": [
+    "scripts",
+    "build-log-retention-evidence.mjs"
+  ],
+  "operator-evidence-staging-teardown": [
+    "scripts",
+    "capture-staging-teardown.mjs"
+  ],
+  "operator-evidence-verify": ["scripts", "verify-operator-evidence.mjs"],
+  "operator-evidence-waf": ["scripts", "capture-waf-ceilings.mjs"],
+  "release-tag-governance-capture": [
+    "scripts",
+    "capture-release-tag-governance.mjs"
+  ],
+  "runner-destruction-evidence": [
+    "scripts",
+    "runner-destruction-evidence.mjs"
+  ],
   "remediate-reports": ["dist", "schema", "lib", "remediate-reports-cli.js"],
   "toolchain-canary": ["scripts", "toolchain-canary.mjs"],
   "verify-v2-shadow": ["dist", "schema", "lib", "verify-v2-shadow-cli.js"]
@@ -50,6 +80,16 @@ function runOrExit(args) {
 // env flag so repeated invocations skip the recompile.
 if (process.env.SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY !== "1") {
   runOrExit([path.join(rootDir, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.schema.json"]);
+}
+if (
+  target === "calibration-acquire" &&
+  process.env.SITE_BEHAVIOR_LAB_CALIBRATION_DIST_READY !== "1"
+) {
+  runOrExit([
+    path.join(rootDir, "node_modules", "typescript", "bin", "tsc"),
+    "-p",
+    "tsconfig.calibration.json"
+  ]);
 }
 
 runOrExit([path.join(rootDir, ...relative), ...forwarded]);
