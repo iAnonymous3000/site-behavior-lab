@@ -393,6 +393,27 @@ test("structural inspection never substitutes for external Sigstore verification
   );
 });
 
+test("a calibration ceremony verification failure blocks the verified binding", (t) => {
+  const fixture = makeFixture(t, { adequateCalibrationStudy: true });
+  assert.throws(
+    () =>
+      verifiedMeasurementCandidateBinding(fixture.root, {
+        attestationVerifier: PASS_ATTESTATION,
+        freezeReceiptVerifier: PASS_FREEZE,
+        durableReplayVerifier: PASS_DURABLE_REPLAY,
+        operatorEvidenceVerifier: PASS_OPERATOR_EVIDENCE,
+        stagingTeardownProvenanceVerifier:
+          PASS_STAGING_TEARDOWN_PROVENANCE,
+        durableSoakProvenanceVerifier:
+          PASS_DURABLE_SOAK_PROVENANCE,
+        calibrationCeremonyVerifier: () => {
+          throw new Error("ceremony live verification rejected");
+        }
+      }),
+    /ceremony live verification rejected/
+  );
+});
+
 test("gh verification argv pins exact SAN, repository, signer/source commits, ref, issuer, and hosted runner", () => {
   const candidate = "a".repeat(40);
   const request: MeasurementCandidateAttestationRequest = {
@@ -503,6 +524,26 @@ test("the attestation verifier bootstraps only checksum-pinned GitHub CLI assets
   assert.match(
     bindingSource,
     /verifyMeasurementFreezeReceiptWithCanonicalCli\(\s*request,\s*options\.freezeArtifactContext\s*\)/
+  );
+});
+
+test("verified bindings invoke the canonical calibration ceremony live verifier per study", () => {
+  const bindingSource = readFileSync(
+    path.join(process.cwd(), "lib", "measurement-candidate-binding.ts"),
+    "utf8"
+  );
+  assert.match(
+    bindingSource,
+    /calibration-acquisition-authorization\.mjs/
+  );
+  assert.match(bindingSource, /"--verify-live"/);
+  assert.match(
+    bindingSource,
+    /options\.calibrationCeremonyVerifier \?\?\s*verifyCalibrationCeremonyWithCanonicalCli/
+  );
+  assert.match(
+    bindingSource,
+    /for \(const study of inspected\.calibrationStudies\) \{\s*calibrationCeremonyVerifier\(\{/
   );
 });
 

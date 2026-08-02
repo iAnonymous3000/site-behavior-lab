@@ -7,8 +7,12 @@ import {
   readFileSync,
   realpathSync
 } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { TextDecoder } from "node:util";
+
+const requireFromHere = createRequire(import.meta.url);
+let sharedCanonicalSerializer;
 
 export const CALIBRATION_ACQUISITION_REPOSITORY =
   "iAnonymous3000/site-behavior-lab";
@@ -420,7 +424,7 @@ export function validateCalibrationLabelRosterSelectionSnapshot(value) {
   requireValue(
     snapshotSha256 ===
       sha256Hex(
-        `${ROSTER_SELECTION_DIGEST_DOMAIN}\u0000${canonicalCompactJson(core)}`
+        `${ROSTER_SELECTION_DIGEST_DOMAIN}\u0000${sharedCanonicalJson(core)}`
       ),
     "calibration label roster selection snapshot digest is invalid"
   );
@@ -1639,6 +1643,35 @@ function readVerifiedJsonFile({
   } finally {
     if (descriptor !== undefined) closeSync(descriptor);
   }
+}
+
+// Roster-selection snapshot digests are produced with the shared canonical
+// serializer (lib/canonical-json.ts); verification must reproduce those exact
+// bytes, so the local equality serializer below must never feed that digest.
+function sharedCanonicalJson(value) {
+  if (sharedCanonicalSerializer === undefined) {
+    for (const candidate of [
+      "../dist/schema/lib/canonical-json.js",
+      "../.unit-test-dist/lib/canonical-json.js"
+    ]) {
+      try {
+        const loaded = requireFromHere(candidate);
+        if (typeof loaded.canonicalJson === "function") {
+          sharedCanonicalSerializer = loaded.canonicalJson;
+          break;
+        }
+      } catch {
+        // Workflows compile tsconfig.schema.json before verification; the
+        // unit lane compiles the same source into .unit-test-dist.
+      }
+    }
+    if (sharedCanonicalSerializer === undefined) {
+      throw new Error(
+        "the shared canonical JSON module is unavailable; compile tsconfig.schema.json first"
+      );
+    }
+  }
+  return sharedCanonicalSerializer(value);
 }
 
 function canonicalCompactJson(value) {

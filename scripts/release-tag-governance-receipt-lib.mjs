@@ -4,6 +4,7 @@ import {
   serializeCanonicalEvidence,
   sha256Bytes
 } from "./operator-evidence-common.mjs";
+import { requiredCiJobs } from "./verify-required-ci-jobs.mjs";
 
 export const RELEASE_TAG_GOVERNANCE_RECEIPT_PATH =
   "research/ops-receipts/release-tag-governance.json";
@@ -77,13 +78,10 @@ const BYPASS_KEYS = ["actorId", "actorType", "bypassMode"];
 const REPOSITORY = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const CLIENT_ID = /^[A-Za-z0-9_-]{8,128}$/;
 const SLUG = /^[a-z0-9](?:[a-z0-9-]{0,98}[a-z0-9])?$/;
-const EXPECTED_PRODUCTION_CHECKS = [
-  "Supply-chain Security",
-  "Typecheck, Unit Tests, Build",
-  "Chromium Smoke Test",
-  "Docker Runtime and Public R2 Smoke",
-  "Attest exact-SHA evidence manifests"
-];
+// The required-check names live only in .github/required-ci-jobs.json;
+// requiredCiJobs fails closed on a missing, mis-versioned, empty, blank,
+// or duplicated list and resolves the repo root from its own module path.
+const EXPECTED_PRODUCTION_CHECKS = requiredCiJobs();
 const GITHUB_ACTIONS_INTEGRATION_ID = 15368;
 
 function canonicalInstant(value) {

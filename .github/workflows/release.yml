@@ -1201,12 +1201,11 @@ jobs:
             JSON.stringify(Object.keys(value).sort()) ===
               JSON.stringify([...expected].sort());
           const canonicalJson = (value) => {
-            if (
-              value === null ||
-              typeof value === "string" ||
-              typeof value === "boolean"
-            ) {
+            if (value === null || typeof value === "boolean") {
               return JSON.stringify(value);
+            }
+            if (typeof value === "string") {
+              return JSON.stringify(value.normalize("NFC"));
             }
             if (typeof value === "number" && Number.isFinite(value)) {
               return JSON.stringify(value);
@@ -1219,7 +1218,7 @@ jobs:
                 .sort()
                 .map(
                   (key) =>
-                    `${JSON.stringify(key)}:${canonicalJson(value[key])}`
+                    `${JSON.stringify(key.normalize("NFC"))}:${canonicalJson(value[key])}`
                 )
                 .join(",")}}`;
             }
@@ -1668,7 +1667,7 @@ jobs:
             )
           ) {
             fail(
-              "The production evidence ruleset must contain canonical deletion, non-fast-forward, linear-history, and the exact five GitHub Actions checks with Integration id 15368 and fixed false parameters."
+              `The production evidence ruleset must contain canonical deletion, non-fast-forward, linear-history, and the exact ${expectedChecks.length} GitHub Actions checks with Integration id 15368 and fixed false parameters.`
             );
           }
           if (

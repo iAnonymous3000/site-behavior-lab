@@ -27,6 +27,13 @@ import {
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const options = parseOptions(process.argv.slice(2));
+// assembleCalibrationStudy requires the pre-acquisition roster custody files,
+// which this CLI does not yet acquire, so its failure is certain. That
+// certain failure must come here, before the reveal key is consumed or any
+// sealed envelope is decrypted.
+throw new Error(
+  "Pre-acquisition roster custody wiring is not yet implemented in this CLI; assemble mode refuses before revealing sealed labels."
+);
 const revealPrivateKeyPem = requiredSecret(
   "CALIBRATION_LABEL_REVEAL_PRIVATE_KEY"
 );

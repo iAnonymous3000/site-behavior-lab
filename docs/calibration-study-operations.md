@@ -382,6 +382,11 @@ no reference plaintext, blind-tiebreaker value, or reveal key.
 
 ## Assemble dispatch
 
+**Status: assemble custody wiring not yet implemented.** The assemble CLI does
+not yet perform the roster re-fetch and custody cross-binding described below.
+Until that wiring lands, assemble mode fails closed before the reveal key is
+consumed or any sealed envelope is decrypted; no sealed label is revealed.
+
 Select `assemble` from `main` and provide the same study, detector, and C plus:
 
 - acquisition run id and attempt;
