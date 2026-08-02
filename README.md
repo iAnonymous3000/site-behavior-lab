@@ -192,7 +192,7 @@ The digest-pinned Playwright container base is verified at Node 24.18.0 with npm
 | `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` | `7` | Maximum age for persisted share reports before they are ignored and pruned. Durable jobs require this effective age policy to retain reports for at least 75 minutes. |
 | `SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT` | `500` | Target maximum number of persisted share reports. Newly published shares receive the short survival window below before count pruning can evict them, so a burst may exceed the target temporarily. |
 | `SITE_BEHAVIOR_LAB_REPORT_MIN_SURVIVAL_MS` | `60000` | Minimum time (capped at two hours) a newly committed share survives count pruning, preventing a successful concurrent save from returning an already-dead link. Durable jobs fail closed unless the effective value is at least `4500000` (75 minutes). Age expiry still wins. |
-| `SITE_BEHAVIOR_LAB_R2_BUCKET` | `site-behavior-lab-reports` | R2 backend only. Name of the R2 bucket that holds report JSON. |
+| `SITE_BEHAVIOR_LAB_R2_BUCKET` | unset | R2 backend only. Name of the R2 bucket that holds report JSON. Required by the generic Node r2 backend, which fails closed when it is unset; only the Cloudflare Containers front Worker defaults it to `site-behavior-lab-reports`. |
 | `SITE_BEHAVIOR_LAB_R2_ENDPOINT` | unset | R2 backend only. S3-compatible endpoint, for example `https://<accountid>.r2.cloudflarestorage.com`. Required when the public report store or v2 shadow backend is `r2`. |
 | `SITE_BEHAVIOR_LAB_R2_ACCESS_KEY_ID` / `SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY` | unset | R2 backend only. Credentials for an R2 API token scoped to the reports bucket (Object Read & Write). Required when the public report store or v2 shadow backend is `r2`. These are secrets. |
 | `SITE_BEHAVIOR_LAB_R2_PREFIX` | unset (bucket root) | R2 backend only. Optional key prefix under which report objects are stored; the generic Node backend defaults to the bucket root. The committed Cloudflare Containers configs explicitly set `reports/`, so production does not use the generic default. |
@@ -445,6 +445,15 @@ npm run test:smoke:docker
 ```
 
 `npm run test:smoke:static` drives the freshly built `out/` export end to end (gallery, permalinks, uploads, compare tools); run it right after `npm run build:pages` so it never checks a stale artifact.
+
+Versioned releases are cut as `vX.Y.Z` tags under the release-integrity
+contract in [RELEASE.md](RELEASE.md): a tag claims only that the tagged
+revision passed every required CI gate, was promoted to `production` before
+the tag existed, and has a Sigstore-attested exact-source release receipt,
+archived durably under [docs/release-receipts/](docs/release-receipts/). The
+machine-readable release state is [release-policy.json](release-policy.json);
+a tag does not claim API stability or npm publication, both of which remain
+explicitly disabled there.
 
 CI also runs the dependency audit, static export, and static smoke test; separate Chromium Smoke Test and required Docker Runtime and Public R2 Smoke jobs exercise the built Node app and production image.
 
