@@ -10,8 +10,20 @@ updates:
       timezone: "America/Los_Angeles"
     groups:
       npm-compatible:
+        # playwright and tldts are measurement pins, not dependencies to keep
+        # fresh: the Playwright version is part of the recorded base
+        # methodology identity and tldts decides registrable domains (what
+        # counts as third-party), so lib/toolchain-drift.test.ts and the
+        # provenance guards refuse any solo bump and every group PR that
+        # includes one arrives red. They move only through the coordinated
+        # toolchain process tracked by the weekly drift issue, and new
+        # advisories still fail the npm audit gate regardless of this file.
         patterns: ["*"]
+        exclude-patterns: ["playwright", "tldts"]
         update-types: ["minor", "patch"]
+    ignore:
+      - dependency-name: "playwright"
+      - dependency-name: "tldts"
 
   - package-ecosystem: "cargo"
     directory: "/tools/adblock-wasm"
