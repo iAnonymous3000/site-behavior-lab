@@ -594,7 +594,7 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   );
   assert.match(
     source,
-    /type DurableScanJobCancellationResult\s*=\s*\| \{[\s\S]*status: "success";[\s\S]*snapshot: DurableScanJobSnapshot;[\s\S]*\| \{ status: "conflict" \}/
+    /type DurableScanJobCancellationResult\s*=\s*\| \{[\s\S]*status: "success";[\s\S]*snapshot: DurableScanJobSnapshot;[\s\S]*\| \{ status: "conflict"; publishing: boolean \}/
   );
   assert.match(container, /async cancelDurableJob\(jobId: string\): Promise<DurableScanJobCancellationResult>/);
   assert.match(
@@ -627,7 +627,10 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
 
   const cancellation = sliceBetween(container, "async cancelDurableJob", "async heartbeatDurableJob", "container");
   assert.ok(requireIndex(cancellation, "const now = Date.now()", "cancellation") < requireIndex(cancellation, "this.ctx.storage.transactionSync", "cancellation"));
-  assert.match(cancellation, /instanceof DurableScanJobStateError\) return \{ status: "conflict" \}/);
+  assert.match(
+    cancellation,
+    /return \{ status: "conflict", publishing: error\.currentState === "publishing" \}/
+  );
   assert.match(cancellation, /status: "success" as const/);
 
   assert.doesNotMatch(
@@ -678,6 +681,32 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   assert.doesNotMatch(coordinator, /instanceof DurableScanJobStateError/);
   assert.match(publicControl, /cancelled\.status === "conflict"\) return publicJobConflictResponse/);
   assert.doesNotMatch(publicControl, /instanceof DurableScanJobStateError/);
+});
+
+test("a publishing durable job is refused as still saving, not as finished", async () => {
+  const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
+  const container = sliceBetween(source, "export class ScannerContainer", "export default", "source");
+
+  // The store distinguishes "already publishing" from the terminal states, so
+  // the RPC envelope has to carry that state instead of collapsing both into a
+  // reasonless conflict.
+  const cancellation = sliceBetween(container, "async cancelDurableJob", "async heartbeatDurableJob", "container");
+  assert.match(
+    cancellation,
+    /return \{ status: "conflict", publishing: error\.currentState === "publishing" \}/
+  );
+
+  // The publishing flag must come from the transition that just failed, never
+  // from the status snapshot read before it.
+  const publicControl = sliceBetween(source, "async function handleDurableScanJobRequest", "async function refuseUnauthorizedDurableScanJobControl(", "source");
+  assert.match(publicControl, /publicJobConflictResponse\(request, env, cancelled\.publishing\)/);
+
+  const conflict = sliceBetween(source, "function publicJobConflictResponse(", "async function recoverRegisteredScanJob(", "source");
+  assert.match(conflict, /publicJobConflictResponse\(request: Request, env: Env, publishing: boolean\)/);
+  assert.match(
+    conflict,
+    /publishing\s*\n?\s*\?\s*"This scan report is already being saved and can no longer be cancelled\."\s*\n?\s*:\s*"This scan job has already finished and cannot be cancelled\."/
+  );
 });
 
 test("durable preparation is isolated from the public Phase-1 scan route", async () => {

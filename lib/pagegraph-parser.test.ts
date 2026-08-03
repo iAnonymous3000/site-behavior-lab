@@ -7,6 +7,7 @@ import {
   normalizePageGraphResourceType,
   pageGraphGraphmlToAdapterInput,
   pageGraphGraphmlToScanResult,
+  pageGraphGraphmlToStrictAdapterInput,
   pageGraphUploadToScanResult,
   parseGraphmlRecords
 } from "./pagegraph-parser";
@@ -182,14 +183,20 @@ test("pageGraphGraphmlToAdapterInput reads the current capture schema (type on t
   const requests = input.requests ?? [];
   const byId = new Map(requests.map((request) => [request.requestId, request]));
   assert.equal(byId.get("req-img")?.resourceType, "image");
-  assert.equal(byId.get("req-img")?.status, 200);
   assert.equal(byId.get("req-css")?.resourceType, "stylesheet");
-  // The failed request's "request error" completion still supplies its status.
-  assert.equal(byId.get("req-css")?.status, 0);
   assert.equal(byId.get("req-beacon-1")?.resourceType, "xhr");
+  // The fixture hand-writes numeric values into the request-edge "status"
+  // attribute, which the real producer never does (see the real-capture guard
+  // below). Whatever that attribute holds, it is a lifecycle token slot, not
+  // an HTTP response code, so no request may carry an invented status.
+  assert.equal(
+    requests.every((request) => request.status === undefined),
+    true,
+    "PageGraph request edges carry no HTTP status"
+  );
 
-  // Two distinct requests sharing URL, method, status, and timestamp are kept
-  // apart by the graph's own request id.
+  // Two distinct requests sharing URL, method, and timestamp are kept apart by
+  // the graph's own request id.
   assert.equal(requests.length, 4);
   assert.equal(requests.filter((request) => request.url === "https://tracker.example/collect").length, 2);
 
@@ -198,7 +205,46 @@ test("pageGraphGraphmlToAdapterInput reads the current capture schema (type on t
     finalUrl: "https://news.example/",
     scannedAt: new Date(0).toISOString()
   });
-  assert.equal(report.requests[1].status, null, "PageGraph request-error status 0 is explicit no-HTTP-status");
+  assert.equal(report.requests[1].status, null, "PageGraph supplies no HTTP status for a failed request");
+});
+
+test("PageGraph request-edge status is a lifecycle token, so no HTTP status is invented from a real capture", () => {
+  const graphml = readFileSync(path.join(PAGEGRAPH_FIXTURE_DIR, "real-wikipedia-2026-07-19.graphml"), "utf8");
+  const options = {
+    requestedUrl: "https://www.wikipedia.org/",
+    finalUrl: "https://www.wikipedia.org/",
+    scannedAt: new Date(0).toISOString()
+  };
+
+  // The committed 0.7.7 capture declares status as a string and only ever
+  // writes the lifecycle vocabulary into it. If this stops holding, the
+  // parser's premise (and this guard) has to be re-derived from the producer.
+  const statusValues = new Set(
+    parseGraphmlRecords(graphml)
+      .filter((record) => record.kind === "edge")
+      .map((record) => record.fields.status)
+      .filter((value): value is string => value !== undefined)
+  );
+  assert.deepEqual([...statusValues].sort(), ["complete", "started"]);
+
+  const requests = pageGraphGraphmlToStrictAdapterInput(graphml, options).requests ?? [];
+  assert.equal(requests.length, 5);
+  assert.equal(
+    requests.every((request) => request.status === undefined),
+    true
+  );
+
+  // A numeric token in that slot is still a lifecycle-attribute value, not an
+  // HTTP response code, and must never reach the report as one. Without this
+  // the strict importer publishes "204" as a request's HTTP status.
+  const numericStatusGraphml = graphml.replaceAll(">complete<", ">204<");
+  const numericStatusRequests = pageGraphGraphmlToStrictAdapterInput(numericStatusGraphml, options).requests ?? [];
+  assert.equal(numericStatusRequests.length, 5);
+  assert.equal(
+    numericStatusRequests.every((request) => request.status === undefined),
+    true,
+    "a numeric lifecycle token must not be published as an HTTP status"
+  );
 });
 
 test("normalizePageGraphResourceType folds Blink names into the Playwright vocabulary", () => {

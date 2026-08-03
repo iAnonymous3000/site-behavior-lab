@@ -1,4 +1,4 @@
-export const REDACTION_TRANSITION_AUDIT_VERSION = "redaction-v4-transition-audit@1" as const;
+export const REDACTION_TRANSITION_AUDIT_VERSION = "redaction-v4-transition-audit@2" as const;
 
 export type RedactionTransitionAudit = {
   version: typeof REDACTION_TRANSITION_AUDIT_VERSION;
@@ -53,11 +53,13 @@ export function emptyRedactionTransitionAudit(): RedactionTransitionAudit {
 /**
  * Versioned migration-only accounting for v4 policy transitions that cannot
  * be added to the frozen seven-field public privacy counter vocabulary.
- * Counts are field transitions in the exact before/after report projection.
+ * Counts are before-side fields carrying a superseded policy value that no
+ * longer appears under the same key in the after projection. Position is not
+ * used: v1 redaction rebuilds derived arrays.
  */
 export function redactionTransitionAudit(before: unknown, after: unknown): RedactionTransitionAudit {
   const audit = emptyRedactionTransitionAudit();
-  visit(before, after, undefined, audit);
+  visit(before, collectStringsByKey(after), undefined, audit);
   return audit;
 }
 
@@ -70,40 +72,58 @@ export function addRedactionTransitionAudit(
   target.ipLiteralFieldsRejected += source.ipLiteralFieldsRejected;
 }
 
+/**
+ * Every string in the projection, indexed by the property key it sits under.
+ * Array elements inherit their parent key, exactly as the walk below does.
+ *
+ * v1 redaction REBUILDS derived arrays instead of mapping them: `domains` is
+ * regrouped from the sanitized requests, so IP-literal rows collapse into one
+ * {invalid-host} row and the survivors re-sort by request count. Pairing
+ * before/after elements by index therefore compared unrelated fields. A
+ * field's transition is confirmed instead by its violating value being absent
+ * from the after projection under the same key.
+ */
+function collectStringsByKey(
+  value: unknown,
+  key?: string,
+  into = new Map<string, Set<string>>()
+): Map<string, Set<string>> {
+  if (typeof value === "string") {
+    if (key !== undefined) {
+      let bucket = into.get(key);
+      if (bucket === undefined) into.set(key, (bucket = new Set()));
+      bucket.add(value);
+    }
+    return into;
+  }
+  if (Array.isArray(value)) {
+    for (const element of value) collectStringsByKey(element, key, into);
+    return into;
+  }
+  if (!isRecord(value)) return into;
+  for (const [childKey, child] of Object.entries(value)) collectStringsByKey(child, childKey, into);
+  return into;
+}
+
 function visit(
   before: unknown,
-  after: unknown,
+  after: Map<string, Set<string>>,
   key: string | undefined,
   audit: RedactionTransitionAudit
 ): void {
   if (typeof before === "string") {
-    if (key === "pageTitle" && before !== "" && after === "") audit.pageTitlesWithheld += 1;
-    const beforePort = explicitPort(before, key);
-    if (beforePort !== null && (typeof after !== "string" || explicitPort(after, key) !== beforePort)) {
-      audit.explicitPortFieldsRemoved += 1;
-    }
-    if (
-      key !== undefined &&
-      HOST_OR_URL_KEYS.has(key) &&
-      hasIpLiteralHost(before, key) &&
-      typeof after === "string" &&
-      (after === "{invalid-url}" || after === "{invalid-host}" || after === ".{invalid-host}")
-    ) {
-      audit.ipLiteralFieldsRejected += 1;
-    }
+    if (key === undefined || after.get(key)?.has(before) === true) return;
+    if (key === "pageTitle" && before !== "") audit.pageTitlesWithheld += 1;
+    if (explicitPort(before, key) !== null) audit.explicitPortFieldsRemoved += 1;
+    if (HOST_OR_URL_KEYS.has(key) && hasIpLiteralHost(before, key)) audit.ipLiteralFieldsRejected += 1;
     return;
   }
   if (Array.isArray(before)) {
-    if (!Array.isArray(after)) return;
-    for (let index = 0; index < before.length; index += 1) {
-      visit(before[index], after[index], key, audit);
-    }
+    for (const element of before) visit(element, after, key, audit);
     return;
   }
-  if (!isRecord(before) || !isRecord(after)) return;
-  for (const [childKey, value] of Object.entries(before)) {
-    visit(value, after[childKey], childKey, audit);
-  }
+  if (!isRecord(before)) return;
+  for (const [childKey, value] of Object.entries(before)) visit(value, after, childKey, audit);
 }
 
 function explicitPort(value: string, key: string | undefined): string | null {

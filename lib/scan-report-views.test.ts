@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { committedReportCreatedAt } from "./committed-report-created-at";
 import { createGpcComparisonReport } from "./compare-reports";
+import { shieldsRunMeasurement } from "./report-insights";
+import { readStoredScanReport } from "./scan-report-reader";
 import {
   makeInterventionComparisonReportV2,
   makePublicSingleReportV2,
@@ -204,6 +207,83 @@ test("r2 views surface the recorded axis readbacks and replication-pair count", 
   if (!single.run.verificationFacts) {
     assert.equal(singleView.runs[0].verificationFacts, null);
   }
+});
+
+// ---------------------------------------------------------------------------
+// Configured is not measured. A v2 run without a shields readback carries one
+// piece of engine evidence, its toolchain: a run that pinned no filter lists
+// never loaded an engine. Deriving "the engine was active" from the REQUESTED
+// mode manufactures an absence claim ("no requests matched the filter lists")
+// out of a measurement that never ran.
+// ---------------------------------------------------------------------------
+
+test("a v2 run that pinned no filter lists never reads as an active engine", () => {
+  // Control: the engine facts are recorded, so the classification run reads as
+  // active and its zero is a real, published filter-match measurement.
+  const loaded = makePublicSingleReportV2();
+  loaded.run.summary = { ...loaded.run.summary, counts: { ...loaded.run.summary.counts, shieldsBlockedRequests: 0 } };
+  assert.notEqual(loaded.run.toolchain.adblock, null);
+  const loadedRun = viewFromV2(loaded, 1).runs[0];
+  assert.equal(loadedRun.conditions.adblockActive, true);
+  assert.deepEqual(shieldsRunMeasurement(loadedRun), { kind: "filter-matches", count: 0, origin: "legacy-derived" });
+
+  // Same wire, same requested condition, engine never loaded.
+  const neverLoaded = makePublicSingleReportV2();
+  neverLoaded.run.summary = {
+    ...neverLoaded.run.summary,
+    counts: { ...neverLoaded.run.summary.counts, shieldsBlockedRequests: 0 }
+  };
+  neverLoaded.run.toolchain = { ...neverLoaded.run.toolchain, adblock: null };
+  const neverLoadedRun = viewFromV2(neverLoaded, 1).runs[0];
+  assert.equal(neverLoadedRun.conditions.shieldsMode, "classification");
+  assert.equal(neverLoadedRun.conditions.adblockLists, null);
+  assert.equal(neverLoadedRun.conditions.adblockActive, false);
+  // The reader consequence: nothing was classified, so there is no Shields
+  // measurement to publish and no reassuring "matched zero" card.
+  assert.equal(shieldsRunMeasurement(neverLoadedRun), null);
+
+  // An r2 readback still outranks the toolchain in both directions.
+  const readback = makeShieldsInterventionReportV2R2();
+  const readbackFacts = readback.variant.verificationFacts?.shields;
+  if (!readbackFacts) assert.fail("expected recorded shields facts on the r2 fixture");
+  readback.variant.toolchain = { ...readback.variant.toolchain, adblock: null };
+  assert.equal(viewFromV2(readback, 2).runs[1].conditions.adblockActive, readbackFacts.engineLoaded);
+});
+
+// ---------------------------------------------------------------------------
+// One "newest contributing run" contract, two derivations. The view's
+// sort/retention clock and the provenance sidecar's createdAt must agree, or a
+// report is pruned before the timestamp its own sidecar records and the page
+// prints a "latest visit" that is not the latest visit.
+// ---------------------------------------------------------------------------
+
+test("the view's sort clock covers every embedded run, supporting pairs included", () => {
+  const report = makeSupportingPairInterventionReportV2R2();
+  const supportingPairs =
+    report.experiment.kind === "intervention" && "supportingPairs" in report.experiment
+      ? report.experiment.supportingPairs ?? []
+      : [];
+  assert.notEqual(supportingPairs.length, 0);
+
+  const embedded = [
+    report.baseline,
+    report.variant,
+    ...supportingPairs.flatMap((pair) => [pair.baseline, pair.variant])
+  ].map((run) => run.startedAt);
+  const newest = embedded.reduce((latest, startedAt) => (Date.parse(startedAt) > Date.parse(latest) ? startedAt : latest));
+  // The fixture's supporting pair ran after both primary arms, so the primary
+  // arms alone are demonstrably the wrong clock.
+  assert.equal([report.baseline.startedAt, report.variant.startedAt].includes(newest), false);
+
+  const view = viewFromV2(report, 2);
+  assert.equal(view.latestRunAt, newest);
+  // Rendering is untouched: the view still shows the two primary arms.
+  assert.equal(view.runs.length, 2);
+
+  // The sidecar clock walks the same runs; the two derivations must not drift.
+  const stored = readStoredScanReport(report);
+  if (!stored.ok) assert.fail(`fixture should be readable (${stored.error})`);
+  assert.equal(view.latestRunAt, committedReportCreatedAt(stored.stored));
 });
 
 // ---------------------------------------------------------------------------

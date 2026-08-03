@@ -307,7 +307,7 @@ export const MAX_POLICY_LINK_TEXT_CHARS = 80;
  */
 export const MAX_POLICY_LINK_MATCH_TEXT_CHARS = 512;
 const MAX_POLICY_PAGE_REQUESTS = 150;
-const MAX_POLICY_TEXT_CHARS = 400_000;
+export const MAX_POLICY_TEXT_CHARS = 400_000;
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
 
@@ -3783,8 +3783,15 @@ async function probePrivacyPolicy(input: {
   }
 }
 
-function boundedPolicyTextFromWire(wire: string | null): string {
-  if (typeof wire !== "string" || wire.length > MAX_POLICY_TEXT_CHARS + 128) return "";
+export function boundedPolicyTextFromWire(wire: string | null): string {
+  // JSON escaping can expand one input character to six wire characters, the
+  // same accounting collectBoundedPageContentText applies to this wire shape.
+  // A flat 128-character allowance left only 99 characters of slack over the
+  // envelope's own 29, so a policy long enough to actually reach the character
+  // cap outgrew the bound on its own newlines and quotes: a complete 2xx read
+  // was discarded here and then published as a policy load failure. The value
+  // length checked below, not this one, is what enforces the character cap.
+  if (typeof wire !== "string" || wire.length > MAX_POLICY_TEXT_CHARS * 6 + 128) return "";
   try {
     const value = JSON.parse(wire) as { value?: unknown };
     return typeof value?.value === "string" && value.value.length <= MAX_POLICY_TEXT_CHARS

@@ -22,6 +22,7 @@ import {
 } from "./scan-runtime";
 import type { FingerprintDetectionSummary } from "./types";
 import {
+  boundedPolicyTextFromWire,
   browserProcessEnvironment,
   captureProbeRequest,
   completedKeystrokeProbeOutcome,
@@ -35,6 +36,7 @@ import {
   freezePassiveShieldsFacts,
   MAX_RECORDED_REQUESTS,
   MAX_CAPTURED_BODY_CHARS,
+  MAX_POLICY_TEXT_CHARS,
   MAX_PROBE_CAPTURED_REQUESTS,
   MAX_PROBE_FIELD_CANDIDATES,
   MAX_PROBE_FIELDS,
@@ -3838,4 +3840,40 @@ test("a passive fingerprint observation survives a final read that lost a frame"
       { api: "canvas.toDataURL", count: 7, phaseId: 2 }
     ]
   );
+});
+
+test("a privacy policy that fills the character cap survives its own JSON escaping", () => {
+  // The collector returns JSON.stringify({ value, truncated }), whose envelope
+  // alone costs 29 characters. Bounding that wire at the character cap plus a
+  // flat 128 left 99 characters for escape expansion, and a policy page long
+  // enough to reach the cap carries thousands of newlines that each cost two
+  // wire characters. The complete 2xx read was thrown away and the detector
+  // ledger published the largest policies, exactly the ones the truncation
+  // path exists for, as load failures.
+  const line = `${"a".repeat(126)}\n`;
+  const capped = line.repeat(Math.ceil(MAX_POLICY_TEXT_CHARS / line.length)).slice(0, MAX_POLICY_TEXT_CHARS);
+  assert.equal(capped.length, MAX_POLICY_TEXT_CHARS);
+
+  const wire = JSON.stringify({ value: capped, truncated: true });
+  assert.ok(wire.length > MAX_POLICY_TEXT_CHARS + 128, "the fixture must outgrow the flat wire allowance");
+  assert.equal(boundedPolicyTextFromWire(wire), capped);
+
+  // An escape-free capped read was always accepted, so the widened allowance
+  // must not change the small-policy behavior the end-to-end fixture covers.
+  const plain = "b".repeat(MAX_POLICY_TEXT_CHARS);
+  assert.equal(boundedPolicyTextFromWire(JSON.stringify({ value: plain, truncated: true })), plain);
+});
+
+test("the widened policy wire allowance still enforces the character cap", () => {
+  // Widening the wire bound must not become a way past the cap itself: the
+  // value length is the check that binds, and a wire far too large to hold a
+  // capped value is still refused before it is parsed.
+  const overCap = JSON.stringify({ value: "a".repeat(MAX_POLICY_TEXT_CHARS + 1), truncated: true });
+  assert.ok(overCap.length < MAX_POLICY_TEXT_CHARS * 6 + 128, "the over-cap fixture must reach the parse");
+  assert.equal(boundedPolicyTextFromWire(overCap), "");
+
+  assert.equal(boundedPolicyTextFromWire("x".repeat(MAX_POLICY_TEXT_CHARS * 6 + 129)), "");
+  assert.equal(boundedPolicyTextFromWire(null), "");
+  assert.equal(boundedPolicyTextFromWire("not json"), "");
+  assert.equal(boundedPolicyTextFromWire(JSON.stringify({ truncated: true })), "");
 });

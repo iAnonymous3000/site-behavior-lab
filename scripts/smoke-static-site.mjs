@@ -109,6 +109,9 @@ const corpusCsvMetricContractColumns = [
   "delta_catalogued_service_requests",
   "delta_tracking_service_requests"
 ];
+// Same additive rule: the cookie-family completeness flag appends after the
+// metric-contract block, so every column above keeps its position.
+const corpusCsvCompletenessColumns = ["cookie_evidence_complete"];
 const recordedConsentChoiceStates = ["verified", "contradicted", "weak-signal", "unavailable", "failed"];
 
 function pass(message) {
@@ -441,7 +444,8 @@ async function main() {
     const expectedAppendedTail = [
       ...corpusCsvDecisionColumns,
       ...corpusCsvProvenanceColumns,
-      ...corpusCsvMetricContractColumns
+      ...corpusCsvMetricContractColumns,
+      ...corpusCsvCompletenessColumns
     ];
     if (
       legacyTailIndex < 0 ||

@@ -81,6 +81,10 @@ on:
     # methodology or GPC era flip stranded the de-bias half in the previous era.
     # On 2026-07-27 that published a gallery-only cohort whose median
     # third-party requests read 87 where the mixed corpus read 11.
+    # COUPLED LITERAL: FEATURED_SITES_FILE below selects the seed catalog by
+    # string-matching this exact cron. Retiming it here without retiming it
+    # there turns this leg back into a second gallery run that still reports
+    # success. lib/featured-report-preflight.test.ts pins the two together.
     - cron: "23 7 * * 1"
 
 permissions:
@@ -102,6 +106,10 @@ env:
   NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL: "https://sitebehavior.org"
   # `/api/health` must identify the exact checkout before a scan can start.
   SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
+  # COUPLED LITERAL: the cron below is the second `on: schedule` leg declared
+  # above, matched as a string. Both halves move together or the seed leg
+  # silently falls back to the gallery catalog. lib/featured-report-preflight.test.ts
+  # fails if they drift apart.
   FEATURED_SITES_FILE: >-
     ${{ github.event.inputs.sites_file
       || github.event.client_payload.sites_file

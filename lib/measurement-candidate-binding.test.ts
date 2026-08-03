@@ -7,6 +7,7 @@ import {
 } from "node:crypto";
 import {
   chmodSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -283,6 +284,7 @@ test("one verified candidate covers the complete fixed post-freeze evidence carr
       "generated-report-index",
       "generated-corpus-stats",
       "runner-receipt",
+      "calibration-label-coordinate",
       "controlled-publication-manifest",
       "controlled-publication-receipt",
       "aa-attempt-ledger",
@@ -713,6 +715,96 @@ test("an empty binding verifies only through the acquisition preflight or the ex
   );
   assert.ok(manifestLean);
   assert.deepEqual(manifestLean.calibrationStudies, []);
+});
+
+test("a deferred A/A gate relaxes the measurement-inputs floor the readiness lane already relaxed", (t) => {
+  const verificationOptions = {
+    attestationVerifier: PASS_ATTESTATION,
+    freezeReceiptVerifier: PASS_FREEZE,
+    durableReplayVerifier: PASS_DURABLE_REPLAY,
+    operatorEvidenceVerifier: PASS_OPERATOR_EVIDENCE,
+    stagingTeardownProvenanceVerifier:
+      PASS_STAGING_TEARDOWN_PROVENANCE,
+    durableSoakProvenanceVerifier:
+      PASS_DURABLE_SOAK_PROVENANCE,
+    calibrationCeremonyVerifier: PASS_CALIBRATION_CEREMONY
+  };
+
+  // The lean 1.0 candidate defers the A/A gate to 1.1 and runs no A/A
+  // program, so the inputs manifest binds no A/A files at all. The binding
+  // must verify on exactly the evidence the readiness lane requires.
+  const deferred = makeFixture(t, {
+    adequateCalibrationStudy: true,
+    includeAaStudy: false,
+    deferAaStudyGate: true
+  });
+  const verified = verifiedMeasurementCandidateBinding(
+    deferred.root,
+    verificationOptions
+  );
+  assert.ok(verified);
+  assert.deepEqual(
+    verified.postCandidateAttestationVerifications.map(
+      (verification) => verification.subject
+    ),
+    ["calibration-runtime-receipt"]
+  );
+
+  // Without the deferral record in the candidate-resident manifest the floor
+  // stays, fail-closed, exactly as before.
+  const undeferred = makeFixture(t, {
+    adequateCalibrationStudy: true,
+    includeAaStudy: false
+  });
+  assert.throws(
+    () =>
+      verifiedMeasurementCandidateBinding(
+        undeferred.root,
+        verificationOptions
+      ),
+    /must contain paired A\/A preregistration and target-frame files/
+  );
+
+  // A deferred gate never relaxes verification of A/A inputs that are bound.
+  const deferredWithStudy = makeFixture(t, {
+    adequateCalibrationStudy: true,
+    deferAaStudyGate: true
+  });
+  const boundVerified = verifiedMeasurementCandidateBinding(
+    deferredWithStudy.root,
+    verificationOptions
+  );
+  assert.ok(boundVerified);
+  assert.deepEqual(
+    boundVerified.postCandidateAttestationVerifications.map(
+      (verification) => verification.subject
+    ),
+    ["aa-producer-receipt", "calibration-runtime-receipt"]
+  );
+});
+
+test("the signed label coordinate manifest must be enumerated evidence, not a free-floating digest", (t) => {
+  const fixture = makeFixture(t, {
+    adequateCalibrationStudy: true,
+    omitLabelCoordinateEvidence: true
+  });
+  assert.throws(
+    () =>
+      verifiedMeasurementCandidateBinding(fixture.root, {
+        attestationVerifier: PASS_ATTESTATION,
+        freezeReceiptVerifier: PASS_FREEZE,
+        durableReplayVerifier: PASS_DURABLE_REPLAY,
+        operatorEvidenceVerifier: PASS_OPERATOR_EVIDENCE,
+        stagingTeardownProvenanceVerifier:
+          PASS_STAGING_TEARDOWN_PROVENANCE,
+        durableSoakProvenanceVerifier:
+          PASS_DURABLE_SOAK_PROVENANCE,
+        calibrationCeremonyVerifier: PASS_CALIBRATION_CEREMONY
+      }),
+    new RegExp(
+      `must enumerate calibration-labels/${fixture.studyId}/sources\\.json as evidence`
+    )
+  );
 });
 
 test("requireCalibrationStudies: false still fully verifies every bound study", (t) => {
@@ -1855,6 +1947,9 @@ function makeFixture(
     adequateCalibrationStudy?: boolean;
     unverifiedPixelConsent?: boolean;
     deferCalibrationGate?: boolean;
+    includeAaStudy?: boolean;
+    deferAaStudyGate?: boolean;
+    omitLabelCoordinateEvidence?: boolean;
   } = {}
 ): Fixture {
   const root = mkdtempSync(path.join(tmpdir(), "sbl-measurement-binding-"));
@@ -2122,13 +2217,25 @@ RUN test "$(node --version)" = "v24.18.0"
       }
     },
     gates: {},
-    ...(options.deferCalibrationGate
+    ...(options.deferCalibrationGate || options.deferAaStudyGate
       ? {
           deferredGates: {
-            "detector-calibration": {
-              kind: "calibration",
-              deferredTo: "1.1.0"
-            }
+            ...(options.deferCalibrationGate
+              ? {
+                  "detector-calibration": {
+                    kind: "calibration",
+                    deferredTo: "1.1.0"
+                  }
+                }
+              : {}),
+            ...(options.deferAaStudyGate
+              ? {
+                  "aa-repeatability": {
+                    kind: "aa-study",
+                    deferredTo: "1.1.0"
+                  }
+                }
+              : {})
           }
         }
       : {})
@@ -2192,28 +2299,30 @@ RUN test "$(node --version)" = "v24.18.0"
   const measurementIdentityDigest = sha256File(
     path.join(root, ...MEASUREMENT_IDENTITY_PATH.split("/"))
   );
-  writeJson(path.join(root, ...aaTargetFramePath.split("/")), [
-    { targetId: "example-com", url: "https://example.com/" }
-  ]);
-  writeJson(path.join(root, ...aaPreregistrationPath.split("/")), {
-    schemaVersion: 2,
-    studyId: "final-repeatability",
-    declaredAt: "2026-07-31T23:15:00.000Z",
-    measurementIdentityManifestPath: MEASUREMENT_IDENTITY_PATH,
-    measurementIdentityDigest,
-    sitesFile: aaTargetFramePath,
-    sitesFileDigest: sha256File(
-      path.join(root, ...aaTargetFramePath.split("/"))
-    )
-  });
+  const includeAaStudy = options.includeAaStudy !== false;
+  if (includeAaStudy) {
+    writeJson(path.join(root, ...aaTargetFramePath.split("/")), [
+      { targetId: "example-com", url: "https://example.com/" }
+    ]);
+    writeJson(path.join(root, ...aaPreregistrationPath.split("/")), {
+      schemaVersion: 2,
+      studyId: "final-repeatability",
+      declaredAt: "2026-07-31T23:15:00.000Z",
+      measurementIdentityManifestPath: MEASUREMENT_IDENTITY_PATH,
+      measurementIdentityDigest,
+      sitesFile: aaTargetFramePath,
+      sitesFileDigest: sha256File(
+        path.join(root, ...aaTargetFramePath.split("/"))
+      )
+    });
+  }
   const candidateInputPaths = [
     preregistrationPath,
     samplingFramePath,
     labelSealingPublicKeyPath,
     censoringPolicyPath,
     MEASUREMENT_IDENTITY_PATH,
-    aaPreregistrationPath,
-    aaTargetFramePath
+    ...(includeAaStudy ? [aaPreregistrationPath, aaTargetFramePath] : [])
   ].sort();
   writeJson(path.join(root, ...MEASUREMENT_CANDIDATE_INPUTS_PATH.split("/")), {
     schemaVersion: 1,
@@ -2251,8 +2360,26 @@ RUN test "$(node --version)" = "v24.18.0"
   commitAll(root, "frozen measurement candidate");
   const candidate = git(root, ["rev-parse", "HEAD"]).trim();
   const candidateTree = git(root, ["rev-parse", "HEAD^{tree}"]).trim();
+  const includeLabelCoordinate =
+    options.omitLabelCoordinateEvidence !== true;
   const evidence =
-    options.includeBinding !== false ? createEvidence(root, candidate) : [];
+    options.includeBinding !== false
+      ? createEvidence(
+          root,
+          candidate,
+          studyId,
+          includeAaStudy,
+          includeLabelCoordinate
+        )
+      : [];
+  if (options.includeBinding === false && includeLabelCoordinate) {
+    // Unbound fixtures still need the coordinate manifest on disk because the
+    // labels manifest digests it; bound fixtures get it from createEvidence.
+    writeJson(
+      path.join(root, "calibration-labels", studyId, "sources.json"),
+      calibrationLabelCoordinateManifest(studyId, candidate)
+    );
+  }
 
   const runtime = runtimeIdentity();
   const studyValue = study(
@@ -2916,9 +3043,24 @@ function canonicalTestJson(value: unknown): string {
     .join(",")}}`;
 }
 
+function calibrationLabelCoordinateManifest(
+  studyId: string,
+  candidateCommit: string
+): Record<string, unknown> {
+  return {
+    schemaVersion: 1,
+    artifactKind: "site-behavior-calibration-label-sources",
+    studyId,
+    candidateCommit
+  };
+}
+
 function createEvidence(
   root: string,
-  candidate: string
+  candidate: string,
+  studyId: string,
+  includeAaStudy: boolean = true,
+  includeLabelCoordinate: boolean = true
 ): EvidenceJson[] {
   const reportId = "20260801-0123456789abcdef0123456789abcdef";
   const aaStudyRoot = "research/aa-studies/final-repeatability";
@@ -2984,6 +3126,16 @@ function createEvidence(
       value: { kind: "site-behavior-controlled-runner-destruction-receipt" },
       change: "added"
     },
+    ...(includeLabelCoordinate
+      ? ([
+        {
+          category: "calibration-label-coordinate",
+          path: `calibration-labels/${studyId}/sources.json`,
+          value: calibrationLabelCoordinateManifest(studyId, candidate),
+          change: "added"
+        }
+      ] as const)
+      : []),
     {
       category: "controlled-publication-manifest",
       path:
@@ -2997,99 +3149,103 @@ function createEvidence(
       value: { runId: 30600000001, runAttempt: 1, producerCommit: candidate },
       change: "added"
     },
-    {
-      category: "aa-attempt-ledger",
-      path: aaLedgerPath,
-      value: aaLedger,
-      change: "added"
-    },
-    {
-      category: "aa-evaluation",
-      path: aaEvaluationPath,
-      value: aaEvaluation,
-      change: "added"
-    },
-    {
-      category: "aa-producer-receipt",
-      path: `${aaStudyRoot}/producer-receipt.json`,
-      value: {
-        schemaVersion: 1,
-        artifactKind: "site-behavior-aa-producer-receipt",
-        studyId: "final-repeatability",
-        producer: {
-          workflow:
-            "iAnonymous3000/site-behavior-lab/.github/workflows/aa-study.yml@refs/heads/main",
-          runId: 30600000003,
-          runAttempt: 1,
-          runHeadCommit: candidate,
-          checkoutCommit: candidate,
-          conclusion: "success"
+    ...(includeAaStudy
+      ? ([
+        {
+          category: "aa-attempt-ledger",
+          path: aaLedgerPath,
+          value: aaLedger,
+          change: "added"
         },
-        attester: {
-          workflow:
-            "iAnonymous3000/site-behavior-lab/.github/workflows/archive-aa-study.yml@refs/heads/main",
-          sourceCommit: candidate
+        {
+          category: "aa-evaluation",
+          path: aaEvaluationPath,
+          value: aaEvaluation,
+          change: "added"
         },
-        artifact: {
-          id: 30600000103,
-          name:
-            "site-behavior-aa-study-final-repeatability-30600000003-1",
-          archiveSha256: digest("fixture-aa-artifact-archive"),
-          manifestPath: "aa-artifact.json",
-          manifestSha256: digest("fixture-aa-artifact-manifest")
-        },
-        collection: aaLedger.collection,
-        execution: {
-          shardIndex: 0,
-          shardCount: 1,
-          exactAttemptSet: true,
-          orderPolicy: "not-applicable",
-          runner: {
-            labelSha256: digest("controlled-calibration-runner"),
-            identitySha256: digest("fixture-aa-runner"),
-            environment: "ephemeral-self-hosted"
+        {
+          category: "aa-producer-receipt",
+          path: `${aaStudyRoot}/producer-receipt.json`,
+          value: {
+            schemaVersion: 1,
+            artifactKind: "site-behavior-aa-producer-receipt",
+            studyId: "final-repeatability",
+            producer: {
+              workflow:
+                "iAnonymous3000/site-behavior-lab/.github/workflows/aa-study.yml@refs/heads/main",
+              runId: 30600000003,
+              runAttempt: 1,
+              runHeadCommit: candidate,
+              checkoutCommit: candidate,
+              conclusion: "success"
+            },
+            attester: {
+              workflow:
+                "iAnonymous3000/site-behavior-lab/.github/workflows/archive-aa-study.yml@refs/heads/main",
+              sourceCommit: candidate
+            },
+            artifact: {
+              id: 30600000103,
+              name:
+                "site-behavior-aa-study-final-repeatability-30600000003-1",
+              archiveSha256: digest("fixture-aa-artifact-archive"),
+              manifestPath: "aa-artifact.json",
+              manifestSha256: digest("fixture-aa-artifact-manifest")
+            },
+            collection: aaLedger.collection,
+            execution: {
+              shardIndex: 0,
+              shardCount: 1,
+              exactAttemptSet: true,
+              orderPolicy: "not-applicable",
+              runner: {
+                labelSha256: digest("controlled-calibration-runner"),
+                identitySha256: digest("fixture-aa-runner"),
+                environment: "ephemeral-self-hosted"
+              },
+              egress: {
+                identity: "controlled-self-hosted",
+                regionSha256: digest("us-west")
+              }
+            },
+            evidence: {
+              preregistration: {
+                path: "preregistration.json",
+                sha256: sha256File(
+                  path.join(root, ...aaPreregistrationPath.split("/"))
+                )
+              },
+              targetFrame: {
+                path: "target-frame.json",
+                sha256: sha256File(
+                  path.join(root, ...aaTargetFramePath.split("/"))
+                )
+              },
+              attemptLedger: {
+                path: "attempt-ledger.json",
+                sha256: canonicalJsonDigest(aaLedger),
+                receiptDigest: aaLedger.receiptDigest
+              },
+              evaluation: {
+                path: "evaluation.json",
+                sha256: canonicalJsonDigest(aaEvaluation),
+                evaluationDigest: aaEvaluation.evaluationDigest
+              }
+            },
+            recordedAt: "2026-08-01T00:04:00.000Z"
           },
-          egress: {
-            identity: "controlled-self-hosted",
-            regionSha256: digest("us-west")
-          }
+          change: "added"
         },
-        evidence: {
-          preregistration: {
-            path: "preregistration.json",
-            sha256: sha256File(
-              path.join(root, ...aaPreregistrationPath.split("/"))
-            )
+        {
+          category: "aa-producer-attestation",
+          path: `${aaStudyRoot}/producer-receipt.sigstore.json`,
+          value: {
+            mediaType: "application/vnd.dev.sigstore.bundle.v0.3+json"
           },
-          targetFrame: {
-            path: "target-frame.json",
-            sha256: sha256File(
-              path.join(root, ...aaTargetFramePath.split("/"))
-            )
-          },
-          attemptLedger: {
-            path: "attempt-ledger.json",
-            sha256: canonicalJsonDigest(aaLedger),
-            receiptDigest: aaLedger.receiptDigest
-          },
-          evaluation: {
-            path: "evaluation.json",
-            sha256: canonicalJsonDigest(aaEvaluation),
-            evaluationDigest: aaEvaluation.evaluationDigest
-          }
-        },
-        recordedAt: "2026-08-01T00:04:00.000Z"
-      },
-      change: "added"
-    },
-    {
-      category: "aa-producer-attestation",
-      path: `${aaStudyRoot}/producer-receipt.sigstore.json`,
-      value: {
-        mediaType: "application/vnd.dev.sigstore.bundle.v0.3+json"
-      },
-      change: "added"
-    },
+          change: "added"
+        }
+      ] as const)
+      : []),
     {
       category: "measurement-freeze-receipt",
       path: "research/ops-receipts/measurement-freeze-activation.json",
@@ -3966,6 +4122,17 @@ function createCalibrationLabelsManifest(
       sha256: string;
     }>;
   };
+  // When the carrier omits the coordinate manifest, the manifest keeps the
+  // free-floating digest an operator would otherwise publish unverified.
+  const coordinatePath = path.join(
+    root,
+    "calibration-labels",
+    studyValue.studyId,
+    "sources.json"
+  );
+  const coordinateAbsolute = existsSync(coordinatePath)
+    ? coordinatePath
+    : null;
   const files = artifactManifest.artifacts
     .filter(
       (artifact) =>
@@ -4063,7 +4230,9 @@ function createCalibrationLabelsManifest(
       commit: sourceCommit,
       tree: sourceTree,
       path: `calibration-labels/${studyValue.studyId}`,
-      sha256: digest("label-coordinate-manifest")
+      sha256: coordinateAbsolute !== null
+        ? sha256File(coordinateAbsolute)
+        : digest("label-coordinate-manifest")
     },
     labelSealingKey,
     authenticatedCommitments,

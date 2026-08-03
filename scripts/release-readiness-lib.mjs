@@ -2695,7 +2695,12 @@ function acquireRunnerReceipts(
   }
   const reasons = [...configReasons];
   const receipts = [];
+  // The full directory listing, including files that fail to parse, because the
+  // binding set-equality check below must still see them.
   const receiptPaths = [];
+  // Pairs a parsed receipt with its own path, so attribution cannot drift when a
+  // file in the listing never yields a receipt.
+  const parsedReceipts = [];
   const hosted = [];
   for (const entry of readdirSync(directory).sort()) {
     if (!entry.endsWith(".json")) continue;
@@ -2707,6 +2712,7 @@ function acquireRunnerReceipts(
         relative
       );
       receipts.push(receipt);
+      parsedReceipts.push({ receipt, receiptPath: relative });
       const individual = verifyRunnerDestructionReceipt(receipt);
       if (!individual.ok) {
         reasons.push(
@@ -2805,9 +2811,7 @@ function acquireRunnerReceipts(
       const problem = fileDigestProblem(rootDir, entry);
       if (problem) reasons.push(problem);
     }
-    for (let index = 0; index < receipts.length; index += 1) {
-      const receipt = receipts[index];
-      const receiptPath = receiptPaths[index];
+    for (const { receipt, receiptPath } of parsedReceipts) {
       if (
         !measurementCandidateAcceptsProducer(
           measurementContext,

@@ -692,7 +692,7 @@ test("runScanRequest can run and persist a consent accept/reject comparison", as
   assert.equal(result.comparisonType, "consent");
   // The mock scanner records no consentInteraction, so neither click is
   // provably dispatched and the producer must label both arms as attempts.
-  assert.equal(result.title, "Consent comparison attempt (no banner clicked)");
+  assert.equal(result.title, "Consent comparison attempt (no control activated)");
   assert.deepEqual(result.runLabels, { baseline: "Accept-all attempt", variant: "Reject-all attempt" });
   // Execution order is randomized; the accept run stays the baseline arm and
   // both visits keep the requested GPC state.

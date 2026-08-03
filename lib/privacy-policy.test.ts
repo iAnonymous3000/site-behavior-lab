@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { test } from "node:test";
 import {
   buildPrivacyPolicySummary,
@@ -179,13 +181,90 @@ test("pickPrivacyPolicyLink accepts localized policy labels on a generic legal p
     { href: "https://shop.example/legal/nl-data", text: "Gegevensbeschermingsbeleid" },
     { href: "https://shop.example/legal/pt", text: "Política de privacidade" },
     { href: "https://shop.example/legal/pt-notice", text: "Declaração de privacidade" },
-    { href: "https://shop.example/legal/pt-data", text: "Política de proteção de dados" }
+    { href: "https://shop.example/legal/pt-data", text: "Política de proteção de dados" },
+    { href: "https://shop.example/legal/it", text: "Informativa sulla privacy" },
+    { href: "https://shop.example/legal/sv", text: "Integritetspolicy" },
+    { href: "https://shop.example/legal/fi", text: "Tietosuojaseloste" },
+    { href: "https://shop.example/legal/fi-practice", text: "Tietosuojakäytäntö" },
+    // Turkish keeps its dotless i through accent stripping, so "politikası"
+    // never becomes the ASCII "politikasi" the href carries.
+    { href: "https://shop.example/legal/tr", text: "Gizlilik Politikası" },
+    { href: "https://shop.example/legal/tr-notice", text: "Gizlilik Bildirimi" },
+    { href: "https://shop.example/legal/cs", text: "Zásady ochrany soukromí" },
+    { href: "https://shop.example/legal/hu", text: "Adatvédelmi tájékoztató" },
+    // The Nordic ae ligature survives accent stripping the same way.
+    { href: "https://shop.example/legal/no", text: "Personvernerklæring" },
+    { href: "https://shop.example/legal/no-ascii", text: "Personvernerklaering" },
+    { href: "https://shop.example/legal/da", text: "Politik om personoplysninger" },
+    { href: "https://shop.example/legal/pl", text: "Polityka prywatności" }
   ]) {
     assert.equal(
       pickPrivacyPolicyLink([{ href: fixture.href, text: fixture.text }], "shop.example"),
       fixture.href,
       fixture.text
     );
+  }
+});
+
+// One vocabulary, two files: the bounded in-page collector decides WHICH links
+// come back and this selector decides which of them is the policy. A stem the
+// collector matches but the selector cannot score is published as "the site
+// offers no policy link", an instrument gap reported as a property of the site.
+// Derive the cases from the collector's own declared list rather than from a
+// hand-written fixture set, so a stem added there without an answer here fails.
+test("every policy-link stem the bounded collector matches is answerable at the selector", async () => {
+  // href/text pairs a real site would publish for each collector stem. The
+  // collector lowercases but does not strip accents, so at least one of the two
+  // must contain the stem verbatim in lower case, exactly as the page probe
+  // tests it.
+  const answers: Record<string, { href: string; text: string }> = {
+    privacy: { href: "https://shop.example/privacy", text: "Privacy Policy" },
+    privacidad: { href: "https://shop.example/politica-de-privacidad", text: "Política de privacidad" },
+    privacidade: { href: "https://shop.example/politica-de-privacidade", text: "Política de privacidade" },
+    privatezza: { href: "https://shop.example/informativa-privatezza", text: "Informativa sulla privatezza" },
+    datenschutz: { href: "https://shop.example/datenschutzerklaerung", text: "Datenschutzerklärung" },
+    confidentialit: { href: "https://shop.example/politique-de-confidentialite", text: "Politique de confidentialité" },
+    "protection des donn": { href: "https://shop.example/legal/fr", text: "Politique de protection des données" },
+    gegevensbescherming: { href: "https://shop.example/gegevensbeschermingsbeleid", text: "Juridisch" },
+    "protecao de dados": { href: "https://shop.example/legal/pt", text: "Politica de protecao de dados" },
+    "proteção de dados": { href: "https://shop.example/legal/pt-br", text: "Política de proteção de dados" },
+    personvern: { href: "https://shop.example/personvernerklaering", text: "Personvernerklæring" },
+    integritetspolicy: { href: "https://shop.example/integritetspolicy", text: "Integritetspolicy" },
+    tietosuoja: { href: "https://shop.example/tietosuojaseloste", text: "Tietosuojaseloste" },
+    personoplysninger: {
+      href: "https://shop.example/politik-om-personoplysninger",
+      text: "Politik om personoplysninger"
+    },
+    prywatno: { href: "https://shop.example/polityka-prywatnosci", text: "Polityka prywatności" },
+    gizlilik: { href: "https://shop.example/gizlilik-politikasi", text: "Gizlilik Politikası" },
+    soukrom: { href: "https://shop.example/ochrana-soukromi", text: "Ochrana soukromí" },
+    adatvedelmi: { href: "https://shop.example/adatvedelmi-tajekoztato", text: "Adatvédelmi tájékoztató" }
+  };
+
+  const collector = await readFile(path.join(process.cwd(), "lib/bounded-page-collector.ts"), "utf8");
+  const declaration = /const POLICY_LINK_TERMS = \[([\s\S]*?)\];/.exec(collector);
+  assert.ok(declaration, "the bounded collector must declare POLICY_LINK_TERMS");
+  const stems = (declaration[1].replace(/\/\/[^\n]*/g, "").match(/"([^"]*)"/g) ?? []).map((quoted) =>
+    quoted.slice(1, -1)
+  );
+  assert.ok(stems.length >= 10, `parsed too few collector stems: ${stems.length}`);
+
+  for (const stem of stems) {
+    const answer = answers[stem];
+    assert.ok(answer, `collector stem "${stem}" has no selector answer`);
+    assert.ok(
+      answer.href.toLowerCase().includes(stem) || answer.text.toLowerCase().includes(stem),
+      `the fixture for "${stem}" would not be collected in the first place`
+    );
+    assert.equal(
+      pickPrivacyPolicyLink([answer], "shop.example"),
+      answer.href,
+      `collector stem "${stem}" is collected but scores too low at the selector`
+    );
+  }
+
+  for (const stem of Object.keys(answers)) {
+    assert.ok(stems.includes(stem), `stale selector answer for a stem the collector no longer matches: "${stem}"`);
   }
 });
 
@@ -205,7 +284,13 @@ test("pickPrivacyPolicyLink keeps localized marketing, preferences, and bare men
         { href: "https://shop.example/privacybeleid", text: "Voorbeeld privacybeleid" },
         { href: "https://shop.example/privacidade", text: "Dicas de privacidade" },
         { href: "https://shop.example/legal%2Fprivacy", text: "Legal" },
-        { href: "https://shop.example/gdpr", text: "GDPR" }
+        { href: "https://shop.example/gdpr", text: "GDPR" },
+        // The added localized nouns stay as weak on their own as bare
+        // "privacy": a label has to name a policy, notice, or statement.
+        { href: "https://shop.example/legal/sv", text: "Integritet" },
+        { href: "https://shop.example/legal/no", text: "Personvern" },
+        { href: "https://shop.example/legal/fi", text: "Tietosuoja" },
+        { href: "https://shop.example/legal/hu", text: "Adatvédelem" }
       ],
       "shop.example"
     ),

@@ -9,7 +9,7 @@ import {
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
+import { buildFindings, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { HEADLINE_PLATFORMS, isTrackingTrackerMatch } from "./report-insights";
 import { reviewedOwnershipRelationship } from "./reviewed-ownership";
@@ -933,8 +933,52 @@ test("a clean legacy reject attempt stays neutral, and a missing reject control 
     "consent-comparison"
   );
   assert.equal(partialCard.level, "info");
-  assert.match(partialCard.title, /Only the Accept all control could be clicked/);
+  assert.match(partialCard.title, /Only the Accept all control's activation was recorded/);
   assert.match(partialCard.lead, /does not measure the reject all choice/);
+});
+
+test("a one-sided consent pair reports activation, not clickability, and admits an unconfirmed dispatch", () => {
+  // The producer writes `clicked: false` both for a control it never found and
+  // for a click it dispatched on a candidate that never visibly responded (its
+  // own run warning says exactly that), and the v1 wire cannot tell the two
+  // apart. So the card may not say the control could not be clicked, and its
+  // causes may not stop at the banner's design and the scanner's catalog.
+  const acceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 20 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: true, cmp: "Cookiebot" }
+  };
+  const unactivatedRejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 18 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: false }
+  };
+
+  const card = byId(
+    buildFindings(viewFromV1Report(consentPair(acceptRun, unactivatedRejectRun)), null),
+    "consent-comparison"
+  );
+  assert.doesNotMatch(`${card.title} ${card.lead} ${card.detail} ${card.evidence}`, /could (?:not )?be clicked/i);
+  assert.match(card.title, /Only the Accept all control's activation was recorded/);
+  assert.match(card.detail, /no observable reaction/);
+
+  // The mirrored pair (only the reject visit activated a control) reads the
+  // same way, so neither direction publishes a clickability claim.
+  const unactivatedAcceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 20 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: false }
+  };
+  const rejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 18 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: true, cmp: "Cookiebot" }
+  };
+  const mirrored = byId(
+    buildFindings(viewFromV1Report(consentPair(unactivatedAcceptRun, rejectRun)), null),
+    "consent-comparison"
+  );
+  assert.doesNotMatch(
+    `${mirrored.title} ${mirrored.lead} ${mirrored.detail} ${mirrored.evidence}`,
+    /could (?:not )?be clicked/i
+  );
+  assert.match(mirrored.title, /Only the Reject all control's activation was recorded/);
 });
 
 test("a clean consent pair earns an ok card only when both registered choices are verified", () => {
@@ -1114,6 +1158,59 @@ test("surfaces pre-consent tracking when a consent-management platform is presen
     thirdPartyDomains: 1
   });
   assert.equal(buildFindings(viewFromV1Report(noCmp), null).some((finding) => finding.id === "consent-banner"), false);
+});
+
+test("a shared IAB TCF endpoint is described as a framework endpoint, not as the platform that ran", () => {
+  // consensu.org is the framework's shared endpoint, served for many
+  // registered platforms, so the request identifies the standard and leaves
+  // the platform that ran unnamed. Printing the acronym where a vendor name
+  // goes publishes an identification this scan does not have.
+  const frameworkDomain: DomainSummary = {
+    domain: "mysite.mgr.consensu.org",
+    requests: 2,
+    thirdParty: true,
+    tracker: null,
+    statuses: [200],
+    resourceTypes: ["script"]
+  };
+  const card = byId(
+    buildFindings(
+      viewFromV1Report(makeResult({ domains: [frameworkDomain], thirdPartyRequests: 2, thirdPartyDomains: 1 })),
+      null
+    ),
+    "consent-banner"
+  );
+  assert.equal(card.title, "A shared consent framework endpoint answered");
+  assert.doesNotMatch(card.lead, /IAB TCF, a consent management platform/);
+  assert.match(card.lead, /shared by many consent management platforms/);
+  assert.match(card.lead, /could not name the platform that served it/);
+  assert.match(card.evidence, /Consent framework endpoint detected via a request to mysite\.mgr\.consensu\.org/);
+
+  // A dedicated vendor host still names the vendor outright.
+  const vendorCard = byId(
+    buildFindings(
+      viewFromV1Report(
+        makeResult({
+          domains: [
+            {
+              domain: "cdn.cookielaw.org",
+              requests: 2,
+              thirdParty: true,
+              tracker: null,
+              statuses: [200],
+              resourceTypes: ["script"]
+            }
+          ],
+          thirdPartyRequests: 2,
+          thirdPartyDomains: 1
+        })
+      ),
+      null
+    ),
+    "consent-banner"
+  );
+  assert.equal(vendorCard.title, "A consent management platform answered");
+  assert.match(vendorCard.lead, /OneTrust, a consent management platform/);
 });
 
 function makeKeystrokeDetection(encodings: string[]): FingerprintDetectionSummary {
@@ -1379,6 +1476,56 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
   const cleanCard = byId(buildFindings(viewFromV1Report(crossSiteOnly), null), "session-recording-input-monitoring");
   assert.match(cleanCard.evidence, /4 third-party input listeners from/);
   assert.doesNotMatch(cleanCard.evidence, /attributed across/);
+});
+
+test("the session-recording lead names only the event categories the detection recorded", () => {
+  // The producing gate accepts any five of a sixteen-event vocabulary, so a
+  // card that enumerates categories has to read this detection's own event
+  // types: this one registered no scroll listener and no input listener.
+  const sessionDetection = (eventTypes: string[]): FingerprintDetectionSummary => ({
+    kind: "session-recording",
+    heuristic: "interaction-listener-coverage-v1",
+    count: 1,
+    evidence: {
+      eventTypes,
+      listenerTargets: ["document", "window"],
+      thirdPartyOrigins: ["https://recorder.example.net"],
+      totalListenerCalls: 9
+    }
+  });
+  const leadFor = (eventTypes: string[]): string =>
+    byId(
+      buildFindings(
+        viewFromV1Report(
+          makeResult({ firstPartyDomain: "www.shop.example", fingerprintDetections: [sessionDetection(eventTypes)] })
+        ),
+        null
+      ),
+      "session-recording-input-monitoring"
+    ).lead;
+
+  const pointerLead = leadFor(["click", "keydown", "mousedown", "touchstart", "visibilitychange"]);
+  assert.doesNotMatch(pointerLead, /scroll/i);
+  assert.doesNotMatch(pointerLead, /\binput\b/i);
+  assert.match(pointerLead, /mouse/);
+  assert.match(pointerLead, /touch/);
+  assert.match(pointerLead, /click/);
+  assert.match(pointerLead, /keyboard/);
+  assert.match(pointerLead, /visibility/);
+
+  // The categories that WERE recorded still get named.
+  const scrollLead = leadFor(["mousemove", "scroll", "input", "wheel", "selectionchange"]);
+  assert.match(scrollLead, /scroll/);
+  assert.match(scrollLead, /\binput\b/);
+  assert.match(scrollLead, /wheel/);
+  assert.match(scrollLead, /selection/);
+  assert.doesNotMatch(scrollLead, /visibility|touch|keyboard/i);
+
+  // An event set the category map does not cover names no category at all
+  // rather than falling back to a list the visit did not support.
+  const unmappedLead = leadFor(["gotpointercapture", "auxclick", "dblclick", "drag", "focusin"]);
+  assert.match(unmappedLead, /broad interaction listener coverage/);
+  assert.doesNotMatch(unmappedLead, /scroll|visibility|keyboard/i);
 });
 
 function makeListenerDetection(
@@ -2362,4 +2509,87 @@ test("an uncatalogued platform domain is not reported as no platform requests", 
   const cleanCard = byId(clean, "named-platforms");
   assert.equal(cleanCard.level, "ok");
   assert.match(cleanCard.lead, /No requests to catalogued Google/);
+});
+
+test("the causal map names each provenance actor with the request log's own word for that field", () => {
+  const base: NetworkRequestRecord = {
+    id: 1,
+    url: "https://ads.example.com/pixel",
+    domain: "ads.example.com",
+    method: "GET",
+    resourceType: "script",
+    status: 200,
+    thirdParty: true,
+    tracker: null,
+    startedAtMs: 1
+  };
+  // Injector only: the domain executed the script that made the request, it is not
+  // itself the recorded script.
+  const injectorOnly: NetworkRequestRecord = { ...base, provenance: { injectedByDomain: "cdn.example.net" } };
+  // Initiator only, with a recorded type the log prints. The log says iframe, so no
+  // other surface may call the same record a script.
+  const iframeInitiator: NetworkRequestRecord = {
+    ...base,
+    provenance: {
+      initiatorType: "iframe",
+      initiatorDomain: "widget.example.net",
+      initiatorUrl: "https://widget.example.net/embed.html"
+    }
+  };
+  // A recorded script outranks the rest of the chain, and only then is "script" true.
+  const scripted: NetworkRequestRecord = {
+    ...base,
+    provenance: {
+      scriptDomain: "tags.example.net",
+      initiatorDomain: "widget.example.net",
+      injectedByDomain: "cdn.example.net"
+    }
+  };
+  assert.equal(requestProvenanceSummary(scripted)?.primary, "script tags.example.net");
+
+  const graph = readFileSync(path.join(process.cwd(), "app", "_components", "causality-graph.tsx"), "utf8");
+
+  // Whatever phrase the log prints for a field is the phrase the map has to print for it.
+  const logWording = [
+    { request: injectorOnly, phrase: "injected by", actor: "cdn.example.net" },
+    { request: iframeInitiator, phrase: "initiated by", actor: "iframe widget.example.net" }
+  ];
+  for (const { request, phrase, actor } of logWording) {
+    assert.equal(requestProvenanceSummary(request)?.primary, `${phrase} ${actor}`);
+    assert.ok(
+      graph.includes(`return "${phrase}"`),
+      `the causal map has to offer "${phrase}", the request log's own phrase for that field`
+    );
+  }
+
+  // The map has to read the role off the field that named the actor, in the same order
+  // the log resolves it, rather than calling every actor a script.
+  const fieldRoles = [
+    { field: "scriptDomain", role: "script" },
+    { field: "initiatorDomain", role: "initiator" },
+    { field: "injectedByDomain", role: "injector" }
+  ];
+  for (const { field, role } of fieldRoles) {
+    assert.ok(
+      graph.includes(`domain: provenance.${field}, role: "${role}"`),
+      `the causal map has to record ${field} as the ${role} role`
+    );
+  }
+  const consulted = Array.from(new Set(graph.match(/provenance\.[A-Za-z]+/g) ?? []));
+  assert.deepEqual(
+    consulted,
+    fieldRoles.map(({ field }) => `provenance.${field}`),
+    "the map has to resolve the actor from the same fields, in the same order, as the request log"
+  );
+
+  assert.doesNotMatch(
+    graph,
+    /script →/,
+    "the map may not label every provenance actor a script; the role comes from the field that named it"
+  );
+  assert.doesNotMatch(
+    graph,
+    /\bcaused\b/,
+    "PageGraph provenance attributes a request to an actor, it does not establish that the actor caused it"
+  );
 });

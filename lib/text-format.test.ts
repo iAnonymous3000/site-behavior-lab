@@ -49,9 +49,9 @@ test("report kind labels distinguish consent comparisons from incomplete attempt
     reportKindLabel({ reportType: "comparison", comparisonType: "consent", consentClicks });
 
   assert.equal(consent("accept-and-reject"), "consent comparison");
-  assert.equal(consent("accept-only"), "consent comparison attempt (Reject not clicked)");
-  assert.equal(consent("reject-only"), "consent comparison attempt (Accept not clicked)");
-  assert.equal(consent("none"), "consent comparison attempt (no banner clicked)");
+  assert.equal(consent("accept-only"), "consent comparison attempt (Reject not activated)");
+  assert.equal(consent("reject-only"), "consent comparison attempt (Accept not activated)");
+  assert.equal(consent("none"), "consent comparison attempt (no control activated)");
   assert.equal(reportKindLabel({ reportType: "single" }), "single scan");
   assert.equal(reportKindLabel({ reportType: "comparison", comparisonType: "shields" }), "Brave-list blocking comparison");
 });

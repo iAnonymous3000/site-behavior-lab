@@ -851,6 +851,78 @@ test("fingerprintObserverInitScript flags third-party session recording and inpu
   }
 });
 
+test("fingerprintObserverInitScript withholds subframe listener coverage from the page-level summary", () => {
+  const harness = installInteractionHarness();
+  try {
+    // A cross-origin embed (a video player, an ad slot, a captcha widget) runs
+    // the observer in its own frame, where window.top is the scanned page's
+    // window. Its vendor's listeners only cover the embed's own document, and
+    // the merged page-level summary cannot say so, so nothing is published.
+    harness.window.top = { name: "scanned page window" };
+    fingerprintObserverInitScript();
+    const input = new harness.Input();
+
+    withStackOrigin("https://recorder.example.net", () => {
+      harness.window.addEventListener("mousemove", () => undefined);
+      harness.window.addEventListener("wheel", () => undefined);
+      harness.document.addEventListener("scroll", () => undefined);
+      harness.document.addEventListener("visibilitychange", () => undefined);
+      harness.document.body.addEventListener("click", () => undefined);
+      harness.document.documentElement.addEventListener("pointermove", () => undefined);
+      input.addEventListener("input", () => undefined);
+      input.addEventListener("keydown", () => undefined);
+      input.addEventListener("change", () => undefined);
+      input.addEventListener("paste", () => undefined);
+    });
+
+    const snapshot = readSnapshot(harness.window);
+    assert.deepEqual(snapshot.detections, []);
+  } finally {
+    harness.restore();
+  }
+});
+
+test("fingerprintObserverInitScript records coverage loss when the page wraps addEventListener above the observer", () => {
+  const harness = installInteractionHarness();
+  try {
+    fingerprintObserverInitScript();
+    const eventTarget = harness.window.EventTarget as {
+      prototype: { addEventListener: (...args: unknown[]) => unknown };
+    };
+    const observerWrapper = eventTarget.prototype.addEventListener;
+    // A RUM or error agent instruments EventTarget.prototype.addEventListener
+    // after the observer. Every stack the observer captures now leads to that
+    // agent, so the site's own listeners would be published under its name.
+    const createPageWrapper = Function(
+      "wrapped",
+      "return function pageAddEventListener(...args) { return wrapped.apply(this, args); };\n//# sourceURL=https://rum.example.org/agent.js"
+    ) as (wrapped: unknown) => (...args: unknown[]) => unknown;
+    Object.defineProperty(eventTarget.prototype, "addEventListener", {
+      configurable: true,
+      value: createPageWrapper(observerWrapper),
+      writable: true
+    });
+    const input = new harness.Input();
+
+    withStackOrigin("https://recorder.example.net", () => {
+      harness.window.addEventListener("mousemove", () => undefined);
+      harness.window.addEventListener("wheel", () => undefined);
+      harness.document.addEventListener("scroll", () => undefined);
+      harness.document.addEventListener("visibilitychange", () => undefined);
+      harness.document.body.addEventListener("click", () => undefined);
+      harness.document.documentElement.addEventListener("pointermove", () => undefined);
+      input.addEventListener("input", () => undefined);
+      input.addEventListener("keydown", () => undefined);
+      input.addEventListener("change", () => undefined);
+      input.addEventListener("paste", () => undefined);
+    });
+
+    assert.equal(readRawSnapshot(harness.window), null);
+  } finally {
+    harness.restore();
+  }
+});
+
 test("fingerprintObserverInitScript attributes synchronous third-party listeners when stack traces are disabled", () => {
   const harness = installInteractionHarness();
   try {

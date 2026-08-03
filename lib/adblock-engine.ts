@@ -38,8 +38,12 @@ export type AdblockEngineStatus =
       manifestDigest?: string;
     };
 
-// Playwright resourceType -> adblock-rust request type.
-const REQUEST_TYPE_MAP: Record<string, string> = {
+// Playwright resourceType -> adblock-rust request type. Every value Playwright's
+// Chromium backend can report is an explicit key here, so a resource type that
+// adblock-rust models separately can never reach the engine as `other` by
+// accident. lib/adblock-engine.test.ts derives that vocabulary from the pinned
+// playwright-core and fails when it grows.
+export const REQUEST_TYPE_MAP: Record<string, string> = {
   document: "document",
   stylesheet: "stylesheet",
   image: "image",
@@ -49,9 +53,11 @@ const REQUEST_TYPE_MAP: Record<string, string> = {
   xhr: "xmlhttprequest",
   fetch: "xmlhttprequest",
   websocket: "websocket",
+  ping: "ping",
   eventsource: "other",
   manifest: "other",
   texttrack: "other",
+  cspreport: "other",
   other: "other"
 };
 
@@ -62,6 +68,18 @@ const REQUEST_TYPE_MAP: Record<string, string> = {
  * options against the wrong request type on every site that loads a
  * third-party iframe, which moves the published Shields matched and blocked
  * counts. Callers that can see the frame pass `subFrame`.
+ *
+ * The same fold hid a second type: Playwright reports `ping` for
+ * `navigator.sendBeacon()` and for `<a ping>` navigations, and adblock-rust has
+ * a real `Ping` request type (spelled `$ping`, with `$beacon` as its alias).
+ * Typing those requests `other` evaluated every beacon against the wrong
+ * request type, so no `$ping` rule in the vendored Brave lists could ever
+ * match, the beacon channel was reported as unmatched by Shields, and block
+ * simulation left the beacon un-aborted. `cspreport` maps to `other` on
+ * purpose: the vendored lists carry no CSP-report rules, and this engine build
+ * matches nothing at all for a request typed `csp_report`, not even a rule with
+ * no type option, so routing CSP reports there would lose the `$other` rules
+ * that can catch them today.
  */
 export function mapRequestType(resourceType: string, options?: { subFrame?: boolean }): string {
   const mapped = REQUEST_TYPE_MAP[resourceType] ?? "other";

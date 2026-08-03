@@ -205,8 +205,42 @@ function strongestLevel(levels: FindingLevel[]): FindingLevel {
 const GOOGLE_ANALYTICS_HOST = /(^|\.)(google-analytics\.com|googletagmanager\.com|analytics\.google\.com)$/;
 const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 
+// The one CMP signature that names a framework rather than an operator: hosts
+// under consensu.org are the IAB Transparency and Consent Framework's shared
+// endpoint, served for many registered platforms. A request there shows consent
+// tooling loaded but leaves the platform that ran unnamed, so the card may not
+// present the acronym as the vendor the way a cookielaw.org request names one.
+const IAB_TCF_FRAMEWORK_HOST = /(^|\.)consensu\.org$/;
+
 /** Appended to any absence claim whose evidence family was censored. */
 const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
+
+// Reader words for the recorded session-recording event types, in the order a
+// card names them. The producing gate accepts any five of a sixteen-event
+// vocabulary, so a fixed list of categories in the card would publish listener
+// registrations the visit never observed: a pointer- and touch-only detection
+// is a real detection, and it registered no scroll and no input listener.
+// Event types outside this map are simply not named.
+const LISTENER_EVENT_CATEGORIES: { category: string; events: string[] }[] = [
+  { category: "mouse", events: ["mousedown", "mousemove", "mouseup"] },
+  { category: "pointer", events: ["pointerdown", "pointermove", "pointerup"] },
+  { category: "touch", events: ["touchmove", "touchstart"] },
+  { category: "click", events: ["click"] },
+  { category: "scroll", events: ["scroll"] },
+  { category: "wheel", events: ["wheel"] },
+  { category: "selection", events: ["selectionchange"] },
+  { category: "visibility", events: ["visibilitychange"] },
+  { category: "keyboard", events: ["keydown", "keyup"] },
+  { category: "input", events: ["input"] }
+];
+
+/** The category words a detection's own recorded event types support. */
+function listenerCoverageCategories(eventTypes: string[]): string[] {
+  const observed = new Set(eventTypes.map((type) => type.trim().toLowerCase()));
+  return LISTENER_EVENT_CATEGORIES.filter((entry) =>
+    entry.events.some((event) => observed.has(event))
+  ).map((entry) => entry.category);
+}
 
 function corpusBenchmarkScope(corpus: CorpusStats): string {
   const coverage = corpus.coverageSiteCount;
@@ -531,6 +565,12 @@ export function buildFindings(
     const consentPlatformAnswered =
       (run.evidence.domains.find((domain) => domain.domain === consentPlatform.domain)?.statuses.length ?? 0) > 0;
     const answeredPreConsentTrackers = trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length;
+    // A framework endpoint identifies the tooling standard, not the vendor that
+    // ran it, so it may not be printed in the slot a named platform occupies.
+    const frameworkEndpoint = IAB_TCF_FRAMEWORK_HOST.test(consentPlatform.domain);
+    const consentPlatformPhrase = frameworkEndpoint
+      ? `${consentPlatform.name}, a consent framework endpoint shared by many consent management platforms (the tooling that shows cookie banners) rather than one named platform`
+      : `${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners)`;
     findings.push({
       id: "consent-banner",
       icon: "cookie",
@@ -538,12 +578,16 @@ export function buildFindings(
       title:
         preConsentTrackers > 0
           ? "Consent tooling and requests to tracking-service entities appeared before any choice"
-          : consentPlatformAnswered
-            ? "A consent management platform answered"
-            : "A consent management platform was requested",
+          : frameworkEndpoint
+            ? consentPlatformAnswered
+              ? "A shared consent framework endpoint answered"
+              : "A shared consent framework endpoint was requested"
+            : consentPlatformAnswered
+              ? "A consent management platform answered"
+              : "A consent management platform was requested",
       lead:
         preConsentTrackers > 0
-          ? `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), and the request log included ${retainedCountPhrase(
+          ? `${run.domain} sent a request to ${consentPlatformPhrase}, and the request log included ${retainedCountPhrase(
               preConsentTrackers,
               "distinct catalogued tracking-related service",
               "distinct catalogued tracking-related services",
@@ -555,10 +599,14 @@ export function buildFindings(
                   ? "; none of the retained matches recorded a response before collection stopped"
                   : "; none recorded a response"
             }.`
-          : `${run.domain} sent a request to ${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners), before the scanner made any consent choice. Tracker-service observations are reported separately so this positive tooling signal does not imply an absence.`,
+          : `${run.domain} sent a request to ${consentPlatformPhrase}, before the scanner made any consent choice.${
+              frameworkEndpoint ? " This scan could not name the platform that served it." : ""
+            } Tracker-service observations are reported separately so this positive tooling signal does not imply an absence.`,
       detail:
         'A request to the platform\'s loader proves the page attempted to fetch consent tooling; an observed response supports delivery, but neither fact proves a banner was visibly shown to this scanner. Banner display can vary by region and visit context. The scanner never clicks a banner in this mode, so this report records requests made before the scanner made a consent choice. It does not determine whether any request required consent or whether the site\'s behavior complied with applicable law. More tracking-service entities or requests may appear after "Accept" than this report captures, so the counts here are lower bounds for users who consent.',
-      evidence: `Consent platform detected via a request to ${consentPlatform.domain}.`,
+      evidence: `${
+        frameworkEndpoint ? "Consent framework endpoint" : "Consent platform"
+      } detected via a request to ${consentPlatform.domain}.`,
       claim: findingClaim(facts, "consent-banner", "presence")
     });
   }
@@ -1059,6 +1107,12 @@ export function buildFindings(
       sessionReplayNames.length > 0 ? `known session-replay vendor(s): ${humanList(sessionReplayNames)}` : ""
     ].filter(Boolean);
     const replayCorroborated = Boolean(sessionRecordingDetection && sessionReplayNames.length > 0);
+    // Named from this detection's own event types, never from the vocabulary
+    // the gate draws on, so the lead cannot claim coverage of an event class
+    // no listener in this visit was registered for.
+    const sessionCategories = sessionRecordingDetection
+      ? listenerCoverageCategories(sessionRecordingDetection.detection.evidence.eventTypes)
+      : [];
 
     findings.push({
       id: "session-recording-input-monitoring",
@@ -1076,7 +1130,12 @@ export function buildFindings(
         : replayCorroborated
           ? "The page registered broad third-party interaction listeners and contacted a known session-replay service."
           : sessionRecordingDetection
-            ? "A third-party script registered broad mouse, scroll, visibility, and input listener coverage during the visit."
+            ? sessionCategories.length > 0
+              ? `A third-party script registered broad ${humanList(
+                  sessionCategories,
+                  LISTENER_EVENT_CATEGORIES.length
+                )} listener coverage during the visit.`
+              : "A third-party script registered broad interaction listener coverage during the visit."
             : `${humanList(sessionReplayNames)} appeared in the request log.`,
       detail:
         "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows a script was positioned to observe interaction, not that anything was transmitted. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected); treat this card as a review prompt rather than proof.",
@@ -1824,11 +1883,17 @@ function buildConsentComparisonFinding(
       id: "consent-comparison",
       icon: "cookie",
       level: "info",
-      title: `Only the ${clickedLabel} control could be clicked`,
+      // Activation, not clickability. The producer writes the same unactivated
+      // record for a search that found no control and for a click it dispatched
+      // on a control that never visibly responded, and the wire cannot tell the
+      // two apart. A title saying the control could not be clicked, and a
+      // detail offering only missing-control and unmatched-control causes, both
+      // state as fact something this pair of visits did not establish.
+      title: `Only the ${clickedLabel} control's activation was recorded`,
       lead: `The ${clickedLabel} visit clicked the banner, but the ${missingLabel} visit recorded no control activation, so that run cannot be shown to reflect its choice and this diff does not measure the ${missingLabel.toLowerCase()} choice.`,
       detail:
         missingLabel === "Reject all"
-          ? "Many banners offer no first-layer reject control and put refusal behind a settings layer this scanner does not navigate. That design is itself worth noting, but it can also mean this scanner's catalog simply does not recognize the control, so treat the asymmetry as a prompt to check the banner yourself."
+          ? "Several situations produce this record and the report cannot tell them apart: the banner may offer no first-layer reject control and put refusal behind a settings layer this scanner does not navigate, the control may have been present in a form this scanner's catalog does not match, or a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window. Treat the asymmetry as a prompt to check the banner yourself, not as a finding about how the banner is built."
           : "The accept visit recorded no control activation, so the accept side of this diff cannot be shown to reflect that choice. Treat the comparison as incomplete rather than as evidence about the site's consent behavior.",
       evidence
     };
