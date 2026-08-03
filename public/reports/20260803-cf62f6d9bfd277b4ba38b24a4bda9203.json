@@ -1,0 +1,3450 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://hinge.co/",
+  "scannedAt": "2026-08-03T08:53:22.710Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4333,
+      "firstPartyDomain": "hinge.co",
+      "totalRequests": 117,
+      "thirdPartyRequests": 57,
+      "knownTrackerRequests": 20,
+      "thirdPartyDomains": 25,
+      "cookies": 23,
+      "thirdPartyCookies": 9,
+      "storageEntries": 15,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 41
+    },
+    "conditions": {
+      "requestedUrl": "https://hinge.co/",
+      "finalUrl": "https://hinge.co/",
+      "scannedAt": "2026-08-03T08:53:25.563Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-25T14:05:35.223Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.0 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://hinge.co/",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 51
+      },
+      {
+        "id": 2,
+        "url": "https://images.hinge.co/{seg}",
+        "domain": "images.hinge.co",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 510
+      },
+      {
+        "id": 3,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 511
+      },
+      {
+        "id": 4,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 511
+      },
+      {
+        "id": 5,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 512
+      },
+      {
+        "id": 6,
+        "url": "https://hinge.co/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 515
+      },
+      {
+        "id": 7,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 516
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 517
+      },
+      {
+        "id": 9,
+        "url": "https://hinge.co/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 517
+      },
+      {
+        "id": 10,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 518
+      },
+      {
+        "id": 11,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 518
+      },
+      {
+        "id": 12,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 518
+      },
+      {
+        "id": 13,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 519
+      },
+      {
+        "id": 14,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 519
+      },
+      {
+        "id": 15,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 519
+      },
+      {
+        "id": 16,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 519
+      },
+      {
+        "id": 17,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 520
+      },
+      {
+        "id": 18,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 521
+      },
+      {
+        "id": 19,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 521
+      },
+      {
+        "id": 20,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 523
+      },
+      {
+        "id": 21,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 523
+      },
+      {
+        "id": 22,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 524
+      },
+      {
+        "id": 23,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 524
+      },
+      {
+        "id": 24,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 524
+      },
+      {
+        "id": 25,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 524
+      },
+      {
+        "id": 26,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 525
+      },
+      {
+        "id": 27,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 525
+      },
+      {
+        "id": 28,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 525
+      },
+      {
+        "id": 29,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 525
+      },
+      {
+        "id": 30,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 525
+      },
+      {
+        "id": 31,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 525
+      },
+      {
+        "id": 32,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 526
+      },
+      {
+        "id": 33,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 600
+      },
+      {
+        "id": 34,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 600
+      },
+      {
+        "id": 35,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 601
+      },
+      {
+        "id": 36,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 602
+      },
+      {
+        "id": 37,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 602
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 613
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.sentry.io",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 683
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 727
+      },
+      {
+        "id": 41,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 819
+      },
+      {
+        "id": 42,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 865
+      },
+      {
+        "id": 43,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 866
+      },
+      {
+        "id": 44,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 883
+      },
+      {
+        "id": 45,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 885
+      },
+      {
+        "id": 46,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 915
+      },
+      {
+        "id": 47,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 937
+      },
+      {
+        "id": 48,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 938
+      },
+      {
+        "id": 49,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 938
+      },
+      {
+        "id": 50,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 939
+      },
+      {
+        "id": 51,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 939
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 982
+      },
+      {
+        "id": 53,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1003
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1031
+      },
+      {
+        "id": 55,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1032
+      },
+      {
+        "id": 56,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1033
+      },
+      {
+        "id": 57,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1093
+      },
+      {
+        "id": 58,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1094
+      },
+      {
+        "id": 59,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1095
+      },
+      {
+        "id": 60,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1095
+      },
+      {
+        "id": 61,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1095
+      },
+      {
+        "id": 62,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1097
+      },
+      {
+        "id": 63,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1098
+      },
+      {
+        "id": 64,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1098
+      },
+      {
+        "id": 65,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1098
+      },
+      {
+        "id": 66,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1099
+      },
+      {
+        "id": 67,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1099
+      },
+      {
+        "id": 68,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1099
+      },
+      {
+        "id": 69,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1100
+      },
+      {
+        "id": 70,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1100
+      },
+      {
+        "id": 71,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1100
+      },
+      {
+        "id": 72,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1112
+      },
+      {
+        "id": 73,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1113
+      },
+      {
+        "id": 74,
+        "url": "https://trkn.us/{seg}/{seg}/{seg}",
+        "domain": "trkn.us",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1119
+      },
+      {
+        "id": 75,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1128
+      },
+      {
+        "id": 76,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1129
+      },
+      {
+        "id": 77,
+        "url": "https://sc-static.net/{seg}",
+        "domain": "sc-static.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1136
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.yimg.com/{seg}/{seg}",
+        "domain": "{label}.yimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1138
+      },
+      {
+        "id": 79,
+        "url": "https://www.redditstatic.com/{seg}/{seg}",
+        "domain": "www.redditstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1138
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1138
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.facebook.net/{seg}/{seg}",
+        "domain": "{label}.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1141
+      },
+      {
+        "id": 82,
+        "url": "https://static.ads-twitter.com/{seg}",
+        "domain": "static.ads-twitter.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads-twitter.com",
+          "entity": "X",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1141
+      },
+      {
+        "id": 83,
+        "url": "https://analytics.tiktok.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1141
+      },
+      {
+        "id": 84,
+        "url": "https://pixel.byspotify.com/{seg}",
+        "domain": "pixel.byspotify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1146
+      },
+      {
+        "id": 85,
+        "url": "https://cdn.taboola.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "cdn.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1146
+      },
+      {
+        "id": 86,
+        "url": "https://trkn.us/{seg}/{seg}/{seg}",
+        "domain": "trkn.us",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1178
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.yimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.yimg.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1189
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.reddit.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.reddit.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1205
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.reddit.com/{seg}?%5Bredacted%5D=&id=&v=",
+        "domain": "{label}.reddit.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1207
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.analytics.yahoo.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.analytics.yahoo.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1242
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.snapchat.com/{seg}/{seg}/{seg}?v=",
+        "domain": "{label}.snapchat.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1243
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.snapchat.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.snapchat.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1247
+      },
+      {
+        "id": 93,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1348
+      },
+      {
+        "id": 94,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1349
+      },
+      {
+        "id": 95,
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1350
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&tid=&cid=&%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1351
+      },
+      {
+        "id": 97,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1352
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1358
+      },
+      {
+        "id": 99,
+        "url": "https://sc-static.net/{seg}",
+        "domain": "sc-static.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1385
+      },
+      {
+        "id": 100,
+        "url": "https://analytics.tiktok.com/{seg}/{seg}/static/{seg}",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1387
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.spotify.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.spotify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1397
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.snapchat.com/{seg}/{seg}?%5Bredacted%5D=&cb=",
+        "domain": "{label}.snapchat.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1413
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.pinterest.com/{seg}?tid=&cb=&%5Bredacted%5D=",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1439
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.pinterest.com/{seg}?tid=&%5Bredacted%5D=&cb=",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1444
+      },
+      {
+        "id": 105,
+        "url": "https://pixel.tapad.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "pixel.tapad.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1479
+      },
+      {
+        "id": 106,
+        "url": "https://www.google-analytics.com/{seg}",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1498
+      },
+      {
+        "id": 107,
+        "url": "https://pixel.tapad.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "pixel.tapad.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1563
+      },
+      {
+        "id": 108,
+        "url": "https://analytics.tiktok.com/{seg}/{seg}/static/{seg}",
+        "domain": "analytics.tiktok.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1572
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.pinterest.com/{seg}",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1580
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.snapchat.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.snapchat.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1615
+      },
+      {
+        "id": 111,
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1653
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1654
+      },
+      {
+        "id": 113,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1654
+      },
+      {
+        "id": 114,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1655
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=",
+        "domain": "{label}.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1736
+      },
+      {
+        "id": 116,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1758
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.sentry.io",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 429,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2011
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "fetch",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.sentry.io",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          429
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          200
+        ],
+        "resourceTypes": [
+          "ping",
+          "script"
+        ]
+      },
+      {
+        "domain": "static.ads-twitter.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "ads-twitter.com",
+          "entity": "X",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 12,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.snapchat.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "trkn.us",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "sc-static.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.yimg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "pixel.tapad.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.redditstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "pixel.byspotify.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.spotify.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "hinge.co",
+        "requests": 59,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "font",
+          "fetch",
+          "other"
+        ]
+      },
+      {
+        "domain": "images.hinge.co",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".snapchat.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "TapAd_TS",
+        "domain": ".tapad.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "TapAd_DID",
+        "domain": ".tapad.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".tapad.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_ttp",
+        "domain": ".tiktok.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".trkn.us",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".yahoo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "sc-static.net",
+        "path": "/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_scid",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ttp",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".hinge.co",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "hinge.co",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 148
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 277
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 96
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 96
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 32
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 60
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 20
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 17
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://hinge.co/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google",
+        "Meta",
+        "X"
+      ],
+      "unmentionedEntities": [
+        "Pinterest",
+        "TikTok",
+        "Taboola"
+      ],
+      "policyTextLength": 163509
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://hinge.co/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 2836,
+      "firstPartyDomain": "hinge.co",
+      "totalRequests": 50,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 2,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://hinge.co/",
+      "finalUrl": "https://hinge.co/",
+      "scannedAt": "2026-08-03T08:53:22.710Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-07-25T14:05:35.223Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.0 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://hinge.co/",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 48
+      },
+      {
+        "id": 2,
+        "url": "https://images.hinge.co/{seg}",
+        "domain": "images.hinge.co",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 143
+      },
+      {
+        "id": 3,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 143
+      },
+      {
+        "id": 4,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 144
+      },
+      {
+        "id": 5,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 144
+      },
+      {
+        "id": 6,
+        "url": "https://hinge.co/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 145
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 149
+      },
+      {
+        "id": 9,
+        "url": "https://hinge.co/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 149
+      },
+      {
+        "id": 10,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 151
+      },
+      {
+        "id": 11,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 152
+      },
+      {
+        "id": 12,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 152
+      },
+      {
+        "id": 13,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 152
+      },
+      {
+        "id": 14,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 155
+      },
+      {
+        "id": 15,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 155
+      },
+      {
+        "id": 16,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 155
+      },
+      {
+        "id": 17,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 155
+      },
+      {
+        "id": 18,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 156
+      },
+      {
+        "id": 19,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 156
+      },
+      {
+        "id": 20,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 156
+      },
+      {
+        "id": 21,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 156
+      },
+      {
+        "id": 22,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 156
+      },
+      {
+        "id": 23,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 157
+      },
+      {
+        "id": 24,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 157
+      },
+      {
+        "id": 25,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 157
+      },
+      {
+        "id": 26,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 157
+      },
+      {
+        "id": 27,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 157
+      },
+      {
+        "id": 28,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 160
+      },
+      {
+        "id": 29,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 160
+      },
+      {
+        "id": 30,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 160
+      },
+      {
+        "id": 31,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 160
+      },
+      {
+        "id": 32,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 161
+      },
+      {
+        "id": 33,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 34,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 35,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 36,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 37,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 255
+      },
+      {
+        "id": 41,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 499
+      },
+      {
+        "id": 42,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 500
+      },
+      {
+        "id": 43,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 513
+      },
+      {
+        "id": 44,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 514
+      },
+      {
+        "id": 46,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 552
+      },
+      {
+        "id": 47,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 580
+      },
+      {
+        "id": 48,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 581
+      },
+      {
+        "id": 49,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 581
+      },
+      {
+        "id": 50,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 581
+      },
+      {
+        "id": 51,
+        "url": "https://hinge.co/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 582
+      },
+      {
+        "id": 52,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 620
+      },
+      {
+        "id": 53,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 643
+      },
+      {
+        "id": 54,
+        "url": "https://hinge.co/{seg}/static/{seg}/{seg}",
+        "domain": "hinge.co",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 643
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "hinge.co",
+        "requests": 47,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "font",
+          "fetch",
+          "other"
+        ]
+      },
+      {
+        "domain": "images.hinge.co",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 32
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://hinge.co/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 163509
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://hinge.co/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 117,
+      "after": 50,
+      "delta": -67
+    },
+    "thirdPartyRequests": {
+      "before": 57,
+      "after": 2,
+      "delta": -55
+    },
+    "knownTrackerRequests": {
+      "before": 20,
+      "after": 0,
+      "delta": -20
+    },
+    "thirdPartyDomains": {
+      "before": 25,
+      "after": 1,
+      "delta": -24
+    },
+    "cookies": {
+      "before": 23,
+      "after": 0,
+      "delta": -23
+    },
+    "thirdPartyCookies": {
+      "before": 9,
+      "after": 0,
+      "delta": -9
+    },
+    "storageEntries": {
+      "before": 15,
+      "after": 2,
+      "delta": -13
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.snapchat.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "{label}.pinterest.com",
+          "entity": "Pinterest",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.tiktok.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "analytics.tiktok.com",
+          "entity": "TikTok",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.sentry.io",
+        "requests": 2,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.reddit.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.yimg.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "pixel.tapad.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "sc-static.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "trkn.us",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.spotify.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "pixel.byspotify.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "static.ads-twitter.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "ads-twitter.com",
+          "entity": "X",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.redditstatic.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 8,
+        "domains": 5
+      },
+      {
+        "entity": "Pinterest",
+        "requests": 3,
+        "domains": 1
+      },
+      {
+        "entity": "TikTok",
+        "requests": 3,
+        "domains": 1
+      },
+      {
+        "entity": "Meta",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Sentry",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Taboola",
+        "requests": 1,
+        "domains": 1
+      },
+      {
+        "entity": "X",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".snapchat.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".tapad.com",
+        "thirdParty": true
+      },
+      {
+        "name": "TapAd_DID",
+        "domain": ".tapad.com",
+        "thirdParty": true
+      },
+      {
+        "name": "TapAd_TS",
+        "domain": ".tapad.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_ttp",
+        "domain": ".tiktok.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".trkn.us",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".yahoo.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "sc-static.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".hinge.co",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".hinge.co",
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".hinge.co",
+        "thirdParty": false
+      },
+      {
+        "name": "_scid",
+        "domain": ".hinge.co",
+        "thirdParty": false
+      },
+      {
+        "name": "_ttp",
+        "domain": ".hinge.co",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".hinge.co",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".hinge.co",
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".hinge.co",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "hinge.co",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 41,
+      "after": 5,
+      "delta": -36
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://hinge.co/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://hinge.co/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260803-cf62f6d9bfd277b4ba38b24a4bda9203",
+    "path": "/reports/20260803-cf62f6d9bfd277b4ba38b24a4bda9203/",
+    "jsonPath": "/reports/20260803-cf62f6d9bfd277b4ba38b24a4bda9203.json"
+  }
+}

@@ -9,7 +9,7 @@
     "variant": "Brave-list blocking"
   },
   "requestedUrl": "https://www.clevelandclinic.org/",
-  "scannedAt": "2026-07-27T09:13:45.940Z",
+  "scannedAt": "2026-08-03T08:52:24.602Z",
   "device": "desktop",
   "baseline": {
     "ok": true,
@@ -18,24 +18,24 @@
     "summary": {
       "pageTitle": "",
       "status": 200,
-      "durationMs": 6007,
+      "durationMs": 6477,
       "firstPartyDomain": "{label}.clevelandclinic.org",
-      "totalRequests": 83,
-      "thirdPartyRequests": 42,
-      "knownTrackerRequests": 14,
+      "totalRequests": 88,
+      "thirdPartyRequests": 47,
+      "knownTrackerRequests": 15,
       "thirdPartyDomains": 19,
       "cookies": 22,
       "thirdPartyCookies": 5,
       "storageEntries": 15,
       "fingerprintEvents": 0,
-      "shieldsBlockedRequests": 22
+      "shieldsBlockedRequests": 23
     },
     "conditions": {
       "requestedUrl": "https://www.clevelandclinic.org/",
       "finalUrl": "https://{label}.clevelandclinic.org/",
-      "scannedAt": "2026-07-27T09:13:39.924Z",
-      "chromiumVersion": "149.0.7827.55",
-      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "scannedAt": "2026-08-03T08:52:27.904Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
       "timezone": "UTC",
       "locale": "en-US",
       "language": "en-US",
@@ -58,13 +58,13 @@
       },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
-        "version": "hand-curated-2026.06",
+        "version": "hand-curated-2026.08",
         "region": "US-biased",
-        "entries": 133,
-        "curatedOverrides": 133,
+        "entries": 146,
+        "curatedOverrides": 146,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.0 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -77,7 +77,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 43
+        "startedAtMs": 46
       },
       {
         "id": 2,
@@ -88,7 +88,7 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 85
+        "startedAtMs": 64
       },
       {
         "id": 3,
@@ -100,7 +100,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": true,
-        "startedAtMs": 490
+        "startedAtMs": 340
       },
       {
         "id": 4,
@@ -112,7 +112,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 490
+        "startedAtMs": 340
       },
       {
         "id": 5,
@@ -124,7 +124,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 490
+        "startedAtMs": 341
       },
       {
         "id": 6,
@@ -136,7 +136,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 491
+        "startedAtMs": 341
       },
       {
         "id": 7,
@@ -148,7 +148,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 491
+        "startedAtMs": 341
       },
       {
         "id": 8,
@@ -165,7 +165,7 @@
           "confidence": "curated"
         },
         "blockedByShields": false,
-        "startedAtMs": 491
+        "startedAtMs": 341
       },
       {
         "id": 9,
@@ -177,7 +177,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 492
+        "startedAtMs": 341
       },
       {
         "id": 10,
@@ -189,7 +189,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 493
+        "startedAtMs": 341
       },
       {
         "id": 11,
@@ -201,7 +201,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 493
+        "startedAtMs": 341
       },
       {
         "id": 12,
@@ -211,9 +211,14 @@
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
-        "tracker": null,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
         "blockedByShields": true,
-        "startedAtMs": 493
+        "startedAtMs": 343
       },
       {
         "id": 13,
@@ -225,7 +230,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 524
+        "startedAtMs": 364
       },
       {
         "id": 14,
@@ -237,7 +242,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 527
+        "startedAtMs": 367
       },
       {
         "id": 15,
@@ -249,7 +254,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 559
+        "startedAtMs": 402
       },
       {
         "id": 16,
@@ -261,7 +266,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
-        "startedAtMs": 565
+        "startedAtMs": 403
       },
       {
         "id": 17,
@@ -273,7 +278,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
-        "startedAtMs": 624
+        "startedAtMs": 473
       },
       {
         "id": 18,
@@ -285,7 +290,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 624
+        "startedAtMs": 475
       },
       {
         "id": 19,
@@ -297,7 +302,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 624
+        "startedAtMs": 475
       },
       {
         "id": 20,
@@ -309,7 +314,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 625
+        "startedAtMs": 476
       },
       {
         "id": 21,
@@ -326,7 +331,7 @@
           "confidence": "curated"
         },
         "blockedByShields": false,
-        "startedAtMs": 625
+        "startedAtMs": 477
       },
       {
         "id": 22,
@@ -338,7 +343,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 625
+        "startedAtMs": 477
       },
       {
         "id": 23,
@@ -350,7 +355,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 625
+        "startedAtMs": 477
       },
       {
         "id": 24,
@@ -362,7 +367,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 625
+        "startedAtMs": 481
       },
       {
         "id": 25,
@@ -374,7 +379,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 626
+        "startedAtMs": 481
       },
       {
         "id": 26,
@@ -386,7 +391,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 627
+        "startedAtMs": 481
       },
       {
         "id": 27,
@@ -398,7 +403,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 627
+        "startedAtMs": 482
       },
       {
         "id": 28,
@@ -410,7 +415,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 628
+        "startedAtMs": 482
       },
       {
         "id": 29,
@@ -422,7 +427,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 628
+        "startedAtMs": 483
       },
       {
         "id": 30,
@@ -434,7 +439,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 628
+        "startedAtMs": 484
       },
       {
         "id": 31,
@@ -446,7 +451,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 628
+        "startedAtMs": 484
       },
       {
         "id": 32,
@@ -458,7 +463,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 629
+        "startedAtMs": 485
       },
       {
         "id": 33,
@@ -470,7 +475,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 629
+        "startedAtMs": 485
       },
       {
         "id": 34,
@@ -482,7 +487,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 629
+        "startedAtMs": 486
       },
       {
         "id": 35,
@@ -494,7 +499,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 630
+        "startedAtMs": 486
       },
       {
         "id": 36,
@@ -506,7 +511,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 630
+        "startedAtMs": 492
       },
       {
         "id": 37,
@@ -518,7 +523,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 631
+        "startedAtMs": 493
       },
       {
         "id": 38,
@@ -530,7 +535,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 632
+        "startedAtMs": 493
       },
       {
         "id": 39,
@@ -542,7 +547,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 632
+        "startedAtMs": 495
       },
       {
         "id": 40,
@@ -554,7 +559,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 634
+        "startedAtMs": 495
       },
       {
         "id": 41,
@@ -566,7 +571,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 634
+        "startedAtMs": 496
       },
       {
         "id": 42,
@@ -578,7 +583,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 634
+        "startedAtMs": 496
       },
       {
         "id": 43,
@@ -590,7 +595,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 635
+        "startedAtMs": 496
       },
       {
         "id": 44,
@@ -607,7 +612,7 @@
           "confidence": "curated"
         },
         "blockedByShields": false,
-        "startedAtMs": 635
+        "startedAtMs": 497
       },
       {
         "id": 45,
@@ -624,7 +629,7 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 635
+        "startedAtMs": 497
       },
       {
         "id": 46,
@@ -636,7 +641,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 689
+        "startedAtMs": 606
       },
       {
         "id": 47,
@@ -648,7 +653,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 690
+        "startedAtMs": 606
       },
       {
         "id": 48,
@@ -660,7 +665,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 692
+        "startedAtMs": 608
       },
       {
         "id": 49,
@@ -672,7 +677,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 747
+        "startedAtMs": 609
       },
       {
         "id": 50,
@@ -689,7 +694,7 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 751
+        "startedAtMs": 635
       },
       {
         "id": 51,
@@ -701,7 +706,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 839
+        "startedAtMs": 737
       },
       {
         "id": 52,
@@ -713,7 +718,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
-        "startedAtMs": 903
+        "startedAtMs": 774
       },
       {
         "id": 53,
@@ -725,7 +730,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
-        "startedAtMs": 904
+        "startedAtMs": 775
       },
       {
         "id": 54,
@@ -737,7 +742,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
-        "startedAtMs": 904
+        "startedAtMs": 775
       },
       {
         "id": 55,
@@ -749,51 +754,10 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
-        "startedAtMs": 904
+        "startedAtMs": 775
       },
       {
         "id": 56,
-        "url": "https://{label}.scorecardresearch.com/{seg}/{n}/{seg}",
-        "domain": "{label}.scorecardresearch.com",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 302,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "scorecardresearch.com",
-          "entity": "Comscore",
-          "category": "audience measurement",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "startedAtMs": 972
-      },
-      {
-        "id": 57,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
-        "domain": "oc-cdn-ocprod.azureedge.net",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 972
-      },
-      {
-        "id": 58,
-        "url": "https://{label}.invocacdn.com/{seg}/{seg}",
-        "domain": "{label}.invocacdn.com",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "startedAtMs": 974
-      },
-      {
-        "id": 59,
         "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "{label}.demdex.net",
         "method": "POST",
@@ -807,126 +771,14 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 1008
+        "startedAtMs": 821
       },
       {
-        "id": 60,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}",
-        "domain": "oc-cdn-ocprod.azureedge.net",
-        "method": "GET",
-        "resourceType": "stylesheet",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 1112
-      },
-      {
-        "id": 61,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "oc-cdn-ocprod.azureedge.net",
-        "method": "GET",
-        "resourceType": "document",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 1116
-      },
-      {
-        "id": 62,
-        "url": "https://bigidcmp.cloud/{seg}",
-        "domain": "bigidcmp.cloud",
-        "method": "GET",
-        "resourceType": "stylesheet",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "startedAtMs": 1133
-      },
-      {
-        "id": 63,
-        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.clevelandclinic.org",
-        "method": "GET",
-        "resourceType": "stylesheet",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 1134
-      },
-      {
-        "id": 64,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
-        "domain": "oc-cdn-ocprod.azureedge.net",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 1146
-      },
-      {
-        "id": 65,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
-        "domain": "oc-cdn-ocprod.azureedge.net",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 1147
-      },
-      {
-        "id": 66,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
-        "domain": "oc-cdn-ocprod.azureedge.net",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 1147
-      },
-      {
-        "id": 67,
-        "url": "https://{label}.invocacdn.com/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "{label}.invocacdn.com",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "startedAtMs": 1183
-      },
-      {
-        "id": 68,
-        "url": "https://{label}.scorecardresearch.com/{seg}/{seg}/{seg}",
+        "id": 57,
+        "url": "https://{label}.scorecardresearch.com/{seg}/{n}/{seg}",
         "domain": "{label}.scorecardresearch.com",
         "method": "GET",
         "resourceType": "script",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "scorecardresearch.com",
-          "entity": "Comscore",
-          "category": "audience measurement",
-          "confidence": "curated"
-        },
-        "startedAtMs": 1211
-      },
-      {
-        "id": 69,
-        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.scorecardresearch.com",
-        "method": "GET",
-        "resourceType": "image",
         "status": 302,
         "thirdParty": true,
         "tracker": {
@@ -936,10 +788,34 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 1232
+        "startedAtMs": 896
       },
       {
-        "id": 70,
+        "id": 58,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 896
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.invocacdn.com/{seg}/{seg}",
+        "domain": "{label}.invocacdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 898
+      },
+      {
+        "id": 60,
         "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "assets.adobedtm.com",
         "method": "GET",
@@ -953,10 +829,67 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 1237
+        "startedAtMs": 925
       },
       {
-        "id": 71,
+        "id": 61,
+        "url": "https://{label}.scorecardresearch.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.scorecardresearch.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "startedAtMs": 1009
+      },
+      {
+        "id": 62,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1010
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.invocacdn.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.invocacdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1021
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1026
+      },
+      {
+        "id": 65,
         "url": "https://{label}.adsrvr.org/{seg}/{seg}?v=&%5Bredacted%5D=&type=",
         "domain": "{label}.adsrvr.org",
         "method": "GET",
@@ -970,10 +903,10 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 1243
+        "startedAtMs": 1030
       },
       {
-        "id": 72,
+        "id": 66,
         "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
         "domain": "{label}.scorecardresearch.com",
         "method": "GET",
@@ -986,10 +919,34 @@
           "category": "audience measurement",
           "confidence": "curated"
         },
-        "startedAtMs": 1563
+        "startedAtMs": 1036
       },
       {
-        "id": 73,
+        "id": 67,
+        "url": "https://bigidcmp.cloud/{seg}",
+        "domain": "bigidcmp.cloud",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1060
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1061
+      },
+      {
+        "id": 69,
         "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
         "domain": "oc-cdn-ocprod.azureedge.net",
         "method": "GET",
@@ -998,22 +955,34 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 1567
+        "startedAtMs": 1120
       },
       {
-        "id": 74,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
-        "domain": "oc-cdn-ocprod.azureedge.net",
+        "id": 70,
+        "url": "https://{label}.{label}.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
         "method": "GET",
-        "resourceType": "script",
+        "resourceType": "fetch",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 1567
+        "startedAtMs": 1128
       },
       {
-        "id": 75,
+        "id": 71,
+        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}",
+        "domain": "{label}.clevelandclinic.org",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1136
+      },
+      {
+        "id": 72,
         "url": "https://{label}.optimizely.com/{seg}/{seg}",
         "domain": "{label}.optimizely.com",
         "method": "POST",
@@ -1027,10 +996,106 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 1619
+        "startedAtMs": 1464
+      },
+      {
+        "id": 73,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1492
+      },
+      {
+        "id": 74,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1564
+      },
+      {
+        "id": 75,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1569
       },
       {
         "id": 76,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1901
+      },
+      {
+        "id": 77,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1902
+      },
+      {
+        "id": 78,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1902
+      },
+      {
+        "id": 79,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2326
+      },
+      {
+        "id": 80,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2326
+      },
+      {
+        "id": 81,
         "url": "https://{label}.{label}.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
         "domain": "{label}.{label}.omnichannelengagementhub.com",
         "method": "GET",
@@ -1039,67 +1104,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 2085
-      },
-      {
-        "id": 77,
-        "url": "https://{label}.clevelandclinic.org/{seg}/{seg}",
-        "domain": "{label}.clevelandclinic.org",
-        "method": "POST",
-        "resourceType": "xhr",
-        "status": 204,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "startedAtMs": 2095
-      },
-      {
-        "id": 78,
-        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "oc-cdn-ocprod.azureedge.net",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 2271
-      },
-      {
-        "id": 79,
-        "url": "https://{label}.{label}.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}",
-        "domain": "{label}.{label}.omnichannelengagementhub.com",
-        "method": "GET",
-        "resourceType": "fetch",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 2281
-      },
-      {
-        "id": 80,
-        "url": "https://assets.clevelandclinic.org/{seg}/{seg}/{seg}",
-        "domain": "assets.clevelandclinic.org",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 2427
-      },
-      {
-        "id": 81,
-        "url": "https://{label}.{label}.{label}.microsoft.com/{seg}/{seg}?%5Bredacted%5D=",
-        "domain": "{label}.{label}.{label}.microsoft.com",
-        "method": "POST",
-        "resourceType": "xhr",
-        "status": 200,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "startedAtMs": 2465
+        "startedAtMs": 2875
       },
       {
         "id": 82,
@@ -1116,7 +1121,7 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 2620
+        "startedAtMs": 2879
       },
       {
         "id": 83,
@@ -1128,7 +1133,67 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 3514
+        "startedAtMs": 2926
+      },
+      {
+        "id": 84,
+        "url": "https://oc-cdn-ocprod.azureedge.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "oc-cdn-ocprod.azureedge.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2962
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.{label}.omnichannelengagementhub.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2969
+      },
+      {
+        "id": 86,
+        "url": "https://assets.clevelandclinic.org/{seg}/{seg}/{seg}",
+        "domain": "assets.clevelandclinic.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3119
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.{label}.{label}.microsoft.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.microsoft.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3159
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.{label}.{label}.microsoft.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.microsoft.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3882
       }
     ],
     "domains": [
@@ -1210,6 +1275,24 @@
         ]
       },
       {
+        "domain": "static.cloudflareinsights.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
         "domain": "www.googletagmanager.com",
         "requests": 1,
         "thirdParty": true,
@@ -1283,7 +1366,7 @@
       },
       {
         "domain": "oc-cdn-ocprod.azureedge.net",
-        "requests": 9,
+        "requests": 12,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -1292,8 +1375,8 @@
         ],
         "resourceTypes": [
           "script",
-          "stylesheet",
-          "document"
+          "document",
+          "stylesheet"
         ]
       },
       {
@@ -1338,6 +1421,20 @@
         ]
       },
       {
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
         "domain": "{label}.gstatic.com",
         "requests": 2,
         "thirdParty": true,
@@ -1364,22 +1461,8 @@
         ]
       },
       {
-        "domain": "{label}.{label}.omnichannelengagementhub.com",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "requests": 2,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "static.cloudflareinsights.com",
-        "requests": 1,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": true,
@@ -1387,7 +1470,7 @@
           200
         ],
         "resourceTypes": [
-          "script"
+          "xhr"
         ]
       },
       {
@@ -1412,19 +1495,6 @@
         ],
         "resourceTypes": [
           "script"
-        ]
-      },
-      {
-        "domain": "{label}.{label}.{label}.microsoft.com",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "xhr"
         ]
       },
       {
@@ -1631,27 +1701,27 @@
         "sameSite": "Lax",
         "secure": false,
         "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".clevelandclinic.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".clevelandclinic.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
         "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".clevelandclinic.org",
-        "path": "/",
-        "sameSite": "Lax",
-        "secure": false,
-        "httpOnly": false,
-        "session": true,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".clevelandclinic.org",
-        "path": "/",
-        "sameSite": "Lax",
-        "secure": false,
-        "httpOnly": false,
-        "session": true,
         "thirdParty": false
       },
       {
@@ -1699,17 +1769,17 @@
       {
         "area": "localStorage",
         "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
         "valueBytes": 145
-      },
-      {
-        "area": "localStorage",
-        "key": "[redacted]",
-        "valueBytes": 2
-      },
-      {
-        "area": "localStorage",
-        "key": "[redacted]",
-        "valueBytes": 2
       },
       {
         "area": "localStorage",
@@ -1728,18 +1798,18 @@
       },
       {
         "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 478
+      },
+      {
+        "area": "localStorage",
         "key": "[redacted]",
-        "valueBytes": 451
+        "valueBytes": 450
       },
       {
         "area": "localStorage",
         "key": "[redacted]",
         "valueBytes": 2
-      },
-      {
-        "area": "localStorage",
-        "key": "[redacted:long-token]",
-        "valueBytes": 478
       },
       {
         "area": "sessionStorage",
@@ -1782,11 +1852,11 @@
         "Google"
       ],
       "unmentionedEntities": [
-        "Optimizely",
         "Comscore",
+        "Cloudflare",
         "The Trade Desk"
       ],
-      "policyTextLength": 69112
+      "policyTextLength": 69152
     },
     "screenshot": null,
     "warnings": [
@@ -1802,7 +1872,7 @@
     "summary": {
       "pageTitle": "",
       "status": 200,
-      "durationMs": 2950,
+      "durationMs": 3295,
       "firstPartyDomain": "{label}.clevelandclinic.org",
       "totalRequests": 44,
       "thirdPartyRequests": 9,
@@ -1812,14 +1882,14 @@
       "thirdPartyCookies": 0,
       "storageEntries": 6,
       "fingerprintEvents": 0,
-      "shieldsBlockedRequests": 10
+      "shieldsBlockedRequests": 11
     },
     "conditions": {
       "requestedUrl": "https://www.clevelandclinic.org/",
       "finalUrl": "https://{label}.clevelandclinic.org/",
-      "scannedAt": "2026-07-27T09:13:45.940Z",
-      "chromiumVersion": "149.0.7827.55",
-      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "scannedAt": "2026-08-03T08:52:24.602Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
       "timezone": "UTC",
       "locale": "en-US",
       "language": "en-US",
@@ -1842,13 +1912,13 @@
       },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
-        "version": "hand-curated-2026.06",
+        "version": "hand-curated-2026.08",
         "region": "US-biased",
-        "entries": 133,
-        "curatedOverrides": 133,
+        "entries": 146,
+        "curatedOverrides": 146,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.0 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
@@ -1872,7 +1942,7 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 91
+        "startedAtMs": 63
       },
       {
         "id": 4,
@@ -1884,7 +1954,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 325
+        "startedAtMs": 356
       },
       {
         "id": 5,
@@ -1896,7 +1966,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 325
+        "startedAtMs": 357
       },
       {
         "id": 6,
@@ -1908,7 +1978,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 326
+        "startedAtMs": 357
       },
       {
         "id": 7,
@@ -1920,7 +1990,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 326
+        "startedAtMs": 357
       },
       {
         "id": 8,
@@ -1937,7 +2007,7 @@
           "confidence": "curated"
         },
         "blockedByShields": false,
-        "startedAtMs": 326
+        "startedAtMs": 357
       },
       {
         "id": 9,
@@ -1949,7 +2019,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 326
+        "startedAtMs": 357
       },
       {
         "id": 10,
@@ -1961,7 +2031,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 326
+        "startedAtMs": 358
       },
       {
         "id": 11,
@@ -1973,7 +2043,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 326
+        "startedAtMs": 361
       },
       {
         "id": 13,
@@ -1985,7 +2055,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 359
+        "startedAtMs": 392
       },
       {
         "id": 14,
@@ -1997,7 +2067,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 361
+        "startedAtMs": 394
       },
       {
         "id": 15,
@@ -2009,7 +2079,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 427
+        "startedAtMs": 459
       },
       {
         "id": 18,
@@ -2021,7 +2091,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 435
+        "startedAtMs": 470
       },
       {
         "id": 19,
@@ -2033,7 +2103,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 435
+        "startedAtMs": 471
       },
       {
         "id": 20,
@@ -2045,7 +2115,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 435
+        "startedAtMs": 471
       },
       {
         "id": 21,
@@ -2062,7 +2132,7 @@
           "confidence": "curated"
         },
         "blockedByShields": false,
-        "startedAtMs": 439
+        "startedAtMs": 472
       },
       {
         "id": 22,
@@ -2074,7 +2144,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 439
+        "startedAtMs": 472
       },
       {
         "id": 23,
@@ -2086,7 +2156,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 440
+        "startedAtMs": 472
       },
       {
         "id": 24,
@@ -2098,7 +2168,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 440
+        "startedAtMs": 472
       },
       {
         "id": 25,
@@ -2110,7 +2180,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 440
+        "startedAtMs": 478
       },
       {
         "id": 26,
@@ -2122,7 +2192,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 441
+        "startedAtMs": 479
       },
       {
         "id": 27,
@@ -2134,7 +2204,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 441
+        "startedAtMs": 479
       },
       {
         "id": 28,
@@ -2146,7 +2216,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 441
+        "startedAtMs": 480
       },
       {
         "id": 29,
@@ -2158,7 +2228,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 441
+        "startedAtMs": 480
       },
       {
         "id": 30,
@@ -2170,7 +2240,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 442
+        "startedAtMs": 480
       },
       {
         "id": 31,
@@ -2182,7 +2252,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 442
+        "startedAtMs": 481
       },
       {
         "id": 32,
@@ -2194,7 +2264,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 442
+        "startedAtMs": 481
       },
       {
         "id": 33,
@@ -2206,7 +2276,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 442
+        "startedAtMs": 481
       },
       {
         "id": 34,
@@ -2218,7 +2288,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 442
+        "startedAtMs": 481
       },
       {
         "id": 35,
@@ -2230,7 +2300,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 442
+        "startedAtMs": 482
       },
       {
         "id": 36,
@@ -2242,7 +2312,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 443
+        "startedAtMs": 482
       },
       {
         "id": 37,
@@ -2254,7 +2324,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 443
+        "startedAtMs": 483
       },
       {
         "id": 38,
@@ -2266,7 +2336,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 443
+        "startedAtMs": 483
       },
       {
         "id": 39,
@@ -2278,7 +2348,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 443
+        "startedAtMs": 483
       },
       {
         "id": 40,
@@ -2290,7 +2360,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 443
+        "startedAtMs": 483
       },
       {
         "id": 41,
@@ -2302,7 +2372,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 444
+        "startedAtMs": 484
       },
       {
         "id": 42,
@@ -2314,7 +2384,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 444
+        "startedAtMs": 484
       },
       {
         "id": 43,
@@ -2326,7 +2396,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 444
+        "startedAtMs": 484
       },
       {
         "id": 44,
@@ -2343,7 +2413,7 @@
           "confidence": "curated"
         },
         "blockedByShields": false,
-        "startedAtMs": 444
+        "startedAtMs": 484
       },
       {
         "id": 46,
@@ -2355,7 +2425,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 483
+        "startedAtMs": 547
       },
       {
         "id": 47,
@@ -2367,7 +2437,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 484
+        "startedAtMs": 547
       },
       {
         "id": 48,
@@ -2379,10 +2449,10 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 485
+        "startedAtMs": 549
       },
       {
-        "id": 50,
+        "id": 49,
         "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
         "domain": "{label}.gstatic.com",
         "method": "GET",
@@ -2391,7 +2461,7 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 533
+        "startedAtMs": 604
       }
     ],
     "domains": [
@@ -2609,22 +2679,22 @@
       {
         "area": "localStorage",
         "key": "[redacted]",
-        "valueBytes": 451
-      },
-      {
-        "area": "localStorage",
-        "key": "[redacted]",
-        "valueBytes": 2
-      },
-      {
-        "area": "localStorage",
-        "key": "[redacted]",
-        "valueBytes": 2
+        "valueBytes": 450
       },
       {
         "area": "localStorage",
         "key": "[redacted]",
         "valueBytes": 89
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
       },
       {
         "area": "localStorage",
@@ -2666,10 +2736,8 @@
       "mentionedEntities": [
         "Adobe"
       ],
-      "unmentionedEntities": [
-        "Optimizely"
-      ],
-      "policyTextLength": 69112
+      "unmentionedEntities": [],
+      "policyTextLength": 69152
     },
     "screenshot": null,
     "warnings": [
@@ -2681,19 +2749,19 @@
   },
   "diff": {
     "totalRequests": {
-      "before": 83,
+      "before": 88,
       "after": 44,
-      "delta": -39
+      "delta": -44
     },
     "thirdPartyRequests": {
-      "before": 42,
+      "before": 47,
       "after": 9,
-      "delta": -33
+      "delta": -38
     },
     "knownTrackerRequests": {
-      "before": 14,
+      "before": 15,
       "after": 3,
-      "delta": -11
+      "delta": -12
     },
     "thirdPartyDomains": {
       "before": 19,
@@ -2724,7 +2792,7 @@
     "removedDomains": [
       {
         "domain": "oc-cdn-ocprod.azureedge.net",
-        "requests": 9,
+        "requests": 12,
         "tracker": null
       },
       {
@@ -2738,6 +2806,11 @@
         }
       },
       {
+        "domain": "{label}.{label}.omnichannelengagementhub.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
         "domain": "api.bigidcmp.cloud",
         "requests": 3,
         "tracker": null
@@ -2748,18 +2821,13 @@
         "tracker": null
       },
       {
-        "domain": "{label}.{label}.omnichannelengagementhub.com",
+        "domain": "{label}.{label}.{label}.microsoft.com",
         "requests": 2,
         "tracker": null
       },
       {
         "domain": "{label}.invocacdn.com",
         "requests": 2,
-        "tracker": null
-      },
-      {
-        "domain": "{label}.{label}.{label}.microsoft.com",
-        "requests": 1,
         "tracker": null
       },
       {
@@ -2805,7 +2873,12 @@
       {
         "domain": "static.cloudflareinsights.com",
         "requests": 1,
-        "tracker": null
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        }
       },
       {
         "domain": "www.googletagmanager.com",
@@ -2823,6 +2896,11 @@
       {
         "entity": "Comscore",
         "requests": 4,
+        "domains": 1
+      },
+      {
+        "entity": "Cloudflare",
+        "requests": 1,
         "domains": 1
       },
       {
@@ -2885,14 +2963,14 @@
     "addedProvenance": [],
     "removedProvenance": [],
     "shieldsBlockedRequests": {
-      "before": 22,
-      "after": 10,
+      "before": 23,
+      "after": 11,
       "delta": -12
     }
   },
   "warnings": [
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
-    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
     "No blocking: Read the site's privacy policy (https://{label}.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
@@ -2902,8 +2980,8 @@
     "Brave-list blocking: Read the site's privacy policy (https://{label}.clevelandclinic.org/about/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
-    "id": "20260727-ea52109861df1aca8e6d61b1d39428eb",
-    "path": "/reports/20260727-ea52109861df1aca8e6d61b1d39428eb/",
-    "jsonPath": "/reports/20260727-ea52109861df1aca8e6d61b1d39428eb.json"
+    "id": "20260803-556cd5bcb304a1afd4730ec929b04c22",
+    "path": "/reports/20260803-556cd5bcb304a1afd4730ec929b04c22/",
+    "jsonPath": "/reports/20260803-556cd5bcb304a1afd4730ec929b04c22.json"
   }
 }
