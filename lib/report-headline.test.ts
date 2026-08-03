@@ -237,6 +237,36 @@ test("credits a GPC comparison that pulled back as calm", () => {
   assert.match(headline.subhead, /not proof the site honors or received the signal/);
 });
 
+test("a large GPC reduction over a still-loud pair is not reassuring", () => {
+  // Regression: theguardian.com went 641 -> 160 third-party requests with GPC,
+  // which cleared the >=50% branch and rendered a CALM (semantic.reassuring)
+  // headline directly above 20 catalogued tracking entities and 158 third-party
+  // cookie records. report-consistency calls that "quiet-copy-over-loud-finding"
+  // and nothing enforces the rule at render time, so the tone itself must not
+  // reassure while either arm carries a review-worthy signal of its own.
+  const baseline = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 400, "AdCo", "advertising")],
+    thirdPartyRequests: 400,
+    thirdPartyDomains: 40,
+    thirdPartyCookies: 30
+  });
+  const variant = makeResult({
+    firstPartyDomain: "heavy.example",
+    domains: [makeTrackerDomain("ads.example", 100, "AdCo", "advertising")],
+    thirdPartyRequests: 100,
+    thirdPartyDomains: 32,
+    thirdPartyCookies: 25
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
+  // The measured reduction is still reported; only the reassurance is withheld.
+  assert.match(headline.headline, /were 75% lower in the visit configured with a privacy signal\./);
+  assert.equal(headline.tone, "info");
+  assert.equal(headline.semantic.reassuring, false);
+  assert.match(headline.subhead, /Both visits still recorded review-worthy activity of their own/);
+});
+
 test("the GPC alarm counts tracking companies from the GPC-on visit, not the baseline", () => {
   // Baseline (GPC off) saw three tracking companies; the GPC-on visit saw one.
   // The alarm sentence describes the GPC-on visit, so it must say one.

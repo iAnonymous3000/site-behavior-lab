@@ -9,7 +9,8 @@ import { siteProfileKey, siteProfilePath } from "@/lib/site-profile";
 import { formatDelta } from "@/lib/temporal-deltas";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { sitePagesBasePath, siteUrl } from "@/lib/site-url";
-import { reportKindLabel } from "@/lib/text-format";
+import { corpusCohortDifferences } from "@/lib/corpus-cohort";
+import { humanList, reportKindLabel } from "@/lib/text-format";
 import { TrustLinks } from "../../_components/trust-links";
 
 export const dynamic = "force-static";
@@ -73,6 +74,22 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
       ? []
       : sparklineCandidates.filter((entry) => entry.corpusCohort.id === sparklineCohortId);
   const sparklineOmittedCohortCount = sparklineCandidates.length - sparklineEntries.length;
+  // HistorySparkline renders nothing below two points, so the note must be
+  // gated on the SAME condition. It used to announce "The trend line covers
+  // this site's 1 most recent reports" under a figure that was never drawn --
+  // true for wikipedia.org and every other site whose newest cohort holds a
+  // single report.
+  const sparklineRendered = sparklineEntries.length >= 2;
+  // And say what actually differs. The corpus cohort key splits on requested
+  // GPC, schema revision, producer, catalog and taxonomy as well as
+  // methodology, so "produced by a different methodology" was simply false for
+  // omitted reports whose scanner disclosure is byte-for-byte identical to the
+  // plotted one and which differ only in the GPC condition.
+  const sparklineOmittedCohortNote = corpusCohortDifferences([
+    ...new Map(
+      sparklineCandidates.map((entry) => [entry.corpusCohort.id, entry.corpusCohort])
+    ).values()
+  ]);
 
   return (
     <main className="site-profile-page">
@@ -166,10 +183,20 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         <HistorySparkline entries={sparklineEntries} />
         {sparklineOmittedCohortCount > 0 && (
           <p className="muted">
-            The trend line covers this site&apos;s {sparklineEntries.length} most recent reports from one measurement
-            cohort. {sparklineOmittedCohortCount} older {sparklineOmittedCohortCount === 1 ? "report was" : "reports were"}{" "}
-            produced by a different methodology and {sparklineOmittedCohortCount === 1 ? "is" : "are"} listed below
-            rather than joined to that line.
+            {sparklineRendered
+              ? `The trend line covers this site's ${sparklineEntries.length} most recent reports from one measurement cohort. `
+              : `No trend line: this site's newest measurement cohort holds ${
+                  sparklineEntries.length === 1 ? "only one report" : "no comparable report"
+                }. `}
+            {sparklineOmittedCohortCount}{" "}
+            {sparklineOmittedCohortCount === 1 ? "other report was" : "other reports were"} measured under{" "}
+            {`${
+              sparklineOmittedCohortNote.length > 0
+                ? humanList(sparklineOmittedCohortNote, 3)
+                : "a different measurement cohort"
+            }, so ${
+              sparklineOmittedCohortCount === 1 ? "it is" : "they are"
+            } listed below rather than joined to one line.`}
           </p>
         )}
         <ol className="site-history-list">

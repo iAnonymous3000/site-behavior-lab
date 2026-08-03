@@ -250,7 +250,7 @@ const MAX_SCAN_DURATION_MS = 45_000;
 const GPC_WORKER_ROUTE_SETTLE_MARGIN_MS = 1_000;
 // Active keystroke-exfiltration probe: how many fields to type into, the minimum
 // time budget needed to bother, and how long to watch for the sentinel leaving.
-const MAX_PROBE_FIELDS = 8;
+export const MAX_PROBE_FIELDS = 8;
 export const MAX_PROBE_FIELD_CANDIDATES = 64;
 export const MAX_PROBE_CAPTURED_REQUESTS = 1_000;
 const KEYSTROKE_PROBE_MIN_BUDGET_MS = 4_000;
@@ -2771,8 +2771,16 @@ export function phaseAwareFingerprintEvents(
 
   const passiveByApi = new Map(passiveEvents.map((event) => [event.api, event]));
   const attributed = finalEvents.flatMap((event) => {
-    const passiveCount = Math.min(event.count, passiveByApi.get(event.api)?.count ?? 0);
-    const laterCount = event.count - passiveCount;
+    // Take the passive read at its recorded value rather than clamping it to
+    // the final read. The counters are cumulative, so the final read normally
+    // dominates and this is identical to the old Math.min; it differs only when
+    // the final read came back LOWER, which happens for the same reason the
+    // recovery loop below exists (a frame stops being readable mid-visit and
+    // its counter is no longer included). Clamping there threw away calls the
+    // scanner had already observed and published the smaller number as a
+    // complete measurement.
+    const passiveCount = Math.max(0, passiveByApi.get(event.api)?.count ?? 0);
+    const laterCount = Math.max(0, event.count - passiveCount);
     return [
       ...(passiveCount > 0 ? [{ ...event, count: passiveCount, phaseId: passivePhaseId }] : []),
       ...(laterCount > 0 ? [{ ...event, count: laterCount, phaseId: finalPhaseId }] : [])
@@ -3533,15 +3541,25 @@ export async function typeSentinelIntoFields(
     ? rawCandidateCount
     : 0;
   const candidateCount = Math.min(totalCandidateCount, MAX_PROBE_FIELD_CANDIDATES);
-  const omittedCandidateCount = Math.max(0, totalCandidateCount - candidateCount);
+  const cappedCandidateCount = Math.max(0, totalCandidateCount - candidateCount);
   const types: string[] = [];
   let count = 0;
   // Fields the probe reached and typed into, where the page refused the input.
   // Tracked separately so a refused field is never reported as a typed one.
   let preventedFieldCount = 0;
+  let candidateIndex = 0;
+  // Candidates never examined, for ANY reason the loop stops early. The count
+  // used to come from the 64-candidate ceiling alone, but the loop also stops
+  // at MAX_PROBE_FIELDS typed fields (8) and on cancellation, so a page with
+  // more fillable fields than that left the rest unprobed while reporting zero
+  // omissions. That zero made the detector `complete`, and the report then
+  // published "no keystroke exfiltration" as a complete absence over fields the
+  // scanner never touched.
+  const omittedCandidates = (): number =>
+    cappedCandidateCount + Math.max(0, candidateCount - candidateIndex);
 
   for (
-    let candidateIndex = 0;
+    ;
     candidateIndex < candidateCount && count < MAX_PROBE_FIELDS && !lifecycle?.isCancelled();
     candidateIndex += 1
   ) {
@@ -3549,7 +3567,7 @@ export async function typeSentinelIntoFields(
     if (!handle) continue;
     if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
       await handle.dispose().catch(() => undefined);
-      return { count, types, subjectLost: true, omittedCandidateCount, preventedFieldCount };
+      return { count, types, subjectLost: true, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
     }
     try {
       if (!(await handle.isVisible())) continue;
@@ -3560,18 +3578,18 @@ export async function typeSentinelIntoFields(
       );
       const fieldType = isBoundedFieldType(rawFieldType) ? rawFieldType : "other";
       if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
-        return { count, types, subjectLost: true, omittedCandidateCount, preventedFieldCount };
+        return { count, types, subjectLost: true, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
       }
       await handle.focus();
       if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
-        return { count, types, subjectLost: true, omittedCandidateCount, preventedFieldCount };
+        return { count, types, subjectLost: true, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
       }
       // Bind typing to the element handle from the trusted document. If a
       // navigation detaches it after the final origin check, Playwright throws;
       // page.keyboard.type could otherwise deliver the sentinel to whichever
       // element happens to gain focus in the replacement document.
       if (lifecycle?.isCancelled()) {
-        return { count, types, subjectLost: false, omittedCandidateCount, preventedFieldCount };
+        return { count, types, subjectLost: false, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
       }
       await handle.type(sentinel, { delay: 1 });
       // `type()` resolving only means the keystrokes were dispatched. A field
@@ -3604,7 +3622,7 @@ export async function typeSentinelIntoFields(
     count,
     types,
     subjectLost: !sameScanSubjectUrl(page.url(), trustedSubjectUrl),
-    omittedCandidateCount,
+    omittedCandidateCount: omittedCandidates(),
     preventedFieldCount
   };
 }
@@ -3870,8 +3888,19 @@ function safeRequestPostDataWithCoverage(request: Pick<Request, "postData">): Bo
   }
 }
 
-function isTimeoutError(error: unknown): boolean {
-  return error instanceof Error && error.message.toLowerCase().includes("timeout");
+export function isTimeoutError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  // Match the ERROR CLASS, never a substring of the message. Playwright embeds
+  // the full target URL (query string and all) in navigation error text -- the
+  // same reason navigationFailureReason below refuses to log the raw message --
+  // so a bare `includes("timeout")` turned every refused or failed load of a
+  // URL like https://example.com/timeout-test into a fake 504 "did not load
+  // before the scan timeout", hiding the real reason from the report.
+  if (error.name === "TimeoutError") return true;
+  // Playwright's canonical phrasing, kept as a fallback for wrapped errors that
+  // lose the class. A normalized URL cannot contain the literal spaces this
+  // pattern requires, so it cannot be spoofed by the target.
+  return /Timeout \d+ms exceeded/i.test(error.message);
 }
 
 // A navigation failure reason safe for operator logs: the Chromium net error

@@ -569,8 +569,20 @@ function assertPhasePlan(
   if (conditions.probes.keystroke && !hasActiveProbe && !phaseOmissionExplainedByDetector(detectors["keystroke-exfiltration"])) {
     throw new Error("A skipped active probe requires a keystroke detector outcome that explains the omission.");
   }
-  if (hasActiveProbe && !executedDetector(detectors["keystroke-exfiltration"])) {
-    throw new Error("An active-probe phase requires an executed keystroke detector outcome.");
+  if (
+    hasActiveProbe &&
+    !executedDetector(detectors["keystroke-exfiltration"]) &&
+    !phaseOmissionExplainedByDetector(detectors["keystroke-exfiltration"])
+  ) {
+    // The scanner opens the active-probe phase BEFORE it knows whether any
+    // field can be typed, so a page that navigates away mid-search (delayed
+    // redirect, SPA route change, auto-submitting form) legitimately ends with
+    // an existing phase and `keystroke-exfiltration: skipped/load-failed`.
+    // Refusing that combination made the r2 producer throw on an ordinary real
+    // page instead of publishing an honest report. An unaccountable skip
+    // (`not-requested`, `probe-disabled`) is still refused, because those
+    // reasons are deliberately absent from the phase-omission vocabulary.
+    throw new Error("An active-probe phase requires an executed or accountably skipped keystroke detector outcome.");
   }
   if (!hasActiveProbe && executedDetector(detectors["keystroke-exfiltration"])) {
     throw new Error("An executed keystroke detector requires an active-probe phase.");

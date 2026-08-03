@@ -37,6 +37,8 @@ import {
   MAX_CAPTURED_BODY_CHARS,
   MAX_PROBE_CAPTURED_REQUESTS,
   MAX_PROBE_FIELD_CANDIDATES,
+  MAX_PROBE_FIELDS,
+  isTimeoutError,
   NON_HTTP_WARNING_EXAMPLE_LIMIT,
   phaseAwareDetections,
   retainedScanEvidenceDiagnostics,
@@ -219,7 +221,11 @@ test("active input typing stops if focus races an origin change", async () => {
     "test-collector"
   );
 
-  assert.deepEqual(result, { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0, preventedFieldCount: 0 });
+  // The one candidate was focused but never typed into, so it yielded no
+  // evidence and counts as omitted. omittedCandidateCount now means "candidates
+  // this probe did not obtain evidence from", for every reason the loop stops,
+  // not just the 64-candidate ceiling.
+  assert.deepEqual(result, { count: 0, types: [], subjectLost: true, omittedCandidateCount: 1, preventedFieldCount: 0 });
   assert.equal(typed, false);
 });
 
@@ -1999,7 +2005,13 @@ test("keystroke candidate overflow records exact detector-output truncation", { 
         family: "detector-output",
         phaseId: activePhase.phaseId,
         kind: "truncated",
-        count: 1,
+        // 65 fillable fields: 1 beyond the 64-candidate ceiling, plus the 56
+        // the probe never examined because it stops after MAX_PROBE_FIELDS (8)
+        // typed fields. This used to read 1, counting only the ceiling, so a
+        // page with fewer than 64 but more than 8 fields recorded ZERO loss and
+        // the detector reported `complete` -- publishing "no synthetic input
+        // left this page" as a complete absence over fields never touched.
+        count: MAX_PROBE_FIELD_CANDIDATES + 1 - MAX_PROBE_FIELDS,
         detail: "keystroke-probe-capture"
       }
     );
@@ -3774,4 +3786,56 @@ test("a page that never goes quiet is not recorded as a failed navigation", asyn
   // The fact itself is still published: the reason the counts are a lower
   // bound has to reach the reader.
   assert.match(scanner, /warnings\.add\("The page did not reach network idle before the scan window ended\."\)/);
+});
+
+test("a navigation timeout is recognized by class, not by a substring of the target URL", () => {
+  // Playwright embeds the full target URL in navigation error text, so a bare
+  // message substring match turned every refused or failed load of a URL
+  // containing "timeout" into a fake 504, hiding the real failure reason.
+  const playwrightTimeout = new Error("page.goto: Timeout 30000ms exceeded.");
+  playwrightTimeout.name = "TimeoutError";
+  assert.equal(isTimeoutError(playwrightTimeout), true);
+  assert.equal(isTimeoutError(new Error('page.goto: Timeout 30000ms exceeded.\nCall log:\n navigating to "https://example.com/"')), true);
+
+  for (const message of [
+    'page.goto: net::ERR_CONNECTION_REFUSED at https://example.com/timeout-test',
+    'page.goto: net::ERR_CERT_AUTHORITY_INVALID at https://timeout.example.com/',
+    'page.goto: net::ERR_ABORTED at https://example.com/?redirect=/timeouts/'
+  ]) {
+    assert.equal(isTimeoutError(new Error(message)), false, message);
+  }
+
+  assert.equal(isTimeoutError("Timeout 30000ms exceeded"), false);
+  assert.equal(isTimeoutError(null), false);
+});
+
+test("a passive fingerprint observation survives a final read that lost a frame", () => {
+  // The observer's counters are cumulative, so the final read normally covers
+  // the passive one. When a frame stops being readable mid-visit its counter
+  // drops out, and clamping the passive count to the smaller final count threw
+  // away calls the scanner had already recorded, publishing the smaller number
+  // as a complete measurement.
+  const attributed = phaseAwareFingerprintEvents(
+    [{ api: "canvas.toDataURL", count: 3 }] as never,
+    [{ api: "canvas.toDataURL", count: 10 }] as never,
+    1,
+    2
+  );
+
+  assert.deepEqual(attributed, [{ api: "canvas.toDataURL", count: 10, phaseId: 1 }]);
+
+  // The ordinary cumulative case is unchanged: the passive share stays on the
+  // passive phase and only the genuine increment moves to the final phase.
+  assert.deepEqual(
+    phaseAwareFingerprintEvents(
+      [{ api: "canvas.toDataURL", count: 10 }] as never,
+      [{ api: "canvas.toDataURL", count: 3 }] as never,
+      1,
+      2
+    ),
+    [
+      { api: "canvas.toDataURL", count: 3, phaseId: 1 },
+      { api: "canvas.toDataURL", count: 7, phaseId: 2 }
+    ]
+  );
 });

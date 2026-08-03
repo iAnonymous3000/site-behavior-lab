@@ -89,6 +89,20 @@ export function reportConsistencyViolations(
       `A reassuring headline rendered over ${loudFindings.map((finding) => finding.id).join(", ")}.`
     );
   }
+  // The bottom line is the reader's one-line verdict, and it is computed from
+  // the findings board while the headline is computed from ReportFacts. Those
+  // are two answers to "is this visit quiet?", so they can disagree on the same
+  // page below the warn/loud threshold the check above uses: gov.uk rendered
+  // the calm "showed few catalogued or fingerprint-like signals" directly above
+  // an alert card reading "this visit has review-worthy signals". Pin the seam
+  // itself rather than each card that can leak across it.
+  const bottomLine = findings.find((finding) => finding.id === "bottom-line");
+  if (headline.semantic.reassuring && bottomLine?.icon === "alert") {
+    add(
+      "quiet-copy-over-loud-finding",
+      `A reassuring headline rendered over an alert bottom line ("${bottomLine.title}").`
+    );
+  }
 
   const serviceCard = findings.find((finding) => finding.id === "third-party-services");
   if (

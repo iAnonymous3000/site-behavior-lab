@@ -29,7 +29,7 @@ import {
   makePublicSingleReportV2R2,
   makeShieldsInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
-import { makePublicSingleReportV2 } from "./scan-report-v2-fixtures";
+import { makeInterventionComparisonReportV2, makePublicSingleReportV2 } from "./scan-report-v2-fixtures";
 import {
   displayRunView,
   familyCensoredOnRun,
@@ -1515,6 +1515,54 @@ test("reports a clean policy check at ok level", () => {
   assert.match(card.detail, /combined do-not-sell-or-share claims/);
 });
 
+test("an uncheckable policy is a report fact and never raises the bottom line", () => {
+  // gov.uk: every substantive card was ok and the headline was the calm
+  // "showed few catalogued or fingerprint-like signals", yet the bottom line
+  // read "this visit has review-worthy signals" -- driven only by this card,
+  // whose own lead says it is "a limit of the automated check, not a finding
+  // about the site either way".
+  const result = makeResult({});
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 5000
+  };
+
+  const findings = buildFindings(viewFromV1Report(result), null);
+  const card = byId(findings, "privacy-policy");
+  assert.match(card.title, /made no statement this scan can check/);
+  assert.equal(card.level, "info");
+  assert.equal(card.methodology, true);
+
+  const bottom = byId(findings, "bottom-line");
+  assert.equal(bottom.title, "Bottom line: few review signals in this visit");
+  assert.equal(bottom.icon, "check");
+});
+
+test("a policy card that names an unmentioned tracker stays site evidence", () => {
+  // The converse of the guard above: a transparency gap IS about the site, so
+  // marking the unavailable branch methodology must not silence this one.
+  const result = makeResult({
+    domains: [makeTrackerDomain("ads.example", 10, "AdCo", "advertising")],
+    thirdPartyRequests: 10,
+    thirdPartyDomains: 1
+  });
+  result.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [],
+    mentionedEntities: [],
+    unmentionedEntities: ["AdCo"],
+    policyTextLength: 5000
+  };
+
+  const card = byId(buildFindings(viewFromV1Report(result), null), "privacy-policy");
+  assert.match(card.title, /does not appear to name/);
+  assert.equal(card.level, "info");
+  assert.notEqual(card.methodology, true);
+});
+
 test("historical sell-only or share-only combined claims are not treated as checkable", () => {
   for (const quote of [
     "We do not sell your personal information.",
@@ -1801,6 +1849,76 @@ test("an ineligible pair is a methodology note: prose reasons, and no bottom-lin
   const bottom = byId(findings, "bottom-line");
   assert.equal(bottom.title, "Bottom line: few review signals in this visit");
   assert.equal(bottom.level, "ok");
+});
+
+test("an uncatalogued cross-site host count never renders ok under its own high badge", () => {
+  // The services card scored only catalog matches, so a visit to 40 hosts that
+  // the catalog cannot name rendered "ok" and "No known services matched" while
+  // the SAME card carried a "High third-party domains count" badge and
+  // ReportFacts scored the run "loud". Level, title and badge now come from one
+  // number.
+  for (const [hosts, expectedLevel] of [
+    [2, "info"],
+    [20, "warn"],
+    [40, "loud"]
+  ] as const) {
+    const result = makeResult({
+      firstPartyDomain: "example.com",
+      domains: Array.from({ length: hosts }, (_unused, index) => ({
+        domain: `host${index}.example`,
+        requests: 3,
+        thirdParty: true,
+        tracker: null,
+        statuses: [200],
+        resourceTypes: ["script"]
+      })),
+      thirdPartyRequests: hosts * 3,
+      thirdPartyDomains: hosts
+    });
+
+    const findings = buildFindings(viewFromV1Report(result), null);
+    const card = byId(findings, "third-party-services");
+    assert.equal(card.level, expectedLevel, `${hosts} hosts should score ${expectedLevel}`);
+    if (expectedLevel === "warn" || expectedLevel === "loud") {
+      assert.match(card.title, new RegExp(`${hosts} cross-site hosts recorded, none matched`));
+      assert.doesNotMatch(card.title, /No known services matched/);
+      // The summary must not stay green while a card is loud.
+      assert.equal(byId(findings, "bottom-line").icon, "alert");
+    }
+  }
+});
+
+test("a quiet-only board reads as few signals, and PageGraph provenance is a report fact", () => {
+  // "quiet" is the level a flat comparison delta and an absent-provenance note
+  // carry. It is only reachable when every metric card is already "ok"
+  // (metricSeverity returns "ok" at zero and "info" at one), so reading it as
+  // review-worthy put an alert icon and "this visit has review-worthy signals"
+  // over a board whose every substantive card said ok.
+  const pagegraph = JSON.parse(JSON.stringify(makePublicSingleReportV2())) as ReturnType<
+    typeof makePublicSingleReportV2
+  >;
+  pagegraph.run.conditions.automation = "brave-pagegraph";
+  const findings = buildFindings(viewFromV2(pagegraph, 1), null);
+
+  // Whether the export carried initiator metadata is a property of the
+  // artifact, not the site, so it must not drive the bottom line.
+  const provenance = byId(findings, "pagegraph-provenance");
+  assert.equal(provenance.methodology, true);
+  assert.equal(provenance.level, "quiet");
+
+  const bottom = byId(findings, "bottom-line");
+  assert.equal(bottom.title, "Bottom line: few review signals in this visit");
+  assert.equal(bottom.icon, "check");
+
+  // A quiet card that IS site evidence (a flat comparison delta, from the
+  // repo's own shipped comparison fixture) must not flip the summary either.
+  const flat = buildFindings(viewFromV2(makeInterventionComparisonReportV2(), 1), null);
+  const flatDelta = byId(flat, "shields-comparison");
+  assert.equal(flatDelta.level, "quiet");
+  assert.notEqual(flatDelta.methodology, true);
+  const flatBottom = byId(flat, "bottom-line");
+  assert.equal(flatBottom.title, "Bottom line: few review signals in this visit");
+  assert.equal(flatBottom.icon, "check");
 });
 
 test("comparison prose omits a fingerprint delta when either arm lacks an exact measurement", () => {

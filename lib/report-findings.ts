@@ -320,10 +320,28 @@ export function buildFindings(
   const cookiesBenchmark = cookiesBenchmarkAllowed
     ? corpusBenchmark(corpus, "thirdPartyCookies", run.counts.thirdPartyCookies)
     : null;
+  // The severity the third-party-host COUNT carries on its own, independent of
+  // whether the catalog identified anybody. This is the number the card's
+  // benchmark badge already reports, so gating the level on it keeps the badge
+  // and the level from contradicting each other: a visit to 40 uncatalogued
+  // cross-site hosts used to render an "ok" card titled "No known services
+  // matched" carrying a "High third-party domains count" badge, under a green
+  // "few review signals" bottom line, while ReportFacts scored the same run
+  // "loud". Scoped to the same condition as the badge so error pages and
+  // non-comparable populations, which show no badge, keep their absence copy.
+  const domainsCountLevel: FindingLevel = domainsBenchmarkAllowed
+    ? domainsBenchmark
+      ? domainsBenchmark.level
+      : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
+    : "ok";
   const thirdPartyLevel = strongestLevel([
     levelForMetric("trackerEntities", trackingEntities.length),
     domainsBenchmark ? domainsBenchmark.level : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
   ]);
+  // The level tracks the badge at every volume; the TITLE only stops saying
+  // "no known services matched" once the count itself is elevated, where an
+  // absence title over a warn/loud card would actively mislead.
+  const uncataloguedVolume = domainsCountLevel === "warn" || domainsCountLevel === "loud";
   const findings: Finding[] = [];
 
   const operationalNote =
@@ -339,7 +357,9 @@ export function buildFindings(
       ? ` ${plural(
           ownership.sameOrganizationDomainCount,
           "catalogued cross-site domain"
-        )} belongs to the same reviewed ${ownership.sameOrganizationName ?? "organization"} domain family as the site, so that traffic is not evidence of disclosure to an outside company.`
+        )} ${
+          ownership.sameOrganizationDomainCount === 1 ? "belongs" : "belong"
+        } to the same reviewed ${ownership.sameOrganizationName ?? "organization"} domain family as the site, so that traffic is not evidence of disclosure to an outside company.`
       : "";
 
   const sessionReplayNames = facts.signals.fingerprint.sessionReplayNames;
@@ -450,7 +470,9 @@ export function buildFindings(
         ? ` ${plural(
             sameOrganizationRecipients.length,
             "recipient domain"
-          )} belongs to the site's same reviewed organization, so that portion is not disclosure to an outside company.`
+          )} ${
+            sameOrganizationRecipients.length === 1 ? "belongs" : "belong"
+          } to the site's same reviewed organization, so that portion is not disclosure to an outside company.`
         : "";
     const fields = plural(keystrokeDetection.evidence.fieldsTyped, "form field");
     // A one-way hash is a stronger transformation signal and retains the loud
@@ -619,9 +641,22 @@ export function buildFindings(
     // committed reports publish exactly that, so this needs its own branch
     // rather than the reassuring default.
     const noCheckableClaims = checkablePolicyClaims.length === 0;
+    // "Nothing could be checked" is a statement about the AUTOMATED CHECK, not
+    // about the site -- this card's own lead says so. Left as ordinary evidence
+    // it raised the bottom line to "this visit has review-worthy signals" on
+    // gov.uk, whose every other card was ok and whose headline was the calm
+    // "showed few catalogued or fingerprint-like signals". Two computations
+    // were answering "is this visit quiet?" (calmEligible and the findings
+    // board) and disagreeing on the same page.
+    const policyCheckUnavailable =
+      conflicts.length === 0 &&
+      conditionalConflicts.length === 0 &&
+      unmentionedTrackingEntities.length === 0 &&
+      (policyAbsenceIneligible || noCheckableClaims);
     findings.push({
       id: "privacy-policy",
       icon: "file-text",
+      ...(policyCheckUnavailable ? { methodology: true as const } : {}),
       level:
         conflicts.length > 0
           ? "warn"
@@ -681,12 +716,15 @@ export function buildFindings(
         ? thirdPartyLevel
         : trackingCnameNames.length > 0
           ? "warn"
-        : operationalEntities.length > 0 ||
+        : strongestLevel([
+            operationalEntities.length > 0 ||
             unclassifiedEntities.length > 0 ||
             nonCatalogIdentityNames.length > 0 ||
             requestsCensored
-          ? "info"
-          : "ok",
+              ? "info"
+              : "ok",
+            domainsCountLevel
+          ]),
     title:
       trackingEntities.length > 0
         ? trackingEntities.every((entity) => respondedEntities.has(entity.entity))
@@ -702,6 +740,11 @@ export function buildFindings(
             ? "Other third-party operators were identified outside the tracking-service catalog"
             : nonCatalogSameOrganizationNames.length > 0
               ? "Same-organization operators were identified across a site boundary"
+            : uncataloguedVolume
+              ? `${plural(
+                  run.counts.thirdPartyDomains,
+                  "cross-site host"
+                )} recorded, none matched to the service catalog`
             : scopedAbsenceTitle(facts, "third-party-services", "No known services matched"),
     lead:
       trackingEntities.length > 0
@@ -895,6 +938,11 @@ export function buildFindings(
       id: "pagegraph-provenance",
       icon: "network",
       level: provenanceHighlights.length > 0 ? "info" : "quiet",
+      // Whether the PageGraph export carried initiator metadata is a property
+      // of THIS ARTIFACT, not of the site, so it must not move the bottom line
+      // the way an observed signal does (same rule as the ineligible-pair and
+      // unverified-consent cards).
+      methodology: true,
       title: provenanceHighlights.length > 0 ? "PageGraph causality is attached" : "PageGraph causality was not supplied",
       lead:
         provenanceHighlights.length > 0
@@ -1572,15 +1620,21 @@ export function buildFindings(
     !activityEvidenceCensored &&
     unsupportedFamilies.length > 0 &&
     (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
+  // "quiet" is a NULL RESULT, not a signal: it is the level a flat comparison
+  // delta or an absent-provenance note carries, and it is only reachable when
+  // every metric card is "ok" (metricSeverity returns "ok" at zero and "info"
+  // at one). Reading it as review-worthy put an alert icon and "this visit has
+  // review-worthy signals" over a board whose every substantive card said ok.
+  const quietEnough = overallLevel === "ok" || overallLevel === "quiet";
   findings.unshift({
     id: "bottom-line",
-    icon: overallLevel === "ok" && !censoredQuiet && !unsupportedQuiet ? "check" : "alert",
+    icon: quietEnough && !censoredQuiet && !unsupportedQuiet ? "check" : "alert",
     level: censoredQuiet || unsupportedQuiet ? "info" : overallLevel,
     title: censoredQuiet
       ? "Bottom line: activity evidence was cut short, so few signals is not a verdict"
       : unsupportedQuiet
         ? "Bottom line: this PageGraph report covers requests; other evidence was not captured"
-      : overallLevel === "ok"
+      : quietEnough
         ? "Bottom line: few review signals in this visit"
         : "Bottom line: this visit has review-worthy signals",
     lead: censoredQuiet
@@ -1593,7 +1647,7 @@ export function buildFindings(
         }`
       : unsupportedQuiet
         ? `Request evidence was recorded, but ${humanList(unsupportedFamilies)} evidence is unsupported by this producer. Those zero-valued fields are unavailable measurements, not observed absences.`
-      : overallLevel === "ok"
+      : quietEnough
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
         : `The scan observed signals a non-expert should not have to decode from raw request tables.${
             activityEvidenceCensored
@@ -1747,6 +1801,14 @@ function buildConsentComparisonFinding(
       id: "consent-comparison",
       icon: "cookie",
       level: "info",
+      // Neither visit activated a control, so this card's own detail says "No
+      // claim about the site's consent behavior can be made from this pair of
+      // visits". It is a report fact, and the committed wikipedia.org report
+      // 20260702-68f6a5e7 proved the cost of leaving it as site evidence: a
+      // calm "showed few catalogued or fingerprint-like signals" headline over
+      // an alert "this visit has review-worthy signals" bottom line, with every
+      // other card ok.
+      methodology: true,
       title: "No consent control activation was recorded in either visit",
       lead: "Neither visit recorded a control activation, so neither can be shown to reflect the choice it attempted, and this diff mostly shows run-to-run variance.",
       detail:

@@ -127,6 +127,14 @@ export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.
   "policy-link-candidates": "detector-output",
   "keystroke-probe-capture": "detector-output",
   "page-title": "detector-output",
+  // Recorded by the scanner (scanner.ts, family "detector-output") whenever the
+  // trusted-subject page-text read is unavailable, which is exactly the
+  // hostile/heavy page this scanner most needs to publish about. evaluateQuality
+  // and the view layer both already carry this detail; only the registry did
+  // not, so assertQualityVocabulary threw and the r2 producer answered the
+  // visitor with a 500 instead of a report. Same recurrence as
+  // policy-link-candidates above.
+  [PAGE_SUBJECT_CAPTURE_LOSS_DETAIL]: "detector-output",
   "consent-verification": "consent-verification",
   // Public build-time caps. These are part of the pre-emission registry: a
   // hostile page cannot bloat a wire artifact, and every clipped family is

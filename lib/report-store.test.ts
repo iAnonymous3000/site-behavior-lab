@@ -1203,8 +1203,19 @@ test("an operator report count above the backend listing ceiling is clamped, not
   const REPORT_MAX_COUNT_ENV = "SITE_BEHAVIOR_LAB_REPORT_MAX_COUNT";
   const previous = process.env[REPORT_MAX_COUNT_ENV];
   try {
+    // Strictly BELOW the ceiling. HEAD candidates count aged report-only crash
+    // orphans too, and prune must tolerate those for a full retention window,
+    // so clamping to exactly the ceiling meant a store at its steady-state
+    // maximum plus one orphan exceeded the listing bound: every prune threw,
+    // publication stopped, and the orphan could only be removed by the prune
+    // that was refusing to run.
     process.env[REPORT_MAX_COUNT_ENV] = String(R2_LIST_MAX_HEAD_CANDIDATES + 5_000);
-    assert.equal(reportStoreStatus().maxCount, R2_LIST_MAX_HEAD_CANDIDATES);
+    const clamped = reportStoreStatus().maxCount;
+    assert.ok(
+      clamped < R2_LIST_MAX_HEAD_CANDIDATES,
+      `clamped count ${clamped} must leave listing headroom below ${R2_LIST_MAX_HEAD_CANDIDATES}`
+    );
+    assert.ok(clamped >= R2_LIST_MAX_HEAD_CANDIDATES - 128, `clamped count ${clamped} discards too much capacity`);
     process.env[REPORT_MAX_COUNT_ENV] = "25";
     assert.equal(reportStoreStatus().maxCount, 25);
     process.env[REPORT_MAX_COUNT_ENV] = "0";

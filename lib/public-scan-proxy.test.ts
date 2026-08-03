@@ -1128,3 +1128,33 @@ test("a client that resets during the CONNECT preflight cannot crash the process
     "a client reset must never reach the process as an uncaught exception"
   );
 });
+
+test("an upstream error after the tunnel opens never writes a status line into the TLS stream", async (t) => {
+  // Once "200 Connection Established" is sent, the client socket carries the
+  // browser's TLS records. closeTunnel only checks `socket.destroyed`, which is
+  // false for a live tunnel, so an upstream reset used to push a plaintext
+  // "HTTP/1.1 502 Bad Gateway" into the middle of those records: Chromium then
+  // reported a TLS protocol error and the scan blamed the wrong cause.
+  let upstreamSocket: Duplex | null = null;
+  const proxy = await tunnelDoubleProxy(1024, (upstream) => {
+    upstreamSocket = upstream;
+  });
+  t.after(async () => {
+    await proxy.close();
+  });
+
+  const client = await openTunnel(proxy.server, "tunnel.test:443");
+  const received: Buffer[] = [];
+  client.on("data", (chunk: Buffer) => received.push(chunk));
+  client.resume();
+
+  const closed = new Promise<void>((resolve) => client.once("close", () => resolve()));
+  assert.ok(upstreamSocket, "the upstream must have connected");
+  (upstreamSocket as unknown as Duplex).emit("error", new Error("ECONNRESET"));
+  await closed;
+
+  const afterEstablished = Buffer.concat(received).toString("latin1");
+  assert.doesNotMatch(afterEstablished, /HTTP\/1\.1 502/);
+  assert.doesNotMatch(afterEstablished, /Bad Gateway/);
+  assert.equal(afterEstablished, "", "the tunnel must close silently, not answer in plaintext");
+});
