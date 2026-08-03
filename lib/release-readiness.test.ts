@@ -53,8 +53,6 @@ const EXPECTED_GATES: Record<string, string> = {
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "current-method-corpus": "corpus",
-  "aa-repeatability": "aa-study",
-  "detector-calibration": "calibration",
   "legal-review": "review-ledger",
   "runner-cycles": "runner-receipts",
   "controlled-publications": "controlled-publications",
@@ -75,6 +73,13 @@ const EXPECTED_DECISIONS = [
   "calibrationCensoringPolicy",
   "wasmReproducibility"
 ];
+// The lean 1.0 fork: these evidence programs gate the 1.1 calibrated-claims
+// release. Restoring either to EXPECTED_GATES and manifest.gates is the
+// reviewed enforcement edit that reverses the fork.
+const DEFERRED_GATES: Record<string, string> = {
+  "aa-repeatability": "aa-study",
+  "detector-calibration": "calibration"
+};
 
 test("the committed manifest is NOT READY, every gate is pinned by id and kind, and only evidenced gates are green", async () => {
   const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
@@ -82,7 +87,7 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   // calendar: this pins the evaluator over committed evidence, and staleness
   // enforcement is exercised by the synthetic tests below. Bump the instant
   // whenever new evidence lands.
-  const AS_OF = Date.parse("2026-08-01T00:00:00.000Z");
+  const AS_OF = Date.parse("2026-08-03T00:00:00.000Z");
   const result = evaluateReleaseReadiness(process.cwd(), AS_OF);
   assert.equal(result.ready, false);
   assert.deepEqual(result.manifestProblems, []);
@@ -103,7 +108,9 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   const automationLanded = new Set(["release-receipt-archive", "current-method-corpus"]);
   // Hand-committed evidence that has actually landed. Every flip moves here.
   const evidenced = new Set([
-    "compatibility-surface-pinned"
+    "compatibility-surface-pinned",
+    "decisions-approved",
+    "errata-resolution"
   ]);
   for (const [id, kind] of Object.entries(EXPECTED_GATES)) {
     const gate = gates.get(id) as { kind: string; status: string };
@@ -141,6 +148,43 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   assert.deepEqual(
     [...manifest.gates["decisions-approved"].requiredDecisions].sort(),
     [...EXPECTED_DECISIONS].sort()
+  );
+  // The deferred record is governance surface too: deleting it, un-deferring
+  // silently, or retargeting it away from 1.1.0 must move this pin.
+  assert.deepEqual(
+    Object.keys(manifest.deferredGates).sort(),
+    Object.keys(DEFERRED_GATES).sort()
+  );
+  for (const [id, kind] of Object.entries(DEFERRED_GATES)) {
+    assert.equal(manifest.deferredGates[id].kind, kind, `${id} deferred kind`);
+    assert.equal(manifest.deferredGates[id].deferredTo, "1.1.0", `${id} deferredTo`);
+    assert.equal(manifest.deferredGates[id].deferredBy, "iAnonymous3000", `${id} deferredBy`);
+    assert.equal(
+      manifest.deferredGates[id].deferredAt,
+      "2026-08-02T22:10:00.000Z",
+      `${id} deferredAt`
+    );
+    assert.equal(
+      typeof manifest.deferredGates[id].reason === "string" &&
+        manifest.deferredGates[id].reason.length > 0,
+      true,
+      `${id} deferral reason`
+    );
+    assert.equal(id in manifest.gates, false, `${id} must not also be a live gate`);
+  }
+  // The deferred gate bodies must survive intact so restoring either gate is
+  // a pin move, not a reconstruction.
+  assert.deepEqual(manifest.deferredGates["detector-calibration"].requiredDetectors, [
+    "keystroke-exfiltration",
+    "pixel-events",
+    "consent-banner",
+    "fingerprint-heuristics",
+    "cname-uncloaking",
+    "privacy-policy"
+  ]);
+  assert.equal(
+    manifest.deferredGates["aa-repeatability"].directory,
+    "research/aa-studies"
   );
   assert.equal(
     manifest.gates["measurement-candidate-binding"].requiredEvidenceCategories.includes(
@@ -1271,6 +1315,115 @@ test("the calibration gate fails closed without eligible studies and rejects reg
       assert.match(reasons, /made-up-detector is not a registry detector id/);
       assert.match(reasons, /not covered by requiredDetectors/);
     }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("the aa evidence requirement follows the manifest: valid deferral drops it, deletion or a hollow record restores it", async () => {
+  const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
+  const AA_CATEGORIES = [
+    "aa-attempt-ledger",
+    "aa-evaluation",
+    "aa-producer-receipt",
+    "aa-producer-attestation"
+  ];
+  const committed = JSON.parse(
+    readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
+  );
+  const leanCategories: string[] =
+    committed.gates["measurement-candidate-binding"].requiredEvidenceCategories;
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-lean-fork-"));
+  try {
+    const manifest = () => ({
+      schemaVersion: 1,
+      artifactKind: "site-behavior-release-readiness-manifest",
+      targetRelease: "1.0.0",
+      decisions: {},
+      gates: {
+        "measurement-candidate-binding": {
+          kind: "measurement-candidate-binding",
+          title: "binding",
+          artifact: "research/measurement-candidate-binding.json",
+          requiredEvidenceCategories: [...leanCategories]
+        }
+      },
+      deferredGates: JSON.parse(JSON.stringify(committed.deferredGates))
+    });
+    const bindingGate = (result: { gates: { id: string; status: string; reasons: string[] }[] }) =>
+      result.gates.find((gate) => gate.id === "measurement-candidate-binding")!;
+
+    // Both kinds carry valid deferral records, so the committed lean category
+    // list is exactly right: no config-mismatch reason, no demand for aa
+    // evidence. The gate fails only on what the fixture genuinely lacks, the
+    // binding file itself.
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(manifest()));
+    const lean = bindingGate(evaluateReleaseReadiness(root, NOW));
+    assert.equal(lean.status, "fail");
+    const leanReasons = lean.reasons.join(" ");
+    assert.doesNotMatch(leanReasons, /requiredEvidenceCategories must be exactly/);
+    assert.doesNotMatch(leanReasons, /measurement binding enumerates no aa-/);
+    if (!/unavailable/.test(leanReasons)) {
+      assert.deepEqual(lean.reasons, [
+        "research/measurement-candidate-binding.json does not exist"
+      ]);
+    }
+
+    // Deleting the deferral records without restoring the gates reverts to the
+    // FULL requirement: the same lean gate config becomes a config error that
+    // names the complete category list, aa entries included.
+    const deleted = manifest();
+    delete deleted.deferredGates;
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(deleted));
+    const restored = bindingGate(evaluateReleaseReadiness(root, NOW));
+    assert.equal(restored.status, "fail");
+    const prefix = "gate config: requiredEvidenceCategories must be exactly ";
+    const exactConfig = restored.reasons.find((reason) => reason.startsWith(prefix));
+    assert.notEqual(exactConfig, undefined);
+    assert.deepEqual(
+      exactConfig!.slice(prefix.length).split(", ").sort(),
+      [...leanCategories, ...AA_CATEGORIES].sort()
+    );
+
+    // A deferral record whose deferredTo is missing or empty is not a
+    // deferral: full requirements stay.
+    for (const hollow of [
+      (record: Record<string, unknown>) => {
+        delete record.deferredTo;
+      },
+      (record: Record<string, unknown>) => {
+        record.deferredTo = "";
+      }
+    ]) {
+      const undeferred = manifest();
+      hollow(undeferred.deferredGates["aa-repeatability"]);
+      writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(undeferred));
+      const gate = bindingGate(evaluateReleaseReadiness(root, NOW));
+      assert.equal(gate.status, "fail");
+      assert.match(
+        gate.reasons.join(" "),
+        /requiredEvidenceCategories must be exactly .*aa-attempt-ledger/
+      );
+    }
+
+    // Live wins: restoring the gate while a stale deferral record lingers
+    // must restore the FULL requirement, not keep the lean one.
+    const liveAndDeferred = manifest();
+    (liveAndDeferred.gates as Record<string, unknown>)["aa-repeatability"] = {
+      kind: "aa-study",
+      title: "aa",
+      directory: "research/aa-studies"
+    };
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(liveAndDeferred)
+    );
+    const liveWins = bindingGate(evaluateReleaseReadiness(root, NOW));
+    assert.equal(liveWins.status, "fail");
+    assert.match(
+      liveWins.reasons.join(" "),
+      /requiredEvidenceCategories must be exactly .*aa-attempt-ledger/
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

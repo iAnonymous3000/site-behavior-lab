@@ -11,32 +11,32 @@
         "sole-court-exhibit-use"
       ],
       "courtGradeEvidencePackage": "deferred-to-1.1",
-      "status": "recommended-pending-approval",
-      "decidedBy": null,
-      "decidedAt": null
+      "status": "approved",
+      "decidedBy": "iAnonymous3000",
+      "decidedAt": "2026-08-02T22:10:00.000Z"
     },
     "stableApiClaim": {
       "recommended": false,
       "note": "1.0 promises the enumerated compatibility surfaces, not a blanket stable API; stablePublicApi stays false and npm publication stays disabled.",
-      "status": "recommended-pending-approval",
-      "decidedBy": null,
-      "decidedAt": null
+      "status": "approved",
+      "decidedBy": "iAnonymous3000",
+      "decidedAt": "2026-08-02T22:10:00.000Z"
     },
     "compatibilitySurface": {
       "document": "docs/compatibility-promise.md",
-      "sha256": "daedd28863954dda734883aa9ace42d473f35c2b53962af20d949d2ea1ae0ccf",
-      "status": "recommended-pending-approval",
-      "decidedBy": null,
-      "decidedAt": null
+      "sha256": "25b3dec607907ce705bd7f9a743f139e97c92acc5136975d21287723ef4e8b56",
+      "status": "approved",
+      "decidedBy": "iAnonymous3000",
+      "decidedAt": "2026-08-02T22:10:00.000Z"
     },
     "reportRevisionR3": {
       "recommended": "no-r3-for-1.0",
-      "selected": null,
-      "dispositionSha256": null,
+      "selected": "no-r3-for-1.0",
+      "dispositionSha256": "e21d7f3790811cffdec8b8d7b45073ee893b0013ea585ced4cc808e5cf15d7da",
       "note": "Keep 1.0 on v2/r2, publish E1 and E2 as companion corrections for their immutable schema wording, and bank r3 for the 1.1 evidence-package wire design. The versioned ServiceRole taxonomy remains public but is not added to the 1.0 report wire.",
-      "status": "pending",
-      "decidedBy": null,
-      "decidedAt": null
+      "status": "approved",
+      "decidedBy": "iAnonymous3000",
+      "decidedAt": "2026-08-02T22:10:00.000Z"
     },
     "calibrationCensoringPolicy": {
       "currentlySupportedSelections": [
@@ -44,25 +44,25 @@
       ],
       "recommendedDisposition": "human-decision-required-before-labeling",
       "methodologicalAssessment": "The currently supported analyzer policy is near-unsatisfiable on the open web (pilot capture failure: 37.5%). Its presence in currentlySupportedSelections is not a recommendation to approve or use it.",
-      "selected": null,
+      "selected": "complete-case-only-zero-censoring",
       "policyArtifactPath": "research/measurement-candidate/calibration-censoring-policy.json",
-      "policyArtifactSha256": null,
+      "policyArtifactSha256": "b4bef330dde26d9f4f78904c89e3603fa67a70de9446b88094b18928a10e4cfd",
       "semanticDisposition": {
         "anyCensoredCase": "study-ineligible",
         "plannedDenominator": "must-remain-complete"
       },
-      "dispositionSha256": null,
+      "dispositionSha256": "e46eaa0af85b3b581e1df5f50c9e941eff56c453321620d0dd1bd47906b9a1ed",
       "note": "Approve the exact candidate-resident policy artifact and its domain-separated analyzer disposition before acquisition or labeling. Any censored case makes a study release-ineligible; the planned denominator must remain complete.",
-      "status": "pending",
-      "decidedBy": null,
-      "decidedAt": null
+      "status": "approved",
+      "decidedBy": "iAnonymous3000",
+      "decidedAt": "2026-08-02T22:10:00.000Z"
     },
     "wasmReproducibility": {
       "recommended": "keep-integrity-only-disclosure",
       "currentDisclosure": "integrity-only-not-reproducible-build",
-      "status": "recommended-pending-approval",
-      "decidedBy": null,
-      "decidedAt": null
+      "status": "approved",
+      "decidedBy": "iAnonymous3000",
+      "decidedAt": "2026-08-02T22:10:00.000Z"
     }
   },
   "gates": {
@@ -102,10 +102,6 @@
         "runner-receipt",
         "controlled-publication-manifest",
         "controlled-publication-receipt",
-        "aa-attempt-ledger",
-        "aa-evaluation",
-        "aa-producer-receipt",
-        "aa-producer-attestation",
         "hosted-evidence-archive",
         "measurement-freeze-receipt",
         "lifecycle-receipt",
@@ -134,7 +130,7 @@
       ],
       "resolution": "published-errata-for-1.0",
       "document": "docs/scan-report-v2-rfc.md",
-      "sha256": "614bf64d0e18e2b808cd65f32a59dba6d8263c3d867ac8c01a98d346becabf2c",
+      "sha256": "e8882557b2194b12a9424a804e98c21d291120152bdf722cd8ce7eeb02e7e7c9",
       "resolvedBy": "reportRevisionR3",
       "requiredSelection": "no-r3-for-1.0"
     },
@@ -154,23 +150,6 @@
         "trackingServiceRequests",
         "thirdPartyCookies",
         "fingerprintEvents"
-      ]
-    },
-    "aa-repeatability": {
-      "kind": "aa-study",
-      "title": "A preregistered A/A study passes its declared thresholds",
-      "directory": "research/aa-studies"
-    },
-    "detector-calibration": {
-      "kind": "calibration",
-      "title": "Every claim-bearing detector has an eligible study at the current identity",
-      "requiredDetectors": [
-        "keystroke-exfiltration",
-        "pixel-events",
-        "consent-banner",
-        "fingerprint-heuristics",
-        "cname-uncloaking",
-        "privacy-policy"
       ]
     },
     "legal-review": {
@@ -375,6 +354,33 @@
       "inventory": "research/measurement-candidate/site-behavior-lab-container-package-inventory.json",
       "bundle": "research/measurement-candidate/container-package-inventory.bundle.json",
       "ledger": "CONTAINER_IMAGE_PACKAGE_REVIEWS.json"
+    }
+  },
+  "deferredGates": {
+    "detector-calibration": {
+      "kind": "calibration",
+      "title": "Every claim-bearing detector has an eligible study at the current identity",
+      "requiredDetectors": [
+        "keystroke-exfiltration",
+        "pixel-events",
+        "consent-banner",
+        "fingerprint-heuristics",
+        "cname-uncloaking",
+        "privacy-policy"
+      ],
+      "deferredTo": "1.1.0",
+      "deferredBy": "iAnonymous3000",
+      "deferredAt": "2026-08-02T22:10:00.000Z",
+      "reason": "Lean 1.0 scope: 1.0 publishes no detector error rates, and the approved claimBoundary decision classifies every report as investigative evidence requiring independent corroboration. This evidence program gates the 1.1 calibrated-claims release instead of 1.0. While this record stands, the measurement-candidate binding does not require this program's evidence for 1.0; evidence that is bound anyway is still fully verified, and the requirement reverts to full if this record is removed without restoring the gate. Restoring this gate to the 1.0 set is the reviewed enforcement edit that reverses the lean fork."
+    },
+    "aa-repeatability": {
+      "kind": "aa-study",
+      "title": "A preregistered A/A study passes its declared thresholds",
+      "directory": "research/aa-studies",
+      "deferredTo": "1.1.0",
+      "deferredBy": "iAnonymous3000",
+      "deferredAt": "2026-08-02T22:10:00.000Z",
+      "reason": "Lean 1.0 scope: 1.0 publishes no detector error rates, and the approved claimBoundary decision classifies every report as investigative evidence requiring independent corroboration. This evidence program gates the 1.1 calibrated-claims release instead of 1.0. While this record stands, the measurement-candidate binding does not require this program's evidence for 1.0; evidence that is bound anyway is still fully verified, and the requirement reverts to full if this record is removed without restoring the gate. Restoring this gate to the 1.0 set is the reviewed enforcement edit that reverses the lean fork."
     }
   }
 }

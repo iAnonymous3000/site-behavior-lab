@@ -527,6 +527,13 @@ export type MeasurementCandidateBindingOptions = {
   expectedTargetRelease?: string;
   requireCleanWorktree?: boolean;
   /**
+   * Lean-scope override. When omitted, the floor follows the committed
+   * RELEASE_READINESS.json through measurementGateKindRequired, failing
+   * closed to the non-empty floor when the manifest is missing or
+   * unreadable. Bound studies are fully verified either way.
+   */
+  requireCalibrationStudies?: boolean;
+  /**
    * Test seam only. Production callers omit this so the installed `gh`
    * verifier is mandatory. A callback must throw on any failed verification.
    */
@@ -798,11 +805,60 @@ const EVIDENCE_PATH_POLICIES: Readonly<
  * This deliberately returns `required-external-verification`, never
  * "verified". Release readiness must call verifiedMeasurementCandidateBinding.
  */
+/**
+ * The single deferral predicate: a gate kind's evidence stays required
+ * unless the kind is BOTH absent from the manifest's live gate set AND
+ * carried in deferredGates with an explicit target release. Deleting a gate
+ * without its deferral record keeps the full requirements.
+ */
+export function measurementGateKindRequired(
+  manifest: unknown,
+  kind: string
+): boolean {
+  const record = manifest as {
+    gates?: Record<string, { kind?: unknown } | null>;
+    deferredGates?: Record<
+      string,
+      { kind?: unknown; deferredTo?: unknown } | null
+    >;
+  } | null;
+  if (!record || typeof record !== "object") return true;
+  const live = Object.values(record.gates ?? {}).some(
+    (gate) => gate !== null && typeof gate === "object" && gate.kind === kind
+  );
+  if (live) return true;
+  return !Object.values(record.deferredGates ?? {}).some(
+    (gate) =>
+      gate !== null &&
+      typeof gate === "object" &&
+      gate.kind === kind &&
+      typeof gate.deferredTo === "string" &&
+      gate.deferredTo.length > 0
+  );
+}
+
+/** Fail-closed manifest read for the default calibration-study floor. */
+function manifestRequiresCalibrationStudies(rootDir: string): boolean {
+  try {
+    const manifest = JSON.parse(
+      readFileSync(path.join(rootDir, "RELEASE_READINESS.json"), "utf8")
+    );
+    return measurementGateKindRequired(manifest, "calibration");
+  } catch {
+    return true;
+  }
+}
+
 export function inspectMeasurementCandidateBinding(
   rootDir: string = process.cwd(),
   options: Omit<MeasurementCandidateBindingOptions, "attestationVerifier"> = {}
 ): InspectedMeasurementCandidateBinding | null {
-  return inspectMeasurementCandidateBindingInternal(rootDir, options, true);
+  return inspectMeasurementCandidateBindingInternal(
+    rootDir,
+    options,
+    options.requireCalibrationStudies ??
+      manifestRequiresCalibrationStudies(rootDir)
+  );
 }
 
 function inspectMeasurementCandidateBindingInternal(
@@ -1033,7 +1089,8 @@ export function verifiedMeasurementCandidateBinding(
  * It performs the same candidate/history/Sigstore verification as release
  * readiness but permits the binding's calibrationStudies array to be empty.
  * No other evidence or identity requirement is relaxed. Release/build callers
- * must use verifiedMeasurementCandidateBinding, which remains non-empty.
+ * must use verifiedMeasurementCandidateBinding, whose non-empty floor is
+ * governed by the requireCalibrationStudies option.
  */
 export function verifiedMeasurementCandidateAcquisitionContext(
   rootDir: string = process.cwd(),
@@ -1229,7 +1286,7 @@ export function measurementCandidateBuildProjection(
     undefined,
     undefined,
     undefined,
-    true,
+    manifestRequiresCalibrationStudies(rootDir),
     false
   );
   requireValue(

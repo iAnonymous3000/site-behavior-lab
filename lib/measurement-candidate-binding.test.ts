@@ -663,7 +663,7 @@ test("an environment-only candidate cannot make an unbound descendant study elig
   assert.equal(study.analysis.ineligibilityReasons.includes("build-commit-mismatch"), true);
 });
 
-test("the acquisition preflight alone permits the first study to bootstrap from an empty binding", (t) => {
+test("an empty binding verifies only through the acquisition preflight or the explicit deferred-gate option", (t) => {
   const fixture = makeFixture(t, { includeCalibrationStudy: false });
   const verificationOptions = {
     attestationVerifier: PASS_ATTESTATION,
@@ -686,6 +686,57 @@ test("the acquisition preflight alone permits the first study to bootstrap from 
   );
   assert.ok(acquisition);
   assert.deepEqual(acquisition.calibrationStudies, []);
+  const leanVerified = verifiedMeasurementCandidateBinding(fixture.root, {
+    ...verificationOptions,
+    requireCalibrationStudies: false
+  });
+  assert.ok(leanVerified);
+  assert.deepEqual(leanVerified.calibrationStudies, []);
+  assert.equal(
+    leanVerified.attestationVerifications.containerEvidence.status,
+    "verified-by-gh-attestation"
+  );
+
+  // Without the explicit option, the floor follows the candidate-resident
+  // RELEASE_READINESS.json: a valid deferral record baked into the candidate
+  // relaxes it, while this fixture's undeferrred manifest keeps it (the
+  // default-path throw above). A post-candidate manifest edit cannot flip
+  // the floor because the verifier requires the working-tree manifest to be
+  // byte-identical to the candidate-resident blob.
+  const deferredFixture = makeFixture(t, {
+    includeCalibrationStudy: false,
+    deferCalibrationGate: true
+  });
+  const manifestLean = verifiedMeasurementCandidateBinding(
+    deferredFixture.root,
+    verificationOptions
+  );
+  assert.ok(manifestLean);
+  assert.deepEqual(manifestLean.calibrationStudies, []);
+});
+
+test("requireCalibrationStudies: false still fully verifies every bound study", (t) => {
+  const fixture = makeFixture(t);
+  const binding = readBinding(fixture.root);
+  binding.calibrationStudies[0].studySha256 = "0".repeat(64);
+  writeBinding(fixture.root, binding);
+  commitAll(fixture.root, "corrupt bound study digest");
+  assert.throws(
+    () =>
+      verifiedMeasurementCandidateBinding(fixture.root, {
+        attestationVerifier: PASS_ATTESTATION,
+        freezeReceiptVerifier: PASS_FREEZE,
+        durableReplayVerifier: PASS_DURABLE_REPLAY,
+        operatorEvidenceVerifier: PASS_OPERATOR_EVIDENCE,
+        stagingTeardownProvenanceVerifier:
+          PASS_STAGING_TEARDOWN_PROVENANCE,
+        durableSoakProvenanceVerifier:
+          PASS_DURABLE_SOAK_PROVENANCE,
+        calibrationCeremonyVerifier: PASS_CALIBRATION_CEREMONY,
+        requireCalibrationStudies: false
+      }),
+    /study digest does not match/
+  );
 });
 
 test("calibration acquisition stays blocked until the exact censoring policy decision is human-approved", async (t) => {
@@ -1803,6 +1854,7 @@ function makeFixture(
     shortDurableSoak?: boolean;
     adequateCalibrationStudy?: boolean;
     unverifiedPixelConsent?: boolean;
+    deferCalibrationGate?: boolean;
   } = {}
 ): Fixture {
   const root = mkdtempSync(path.join(tmpdir(), "sbl-measurement-binding-"));
@@ -2069,7 +2121,17 @@ RUN test "$(node --version)" = "v24.18.0"
             : "2026-07-31T22:00:00.000Z"
       }
     },
-    gates: {}
+    gates: {},
+    ...(options.deferCalibrationGate
+      ? {
+          deferredGates: {
+            "detector-calibration": {
+              kind: "calibration",
+              deferredTo: "1.1.0"
+            }
+          }
+        }
+      : {})
   });
   writeJson(path.join(root, ...preregistrationPath.split("/")), {
     schemaVersion: 2,

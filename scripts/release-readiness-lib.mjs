@@ -128,6 +128,13 @@ const CONTAINER_PACKAGE_REVIEW_LEDGER_PATH = "CONTAINER_IMAGE_PACKAGE_REVIEWS.js
 const DURABLE_ENABLE_TRANSITION_RECEIPT_PATH =
   "research/ops-receipts/durable-enable-transition.json";
 const DURABLE_PRODUCTION_CONFIG_PATH = "wrangler.container.jsonc";
+const MEASUREMENT_AA_EVIDENCE_CATEGORIES = Object.freeze([
+  "aa-attempt-ledger",
+  "aa-evaluation",
+  "aa-producer-receipt",
+  "aa-producer-attestation"
+]);
+
 const REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES = Object.freeze([
   "featured-report",
   "featured-provenance",
@@ -149,6 +156,22 @@ const REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES = Object.freeze([
   "citation-finalization",
   "changelog-finalization"
 ]);
+
+/**
+ * The deferral predicate is defined ONCE, in the compiled binding verifier
+ * (measurementGateKindRequired), which also derives the binding's own
+ * calibration-study floor from the manifest. This module only consumes it;
+ * when the compiled verifier is unavailable the category checks are skipped
+ * because the binding gate already fails on the missing module.
+ */
+function requiredMeasurementEvidenceCategories(manifest, gateKindRequired) {
+  if (gateKindRequired(manifest, "aa-study")) {
+    return REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES;
+  }
+  return REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES.filter(
+    (category) => !MEASUREMENT_AA_EVIDENCE_CATEGORIES.includes(category)
+  );
+}
 
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -1674,22 +1697,28 @@ function evaluateMeasurementCandidate(
     reasons.push("compiled measurement-candidate artifact path disagrees with release policy");
   }
   reasons.push(...measurementCandidateProblems(context));
+  const gateKindRequired = context.module?.measurementGateKindRequired;
+  const requiredCategories =
+    typeof gateKindRequired === "function"
+      ? requiredMeasurementEvidenceCategories(manifest, gateKindRequired)
+      : null;
   if (
-    !Array.isArray(gate.requiredEvidenceCategories) ||
-    hasDuplicates(gate.requiredEvidenceCategories) ||
-    JSON.stringify([...gate.requiredEvidenceCategories].sort()) !==
-      JSON.stringify([...REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES].sort())
+    requiredCategories !== null &&
+    (!Array.isArray(gate.requiredEvidenceCategories) ||
+      hasDuplicates(gate.requiredEvidenceCategories) ||
+      JSON.stringify([...gate.requiredEvidenceCategories].sort()) !==
+        JSON.stringify([...requiredCategories].sort()))
   ) {
     reasons.push(
-      `gate config: requiredEvidenceCategories must be exactly ${REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES.join(", ")}`
+      `gate config: requiredEvidenceCategories must be exactly ${requiredCategories.join(", ")}`
     );
   }
-  if (context.binding) {
+  if (context.binding && requiredCategories !== null) {
     const counts = new Map();
     for (const entry of context.binding.evidence ?? []) {
       counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1);
     }
-    for (const category of REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES) {
+    for (const category of requiredCategories) {
       if ((counts.get(category) ?? 0) === 0) {
         reasons.push(`measurement binding enumerates no ${category} evidence`);
       }
