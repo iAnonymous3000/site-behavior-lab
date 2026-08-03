@@ -28,6 +28,13 @@ import type { ReportShare, ScanReport } from "./types";
 
 const DEFAULT_REPORT_MAX_AGE_DAYS = 7;
 const DEFAULT_REPORT_MAX_COUNT = 500;
+/**
+ * Listing slots reserved for objects prune must tolerate but cannot yet delete:
+ * report-only crash orphans awaiting their immutable expiry, plus bundles
+ * written by a concurrent save. Subtracted from the R2 listing ceiling so a
+ * store at its configured maximum still lists successfully.
+ */
+const REPORT_UNCOMMITTED_HEAD_HEADROOM = 64;
 const DEFAULT_REPORT_MIN_SURVIVAL_MS = 60_000;
 export const DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS = 75 * 60 * 1_000;
 // Durable jobs retain their capability for 75 minutes. Deployments may pin a
@@ -901,10 +908,20 @@ function reportMaxAgeDays(): number {
  * grows, and the health check reports an unhealthy store with no operator
  * action that fixes it. Refusing the impossible value up front is the honest
  * failure mode.
+ *
+ * The clamp must land STRICTLY BELOW the ceiling. HEAD candidates count aged
+ * report-only objects as well as committed bundles, and prune is required to
+ * tolerate those for a full retention window: a crash between write() and
+ * writeSidecar() leaves one, and report-store refuses to delete it before its
+ * immutable expiry. Clamping to exactly the ceiling meant a store at its
+ * steady-state maximum plus ONE ordinary crash orphan exceeded the listing
+ * bound, so every prune threw, retention debt grew without bound, and no
+ * further report could be published -- and the orphan that caused it could
+ * only be removed by the prune that was now refusing to run.
  */
 function reportMaxCount(): number {
   const requested = Math.max(1, Math.floor(positiveNumberFromEnv(REPORT_MAX_COUNT_ENV, DEFAULT_REPORT_MAX_COUNT)));
-  return Math.min(requested, R2_LIST_MAX_HEAD_CANDIDATES);
+  return Math.min(requested, R2_LIST_MAX_HEAD_CANDIDATES - REPORT_UNCOMMITTED_HEAD_HEADROOM);
 }
 
 function reportMinimumSurvivalMs(): number {

@@ -442,6 +442,9 @@ async function handleHttpsConnect(
 
   const upstream = state.connectUpstream(target);
   let uploadCapped = false;
+  // Once the 200 has gone out, the client socket carries the browser's TLS
+  // record stream. Any further status line would be injected INTO that stream.
+  let tunnelEstablished = false;
 
   upstream.once("connect", () => {
     if (!state.responseByteBudget.hasCapacity()) {
@@ -451,6 +454,7 @@ async function handleHttpsConnect(
       return;
     }
     clientSocket.write("HTTP/1.1 200 Connection Established\r\nConnection: keep-alive\r\n\r\n");
+    tunnelEstablished = true;
     pipeWithinResponseByteBudget(upstream, clientSocket, state.responseByteBudget);
     // `head` contains tunnel bytes Node read in the same packet as CONNECT.
     // It must be claimed before forwarding just like later socket data.
@@ -461,6 +465,18 @@ async function handleHttpsConnect(
 
   upstream.once("error", () => {
     if (!uploadCapped) recordBlockedTarget(state.blockedTargets, safeTargetLabel(targetUrl), "upstream-failed");
+    if (tunnelEstablished) {
+      // An upstream reset AFTER the tunnel opened (the ordinary case: the site
+      // RSTs mid-response) must terminate the tunnel, never write to it.
+      // closeTunnel only checks `socket.destroyed`, which is false for a live
+      // tunnel, so it used to push a plaintext "HTTP/1.1 502 Bad Gateway" into
+      // the middle of the browser's TLS records. Chromium then reported a TLS
+      // protocol error instead of a connection reset, and the scan blamed the
+      // wrong thing. Byte-budget termination already destroys both sides for
+      // exactly this reason.
+      clientSocket.destroy();
+      return;
+    }
     closeTunnel(clientSocket, 502);
   });
 

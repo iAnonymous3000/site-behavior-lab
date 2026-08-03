@@ -1305,6 +1305,61 @@ test("phase plans follow enabled conditions and cannot smuggle impossible phases
   });
   assert.equal(buildNodeScanReportV2R2(accountedSkip).run.phases.length, 1);
 
+  // The scanner opens the active-probe phase BEFORE it knows whether any field
+  // can be typed, so a page that navigates away mid-search ends with the phase
+  // present and the detector `skipped/load-failed`. Refusing that made the r2
+  // producer throw -- a 500 to the visitor -- on an ordinary real page.
+  const subjectLostDuringProbe = baseInput();
+  subjectLostDuringProbe.conditions.probes.keystroke = true;
+  subjectLostDuringProbe.measurement.phases.push({
+    phaseId: 1,
+    kind: "active-probe",
+    startedAtMs: 1000,
+    endedAtMs: 1100
+  });
+  subjectLostDuringProbe.measurement.detectors["keystroke-exfiltration"] = {
+    version: DETECTOR_VERSIONS["keystroke-exfiltration"],
+    status: "skipped",
+    reason: "load-failed",
+    // The real producer names the phase on this entry (lib/scanner.ts sets
+    // phaseId: keystrokePhaseId on every probe-reported skip).
+    phaseId: 1
+  };
+  subjectLostDuringProbe.measurement.qualityFacts.captureLoss.push({
+    family: "detector-output",
+    phaseId: 1,
+    kind: "dropped",
+    count: 1,
+    detail: "keystroke-probe"
+  });
+  subjectLostDuringProbe.summary.durationMs = 1100;
+  assert.equal(buildNodeScanReportV2R2(subjectLostDuringProbe).run.phases.length, 2);
+
+  // An UNACCOUNTABLE skip with the phase present is still refused: those
+  // reasons are deliberately absent from the phase-omission vocabulary.
+  for (const reason of ["not-requested", "probe-disabled"] as const) {
+    const unaccountableWithPhase = baseInput();
+    unaccountableWithPhase.conditions.probes.keystroke = true;
+    unaccountableWithPhase.measurement.phases.push({
+      phaseId: 1,
+      kind: "active-probe",
+      startedAtMs: 1000,
+      endedAtMs: 1100
+    });
+    unaccountableWithPhase.measurement.detectors["keystroke-exfiltration"] = {
+      version: DETECTOR_VERSIONS["keystroke-exfiltration"],
+      status: "skipped",
+      reason,
+      phaseId: 1
+    };
+    unaccountableWithPhase.summary.durationMs = 1100;
+    assert.throws(
+      () => buildNodeScanReportV2R2(unaccountableWithPhase),
+      /executed or accountably skipped keystroke detector outcome/,
+      reason
+    );
+  }
+
   const wrongProbePhase = baseInput();
   wrongProbePhase.conditions.probes.keystroke = true;
   wrongProbePhase.measurement.phases.push({ phaseId: 1, kind: "active-probe", startedAtMs: 1000, endedAtMs: 1100 });

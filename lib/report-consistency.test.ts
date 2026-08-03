@@ -145,6 +145,30 @@ test("detects reassuring framing over a loud finding", () => {
   );
 });
 
+test("detects a reassuring headline over an alert bottom line", () => {
+  // The headline comes from ReportFacts and the bottom line from the findings
+  // board: two answers to "is this visit quiet?". gov.uk rendered the calm
+  // "showed few catalogued or fingerprint-like signals" directly above an alert
+  // card reading "this visit has review-worthy signals", and neither the
+  // warn/loud check nor any card-level rule caught it, because the disagreement
+  // sat at "info".
+  const presentation = presentationFor(makeScanReportV1());
+  assert.equal(presentation.headline.semantic.reassuring, true);
+  const bottomLine = presentation.findings.find((finding) => finding.id === "bottom-line");
+  assert.equal(bottomLine?.icon, "check", "the clean path must not already alert");
+
+  const findings: Finding[] = presentation.findings.map((finding) =>
+    finding.id === "bottom-line" ? { ...finding, icon: "alert" as const } : finding
+  );
+
+  assertOnlyViolation(
+    presentation,
+    "quiet-copy-over-loud-finding",
+    presentation.headline,
+    findings
+  );
+});
+
 test("detects a service-absence card when the identity union names a party", () => {
   const presentation = presentationFor(reportWithNamedThirdParty());
   const findings: Finding[] = presentation.findings.map((finding) =>

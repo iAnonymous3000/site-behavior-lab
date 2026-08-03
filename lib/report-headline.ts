@@ -519,12 +519,35 @@ export function buildReportHeadline(
       );
     }
     if (reductionPct >= 50) {
+      // A large reduction is not a clean result. This is the only comparison
+      // branch that can render "calm" (and therefore semantic.reassuring), and
+      // it used to do so on the delta alone: theguardian.com dropped 641 -> 160
+      // third-party requests, so a reassuring headline rendered above 20
+      // catalogued tracking entities and 158 third-party cookie records. That
+      // is exactly the state report-consistency calls
+      // "quiet-copy-over-loud-finding", and nothing enforces that rule at
+      // render time. Stay reassuring only when neither arm carries a
+      // review-worthy signal of its own.
+      // reportFacts.arms is non-null whenever the local `arms` is (both come
+      // from comparisonArmViews), but fall back to every run rather than to
+      // "no signal": an absent arm must never be the reason a report reassures.
+      const pairFacts = reportFacts.arms
+        ? [reportFacts.arms.baseline, reportFacts.arms.variant]
+        : reportFacts.runs;
+      const pairCarriesReviewSignal = pairFacts.some(
+        (arm) =>
+          arm.strongestObservedSeverity === "warn" || arm.strongestObservedSeverity === "loud"
+      );
       // Pair-framed: the stat chips stay on the lead (baseline) run, so the
       // evidence switcher default stays there too (no focusArm).
       return finish(
-        "calm",
+        pairCarriesReviewSignal ? "info" : "calm",
         `Off-site requests to ${domain} were ${reductionPct}% lower in the visit configured with a privacy signal.`,
-        `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.`,
+        `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.${
+          pairCarriesReviewSignal
+            ? " Both visits still recorded review-worthy activity of their own; the cards below describe what remained."
+            : ""
+        }`,
         undefined,
         undefined,
         { story: "comparison", runScope: "pair" }

@@ -25,9 +25,26 @@ test("Meta: an empty advanced-matching value is not counted as present", () => {
   assert.deepEqual(decoded?.advancedMatching, []);
 });
 
-test("Meta: a PII-shaped ev value is rejected by the safe-token filter", () => {
+test("Meta: a PII-shaped ev value is generalized, not dropped", () => {
+  // The safe-token filter decides whether the RAW STRING may be looked up, not
+  // whether an event happened. Dropping the event left a decoded pixel with
+  // zero events while the report still headlined "reported specific named
+  // events, not just their presence" -- an unnameable event is still an event.
+  // The security property is unchanged: the value never reaches the report.
   const decoded = decodePixelRequest({ url: `https://www.facebook.com/tr/?id=1&ev=${HASH}` });
-  assert.deepEqual(decoded?.events, []);
+  assert.deepEqual(decoded?.events, ["custom event"]);
+  assert.ok(!JSON.stringify(decoded).includes(HASH));
+});
+
+test("Meta: a non-ASCII custom event name is counted as a custom event", () => {
+  // Real regression: a French site firing fbq('trackCustom', 'Lead - Formulaire
+  // contact') with an en dash produced events: [] and a pixel card claiming
+  // specific named events.
+  const decoded = decodePixelRequest({
+    url: "https://www.facebook.com/tr/?id=1&ev=Lead%20%E2%80%93%20Formulaire%20contact"
+  });
+  assert.deepEqual(decoded?.events, ["custom event"]);
+  assert.ok(!JSON.stringify(decoded).includes("Formulaire"));
 });
 
 test("Meta: non-standard event names are generalized, never persisted", () => {

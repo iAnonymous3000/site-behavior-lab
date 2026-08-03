@@ -286,6 +286,10 @@ if (args[0] === "run") {
       process.stdout.write(process.env.FIXTURE_CONTAINER_NPM + "\\n");
       process.exit(0);
     }
+    if (process.env.FIXTURE_NPM_PROBE_EXIT) {
+      if (process.env.FIXTURE_NPM_PROBE_STDERR) process.stderr.write(process.env.FIXTURE_NPM_PROBE_STDERR + "\\n");
+      process.exit(Number(process.env.FIXTURE_NPM_PROBE_EXIT));
+    }
     process.stderr.write("exec: \\"npm\\": executable file not found\\n");
     process.exit(127);
   }
@@ -408,6 +412,32 @@ process.stdout.write(JSON.stringify([{
       new RegExp(`must not ship a package manager; npm answered with ${presentNpm.replaceAll(".", "\\.")}`)
     );
   }
+
+  // "absent" is an ATTESTED supply-chain claim, so only docker's own
+  // executable-not-found answer may produce it. The probe used to catch every
+  // throw and return "absent", so a timeout, an OOM kill, or npm failing to
+  // create $HOME/.npm under --read-only published the same assurance as a real
+  // not-found -- an image that had started shipping npm again would still be
+  // attested clean.
+  for (const [label, exitCode, stderrText] of [
+    ["a bare 127 with no not-found text", "127", ""],
+    ["an OOM-killed container", "137", "container killed"],
+    ["a read-only cache failure", "243", "EROFS: read-only file system"]
+  ] as const) {
+    const inconclusive = runEvidence(
+      fixture.root,
+      ["--container-image", "site-behavior-lab:smoke"],
+      {
+        DOCKER_BIN: docker,
+        FIXTURE_COMMIT: fixture.commit,
+        FIXTURE_NPM_PROBE_EXIT: exitCode,
+        ...(stderrText ? { FIXTURE_NPM_PROBE_STDERR: stderrText } : {})
+      }
+    );
+    assert.notEqual(inconclusive.status, 0, label);
+    assert.match(inconclusive.stderr, /package-manager probe was inconclusive/, label);
+    assert.doesNotMatch(inconclusive.stderr, /"npm": *"absent"/, label);
+  }
 });
 
 test("evidence paths cannot escape through artifact or output symlinks", { skip: hostToolchainSkip }, async (t) => {
@@ -476,7 +506,14 @@ const args = process.argv.slice(2);
 if (args[0] === "run") {
   const entrypoint = args.find((value) => value.startsWith("--entrypoint="));
   if (entrypoint === "--entrypoint=node") process.stdout.write("v24.18.0\\n");
-  else if (entrypoint === "--entrypoint=npm") process.exit(127);
+  else if (entrypoint === "--entrypoint=npm") {
+    // Docker's own not-found answer. A bare 127 with no stderr is now treated
+    // as inconclusive, because "absent" is an attested supply-chain claim and
+    // any other non-zero exit (timeout, OOM kill, read-only cache failure) must
+    // not be published as proof the image ships no package manager.
+    process.stderr.write("exec: \\"npm\\": executable file not found\\n");
+    process.exit(127);
+  }
   else process.exit(2);
   process.exit(0);
 }
@@ -1759,3 +1796,4 @@ test("the approved-release-actor step executes as a real shell gate", { skip: ho
   assert.equal(run("alice", "mallory", "mallory").status, 1);
   assert.equal(run("", "alice", "alice").status, 1);
 });
+

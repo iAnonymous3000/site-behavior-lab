@@ -188,7 +188,15 @@ function decodeMeta(parsed: URL, input: PixelEventInput): DecodedPixel {
   const params = mergedParams(parsed, input);
   const events = new Set<string>();
   for (const token of params.getAll("ev")) {
-    if (isSafeEventToken(token)) events.add(catalogEventName(token, META_STANDARD_EVENTS));
+    // An UNSAFE token is generalized, never dropped. isSafeEventToken decides
+    // whether the raw string may be looked up at all, not whether an event
+    // happened, and dropping it left a decoded pixel with zero events while the
+    // report still headlined "reported specific named events, not just their
+    // presence". Any non-ASCII, over-long, or digit-leading custom name (a
+    // French "Lead - Formulaire contact", for instance) did exactly that.
+    // CUSTOM_EVENT_LABEL is a fixed string, so no page text is persisted.
+    if (!hasStringValue(token)) continue;
+    events.add(isSafeEventToken(token) ? catalogEventName(token, META_STANDARD_EVENTS) : CUSTOM_EVENT_LABEL);
   }
   const advancedMatching = new Set<PixelMatchField>();
 
@@ -235,7 +243,10 @@ function decodeTikTok(input: PixelEventInput): DecodedPixel {
 
   for (const event of tiktokEventObjects(body)) {
     const name = firstString(event, ["event", "event_type", "type"]);
-    if (name && isSafeEventToken(name)) events.add(catalogEventName(name, TIKTOK_STANDARD_EVENTS));
+    // Same rule as decodeMeta: generalize an unsafe name, never drop the event.
+    if (name && hasStringValue(name)) {
+      events.add(isSafeEventToken(name) ? catalogEventName(name, TIKTOK_STANDARD_EVENTS) : CUSTOM_EVENT_LABEL);
+    }
 
     const user = pickUserObject(event);
     if (!user) continue;

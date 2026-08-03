@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { constants, realpathSync } from "node:fs";
 import { lstat, open, readFile, readdir, unlink } from "node:fs/promises";
 import path from "node:path";
@@ -409,20 +409,42 @@ function containerPackageManagerAbsence(root, dockerBin, imageId) {
     imageId,
     "--version"
   ];
-  let output;
-  try {
-    output = execFileSync(dockerBin, args, {
-      cwd: root,
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
-      timeout: DOCKER_TIMEOUT_MS,
-      maxBuffer: DOCKER_MAX_BUFFER_BYTES
-    }).trim();
-  } catch {
+  // "absent" is an ATTESTED CLAIM, so it needs positive proof, not merely the
+  // absence of a successful run. Catching every throw and returning "absent"
+  // meant a probe that never tested anything -- a docker timeout, an ENOBUFS,
+  // an OOM-killed container, or npm failing to create $HOME/.npm under
+  // --read-only -- published the same supply-chain assurance as a real
+  // not-found. Only docker's own "executable file not found" answer proves the
+  // image ships no npm; anything else is inconclusive and must fail the run.
+  const result = spawnSync(dockerBin, args, {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    timeout: DOCKER_TIMEOUT_MS,
+    maxBuffer: DOCKER_MAX_BUFFER_BYTES
+  });
+  if (result.error) {
+    throw new Error(
+      `Container package-manager probe could not run: ${result.error.code ?? result.error.message}`
+    );
+  }
+  if (result.signal) {
+    throw new Error(`Container package-manager probe was terminated by ${result.signal}`);
+  }
+  const stdout = (result.stdout ?? "").trim();
+  const stderr = (result.stderr ?? "").trim();
+  if (result.status === 0) {
+    throw new Error(
+      `Tested container image must not ship a package manager; npm answered with ${stdout || "an empty version"}`
+    );
+  }
+  if (result.status === 127 && /executable file not found/i.test(stderr)) {
     return "absent";
   }
   throw new Error(
-    `Tested container image must not ship a package manager; npm answered with ${output || "an empty version"}`
+    `Container package-manager probe was inconclusive (exit ${result.status ?? "unknown"}): ${
+      stderr.slice(0, 300) || "no stderr"
+    }`
   );
 }
 
