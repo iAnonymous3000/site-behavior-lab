@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 2,
+  "artifactKind": "site-behavior-detector-calibration-censoring-policy",
+  "id": "complete-case-only-zero-censoring",
+  "allowedReasons": [
+    "capture-failed",
+    "reference-label-uncertain",
+    "artifact-unreadable",
+    "eligibility-criteria-not-met"
+  ],
+  "releaseEligibility": {
+    "anyCensoredCase": "study-ineligible",
+    "plannedDenominator": "must-remain-complete"
+  },
+  "ratePublicationEligibility": {
+    "sampling": "simple-random",
+    "independentUnits": true,
+    "predictionBlindedToReference": true,
+    "referenceBlindedToPrediction": true,
+    "minimumDenominators": {
+      "referencePresent": 100,
+      "referenceAbsent": 100,
+      "predictedDetected": 100,
+      "predictedNotDetected": 100
+    },
+    "uncertainty": {
+      "method": "wilson-score",
+      "confidenceLevel": 0.95,
+      "maximumWorstCaseHalfWidth": 0.1
+    },
+    "performanceThreshold": null
+  }
+}

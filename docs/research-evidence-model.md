@@ -120,10 +120,12 @@ bindings, and creates `producer-receipt.json`. The hosted attestation authority
 signs that receipt. The final write-capable job has no OIDC or attestation
 write permission: it verifies `producer-receipt.sigstore.json`, archives the
 exact ledger/evaluation/receipt/bundle bytes, updates the measurement binding,
-and opens an `automation/aa-study-*` proposal. Release readiness re-scores the
-study and re-verifies the certificate, workflow source/head, candidate
-checkout, successful producer run, and artifact digest. A generic
-scanner-fidelity ledger or self-authored receipt cannot satisfy the gate.
+and opens an `automation/aa-study-*` proposal. The measurement binding
+verifies any bound study end to end: the certificate, workflow source/head,
+candidate checkout, successful producer run, and artifact digest. A generic
+scanner-fidelity ledger or self-authored receipt cannot satisfy that
+verification. The A/A gate itself is recorded in `RELEASE_READINESS.json`
+`deferredGates` as gating the 1.1 calibrated-claims release rather than 1.0.
 
 ## Detector calibration
 

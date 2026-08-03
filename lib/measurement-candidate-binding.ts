@@ -527,6 +527,13 @@ export type MeasurementCandidateBindingOptions = {
   expectedTargetRelease?: string;
   requireCleanWorktree?: boolean;
   /**
+   * Lean-scope seam. The release evaluator passes false only while the
+   * detector-calibration gate is recorded as deferred in
+   * RELEASE_READINESS.json; bound studies are fully verified either way, and
+   * omitting the option keeps the non-empty floor.
+   */
+  requireCalibrationStudies?: boolean;
+  /**
    * Test seam only. Production callers omit this so the installed `gh`
    * verifier is mandatory. A callback must throw on any failed verification.
    */
@@ -802,7 +809,11 @@ export function inspectMeasurementCandidateBinding(
   rootDir: string = process.cwd(),
   options: Omit<MeasurementCandidateBindingOptions, "attestationVerifier"> = {}
 ): InspectedMeasurementCandidateBinding | null {
-  return inspectMeasurementCandidateBindingInternal(rootDir, options, true);
+  return inspectMeasurementCandidateBindingInternal(
+    rootDir,
+    options,
+    options.requireCalibrationStudies !== false
+  );
 }
 
 function inspectMeasurementCandidateBindingInternal(
@@ -1033,7 +1044,8 @@ export function verifiedMeasurementCandidateBinding(
  * It performs the same candidate/history/Sigstore verification as release
  * readiness but permits the binding's calibrationStudies array to be empty.
  * No other evidence or identity requirement is relaxed. Release/build callers
- * must use verifiedMeasurementCandidateBinding, which remains non-empty.
+ * must use verifiedMeasurementCandidateBinding, whose non-empty floor is
+ * governed by the requireCalibrationStudies option.
  */
 export function verifiedMeasurementCandidateAcquisitionContext(
   rootDir: string = process.cwd(),

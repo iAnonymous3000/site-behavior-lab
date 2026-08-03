@@ -128,6 +128,13 @@ const CONTAINER_PACKAGE_REVIEW_LEDGER_PATH = "CONTAINER_IMAGE_PACKAGE_REVIEWS.js
 const DURABLE_ENABLE_TRANSITION_RECEIPT_PATH =
   "research/ops-receipts/durable-enable-transition.json";
 const DURABLE_PRODUCTION_CONFIG_PATH = "wrangler.container.jsonc";
+const MEASUREMENT_AA_EVIDENCE_CATEGORIES = Object.freeze([
+  "aa-attempt-ledger",
+  "aa-evaluation",
+  "aa-producer-receipt",
+  "aa-producer-attestation"
+]);
+
 const REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES = Object.freeze([
   "featured-report",
   "featured-provenance",
@@ -149,6 +156,35 @@ const REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES = Object.freeze([
   "citation-finalization",
   "changelog-finalization"
 ]);
+
+/**
+ * A gate kind's evidence stays required unless the kind is BOTH absent from
+ * the live gate set AND carried in deferredGates with an explicit target
+ * release: deleting a gate without its deferral record keeps the full
+ * requirements.
+ */
+function gateKindRequired(manifest, kind) {
+  const live = Object.values(manifest?.gates ?? {}).some(
+    (gate) => isRecord(gate) && gate.kind === kind
+  );
+  if (live) return true;
+  return !Object.values(manifest?.deferredGates ?? {}).some(
+    (gate) =>
+      isRecord(gate) &&
+      gate.kind === kind &&
+      typeof gate.deferredTo === "string" &&
+      gate.deferredTo.length > 0
+  );
+}
+
+function requiredMeasurementEvidenceCategories(manifest) {
+  if (gateKindRequired(manifest, "aa-study")) {
+    return REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES;
+  }
+  return REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES.filter(
+    (category) => !MEASUREMENT_AA_EVIDENCE_CATEGORIES.includes(category)
+  );
+}
 
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -1252,7 +1288,10 @@ function acquireMeasurementCandidate(manifest, rootDir, options = {}) {
   try {
     const binding = bindingModule.verifiedMeasurementCandidateBinding(
       rootDir,
-      measurementCandidateBindingVerificationOptions(options)
+      {
+        ...measurementCandidateBindingVerificationOptions(options),
+        requireCalibrationStudies: gateKindRequired(manifest, "calibration")
+      }
     );
     if (!binding) {
       return {
@@ -1674,14 +1713,15 @@ function evaluateMeasurementCandidate(
     reasons.push("compiled measurement-candidate artifact path disagrees with release policy");
   }
   reasons.push(...measurementCandidateProblems(context));
+  const requiredCategories = requiredMeasurementEvidenceCategories(manifest);
   if (
     !Array.isArray(gate.requiredEvidenceCategories) ||
     hasDuplicates(gate.requiredEvidenceCategories) ||
     JSON.stringify([...gate.requiredEvidenceCategories].sort()) !==
-      JSON.stringify([...REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES].sort())
+      JSON.stringify([...requiredCategories].sort())
   ) {
     reasons.push(
-      `gate config: requiredEvidenceCategories must be exactly ${REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES.join(", ")}`
+      `gate config: requiredEvidenceCategories must be exactly ${requiredCategories.join(", ")}`
     );
   }
   if (context.binding) {
@@ -1689,7 +1729,7 @@ function evaluateMeasurementCandidate(
     for (const entry of context.binding.evidence ?? []) {
       counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1);
     }
-    for (const category of REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES) {
+    for (const category of requiredCategories) {
       if ((counts.get(category) ?? 0) === 0) {
         reasons.push(`measurement binding enumerates no ${category} evidence`);
       }

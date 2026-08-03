@@ -726,10 +726,9 @@ authoritative gate list):
   both the artifact and the analyzer semantics (`anyCensoredCase` makes the
   study ineligible and the planned denominator must remain complete). A generic
   "settled" approval, a different path, or an unbound digest stays red.
-- **Derived gates.** Corpus denominators, A/A studies, calibration
-  eligibility, the third-party review ledger, runner destruction receipts,
-  controlled publication archives, the lifecycle readback receipt, and the
-  release-receipt archive are all
+- **Derived gates.** Corpus denominators, the third-party review ledger,
+  runner destruction receipts, controlled publication archives, the lifecycle
+  readback receipt, and the release-receipt archive are all
   re-derived from committed evidence on every run; no artifact's
   self-declared verdict is trusted (A/A studies are re-scored from their
   preregistration, candidate-resident target-frame bytes, measurement identity,
@@ -868,11 +867,14 @@ blanket stable-API claim, npm publication, and a tag that does not match
 `v<version>` remain refused.
 
 The mechanical 1.0 vocabulary does not make the release ready. The unprivileged
-prepare job runs the canonical 20-gate `release:readiness:check` before any
-artifact handoff whenever the requested version is on the exact 1.0 line.
-Until the compatibility decision, frozen candidate, controlled corpus,
-repeatability, calibration, durable-operations, and legal gates all pass,
-`1.0.0` and its release candidates remain mechanically unpublishable.
+prepare job runs the canonical `release:readiness:check` over every gate the
+manifest declares before any artifact handoff whenever the requested version is
+on the exact 1.0 line. Until the frozen candidate, controlled corpus,
+durable-operations, and legal gates all pass, `1.0.0` and its release
+candidates remain mechanically unpublishable. The detector-calibration and
+A/A-repeatability evidence programs are recorded in the manifest's
+`deferredGates` as gating the 1.1 calibrated-claims release; restoring them to
+the 1.0 set is a reviewed enforcement edit.
 
 Never infer a tag, stable API, or general-availability claim from the `0.x`
 package version or from the existence of a public production deployment.

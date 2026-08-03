@@ -53,8 +53,6 @@ const EXPECTED_GATES: Record<string, string> = {
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
   "current-method-corpus": "corpus",
-  "aa-repeatability": "aa-study",
-  "detector-calibration": "calibration",
   "legal-review": "review-ledger",
   "runner-cycles": "runner-receipts",
   "controlled-publications": "controlled-publications",
@@ -75,6 +73,13 @@ const EXPECTED_DECISIONS = [
   "calibrationCensoringPolicy",
   "wasmReproducibility"
 ];
+// The lean 1.0 fork: these evidence programs gate the 1.1 calibrated-claims
+// release. Restoring either to EXPECTED_GATES and manifest.gates is the
+// reviewed enforcement edit that reverses the fork.
+const DEFERRED_GATES: Record<string, string> = {
+  "aa-repeatability": "aa-study",
+  "detector-calibration": "calibration"
+};
 
 test("the committed manifest is NOT READY, every gate is pinned by id and kind, and only evidenced gates are green", async () => {
   const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
@@ -82,7 +87,7 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   // calendar: this pins the evaluator over committed evidence, and staleness
   // enforcement is exercised by the synthetic tests below. Bump the instant
   // whenever new evidence lands.
-  const AS_OF = Date.parse("2026-08-01T00:00:00.000Z");
+  const AS_OF = Date.parse("2026-08-03T00:00:00.000Z");
   const result = evaluateReleaseReadiness(process.cwd(), AS_OF);
   assert.equal(result.ready, false);
   assert.deepEqual(result.manifestProblems, []);
@@ -103,7 +108,9 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   const automationLanded = new Set(["release-receipt-archive", "current-method-corpus"]);
   // Hand-committed evidence that has actually landed. Every flip moves here.
   const evidenced = new Set([
-    "compatibility-surface-pinned"
+    "compatibility-surface-pinned",
+    "decisions-approved",
+    "errata-resolution"
   ]);
   for (const [id, kind] of Object.entries(EXPECTED_GATES)) {
     const gate = gates.get(id) as { kind: string; status: string };
@@ -141,6 +148,43 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   assert.deepEqual(
     [...manifest.gates["decisions-approved"].requiredDecisions].sort(),
     [...EXPECTED_DECISIONS].sort()
+  );
+  // The deferred record is governance surface too: deleting it, un-deferring
+  // silently, or retargeting it away from 1.1.0 must move this pin.
+  assert.deepEqual(
+    Object.keys(manifest.deferredGates).sort(),
+    Object.keys(DEFERRED_GATES).sort()
+  );
+  for (const [id, kind] of Object.entries(DEFERRED_GATES)) {
+    assert.equal(manifest.deferredGates[id].kind, kind, `${id} deferred kind`);
+    assert.equal(manifest.deferredGates[id].deferredTo, "1.1.0", `${id} deferredTo`);
+    assert.equal(manifest.deferredGates[id].deferredBy, "iAnonymous3000", `${id} deferredBy`);
+    assert.equal(
+      manifest.deferredGates[id].deferredAt,
+      "2026-08-02T22:10:00.000Z",
+      `${id} deferredAt`
+    );
+    assert.equal(
+      typeof manifest.deferredGates[id].reason === "string" &&
+        manifest.deferredGates[id].reason.length > 0,
+      true,
+      `${id} deferral reason`
+    );
+    assert.equal(id in manifest.gates, false, `${id} must not also be a live gate`);
+  }
+  // The deferred gate bodies must survive intact so restoring either gate is
+  // a pin move, not a reconstruction.
+  assert.deepEqual(manifest.deferredGates["detector-calibration"].requiredDetectors, [
+    "keystroke-exfiltration",
+    "pixel-events",
+    "consent-banner",
+    "fingerprint-heuristics",
+    "cname-uncloaking",
+    "privacy-policy"
+  ]);
+  assert.equal(
+    manifest.deferredGates["aa-repeatability"].directory,
+    "research/aa-studies"
   );
   assert.equal(
     manifest.gates["measurement-candidate-binding"].requiredEvidenceCategories.includes(
@@ -247,7 +291,7 @@ test("release readiness propagates an explicit trusted freeze context into candi
   );
   assert.match(
     source,
-    /bindingModule\.verifiedMeasurementCandidateBinding\(\s*rootDir,\s*measurementCandidateBindingVerificationOptions\(options\)\s*\)/
+    /bindingModule\.verifiedMeasurementCandidateBinding\(\s*rootDir,\s*\{\s*\.\.\.measurementCandidateBindingVerificationOptions\(options\),\s*requireCalibrationStudies: gateKindRequired\(manifest, "calibration"\)\s*\}\s*\)/
   );
 });
 

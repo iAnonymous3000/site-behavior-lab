@@ -1595,7 +1595,7 @@ only a content type, and a report write plus a sidecar write is NOT atomic):
 
 ## Errata
 
-- **E1 (2026-07-10, published erratum; recommended 1.0 disposition pending approval)**: two
+- **E1 (2026-07-10, published erratum; 1.0 disposition no-r3-for-1.0 approved 2026-08-02)**: two
   descriptions in the PUBLISHED v2 r1 and r2 schemas overstate the pixel
   identifier handling. The `PixelMatchField` description states detection is
   "by parameter-key presence only: the scanner never reads, decodes, or
@@ -1610,11 +1610,11 @@ only a content type, and a report write plus a sidecar write is NOT atomic):
   corrected here and in the runtime copy (lib/pixel-events.ts, README,
   glossary). This published erratum is the terminal correction for those
   existing revisions. Any future revision that carries these descriptions
-  must declare the corrected prose in its own types. Under the recommended
-  pending disposition, creating that revision is not a 1.0 requirement and
+  must declare the corrected prose in its own types. Under the approved
+  disposition, creating that revision is not a 1.0 requirement and
   never rewrites the frozen files.
 
-- **E2 (2026-07-20, published erratum; recommended 1.0 disposition pending approval)**: the
+- **E2 (2026-07-20, published erratum; 1.0 disposition no-r3-for-1.0 approved 2026-08-02)**: the
   published v2 r1 and r2 schemas describe `InterventionExperiment.order` as
   "Counterbalanced across pairs from the first v2 release." That conflates a
   pair's randomized execution order with counterbalancing. `AB` means the

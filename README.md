@@ -107,7 +107,7 @@ Two limits matter most for serious work, and both are deliberate:
   [docs/calibration-study-operations.md](docs/calibration-study-operations.md).
 - **The claim boundary is investigative evidence requiring independent
   corroboration.** Standalone legal determinations and sole-court-exhibit use
-  are explicitly excluded, and that decision is still pending sign-off in
+  are explicitly excluded; that decision is approved and recorded in
   [`RELEASE_READINESS.json`](RELEASE_READINESS.json).
 
 Three practical consequences when interpreting a report:
