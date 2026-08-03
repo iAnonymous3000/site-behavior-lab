@@ -103,12 +103,12 @@
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",
-    "lucide-react": "^1.27.0",
+    "lucide-react": "^1.28.0",
     "next": "^16.2.12",
-    "playwright": "1.62.0",
+    "playwright": "1.62.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "tldts": "7.4.9"
+    "tldts": "7.4.10"
   },
   "overrides": {
     "brace-expansion": "5.0.9",
@@ -119,14 +119,14 @@
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
     "@cloudflare/containers": "^0.3.7",
-    "@cloudflare/workers-types": "^5.20260727.1",
+    "@cloudflare/workers-types": "^5.20260731.1",
     "@types/node": "^24.13.3",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "ajv": "8.20.0",
-    "miniflare": "4.20260722.0",
+    "miniflare": "4.20260730.0",
     "ts-json-schema-generator": "2.9.0",
     "typescript": "^5.7.2",
-    "wrangler": "^4.114.0"
+    "wrangler": "^4.118.0"
   }
 }
