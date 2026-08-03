@@ -696,6 +696,23 @@ test("an empty binding verifies only through the acquisition preflight or the ex
     leanVerified.attestationVerifications.containerEvidence.status,
     "verified-by-gh-attestation"
   );
+
+  // Without the explicit option, the floor follows the candidate-resident
+  // RELEASE_READINESS.json: a valid deferral record baked into the candidate
+  // relaxes it, while this fixture's undeferrred manifest keeps it (the
+  // default-path throw above). A post-candidate manifest edit cannot flip
+  // the floor because the verifier requires the working-tree manifest to be
+  // byte-identical to the candidate-resident blob.
+  const deferredFixture = makeFixture(t, {
+    includeCalibrationStudy: false,
+    deferCalibrationGate: true
+  });
+  const manifestLean = verifiedMeasurementCandidateBinding(
+    deferredFixture.root,
+    verificationOptions
+  );
+  assert.ok(manifestLean);
+  assert.deepEqual(manifestLean.calibrationStudies, []);
 });
 
 test("requireCalibrationStudies: false still fully verifies every bound study", (t) => {
@@ -1837,6 +1854,7 @@ function makeFixture(
     shortDurableSoak?: boolean;
     adequateCalibrationStudy?: boolean;
     unverifiedPixelConsent?: boolean;
+    deferCalibrationGate?: boolean;
   } = {}
 ): Fixture {
   const root = mkdtempSync(path.join(tmpdir(), "sbl-measurement-binding-"));
@@ -2103,7 +2121,17 @@ RUN test "$(node --version)" = "v24.18.0"
             : "2026-07-31T22:00:00.000Z"
       }
     },
-    gates: {}
+    gates: {},
+    ...(options.deferCalibrationGate
+      ? {
+          deferredGates: {
+            "detector-calibration": {
+              kind: "calibration",
+              deferredTo: "1.1.0"
+            }
+          }
+        }
+      : {})
   });
   writeJson(path.join(root, ...preregistrationPath.split("/")), {
     schemaVersion: 2,

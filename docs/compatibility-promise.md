@@ -1,10 +1,10 @@
-# Release 1.0 compatibility promise (proposed)
+# Release 1.0 compatibility promise
 
-Status: PROPOSED. This document is the reviewable artifact behind the
-`compatibilitySurface` decision in `RELEASE_READINESS.json`, which pins its
-exact bytes by digest. Editing this file without updating that digest turns
-the readiness gate red by construction; approving the decision approves this
-exact text. Release 1.0 promises the surfaces below and nothing else.
+Status: APPROVED 2026-08-02. This document is the reviewable artifact behind
+the `compatibilitySurface` decision in `RELEASE_READINESS.json`, which pins
+its exact bytes by digest. Editing this file without updating that digest
+turns the readiness gate red by construction; the approved decision approves
+this exact text. Release 1.0 promises the surfaces below and nothing else.
 
 ## What 1.0 promises
 

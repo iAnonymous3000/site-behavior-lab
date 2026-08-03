@@ -158,26 +158,13 @@ const REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES = Object.freeze([
 ]);
 
 /**
- * A gate kind's evidence stays required unless the kind is BOTH absent from
- * the live gate set AND carried in deferredGates with an explicit target
- * release: deleting a gate without its deferral record keeps the full
- * requirements.
+ * The deferral predicate is defined ONCE, in the compiled binding verifier
+ * (measurementGateKindRequired), which also derives the binding's own
+ * calibration-study floor from the manifest. This module only consumes it;
+ * when the compiled verifier is unavailable the category checks are skipped
+ * because the binding gate already fails on the missing module.
  */
-function gateKindRequired(manifest, kind) {
-  const live = Object.values(manifest?.gates ?? {}).some(
-    (gate) => isRecord(gate) && gate.kind === kind
-  );
-  if (live) return true;
-  return !Object.values(manifest?.deferredGates ?? {}).some(
-    (gate) =>
-      isRecord(gate) &&
-      gate.kind === kind &&
-      typeof gate.deferredTo === "string" &&
-      gate.deferredTo.length > 0
-  );
-}
-
-function requiredMeasurementEvidenceCategories(manifest) {
+function requiredMeasurementEvidenceCategories(manifest, gateKindRequired) {
   if (gateKindRequired(manifest, "aa-study")) {
     return REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES;
   }
@@ -1288,10 +1275,7 @@ function acquireMeasurementCandidate(manifest, rootDir, options = {}) {
   try {
     const binding = bindingModule.verifiedMeasurementCandidateBinding(
       rootDir,
-      {
-        ...measurementCandidateBindingVerificationOptions(options),
-        requireCalibrationStudies: gateKindRequired(manifest, "calibration")
-      }
+      measurementCandidateBindingVerificationOptions(options)
     );
     if (!binding) {
       return {
@@ -1713,18 +1697,23 @@ function evaluateMeasurementCandidate(
     reasons.push("compiled measurement-candidate artifact path disagrees with release policy");
   }
   reasons.push(...measurementCandidateProblems(context));
-  const requiredCategories = requiredMeasurementEvidenceCategories(manifest);
+  const gateKindRequired = context.module?.measurementGateKindRequired;
+  const requiredCategories =
+    typeof gateKindRequired === "function"
+      ? requiredMeasurementEvidenceCategories(manifest, gateKindRequired)
+      : null;
   if (
-    !Array.isArray(gate.requiredEvidenceCategories) ||
-    hasDuplicates(gate.requiredEvidenceCategories) ||
-    JSON.stringify([...gate.requiredEvidenceCategories].sort()) !==
-      JSON.stringify([...requiredCategories].sort())
+    requiredCategories !== null &&
+    (!Array.isArray(gate.requiredEvidenceCategories) ||
+      hasDuplicates(gate.requiredEvidenceCategories) ||
+      JSON.stringify([...gate.requiredEvidenceCategories].sort()) !==
+        JSON.stringify([...requiredCategories].sort()))
   ) {
     reasons.push(
       `gate config: requiredEvidenceCategories must be exactly ${requiredCategories.join(", ")}`
     );
   }
-  if (context.binding) {
+  if (context.binding && requiredCategories !== null) {
     const counts = new Map();
     for (const entry of context.binding.evidence ?? []) {
       counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1);

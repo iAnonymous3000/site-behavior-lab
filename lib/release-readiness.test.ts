@@ -291,7 +291,7 @@ test("release readiness propagates an explicit trusted freeze context into candi
   );
   assert.match(
     source,
-    /bindingModule\.verifiedMeasurementCandidateBinding\(\s*rootDir,\s*\{\s*\.\.\.measurementCandidateBindingVerificationOptions\(options\),\s*requireCalibrationStudies: gateKindRequired\(manifest, "calibration"\)\s*\}\s*\)/
+    /bindingModule\.verifiedMeasurementCandidateBinding\(\s*rootDir,\s*measurementCandidateBindingVerificationOptions\(options\)\s*\)/
   );
 });
 
@@ -1405,6 +1405,25 @@ test("the aa evidence requirement follows the manifest: valid deferral drops it,
         /requiredEvidenceCategories must be exactly .*aa-attempt-ledger/
       );
     }
+
+    // Live wins: restoring the gate while a stale deferral record lingers
+    // must restore the FULL requirement, not keep the lean one.
+    const liveAndDeferred = manifest();
+    (liveAndDeferred.gates as Record<string, unknown>)["aa-repeatability"] = {
+      kind: "aa-study",
+      title: "aa",
+      directory: "research/aa-studies"
+    };
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(liveAndDeferred)
+    );
+    const liveWins = bindingGate(evaluateReleaseReadiness(root, NOW));
+    assert.equal(liveWins.status, "fail");
+    assert.match(
+      liveWins.reasons.join(" "),
+      /requiredEvidenceCategories must be exactly .*aa-attempt-ledger/
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

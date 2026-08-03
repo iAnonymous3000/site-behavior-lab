@@ -730,12 +730,10 @@ authoritative gate list):
   runner destruction receipts, controlled publication archives, the lifecycle
   readback receipt, and the release-receipt archive are all
   re-derived from committed evidence on every run; no artifact's
-  self-declared verdict is trusted (A/A studies are re-scored from their
-  preregistration, candidate-resident target-frame bytes, measurement identity,
-  and ledger; lifecycle rules are re-validated from the recorded rule bytes;
-  runner cycles are counted as distinct Actions runs; and each controlled
-  publication manifest/receipt pair is matched to its runner artifact and
-  governed report/provenance bytes). Missing,
+  self-declared verdict is trusted (lifecycle rules are re-validated from the
+  recorded rule bytes; runner cycles are counted as distinct Actions runs;
+  and each controlled publication manifest/receipt pair is matched to its
+  runner artifact and governed report/provenance bytes). Missing,
   malformed, future-dated, or stale evidence is a failure with a reason,
   never a skip. Release-receipt archive verification additionally requires a
   full Git checkout with tags (`fetch-depth: 0`): it resolves the historical

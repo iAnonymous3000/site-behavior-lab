@@ -527,10 +527,10 @@ export type MeasurementCandidateBindingOptions = {
   expectedTargetRelease?: string;
   requireCleanWorktree?: boolean;
   /**
-   * Lean-scope seam. The release evaluator passes false only while the
-   * detector-calibration gate is recorded as deferred in
-   * RELEASE_READINESS.json; bound studies are fully verified either way, and
-   * omitting the option keeps the non-empty floor.
+   * Lean-scope override. When omitted, the floor follows the committed
+   * RELEASE_READINESS.json through measurementGateKindRequired, failing
+   * closed to the non-empty floor when the manifest is missing or
+   * unreadable. Bound studies are fully verified either way.
    */
   requireCalibrationStudies?: boolean;
   /**
@@ -805,6 +805,50 @@ const EVIDENCE_PATH_POLICIES: Readonly<
  * This deliberately returns `required-external-verification`, never
  * "verified". Release readiness must call verifiedMeasurementCandidateBinding.
  */
+/**
+ * The single deferral predicate: a gate kind's evidence stays required
+ * unless the kind is BOTH absent from the manifest's live gate set AND
+ * carried in deferredGates with an explicit target release. Deleting a gate
+ * without its deferral record keeps the full requirements.
+ */
+export function measurementGateKindRequired(
+  manifest: unknown,
+  kind: string
+): boolean {
+  const record = manifest as {
+    gates?: Record<string, { kind?: unknown } | null>;
+    deferredGates?: Record<
+      string,
+      { kind?: unknown; deferredTo?: unknown } | null
+    >;
+  } | null;
+  if (!record || typeof record !== "object") return true;
+  const live = Object.values(record.gates ?? {}).some(
+    (gate) => gate !== null && typeof gate === "object" && gate.kind === kind
+  );
+  if (live) return true;
+  return !Object.values(record.deferredGates ?? {}).some(
+    (gate) =>
+      gate !== null &&
+      typeof gate === "object" &&
+      gate.kind === kind &&
+      typeof gate.deferredTo === "string" &&
+      gate.deferredTo.length > 0
+  );
+}
+
+/** Fail-closed manifest read for the default calibration-study floor. */
+function manifestRequiresCalibrationStudies(rootDir: string): boolean {
+  try {
+    const manifest = JSON.parse(
+      readFileSync(path.join(rootDir, "RELEASE_READINESS.json"), "utf8")
+    );
+    return measurementGateKindRequired(manifest, "calibration");
+  } catch {
+    return true;
+  }
+}
+
 export function inspectMeasurementCandidateBinding(
   rootDir: string = process.cwd(),
   options: Omit<MeasurementCandidateBindingOptions, "attestationVerifier"> = {}
@@ -812,7 +856,8 @@ export function inspectMeasurementCandidateBinding(
   return inspectMeasurementCandidateBindingInternal(
     rootDir,
     options,
-    options.requireCalibrationStudies !== false
+    options.requireCalibrationStudies ??
+      manifestRequiresCalibrationStudies(rootDir)
   );
 }
 
@@ -1241,7 +1286,7 @@ export function measurementCandidateBuildProjection(
     undefined,
     undefined,
     undefined,
-    true,
+    manifestRequiresCalibrationStudies(rootDir),
     false
   );
   requireValue(
