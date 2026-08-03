@@ -117,8 +117,10 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-b68c-pre-accountability-no-adblock",
       "node-v4-b68c-accountability-v1-lists-2026-07-25",
       "node-v4-b68c-accountability-v1-no-adblock",
-      "node-v4-ec26-active-lists-2026-07-25",
-      "node-v4-ec26-active-no-adblock"
+      "node-v4-ec26-lists-2026-07-25",
+      "node-v4-ec26-no-adblock",
+      "node-v4-6c78-active-lists-2026-07-25",
+      "node-v4-6c78-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -213,12 +215,17 @@ test("Node producer rows are complete, immutable, and individually replayable", 
     language: "matches-locale"
   });
   for (const tuple of NODE_R2_PRODUCER_TUPLES) {
+    // Every epoch since detector-accountability-v1 carries obligations: the
+    // accountability-v1 rows, the frozen ServiceRole (ec26) rows, and the
+    // active rows. Earlier epochs must stay null.
     const hasAccountability =
-      tuple.id.includes("-accountability-v1-") || tuple.id.includes("-active-");
+      tuple.id.includes("-accountability-v1-") ||
+      tuple.id.includes("-ec26-") ||
+      tuple.id.includes("-active-");
     assert.equal(tuple.detectorObligations !== null, hasAccountability, `${tuple.id} obligation identity`);
     assert.equal(
       tuple.serviceRoleTaxonomy !== null,
-      tuple.id.includes("-active-"),
+      tuple.id.includes("-ec26-") || tuple.id.includes("-active-"),
       `${tuple.id} ServiceRole taxonomy identity`
     );
     assert.equal(Object.isFrozen(tuple), true, tuple.id);
@@ -442,6 +449,12 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
     entries: 137,
     digest: "7cade02ae20c3bb88e28e0de1135ef63c48f586e7196de3c02c13478f70c95bc"
   };
+  const serviceRoleTracker = {
+    source: "Hand-curated service catalog",
+    version: "hand-curated-2026.08",
+    entries: 146,
+    digest: "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  };
   // Each retired identity replays only with the exact catalog it published
   // under, and any other catalog version mixed into the same row must throw.
   const oracle: Array<{ normalizationVersion: string; catalog: typeof historicalTracker; mixedVersion: string }> = [
@@ -480,6 +493,11 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
       normalizationVersion: `${V4_PREFIX}b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7${PAGEGRAPH_SUFFIX}`,
       catalog: accountabilityTracker,
       mixedVersion: "hand-curated-2026.08"
+    },
+    {
+      normalizationVersion: `${V4_PREFIX}ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae${PAGEGRAPH_SUFFIX}`,
+      catalog: serviceRoleTracker,
+      mixedVersion: "hand-curated-2026.07"
     }
   ];
   assert.equal(PAGEGRAPH_R2_PRODUCER_TUPLES.length, oracle.length + 1);

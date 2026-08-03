@@ -1,4 +1,4 @@
-import { consentPlatformForDomain } from "./consent-banner";
+import { consentPlatformForDomain, consentPlatformKindForDomain } from "./consent-banner";
 import {
   HEADLINE_PLATFORMS,
   crossSiteListenerDetection,
@@ -111,6 +111,13 @@ export type IdentitySource = "catalog" | "cmp" | "ownership" | "cname";
 export type IdentityNamer = {
   source: IdentitySource;
   name: string;
+  /**
+   * Present when a consent-platform namer is a shared framework endpoint
+   * (for example *.consensu.org): the name identifies the standard the host
+   * serves, not the operator that ran it, so it does not count toward
+   * operator-identity coverage and must not render as "operator identified".
+   */
+  kind?: "framework-endpoint";
 };
 
 export type IdentifiedHostFact = {
@@ -742,7 +749,11 @@ function identityFacts(run: RunView): RunIdentityFacts {
     const cmp = consentPlatformForDomain(domain.domain);
     if (cmp) {
       cmpNames.add(cmp);
-      namers.push({ source: "cmp", name: cmp });
+      namers.push(
+        consentPlatformKindForDomain(domain.domain) === "framework-endpoint"
+          ? { source: "cmp", name: cmp, kind: "framework-endpoint" }
+          : { source: "cmp", name: cmp }
+      );
     }
     const owner = reviewedOrganizationForDomain(domain.domain);
     if (owner) {
@@ -793,7 +804,13 @@ function identityFacts(run: RunView): RunIdentityFacts {
   for (const host of hosts) {
     const target =
       host.relationship === "same-organization" ? sameOrganizationNames : outsideNames;
-    for (const namer of host.namers) target.add(namer.name);
+    // Every consumer of these sets makes an operator claim ("operators were
+    // identified", platform naming), and a framework endpoint names the
+    // standard rather than an operator, so it stays out here for the same
+    // reason it stays out of identifiedHosts below.
+    for (const namer of host.namers) {
+      if (namer.kind !== "framework-endpoint") target.add(namer.name);
+    }
   }
   for (const alias of cnameAliases) {
     const target =
@@ -804,8 +821,14 @@ function identityFacts(run: RunView): RunIdentityFacts {
     .map((entity) => entity.entity)
     .filter((name) => HEADLINE_PLATFORMS.includes(name))
     .sort();
-  const identifiedHosts = hosts.filter((host) => host.namers.length > 0).map((host) => host.host);
-  const unidentifiedHosts = hosts.filter((host) => host.namers.length === 0).map((host) => host.host);
+  // A shared framework endpoint (kind: "framework-endpoint") names the
+  // standard a host serves, not the operator that ran it, so a host whose
+  // only namer is one cannot be counted as operator-identified: the CMP that
+  // actually ran behind it stays unnamed.
+  const hostOperatorIdentified = (host: IdentifiedHostFact) =>
+    host.namers.some((namer) => namer.kind !== "framework-endpoint");
+  const identifiedHosts = hosts.filter(hostOperatorIdentified).map((host) => host.host);
+  const unidentifiedHosts = hosts.filter((host) => !hostOperatorIdentified(host)).map((host) => host.host);
 
   return {
     catalogEntities,

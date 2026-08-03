@@ -177,6 +177,40 @@ test("identity coverage unions catalog, CMP, reviewed ownership, and CNAME namer
   ]);
 });
 
+test("a shared framework endpoint names the standard, not an operator, in identity coverage", () => {
+  const result = makeV1Result();
+  result.domains = [
+    thirdPartyDomain("cmp.mgr.consensu.org"),
+    thirdPartyDomain("cdn.cookielaw.org")
+  ];
+  result.summary.thirdPartyDomains = result.domains.length;
+  result.summary.thirdPartyRequests = result.domains.length;
+  result.requests = requestRowsForDomains(result.domains);
+
+  const identity = factsForV1(result).identity;
+  // The endpoint is still named (so the consent card and the identity union
+  // can never contradict each other), but marked as a framework endpoint.
+  assert.deepEqual(
+    identity.hosts.find((host) => host.host === "cmp.mgr.consensu.org")?.namers,
+    [{ source: "cmp", name: "IAB TCF", kind: "framework-endpoint" }]
+  );
+  assert.deepEqual(
+    identity.hosts.find((host) => host.host === "cdn.cookielaw.org")?.namers,
+    [{ source: "cmp", name: "OneTrust" }]
+  );
+  // A framework-endpoint-only host is NOT an identified operator: the CMP
+  // that actually ran behind the shared endpoint stays unnamed, so the page
+  // must not claim it identified an operator for every third-party domain.
+  assert.deepEqual(identity.coverage, {
+    thirdPartyHosts: 2,
+    identifiedHosts: 1,
+    unidentifiedHosts: 1
+  });
+  assert.deepEqual(identity.identifiedHosts, ["cdn.cookielaw.org"]);
+  assert.deepEqual(identity.unidentifiedHosts, ["cmp.mgr.consensu.org"]);
+  assert.ok(identity.allNames.includes("IAB TCF"));
+});
+
 test("identity facts keep unclassified catalog services out of tracking totals", () => {
   const result = makeV1Result();
   result.domains = [

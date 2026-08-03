@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import { PAGE_SUBJECT_UNVERIFIED_WARNING } from "./bot-wall-classifier";
 import { compareScanResults, createGpcComparisonReport } from "./compare-reports";
@@ -514,6 +516,54 @@ test("legacy fingerprint sanitization drops detections that become structurally 
   assert.equal(first.fingerprintDetections?.length, 2, "only the two valid original detections remain");
   assert.equal(readStoredScanReport(first).ok, true);
   assert.equal(JSON.stringify(second), JSON.stringify(first));
+});
+
+test("the HTTP status disclosure survives for the full three-digit grammar the producer can emit", () => {
+  const input = sensitiveSingle();
+  input.warnings = [
+    // In-band failure codes, the only range the pre-v8 vocabulary admitted.
+    "The page returned HTTP 403; this report reflects an error or block page, not a normal load.",
+    // Out-of-band refusals the producer records verbatim from the wire:
+    // LinkedIn answers 999 and several WAFs answer other 6xx-9xx codes.
+    // These became "[redacted warning]" before scanner-warning-patterns-v8.
+    "The page returned HTTP 600; this report reflects an error or block page, not a normal load.",
+    "The page returned HTTP 999; this report reflects an error or block page, not a normal load.",
+    // Look-alikes outside the three-digit grammar must not ride through.
+    "The page returned HTTP 99; this report reflects an error or block page, not a normal load.",
+    "The page returned HTTP 1000; this report reflects an error or block page, not a normal load.",
+    "The page returned HTTP 099; this report reflects an error or block page, not a normal load."
+  ];
+
+  const { report } = redactScanResultV1(input);
+  // The warning list is set-deduplicated, so all three rejected look-alikes
+  // collapse into a single placeholder while the admitted three stay distinct.
+  assert.deepEqual(report.warnings, [...input.warnings.slice(0, 3), "[redacted warning]"]);
+});
+
+test("both consent-arm profile disclosure generations survive, and the producer emits the admitted one", () => {
+  const input = sensitiveSingle();
+  const scannerSource = readFileSync(path.join(process.cwd(), "lib", "scanner.ts"), "utf8");
+  const emitted = scannerSource.match(
+    /"This report is one automated, headless Chromium visit from a fixed en-US \/ UTC profile, with no scrolling or clicking except [^"]+"/
+  );
+  assert.ok(emitted, "scanner.ts no longer emits the consent-arm profile disclosure");
+  const producerSentence = JSON.parse(emitted[0]) as string;
+  assert.match(
+    producerSentence,
+    /scripted attempts to activate one choice/,
+    "the producer disclosure must not return to the single-click overclaim: the probe can dispatch several clicks on candidate controls while seeking one choice"
+  );
+  input.warnings = [
+    // What the scanner writes today. Reading it from the producer source makes
+    // this an end-to-end pin: if either the emitted sentence or the admitted
+    // vocabulary drifts alone, this test goes red.
+    producerSentence,
+    // The pre-v8 sentence carried by committed reports; replays keep it.
+    "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations."
+  ];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, input.warnings);
 });
 
 test("both CNAME disclosure generations survive redaction; look-alike page text does not", () => {

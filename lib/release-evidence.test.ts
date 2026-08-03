@@ -83,13 +83,21 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
     releaseGuide,
     /governed 0\.x development line[\s\S]*exact 1\.0\.0 line/
   );
+  // The guide names the current release and its archived receipt, and keeps
+  // the one recorded tag-ceremony failure WITH its completed recovery: the
+  // old pin here required "the tag does not exist", which locked the stale
+  // pre-recovery narrative in place after v0.4.0-rc.1 and v0.4.0 were tagged.
   assert.match(
     releaseGuide,
-    /30653749957[\s\S]*HTTP 403[\s\S]*tag does not exist[\s\S]*fresh dispatch from the updated `main` workflow/
+    /The current release is `v0\.4\.0`[\s\S]*docs\/release-receipts\/0\.4\.0\/release-receipt\.json/
   );
   assert.match(
     releaseGuide,
-    /Do not approve or rerun\s+that old workflow attempt/
+    /30653749957[\s\S]*HTTP 403[\s\S]*fresh dispatch from\s+the updated `main` workflow/
+  );
+  assert.match(
+    releaseGuide,
+    /A failed dispatch is never approved or\s+rerun; the ceremony restarts from `main`\./
   );
   // The guide must state what a tag does and does not claim, and must keep the
   // ordering that makes the claim true: promote first, then tag.

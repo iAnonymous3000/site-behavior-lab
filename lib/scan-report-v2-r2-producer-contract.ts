@@ -170,6 +170,41 @@ export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_OBLIGATIONS = Object.
   digest: "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
 });
 
+/**
+ * Exact producer epoch of the ec26 normalization identity, the first
+ * ServiceRole-taxonomy era (opened by catalog-review-v3 on 2026-08-01, closed
+ * by scanner-warning-patterns-v8). Every value is a pinned literal: a closed
+ * epoch must never follow an ACTIVE constant, or a later move silently
+ * rewrites what these reports were validated against.
+ */
+export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
+export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_REGISTRY_VERSION = "node-detectors-v4";
+export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST =
+  "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2";
+export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_VERSIONS = Object.freeze({
+  "fingerprint-heuristics": "fingerprint-observer@1",
+  "keystroke-exfiltration": "synthetic-sentinel@3",
+  "cname-uncloaking": "dns-cname-chain@4",
+  "pixel-events": "pixel-request-decoder@3",
+  "consent-banner": "consent-control-and-state@2",
+  "privacy-policy": "policy-text-cross-check@4"
+} satisfies Readonly<Record<DetectorId, string>>);
+export const HISTORICAL_R2_2026_08_TRACKER_CATALOG = Object.freeze({
+  source: "Hand-curated service catalog",
+  version: "hand-curated-2026.08",
+  entries: 146,
+  digest: "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+});
+export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_OBLIGATIONS = Object.freeze({
+  version: "detector-obligations-v1",
+  digest: "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+});
+export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_SERVICE_ROLE_TAXONOMY = Object.freeze({
+  version: "service-role-taxonomy-v1",
+  digest: "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+});
+
 const NODE_V3_NORMALIZATION =
   "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1";
 const NODE_V3_MIGRATED_NORMALIZATION = `${NODE_V3_NORMALIZATION}+v3-to-v4-ip-port-title@1`;
@@ -193,6 +228,8 @@ const NODE_6131_NORMALIZATION =
   `${V4_NORMALIZATION_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${NODE_NORMALIZATION_SUFFIX}`;
 const NODE_68C3_NORMALIZATION =
   `${V4_NORMALIZATION_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${NODE_NORMALIZATION_SUFFIX}`;
+const NODE_EC26_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae${NODE_NORMALIZATION_SUFFIX}`;
 
 const PAGEGRAPH_DBB6_NORMALIZATION =
   `${V4_NORMALIZATION_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
@@ -204,6 +241,8 @@ const PAGEGRAPH_6131_NORMALIZATION =
   `${V4_NORMALIZATION_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
 const PAGEGRAPH_68C3_NORMALIZATION =
   `${V4_NORMALIZATION_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+const PAGEGRAPH_EC26_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
@@ -222,6 +261,12 @@ export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   [HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION]: Object.freeze([
     PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
     HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION
+  ]),
+  // The ec26 identity closed when scanner-warning-patterns-v8 widened the
+  // status-disclosure grammar and the consent-arm disclosure. Its whole era
+  // ran the first ServiceRole-taxonomy methodology.
+  [NODE_EC26_NORMALIZATION]: Object.freeze([
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION
   ])
 });
 
@@ -428,6 +473,20 @@ const HISTORICAL_ACCOUNTABILITY_V1_FIELDS: NodeTupleFields = Object.freeze({
   publicLimits: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_PUBLIC_LIMITS,
   phaseOmissionContractVersion: "phase-omission-v2"
 });
+const HISTORICAL_SERVICE_ROLE_V1_REGISTRY = Object.freeze({
+  version: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_REGISTRY_VERSION,
+  digest: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST
+});
+const HISTORICAL_SERVICE_ROLE_V1_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: HISTORICAL_SERVICE_ROLE_V1_REGISTRY,
+  detectorVersions: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_VERSIONS,
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_OBLIGATIONS,
+  serviceRoleTaxonomy: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_SERVICE_ROLE_TAXONOMY,
+  trackerCatalog: HISTORICAL_R2_2026_08_TRACKER_CATALOG,
+  publicLimits: NODE_R2_PUBLIC_LIMITS,
+  phaseOmissionContractVersion: "phase-omission-v2"
+});
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -479,14 +538,14 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v4-ec26-active-lists-2026-07-25",
+        "node-v4-6c78-active-lists-2026-07-25",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v4-ec26-active-no-adblock",
+        "node-v4-6c78-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -659,6 +718,20 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_ACCOUNTABILITY_V1_FIELDS,
     null
   ),
+  nodeTuple(
+    "node-v4-ec26-lists-2026-07-25",
+    NODE_EC26_NORMALIZATION,
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-ec26-no-adblock",
+    NODE_EC26_NORMALIZATION,
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    null
+  ),
   ...ACTIVE_NODE_TUPLES
 ]);
 
@@ -694,6 +767,7 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     HISTORICAL_ACCOUNTABILITY_V1_PAGEGRAPH_R2_NORMALIZATION_VERSION,
     HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG
   ),
+  pageGraphTuple("pagegraph-v4-ec26", PAGEGRAPH_EC26_NORMALIZATION, HISTORICAL_R2_2026_08_TRACKER_CATALOG),
   pageGraphTuple("pagegraph-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG)
 ]);
 
