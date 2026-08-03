@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -189,4 +190,37 @@ test("deployed smoke helpers accept only a concrete failed URL-safety job", asyn
   assert.equal(adapter.ssrfGuardRefusalReason({ status: "failed", error: "Browser crashed" }), null);
   assert.equal(adapter.ssrfGuardRefusalReason({ status: "expired", error: "Lost after restart" }), null);
   assert.equal(adapter.ssrfGuardRefusalReason({ status: "cancelled", error: "Cancelled" }), null);
+});
+
+test("every external-target leg of the deployed smoke falls through to an ordered candidate list", () => {
+  // The Shields leg gained ordered candidates when a single third party's
+  // outage was found to block promotion, but the single-scan leg kept one
+  // hardcoded target and failed the gate on an example.com net::ERR_FAILED.
+  // Nothing pinned the rule, so the two legs could drift apart again. A leg
+  // that scans a fixed external URL without tolerateScanFailure is the defect.
+  const source = readFileSync(path.join(process.cwd(), "scripts", "smoke-deployed-scanner.mjs"), "utf8");
+
+  for (const [leg, candidates] of [
+    ["checkSingleScan", "singleScanUrlCandidates"],
+    ["checkShieldsComparison", "shieldsUrlCandidates"]
+  ]) {
+    const start = source.indexOf(`async function ${leg}(`);
+    assert.notEqual(start, -1, `${leg} must exist`);
+    const body = source.slice(start, source.indexOf("\nasync function ", start + 1));
+    assert.match(body, new RegExp(`for \\(const \\w+ of ${candidates}\\)`), `${leg} iterates its candidate list`);
+    assert.match(body, /tolerateScanFailure: true/, `${leg} tolerates a target-attributable failure`);
+    assert.match(body, /failed on every candidate target/, `${leg} stays red when every candidate fails`);
+    // A literal https:// target inside the leg means it is scanning something
+    // that is not drawn from the candidate list.
+    assert.doesNotMatch(body, /url: "https:\/\//, `${leg} takes its target from the candidate list`);
+  }
+
+  // Each list must offer independent operators, or the fallthrough is theatre.
+  for (const list of ["singleScanUrlCandidates", "shieldsUrlCandidates"]) {
+    const defaults = new RegExp(`${list} = \\(?\\s*process\\.env\\.\\w+ \\|\\| "([^"]+)"`).exec(source);
+    assert.notEqual(defaults, null, `${list} declares default candidates`);
+    const hosts = defaults![1].trim().split(/\s+/).map((url) => new URL(url).hostname);
+    assert.equal(hosts.length >= 2, true, `${list} offers a fallback`);
+    assert.equal(new Set(hosts).size, hosts.length, `${list} candidates are distinct hosts`);
+  }
 });
