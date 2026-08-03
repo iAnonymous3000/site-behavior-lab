@@ -108,6 +108,12 @@ jobs:
         run: npm run supply-chain:third-party:check
 
       - name: Run unit tests against the new snapshot
+        # The suite normally finishes in well under half this bound. A refresh
+        # that deadlocks a test (2026-08-03: refreshed list bytes made every
+        # runtime-built r2 report unpersistable and one durable test awaited a
+        # publication milestone forever) must fail fast with the always()
+        # alert steps below, not consume the 6-hour job budget.
+        timeout-minutes: 45
         run: npm run test:unit
 
       # Remote list bytes are third-party measurement inputs. Validation may

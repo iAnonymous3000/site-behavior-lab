@@ -807,11 +807,13 @@ test("authoritative cancellation wins after heartbeat success but before activat
 test("authoritative cancellation aborts a pending local publication CAS despite the local fence", async () => {
   const preparation = await durablePreparation();
   const beginReached = deferred<void>();
+  let beginPublishingReached = false;
   let commits = 0;
   const coordinator: DurableScanJobCoordinator = {
     heartbeat: async () => undefined,
     beginPublishing: async (_owner, _manifest, signal) =>
       new Promise<void>((_resolve, reject) => {
+        beginPublishingReached = true;
         beginReached.resolve();
         const abort = () => reject(signal?.reason);
         signal?.addEventListener("abort", abort, { once: true });
@@ -826,7 +828,7 @@ test("authoritative cancellation aborts a pending local publication CAS despite 
       commits += 1;
     })
   });
-  await beginReached.promise;
+  await milestoneOrSettledJob(JOB_ID, beginReached.promise, () => beginPublishingReached, "coordinator.beginPublishing");
 
   assert.equal(cancelDurableScanJobGeneration({ jobId: JOB_ID, generation: 1 })?.status, "cancelled");
   await waitForScanJobForTests(JOB_ID);
@@ -838,10 +840,12 @@ test("durable publication sets the local fence synchronously and awaits coordina
   const preparation = await durablePreparation();
   const beginReached = deferred<void>();
   const releaseBegin = deferred<void>();
+  let beginPublishingReached = false;
   let commits = 0;
   const coordinator: DurableScanJobCoordinator = {
     heartbeat: async () => undefined,
     beginPublishing: async () => {
+      beginPublishingReached = true;
       beginReached.resolve();
       await releaseBegin.promise;
     },
@@ -856,7 +860,7 @@ test("durable publication sets the local fence synchronously and awaits coordina
     scan: async () => r2ScanResult(),
     publication
   });
-  await beginReached.promise;
+  await milestoneOrSettledJob(JOB_ID, beginReached.promise, () => beginPublishingReached, "coordinator.beginPublishing");
   assert.equal(commits, 0, "commit must wait for begin-publishing");
   assert.throws(() => cancelOwnedDurableScanJob(owner(1, LEASE_ONE)), /already being saved/i);
 
@@ -1078,4 +1082,29 @@ function deferred<T = void>() {
     reject = fail;
   });
   return { promise, resolve, reject };
+}
+
+/**
+ * Await a milestone that only the durable publication path can reach. If the
+ * job settles first (for example because report preparation threw before the
+ * coordinator's beginPublishing ran, which is exactly what an unregistered
+ * refreshed adblock identity causes), fail immediately with a diagnostic
+ * instead of awaiting a deferred that can no longer resolve. Without this
+ * guard such a regression deadlocks the file under node --test's default
+ * zero test timeout and eats the whole CI job budget.
+ */
+async function milestoneOrSettledJob(
+  jobId: string,
+  milestone: Promise<void>,
+  reached: () => boolean,
+  label: string
+): Promise<void> {
+  await Promise.race([
+    milestone,
+    waitForScanJobForTests(jobId).then(() => {
+      if (!reached()) {
+        throw new Error(`scan job ${jobId} settled before ${label} was reached; durable publication never began`);
+      }
+    })
+  ]);
 }
