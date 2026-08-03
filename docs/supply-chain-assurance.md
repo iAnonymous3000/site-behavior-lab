@@ -208,8 +208,8 @@ that job. Its permissions are exactly `contents: read`, `id-token: write`,
 not receive OIDC or attestation authority.
 
 The job uses `actions/download-artifact` v8.0.1 at reviewed commit
-`3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` and `actions/attest` v4.2.0 at
-reviewed commit `f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6`. It downloads the artifact
+`3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` and `actions/attest` v4.2.1 at
+reviewed commit `508db95dd578ae2727ebd6217d5ba78e4fbda05d`. It downloads the artifact
 names for the current `github.sha`, parses both receipts plus the normalized
 package inventory, and rejects any source mismatch. It independently
 recomputes the package-row and package-set digests and cross-checks the
