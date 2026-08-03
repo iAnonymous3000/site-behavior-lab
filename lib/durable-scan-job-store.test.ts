@@ -452,9 +452,14 @@ test("publishing is an exact manifest boundary and requires fenced reconciliatio
     );
     assert.equal(findDurableScanJobSnapshot(sql, claim.jobId)?.state, "publishing");
     assert.equal(findDurableScanJobSnapshot(sql, claim.jobId)?.publicationManifest, manifest);
+    // The edge turns this conflict into a public 409 whose wording depends on
+    // the state, so the state has to travel with the error, not just its class.
     assert.throws(
       () => cancelDurableScanJob(sql, { jobId: claim.jobId, now: 100_003 }),
-      DurableScanJobStateError
+      (error: unknown) =>
+        error instanceof DurableScanJobStateError &&
+        error.code === "conflict" &&
+        error.currentState === "publishing"
     );
     assert.throws(
       () =>

@@ -136,7 +136,18 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // never measured.
     if (result.conditions.consentMode === "accept-all" || result.conditions.consentMode === "reject-all") continue;
 
-    const scannedAt = result.startedAt ?? view.scannedAt ?? "";
+    // One definition of "when this report was measured", shared with
+    // lib/corpus-overview.ts, which ranks the same cohorts by view.scannedAt
+    // and hands them to the same selectPrimaryCorpusCohort. Recency is that
+    // selector's first sort key, and the lead run's own start is a DIFFERENT
+    // clock on every v1 comparison (the wire's report-level time is the
+    // variant arm's start, so the two disagree by the baseline visit's
+    // duration): ranking on it here would let the published artifact and the
+    // rendered aggregate name different cohorts whenever two cohorts' newest
+    // reports land within that skew. The same value also picks each site's
+    // representative report, which the export and the directory decide with
+    // view.scannedAt too.
+    const scannedAt = view.scannedAt ?? "";
     if (!Number.isFinite(Date.parse(scannedAt))) continue;
     const identity = corpusCohortIdentityForView(view);
     const cohort = byCohort.get(identity.id) ?? { identity, bySite: new Map() };

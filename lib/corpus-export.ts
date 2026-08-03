@@ -86,6 +86,14 @@ export type CorpusExportRow = {
   requestCapped: boolean;
   /** Whether the lead run's request family is complete enough for aggregation. */
   requestEvidenceComplete: boolean;
+  /**
+   * Whether the lead run's COOKIE family was recorded completely. It moves
+   * independently of requestEvidenceComplete (a PageGraph import records no
+   * cookies at all while its requests stay complete), so a false value means
+   * thirdPartyCookies below is not a measurement: every report, directory,
+   * category, and feed surface renders that same row as not measured.
+   */
+  cookieEvidenceComplete: boolean;
   headline: string;
   thirdPartyRequests: number;
   /** Frozen report-wire count of retained request rows with any direct catalog match. */
@@ -157,6 +165,7 @@ export const CORPUS_EXPORT_NOTE = [
   "The flattened corpus deliberately omits the raw baseline and variant fingerprint digests: they remain available in the linked full reports, while repeating stable digests here would add linkability and noise without a documented corpus consumer.",
   "Rows with a status of 400 or higher reflect an error or block page (the site refusing the automated visit), not the site's normal behavior. request_capped is the exact 1,000-request recording-cap flag; those activity counts are floors cut off mid-collection. request_evidence_complete is the broader request-family completeness flag, so it can be false for other bounded capture loss while request_capped remains false.",
   "Rows with request_evidence_complete false have lower-bound request counts and stay out of this project's percentiles, category medians, leaderboards, and since-last-scan deltas, as do failed loads and post-choice consent lead runs. A request-capped row also has cookie and storage figures that are end-state snapshots of an interrupted visit.",
+  "cookie_evidence_complete is the same completeness flag for the cookie family, and it moves independently of the request flags: a producer that records no cookie evidence at all (a PageGraph import) leaves request_evidence_complete true while cookie_evidence_complete is false. Where it is false, third_party_cookies is not a measurement and must not be read as a zero or as a site that set no third-party cookies; the report, directory, category, and feed surfaces render that same row as not measured, and this project's cookie distributions leave it out.",
   "corpus_cohort_id is a versioned schema, methodology, tracker-catalog, read-time ServiceRole-taxonomy, metric-contract, recorded-producer, and requested-GPC identity. tracker_catalog_digest is the recorded content digest on v2 and a canonical hash of the available recorded legacy metadata on v1; tracker_catalog_origin keeps those assurance levels distinct. corpus_cohort_denominator is the distinct-site passive-run denominator for that exact cohort; no percentile, category median, or leaderboard silently pools v1 and r2 or different methodology, catalog, ServiceRole, or metric-contract identities.",
   "corpus_inclusion and corpus_exclusion_reasons state whether a row is the newest eligible representative for its site in that cohort. Excluded rows remain published and auditable; they never contribute a zero or truncated measurement.",
   "siteCount counts distinct sites with a successful single run or primary comparison arm, including request-capped recordings; two successful primary arms do not count a site twice. measuredSampleSize is the denominator of primaryCohortId, the top-level compatibility cohort in corpus-stats.json; the cohorts collection names every separate methodology denominator.",
@@ -164,7 +173,7 @@ export const CORPUS_EXPORT_NOTE = [
   "schema_version/schema_revision record the report's wire generation, schema_origin marks legacy-derived (v1) rows whose derived facts were never recorded as v2 fact, and limited marks rows whose schema revision supports only descriptive (never causal) claims.",
   "Historical v1 rows are legacy-derived and limited; r2 rows carry recorded facts and may be non-limited. producer, acquisition, build_commit, browser, egress, run_outcome, methodology_version, and methodology_origin make each row's provenance and quality filterable; null or blank means the generation never recorded the fact.",
   "shields_third_party_change is the SIGNED third-party request change of an eligible Brave-list blocking pair: the blocking visit's count minus the unblocked baseline's (Brave's ad-block engine and default Shields lists, simulated in this scanner's browser, not a live Brave-browser visit), so a negative value means fewer requests with blocking on and a positive value means more; increases are real paired-visit observations (ad rotation, fallback loading) and are reported signed, not clamped to zero.",
-  "It is never a count of individually blocked requests, which each blocking run records separately. shieldsChangeSummary in this payload counts the rows with a non-null change by direction (decreased / flat / increased).",
+  "It is never a count of individually blocked requests, which each blocking run records separately. shieldsChangeSummary in this payload counts by direction (decreased / flat / increased) only the pairs with corpus_inclusion included, so a site's superseded rescans never weight the mix; it still spans every cohort, and shieldsChangeCohorts publishes the same mix per corpus_cohort_id for readers who need one measurement instrument at a time.",
   "Full methodology and per-report evidence are linked from each row."
 ].join(" ");
 
@@ -208,6 +217,7 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
     corpusExclusionReasons: inclusion.reasons.get(entry.id) ?? [],
     requestCapped: entry.capped,
     requestEvidenceComplete: entry.requestEvidenceComplete,
+    cookieEvidenceComplete: entry.cookieEvidenceComplete,
     headline: entry.headline,
     thirdPartyRequests: entry.thirdPartyRequests,
     cataloguedServiceRequests: entry.cataloguedServiceRequests,
@@ -292,12 +302,23 @@ export type CorpusExportPayload = {
   /** Auditable per-methodology denominators derived from the exported rows. */
   cohorts: CorpusExportCohort[];
   /**
-   * Direction mix of the rows carrying a non-null shields_third_party_change:
-   * decreased (< 0, fewer with blocking), flat (0), increased (> 0). Published
-   * so the aggregate never hides that some pairs observe MORE third-party
-   * requests with blocking on.
+   * Direction mix of the eligible Shields pairs that REPRESENT their site in a
+   * cohort's statistics (corpus_inclusion included): decreased (< 0, fewer with
+   * blocking), flat (0), increased (> 0). Published so the aggregate never
+   * hides that some pairs observe MORE third-party requests with blocking on.
+   * Rescans the same payload marks superseded are not counted again here, for
+   * the reason they are excluded everywhere else: they are not their site's
+   * representative measurement. It still spans every cohort, so a site
+   * measured under two of them contributes one row to each.
    */
   shieldsChangeSummary: ShieldsChangeSummary;
+  /**
+   * The same direction mix per cohort, which is the un-pooled form of the
+   * summary above: two blocking instruments (or two requested-GPC lanes) are
+   * different measurements of the same question, and nothing else in this
+   * project pools them into one denominator.
+   */
+  shieldsChangeCohorts: ShieldsChangeCohortSummary[];
   reports: CorpusExportRow[];
 };
 
@@ -321,14 +342,54 @@ export type CorpusExportCohort = {
 };
 
 export type ShieldsChangeSummary = {
+  /** Representative rows carrying a signed change; one per site within a cohort. */
   pairedReports: number;
   decreased: number;
   flat: number;
   increased: number;
 };
 
+export type ShieldsChangeCohortSummary = ShieldsChangeSummary & { cohortId: string };
+
+/**
+ * Direction mix of the eligible Shields pairs a cohort's statistics speak for.
+ *
+ * Only rows this same payload publishes as corpus_inclusion included are
+ * counted: a superseded rescan is not its site's representative measurement,
+ * and counting one would weight the mix by how often a site was rescanned
+ * rather than by how sites behave. That is the rule every other aggregate in
+ * this project applies, and this is the aggregate whose whole purpose is to
+ * keep an inconvenient direction visible, so it may not be the one exception.
+ */
 export function summarizeShieldsChanges(rows: CorpusExportRow[]): ShieldsChangeSummary {
-  const changes = rows.map((row) => row.shieldsThirdPartyChange).filter((value): value is number => value !== null);
+  return shieldsDirectionMix(representativeShieldsChanges(rows));
+}
+
+/** The same mix per cohort, so no reader has to un-pool two measurement instruments. */
+export function summarizeShieldsChangesByCohort(rows: CorpusExportRow[]): ShieldsChangeCohortSummary[] {
+  const byId = new Map<string, CorpusExportRow[]>();
+  for (const row of rows) {
+    const cohortRows = byId.get(row.corpusCohortId);
+    if (cohortRows) cohortRows.push(row);
+    else byId.set(row.corpusCohortId, [row]);
+  }
+  return [...byId.entries()]
+    .map(([cohortId, cohortRows]) => ({
+      cohortId,
+      ...shieldsDirectionMix(representativeShieldsChanges(cohortRows))
+    }))
+    .filter((cohort) => cohort.pairedReports > 0)
+    .sort((left, right) => left.cohortId.localeCompare(right.cohortId));
+}
+
+function representativeShieldsChanges(rows: CorpusExportRow[]): number[] {
+  return rows
+    .filter((row) => row.corpusInclusion === "included")
+    .map((row) => row.shieldsThirdPartyChange)
+    .filter((value): value is number => value !== null);
+}
+
+function shieldsDirectionMix(changes: number[]): ShieldsChangeSummary {
   return {
     pairedReports: changes.length,
     decreased: changes.filter((value) => value < 0).length,
@@ -354,6 +415,7 @@ export function buildCorpusExportPayload(
     primaryCohortId: input.primaryCohortId ?? null,
     cohorts: summarizeExportCohorts(rows),
     shieldsChangeSummary: summarizeShieldsChanges(rows),
+    shieldsChangeCohorts: summarizeShieldsChangesByCohort(rows),
     reports: rows
   };
 }
@@ -448,7 +510,8 @@ const CSV_HEADER = [
   "catalogued_service_requests",
   "tracking_service_requests",
   "delta_catalogued_service_requests",
-  "delta_tracking_service_requests"
+  "delta_tracking_service_requests",
+  "cookie_evidence_complete"
 ] as const;
 
 export function corpusExportToCsv(rows: CorpusExportRow[]): string {
@@ -511,7 +574,8 @@ export function corpusExportToCsv(rows: CorpusExportRow[]): string {
     row.cataloguedServiceRequests,
     row.trackingServiceRequests,
     row.deltaCataloguedServiceRequests ?? "",
-    row.deltaTrackingServiceRequests ?? ""
+    row.deltaTrackingServiceRequests ?? "",
+    row.cookieEvidenceComplete ? "true" : "false"
   ]);
   return [CSV_HEADER, ...lines].map((line) => line.map(csvCell).join(",")).join("\r\n").concat("\r\n");
 }

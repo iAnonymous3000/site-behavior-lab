@@ -20,7 +20,7 @@ import {
   type ReportStoreBackendStatus,
   type StoredReportEntry
 } from "./report-store-backend";
-import { R2_LIST_MAX_HEAD_CANDIDATES } from "./report-store-r2";
+import { R2_LIST_MAX_HEAD_CANDIDATES, ReportStoreRequestTimeoutError } from "./report-store-r2";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { sha256Hex } from "./sha256";
@@ -388,9 +388,16 @@ export async function readStoredScanReportById(
     if (!blob) return { outcome: "not-found" };
 
     if (blob.retention && isExpired(blob.retention)) {
-      await deleteWithRetentionDebt(backend, { id, scope: "bundle" }, boundedOptions).catch(
-        () => undefined
-      );
+      // The retention-debt ledger is durable and shared, and a marker that is
+      // only in flight is indistinguishable from a delete that failed. A prune
+      // pass running concurrently reads it as physicalStateUnknown and refuses
+      // the publication, and the health probe reports an unhealthy store, so an
+      // unauthenticated permalink read could fail a scan that had already run.
+      // Take the same mutation FIFO every other ledger mutation takes.
+      await withReportStoreMutationLock(
+        () => deleteWithRetentionDebt(backend, { id, scope: "bundle" }, boundedOptions),
+        boundedOptions.signal
+      ).catch(() => undefined);
       return { outcome: "not-found" };
     }
     const managed = readManagedReport({
@@ -750,17 +757,32 @@ async function mapWithConcurrency<T>(
   operation: (value: T) => Promise<void>
 ): Promise<void> {
   let nextIndex = 0;
+  // This pool drives retention deletes, so no worker may outlive the pass.
+  // Promise.all settled on the first failed delete while its siblings kept
+  // marking debt, removing objects, and clearing debt. By then the pass had
+  // already released the store mutation lock and its whole-operation deadline
+  // timer was cleared, so those deletes ran unsupervised and whatever ran next
+  // read a retention ledger holding markers for bundles whose delete never
+  // failed, which is the exact input to the publication refusal. Keep the
+  // first failure and rethrow it only once every worker has returned.
+  const failures: unknown[] = [];
   const worker = async () => {
     while (true) {
       const index = nextIndex;
       nextIndex += 1;
       if (index >= values.length) return;
-      await operation(values[index]);
+      try {
+        await operation(values[index]);
+      } catch (error) {
+        failures.push(error);
+        return;
+      }
     }
   };
   await Promise.all(
     Array.from({ length: Math.min(concurrency, values.length) }, () => worker())
   );
+  if (failures.length > 0) throw failures[0];
 }
 
 async function withReportStoreOperationDeadline<T>(
@@ -774,8 +796,15 @@ async function withReportStoreOperationDeadline<T>(
     : controller.signal;
   const timeoutMs = reportStoreOperationTimeoutMs();
   const timeout = setTimeout(() => {
+    // A timeout class, not a bare Error: this reason is what reaches
+    // classifyReportStoreFailure through the health probe, and a bare Error
+    // carries no status, no errno, and no DOMException name, so a stalled
+    // backend published the reason token "unknown" instead of "timed-out".
+    // The message is unchanged.
     controller.abort(
-      new Error(`Report-store operation exceeded its ${timeoutMs} ms whole-operation deadline.`)
+      new ReportStoreRequestTimeoutError(
+        `Report-store operation exceeded its ${timeoutMs} ms whole-operation deadline.`
+      )
     );
   }, timeoutMs);
   try {
