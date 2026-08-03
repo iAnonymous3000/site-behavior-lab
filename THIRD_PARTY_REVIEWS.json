@@ -60,10 +60,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-darwin-64@1.20260722.1",
+      "key": "npm:@cloudflare/workerd-darwin-64@1.20260730.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-darwin-64",
-      "version": "1.20260722.1",
+      "version": "1.20260730.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -74,10 +74,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-darwin-arm64@1.20260722.1",
+      "key": "npm:@cloudflare/workerd-darwin-arm64@1.20260730.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-darwin-arm64",
-      "version": "1.20260722.1",
+      "version": "1.20260730.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -88,10 +88,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-linux-64@1.20260722.1",
+      "key": "npm:@cloudflare/workerd-linux-64@1.20260730.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-linux-64",
-      "version": "1.20260722.1",
+      "version": "1.20260730.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -102,10 +102,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-linux-arm64@1.20260722.1",
+      "key": "npm:@cloudflare/workerd-linux-arm64@1.20260730.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-linux-arm64",
-      "version": "1.20260722.1",
+      "version": "1.20260730.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -116,10 +116,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-windows-64@1.20260722.1",
+      "key": "npm:@cloudflare/workerd-windows-64@1.20260730.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-windows-64",
-      "version": "1.20260722.1",
+      "version": "1.20260730.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -130,10 +130,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workers-types@5.20260727.1",
+      "key": "npm:@cloudflare/workers-types@5.20260731.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workers-types",
-      "version": "5.20260727.1",
+      "version": "5.20260731.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
@@ -1194,10 +1194,10 @@
       "notes": null
     },
     {
-      "key": "npm:@types/react@19.2.17",
+      "key": "npm:@types/react@19.2.18",
       "ecosystem": "npm",
       "name": "@types/react",
-      "version": "19.2.17",
+      "version": "19.2.18",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1208,10 +1208,10 @@
       "notes": null
     },
     {
-      "key": "npm:@types/react-dom@19.2.3",
+      "key": "npm:@types/react-dom@19.2.4",
       "ecosystem": "npm",
       "name": "@types/react-dom",
-      "version": "19.2.3",
+      "version": "19.2.4",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1558,10 +1558,10 @@
       "notes": null
     },
     {
-      "key": "npm:lucide-react@1.27.0",
+      "key": "npm:lucide-react@1.28.0",
       "ecosystem": "npm",
       "name": "lucide-react",
-      "version": "1.27.0",
+      "version": "1.28.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "ISC",
@@ -1572,10 +1572,24 @@
       "notes": null
     },
     {
-      "key": "npm:miniflare@4.20260722.0",
+      "key": "npm:miniflare@4.20260730.0",
       "ecosystem": "npm",
       "name": "miniflare",
-      "version": "4.20260722.0",
+      "version": "4.20260730.0",
+      "runtime": false,
+      "status": "unreviewed",
+      "declaredLicense": "MIT",
+      "determinedLicense": null,
+      "obligations": [],
+      "reviewer": null,
+      "reviewedAt": null,
+      "notes": null
+    },
+    {
+      "key": "npm:miniflare@5.20260730.0-alpha",
+      "ecosystem": "npm",
+      "name": "miniflare",
+      "version": "5.20260730.0-alpha",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2006,10 +2020,10 @@
       "notes": null
     },
     {
-      "key": "npm:workerd@1.20260722.1",
+      "key": "npm:workerd@1.20260730.1",
       "ecosystem": "npm",
       "name": "workerd",
-      "version": "1.20260722.1",
+      "version": "1.20260730.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -2020,10 +2034,10 @@
       "notes": null
     },
     {
-      "key": "npm:wrangler@4.114.0",
+      "key": "npm:wrangler@4.118.0",
       "ecosystem": "npm",
       "name": "wrangler",
-      "version": "4.114.0",
+      "version": "4.118.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",

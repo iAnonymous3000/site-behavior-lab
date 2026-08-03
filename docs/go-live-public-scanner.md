@@ -182,7 +182,7 @@ for record_type in A AAAA CNAME; do
 done
 ```
 
-The repository currently locks Wrangler 4.114.0. Do not treat
+The repository currently locks Wrangler 4.118.0. Do not treat
 `wrangler containers list --json` as an account-wide absence proof: its
 machine-readable help surface exposes `--per-page` but no page/cursor argument,
 and cursor completion must be reverified whenever Wrangler changes. In the

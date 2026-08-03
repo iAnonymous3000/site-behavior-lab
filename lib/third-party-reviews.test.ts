@@ -265,7 +265,7 @@ test("the committed ledger is in sync with the committed inventory", async () =>
   const ledger = JSON.parse(readFileSync(path.join(process.cwd(), "THIRD_PARTY_REVIEWS.json"), "utf8"));
   const verdict = checkReviewLedger(inventory, ledger);
   assert.equal(verdict.ok, true, verdict.problems.slice(0, 3).join("; "));
-  assert.equal(verdict.summary.npm.total, 148);
+  assert.equal(verdict.summary.npm.total, 149);
   assert.equal(verdict.summary.cargo.total, 68);
   assert.equal(verdict.summary["filter-list"].total, 31);
   assert.deepEqual(verdict.summary["downloaded-tool"], {
