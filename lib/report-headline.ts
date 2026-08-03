@@ -325,7 +325,7 @@ export function buildReportHeadline(
       "info",
       `${domain}'s main page did not complete a trustworthy load.`,
       statusUnrepresentable
-        ? "The site returned an HTTP status outside this frozen report format's representable range. The report withheld the exact code instead of coercing it. Tracker, cookie, and fingerprinting counts come from a failed or incomplete visit, not a positive privacy result; re-scan for a complete load."
+        ? "The site returned an HTTP status outside this frozen report format's representable range. The status field is left empty rather than coerced to a value the site never sent. Tracker, cookie, and fingerprinting counts come from a failed or incomplete visit, not a positive privacy result; re-scan for a complete load."
         : "The scanner's recorded quality facts mark the main-page load as failed or incomplete. Tracker, cookie, and fingerprinting counts from this visit do not support a positive privacy result; re-scan for a complete load.",
       [{ label: "Navigation", value: "Failed", emphasis: true }],
       undefined,

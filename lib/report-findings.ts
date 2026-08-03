@@ -1561,7 +1561,7 @@ export function buildFindings(
       level: "info",
       title: `Bottom line: ${run.domain}'s main page did not complete a trustworthy load`,
       lead: statusUnrepresentable
-        ? "The site returned an HTTP status outside this frozen report format's representable range. The exact code is withheld instead of being coerced, and the navigation is recorded as failed."
+        ? "The site returned an HTTP status outside this frozen report format's representable range. The status field is left empty rather than coerced to a value the site never sent, and the navigation is recorded as failed."
         : "The scanner's recorded quality facts mark the main-page load as failed or incomplete.",
       detail:
         "Tracker, cookie, storage, and fingerprinting counts here are evidence retained from an incomplete visit, not a positive privacy conclusion. Re-scan when the page can complete a trustworthy load; the request log and methodology below still show what was observed.",

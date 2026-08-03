@@ -277,6 +277,11 @@ const PIXEL_PRODUCTS = {
 const FIXED_SCANNER_WARNINGS = new Set([
   "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
   "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+  // scanner-warning-patterns-v8 wording: the probe may dispatch several clicks
+  // on candidate controls while seeking that one choice, so "one scripted
+  // choice" overclaimed restraint the producer does not have. The older
+  // sentence above stays admitted for the reports that carry it.
+  "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except scripted attempts to activate one choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
   "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
   "Counts are a lower bound: trackers that load only after further interaction are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
   // Historical pre-worker-block wording remains safe producer vocabulary for
@@ -372,7 +377,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
     chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
     fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
     warningLabels: [...COMPARISON_WARNING_LABELS].sort(),
-    dynamicWarningPatterns: "scanner-warning-patterns-v7",
+    dynamicWarningPatterns: "scanner-warning-patterns-v8",
     cmpSelectors: CONSENT_CMP_SELECTORS,
     consentShadowHosts: CONSENT_SHADOW_HOSTS,
     consentTextPatterns: Object.fromEntries(
@@ -1162,7 +1167,11 @@ function isScannerWarning(warning: string): boolean {
     return isScannerWarning(warning.slice(prefixEnd + 2));
   }
 
-  if (/^The page returned HTTP [1-5][0-9]{2}; this report reflects an error or block page, not a normal load\.$/.test(warning)) {
+  // The full three-digit grammar isHttpStatus already accepts (100..999):
+  // LinkedIn answers 999 and several WAFs answer other out-of-band codes, and
+  // an admitted vocabulary narrower than the producer's replaced the honest
+  // status disclosure with "[redacted warning]" for exactly those refusals.
+  if (/^The page returned HTTP [1-9][0-9]{2}; this report reflects an error or block page, not a normal load\.$/.test(warning)) {
     return true;
   }
   if (/^The scan stopped recording or loading additional requests after [0-9]+ requests\.$/.test(warning)) {

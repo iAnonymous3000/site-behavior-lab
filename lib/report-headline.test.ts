@@ -956,7 +956,10 @@ test("a failed r2 navigation with an unrepresentable status cannot produce a pos
   assert.equal(headline.tone, "info");
   assert.match(headline.headline, /main page did not complete a trustworthy load/);
   assert.match(headline.subhead, /outside this frozen report format's representable range/);
-  assert.match(headline.subhead, /withheld the exact code instead of coercing it/);
+  // Same rule as the findings pin: no deliberate-withholding claim; the field
+  // is empty because the wire cannot represent the code, nothing more.
+  assert.match(headline.subhead, /status field is left empty rather than coerced/);
+  assert.doesNotMatch(headline.subhead, /withheld/);
   assert.match(headline.subhead, /not a positive privacy result/);
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /relatively private|HTTP \d{3}/);
   assert.deepEqual(headline.stats, [{ label: "Navigation", value: "Failed", emphasis: true }]);

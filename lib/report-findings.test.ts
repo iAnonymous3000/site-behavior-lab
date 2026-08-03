@@ -203,7 +203,11 @@ test("a failed r2 navigation with an unrepresentable status leads with incomplet
   assert.equal(bottomLine.level, "info");
   assert.match(bottomLine.title, /main page did not complete a trustworthy load/);
   assert.match(bottomLine.lead, /outside this frozen report format's representable range/);
-  assert.match(bottomLine.lead, /exact code is withheld instead of being coerced/);
+  // The copy must not claim the code was deliberately withheld: post
+  // scanner-warning-patterns-v8 the exact code survives in the scan warnings,
+  // and older r2 reports lost it to redaction rather than to a choice.
+  assert.match(bottomLine.lead, /status field is left empty rather than coerced/);
+  assert.doesNotMatch(bottomLine.lead, /withheld/);
   assert.match(bottomLine.detail, /incomplete visit, not a positive privacy conclusion/);
   assert.doesNotMatch(`${bottomLine.title} ${bottomLine.lead}`, /few review signals|HTTP \d{3}/);
   assert.equal(byId(findings, "third-party-services").level, "info");
