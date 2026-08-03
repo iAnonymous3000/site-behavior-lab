@@ -112,6 +112,7 @@
   },
   "overrides": {
     "brace-expansion": "5.0.9",
+    "undici": "7.29.0",
     "postcss": "8.5.25",
     "sharp": "0.35.3"
   },
