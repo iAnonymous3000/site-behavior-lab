@@ -409,7 +409,7 @@ const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title
   {
     value: "provenance",
     label: "Provenance",
-    title: "Requests with a recorded causal chain: which script triggered them, and what injected that script."
+    title: "Requests whose recorded provenance can be shown: the initiator, script, or injecting actor the request is attributed to."
   }
 ];
 
@@ -522,7 +522,23 @@ function TopThirdParties({ facts }: { facts: RunFacts }) {
     <div className="domain-stack">
       {top.map((domain) => {
         const identity = facts.identity.hosts.find((entry) => entry.host === domain.domain);
-        const names = Array.from(new Set(identity?.namers.map((namer) => namer.name) ?? []));
+        // A framework-endpoint namer (a shared IAB TCF host) names the standard,
+        // not the operator that ran it, so it must not render as "operator
+        // identified"; the platform behind such a host stays unnamed.
+        const operatorNames = Array.from(
+          new Set(
+            (identity?.namers ?? [])
+              .filter((namer) => namer.kind !== "framework-endpoint")
+              .map((namer) => namer.name)
+          )
+        );
+        const frameworkNames = Array.from(
+          new Set(
+            (identity?.namers ?? [])
+              .filter((namer) => namer.kind === "framework-endpoint")
+              .map((namer) => namer.name)
+          )
+        );
         const catalogMatch = identifiedHostCatalogMatchLabel(identity);
         return (
           <div className="domain-chip" key={domain.domain}>
@@ -531,9 +547,11 @@ function TopThirdParties({ facts }: { facts: RunFacts }) {
               <span className="chip-sub">
                 {catalogMatch
                   ? catalogMatch
-                  : names.length > 0
-                    ? `${names.join(", ")} · operator identified; no tracking-service classification`
-                    : "operator unidentified"}
+                  : operatorNames.length > 0
+                    ? `${operatorNames.join(", ")} · operator identified; no tracking-service classification`
+                    : frameworkNames.length > 0
+                      ? `${frameworkNames.join(", ")} · shared consent framework endpoint; operator not identified`
+                      : "operator unidentified"}
               </span>
             </div>
             <span className="count-pill">{domain.requests.toLocaleString("en-US")}</span>

@@ -596,8 +596,46 @@ test("the scheduled fidelity workflow handles one-off manual runs and pins attem
   );
   assert.match(workflow, /shard: \[0, 1\]/);
   assert.match(workflow, /SCANNER_FIDELITY_SHARD_COUNT: "2"/);
-  assert.match(workflow, /SCANNER_FIDELITY_MODE: \$\{\{ inputs\.mode \|\| 'single' \}\}/);
+  assert.match(workflow, /SCANNER_FIDELITY_MODE: \$\{\{ matrix\.mode \}\}/);
   assert.match(workflow, /SCANNER_FIDELITY_DEVICE: \$\{\{ inputs\.device \|\| 'desktop' \}\}/);
+
+  // The schedule leg passes no inputs, so scheduled coverage is exactly the
+  // fallback arm of the mode matrix. Pin every scan shape there: the
+  // comparison modes (shields, gpc, consent) caught the worst reader-facing
+  // defects when dispatched by hand, and dropping one from the matrix would
+  // silently return it to manual-only coverage.
+  assert.match(workflow, /\bschedule:\n\s+- cron: "35 4 \* \* \*"/);
+  assert.match(workflow, /fail-fast: false/);
+  const modeMatrix = workflow.match(
+    /mode: \$\{\{ inputs\.mode && fromJSON\(format\('\["\{0\}"\]', inputs\.mode\)\) \|\| fromJSON\('(\[[^']*\])'\) \}\}/
+  );
+  assert.ok(modeMatrix, "the mode matrix must honor a dispatch and fan out on the schedule");
+  const scheduledModes = JSON.parse(modeMatrix[1]) as string[];
+  assert.deepEqual(scheduledModes, ["single", "shields", "gpc", "consent"]);
+  // The matrix restates the harness's mode vocabulary, so tie the two
+  // declarations together instead of trusting them to agree.
+  const smoke = readFileSync(
+    path.join(process.cwd(), "scripts", "smoke-scanner-fidelity.mjs"),
+    "utf8"
+  );
+  const harnessModes = smoke.match(/const MODES = new Set\((\[[^\]]*\])\);/);
+  assert.ok(harnessModes, "the harness must declare its accepted modes");
+  assert.deepEqual(scheduledModes, JSON.parse(harnessModes[1]));
+  // A manual dispatch of any scheduled mode must remain expressible.
+  const modeInput = workflow.slice(workflow.indexOf("      mode:"), workflow.indexOf("      device:"));
+  for (const mode of scheduledModes) {
+    assert.match(modeInput, new RegExp(`- ${mode}\\n`));
+  }
+  // Eight matrix jobs upload eight ledgers; a shard-only artifact name would
+  // collide across modes and fail every upload after the first.
+  assert.match(
+    workflow,
+    /name: scanner-fidelity-attempts-\$\{\{ matrix\.mode \}\}-\$\{\{ matrix\.shard \}\}/
+  );
+  assert.match(
+    workflow,
+    /SCANNER_FIDELITY_OUTPUT: \$\{\{ runner\.temp \}\}\/scanner-fidelity-attempts-\$\{\{ matrix\.mode \}\}-\$\{\{ matrix\.shard \}\}\.json/
+  );
   assert.match(workflow, /SCANNER_FIDELITY_REPETITIONS: \$\{\{ inputs\.repetitions \|\| '2' \}\}/);
   assert.match(
     workflow,

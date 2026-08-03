@@ -56,13 +56,19 @@ concurrency:
 
 jobs:
   fidelity:
-    name: Scan real sites and assert scanner invariants (shard ${{ matrix.shard }})
+    name: Scan real sites and assert scanner invariants (${{ matrix.mode }}, shard ${{ matrix.shard }})
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         shard: [0, 1]
+        # A manual dispatch runs exactly the requested scan shape. The
+        # scheduled leg passes no inputs, so it fans out across all four modes
+        # in parallel; the comparison shapes (shields, gpc, consent) have
+        # caught the worst reader-facing defects when run by hand and must not
+        # depend on someone remembering to dispatch them.
+        mode: ${{ inputs.mode && fromJSON(format('["{0}"]', inputs.mode)) || fromJSON('["single", "shields", "gpc", "consent"]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -128,21 +134,21 @@ jobs:
           # Keep the repeatability path live without pretending a target is
           # stable: both runs must independently be invariant-clean and
           # request-complete before they enter the denominator.
-          SCANNER_FIDELITY_MODE: ${{ inputs.mode || 'single' }}
+          SCANNER_FIDELITY_MODE: ${{ matrix.mode }}
           SCANNER_FIDELITY_DEVICE: ${{ inputs.device || 'desktop' }}
           SCANNER_FIDELITY_REPETITIONS: ${{ inputs.repetitions || '2' }}
           # A deliberate one-repetition manual smoke has no repeatability
           # denominator; scheduled/default runs require at least one target.
           SCANNER_FIDELITY_MIN_REPEATABLE_TARGETS: ${{ inputs.repetitions == '1' && '0' || '1' }}
-          SCANNER_FIDELITY_OUTPUT: ${{ runner.temp }}/scanner-fidelity-attempts-${{ matrix.shard }}.json
+          SCANNER_FIDELITY_OUTPUT: ${{ runner.temp }}/scanner-fidelity-attempts-${{ matrix.mode }}-${{ matrix.shard }}.json
           SITE_BEHAVIOR_LAB_BUILD_COMMIT: ${{ github.sha }}
 
       - name: Upload the complete attempted-run ledger
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: scanner-fidelity-attempts-${{ matrix.shard }}
-          path: ${{ runner.temp }}/scanner-fidelity-attempts-${{ matrix.shard }}.json
+          name: scanner-fidelity-attempts-${{ matrix.mode }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/scanner-fidelity-attempts-${{ matrix.mode }}-${{ matrix.shard }}.json
           if-no-files-found: warn
           retention-days: 14
 

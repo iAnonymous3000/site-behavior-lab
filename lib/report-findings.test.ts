@@ -985,6 +985,41 @@ test("a one-sided consent pair reports activation, not clickability, and admits 
   assert.match(mirrored.title, /Only the Reject all control's activation was recorded/);
 });
 
+test("a both-arms-unactivated pair names the unconfirmed dispatch alongside the region and catalog causes", () => {
+  // Both arms carry the same `clicked: false` record the one-sided branch
+  // hedges: it also covers a click the scanner dispatched on a candidate that
+  // never visibly responded. A causal enumeration that stops at region gating
+  // and catalog coverage states as fact that no click was dispatched, which
+  // this pair of visits did not establish.
+  const acceptRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 21 }),
+    consentInteraction: { mode: "accept-all" as const, clicked: false }
+  };
+  const rejectRun = {
+    ...makeResult({ firstPartyDomain: "shop.example", thirdPartyRequests: 19 }),
+    consentInteraction: { mode: "reject-all" as const, clicked: false }
+  };
+  const unconfirmedDispatch =
+    /a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window/;
+
+  const card = byId(buildFindings(viewFromV1Report(consentPair(acceptRun, rejectRun)), null), "consent-comparison");
+  assert.match(card.title, /No consent control activation was recorded/);
+  assert.match(card.detail, unconfirmedDispatch);
+
+  // The same sentence, in the same vocabulary, as the one-sided branch: the
+  // two enumerations describe one wire record and may not drift apart.
+  const oneSided = byId(
+    buildFindings(
+      viewFromV1Report(
+        consentPair({ ...acceptRun, consentInteraction: { mode: "accept-all" as const, clicked: true } }, rejectRun)
+      ),
+      null
+    ),
+    "consent-comparison"
+  );
+  assert.match(oneSided.detail, unconfirmedDispatch);
+});
+
 test("a clean consent pair earns an ok card only when both registered choices are verified", () => {
   const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
   const card = byId(buildFindings(view, null), "consent-comparison");
@@ -2595,5 +2630,20 @@ test("the causal map names each provenance actor with the request log's own word
     graph,
     /\bcaused\b/,
     "PageGraph provenance attributes a request to an actor, it does not establish that the actor caused it"
+  );
+});
+
+test("the provenance chip claims recorded attribution, not a causal chain", () => {
+  // The chip's filter matches only rows requestProvenanceSummary can display,
+  // and the causal map describes the same records as attribution ("which
+  // recorded actor each third-party request is attributed to"). A title
+  // asserting a recorded causal chain and a script that triggered the request
+  // overclaims both: PageGraph provenance records reachability, and the
+  // recorded actor is often an initiator or injector, not a script.
+  const tables = readFileSync(path.join(process.cwd(), "app", "_components", "report-tables.tsx"), "utf8");
+  assert.doesNotMatch(tables, /recorded causal chain|which script triggered/);
+  assert.match(
+    tables,
+    /Requests whose recorded provenance can be shown: the initiator, script, or injecting actor the request is attributed to\./
   );
 });

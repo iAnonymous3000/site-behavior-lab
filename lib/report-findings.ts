@@ -205,13 +205,6 @@ function strongestLevel(levels: FindingLevel[]): FindingLevel {
 const GOOGLE_ANALYTICS_HOST = /(^|\.)(google-analytics\.com|googletagmanager\.com|analytics\.google\.com)$/;
 const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 
-// The one CMP signature that names a framework rather than an operator: hosts
-// under consensu.org are the IAB Transparency and Consent Framework's shared
-// endpoint, served for many registered platforms. A request there shows consent
-// tooling loaded but leaves the platform that ran unnamed, so the card may not
-// present the acronym as the vendor the way a cookielaw.org request names one.
-const IAB_TCF_FRAMEWORK_HOST = /(^|\.)consensu\.org$/;
-
 /** Appended to any absence claim whose evidence family was censored. */
 const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
 
@@ -567,7 +560,10 @@ export function buildFindings(
     const answeredPreConsentTrackers = trackingEntities.filter((entity) => respondedEntities.has(entity.entity)).length;
     // A framework endpoint identifies the tooling standard, not the vendor that
     // ran it, so it may not be printed in the slot a named platform occupies.
-    const frameworkEndpoint = IAB_TCF_FRAMEWORK_HOST.test(consentPlatform.domain);
+    // The catalog's kind is the single source: a host regex here disagreed
+    // with the catalog on non-normalized uploaded bytes (mixed case, trailing
+    // dot), naming IAB TCF in the vendor slot for exactly those reports.
+    const frameworkEndpoint = consentPlatform.kind === "framework-endpoint";
     const consentPlatformPhrase = frameworkEndpoint
       ? `${consentPlatform.name}, a consent framework endpoint shared by many consent management platforms (the tooling that shows cookie banners) rather than one named platform`
       : `${consentPlatform.name}, a consent management platform (the tooling that shows cookie banners)`;
@@ -1871,7 +1867,7 @@ function buildConsentComparisonFinding(
       title: "No consent control activation was recorded in either visit",
       lead: "Neither visit recorded a control activation, so neither can be shown to reflect the choice it attempted, and this diff mostly shows run-to-run variance.",
       detail:
-        "Many consent banners are only shown to visitors in regions where the law requires them (the EEA, UK, or California), so this scanner's location may simply not be served one; a banner may also use controls this scanner's catalog does not recognize. No claim about the site's consent behavior can be made from this pair of visits.",
+        "Many consent banners are only shown to visitors in regions where the law requires them (the EEA, UK, or California), so this scanner's location may simply not be served one; a banner may also use controls this scanner's catalog does not recognize, or a click may have been dispatched on a candidate that showed no observable reaction within the scanner's confirmation window. No claim about the site's consent behavior can be made from this pair of visits.",
       evidence
     };
   }
