@@ -48,6 +48,14 @@ updates:
       docker-compatible:
         patterns: ["*"]
         update-types: ["minor", "patch"]
+    # The Playwright container base is the docker half of the same measurement
+    # pin excluded from the npm group above: toolchain-provenance ties the
+    # Dockerfile tag and digest to the npm playwright version, and both are
+    # part of the recorded methodology identity, so the guards refuse a solo
+    # base-image bump by design (#61, #72). It moves only through the
+    # coordinated toolchain process tracked by the weekly drift issue.
+    ignore:
+      - dependency-name: "mcr.microsoft.com/playwright"
 
   - package-ecosystem: "github-actions"
     directory: "/"
