@@ -74,6 +74,47 @@ test("a stranded reservation expires with the admission window that held it", ()
   });
 });
 
+test("a stale release from an expired reservation cannot free a successor's live slot", () => {
+  withDatabase((sql) => {
+    // The release runs in a finally that also covers the aborted-deadline path,
+    // so it can land after its own row expired, was purged, and was replaced.
+    // Deleting by capability alone freed the successor's live reservation and
+    // let a third replay buy a second concurrent preparation, which is the one
+    // bound this module exists to hold.
+    const stale = reserveDurablePreparation(sql, capability(1), NOW, NOW + WINDOW_MS);
+    assert.deepEqual(stale, { status: "reserved", expiresAt: NOW + WINDOW_MS });
+
+    const successorNow = NOW + WINDOW_MS + 1;
+    const successor = reserveDurablePreparation(sql, capability(1), successorNow, successorNow + WINDOW_MS);
+    assert.deepEqual(successor, { status: "reserved", expiresAt: successorNow + WINDOW_MS });
+    assert.equal(countDurablePreparations(sql), 1);
+
+    releaseDurablePreparation(sql, capability(1), NOW + WINDOW_MS);
+    assert.equal(countDurablePreparations(sql), 1);
+
+    // The successor still holds the slot, so a third replay is still refused.
+    assert.equal(
+      reserveDurablePreparation(sql, capability(1), successorNow + 1, successorNow + 1 + WINDOW_MS).status,
+      "in-flight"
+    );
+
+    // Naming its own reservation, the holder still frees the slot at once.
+    releaseDurablePreparation(sql, capability(1), successorNow + WINDOW_MS);
+    assert.equal(countDurablePreparations(sql), 0);
+  });
+});
+
+test("a release that names a malformed expiry is a loud programmer error, not a silent purge", () => {
+  withDatabase((sql) => {
+    reserveDurablePreparation(sql, capability(1), NOW, NOW + WINDOW_MS);
+    assert.throws(
+      () => releaseDurablePreparation(sql, capability(1), Number.NaN),
+      DurablePreparationReservationValidationError
+    );
+    assert.equal(countDurablePreparations(sql), 1);
+  });
+});
+
 test("a clock disagreement is bounded or retried, never answered with a server error", () => {
   withDatabase((sql) => {
     // The deadline is stamped on the edge clock and read on this one. A DO

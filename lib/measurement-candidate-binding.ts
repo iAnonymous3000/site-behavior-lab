@@ -849,6 +849,24 @@ function manifestRequiresCalibrationStudies(rootDir: string): boolean {
   }
 }
 
+/**
+ * Fail-closed manifest read for the default A/A measurement-input floor. The
+ * readiness lane drops the A/A evidence categories through the same single
+ * deferral predicate, so a candidate whose A/A gate is deferred with an
+ * explicit target release must not be required to bind A/A inputs here. Any
+ * A/A inputs that are bound stay fully verified.
+ */
+function manifestRequiresAaStudyInputs(rootDir: string): boolean {
+  try {
+    const manifest = JSON.parse(
+      readFileSync(path.join(rootDir, "RELEASE_READINESS.json"), "utf8")
+    );
+    return measurementGateKindRequired(manifest, "aa-study");
+  } catch {
+    return true;
+  }
+}
+
 export function inspectMeasurementCandidateBinding(
   rootDir: string = process.cwd(),
   options: Omit<MeasurementCandidateBindingOptions, "attestationVerifier"> = {}
@@ -1494,7 +1512,8 @@ function parseBindingFiles(
     rootDir,
     candidateCommit,
     requiredRecord(binding.measurementInputs, "measurementInputs"),
-    verifyCandidateFinalization
+    verifyCandidateFinalization,
+    manifestRequiresAaStudyInputs(rootDir)
   );
   const measurementInputByPath = new Map(
     measurementInputs.inputs.map((entry) => [entry.path, entry.sha256] as const)
@@ -2521,7 +2540,8 @@ function verifyMeasurementCandidateInputs(
   rootDir: string,
   candidateCommit: string,
   binding: JsonRecord,
-  verifyCandidateBlobs: boolean
+  verifyCandidateBlobs: boolean,
+  requireAaStudyInputs: boolean = true
 ): {
   manifestPath: typeof MEASUREMENT_CANDIDATE_INPUTS_PATH;
   manifestSha256: string;
@@ -2647,7 +2667,7 @@ function verifyMeasurementCandidateInputs(
     aaInputs.set(match[1], kinds);
   }
   requireValue(
-    aaInputs.size > 0 &&
+    (!requireAaStudyInputs || aaInputs.size > 0) &&
       [...aaInputs.values()].every(
         (kinds) =>
           kinds.has("preregistration") && kinds.has("target-frame")
@@ -4323,6 +4343,17 @@ function verifyCalibrationLabelsManifest(
       source.path === identity.sourcePath &&
       source.sha256 === identity.sourceSha256,
     `${label} labels manifest source must exactly match the signed coordinate-manifest commit, tree, path, and digest`
+  );
+  // Both artifacts only echo the coordinate manifest's digest. Join that
+  // digest to bytes this verifier actually read: the carrier must enumerate
+  // the canonical coordinate manifest as append-only evidence, and the
+  // evidence loop has already digested that path from disk.
+  const coordinateManifestPath = `${identity.sourcePath}/sources.json`;
+  const coordinateEvidence = enumeratedPaths.get(coordinateManifestPath);
+  requireValue(
+    coordinateEvidence !== undefined &&
+      coordinateEvidence.sha256 === identity.sourceSha256,
+    `${label} must enumerate ${coordinateManifestPath} as evidence whose digest equals the signed coordinate-manifest digest`
   );
   const manifestLabelSealingKey = calibrationLabelSealingKeyDescriptor(
     manifest.labelSealingKey,

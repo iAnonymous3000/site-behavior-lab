@@ -194,9 +194,11 @@ import {
   readDurableScanJobInternalResponseJson
 } from "../lib/durable-scan-job-internal-response";
 import {
+  EdgeHealthOperationTimeoutError,
   parseEdgeHealthResponseText,
   readEdgeHealthResponseText,
-  withEdgeHealthDeadline
+  withEdgeHealthDeadline,
+  type EdgeContainerHealth
 } from "../lib/edge-health-response";
 import {
   AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE,
@@ -398,7 +400,7 @@ type DurableScanJobCancellationResult =
       snapshot: DurableScanJobSnapshot;
       abortGeneration: number | null;
     }
-  | { status: "conflict" };
+  | { status: "conflict"; publishing: boolean };
 
 type DurableScanJobAdmissionResult =
   | {
@@ -510,6 +512,20 @@ class ScanAdmissionConflictGateError extends EdgeScanGateError {
   constructor() {
     super("This scan-admission capability is already bound to a different request.", 409);
     this.name = "ScanAdmissionConflictGateError";
+  }
+}
+
+/**
+ * The health body the container served could not be read against the shared
+ * contract. This is the only place in the repo that observes such a violation,
+ * and it is not established to be transient: a shape mismatch between a
+ * deployed container and this parser persists until code changes. Name the
+ * family so the 503 stops publishing it as a temporary outage.
+ */
+class EdgeHealthContractError extends Error {
+  constructor(cause: unknown) {
+    super("The scanner health response could not be read against the shared contract.", { cause });
+    this.name = "EdgeHealthContractError";
   }
 }
 
@@ -1240,7 +1256,11 @@ export class ScannerContainer extends Container<Env> {
         };
       });
     } catch (error) {
-      if (error instanceof DurableScanJobStateError) return { status: "conflict" };
+      if (error instanceof DurableScanJobStateError) {
+        // Publishing is not a finished job: reconciliation can still make it
+        // succeeded, failed, or expired. Carry that distinction to the edge.
+        return { status: "conflict", publishing: error.currentState === "publishing" };
+      }
       throw error;
     }
     this.rearmDurablePumpAfterCommittedMutation("cancellation");
@@ -3798,7 +3818,7 @@ async function handleDurableScanJobRequest(
   if (request.method === "DELETE") {
     try {
       const cancelled = await scanner.cancelDurableJob(jobId);
-      if (cancelled.status === "conflict") return publicJobConflictResponse(request, env);
+      if (cancelled.status === "conflict") return publicJobConflictResponse(request, env, cancelled.publishing);
       return durableScanJobCancellationResponse(cancelled.snapshot, source);
     } catch (error) {
       console.error("Could not cancel an authoritative durable scan job.", error);
@@ -4308,9 +4328,18 @@ function durableUnavailableResponse(request: Request, env: Env): Response {
   });
 }
 
-function publicJobConflictResponse(request: Request, env: Env): Response {
+function publicJobConflictResponse(request: Request, env: Env, publishing: boolean): Response {
   return new Response(
-    JSON.stringify({ ok: false, error: "This scan job has already finished and cannot be cancelled." }),
+    JSON.stringify({
+      ok: false,
+      // A publishing job is still running to the status poll and can still
+      // terminalize as succeeded, failed, or expired, so it must not be
+      // reported as finished. The wording matches the Phase-1 path in
+      // lib/scan-jobs.ts so both halves of this endpoint say the same thing.
+      error: publishing
+        ? "This scan report is already being saved and can no longer be cancelled."
+        : "This scan job has already finished and cannot be cancelled."
+    }),
     {
       status: 409,
       headers: {
@@ -4562,7 +4591,12 @@ async function handleContainerHealthRequest(request: Request, env: Env): Promise
       },
       { signal: request.signal }
     );
-  } catch {
+  } catch (error) {
+    // One fixed body for every fault left the operator with no recorded cause
+    // and asserted transience the catch never established. Record the cause,
+    // and reserve the temporary wording for the deadline this Worker imposes.
+    const contract = error instanceof EdgeHealthContractError;
+    console.error("Scanner health overlay failed.", contract ? (error.cause ?? error) : error);
     const headers = new Headers(
       scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN)
     );
@@ -4573,7 +4607,14 @@ async function handleContainerHealthRequest(request: Request, env: Env): Promise
         ok: false,
         status: "error",
         scansAvailable: false,
-        error: "Scanner health is temporarily unavailable."
+        reason: contract
+          ? "health-contract"
+          : error instanceof EdgeHealthOperationTimeoutError
+            ? "timeout"
+            : "unavailable",
+        error: contract
+          ? "Scanner health could not be read. The scanner returned a health response this deployment cannot interpret."
+          : "Scanner health is temporarily unavailable."
       },
       { status: 503, headers }
     );
@@ -4582,8 +4623,15 @@ async function handleContainerHealthRequest(request: Request, env: Env): Promise
 
 /** Overlay the front Worker's gate decision (auth / open access / Turnstile) onto the container health. */
 async function patchHealthResponse(response: Response, env: Env, signal?: AbortSignal): Promise<Response> {
-  const text = await readEdgeHealthResponseText(response, signal);
-  const health = parseEdgeHealthResponseText(text);
+  let health: EdgeContainerHealth;
+  try {
+    health = parseEdgeHealthResponseText(await readEdgeHealthResponseText(response, signal));
+  } catch (error) {
+    // The operation deadline and a caller abort classify themselves. Anything
+    // else here is the container's body failing the shared health contract.
+    if (error instanceof EdgeHealthOperationTimeoutError || signal?.aborted) throw error;
+    throw new EdgeHealthContractError(error);
+  }
       const gate = publicScanGateStatus({
         accessToken: env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN,
         allowUnauthenticated: env.SITE_BEHAVIOR_LAB_ALLOW_UNAUTHENTICATED_SCANS,

@@ -2538,3 +2538,70 @@ test("bound corpus derivation collapses two cycles for one site to the newest re
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test("a runner receipt that fails to parse cannot rename another receipt's carrier failure", async () => {
+  const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
+  const runnerReceiptLib = await script("runner-receipt-lib.mjs");
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-runner-attribution-"));
+  try {
+    mkdirSync(path.join(root, "research", "runner-receipts"), { recursive: true });
+    // Sorts ahead of both valid receipts and throws in the canonical parse, so
+    // the parsed receipts and the enumerated file names can fall out of step.
+    writeFileSync(
+      path.join(root, "research", "runner-receipts", "0-noncanonical.json"),
+      `${JSON.stringify(runnerReceipt(1), null, 2)}\n`
+    );
+    for (const runId of [1, 2]) {
+      writeFileSync(
+        path.join(root, "research", "runner-receipts", `${runId}.json`),
+        runnerReceiptLib.serializeRunnerDestructionReceipt(runnerReceipt(runId))
+      );
+    }
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        artifactKind: "site-behavior-release-readiness-manifest",
+        targetRelease: "1.0.0",
+        gates: {
+          "measurement-candidate-binding": {
+            kind: "measurement-candidate-binding",
+            title: "binding",
+            artifact: "research/measurement-candidate-binding.json"
+          },
+          "runner-cycles": {
+            kind: "runner-receipts",
+            title: "runner",
+            directory: "research/runner-receipts",
+            minimumReceipts: 2,
+            expectedEnvironmentDigest: "0".repeat(64),
+            maxAgeDays: 30
+          }
+        }
+      })
+    );
+    const gate = evaluateReleaseReadiness(root, NOW).gates.find(
+      (entry: { id: string }) => entry.id === "runner-cycles"
+    )! as { status: string; reasons: string[] };
+    assert.equal(gate.status, "fail");
+    // Every carrier reason names the file whose receipt was actually checked,
+    // and both parsed receipts get named.
+    const carrierSubjects = [
+      ...new Set(
+        gate.reasons
+          .filter((reason) => reason.includes("accepted measurement carrier commit"))
+          .map((reason) => reason.split(" ")[0])
+      )
+    ].sort();
+    assert.deepEqual(carrierSubjects, [
+      "research/runner-receipts/1.json",
+      "research/runner-receipts/2.json"
+    ]);
+    // The unparseable file is reported for the one defect it has, nothing else.
+    const noncanonical = gate.reasons.filter((reason) => reason.includes("0-noncanonical"));
+    assert.equal(noncanonical.length, 1);
+    assert.match(noncanonical[0], /canonical receipt serialization/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

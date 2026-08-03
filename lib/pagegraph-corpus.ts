@@ -33,8 +33,10 @@ import {
  *
  * Node-removal closure semantics: blocking a resource removes the script that
  * the resource delivered (the derived `script_of` relation pairs a script node
- * with the resource node sharing its URL, because PageGraph attributes
- * execution to the injector rather than the resource), and everything those
+ * with the resource node sharing its URL, or, when the script node carries no
+ * URL as in real captures, with the script resource requested by the node that
+ * executes it, because PageGraph attributes execution to the injector rather
+ * than the resource), and everything those
  * nodes caused structurally (execute / create node / insert node / request
  * start). Storage writes and JS calls are per-operation facts: they are
  * removed when their acting script is removed, but their target nodes (the
@@ -270,7 +272,9 @@ export function buildCorpusFacts(graphml: string, options: CorpusFactsOptions): 
     }
   }
   // script_of: PageGraph attributes execution to the injector, so the script
-  // node delivered by a blocked resource is linked to it by URL identity.
+  // node delivered by a blocked resource is linked to it by URL identity when
+  // the script node carries a URL.
+  const scriptOfParents = new Map<string, string>();
   const resourcesByUrl = new Map<string, string>();
   for (const node of nodes) {
     if (node.nodeType === "resource" && node.url) resourcesByUrl.set(node.url, node.nodeId);
@@ -278,14 +282,43 @@ export function buildCorpusFacts(graphml: string, options: CorpusFactsOptions): 
   for (const node of nodes) {
     if (node.nodeType !== "script" || !node.url) continue;
     const resourceNodeId = resourcesByUrl.get(node.url);
-    if (resourceNodeId && resourceNodeId !== node.nodeId) {
-      provenanceEdges.push({
-        pageId: options.pageId,
-        childNodeId: node.nodeId,
-        parentNodeId: resourceNodeId,
-        relation: "script_of"
-      });
-    }
+    if (resourceNodeId && resourceNodeId !== node.nodeId) scriptOfParents.set(node.nodeId, resourceNodeId);
+  }
+  // Real captures leave the script node's url empty (the URL lives on the
+  // resource node), so URL identity alone finds nothing there. The delivering
+  // resource is then found structurally: the node that executes the script is
+  // the same node that requested the script resource
+  // (script <- execute <- element -> request start -> resource).
+  const scriptResourcesByRequester = new Map<string, string[]>();
+  for (const record of edgeRecords) {
+    if (field(record, "edge type") !== "request start") continue;
+    const resource = record.target ? recordsById.get(record.target) : undefined;
+    if (!record.source || !resource || field(resource, "node type") !== "resource") continue;
+    const startType = field(record, "resource type") ?? field(record, "request type");
+    if (!startType || normalizePageGraphResourceType(startType) !== "script") continue;
+    const requested = scriptResourcesByRequester.get(record.source);
+    if (requested) requested.push(resource.id);
+    else scriptResourcesByRequester.set(record.source, [resource.id]);
+  }
+  for (const record of edgeRecords) {
+    if (field(record, "edge type") !== "execute") continue;
+    const script = record.target ? recordsById.get(record.target) : undefined;
+    if (!record.source || !script || field(script, "node type") !== "script") continue;
+    if (scriptOfParents.has(script.id)) continue;
+    // Inline scripts are not delivered by a network resource.
+    if ((field(script, "script type") ?? "").startsWith("inline")) continue;
+    const requested = scriptResourcesByRequester.get(record.source);
+    // Only an unambiguous single script request is attributed to the script.
+    if (!requested || requested.length !== 1 || requested[0] === script.id) continue;
+    scriptOfParents.set(script.id, requested[0]);
+  }
+  for (const [childNodeId, parentNodeId] of scriptOfParents) {
+    provenanceEdges.push({
+      pageId: options.pageId,
+      childNodeId,
+      parentNodeId,
+      relation: "script_of"
+    });
   }
 
   const nodesById = new Map(nodes.map((node) => [node.nodeId, node]));

@@ -91,17 +91,26 @@ export function createShieldsComparisonReport(
 }
 
 /**
- * The consent comparison title the recorded dispatch facts support: only a
- * pair whose accept AND reject clicks really dispatched is an accept/reject
- * comparison; anything else is an attempt, named for what was missed. Shared
- * with the view layer, which rewrites the legacy stored title the same way.
+ * The consent comparison title the recorded facts support: only a pair whose
+ * accept AND reject controls were activated (found, clicked, and visibly
+ * reacting) is an accept/reject comparison; anything else is an attempt, named
+ * for what was missed. Shared with the view layer, which rewrites the legacy
+ * stored title the same way.
+ *
+ * The vocabulary is activation, never clicking, because the frozen v1 wire
+ * carries one boolean: `clicked` is false both for a search that found no
+ * control and for a click that dispatched and never visibly responded (the
+ * scanner records "dispatch-unconfirmed" and warns that the visit's traffic may
+ * post-date that click). Titling the second case "no banner clicked" published
+ * a report whose own warning contradicted its name, so this says only what the
+ * boolean supports: no control was seen to activate.
  */
-export function consentComparisonTitle(dispatch: { baseline: boolean; variant: boolean }): string {
-  if (dispatch.baseline && dispatch.variant) return "Consent accept/reject comparison";
-  if (!dispatch.baseline && !dispatch.variant) return "Consent comparison attempt (no banner clicked)";
-  return dispatch.baseline
-    ? "Consent comparison attempt (only Accept all clicked)"
-    : "Consent comparison attempt (only Reject all clicked)";
+export function consentComparisonTitle(activated: { baseline: boolean; variant: boolean }): string {
+  if (activated.baseline && activated.variant) return "Consent accept/reject comparison";
+  if (!activated.baseline && !activated.variant) return "Consent comparison attempt (no control activated)";
+  return activated.baseline
+    ? "Consent comparison attempt (only Accept all activated)"
+    : "Consent comparison attempt (only Reject all activated)";
 }
 
 export function createConsentComparisonReport(
@@ -111,21 +120,23 @@ export function createConsentComparisonReport(
 ): ComparisonScanResult {
   // Baseline = the accept-all run (the maximal, "unprotected" behavior, matching
   // how GPC/Shields comparisons lead with the off run); variant = reject-all.
-  // The title and arm labels come from what each run RECORDED: a visit whose
-  // control was never found is a pre-consent recording, and labeling it
+  // The title and arm labels come from what each run RECORDED: a visit with no
+  // activated control did not demonstrably record a choice, and labeling it
   // "Accept all"/"Reject all" would present run-to-run variance as a
-  // comparison of the two choices. (The view layer applies the same rewrite
-  // to already-stored legacy reports.)
-  const dispatch = {
+  // comparison of the two choices. "attempt" covers both a search that found
+  // nothing and a click that never visibly responded, which the frozen wire
+  // cannot tell apart. (The view layer applies the same rewrite to
+  // already-stored legacy reports.)
+  const activated = {
     baseline: acceptRun.consentInteraction?.clicked === true,
     variant: rejectRun.consentInteraction?.clicked === true
   };
   return createComparisonReport({
     comparisonType: "consent",
-    title: consentComparisonTitle(dispatch),
+    title: consentComparisonTitle(activated),
     runLabels: {
-      baseline: dispatch.baseline ? "Accept-all click" : "Accept-all attempt",
-      variant: dispatch.variant ? "Reject-all click" : "Reject-all attempt"
+      baseline: activated.baseline ? "Accept-all click" : "Accept-all attempt",
+      variant: activated.variant ? "Reject-all click" : "Reject-all attempt"
     },
     baseline: acceptRun,
     variant: rejectRun,

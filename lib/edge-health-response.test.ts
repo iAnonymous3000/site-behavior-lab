@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { test } from "node:test";
 import {
   DurableScanJobInternalResponseInvalidUtf8Error,
@@ -86,4 +88,45 @@ test("edge health accepts only an unambiguous shared health contract", () => {
   assert.throws(() => parseEdgeHealthResponseText('{"ok":true,"status":"error","scansAvailable":false,"checks":{},"capabilities":{},"warnings":[]}'));
   assert.throws(() => parseEdgeHealthResponseText('{"ok":true,"status":"ok","scansAvailable":false,"checks":{},"capabilities":{},"warnings":[]}'));
   assert.throws(() => parseEdgeHealthResponseText('{"ok":true,"ok":false}'));
+});
+
+test("the only caller of these helpers records the fault and stops asserting transience", async () => {
+  const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
+  const marker = (name: string): number => {
+    const index = source.indexOf(name);
+    assert.ok(index >= 0, `cloudflare/container-worker.ts no longer contains ${JSON.stringify(name)}`);
+    return index;
+  };
+  const handler = source.slice(
+    marker("async function handleContainerHealthRequest("),
+    marker("async function patchHealthResponse(")
+  );
+  const overlay = source.slice(
+    marker("async function patchHealthResponse("),
+    marker("export async function durableJobsEdgeHealthCheck(")
+  );
+
+  // A bare catch published seven materially different faults as one unlogged
+  // 503, so the cause reached neither the operator nor the body.
+  assert.doesNotMatch(handler, /\} catch \{/);
+  assert.match(handler, /console\.error\("Scanner health overlay failed\."/);
+
+  // A body this deployment cannot interpret is not established to be temporary,
+  // so only the deadline keeps the temporary wording.
+  assert.match(handler, /const contract = error instanceof EdgeHealthContractError/);
+  assert.match(
+    handler,
+    /reason: contract\s*\n?\s*\? "health-contract"\s*\n?\s*: error instanceof EdgeHealthOperationTimeoutError\s*\n?\s*\? "timeout"\s*\n?\s*: "unavailable"/
+  );
+  assert.match(
+    handler,
+    /error: contract\s*\n?\s*\? "Scanner health could not be read\.[^"]*"\s*\n?\s*: "Scanner health is temporarily unavailable\."/
+  );
+
+  // The contract family can only be named where the read and the parse happen.
+  assert.match(overlay, /throw new EdgeHealthContractError\(error\)/);
+  assert.match(
+    overlay,
+    /if \(error instanceof EdgeHealthOperationTimeoutError \|\| signal\?\.aborted\) throw error/
+  );
 });

@@ -122,6 +122,10 @@ test("deterministic third-party and WASM integrity contracts are blocking gates"
   );
   assert.match(
     supplyChainJob,
+    /- name: Verify third-party review ledger coverage\n\s+id: third_party_review_ledger\n\s+continue-on-error: true\n\s+run: npm run supply-chain:reviews:check/
+  );
+  assert.match(
+    supplyChainJob,
     /status=blocked integrity\/provenance[\s\S]*- name: Verify vendored WASM static integrity contract\n\s+id: wasm_static_integrity\n\s+continue-on-error: true\n\s+run: npm run wasm:verify-reproducibility/
   );
   assert.match(supplyChainJob, /It intentionally does not claim local rebuild byte parity/);
@@ -189,6 +193,7 @@ test("all machine-readable reports upload on failure before outcomes are enforce
   for (const outcome of [
     "NPM_CI_OUTCOME",
     "THIRD_PARTY_OUTCOME",
+    "REVIEW_LEDGER_OUTCOME",
     "WASM_STATIC_INTEGRITY_OUTCOME",
     "NPM_AUDIT_OUTCOME",
     "CARGO_AUDIT_OUTCOME",

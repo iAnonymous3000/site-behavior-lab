@@ -8,6 +8,7 @@ import { BoundedUtf8FileReadError } from "./bounded-utf8-file";
 import { createComparisonReport, createGpcComparisonReport } from "./compare-reports";
 import { buildProvenanceEntry, matchProvenance } from "./redaction-provenance";
 import { REDACTION_VERSION } from "./redaction-v2";
+import { classifyReportStoreFailure } from "./report-store-failure-reason";
 import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
   REPORT_MIN_SURVIVAL_MS_ENV,
@@ -961,6 +962,51 @@ test("delete-only failure leaves durable retention debt, refuses publication, an
   assert.equal((await readStoredScanReportById(recovered.share?.id || "")).outcome, "found");
 });
 
+test("a failed retention delete never leaves prune workers running after the pass rejects", async () => {
+  // The delete fan-out settled on Promise.all, so the first failing worker
+  // rejected the whole pass while its siblings kept marking debt, removing
+  // objects, and clearing debt. The pass had already released the mutation
+  // lock and cleared its whole-operation deadline, so those deletes ran
+  // unsupervised and whatever ran next read a retention ledger holding markers
+  // for bundles whose delete never failed, which is what refuses publication.
+  await mkdir(reportDir, { recursive: true });
+  const retention = {
+    createdAt: "2026-06-01T00:00:00.000Z",
+    expiresAt: "2026-06-08T00:00:00.000Z"
+  };
+  const ids: string[] = [];
+  for (let index = 0; index < 12; index += 1) {
+    const id = `20260601-${index.toString(16).padStart(32, "0")}`;
+    ids.push(id);
+    await writeFile(path.join(reportDir, `${id}.json`), "{}\n");
+    await writeFile(path.join(reportDir, `${id}.retention.json`), `${JSON.stringify(retention)}\n`);
+    await writeFile(path.join(reportDir, `${id}.provenance.json`), "{}\n");
+  }
+  // Exactly one delete fails: a directory cannot be unlinked.
+  const blocked = path.join(reportDir, `${ids[0]}.provenance.json`);
+  await unlink(blocked);
+  await mkdir(blocked);
+
+  await assert.rejects(
+    () => pruneStoredReports(Date.parse("2026-07-01T00:00:00.000Z")),
+    /EISDIR|operation not permitted|directory/i
+  );
+
+  // Read with no delay: every scheduled delete must already have run.
+  const remaining = (await readdir(reportDir)).filter(isReportFile);
+  const status = await reportStoreRetentionStatus();
+  assert.deepEqual(remaining, [], "no delete may still be in flight once the pass has rejected");
+  assert.equal(status.debtCount, 1, "only the delete that actually failed leaves retention debt");
+  assert.equal(status.maintenanceRequired, true);
+
+  await new Promise<void>((resolve) => setTimeout(resolve, 250));
+  assert.deepEqual(
+    (await readdir(reportDir)).filter(isReportFile),
+    remaining,
+    "the store must be quiescent after the pass has released the mutation lock"
+  );
+});
+
 test("expired reads stay not-found when physical deletion fails and expose the debt", async () => {
   const saved = await saveScanReport(makeScanResult());
   const id = saved.share?.id || "";
@@ -1048,6 +1094,23 @@ test("whole publication deadline rejects a noncooperative backend without an unh
   } finally {
     process.removeListener("unhandledRejection", onUnhandled);
   }
+});
+
+test("the whole-operation deadline reaches the public health wire as timed-out", async () => {
+  // The deadline aborted with a bare Error, which carries no status, no errno
+  // and no DOMException name, so the classifier behind /api/health had nothing
+  // to read and a stalled backend published the reason token "unknown" for the
+  // one condition the closed vocabulary keeps "timed-out" for. The message the
+  // container log receives is unchanged.
+  process.env[REPORT_STORE_OPERATION_TIMEOUT_MS_ENV] = "10";
+  configureFakeR2(async () => new Promise<Response>(() => undefined));
+  const failure = await readStoredScanReportById(`20260714-${"a".repeat(32)}`).then(
+    () => null,
+    (error: unknown) => error
+  );
+
+  assert.match(String(failure), /whole-operation deadline/);
+  assert.equal(classifyReportStoreFailure(failure), "timed-out");
 });
 
 test("active retention health fails when an expired R2 object exists but debt-marker PUT is denied", async () => {
@@ -1288,6 +1351,70 @@ test("the public permalink read is bounded by the same whole-operation deadline"
   } finally {
     process.removeListener("unhandledRejection", onUnhandled);
   }
+});
+
+test("an expired permalink read never mutates the retention ledger outside the store mutation FIFO", async () => {
+  const expiredId = `20260601-${"c".repeat(32)}`;
+  const holder = prepareScanReportBundle(makeScanResult(), {
+    shareId: `20260718-${"9".repeat(32)}`,
+    now: FIXTURE_NOW
+  });
+  let releaseHolder: () => void = () => undefined;
+  let announceHolder: () => void = () => undefined;
+  const holderStarted = new Promise<void>((resolve) => {
+    announceHolder = resolve;
+  });
+  const heldRead = new Promise<void>((resolve) => {
+    releaseHolder = resolve;
+  });
+  const requests: string[] = [];
+  configureFakeR2(async (request) => {
+    const key = decodeURIComponent(new URL(request.url).pathname).replace("/test-reports/", "");
+    requests.push(`${request.method} ${key}`);
+    if (request.method === "GET" && key === `reports/${holder.manifest.reportId}.json`) {
+      announceHolder();
+      await heldRead;
+      return new Response(null, { status: 404 });
+    }
+    if (request.method === "GET" && key === `reports/${expiredId}.json`) {
+      return new Response("{}\n", {
+        status: 200,
+        headers: {
+          "last-modified": "Mon, 01 Jun 2026 00:00:00 GMT",
+          "x-amz-meta-created-at": "2026-06-01T00:00:00.000Z",
+          "x-amz-meta-expires-at": "2026-06-08T00:00:00.000Z"
+        }
+      });
+    }
+    if (request.method === "GET") return new Response(null, { status: 404 });
+    if (request.method === "PUT" || request.method === "DELETE") return new Response(null, { status: 204 });
+    throw new Error(`Unexpected fake R2 request: ${request.method} ${key}`);
+  });
+
+  const reconciling = reconcilePreparedScanReportBundle(holder.manifest);
+  await holderStarted;
+  const expiredRead = readStoredScanReportById(expiredId);
+  for (let turn = 0; turn < 20; turn += 1) await new Promise<void>((resolve) => setImmediate(resolve));
+
+  // The read itself is still unblocked, but the durable retention-debt ledger
+  // must not be touched while a mutation-lock holder is in flight: a marker a
+  // concurrent prune sees is read as a failed delete and refuses publication.
+  assert.deepEqual(requests, [
+    `GET reports/${holder.manifest.reportId}.json`,
+    `GET reports/${expiredId}.json`
+  ]);
+
+  releaseHolder();
+  assert.deepEqual(await reconciling, { outcome: "missing" });
+  assert.deepEqual(await expiredRead, { outcome: "not-found" });
+  // The ledger discipline itself is unchanged: mark, delete, then clear.
+  assert.deepEqual(requests.slice(2), [
+    `GET reports/${holder.manifest.reportId}.json.provenance.json`,
+    `PUT reports/_retention-debt/${expiredId}.json`,
+    `DELETE reports/${expiredId}.json.provenance.json`,
+    `DELETE reports/${expiredId}.json`,
+    `DELETE reports/_retention-debt/${expiredId}.json`
+  ]);
 });
 
 test("a caller that disconnects aborts the report read it started", async () => {

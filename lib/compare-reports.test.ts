@@ -3,11 +3,14 @@ import { test } from "node:test";
 import {
   MAX_DIFF_LIST,
   compareScanResults,
+  consentComparisonTitle,
   createComparisonReport,
+  createConsentComparisonReport,
   createShieldsComparisonReport,
   createTemporalComparisonReport,
   orderTemporalPair
 } from "./compare-reports";
+import { consentInteractionWarning } from "./consent-interaction";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type CookieRecord,
@@ -408,4 +411,52 @@ test("a diff list clipped at its cap keeps the largest changes and records no dr
   const raw = diff as unknown as Record<string, unknown>;
   assert.equal("omittedCount" in raw, false);
   assert.equal("truncated" in raw, false);
+});
+
+test("a consent pair whose clicks never visibly responded is not titled as one that clicked nothing", () => {
+  // The frozen v1 wire carries a single boolean per run: a catalogued control
+  // that WAS clicked and never visibly responded records `clicked: false`,
+  // exactly like a search that found no control at all. The producer still
+  // publishes the dispatch-unconfirmed warning on that run, so a title naming
+  // the click contradicts the warning printed inside the same report.
+  const acceptRun = makeScanResult([makeDomain("tracker.example", 2, "TrackerCo")]);
+  acceptRun.consentInteraction = { mode: "accept-all", clicked: false, cmp: "OneTrust" };
+  acceptRun.warnings = [consentInteractionWarning(acceptRun.consentInteraction, "dispatch-unconfirmed")];
+  const rejectRun = makeScanResult([makeDomain("tracker.example", 1, "TrackerCo")]);
+  rejectRun.consentInteraction = { mode: "reject-all", clicked: false, cmp: "OneTrust" };
+  rejectRun.warnings = [consentInteractionWarning(rejectRun.consentInteraction, "dispatch-unconfirmed")];
+
+  const report = createConsentComparisonReport(acceptRun, rejectRun);
+
+  // The report really does carry the contradicting fact.
+  assert.equal(
+    report.warnings.some((warning) => warning.includes("clicked a control that never visibly responded")),
+    true
+  );
+  // So the title may only report the missing activation, never the click.
+  assert.equal(report.title, "Consent comparison attempt (no control activated)");
+  assert.equal(/click/i.test(report.title), false);
+});
+
+test("consent comparison titles report activation, never whether a control was clicked", () => {
+  assert.equal(consentComparisonTitle({ baseline: true, variant: true }), "Consent accept/reject comparison");
+  assert.equal(
+    consentComparisonTitle({ baseline: true, variant: false }),
+    "Consent comparison attempt (only Accept all activated)"
+  );
+  assert.equal(
+    consentComparisonTitle({ baseline: false, variant: true }),
+    "Consent comparison attempt (only Reject all activated)"
+  );
+  assert.equal(
+    consentComparisonTitle({ baseline: false, variant: false }),
+    "Consent comparison attempt (no control activated)"
+  );
+  // `clicked: false` cannot distinguish "found nothing" from "clicked, no
+  // reaction", so no title built from it may say anything about clicking.
+  for (const baseline of [true, false]) {
+    for (const variant of [true, false]) {
+      assert.equal(/click/i.test(consentComparisonTitle({ baseline, variant })), false);
+    }
+  }
 });

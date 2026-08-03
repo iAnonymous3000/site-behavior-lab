@@ -1,4 +1,4 @@
-import { consentPlatformForDomain } from "./consent-banner";
+
 import { isSafeInlineScreenshotDataUri } from "./inline-screenshot";
 import {
   PAGE_SUBJECT_CAPTURE_LOSS_DETAIL,
@@ -213,42 +213,6 @@ export function trackingServiceRequests(result: Pick<ScanResult, "requests">): n
         : 0),
     0
   );
-}
-
-export type CatalogCoverage = {
-  /** Distinct third-party HOSTS the visit contacted, not registrable domains. */
-  thirdPartyDomains: number;
-  /** Those a catalog entry, filter list, or consent-platform signature named. */
-  identified: number;
-  /** Those nothing named. */
-  unidentified: number;
-};
-
-/**
- * Partition the visit's third-party domains by whether the instrument could
- * name them.
- *
- * `unidentified` is a property of the catalog's coverage, never a finding
- * about the site: an unmatched domain is one this scan could not identify, not
- * one shown to be harmless. Reports quantify it so a reader can see how much
- * of a visit the catalog actually accounts for, instead of reading an absence
- * of matches as an absence of third parties.
- *
- * Identification spans BOTH namers the report has: the service catalog (which
- * drives tracker counts) and the consent-platform signatures (which do not,
- * because a CMP loader is not a tracking service). Counting only the catalog
- * let a report name OneTrust on its consent card while telling the reader, on
- * the very same page, that it could not say who operated that domain.
- */
-export function catalogCoverage(result: Pick<ScanResult, "domains">): CatalogCoverage {
-  let thirdPartyDomains = 0;
-  let identified = 0;
-  for (const domain of result.domains) {
-    if (!domain.thirdParty) continue;
-    thirdPartyDomains += 1;
-    if (domain.tracker !== null || consentPlatformForDomain(domain.domain) !== null) identified += 1;
-  }
-  return { thirdPartyDomains, identified, unidentified: thirdPartyDomains - identified };
 }
 
 /** High-entropy fingerprinting detections (canvas/WebGL/audio/WebRTC), excluding listener-coverage signals. */
@@ -514,9 +478,15 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
     )}, from ${plural(detection.evidence.fieldsTyped, "field")}`;
   }
 
-  return `${plural(detection.evidence.totalListenerCalls, "third-party listener")} from ${humanList(
+  // The observer counts every addEventListener invocation and never wraps
+  // removeEventListener, so this total is a count of registration CALLS, not of
+  // listeners live at snapshot time: re-adding an identical handler is a DOM
+  // no-op that still increments, and a removed handler still counts.
+  return `${plural(detection.evidence.totalListenerCalls, "third-party addEventListener call")} from ${humanList(
     detection.evidence.thirdPartyOrigins
-  )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(detection.evidence.listenerTargets)}`;
+  )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(
+    detection.evidence.listenerTargets
+  )}; repeat registrations of the same handler count separately and removals are not observed`;
 }
 
 /**

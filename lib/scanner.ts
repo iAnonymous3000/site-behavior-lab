@@ -307,7 +307,7 @@ export const MAX_POLICY_LINK_TEXT_CHARS = 80;
  */
 export const MAX_POLICY_LINK_MATCH_TEXT_CHARS = 512;
 const MAX_POLICY_PAGE_REQUESTS = 150;
-const MAX_POLICY_TEXT_CHARS = 400_000;
+export const MAX_POLICY_TEXT_CHARS = 400_000;
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
 
@@ -724,7 +724,7 @@ export async function scanSiteWithMeasurement(
   const warnings = new ScanWarningCollector([
     payload.consentMode === "observe"
       ? "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations."
-      : "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except one scripted choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      : "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling or clicking except scripted attempts to activate one choice on the cookie/consent banner (disclosed below). Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     payload.consentMode === "observe"
       ? "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
       : "Counts are a lower bound: trackers that load only after further interaction are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
@@ -3783,8 +3783,15 @@ async function probePrivacyPolicy(input: {
   }
 }
 
-function boundedPolicyTextFromWire(wire: string | null): string {
-  if (typeof wire !== "string" || wire.length > MAX_POLICY_TEXT_CHARS + 128) return "";
+export function boundedPolicyTextFromWire(wire: string | null): string {
+  // JSON escaping can expand one input character to six wire characters, the
+  // same accounting collectBoundedPageContentText applies to this wire shape.
+  // A flat 128-character allowance left only 99 characters of slack over the
+  // envelope's own 29, so a policy long enough to actually reach the character
+  // cap outgrew the bound on its own newlines and quotes: a complete 2xx read
+  // was discarded here and then published as a policy load failure. The value
+  // length checked below, not this one, is what enforces the character cap.
+  if (typeof wire !== "string" || wire.length > MAX_POLICY_TEXT_CHARS * 6 + 128) return "";
   try {
     const value = JSON.parse(wire) as { value?: unknown };
     return typeof value?.value === "string" && value.value.length <= MAX_POLICY_TEXT_CHARS

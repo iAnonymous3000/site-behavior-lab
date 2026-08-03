@@ -520,11 +520,13 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       shieldsMode: run.conditions.shields,
       // R2 keeps requested and observed intervention state separate. When
       // readback exists, engineLoaded is the actual measurement posture; the
-      // condition remains the requested mode. R1 has no facts and therefore
-      // falls back to its recorded condition as configured-only metadata.
+      // condition remains the requested mode. R1 has no readback, so the
+      // requested mode alone never asserts an active engine: the run's own
+      // toolchain is the recorded engine fact, and a run that pinned no filter
+      // lists never loaded an engine to classify anything with.
       adblockActive: verificationFacts?.shields
         ? verificationFacts.shields.engineLoaded
-        : run.conditions.shields !== "off",
+        : run.conditions.shields !== "off" && run.toolchain.adblock !== null,
       adblockLists: run.toolchain.adblock
         ? {
             source: run.toolchain.adblock.source,
@@ -862,7 +864,7 @@ function legacyClaims(report: Extract<ScanReport, { reportType: "comparison" }>)
 }
 
 /** The newest parseable timestamp among the runs, for sorting and retention. */
-function latestRunAt(runs: RunView[]): string | null {
+function latestRunAt(runs: readonly { startedAt: string | null }[]): string | null {
   let latest: string | null = null;
   let latestMs = Number.NEGATIVE_INFINITY;
   for (const run of runs) {
@@ -1005,6 +1007,15 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
     const supportingPairList =
       intervention && "supportingPairs" in intervention ? (intervention as InterventionExperimentR2).supportingPairs : undefined;
     const supportingPairs = supportingPairList ? supportingPairList.length : null;
+    // The sort/retention clock covers every run that contributed evidence,
+    // supporting pairs included, exactly like the provenance sidecar's
+    // createdAt (committedReportCreatedAt). A pair captured after the primary
+    // arms is the report's newest evidence; ageing the report by the primary
+    // arms alone would prune it before its own recorded creation time. Only
+    // the timestamp widens: `runs` stays the two primary arms for rendering.
+    const supportingRuns = supportingPairList
+      ? supportingPairList.flatMap((pair) => [pair.baseline, pair.variant])
+      : [];
     return {
       origin: "v2",
       revision,
@@ -1019,7 +1030,7 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
         ...report.variant.warnings.map((warning) => `${runLabels.variant}: ${warning}`)
       ],
       scannedAt: experiment.kind === "temporal" ? report.variant.startedAt : report.baseline.startedAt,
-      latestRunAt: latestRunAt(runs),
+      latestRunAt: latestRunAt([...runs, ...supportingRuns]),
       runs,
       comparison: {
         kind: experiment.kind,

@@ -557,7 +557,15 @@ function extractSchemaRequests(records: GraphRecord[]): PageGraphNetworkRequest[
       url,
       domain: hostnameFromUrl(url),
       resourceType: rawResourceType ? normalizePageGraphResourceType(rawResourceType) : inferResourceType(url),
-      status: numberField(completion ?? edge, ["status"]),
+      // PageGraph 0.7.7 declares the request-edge "status" attribute as a
+      // string and writes lifecycle tokens into it ("started" on the start
+      // edge, "complete" on the completion edge, "error" on a request error),
+      // never an HTTP response code. Parsing that attribute as a number would
+      // publish any out-of-vocabulary value as if it were an HTTP status, so
+      // the importer leaves HTTP status unavailable rather than inventing one
+      // (docs/pagegraph-schema.md). The capture carries no response code
+      // anywhere else either: completion edges record only response hash,
+      // headers, and size.
       startedAtMs: numberField(edge, ["timestamp"]),
       requestId,
       provenance: extractSchemaRequestProvenance(edge, resource, index)

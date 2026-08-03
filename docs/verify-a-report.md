@@ -10,7 +10,8 @@ boundaries section first so you know what the chain does and does not prove.
 Committed corpus reports: every `<id>.json` and `<id>.provenance.json` under
 [`public/reports/`](../public/reports). These are the reports the gallery,
 directory, and corpus statistics are built from. Each is copied byte-identically
-into the static export, and the CI job `Record exact-SHA static build evidence`
+into the static export, and the `Record exact-SHA static build evidence` step
+(inside the required `Typecheck, Unit Tests, Build` CI job)
 hashes every file of that export into a single evidence manifest
 (`site-behavior-lab-static-release-evidence.json`). A separate CI job
 (`Attest exact-SHA evidence manifests`) that never checks out or executes

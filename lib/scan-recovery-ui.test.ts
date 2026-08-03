@@ -48,3 +48,28 @@ test("outcome-unknown admission is retained, recovered without POST, and exposed
   assert.match(app, /pendingAdmission=\{Boolean\(pendingScanAdmission\)\}/);
   assert.match(app, /onCheckAdmission=\{\(\) => void recoverPendingAdmission\(\)\}/);
 });
+
+test("stopping the pre-admission wait does not immediately restart admission recovery", () => {
+  const hook = source("app/_hooks/use-scan-runtime.ts");
+  const stop = hook.slice(
+    hook.indexOf("function stopWaitingForAdmission"),
+    hook.indexOf("function retryScannerHealth")
+  );
+
+  // The auto-recovery effect lists `loading` in its dependencies, so it re-runs the
+  // instant this handler clears it. Without arming the once-per-capability guard the
+  // effect calls recoverPendingAdmission, which sets scanNotice back to null and
+  // resumes the wait the visitor just ended.
+  assert.match(stop, /const pending = pendingScanAdmissionRef\.current/);
+  assert.match(stop, /autoRecoveredAdmissionRef\.current = pending\.credential\.capabilityToken/);
+  // The cancelled recovery lease never reaches its finalizer, so this flag would
+  // otherwise stay true and disable the banner's only remaining control.
+  assert.match(stop, /setRecoveringScanAdmission\(false\)/);
+  assert.match(stop, /setScanNotice\(\s*"Stopped waiting for the scanner\./);
+  // Stopping must not discard the retained capability; checking it later is the
+  // whole point of the notice.
+  assert.doesNotMatch(stop, /releasePendingAdmission|clearPendingScanAdmissionSession/);
+
+  // The guard is only load-bearing while the effect still consults it.
+  assert.match(hook, /if \(autoRecoveredAdmissionRef\.current === capability\) return;/);
+});

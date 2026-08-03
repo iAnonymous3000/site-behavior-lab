@@ -149,11 +149,38 @@ export function reserveDurablePreparation(
  * Free the slot. Releasing a capability that holds none is deliberately not an
  * error: the release runs in a `finally`, and a caller that failed before
  * reserving must not turn its own earlier failure into a second one.
+ *
+ * `reservedExpiresAt` is the `expiresAt` the caller's own reservation returned,
+ * and it fences the delete to that one reservation. The release runs in a
+ * `finally` that also covers the aborted-deadline path, so by construction it
+ * can land after its own row already expired, was purged, and was replaced by a
+ * successor's. Deleting by capability alone frees that successor's live slot
+ * and lets a third replay buy a second concurrent preparation, which is exactly
+ * the bound this module exists to hold. Expiries for one capability are
+ * strictly increasing (a successor may only reserve once the predecessor's
+ * expiry has passed, and its own expiry is later still), so the stored expiry
+ * identifies the reservation exactly.
+ *
+ * Omitting it keeps the older unfenced delete for a caller that does not yet
+ * name its reservation; such a caller keeps the stale-release exposure above.
  */
-export function releaseDurablePreparation(sql: DurableScanJobStoreSql, capabilityHash: ArrayBuffer): void {
+export function releaseDurablePreparation(
+  sql: DurableScanJobStoreSql,
+  capabilityHash: ArrayBuffer,
+  reservedExpiresAt?: number
+): void {
   ensureDurablePreparationReservationStore(sql);
   assertCapabilityHash(capabilityHash);
-  sql.exec("DELETE FROM durable_preparations WHERE capability_hash = ?", capabilityHash);
+  if (reservedExpiresAt === undefined) {
+    sql.exec("DELETE FROM durable_preparations WHERE capability_hash = ?", capabilityHash);
+    return;
+  }
+  assertTimestamp(reservedExpiresAt, "released reservation expiry");
+  sql.exec(
+    "DELETE FROM durable_preparations WHERE capability_hash = ? AND expires_at = ?",
+    capabilityHash,
+    reservedExpiresAt
+  );
 }
 
 export function purgeExpiredDurablePreparations(sql: DurableScanJobStoreSql, now: number): number {

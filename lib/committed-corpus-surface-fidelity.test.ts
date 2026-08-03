@@ -478,7 +478,13 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     );
   }
 
+  // Only corpus-included rows carry the published direction mix: one
+  // representative per site per cohort. Counting every row pooled a site's
+  // rescans with itself and pooled separate methodology cohorts into one
+  // number. This expectation deliberately restates that rule rather than
+  // calling summarizeShieldsChanges, so the two can still disagree.
   const shieldsChanges = rows
+    .filter((row) => row.corpusInclusion === "included")
     .map((row) => row.shieldsThirdPartyChange)
     .filter((value): value is number => value !== null);
   assert.deepEqual(

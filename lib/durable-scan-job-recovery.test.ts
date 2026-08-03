@@ -12,6 +12,7 @@ import {
   type DurableScanJobInternalState
 } from "./durable-scan-job-recovery";
 import type { DurableScanJobRegistration } from "./durable-scan-job-registry";
+import { readScanJobProgress, scanJobProgressCopy } from "./scan-job-progress";
 import { makeShieldsInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 
@@ -498,6 +499,31 @@ test("authoritative durable cancellation is control-only and idempotent", async 
     progress: { phase: "waiting", completedRuns: 0, totalRuns: 1 },
     error: "This scan job was cancelled."
   });
+});
+
+test("a leased durable job reports running with progress the client validator accepts", async () => {
+  const response = await recoverDurableScanJobSnapshotResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "leased", totalRuns: 1 },
+    missingResponse(),
+    { fetchReport: async () => assert.fail("a leased job must not probe the report store") }
+  );
+  const parsed = await response.json();
+  assert.equal(parsed.status, "running");
+
+  // The polling client drops progress it cannot validate and then never calls
+  // onProgress, so a phase outside the closed wire vocabulary would freeze an
+  // already deployed page on stale copy for the whole measurement.
+  const progress = readScanJobProgress(parsed.progress);
+  if (!progress) assert.fail("the leased wire progress must survive the client validator");
+  assert.equal(progress.totalRuns, 1);
+
+  // The reader must not describe a lease a runner already holds as a wait for a
+  // slot. The slot wait belongs to the queued phase and only there.
+  const running = scanJobProgressCopy(progress);
+  const queued = scanJobProgressCopy({ phase: "queued", completedRuns: 0, totalRuns: 1 });
+  assert.match(`${queued.title} ${queued.detail}`, /queued|waiting to start/i);
+  assert.doesNotMatch(`${running.title} ${running.detail}`, /waiting|slot|queued/i);
+  assert.match(`${running.title} ${running.detail}`, /in progress|has started/i);
 });
 
 function missingResponse(): Response {

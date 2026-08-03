@@ -57,6 +57,19 @@ const shieldsUrlCandidates = (process.env.SMOKE_SHIELDS_URL || "https://www.iana
   .trim()
   .split(/\s+/)
   .filter(Boolean);
+// The single-scan leg needs the same ordered fallback, and for the same
+// reason: it proves the scanner, not any one target's availability. It kept a
+// single hardcoded target when the Shields leg gained candidates, so one
+// example.com outage failed the whole gate (net::ERR_FAILED, run 30835720588)
+// on a commit that touched nothing in that path. Each candidate is scanned
+// with a query string and fragment appended, so the leg still proves the
+// report scrubs both.
+const singleScanUrlCandidates = (
+  process.env.SMOKE_SINGLE_SCAN_URL || "https://example.com/ https://www.iana.org/ https://www.w3.org/"
+)
+  .trim()
+  .split(/\s+/)
+  .filter(Boolean);
 const expectedStorage = (process.env.SMOKE_EXPECTED_STORAGE || "r2").trim();
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLLS = 120; // ~4 min ceiling for a Shields comparison (two visits)
@@ -256,15 +269,35 @@ async function checkHealth() {
 }
 
 async function checkSingleScan() {
-  const { report } = await resolveReport(
-    await submitScan({
-      url: "https://example.com/?token=smoke-secret#frag",
-      device: "desktop",
-      gpcEnabled: true,
-      consentMode: "observe"
-    }),
-    "single scan"
-  );
+  const candidateFailures = [];
+  for (const candidate of singleScanUrlCandidates) {
+    const outcome = await resolveReport(
+      await submitScan({
+        url: `${candidate}?token=smoke-secret#frag`,
+        device: "desktop",
+        gpcEnabled: true,
+        consentMode: "observe"
+      }),
+      "single scan",
+      // Same rule as the Shields leg: a target-attributable scan failure falls
+      // through, and only every candidate failing stays red, because that is
+      // what indicates scanner-side breakage rather than one site's outage.
+      { tolerateScanFailure: true }
+    );
+    if (outcome.scanFailure) {
+      candidateFailures.push(`${candidate}: ${outcome.scanFailure}`);
+      console.warn(
+        `WARN single-scan smoke target ${candidate} did not produce a scan (${outcome.scanFailure}); trying the next candidate target.`
+      );
+      continue;
+    }
+    await assertSingleScanReport(outcome.report);
+    return;
+  }
+  fail(`single scan failed on every candidate target: ${candidateFailures.join("; ")}`);
+}
+
+async function assertSingleScanReport(report) {
   const totalRequests = singleReportTotalRequests(report);
   if (totalRequests === null || totalRequests < 1) fail("single scan produced no requests");
   if (JSON.stringify(report).includes("smoke-secret")) fail("single scan leaked a query-string secret");

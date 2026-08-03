@@ -1,6 +1,7 @@
 import Link from "next/link";
 import adblockMetadata from "@/lib/adblock-wasm/brave-default-filters.meta.json";
 import { entryEligibleForCorpusRollups, loadCorpusOverview } from "@/lib/corpus-overview";
+import { buildCategoryEvidencePages } from "@/lib/directory-view";
 import {
   PUBLIC_STATUS_MAX_CORPUS_AGE_MS,
   PUBLIC_STATUS_MAX_FILTER_LIST_AGE_MS
@@ -36,6 +37,14 @@ export default async function StatusPage() {
     .map((entry) => entry.scannedAt)
     .filter((value) => Number.isFinite(Date.parse(value)))
     .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
+  // Category medians are published one cohort per category and can land on
+  // several cohorts during a methodology migration, so the aggregate cohort
+  // above is not the whole published corpus. The homepage counts them from
+  // exactly these pages; deriving the count here the same way keeps the two
+  // surfaces from telling the reader different things.
+  const categoryCohortCount = new Set(
+    buildCategoryEvidencePages(overview.entries).map((category) => category.cohort.id)
+  ).size;
 
   return (
     <main className="legal-page status-page">
@@ -62,10 +71,11 @@ export default async function StatusPage() {
             </div>
             <p className="status-value">{formatUtc(latestEligibleEvidence)}</p>
             <p>
-              {overview.siteCount.toLocaleString()} distinct sites currently qualify for corpus aggregates;{" "}
-              {overview.coverageSiteCount.toLocaleString()} sites have at least one successful load.
+              {overview.siteCount.toLocaleString()} distinct sites currently make up the corpus sample a report page
+              compares a scan against; {overview.coverageSiteCount.toLocaleString()} sites have at least one successful
+              load.
             </p>
-            <p className="status-note">This date and this site count both describe the single measurement cohort the corpus aggregates use. Current means no more than eight days old. It does not mean every site was refreshed in that window. A site that loaded but whose evidence was cut short, by a request cap or a censored family, is counted as covered and never as measured, so the two numbers differ by more than failed loads.</p>
+            <p className="status-note">This date and this site count both describe the one measurement cohort behind that comparison, and each percentile card names its own denominator. {categoryCohortCount > 1 ? `Category medians are published one cohort per category and span ${categoryCohortCount} cohorts in total, so no single cohort backs every published aggregate.` : "Category medians are published one cohort per category, and today that is this same cohort."} Current means no more than eight days old. It does not mean every site was refreshed in that window. A site that loaded but whose evidence was cut short, by a request cap or a censored family, is counted as covered and never as measured, so the two numbers differ by more than failed loads.</p>
           </article>
 
           <article className="status-card">

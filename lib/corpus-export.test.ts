@@ -335,7 +335,7 @@ test("CSV pins the header and escapes commas and quotes in headlines", () => {
 
   assert.equal(
     header,
-    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched,run_outcome,producer,acquisition,build_commit,methodology_version,methodology_origin,browser_name,browser_version,egress_label,egress_region,corpus_cohort_id,corpus_cohort_denominator,corpus_inclusion,corpus_exclusion_reasons,tracker_catalog_digest,tracker_catalog_origin,service_role_taxonomy_version,service_role_taxonomy_digest,corpus_export_schema_version,metric_contract_version,metric_contract_digest,catalogued_service_requests,tracking_service_requests,delta_catalogued_service_requests,delta_tracking_service_requests"
+    "id,domain,category,category_label,report_url,json_url,scanned_at,report_type,comparison_type,device,gpc_enabled,consent_mode,consent_clicks,status,request_capped,request_evidence_complete,headline,third_party_requests,tracker_requests,third_party_cookies,shields_third_party_change,delta_third_party_requests,delta_tracker_requests,previous_report_id,previous_scanned_at,schema_version,schema_revision,schema_origin,limited,consent_choice_state,variant_consent_choice_state,comparison_decision_mode,compatibility_fingerprint_origin,compatibility_fingerprint_matched,run_outcome,producer,acquisition,build_commit,methodology_version,methodology_origin,browser_name,browser_version,egress_label,egress_region,corpus_cohort_id,corpus_cohort_denominator,corpus_inclusion,corpus_exclusion_reasons,tracker_catalog_digest,tracker_catalog_origin,service_role_taxonomy_version,service_role_taxonomy_digest,corpus_export_schema_version,metric_contract_version,metric_contract_digest,catalogued_service_requests,tracking_service_requests,delta_catalogued_service_requests,delta_tracking_service_requests,cookie_evidence_complete"
   );
   assert.match(row, /"shop\.example told Google, Meta ""you were here""\."/);
   assert.match(row, /,desktop,yes,observe,,200,/);
@@ -386,11 +386,12 @@ test("signed Shields changes pass through unclamped and the payload publishes th
   // and the payload summary must count it as increased.
   const rows = buildCorpusExportRows(
     [
-      makeEntry({ id: "20260702-" + "a".repeat(32), shieldsThirdPartyChange: -77 }),
-      makeEntry({ id: "20260706-" + "b".repeat(32), shieldsThirdPartyChange: 264 }),
-      makeEntry({ id: "20260706-" + "c".repeat(32), shieldsThirdPartyChange: 0 }),
+      makeEntry({ id: "20260702-" + "a".repeat(32), domain: "decreased.example", shieldsThirdPartyChange: -77 }),
+      makeEntry({ id: "20260706-" + "b".repeat(32), domain: "increased.example", shieldsThirdPartyChange: 264 }),
+      makeEntry({ id: "20260706-" + "c".repeat(32), domain: "flat.example", shieldsThirdPartyChange: 0 }),
       makeEntry({
         id: "20260706-" + "d".repeat(32),
+        domain: "single.example",
         shieldsThirdPartyChange: null,
         comparisonType: undefined,
         reportType: "single",
@@ -422,6 +423,129 @@ test("signed Shields changes pass through unclamped and the payload publishes th
   const lines = csv.split("\r\n");
   assert.match(lines[1], /,-77,/);
   assert.match(lines[2], /,264,/);
+});
+
+test("the Shields mix counts one representative pair per site and publishes the per-cohort split", () => {
+  // Every row here is a real paired observation, but the summary is a
+  // cross-site statistic: counting a rescan the same payload marks superseded
+  // weights the direction mix by how often a site happened to be rescanned,
+  // and pooling two cohorts answers with two blocking instruments at once,
+  // which every other aggregate in this project refuses to do.
+  const r2Cohort = {
+    id: "v2-r2:method-r2:node-playwright",
+    schemaVersion: 2 as const,
+    schemaRevision: 2 as const,
+    methodologyVersion: "method-r2",
+    methodologyOrigin: "recorded" as const,
+    producer: "node-playwright",
+    gpc: true,
+    ...RECORDED_CATALOG_IDENTITY,
+    ...SERVICE_ROLE_IDENTITY
+  };
+  const rows = buildCorpusExportRows(
+    [
+      makeEntry({
+        id: "20260625-" + "a".repeat(32),
+        domain: "rescanned.example",
+        scannedAt: "2026-06-25T00:00:00.000Z",
+        shieldsThirdPartyChange: -300
+      }),
+      makeEntry({
+        id: "20260702-" + "b".repeat(32),
+        domain: "rescanned.example",
+        scannedAt: "2026-07-02T00:00:00.000Z",
+        shieldsThirdPartyChange: 0
+      }),
+      makeEntry({
+        id: "20260702-" + "c".repeat(32),
+        domain: "steady.example",
+        shieldsThirdPartyChange: -12
+      }),
+      makeEntry({
+        id: "20260721-" + "d".repeat(32),
+        domain: "rescanned.example",
+        scannedAt: "2026-07-21T00:00:00.000Z",
+        shieldsThirdPartyChange: 40,
+        schemaVersion: 2,
+        schemaRevision: 2,
+        schemaOrigin: "v2",
+        limited: false,
+        corpusCohort: r2Cohort,
+        producer: "node-playwright"
+      })
+    ],
+    "https://sitebehavior.org"
+  );
+  const payload = buildCorpusExportPayload(rows, {
+    generatedAt: "2026-07-30T00:00:00.000Z",
+    siteCount: 2,
+    measuredSampleSize: 2
+  });
+
+  // Four rows carry a signed change; three of them represent a site.
+  assert.equal(rows.filter((row) => row.shieldsThirdPartyChange !== null).length, 4);
+  assert.deepEqual(rows[0].corpusExclusionReasons, ["superseded-by-newer-report"]);
+  assert.equal(rows[0].shieldsThirdPartyChange, -300, "the superseded row stays published and auditable");
+  assert.deepEqual(payload.shieldsChangeSummary, { pairedReports: 3, decreased: 1, flat: 1, increased: 1 });
+
+  // The per-cohort split is the un-pooled form: the legacy cohort measures two
+  // sites, the r2 cohort one, and the increase belongs to exactly one of them.
+  assert.deepEqual(payload.shieldsChangeCohorts, [
+    {
+      cohortId: "v1:test-methodology:producer-unrecorded",
+      pairedReports: 2,
+      decreased: 1,
+      flat: 1,
+      increased: 0
+    },
+    { cohortId: "v2-r2:method-r2:node-playwright", pairedReports: 1, decreased: 0, flat: 0, increased: 1 }
+  ]);
+  assert.match(payload.note, /only the pairs with corpus_inclusion included/);
+  assert.match(payload.note, /shieldsChangeCohorts publishes the same mix per corpus_cohort_id/);
+});
+
+test("a censored cookie family exports as incomplete evidence, never as a measured zero", () => {
+  // A producer can record no cookie evidence at all while its request family
+  // stays complete (a PageGraph import does exactly that), so this row's zero
+  // is an absence of evidence. Every other surface renders it as not measured;
+  // without a cookie completeness column the export was the one place a
+  // researcher read it as "this site set no third-party cookies", and the
+  // request flags cannot stand in for it because they are still true.
+  const rows = buildCorpusExportRows(
+    [
+      makeEntry({ id: "20260714-" + "a".repeat(32), domain: "measured.example", thirdPartyCookies: 8 }),
+      makeEntry({
+        id: "20260714-" + "b".repeat(32),
+        domain: "censored.example",
+        thirdPartyCookies: 0,
+        cookieEvidenceComplete: false
+      })
+    ],
+    "https://sitebehavior.org"
+  );
+  const [measured, censored] = rows;
+
+  assert.equal(measured.cookieEvidenceComplete, true);
+  assert.equal(censored.cookieEvidenceComplete, false);
+  assert.equal(censored.requestEvidenceComplete, true, "the loss is cookie-only");
+  assert.equal(censored.requestCapped, false);
+  assert.equal(censored.corpusInclusion, "included", "cookie loss does not disqualify the request measurements");
+  assert.match(CORPUS_EXPORT_NOTE, /cookie_evidence_complete is the same completeness flag/);
+  assert.match(CORPUS_EXPORT_NOTE, /third_party_cookies is not a measurement/);
+
+  const [headerLine, ...dataLines] = corpusExportToCsv(rows).trimEnd().split("\r\n");
+  const header = headerLine.split(",");
+  const cellOf = (id: string, column: string): string => {
+    const cells = dataLines.map(splitCsvLine).find((row) => row[header.indexOf("id")] === id);
+    assert.ok(cells, `no exported row for ${id}`);
+    return cells[header.indexOf(column)];
+  };
+
+  assert.notEqual(header.indexOf("cookie_evidence_complete"), -1, "the CSV must carry the cookie flag too");
+  assert.equal(cellOf(measured.id, "cookie_evidence_complete"), "true");
+  assert.equal(cellOf(measured.id, "third_party_cookies"), "8");
+  assert.equal(cellOf(censored.id, "cookie_evidence_complete"), "false");
+  assert.equal(cellOf(censored.id, "third_party_cookies"), "0");
 });
 
 test("rows carry the schema generation so researchers can filter by wire version", () => {

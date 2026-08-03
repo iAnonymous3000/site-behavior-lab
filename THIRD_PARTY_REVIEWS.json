@@ -1306,10 +1306,10 @@
       "notes": null
     },
     {
-      "key": "npm:brace-expansion@5.0.8",
+      "key": "npm:brace-expansion@5.0.9",
       "ecosystem": "npm",
       "name": "brace-expansion",
-      "version": "5.0.8",
+      "version": "5.0.9",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1446,10 +1446,10 @@
       "notes": null
     },
     {
-      "key": "npm:fast-uri@3.1.4",
+      "key": "npm:fast-uri@3.1.5",
       "ecosystem": "npm",
       "name": "fast-uri",
-      "version": "3.1.4",
+      "version": "3.1.5",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "BSD-3-Clause",
@@ -1740,10 +1740,10 @@
       "notes": null
     },
     {
-      "key": "npm:postcss@8.5.22",
+      "key": "npm:postcss@8.5.25",
       "ecosystem": "npm",
       "name": "postcss",
-      "version": "8.5.22",
+      "version": "8.5.25",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1964,10 +1964,10 @@
       "notes": null
     },
     {
-      "key": "npm:undici@7.28.0",
+      "key": "npm:undici@7.29.0",
       "ecosystem": "npm",
       "name": "undici",
-      "version": "7.28.0",
+      "version": "7.29.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { loadCorpusOverview } from "./corpus-overview";
+import { buildCategoryEvidencePages } from "./directory-view";
 
 const root = process.cwd();
 
@@ -156,4 +158,38 @@ test("methodology dates never render a broken Date object", () => {
   assert.match(renderer, /function formatListSnapshot\(value: string\): string/);
   assert.match(renderer, /if \(Number\.isNaN\(date\.getTime\(\)\)\) return "date not recorded"/);
   assert.match(renderer, /fetched\{" "\}\s*\{formatListSnapshot\(displayedRun\.conditions\.adblockLists\.fetchedAt\)\}/);
+});
+
+test("the status card never claims one cohort backs every corpus aggregate while the homepage counts several", async () => {
+  const status = source("app/status/page.tsx");
+  const home = source("app/page.tsx");
+
+  // Both surfaces must count published cohorts from the SAME category pages.
+  // The homepage names them via a local; /status inlines the same expression.
+  assert.match(home, /new Set\(categoryPages\.map\(\(category\) => category\.cohort\.id\)\)\.size/);
+  assert.match(
+    status,
+    /const categoryCohortCount = new Set\(\s*buildCategoryEvidencePages\(overview\.entries\)\.map\(\(category\) => category\.cohort\.id\)\s*\)\.size;/
+  );
+  // The count is rendered, never restated as a literal that can go stale.
+  assert.match(status, /span \$\{categoryCohortCount\} cohorts in total/);
+
+  // overview.siteCount counts one cohort and is only consumed by the report
+  // page's corpus comparison, so the card may only speak for that surface.
+  assert.match(status, /make up the corpus sample a report page\s+compares a scan against/);
+  assert.match(status, /the one measurement cohort behind that comparison/);
+  assert.doesNotMatch(status, /cohort the corpus aggregates use/);
+  assert.doesNotMatch(status, /qualify for corpus aggregates/);
+
+  const overview = await loadCorpusOverview();
+  const categoryCohortCount = new Set(
+    buildCategoryEvidencePages(overview.entries).map((category) => category.cohort.id)
+  ).size;
+  if (categoryCohortCount > 1) {
+    // With the committed corpus in this state, an unconditional single-cohort
+    // sentence on /status would contradict the homepage on the same build.
+    assert.doesNotMatch(status, /single measurement cohort/);
+    assert.match(status, /categoryCohortCount > 1/);
+    assert.match(status, /no single cohort backs every published aggregate/);
+  }
 });

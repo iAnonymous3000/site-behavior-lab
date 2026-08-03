@@ -486,6 +486,53 @@ test("comparison coverage and cap totals consider a successful variant when the 
   assert.equal(stats.cappedSiteCount, 1, "the successful capped variant contributes to the cap total");
 });
 
+test("cohort recency reads the report-level scan time the directory aggregate also ranks by", async () => {
+  // selectPrimaryCorpusCohort ranks on recency first, and lib/corpus-overview
+  // feeds it view.scannedAt. The lead run's own start is a DIFFERENT clock on
+  // every v1 comparison, where the wire's report-level time is the variant
+  // arm's start, so these two cohorts invert depending on which clock the
+  // builder reads: on the lead run's start the GPC cohort is newest, on the
+  // report-level time the plain cohort is. Two surfaces ranking the same
+  // cohorts on two clocks can name two different primary cohorts.
+  const plain = createComparisonReport({
+    comparisonType: "custom",
+    title: "Two-clock fixture",
+    runLabels: { baseline: "Baseline", variant: "Variant" },
+    baseline: makeResult({ firstPartyDomain: "plain-clock-fixture.dev", scannedAt: "2026-07-01T10:00:00.000Z" }),
+    variant: makeResult({ firstPartyDomain: "plain-clock-fixture.dev", scannedAt: "2026-07-01T10:00:40.000Z" }),
+    warningPrefix: "Sequential fixture."
+  });
+  const gpc = createComparisonReport({
+    comparisonType: "custom",
+    title: "Two-clock GPC fixture",
+    runLabels: { baseline: "Baseline", variant: "Variant" },
+    baseline: makeResult({
+      firstPartyDomain: "gpc-clock-fixture.dev",
+      scannedAt: "2026-07-01T10:00:20.000Z",
+      gpcEnabled: true
+    }),
+    variant: makeResult({
+      firstPartyDomain: "gpc-clock-fixture.dev",
+      scannedAt: "2026-07-01T10:00:30.000Z",
+      gpcEnabled: true
+    }),
+    warningPrefix: "Sequential fixture."
+  });
+  await writeReport("20260701-1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a", plain);
+  await writeReport("20260701-2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b", gpc);
+
+  const { stats } = await buildCorpusStats(reportsDir);
+  const cohorts = stats.cohorts ?? [];
+  assert.equal(cohorts.length, 2, "the requested-GPC split must hold these two apart");
+  const plainCohort = cohorts.find((cohort) => cohort.gpc === false);
+  const gpcCohort = cohorts.find((cohort) => cohort.gpc === true);
+  assert.ok(plainCohort && gpcCohort, "both requested-GPC lanes must be published");
+
+  assert.equal(plainCohort.latestRunAt, "2026-07-01T10:00:40.000Z", "cohort recency is the report-level scan time");
+  assert.equal(gpcCohort.latestRunAt, "2026-07-01T10:00:30.000Z", "cohort recency is the report-level scan time");
+  assert.equal(stats.primaryCohortId, plainCohort.id, "the newest report-level scan time takes the aggregate");
+});
+
 test("a missing reports directory yields an empty distribution", async () => {
   const { stats } = await buildCorpusStats(path.join(reportsDir, "missing"));
   assert.equal(stats.sampleSize, 0);
