@@ -57,7 +57,7 @@ test("provenance attestation is isolated, immutable, and limited to exact eviden
   assert.match(attestJob, /Container package inventory is not canonical JSON/);
 
   assert.equal(
-    (attestJob.match(/actions\/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4\.2\.0/g) ?? []).length,
+    (attestJob.match(/actions\/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4\.2\.1/g) ?? []).length,
     3
   );
   assert.match(

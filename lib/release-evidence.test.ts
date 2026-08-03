@@ -897,7 +897,7 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   );
   assert.match(attest, /receipt\.release\?\.evidencesReleaseCommit !== false/);
   assert.match(attest, /staticArtifact\.deployment\?\.deployment !== process\.env\.RELEASE_SHA/);
-  assert.match(attest, /uses: actions\/attest@[a-f0-9]{40} # v4\.2\.0/);
+  assert.match(attest, /uses: actions\/attest@[a-f0-9]{40} # v4\.2\.1/);
 
   // Tag authority is smaller still: the native workflow token stays read-only
   // and a separately configured release App mints the one contents-write token
