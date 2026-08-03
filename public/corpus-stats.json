@@ -1,9 +1,9 @@
 {
   "version": 4,
-  "generatedAt": "2026-07-30T22:49:49.066Z",
+  "generatedAt": "2026-08-03T11:14:12.202Z",
   "metricContractVersion": "metric-contract-v1",
   "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
-  "sampleSize": 69,
+  "sampleSize": 64,
   "coverageSiteCount": 99,
   "cappedSiteCount": 3,
   "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
@@ -168,20 +168,20 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
-      "sampleSize": 69,
-      "latestRunAt": "2026-07-25T18:23:27.733Z",
+      "sampleSize": 64,
+      "latestRunAt": "2026-07-25T18:22:06.987Z",
       "metrics": {
         "thirdPartyRequests": {
-          "count": 69,
+          "count": 64,
           "min": 0,
           "max": 382,
           "p50": 14,
-          "p75": 56,
+          "p75": 68,
           "p90": 162,
           "p95": 185
         },
         "thirdPartyDomains": {
-          "count": 69,
+          "count": 64,
           "min": 0,
           "max": 59,
           "p50": 3,
@@ -190,7 +190,7 @@
           "p95": 29
         },
         "cataloguedServiceRequests": {
-          "count": 69,
+          "count": 64,
           "min": 0,
           "max": 152,
           "p50": 1,
@@ -199,7 +199,7 @@
           "p95": 36
         },
         "trackingServiceRequests": {
-          "count": 69,
+          "count": 64,
           "min": 0,
           "max": 152,
           "p50": 1,
@@ -208,22 +208,95 @@
           "p95": 36
         },
         "thirdPartyCookies": {
-          "count": 69,
+          "count": 64,
           "min": 0,
           "max": 36,
           "p50": 0,
-          "p75": 0,
+          "p75": 1,
           "p90": 5,
           "p95": 19
         },
         "fingerprintEvents": {
-          "count": 69,
+          "count": 64,
           "min": 0,
           "max": 122,
           "p50": 0,
           "p75": 0,
           "p90": 2,
           "p95": 8
+        }
+      }
+    },
+    {
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0%2Bsubject-validity-v2%2Bdetector-coverage-v2:producer-unrecorded:gpc-off:catalog-legacy-metadata-hash-5a5b8699d87581ae2f9b4a98d622df2b6c78a9259fad43d922b1cb6eda677526:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "schemaVersion": 1,
+      "schemaRevision": null,
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2",
+      "methodologyOrigin": "legacy-derived",
+      "producer": null,
+      "gpc": false,
+      "trackerCatalogDigest": "5a5b8699d87581ae2f9b4a98d622df2b6c78a9259fad43d922b1cb6eda677526",
+      "trackerCatalogOrigin": "legacy-metadata-hash",
+      "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
+      "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "metricContractVersion": "metric-contract-v1",
+      "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "sampleSize": 35,
+      "latestRunAt": "2026-08-03T11:05:28.451Z",
+      "metrics": {
+        "thirdPartyRequests": {
+          "count": 35,
+          "min": 0,
+          "max": 166,
+          "p50": 0,
+          "p75": 10,
+          "p90": 21,
+          "p95": 50
+        },
+        "thirdPartyDomains": {
+          "count": 35,
+          "min": 0,
+          "max": 16,
+          "p50": 0,
+          "p75": 3,
+          "p90": 8,
+          "p95": 12
+        },
+        "cataloguedServiceRequests": {
+          "count": 35,
+          "min": 0,
+          "max": 11,
+          "p50": 0,
+          "p75": 4,
+          "p90": 7,
+          "p95": 11
+        },
+        "trackingServiceRequests": {
+          "count": 35,
+          "min": 0,
+          "max": 11,
+          "p50": 0,
+          "p75": 4,
+          "p90": 7,
+          "p95": 10
+        },
+        "thirdPartyCookies": {
+          "count": 35,
+          "min": 0,
+          "max": 3,
+          "p50": 0,
+          "p75": 0,
+          "p90": 1,
+          "p95": 2
+        },
+        "fingerprintEvents": {
+          "count": 35,
+          "min": 0,
+          "max": 116,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 59
         }
       }
     },
@@ -449,16 +522,16 @@
   ],
   "metrics": {
     "thirdPartyRequests": {
-      "count": 69,
+      "count": 64,
       "min": 0,
       "max": 382,
       "p50": 14,
-      "p75": 56,
+      "p75": 68,
       "p90": 162,
       "p95": 185
     },
     "thirdPartyDomains": {
-      "count": 69,
+      "count": 64,
       "min": 0,
       "max": 59,
       "p50": 3,
@@ -467,7 +540,7 @@
       "p95": 29
     },
     "cataloguedServiceRequests": {
-      "count": 69,
+      "count": 64,
       "min": 0,
       "max": 152,
       "p50": 1,
@@ -476,7 +549,7 @@
       "p95": 36
     },
     "trackingServiceRequests": {
-      "count": 69,
+      "count": 64,
       "min": 0,
       "max": 152,
       "p50": 1,
@@ -485,16 +558,16 @@
       "p95": 36
     },
     "thirdPartyCookies": {
-      "count": 69,
+      "count": 64,
       "min": 0,
       "max": 36,
       "p50": 0,
-      "p75": 0,
+      "p75": 1,
       "p90": 5,
       "p95": 19
     },
     "fingerprintEvents": {
-      "count": 69,
+      "count": 64,
       "min": 0,
       "max": 122,
       "p50": 0,
