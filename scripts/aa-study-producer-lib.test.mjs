@@ -508,7 +508,7 @@ test("workflow contract keeps collection unsharded and isolates hosted attestati
   );
   const proposalJob = archive.slice(archive.indexOf("  propose:"));
   assert.doesNotMatch(proposalJob, /id-token: write|attestations: write/);
-  assert.match(archive, /actions\/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6/);
+  assert.match(archive, /actions\/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d/);
   assert.match(archiveScript, /ensure-gh-attestation-verifier\.mjs/);
   assert.match(archiveScript, /--deny-self-hosted-runners/);
   assert.match(archiveScript, /https:\/\/slsa\.dev\/provenance\/v1/);
