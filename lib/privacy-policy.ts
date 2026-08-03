@@ -67,8 +67,20 @@ const POLICY_HOSTING_SERVICES = [
 // conservative second stage, so every localized form below is either an exact
 // policy-shaped path segment or an explicit phrase that means policy/notice/
 // statement. Bare mentions such as "why privacy matters" remain insufficient.
+//
+// Every stem the collector matches on must be answerable here. A stem the
+// collector finds but this stage cannot score is worse than not collecting it
+// at all: the run then reports "no discoverable policy link" as a property of
+// the SITE when it is a limit of the instrument. The handoff guard in
+// privacy-policy.test.ts derives its cases from the collector's declared
+// POLICY_LINK_TERMS so the two halves cannot drift apart again.
+//
+// Two normalization notes for the localized forms: normalizePolicySignal
+// strips combining marks, so an accented link label arrives here unaccented,
+// but the Nordic "ae" ligature and the Turkish dotless i (ı) are separate
+// letters that survive it and need their own alternatives.
 const POLICY_PATH_SEGMENT =
-  /^(?:privacy|privacy[-_]?(?:policy|notice|statement|centre|center)|datenschutz(?:erkl(?:a|ae)rung|hinweise?|richtlinie|bestimmungen)?|privacybeleid|privacyverklaring|gegevensbeschermingsbeleid|privacidad|(?:politica|politicas|aviso|declaracion)[-_](?:de[-_])?privacidad|confidentialite|(?:politique|charte|avis)[-_](?:de[-_])?confidentialite|politique[-_](?:de[-_])?protection[-_]des[-_]donnees|privacidade|(?:politica|politicas|aviso|declaracao)[-_](?:de[-_])?privacidade|politica[-_](?:de[-_])?protecao[-_]de[-_]dados)(?:\.[a-z0-9]+)?$/;
+  /^(?:privacy|privacy[-_]?(?:policy|notice|statement|centre|center)|datenschutz(?:erkl(?:a|ae)rung|hinweise?|richtlinie|bestimmungen)?|privacybeleid|privacyverklaring|gegevensbeschermingsbeleid|privacidad|(?:politica|politicas|aviso|declaracion)[-_](?:de[-_])?privacidad|confidentialite|(?:politique|charte|avis)[-_](?:de[-_])?confidentialite|politique[-_](?:de[-_])?protection[-_]des[-_]donnees|privacidade|(?:politica|politicas|aviso|declaracao)[-_](?:de[-_])?privacidade|politica[-_](?:de[-_])?protecao[-_]de[-_]dados|privatezza|informativa[-_](?:su[-_]|sulla[-_]|sulle[-_]|sui[-_])?(?:privacy|privatezza)|integritetspolicy|tietosuoja(?:seloste|kaytanto|lauseke|ilmoitus|periaatteet)?|personvern(?:erkl(?:ae|æ)ring|policy)?|persondatapolitik|privatlivspolitik|(?:politik[-_]om[-_]|beskyttelse[-_]af[-_])personoplysninger|(?:polityka|ochrona)[-_]prywatnosci|gizlilik(?:[-_](?:politikas[iı]|bildirimi|sozlesmesi))?|(?:ochrana|zasady[-_]ochrany)[-_]soukromi|adatvedelmi[-_](?:tajekoztato|nyilatkozat|szabalyzat|iranyelvek))(?:\.[a-z0-9]+)?$/;
 
 const POLICY_TEXT_PATTERNS = [
   /\bprivacy\s+(?:policy|notice|statement)\b/,
@@ -78,11 +90,21 @@ const POLICY_TEXT_PATTERNS = [
   /^datenschutz(?:erkl(?:a|ae)rung|hinweise?|richtlinie|bestimmungen)$/,
   /^(?:privacybeleid|privacyverklaring|gegevensbeschermingsbeleid)$/,
   /^(?:politica|politicas|aviso|declaracao)\s+(?:de\s+)?privacidade$/,
-  /^politica\s+(?:de\s+)?protecao\s+de\s+dados$/
+  /^politica\s+(?:de\s+)?protecao\s+de\s+dados$/,
+  /^informativa\s+(?:su\s+|sulla\s+|sulle\s+|sui\s+)?(?:privacy|privatezza)$/,
+  /^integritetspolicy$/,
+  /^tietosuoja(?:seloste|kaytanto|lauseke|ilmoitus|periaatteet)$/,
+  /^personvern(?:erkl(?:ae|æ)ring|policy)$/,
+  /^(?:persondatapolitik|privatlivspolitik)$/,
+  /^(?:politik\s+om|beskyttelse\s+af)\s+personoplysninger$/,
+  /^(?:polityka|ochrona)\s+prywatnosci$/,
+  /^gizlilik\s+(?:politikas[iı]|bildirimi|sozlesmesi)$/,
+  /^(?:ochrana|zasady\s+ochrany)\s+soukromi$/,
+  /^adatvedelmi\s+(?:tajekoztato|nyilatkozat|szabalyzat|iranyelvek)$/
 ];
 
 const PRIVACY_TERM =
-  /\b(?:privacy|privacidad|privacidade|confidentialite|datenschutz|privacybeleid|privacyverklaring|gegevensbescherming)\b/;
+  /\b(?:privacy|privacidad|privacidade|privatezza|confidentialite|datenschutz|privacybeleid|privacyverklaring|gegevensbescherming|integritetspolicy|tietosuoja|personvern|personoplysninger|prywatnosci|gizlilik|soukromi|adatvedelmi)\b/;
 
 // Privacy-adjacent pages that are NOT the policy: product/marketing ("privacy
 // features", "privacy principles/promise"), changelogs ("privacy updates"),

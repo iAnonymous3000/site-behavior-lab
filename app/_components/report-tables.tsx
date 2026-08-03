@@ -418,7 +418,13 @@ function requestMatchesSignalFilter(request: NetworkRequestRecord, filter: Reque
   if (filter === "known-service") return Boolean(request.tracker);
   if (filter === "shields-blocked") return request.blockedByShields === true;
   if (filter === "fingerprinting") return (request.tracker?.fingerprinting ?? 0) > 0;
-  if (filter === "provenance") return Boolean(request.provenance);
+  // Match what the row can actually show, not merely that a provenance object
+  // exists. The adapter deliberately retains id-only provenance (graph join
+  // keys with no url or domain), so Boolean(request.provenance) matched rows
+  // the table then rendered with no causal chain at all, while the report was
+  // simultaneously warning that no provenance was supplied. The summary is the
+  // same predicate the row itself uses.
+  if (filter === "provenance") return requestProvenanceSummary(request) !== null;
   return true;
 }
 

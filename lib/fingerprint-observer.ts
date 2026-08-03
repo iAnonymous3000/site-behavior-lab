@@ -123,6 +123,18 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   const webglPrototype = observerWindow.WebGLRenderingContext?.prototype;
   const documentValue = observerWindow.document;
   const locationValue = observerWindow.location;
+  // `window.top` is unforgeable per the HTML standard, so a page script cannot
+  // fake it; it is still read here, before any page script has run. A harness
+  // window without `top` is treated as the top frame, since a missing `top` is
+  // not evidence that the observer is running inside a subframe.
+  const topWindowValue = (() => {
+    try {
+      return observerWindow.top;
+    } catch {
+      return null;
+    }
+  })();
+  const observerInSubframe = Boolean(topWindowValue) && topWindowValue !== observerWindow;
   const canvasGetter = canvasContextPrototype
     ? objectGetOwnPropertyDescriptor(canvasContextPrototype, "canvas")?.get
     : undefined;
@@ -560,6 +572,14 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
 
   const summarizeInteractionDetections = (): FingerprintDetectionSummary[] => {
     const detections: FingerprintDetectionSummary[] = [];
+    // Every frame's detections merge into one page-level summary that carries no
+    // frame provenance, and listeners registered inside a subframe can only
+    // observe that subframe's own document. Publishing them would restate a
+    // frame-scope fact as a page-scope claim about the scanned page, so a
+    // subframe contributes no interaction coverage. The scanned document's own
+    // coverage is unaffected: cross-realm registrations against the top document
+    // run through the top frame's own wrapper.
+    if (observerInSubframe) return detections;
     const sessionEventTypes = sortedSetValues(sessionRecordingState.thirdPartyEventTypes);
     const sessionTargets = sortedSetValues(sessionRecordingState.thirdPartyListenerTargets);
     const sessionOrigins = sortedSetValues(sessionRecordingState.thirdPartyOrigins);
@@ -1138,6 +1158,16 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     state.thirdPartyListenerCalls += 1;
   };
 
+  const observerOwnsAddEventListener = (wrapper: Function) => {
+    if (!eventTargetPrototype) return false;
+    try {
+      const descriptor = objectGetOwnPropertyDescriptor(eventTargetPrototype, "addEventListener");
+      return Boolean(descriptor) && descriptor?.value === wrapper;
+    } catch {
+      return false;
+    }
+  };
+
   const recordListenerCoverage = (eventTypeValue: unknown, target: unknown, skipUntil?: Function) => {
     if (typeof eventTypeValue !== "string") return;
     if (eventTypeValue.length > 32) return;
@@ -1147,6 +1177,17 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     if (!sessionRecordingEvent && !inputMonitoringEvent) return;
     const targetType = classifyListenerTarget(target);
     const activeScriptOrigin = currentScriptOrigin();
+    // Without a current script the origin comes from the stack, whose nearest
+    // frame below the observer is whatever called the observer's wrapper. If the
+    // page has replaced EventTarget.prototype.addEventListener above the
+    // observer, that nearest frame is the replacement rather than the script
+    // that asked for the listener, and every later registration would be
+    // credited to it. Record coverage loss instead of publishing the nearest
+    // frame as an attribution.
+    if (!activeScriptOrigin && skipUntil && !observerOwnsAddEventListener(skipUntil)) {
+      observerCoverageLost = true;
+      return;
+    }
     const stackAttribution = activeScriptOrigin
       ? { coverageAvailable: true, origin: activeScriptOrigin }
       : scriptOriginFromStack(skipUntil);

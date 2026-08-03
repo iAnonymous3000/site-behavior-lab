@@ -301,6 +301,45 @@ test("manual v1 compatibility runs cannot reconcile the authoritative r2 refresh
   );
 });
 
+test("every declared featured cron stays bound to the leg it selects", () => {
+  const workflow = readFileSync(path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"), "utf8");
+  const scheduleStart = workflow.indexOf("\n  schedule:");
+  const scheduleEnd = workflow.indexOf("\npermissions:", scheduleStart);
+  assert.notEqual(scheduleStart, -1);
+  assert.notEqual(scheduleEnd, -1);
+  const scheduleBlock = workflow.slice(scheduleStart, scheduleEnd);
+  const declared = [...scheduleBlock.matchAll(/- cron: "([^"]+)"/g)].map((match) => match[1]);
+  const referenced = [...workflow.matchAll(/github\.event\.schedule == '([^']+)'/g)].map((match) => match[1]);
+  assert.equal(declared.length >= 2, true, "the weekly corpus refresh runs one leg per catalog");
+  assert.equal(new Set(declared).size, declared.length, "each scheduled leg needs its own cron");
+  // Nothing but string equality couples a cron declaration to the expression
+  // that recognises it, so pin both directions. A retimed declaration leaves
+  // its guard permanently false, and a guard on an undeclared cron can never
+  // fire; either way the leg silently does the other leg's work and the run
+  // still reports success.
+  for (const cron of declared) {
+    assert.equal(
+      referenced.includes(cron),
+      true,
+      `cron ${cron} is declared but no env or step expression selects on it`
+    );
+  }
+  for (const cron of referenced) {
+    assert.equal(declared.includes(cron), true, `an expression compares against undeclared cron ${cron}`);
+  }
+  // The de-bias seed leg specifically. When its literal stops matching,
+  // FEATURED_SITES_FILE resolves to '' and both the runner and the publication
+  // request default it to the gallery catalog, so the Monday leg rescans the
+  // tracker-heavy gallery and the seed list stops advancing into each new era.
+  const seedCron =
+    workflow.match(/github\.event\.schedule == '([^']+)' && 'public\/corpus-seed-sites\.json'/)?.[1] ?? "";
+  assert.equal(
+    declared.includes(seedCron),
+    true,
+    `the de-bias seed catalog is selected on ${seedCron || "no cron at all"}, which is not a declared schedule`
+  );
+});
+
 test("scanner workflow startup gates reject stale port owners and mismatched health", () => {
   const featured = readFileSync(path.join(process.cwd(), ".github", "workflows", "scan-featured.yml"), "utf8");
   const single = readFileSync(path.join(process.cwd(), ".github", "workflows", "scan.yml"), "utf8");

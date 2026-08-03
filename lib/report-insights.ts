@@ -514,9 +514,15 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
     )}, from ${plural(detection.evidence.fieldsTyped, "field")}`;
   }
 
-  return `${plural(detection.evidence.totalListenerCalls, "third-party listener")} from ${humanList(
+  // The observer counts every addEventListener invocation and never wraps
+  // removeEventListener, so this total is a count of registration CALLS, not of
+  // listeners live at snapshot time: re-adding an identical handler is a DOM
+  // no-op that still increments, and a removed handler still counts.
+  return `${plural(detection.evidence.totalListenerCalls, "third-party addEventListener call")} from ${humanList(
     detection.evidence.thirdPartyOrigins
-  )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(detection.evidence.listenerTargets)}`;
+  )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(
+    detection.evidence.listenerTargets
+  )}; repeat registrations of the same handler count separately and removals are not observed`;
 }
 
 /**

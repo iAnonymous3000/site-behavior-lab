@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   catalogCoverage,
+  detectionEvidence,
   gpcRunMeasurement,
   isOperationalEntity,
   isTrackingEntity,
@@ -14,7 +15,7 @@ import {
   trackerResponseQualification,
   trackingServiceRequests
 } from "./report-insights";
-import type { DomainSummary, NetworkRequestRecord } from "./types";
+import type { DomainSummary, NetworkRequestRecord, SessionRecordingDetectionSummary } from "./types";
 
 function requestRows(
   count: number,
@@ -394,4 +395,36 @@ test("tracking request totals count retained direct matches only", () => {
   // Eligibility/censoring is enforced by aggregate consumers. At report scope
   // the retained rows remain a lower bound instead of being silently discarded.
   assert.equal(trackingServiceRequests(incompleteEvidence), 3);
+});
+
+test("listener-coverage evidence names addEventListener calls instead of live listeners", () => {
+  // The observer increments per addEventListener invocation and never wraps
+  // removeEventListener, so re-registering an identical handler (a DOM no-op)
+  // still counts, as does a handler removed before the snapshot. Publishing
+  // that total as a count of "listeners" overstates what is live on the page.
+  const detection: SessionRecordingDetectionSummary = {
+    kind: "session-recording",
+    heuristic: "interaction-listener-coverage-v1",
+    count: 1,
+    evidence: {
+      eventTypes: ["scroll", "click"],
+      listenerTargets: ["document"],
+      thirdPartyOrigins: ["analytics.example.net"],
+      // Four attach passes over five module-level handlers: 20 calls, 5 live listeners.
+      totalListenerCalls: 20
+    }
+  };
+
+  const rendered = detectionEvidence(detection);
+  assert.match(rendered, /20 third-party addEventListener calls/);
+  // The count must never be published with a bare "listener(s)" noun, which a
+  // reader takes as the number of handlers live at snapshot time.
+  assert.doesNotMatch(rendered, /\d+ third-party listeners?\b/);
+  assert.match(rendered, /removals are not observed/);
+
+  const single = detectionEvidence({
+    ...detection,
+    evidence: { ...detection.evidence, totalListenerCalls: 1 }
+  });
+  assert.match(single, /1 third-party addEventListener call from/);
 });

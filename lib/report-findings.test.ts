@@ -9,7 +9,7 @@ import {
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import { buildFindings, type Finding, type FindingIconKey } from "./report-findings";
+import { buildFindings, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { HEADLINE_PLATFORMS, isTrackingTrackerMatch } from "./report-insights";
 import { reviewedOwnershipRelationship } from "./reviewed-ownership";
@@ -2509,4 +2509,87 @@ test("an uncatalogued platform domain is not reported as no platform requests", 
   const cleanCard = byId(clean, "named-platforms");
   assert.equal(cleanCard.level, "ok");
   assert.match(cleanCard.lead, /No requests to catalogued Google/);
+});
+
+test("the causal map names each provenance actor with the request log's own word for that field", () => {
+  const base: NetworkRequestRecord = {
+    id: 1,
+    url: "https://ads.example.com/pixel",
+    domain: "ads.example.com",
+    method: "GET",
+    resourceType: "script",
+    status: 200,
+    thirdParty: true,
+    tracker: null,
+    startedAtMs: 1
+  };
+  // Injector only: the domain executed the script that made the request, it is not
+  // itself the recorded script.
+  const injectorOnly: NetworkRequestRecord = { ...base, provenance: { injectedByDomain: "cdn.example.net" } };
+  // Initiator only, with a recorded type the log prints. The log says iframe, so no
+  // other surface may call the same record a script.
+  const iframeInitiator: NetworkRequestRecord = {
+    ...base,
+    provenance: {
+      initiatorType: "iframe",
+      initiatorDomain: "widget.example.net",
+      initiatorUrl: "https://widget.example.net/embed.html"
+    }
+  };
+  // A recorded script outranks the rest of the chain, and only then is "script" true.
+  const scripted: NetworkRequestRecord = {
+    ...base,
+    provenance: {
+      scriptDomain: "tags.example.net",
+      initiatorDomain: "widget.example.net",
+      injectedByDomain: "cdn.example.net"
+    }
+  };
+  assert.equal(requestProvenanceSummary(scripted)?.primary, "script tags.example.net");
+
+  const graph = readFileSync(path.join(process.cwd(), "app", "_components", "causality-graph.tsx"), "utf8");
+
+  // Whatever phrase the log prints for a field is the phrase the map has to print for it.
+  const logWording = [
+    { request: injectorOnly, phrase: "injected by", actor: "cdn.example.net" },
+    { request: iframeInitiator, phrase: "initiated by", actor: "iframe widget.example.net" }
+  ];
+  for (const { request, phrase, actor } of logWording) {
+    assert.equal(requestProvenanceSummary(request)?.primary, `${phrase} ${actor}`);
+    assert.ok(
+      graph.includes(`return "${phrase}"`),
+      `the causal map has to offer "${phrase}", the request log's own phrase for that field`
+    );
+  }
+
+  // The map has to read the role off the field that named the actor, in the same order
+  // the log resolves it, rather than calling every actor a script.
+  const fieldRoles = [
+    { field: "scriptDomain", role: "script" },
+    { field: "initiatorDomain", role: "initiator" },
+    { field: "injectedByDomain", role: "injector" }
+  ];
+  for (const { field, role } of fieldRoles) {
+    assert.ok(
+      graph.includes(`domain: provenance.${field}, role: "${role}"`),
+      `the causal map has to record ${field} as the ${role} role`
+    );
+  }
+  const consulted = Array.from(new Set(graph.match(/provenance\.[A-Za-z]+/g) ?? []));
+  assert.deepEqual(
+    consulted,
+    fieldRoles.map(({ field }) => `provenance.${field}`),
+    "the map has to resolve the actor from the same fields, in the same order, as the request log"
+  );
+
+  assert.doesNotMatch(
+    graph,
+    /script →/,
+    "the map may not label every provenance actor a script; the role comes from the field that named it"
+  );
+  assert.doesNotMatch(
+    graph,
+    /\bcaused\b/,
+    "PageGraph provenance attributes a request to an actor, it does not establish that the actor caused it"
+  );
 });

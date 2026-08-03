@@ -4,29 +4,75 @@ import { useId, useMemo } from "react";
 import { plural } from "@/lib/text-format";
 import type { NetworkRequestRecord } from "@/lib/types";
 
-type CausalEdge = { source: string; dest: string; requests: number; tracker: boolean };
+/** Which recorded provenance field named the actor, so no surface has to guess. */
+type ProvenanceActorRole = "script" | "initiator" | "injector" | "mixed";
+type CausalEdge = {
+  source: string;
+  dest: string;
+  requests: number;
+  tracker: boolean;
+  role: ProvenanceActorRole;
+};
 type CausalEdgeSet = { edges: CausalEdge[]; totalEdges: number };
 
 /** Drawing every edge of a busy capture makes the map unreadable; the tail is disclosed. */
 const MAX_DRAWN_EDGES = 12;
 
+/**
+ * The domain a capture attributes a request to, plus the field that named it. The
+ * order matches requestProvenanceSummary in lib/report-findings.ts, so the map and
+ * the request log resolve the same actor from the same record.
+ */
+function provenanceActor(
+  request: NetworkRequestRecord
+): { domain: string; role: Exclude<ProvenanceActorRole, "mixed"> } | null {
+  const provenance = request.provenance;
+  if (!provenance) return null;
+  if (provenance.scriptDomain) return { domain: provenance.scriptDomain, role: "script" };
+  if (provenance.initiatorDomain) return { domain: provenance.initiatorDomain, role: "initiator" };
+  if (provenance.injectedByDomain) return { domain: provenance.injectedByDomain, role: "injector" };
+  return null;
+}
+
+/** The phrase the request log already prints for that field, so both surfaces read alike. */
+function actorPhrase(role: ProvenanceActorRole): string {
+  if (role === "script") return "script";
+  if (role === "initiator") return "initiated by";
+  if (role === "injector") return "injected by";
+  return "attributed to";
+}
+
+/** The same fields in the label form the node detail line needs. */
+function actorRoleLabel(role: ProvenanceActorRole): string {
+  if (role === "script") return "recorded script";
+  if (role === "initiator") return "recorded initiator";
+  if (role === "injector") return "recorded injector";
+  return "recorded actor";
+}
+
 function buildCausalEdges(requests: NetworkRequestRecord[]): CausalEdgeSet {
   const map = new Map<string, CausalEdge>();
 
   for (const request of requests) {
-    if (!request.thirdParty || !request.provenance) continue;
-    const provenance = request.provenance;
-    const source = provenance.scriptDomain || provenance.initiatorDomain || provenance.injectedByDomain;
-    if (!source) continue;
+    if (!request.thirdParty) continue;
+    const actor = provenanceActor(request);
+    if (!actor) continue;
+    const source = actor.domain;
 
     const dest = request.tracker?.entity || request.domain;
+    // The role stays out of the edge key on purpose: one domain can be the recorded
+    // script of one request and only the injector of another, and two nodes with the
+    // same label would collide in the layout and in the React keys. A role that is not
+    // constant across the merged requests degrades to "mixed" rather than claiming a
+    // role the record does not support for all of them.
     const key = `${source}\u001f${dest}`;
     const existing = map.get(key);
     if (existing) {
       existing.requests += 1;
+      if (existing.role !== actor.role) existing.role = "mixed";
       continue;
     }
-    map.set(key, { source, dest, requests: 1, tracker: Boolean(request.tracker) });
+    map.set(key, { source, dest, requests: 1, tracker: Boolean(request.tracker), role: actor.role });
   }
 
   const all = Array.from(map.values()).sort(
@@ -64,9 +110,12 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
   const sources = orderedUnique(edges.map((edge) => edge.source));
   const dests = orderedUnique(edges.map((edge) => edge.dest));
   const sourceReach = new Map<string, number>();
+  const sourceRole = new Map<string, ProvenanceActorRole>();
   const destTotals = new Map<string, number>();
   for (const edge of edges) {
     sourceReach.set(edge.source, (sourceReach.get(edge.source) ?? 0) + 1);
+    const seenRole = sourceRole.get(edge.source);
+    sourceRole.set(edge.source, seenRole === undefined || seenRole === edge.role ? edge.role : "mixed");
     destTotals.set(edge.dest, (destTotals.get(edge.dest) ?? 0) + edge.requests);
   }
 
@@ -93,7 +142,9 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
     <section className="data-section causal-graph-card">
       <div className="section-heading">
         <h2 id={headingId}>Causal map</h2>
-        <span className="muted">Which script caused which third-party request, from PageGraph provenance.</span>
+        <span className="muted">
+          Which recorded actor each third-party request is attributed to, from PageGraph provenance.
+        </span>
       </div>
       <p className="visually-hidden" id={scrollDescriptionId}>
         Horizontally scrollable visual map. A text list of every relationship drawn in it follows.
@@ -141,7 +192,7 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
                   {truncateMiddle(source)}
                 </text>
                 <text x={12} y={y + 34} className="causal-node-detail">
-                  script → {plural(reach, "destination")}
+                  {actorRoleLabel(sourceRole.get(source) ?? "mixed")} · {plural(reach, "destination")}
                 </text>
               </g>
             );
@@ -175,8 +226,8 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
       <ol className="visually-hidden">
         {edges.map((edge) => (
           <li key={`${edge.source}->${edge.dest}-text`}>
-            {edge.source} caused {plural(edge.requests, "request")} to {edge.dest}
-            {edge.tracker ? ", a catalogued service" : ""}.
+            {plural(edge.requests, "request")} to {edge.dest}
+            {edge.tracker ? ", a catalogued service" : ""}, recorded as {actorPhrase(edge.role)} {edge.source}.
           </li>
         ))}
       </ol>

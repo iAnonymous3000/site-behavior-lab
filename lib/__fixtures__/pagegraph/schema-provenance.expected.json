@@ -4,7 +4,6 @@
       "url": "https://tags.example.net/tag.js?cache=123",
       "domain": "tags.example.net",
       "resourceType": "script",
-      "status": 200,
       "startedAtMs": 3,
       "requestId": "req-child-script",
       "provenance": {
@@ -21,7 +20,6 @@
       "url": "https://google-analytics.com/collect?cid=abc&email=a%40b.test",
       "domain": "google-analytics.com",
       "resourceType": "xhr",
-      "status": 204,
       "startedAtMs": 6,
       "requestId": "req-tracker",
       "provenance": {

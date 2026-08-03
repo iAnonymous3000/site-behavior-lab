@@ -196,6 +196,38 @@ test("every producer id is deterministically aliased, including marker-shaped in
   assert.notEqual(aliased, "{invalid-id}");
 });
 
+test("script_of links a real capture's URL-less script node to the resource that delivered it", () => {
+  // Real PageGraph script nodes carry an empty url (the URL lives on the
+  // resource node), so URL identity alone would derive no script_of edge and
+  // the closure would stop at the blocked resource.
+  const realCapture = readFileSync(
+    path.join(process.cwd(), "lib", "__fixtures__", "pagegraph", "real-wikipedia-2026-07-19.graphml"),
+    "utf8"
+  );
+  const facts = buildCorpusFacts(realCapture, { pageId: "page-real", registrableDomain });
+
+  assert.equal(
+    facts.nodes.filter((node) => node.nodeType === "script").every((node) => !node.url),
+    true
+  );
+  assert.deepEqual(
+    facts.provenanceEdges.filter((edge) => edge.relation === "script_of").map((edge) => [edge.childNodeId, edge.parentNodeId]),
+    [
+      ["n12981", "n10657"],
+      ["n13086", "n13083"]
+    ]
+  );
+
+  // Blocking the delivered script's resource removes the script node itself
+  // plus every storage write and JS call that script performed.
+  const report = simulateRuleImpact([facts], (request) => request.url.includes("index-34f340e24a.js"));
+  const page = report.pages[0];
+  assert.equal(page.directlyBlocked.length, 1);
+  assert.equal(page.removedNodeCount, 2);
+  assert.equal(page.removedStorageOps, 3);
+  assert.equal(page.removedJsCalls, 12);
+});
+
 test("ingests the current capture schema: start-edge resource types, request-error completions, id-keyed rows", () => {
   const currentFixture = readFileSync(
     path.join(process.cwd(), "lib", "__fixtures__", "pagegraph", "schema-current.graphml"),

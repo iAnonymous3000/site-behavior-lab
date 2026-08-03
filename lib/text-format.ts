@@ -91,9 +91,13 @@ export function reportKindLabel(entry: {
   if (entry.comparisonType === "gpc") return "GPC comparison";
   if (entry.comparisonType === "consent") {
     if (entry.consentClicks === "accept-and-reject") return "consent comparison";
-    if (entry.consentClicks === "accept-only") return "consent comparison attempt (Reject not clicked)";
-    if (entry.consentClicks === "reject-only") return "consent comparison attempt (Accept not clicked)";
-    return "consent comparison attempt (no banner clicked)";
+    // Activation vocabulary, matching consentComparisonTitle in
+    // lib/compare-reports.ts. The recorded boolean is false both for a search
+    // that found no control and for a click that dispatched and never visibly
+    // responded, so naming it a click overstated what was observed.
+    if (entry.consentClicks === "accept-only") return "consent comparison attempt (Reject not activated)";
+    if (entry.consentClicks === "reject-only") return "consent comparison attempt (Accept not activated)";
+    return "consent comparison attempt (no control activated)";
   }
   if (entry.comparisonType === "temporal") return "temporal comparison";
   return "comparison";

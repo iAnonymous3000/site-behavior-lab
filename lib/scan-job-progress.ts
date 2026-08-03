@@ -59,9 +59,15 @@ export function scanJobProgressCopy(progress: ScanJobProgress | null): ScanJobPr
       title: "Scan accepted and queued",
       detail: "The scanner has retained this job and is waiting to start it."
     },
+    // Both producers of this phase mean "running, no finer stage reported yet",
+    // not "queued for a slot": scan-jobs markRunning() sets it from inside
+    // runScanJob after a worker has already begun, and durable recovery sets it
+    // for a lease a runner already holds. The genuine slot wait is the `queued`
+    // phase, whose copy says so. Naming a running measurement a wait told the
+    // reader a leased job had not started for its entire duration.
     waiting: {
-      title: "Waiting for a browser slot",
-      detail: "The accepted job is waiting for an isolated browser visit."
+      title: "Scan in progress",
+      detail: "The scanner has started this job. It has not reported a more detailed stage yet."
     },
     launching: {
       title: "Launching the controlled browser",

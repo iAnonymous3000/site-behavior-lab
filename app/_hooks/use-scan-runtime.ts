@@ -738,7 +738,17 @@ export function useScanRuntime({
    * cancellation it cannot perform.
    */
   function stopWaitingForAdmission(): void {
+    // Stopping the wait must also stop automatic admission recovery. The effect
+    // below re-runs the moment `loading` clears, so unless the once-per-capability
+    // guard is armed for the retained credential it restarts the wait and erases
+    // the notice set here. The credential itself stays retained: the visitor can
+    // still check admission deliberately, or retry the exact same request.
+    const pending = pendingScanAdmissionRef.current;
     dismissActiveScan();
+    if (pending) autoRecoveredAdmissionRef.current = pending.credential.capabilityToken;
+    // A cancelled recovery's finalizer no longer owns its lease, so it will not
+    // clear this flag; leaving it set disables the banner's Check admission button.
+    setRecoveringScanAdmission(false);
     setScanNotice(
       "Stopped waiting for the scanner. The request may already have been accepted, so check back shortly before scanning again."
     );

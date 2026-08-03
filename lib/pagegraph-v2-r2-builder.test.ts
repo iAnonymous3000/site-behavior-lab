@@ -170,8 +170,11 @@ test("PageGraph r2 records valid 600-999 statuses as explicit frozen-wire limita
   const report = buildPageGraphScanReportV2R2(bytesFor(graphml, target), target, CONTEXT);
   assert.equal(report.run.qualityFacts.status, null);
   assert.equal(report.run.summary.status, null);
-  assert.equal(report.run.evidence.requests.some((request) => request.status === null), true);
-  assert.equal(report.run.evidence.requests.some((request) => request.status === 599), false);
+  // The 699 substituted above lands in the request-edge "status" attribute,
+  // which PageGraph uses for lifecycle tokens, never for an HTTP response code
+  // (docs/pagegraph-schema.md, and the real-capture guard in
+  // pagegraph-parser.test.ts). No request may carry a status read from there.
+  assert.equal(report.run.evidence.requests.every((request) => request.status === null), true);
   assert.equal(report.run.quality.run.outcome, "failed");
   assert.equal(report.run.quality.run.reasons.includes("http-error-status"), true);
   assert.equal(report.run.quality.byFamily.requests.outcome, "censored");
@@ -181,11 +184,13 @@ test("PageGraph r2 records valid 600-999 statuses as explicit frozen-wire limita
     ),
     true
   );
+  // The navigation status is unrepresentable because the CAPTURE METADATA
+  // declared 699. There is no matching request-level entry, because the
+  // importer never reads an HTTP status off a request edge at all, so there is
+  // no unrepresentable request value to account for.
   assert.equal(
-    report.run.qualityFacts.captureLoss.some(
-      (entry) => entry.detail === R2_REQUEST_STATUS_UNREPRESENTABLE && entry.phaseId === 0 && entry.count === 1
-    ),
-    true
+    report.run.qualityFacts.captureLoss.some((entry) => entry.detail === R2_REQUEST_STATUS_UNREPRESENTABLE),
+    false
   );
   assert.equal(isPublicScanReportV2R2(report), true);
   assert.deepEqual(scanReportV2R2SemanticViolations(report), []);
@@ -202,16 +207,19 @@ test("PageGraph r2 rejects malformed statuses but admits the complete three-digi
     assert.throws(() => parsePageGraphCaptureMetadata(target), /100 through 999/);
   }
 
+  // The three-digit grammar governs the CAPTURE METADATA status, which is the
+  // only place a PageGraph capture states an HTTP response code. A value in the
+  // request-edge "status" attribute is a lifecycle token whatever it looks
+  // like, so an out-of-grammar number there is ignored rather than rejected:
+  // rejecting it would imply the importer had read it as an HTTP status.
   const original = new TextDecoder().decode(GRAPH_BYTES);
-  const malformedGraph = original.replace(
+  const lifecycleGraph = original.replace(
     '<data key="d42">complete</data>',
     '<data key="d42">1000</data>'
   );
   const target = metadata();
-  assert.throws(
-    () => buildPageGraphScanReportV2R2(bytesFor(malformedGraph, target), target, CONTEXT),
-    /request 1 HTTP status.*100 through 999/
-  );
+  const report = buildPageGraphScanReportV2R2(bytesFor(lifecycleGraph, target), target, CONTEXT);
+  assert.equal(report.run.evidence.requests.every((request) => request.status === null), true);
 });
 
 test("PageGraph unsupported sentinels require the exact r2 producer and family set", () => {

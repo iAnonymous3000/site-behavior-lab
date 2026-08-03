@@ -570,7 +570,7 @@ test("legacy consent wire labels and title are rewritten from the recorded click
   unclicked.title = "Consent accept/reject comparison";
   unclicked.runLabels = { baseline: "Accept all", variant: "Reject all" };
   const unclickedView = viewFromV1Report(unclicked);
-  assert.equal(unclickedView.title, "Consent comparison attempt (no banner clicked)");
+  assert.equal(unclickedView.title, "Consent comparison attempt (no control activated)");
   assert.deepEqual(unclickedView.comparison?.runLabels, {
     baseline: "Accept-all attempt",
     variant: "Reject-all attempt"
@@ -580,7 +580,7 @@ test("legacy consent wire labels and title are rewritten from the recorded click
   acceptOnly.title = "Consent accept/reject comparison";
   acceptOnly.runLabels = { baseline: "Accept all", variant: "Reject all" };
   const acceptOnlyView = viewFromV1Report(acceptOnly);
-  assert.equal(acceptOnlyView.title, "Consent comparison attempt (only Accept all clicked)");
+  assert.equal(acceptOnlyView.title, "Consent comparison attempt (only Accept all activated)");
   assert.deepEqual(acceptOnlyView.comparison?.runLabels, {
     baseline: "Accept-all click",
     variant: "Reject-all attempt"
