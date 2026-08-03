@@ -1320,6 +1320,96 @@ test("the calibration gate fails closed without eligible studies and rejects reg
   }
 });
 
+test("the aa evidence requirement follows the manifest: valid deferral drops it, deletion or a hollow record restores it", async () => {
+  const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
+  const AA_CATEGORIES = [
+    "aa-attempt-ledger",
+    "aa-evaluation",
+    "aa-producer-receipt",
+    "aa-producer-attestation"
+  ];
+  const committed = JSON.parse(
+    readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
+  );
+  const leanCategories: string[] =
+    committed.gates["measurement-candidate-binding"].requiredEvidenceCategories;
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-lean-fork-"));
+  try {
+    const manifest = () => ({
+      schemaVersion: 1,
+      artifactKind: "site-behavior-release-readiness-manifest",
+      targetRelease: "1.0.0",
+      decisions: {},
+      gates: {
+        "measurement-candidate-binding": {
+          kind: "measurement-candidate-binding",
+          title: "binding",
+          artifact: "research/measurement-candidate-binding.json",
+          requiredEvidenceCategories: [...leanCategories]
+        }
+      },
+      deferredGates: JSON.parse(JSON.stringify(committed.deferredGates))
+    });
+    const bindingGate = (result: { gates: { id: string; status: string; reasons: string[] }[] }) =>
+      result.gates.find((gate) => gate.id === "measurement-candidate-binding")!;
+
+    // Both kinds carry valid deferral records, so the committed lean category
+    // list is exactly right: no config-mismatch reason, no demand for aa
+    // evidence. The gate fails only on what the fixture genuinely lacks, the
+    // binding file itself.
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(manifest()));
+    const lean = bindingGate(evaluateReleaseReadiness(root, NOW));
+    assert.equal(lean.status, "fail");
+    const leanReasons = lean.reasons.join(" ");
+    assert.doesNotMatch(leanReasons, /requiredEvidenceCategories must be exactly/);
+    assert.doesNotMatch(leanReasons, /measurement binding enumerates no aa-/);
+    if (!/unavailable/.test(leanReasons)) {
+      assert.deepEqual(lean.reasons, [
+        "research/measurement-candidate-binding.json does not exist"
+      ]);
+    }
+
+    // Deleting the deferral records without restoring the gates reverts to the
+    // FULL requirement: the same lean gate config becomes a config error that
+    // names the complete category list, aa entries included.
+    const deleted = manifest();
+    delete deleted.deferredGates;
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(deleted));
+    const restored = bindingGate(evaluateReleaseReadiness(root, NOW));
+    assert.equal(restored.status, "fail");
+    const prefix = "gate config: requiredEvidenceCategories must be exactly ";
+    const exactConfig = restored.reasons.find((reason) => reason.startsWith(prefix));
+    assert.notEqual(exactConfig, undefined);
+    assert.deepEqual(
+      exactConfig!.slice(prefix.length).split(", ").sort(),
+      [...leanCategories, ...AA_CATEGORIES].sort()
+    );
+
+    // A deferral record whose deferredTo is missing or empty is not a
+    // deferral: full requirements stay.
+    for (const hollow of [
+      (record: Record<string, unknown>) => {
+        delete record.deferredTo;
+      },
+      (record: Record<string, unknown>) => {
+        record.deferredTo = "";
+      }
+    ]) {
+      const undeferred = manifest();
+      hollow(undeferred.deferredGates["aa-repeatability"]);
+      writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(undeferred));
+      const gate = bindingGate(evaluateReleaseReadiness(root, NOW));
+      assert.equal(gate.status, "fail");
+      assert.match(
+        gate.reasons.join(" "),
+        /requiredEvidenceCategories must be exactly .*aa-attempt-ledger/
+      );
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("operator attestations refuse soft truths, mismatched gates, and wrong releases", async () => {
   const {
     operatorAttestationIssues,
