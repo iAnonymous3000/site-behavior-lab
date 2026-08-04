@@ -60,6 +60,39 @@ export const PAGEGRAPH_R2_PUBLIC_LIMITS = Object.freeze({
   requests: MAX_RECORDED_REQUESTS
 });
 
+/**
+ * The exact ceilings every epoch published so far ran under, pinned as
+ * literals.
+ *
+ * A closed epoch must never follow NODE_R2_PUBLIC_LIMITS or
+ * PAGEGRAPH_R2_PUBLIC_LIMITS: both derive `requests` from the live
+ * MAX_RECORDED_REQUESTS, so raising the recording cap would silently restate
+ * what those already-published reports were validated against. The values are
+ * identical to the active ceilings today; the point is that they stop moving
+ * when the active ones do.
+ */
+export const HISTORICAL_NODE_R2_PUBLIC_LIMITS_V1 = Object.freeze({
+  phases: 16,
+  warnings: 64,
+  requests: 1_000,
+  cookieRecords: 1_000,
+  cookieMutations: 2_000,
+  storageRecords: 1_000,
+  storageMutations: 2_000,
+  fingerprintEvents: 1_000,
+  fingerprintDetections: 256,
+  cnameCloaks: 256,
+  pixelEvents: 512,
+  consentObservations: 32,
+  policyClaims: 32,
+  policyEntities: 100
+} satisfies Readonly<typeof NODE_R2_PUBLIC_LIMITS>);
+
+export const HISTORICAL_PAGEGRAPH_R2_PUBLIC_LIMITS_V1 = Object.freeze({
+  phases: 1,
+  requests: 1_000
+} satisfies Readonly<typeof PAGEGRAPH_R2_PUBLIC_LIMITS>);
+
 /** Exact accountability epoch immediately before ServiceRole affected producer decisions. */
 export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1";
@@ -142,40 +175,42 @@ export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG = Object.freez
   entries: 137,
   digest: "7cade02ae20c3bb88e28e0de1135ef63c48f586e7196de3c02c13478f70c95bc"
 } satisfies Toolchain["trackerCatalog"]);
-export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_ADBLOCK_IDENTITY = Object.freeze({
+/**
+ * The exact Brave snapshot every epoch from 2026-07-25 to the tldts@7.4.9
+ * identity published under.
+ *
+ * Pinned as a literal, and every closed row below names THIS constant rather
+ * than NODE_R2_CURRENT_ADBLOCK_IDENTITY: the current identity moves with each
+ * list refresh, so a row that followed it would silently restate which snapshot
+ * those already-published reports were measured against. The id of each such
+ * row names the snapshot date for the same reason.
+ */
+export const HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
   fetchedAt: "2026-07-25T14:05:35.223Z",
   manifestDigest: "34a785b40cef51a78901561747aa8e1649acdbde8f74370c80bae58e694e187b",
   engineVersion: "adblock-rust-0.13.2"
 } satisfies NonNullable<Toolchain["adblock"]>);
-export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_PUBLIC_LIMITS = Object.freeze({
-  phases: 16,
-  warnings: 64,
-  requests: 1_000,
-  cookieRecords: 1_000,
-  cookieMutations: 2_000,
-  storageRecords: 1_000,
-  storageMutations: 2_000,
-  fingerprintEvents: 1_000,
-  fingerprintDetections: 256,
-  cnameCloaks: 256,
-  pixelEvents: 512,
-  consentObservations: 32,
-  policyClaims: 32,
-  policyEntities: 100
-} satisfies Readonly<typeof NODE_R2_PUBLIC_LIMITS>);
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_ADBLOCK_IDENTITY =
+  HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY;
+export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_PUBLIC_LIMITS =
+  HISTORICAL_NODE_R2_PUBLIC_LIMITS_V1;
 export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_OBLIGATIONS = Object.freeze({
   version: "detector-obligations-v1",
   digest: "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
 });
 
 /**
- * Exact producer epoch of the ec26 normalization identity, the first
- * ServiceRole-taxonomy era (opened by catalog-review-v3 on 2026-08-01, closed
- * by scanner-warning-patterns-v8). Every value is a pinned literal: a closed
- * epoch must never follow an ACTIVE constant, or a later move silently
- * rewrites what these reports were validated against.
+ * Exact producer epoch of the two closed ServiceRole-taxonomy normalization
+ * identities: ec26 (opened by catalog-review-v3 on 2026-08-01, closed by
+ * scanner-warning-patterns-v8) and the 6c78 identity that followed it under
+ * tldts@7.4.9 (closed by the 2026-08-04 measurement epoch). Those two eras
+ * differ only in the sanitizer identity; they ran the same Playwright 1.62.0
+ * methodology, detector registry, catalogs, and taxonomy, so they share this
+ * field set. Every value is a pinned literal: a closed epoch must never follow
+ * an ACTIVE constant, or a later move silently rewrites what these reports were
+ * validated against.
  */
 export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
@@ -214,35 +249,48 @@ const PAGEGRAPH_V3_MIGRATED_NORMALIZATION = `${PAGEGRAPH_V3_NORMALIZATION}+v3-to
 
 const V4_NORMALIZATION_PREFIX =
   "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:";
-const NODE_NORMALIZATION_SUFFIX = "+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1";
-const PAGEGRAPH_NORMALIZATION_SUFFIX =
+// The public-suffix engine is part of the sanitizer identity, so these suffixes
+// name the tldts@7.4.9 era specifically and must never be re-pointed at a newer
+// engine: every identity built from them is closed.
+const NODE_TLDTS_749_NORMALIZATION_SUFFIX =
+  "+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1";
+const PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX =
   "+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 const NODE_DBB6_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${NODE_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${NODE_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const NODE_6E87_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b${NODE_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b${NODE_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const NODE_5B1F_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd${NODE_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd${NODE_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const NODE_6131_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${NODE_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${NODE_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const NODE_68C3_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${NODE_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${NODE_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const NODE_EC26_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae${NODE_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae${NODE_TLDTS_749_NORMALIZATION_SUFFIX}`;
 
 const PAGEGRAPH_DBB6_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3${PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const PAGEGRAPH_6E87_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b${PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const PAGEGRAPH_5B1F_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}5b1fd8d09fed5a91b2f1e3a395a2a5a6794fc879f05f9eaea1b00652542cf0bd${PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const PAGEGRAPH_6131_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}61319540712ac2cf0c4851669a5a2fddbe96305b885818269808bd5706632f3a${PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const PAGEGRAPH_68C3_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23${PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX}`;
 const PAGEGRAPH_EC26_NORMALIZATION =
-  `${V4_NORMALIZATION_PREFIX}ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae${PAGEGRAPH_NORMALIZATION_SUFFIX}`;
+  `${V4_NORMALIZATION_PREFIX}ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae${PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX}`;
+
+// The 6c78 policy digest under the OLD public-suffix engine. The active
+// identity keeps that digest and moves to tldts@7.4.10, so this pair is the one
+// place in the ledger where two identities share a policy-digest name and are
+// told apart by the engine component.
+const NODE_6C78_TLDTS_749_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266${NODE_TLDTS_749_NORMALIZATION_SUFFIX}`;
+const PAGEGRAPH_6C78_TLDTS_749_NORMALIZATION =
+  `${V4_NORMALIZATION_PREFIX}6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266${PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX}`;
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
@@ -266,6 +314,13 @@ export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   // status-disclosure grammar and the consent-arm disclosure. Its whole era
   // ran the first ServiceRole-taxonomy methodology.
   [NODE_EC26_NORMALIZATION]: Object.freeze([
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION
+  ]),
+  // The 6c78 identity under tldts@7.4.9 closed when the 2026-08-04 measurement
+  // epoch moved the public-suffix engine. It ran the same Playwright 1.62.0
+  // ServiceRole methodology as ec26 throughout; the Playwright 1.62.1
+  // methodology only ever ran under the tldts@7.4.10 identity.
+  [NODE_6C78_TLDTS_749_NORMALIZATION]: Object.freeze([
     HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION
   ])
 });
@@ -297,8 +352,8 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-07-25T14:05:35.223Z",
-  manifestDigest: "34a785b40cef51a78901561747aa8e1649acdbde8f74370c80bae58e694e187b",
+  fetchedAt: "2026-08-04T00:19:10.559Z",
+  manifestDigest: "b2cf156c01921a699eda150d61b356364e7916b3cad30031732f36ea34632140",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -323,6 +378,46 @@ export const PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST = sha256Hex(
   canonicalJson({
     version: PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
     detectors: PAGEGRAPH_R2_EXPECTED_DETECTORS
+  })
+);
+
+/**
+ * The exact "everything unsupported" ledger every PageGraph import published so
+ * far declared, pinned to its own frozen id list.
+ *
+ * PAGEGRAPH_R2_EXPECTED_DETECTORS follows the live DETECTOR_IDS, so adding a
+ * detector would rewrite the ledger AND the registry digest of every closed
+ * PageGraph row, silently restating what those already-published imports were
+ * validated against. Nothing in the committed corpus would catch it: the corpus
+ * holds no PageGraph bundle. Both values below derive only from frozen inputs,
+ * so they cannot move with a later registry generation.
+ */
+const HISTORICAL_PAGEGRAPH_R2_DETECTOR_IDS = Object.freeze([
+  "fingerprint-heuristics",
+  "keystroke-exfiltration",
+  "cname-uncloaking",
+  "pixel-events",
+  "consent-banner",
+  "privacy-policy"
+]);
+
+export const HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS = Object.freeze(
+  Object.fromEntries(
+    HISTORICAL_PAGEGRAPH_R2_DETECTOR_IDS.map((id) => [
+      id,
+      Object.freeze({
+        version: PAGEGRAPH_R2_DETECTOR_VERSION,
+        status: "unsupported" as const,
+        reason: "unsupported"
+      })
+    ])
+  ) as DetectorLedger
+);
+
+export const HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST = sha256Hex(
+  canonicalJson({
+    version: PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+    detectors: HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS
   })
 );
 
@@ -426,6 +521,10 @@ const PAGEGRAPH_REGISTRY = Object.freeze({
   version: PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
   digest: PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST
 });
+const HISTORICAL_PAGEGRAPH_REGISTRY = Object.freeze({
+  version: PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+  digest: HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST
+});
 
 type NodeTupleFields = Pick<
   NodeR2ProducerTuple,
@@ -446,7 +545,7 @@ const NODE_V3_FIELDS: NodeTupleFields = Object.freeze({
   detectorObligations: null,
   serviceRoleTaxonomy: null,
   trackerCatalog: HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
-  publicLimits: NODE_R2_PUBLIC_LIMITS,
+  publicLimits: HISTORICAL_NODE_R2_PUBLIC_LIMITS_V1,
   phaseOmissionContractVersion: "phase-omission-v1"
 });
 const NODE_V4_FIELDS: NodeTupleFields = NODE_V3_FIELDS;
@@ -460,7 +559,7 @@ const PRE_ACCOUNTABILITY_FIELDS: NodeTupleFields = Object.freeze({
   // alias ACTIVE_TRACKER_CATALOG, which was only correct while the active catalog
   // still WAS 2026.07; a catalog revision must never rewrite a closed epoch.
   trackerCatalog: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG,
-  publicLimits: NODE_R2_PUBLIC_LIMITS,
+  publicLimits: HISTORICAL_NODE_R2_PUBLIC_LIMITS_V1,
   phaseOmissionContractVersion: "phase-omission-v1"
 });
 const HISTORICAL_ACCOUNTABILITY_V1_FIELDS: NodeTupleFields = Object.freeze({
@@ -484,7 +583,7 @@ const HISTORICAL_SERVICE_ROLE_V1_FIELDS: NodeTupleFields = Object.freeze({
   detectorObligations: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_OBLIGATIONS,
   serviceRoleTaxonomy: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_SERVICE_ROLE_TAXONOMY,
   trackerCatalog: HISTORICAL_R2_2026_08_TRACKER_CATALOG,
-  publicLimits: NODE_R2_PUBLIC_LIMITS,
+  publicLimits: HISTORICAL_NODE_R2_PUBLIC_LIMITS_V1,
   phaseOmissionContractVersion: "phase-omission-v2"
 });
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
@@ -538,14 +637,14 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v4-6c78-active-lists-2026-07-25",
+        "node-v4-6c78-tldts7410-active-lists-2026-08-04",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v4-6c78-active-no-adblock",
+        "node-v4-6c78-tldts7410-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -608,7 +707,7 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_DBB6_NORMALIZATION,
     HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
     NODE_V4_FIELDS,
-    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-dbb6-no-adblock",
@@ -622,7 +721,7 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_6E87_NORMALIZATION,
     HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
     NODE_V4_FIELDS,
-    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-6e87-no-adblock",
@@ -636,7 +735,7 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_5B1F_NORMALIZATION,
     HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
     NODE_V4_FIELDS,
-    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-5b1f-no-adblock",
@@ -650,7 +749,7 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_6131_NORMALIZATION,
     HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
     NODE_V4_FIELDS,
-    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-6131-pw161-no-adblock",
@@ -664,7 +763,7 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_68C3_NORMALIZATION,
     HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
     NODE_V4_FIELDS,
-    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-68c3-pw161-no-adblock",
@@ -678,7 +777,7 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_68C3_NORMALIZATION,
     HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION,
     NODE_V4_FIELDS,
-    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-68c3-pw162-no-adblock",
@@ -695,7 +794,7 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION,
     PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
     PRE_ACCOUNTABILITY_FIELDS,
-    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-b68c-pre-accountability-no-adblock",
@@ -723,11 +822,29 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     NODE_EC26_NORMALIZATION,
     HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION,
     HISTORICAL_SERVICE_ROLE_V1_FIELDS,
-    NODE_R2_CURRENT_ADBLOCK_IDENTITY
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
   ),
   nodeTuple(
     "node-v4-ec26-no-adblock",
     NODE_EC26_NORMALIZATION,
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    null
+  ),
+  // The 6c78 identity as it stood under tldts@7.4.9: the sanitizer's admitted
+  // vocabulary is unchanged in the active identity, only the public-suffix
+  // engine moved, so these rows differ from the active ones in the tldts
+  // component and in the Playwright version of their methodology.
+  nodeTuple(
+    "node-v4-6c78-tldts749-lists-2026-07-25",
+    NODE_6C78_TLDTS_749_NORMALIZATION,
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-6c78-tldts749-no-adblock",
+    NODE_6C78_TLDTS_749_NORMALIZATION,
     HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION,
     HISTORICAL_SERVICE_ROLE_V1_FIELDS,
     null
@@ -738,17 +855,30 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
 function pageGraphTuple(
   id: string,
   normalizationVersion: string,
-  trackerCatalog: Readonly<Toolchain["trackerCatalog"]>
+  trackerCatalog: Readonly<Toolchain["trackerCatalog"]>,
+  // Closed rows take the frozen defaults. Only the active row may follow the
+  // live constants: PAGEGRAPH_R2_PUBLIC_LIMITS derives its request ceiling from
+  // MAX_RECORDED_REQUESTS, and the active registry and ledger follow
+  // DETECTOR_IDS.
+  active: {
+    publicLimits: Readonly<typeof PAGEGRAPH_R2_PUBLIC_LIMITS>;
+    detectorRegistry: DetectorRegistryIdentity;
+    detectors: DetectorLedger;
+  } = {
+    publicLimits: HISTORICAL_PAGEGRAPH_R2_PUBLIC_LIMITS_V1,
+    detectorRegistry: HISTORICAL_PAGEGRAPH_REGISTRY,
+    detectors: HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS
+  }
 ): PageGraphR2ProducerTuple {
   return Object.freeze({
     id,
     normalizationVersion,
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
-    detectorRegistry: PAGEGRAPH_REGISTRY,
-    detectors: PAGEGRAPH_R2_EXPECTED_DETECTORS,
+    detectorRegistry: active.detectorRegistry,
+    detectors: active.detectors,
     trackerCatalog,
     adblockIdentity: null,
-    publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
+    publicLimits: active.publicLimits,
     phaseOmissionContractVersion: null,
     runtimeIdentity: PAGEGRAPH_RUNTIME_IDENTITY
   });
@@ -768,7 +898,16 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG
   ),
   pageGraphTuple("pagegraph-v4-ec26", PAGEGRAPH_EC26_NORMALIZATION, HISTORICAL_R2_2026_08_TRACKER_CATALOG),
-  pageGraphTuple("pagegraph-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG)
+  pageGraphTuple(
+    "pagegraph-v4-6c78-tldts749",
+    PAGEGRAPH_6C78_TLDTS_749_NORMALIZATION,
+    HISTORICAL_R2_2026_08_TRACKER_CATALOG
+  ),
+  pageGraphTuple("pagegraph-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+    publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
+    detectorRegistry: PAGEGRAPH_REGISTRY,
+    detectors: PAGEGRAPH_R2_EXPECTED_DETECTORS
+  })
 ]);
 
 const FULL_GIT_SHA = /^[0-9a-f]{40}$/;

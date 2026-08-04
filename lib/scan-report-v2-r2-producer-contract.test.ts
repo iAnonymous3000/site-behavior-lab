@@ -119,8 +119,10 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-b68c-accountability-v1-no-adblock",
       "node-v4-ec26-lists-2026-07-25",
       "node-v4-ec26-no-adblock",
-      "node-v4-6c78-active-lists-2026-07-25",
-      "node-v4-6c78-active-no-adblock"
+      "node-v4-6c78-tldts749-lists-2026-07-25",
+      "node-v4-6c78-tldts749-no-adblock",
+      "node-v4-6c78-tldts7410-active-lists-2026-08-04",
+      "node-v4-6c78-tldts7410-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -216,16 +218,18 @@ test("Node producer rows are complete, immutable, and individually replayable", 
   });
   for (const tuple of NODE_R2_PRODUCER_TUPLES) {
     // Every epoch since detector-accountability-v1 carries obligations: the
-    // accountability-v1 rows, the frozen ServiceRole (ec26) rows, and the
-    // active rows. Earlier epochs must stay null.
-    const hasAccountability =
-      tuple.id.includes("-accountability-v1-") ||
-      tuple.id.includes("-ec26-") ||
-      tuple.id.includes("-active-");
+    // accountability-v1 rows, the frozen ServiceRole rows (ec26 and the 6c78
+    // identity under tldts@7.4.9), and the active rows. Earlier epochs must
+    // stay null. A newly frozen epoch needs its own marker here, or its rows
+    // silently fall into the "earlier epoch" branch and this guard passes for
+    // the wrong reason.
+    const isServiceRoleEpoch =
+      tuple.id.includes("-ec26-") || tuple.id.includes("-6c78-") || tuple.id.includes("-active-");
+    const hasAccountability = tuple.id.includes("-accountability-v1-") || isServiceRoleEpoch;
     assert.equal(tuple.detectorObligations !== null, hasAccountability, `${tuple.id} obligation identity`);
     assert.equal(
       tuple.serviceRoleTaxonomy !== null,
-      tuple.id.includes("-ec26-") || tuple.id.includes("-active-"),
+      isServiceRoleEpoch,
       `${tuple.id} ServiceRole taxonomy identity`
     );
     assert.equal(Object.isFrozen(tuple), true, tuple.id);
@@ -406,7 +410,9 @@ test("one-field Node substitutions cannot synthesize an unreviewed producer", ()
     ["tracker digest", (run) => { run.toolchain.trackerCatalog.digest = "0".repeat(64); }],
     ["adblock source", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.source += " mixed"; }],
     ["adblock lists", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.lists += 1; }],
-    ["adblock fetchedAt", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.fetchedAt = "2026-07-25T14:05:35.224Z"; }],
+    // One millisecond off the active snapshot: a near-miss list identity is not
+    // a reviewed producer row.
+    ["adblock fetchedAt", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.fetchedAt = "2026-08-04T00:19:10.560Z"; }],
     ["adblock digest", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.manifestDigest = "0".repeat(64); }],
     ["adblock engine", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.engineVersion += "-mixed"; }],
     ["source artifact", (run) => { run.provenance.sourceArtifactDigest = "0".repeat(64); }],
@@ -496,6 +502,14 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
     },
     {
       normalizationVersion: `${V4_PREFIX}ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae${PAGEGRAPH_SUFFIX}`,
+      catalog: serviceRoleTracker,
+      mixedVersion: "hand-curated-2026.07"
+    },
+    // The 6c78 identity as it stood under tldts@7.4.9. Every retirement adds a
+    // row here: the length assertion below pins this oracle to the tuple table
+    // minus the single active row.
+    {
+      normalizationVersion: `${V4_PREFIX}6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266${PAGEGRAPH_SUFFIX}`,
       catalog: serviceRoleTracker,
       mixedVersion: "hand-curated-2026.07"
     }

@@ -52,7 +52,11 @@ const reviewedSeccompDigests: Readonly<Record<string, string>> = {
   // and is byte-identical to v1.61.1's, so the container's syscall policy did
   // not move with the toolchain. Same digest here records a completed review,
   // not a skipped one.
-  "1.62.0": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849"
+  "1.62.0": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849",
+  // v1.62.1 likewise: utils/docker/seccomp_profile.json at that tag is
+  // byte-identical to the reviewed file, fetched and compared when the
+  // measurement epoch moved. Reviewed, not skipped.
+  "1.62.1": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849"
 };
 
 test("promotion CI pins the reviewed seccomp bytes to the exact Playwright version", () => {

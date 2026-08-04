@@ -122,7 +122,7 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   assert.match(releaseGuide, /Pages still declared `NODE_VERSION=22`[\s\S]*Node `24\.14\.1` with npm `11\.11\.0`/);
   assert.match(
     releaseGuide,
-    /Playwright base[\s\S]*Node 24\.18\.0 with npm 11\.16\.0[\s\S]*intentionally distinct/
+    /Playwright base[\s\S]*Node 24\.18\.1 with npm 11\.16\.0[\s\S]*intentionally distinct/
   );
   assert.match(releaseGuide, /Preview deployments[\s\S]*remained public by default/);
   assert.match(
@@ -161,7 +161,7 @@ test("container and CI source contracts preserve exact-SHA evidence after the re
   assert.match(dockerfile, /org\.opencontainers\.image\.licenses="AGPL-3\.0-or-later"/);
   assert.match(
     dockerfile,
-    /RUN test "\$\(node --version\)" = "v24\.18\.0" \\\n\s+&& test "\$\(npm --version\)" = "11\.16\.0"/
+    /RUN test "\$\(node --version\)" = "v24\.18\.1" \\\n\s+&& test "\$\(npm --version\)" = "11\.16\.0"/
   );
 
   const app = workflow.slice(workflow.indexOf("\n  app:"), workflow.indexOf("\n  smoke:"));
@@ -286,7 +286,7 @@ if (process.env.FIXTURE_DOCKER_LOG) fs.appendFileSync(process.env.FIXTURE_DOCKER
 if (args[0] === "run") {
   const entrypoint = args.find((value) => value.startsWith("--entrypoint="));
   if (entrypoint === "--entrypoint=node") {
-    process.stdout.write((process.env.FIXTURE_CONTAINER_NODE || "v24.18.0") + "\\n");
+    process.stdout.write((process.env.FIXTURE_CONTAINER_NODE || "v24.18.1") + "\\n");
     process.exit(0);
   }
   if (entrypoint === "--entrypoint=npm") {
@@ -345,7 +345,7 @@ process.stdout.write(JSON.stringify([{
     rootfsLayers: [layer],
     sourceCommit: fixture.commit,
     runtime: {
-      node: "24.18.0",
+      node: "24.18.1",
       npm: "absent",
       probeIsolation: {
         pull: "never",
@@ -399,7 +399,7 @@ process.stdout.write(JSON.stringify([{
     }
   );
   assert.notEqual(wrongRuntime.status, 0);
-  assert.match(wrongRuntime.stderr, /requires node 24\.18\.0, not v24\.19\.0/);
+  assert.match(wrongRuntime.stderr, /requires node 24\.18\.1, not v24\.19\.0/);
 
   // A runtime image that ships ANY answering package manager is rejected,
   // including one at the base's own pinned version: the contract is absence,
@@ -513,7 +513,7 @@ const commit = process.env.FIXTURE_COMMIT;
 const args = process.argv.slice(2);
 if (args[0] === "run") {
   const entrypoint = args.find((value) => value.startsWith("--entrypoint="));
-  if (entrypoint === "--entrypoint=node") process.stdout.write("v24.18.0\\n");
+  if (entrypoint === "--entrypoint=node") process.stdout.write("v24.18.1\\n");
   else if (entrypoint === "--entrypoint=npm") {
     // Docker's own not-found answer. A bare 127 with no stderr is now treated
     // as inconclusive, because "absent" is an attested supply-chain claim and

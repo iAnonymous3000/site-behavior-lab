@@ -38,7 +38,7 @@ import {
 export const REDACTION_VERSION = 4;
 export const REDACTION_ALLOWLISTS_VERSION: string = allowlists.version;
 export const REDACTION_ALLOWLISTS_DIGEST = sha256Hex(JSON.stringify(allowlists));
-export const PUBLIC_SUFFIX_ENGINE_VERSION = "tldts@7.4.9";
+export const PUBLIC_SUFFIX_ENGINE_VERSION = "tldts@7.4.10";
 
 export const INVALID_URL_MARKER = "{invalid-url}";
 export const INVALID_HOST_MARKER = "{invalid-host}";

@@ -54,7 +54,8 @@ import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   NODE_PLAYWRIGHT_VERSION,
   NODE_SCANNER_METHODOLOGY_VERSION,
-  NODE_SHIELDS_REQUEST_CONTEXT_VERSION
+  NODE_SHIELDS_REQUEST_CONTEXT_VERSION,
+  recordedPlaywrightVersion
 } from "./legacy-methodology";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
@@ -710,6 +711,28 @@ function previousNodeScannerDisclosure(
   return `Automated Chromium scan from ${input.scannerEgress} with browser ${input.chromiumVersion}, timezone ${input.timezone}, locale ${input.locale}, the listed viewport, and Brave Shields ${shieldsDescription}. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology ${NODE_SHIELDS_REQUEST_CONTEXT_VERSION}; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors.`;
 }
 
+/**
+ * Exact reviewed Node methodology identities published under a superseded
+ * toolchain epoch, in the form that carries suffixes after the Playwright
+ * component.
+ *
+ * Frozen v1 has no producer-contract epoch, so a report survives the sanitizer
+ * only if its disclosure is reconstructible. The two regexes below cover the
+ * older shapes whose methodology token ENDS at the Playwright version; a report
+ * published under an extended identity was a fixed point only while that
+ * identity was still current, so moving the Playwright pin would silently
+ * replace 39 committed reports' disclosures with the invalid-metadata sentinel
+ * and orphan them from managed reads. Exact literals, never a pattern, for the
+ * same reason as HISTORICAL_TRACKER_CATALOGS: the disclosure is a published
+ * string, and a pattern would let a report declare an arbitrary methodology
+ * tail and have it survive verbatim.
+ *
+ * A Playwright or methodology move therefore ADDS the outgoing identity here.
+ */
+const HISTORICAL_NODE_SCANNER_METHODOLOGIES: readonly string[] = Object.freeze([
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2"
+]);
+
 const CANONICAL_VERSION = String.raw`(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)`;
 const HISTORICAL_NODE_METHOD_WITH_PLAYWRIGHT = new RegExp(
   String.raw` methodology (shields-request-context-v2-adblock-rust-${CANONICAL_VERSION}-request-method-v1-playwright-(${CANONICAL_VERSION}));`
@@ -730,6 +753,18 @@ function historicalNodeScannerDisclosure(
   disclosure: string
 ): string | null {
   if (profile !== "node-playwright") return null;
+
+  // Reviewed superseded identities first: reconstruct the current template with
+  // that exact methodology and its exact Playwright version, and accept only a
+  // byte-identical result.
+  for (const methodologyVersion of HISTORICAL_NODE_SCANNER_METHODOLOGIES) {
+    const playwrightVersion = recordedPlaywrightVersion(methodologyVersion);
+    if (!playwrightVersion) continue;
+    const expected = scannerDisclosure(profile, input)
+      .replace(`Playwright ${NODE_PLAYWRIGHT_VERSION}`, `Playwright ${playwrightVersion}`)
+      .replace(NODE_SCANNER_METHODOLOGY_VERSION, methodologyVersion);
+    if (disclosure === expected) return disclosure;
+  }
 
   const withPlaywright = HISTORICAL_NODE_METHOD_WITH_PLAYWRIGHT.exec(disclosure);
   if (withPlaywright) {

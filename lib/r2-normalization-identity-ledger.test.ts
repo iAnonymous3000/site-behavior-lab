@@ -25,26 +25,37 @@ import {
  * is never incidental. The ritual, in order:
  *
  *   1. Decide whether the change is a WIDENING (the new sanitizer admits a
- *      superset; every published report is still a fixed point) or a
- *      NARROWING (anything else).
- *   2. For a widening: append the OLD literal below to
- *      SUPERSEDED_R2_NORMALIZATIONS for BOTH observers in
+ *      superset; every published report is still a fixed point), a
+ *      public-suffix ENGINE refresh proved equivalent over the published
+ *      corpus, or a NARROWING (anything else).
+ *   2. For a widening or a proved-equivalent engine refresh: append the OLD
+ *      literal below to SUPERSEDED_R2_NORMALIZATIONS for BOTH observers in
  *      scan-report-v2-normalization.ts, and pair it with its historical
  *      producer epoch in HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION
  *      (and the PageGraph catalog map) in scan-report-v2-r2-producer-contract.ts.
+ *      An engine refresh needs the differential proof, not a version bump: same
+ *      registrable domain, suffix, and ICANN/private flags for every hostname
+ *      in the published corpus and the reviewed allowlists.
  *   3. For a narrowing: STOP. Published reports need remediation before the
  *      identity may move; see docs/scan-report-v2-rfc.md and the remediation
  *      CLI.
- *   4. Check every producer tuple that references the ACTIVE constant
- *      (node-v4-b68c-* in scan-report-v2-r2-producer-contract.ts): tuples that
- *      described the OLD epoch must be repointed at a new HISTORICAL_*
- *      constant carrying the old literal, or their reports stop validating.
+ *   4. Check every producer tuple that references an ACTIVE or computed
+ *      constant (the node-v4-*-active-* family in
+ *      scan-report-v2-r2-producer-contract.ts): tuples that described the OLD
+ *      epoch must be repointed at a HISTORICAL_* constant carrying the old
+ *      literal, or their reports stop validating. This is not only the
+ *      normalization: NODE_R2_CURRENT_ADBLOCK_IDENTITY moves with every Brave
+ *      list refresh, and NODE_R2_PUBLIC_LIMITS / PAGEGRAPH_R2_PUBLIC_LIMITS
+ *      derive their request ceiling from the live MAX_RECORDED_REQUESTS. A
+ *      closed row that follows any of them silently restates what its
+ *      already-published reports were measured and validated against, which is
+ *      the same drift this ledger exists to catch.
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 test("the active r2 normalization identities match their reviewed ledger literals", () => {
   assert.equal(

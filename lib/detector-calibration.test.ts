@@ -14,6 +14,7 @@ import {
   type DetectorCalibrationRuntimeIdentity,
   type DetectorCalibrationStudyV3
 } from "./detector-calibration";
+import { NODE_PLAYWRIGHT_VERSION } from "./legacy-methodology";
 import { sha256Hex } from "./sha256";
 
 const BUILD_COMMIT = "a".repeat(40);
@@ -513,7 +514,11 @@ function runtimeIdentity(): DetectorCalibrationRuntimeIdentity {
     observer: "node-playwright",
     automation: "playwright-chromium",
     nodeVersion: "24.14.1",
-    playwrightVersion: "1.62.0",
+    // Eligibility gates this against the live pin, so these cases are about a
+    // study run on the CURRENT toolchain. A literal here would silently turn
+    // every one of them into a drift case at the next measurement epoch; the
+    // drift cases below state their mismatch explicitly instead.
+    playwrightVersion: NODE_PLAYWRIGHT_VERSION,
     browserName: "chromium",
     browserVersion: "145.0.7632.6",
     operatingSystem: "linux",
