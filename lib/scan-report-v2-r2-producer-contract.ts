@@ -382,16 +382,22 @@ export const PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST = sha256Hex(
 );
 
 /**
- * The exact "everything unsupported" ledger every PageGraph import published so
- * far declared, pinned to its own frozen id list.
+ * The exact PageGraph producer identity every import published so far declared,
+ * pinned as literals alongside its own frozen id list.
  *
- * PAGEGRAPH_R2_EXPECTED_DETECTORS follows the live DETECTOR_IDS, so adding a
- * detector would rewrite the ledger AND the registry digest of every closed
- * PageGraph row, silently restating what those already-published imports were
- * validated against. Nothing in the committed corpus would catch it: the corpus
- * holds no PageGraph bundle. Both values below derive only from frozen inputs,
- * so they cannot move with a later registry generation.
+ * PAGEGRAPH_R2_EXPECTED_DETECTORS follows the live DETECTOR_IDS, and the live
+ * version constants and computed registry digest move with any future PageGraph
+ * generation, so a closed row that aliased them would rewrite the ledger AND
+ * the registry digest of every closed PageGraph row, silently restating what
+ * those already-published imports were validated against. Nothing in the
+ * committed corpus would catch it: the corpus holds no PageGraph bundle. Every
+ * value below is a literal or derives only from literals, so it cannot move
+ * with a later registry generation.
  */
+export const HISTORICAL_PAGEGRAPH_R2_DETECTOR_VERSION = "pagegraph-import-unsupported@1";
+export const HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION = "pagegraph-import-detectors@1";
+export const HISTORICAL_PAGEGRAPH_R2_METHODOLOGY_VERSION = "pagegraph-passive-import-r2@1";
+
 const HISTORICAL_PAGEGRAPH_R2_DETECTOR_IDS = Object.freeze([
   "fingerprint-heuristics",
   "keystroke-exfiltration",
@@ -406,7 +412,7 @@ export const HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS = Object.freeze(
     HISTORICAL_PAGEGRAPH_R2_DETECTOR_IDS.map((id) => [
       id,
       Object.freeze({
-        version: PAGEGRAPH_R2_DETECTOR_VERSION,
+        version: HISTORICAL_PAGEGRAPH_R2_DETECTOR_VERSION,
         status: "unsupported" as const,
         reason: "unsupported"
       })
@@ -414,12 +420,13 @@ export const HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS = Object.freeze(
   ) as DetectorLedger
 );
 
-export const HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST = sha256Hex(
-  canonicalJson({
-    version: PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
-    detectors: HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS
-  })
-);
+/**
+ * sha256Hex(canonicalJson({version, detectors})) over the two frozen values
+ * above, pinned as a literal so no live input can move it. The guard test
+ * recomputes it from those inputs and asserts this exact hex.
+ */
+export const HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST =
+  "570dd008086e2ebbee8abfe96ff278c46f6f388bce6363ef3cfc3704bee8a321";
 
 type DetectorRegistryIdentity = Readonly<{ version: string; digest: string }>;
 type AdblockIdentity = Readonly<NonNullable<Toolchain["adblock"]>> | null;
@@ -452,7 +459,7 @@ export type NodeR2ProducerTuple = Readonly<{
 export type PageGraphR2ProducerTuple = Readonly<{
   id: string;
   normalizationVersion: string;
-  methodologyVersion: typeof PAGEGRAPH_R2_METHODOLOGY_VERSION;
+  methodologyVersion: string;
   detectorRegistry: DetectorRegistryIdentity;
   detectors: DetectorLedger;
   trackerCatalog: Readonly<Toolchain["trackerCatalog"]>;
@@ -522,7 +529,7 @@ const PAGEGRAPH_REGISTRY = Object.freeze({
   digest: PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST
 });
 const HISTORICAL_PAGEGRAPH_REGISTRY = Object.freeze({
-  version: PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+  version: HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
   digest: HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST
 });
 
@@ -858,13 +865,15 @@ function pageGraphTuple(
   trackerCatalog: Readonly<Toolchain["trackerCatalog"]>,
   // Closed rows take the frozen defaults. Only the active row may follow the
   // live constants: PAGEGRAPH_R2_PUBLIC_LIMITS derives its request ceiling from
-  // MAX_RECORDED_REQUESTS, and the active registry and ledger follow
-  // DETECTOR_IDS.
+  // MAX_RECORDED_REQUESTS, and the active methodology, registry, and ledger
+  // follow the live PageGraph generation.
   active: {
+    methodologyVersion: string;
     publicLimits: Readonly<typeof PAGEGRAPH_R2_PUBLIC_LIMITS>;
     detectorRegistry: DetectorRegistryIdentity;
     detectors: DetectorLedger;
   } = {
+    methodologyVersion: HISTORICAL_PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: HISTORICAL_PAGEGRAPH_R2_PUBLIC_LIMITS_V1,
     detectorRegistry: HISTORICAL_PAGEGRAPH_REGISTRY,
     detectors: HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS
@@ -873,7 +882,7 @@ function pageGraphTuple(
   return Object.freeze({
     id,
     normalizationVersion,
-    methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
+    methodologyVersion: active.methodologyVersion,
     detectorRegistry: active.detectorRegistry,
     detectors: active.detectors,
     trackerCatalog,
@@ -904,6 +913,7 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
   pageGraphTuple("pagegraph-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+    methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
     detectorRegistry: PAGEGRAPH_REGISTRY,
     detectors: PAGEGRAPH_R2_EXPECTED_DETECTORS

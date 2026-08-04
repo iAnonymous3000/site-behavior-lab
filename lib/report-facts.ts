@@ -724,6 +724,7 @@ function identityFacts(run: RunView): RunIdentityFacts {
   const respondedEntities = respondedTrackerEntityNames(run.evidence);
   const hosts: IdentifiedHostFact[] = [];
   const cmpNames = new Set<string>();
+  const operatorCmpNames = new Set<string>();
   const ownershipNames = new Set<string>();
 
   for (const domain of run.evidence.domains) {
@@ -749,11 +750,12 @@ function identityFacts(run: RunView): RunIdentityFacts {
     const cmp = consentPlatformForDomain(domain.domain);
     if (cmp) {
       cmpNames.add(cmp);
-      namers.push(
-        consentPlatformKindForDomain(domain.domain) === "framework-endpoint"
-          ? { source: "cmp", name: cmp, kind: "framework-endpoint" }
-          : { source: "cmp", name: cmp }
-      );
+      if (consentPlatformKindForDomain(domain.domain) === "framework-endpoint") {
+        namers.push({ source: "cmp", name: cmp, kind: "framework-endpoint" });
+      } else {
+        operatorCmpNames.add(cmp);
+        namers.push({ source: "cmp", name: cmp });
+      }
     }
     const owner = reviewedOrganizationForDomain(domain.domain);
     if (owner) {
@@ -793,9 +795,15 @@ function identityFacts(run: RunView): RunIdentityFacts {
     relationship: reviewedOwnershipRelationship(run.domain, cloak.host).kind
   }));
   const cnameNames = new Set(cnameAliases.map((cloak) => cloak.name));
+  // Every consumer of these name sets makes an operator claim, and the
+  // identity-conflict gate reads allNames as "operators the identity union
+  // named", so a framework endpoint stays out here for the same reason it
+  // stays out of outsideNames and identifiedHosts below: it names the
+  // standard a host serves, not the operator that ran it. The consent card
+  // still names the endpoint through its own consent-banner path.
   const allNames = new Set<string>([
     ...catalogEntities.map((entity) => entity.entity),
-    ...cmpNames,
+    ...operatorCmpNames,
     ...ownershipNames,
     ...cnameNames
   ]);

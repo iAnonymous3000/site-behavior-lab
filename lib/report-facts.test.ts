@@ -10,6 +10,11 @@ import {
   type RunFacts
 } from "./report-facts";
 import {
+  reportConsistencyViolations,
+  validateReportPresentation
+} from "./report-consistency";
+import type { Finding } from "./report-findings";
+import {
   makeGpcInterventionReportV2R2,
   makePublicSingleReportV2R2
 } from "./scan-report-v2-r2-fixtures";
@@ -188,8 +193,8 @@ test("a shared framework endpoint names the standard, not an operator, in identi
   result.requests = requestRowsForDomains(result.domains);
 
   const identity = factsForV1(result).identity;
-  // The endpoint is still named (so the consent card and the identity union
-  // can never contradict each other), but marked as a framework endpoint.
+  // The endpoint is still named on its host's namers (so per-host surfaces
+  // can render what matched), but marked as a framework endpoint.
   assert.deepEqual(
     identity.hosts.find((host) => host.host === "cmp.mgr.consensu.org")?.namers,
     [{ source: "cmp", name: "IAB TCF", kind: "framework-endpoint" }]
@@ -208,7 +213,70 @@ test("a shared framework endpoint names the standard, not an operator, in identi
   });
   assert.deepEqual(identity.identifiedHosts, ["cdn.cookielaw.org"]);
   assert.deepEqual(identity.unidentifiedHosts, ["cmp.mgr.consensu.org"]);
-  assert.ok(identity.allNames.includes("IAB TCF"));
+  // cmpNames stays truthful about which consent signatures matched, but the
+  // framework name must stay out of allNames: every consumer of that union
+  // makes an operator claim, and the identity-conflict gate reads it as
+  // "operators the identity union named". The consent card names the
+  // endpoint through its own consent-banner path, not through allNames.
+  assert.deepEqual(identity.cmpNames, ["IAB TCF", "OneTrust"]);
+  assert.ok(!identity.allNames.includes("IAB TCF"));
+  assert.ok(identity.allNames.includes("OneTrust"));
+});
+
+test("a TCF-endpoint-only identity renders the service-absence branch without a false identity conflict", () => {
+  // The only recognized identity source is the shared IAB TCF framework
+  // endpoint: no catalog match, no vendor CMP, no ownership, no CNAME. The
+  // service card renders its absence branch (a framework endpoint is not an
+  // identified operator), and the identity-conflict gate must not read the
+  // framework's name as an operator the card contradicted.
+  const result = makeV1Result();
+  result.domains = [thirdPartyDomain("cmp.mgr.consensu.org")];
+  result.summary.thirdPartyDomains = result.domains.length;
+  result.summary.thirdPartyRequests = result.domains.length;
+  result.requests = requestRowsForDomains(result.domains);
+
+  const presentation = validateReportPresentation(viewFromV1Report(result));
+  const serviceCard = presentation.findings.find(
+    (finding) => finding.id === "third-party-services"
+  );
+  assert.equal(
+    serviceCard?.claim?.mode,
+    "categorical-absence",
+    "the fixture must exercise the absence branch, or the assertion below is vacuous"
+  );
+  // The consent card names the framework through its own consent-banner
+  // path, so excluding it from allNames loses nothing a card renders.
+  const consentCard = presentation.findings.find(
+    (finding) => finding.id === "consent-banner"
+  );
+  assert.ok(consentCard?.lead.includes("IAB TCF"));
+  assert.deepEqual(presentation.violations, []);
+});
+
+test("a vendor consent-platform name still trips identity-conflict when an absence renders over it", () => {
+  const result = makeV1Result();
+  result.domains = [thirdPartyDomain("cdn.cookielaw.org")];
+  result.summary.thirdPartyDomains = result.domains.length;
+  result.summary.thirdPartyRequests = result.domains.length;
+  result.requests = requestRowsForDomains(result.domains);
+
+  const presentation = validateReportPresentation(viewFromV1Report(result));
+  assert.deepEqual(presentation.violations, []);
+  const findings: Finding[] = presentation.findings.map((finding) =>
+    finding.id === "third-party-services" && finding.claim
+      ? {
+          ...finding,
+          claim: { ...finding.claim, mode: "categorical-absence" as const }
+        }
+      : finding
+  );
+
+  assert.deepEqual(
+    reportConsistencyViolations(presentation.facts, presentation.headline, findings).map(
+      (violation) => violation.id
+    ),
+    ["identity-conflict"]
+  );
 });
 
 test("identity facts keep unclassified catalog services out of tracking totals", () => {

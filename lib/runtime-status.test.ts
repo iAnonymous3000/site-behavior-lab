@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, test } from "node:test";
+import { afterEach, beforeEach, test } from "node:test";
 import { runtimeStatus } from "./runtime-status";
 
 const SCAN_ACCESS_TOKEN_ENV = "SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN";
@@ -30,8 +31,18 @@ const R2_ENVS = [
   "SITE_BEHAVIOR_LAB_R2_SECRET_ACCESS_KEY"
 ] as const;
 const originalFetch = globalThis.fetch;
+let hermeticStoreDir = "";
 
-afterEach(() => {
+beforeEach(async () => {
+  // runtimeStatus runs real retention maintenance against the resolved report
+  // store, so every in-process case gets a throwaway store directory. Without
+  // this, cases that leave the env unset resolve the cwd default and can read,
+  // degrade on, or even prune a developer's local .site-behavior-lab/reports.
+  hermeticStoreDir = await mkdtemp(path.join(tmpdir(), "sbl-runtime-status-store-"));
+  process.env[REPORT_STORE_DIR_ENV] = hermeticStoreDir;
+});
+
+afterEach(async () => {
   delete process.env[SCAN_ACCESS_TOKEN_ENV];
   delete process.env[REPORT_STORE_DIR_ENV];
   delete process.env[SCANNER_EGRESS_ENV];
@@ -55,6 +66,7 @@ afterEach(() => {
   delete process.env[DURABLE_JOBS_COORDINATOR_URL_ENV];
   for (const name of R2_ENVS) delete process.env[name];
   globalThis.fetch = originalFetch;
+  await rm(hermeticStoreDir, { recursive: true, force: true });
 });
 
 test("runtimeStatus degrades instead of throwing when the store backend is misconfigured", async () => {
@@ -86,35 +98,74 @@ test("runtimeStatus degrades instead of throwing when the store backend is misco
 });
 
 test("runtimeStatus reports degraded status for open local defaults", async () => {
-  const status = await runtimeStatus(loadedAdblock);
+  // The unconfigured store default resolves to <cwd>/.site-behavior-lab/reports
+  // and runtimeStatus runs real retention maintenance against it. Exercise the
+  // default posture from a throwaway working directory in a child process so
+  // this suite can never read or prune a developer's local report store.
+  const workDir = await mkdtemp(path.join(tmpdir(), "sbl-runtime-status-defaults-"));
+  try {
+    const script = path.join(workDir, "print-runtime-status.cjs");
+    await writeFile(
+      script,
+      [
+        `const { runtimeStatus } = require(${JSON.stringify(path.join(__dirname, "runtime-status.js"))});`,
+        "runtimeStatus(async () => ({",
+        '  active: true,',
+        '  engine: "loaded",',
+        '  version: "adblock-rust-0.13.2",',
+        '  engineVersion: "adblock-rust-0.13.2",',
+        '  source: "Brave default ad-block lists",',
+        "  lists: 31,",
+        "  fetchedAt: new Date(0).toISOString(),",
+        '  manifestDigest: "a".repeat(64)',
+        "})).then(",
+        "  (status) => process.stdout.write(JSON.stringify(status)),",
+        "  (error) => {",
+        "    console.error(error);",
+        "    process.exitCode = 1;",
+        "  }",
+        ");",
+        ""
+      ].join("\n")
+    );
+    const child = spawnSync(process.execPath, [script], {
+      cwd: workDir,
+      encoding: "utf8",
+      env: withoutScannerEnv()
+    });
+    assert.equal(child.status, 0, child.stderr);
+    const status = JSON.parse(child.stdout) as Awaited<ReturnType<typeof runtimeStatus>>;
 
-  assert.equal(status.ok, true);
-  assert.equal(status.status, "degraded");
-  assert.deepEqual(status.checks.adblock, {
-    active: true,
-    engine: "loaded",
-    version: "adblock-rust-0.13.2",
-    engineVersion: "adblock-rust-0.13.2",
-    source: "Brave default ad-block lists",
-    lists: 31,
-    fetchedAt: new Date(0).toISOString(),
-    manifestDigest: "a".repeat(64)
-  });
-  assert.equal(status.checks.scanAccess, "open");
-  assert.equal(status.authenticated, false);
-  assert.equal(status.openAccess, true);
-  assert.equal(status.turnstile, false);
-  assert.equal(status.checks.dnsRebindingGuard, "connect-time-proxy");
-  assert.equal(status.checks.reportStore.configuredPath, false);
-  assert.equal(status.checks.scannerEgress, "default");
-  assert.equal(status.checks.scannerEgressRegion, "unrecorded");
-  assert.equal(status.checks.chromiumSandbox, "disabled");
-  assert.equal(status.checks.consentVerification, "disabled");
-  assert.deepEqual(status.checks.publicR2Reports, { status: "disabled" });
-  assert.deepEqual(status.checks.durableJobs, { requested: false, enabled: false, readiness: "disabled" });
-  assert.deepEqual(status.checks.encryptedWatches, { requested: false, enabled: false, readiness: "disabled" });
-  assert.deepEqual(status.checks.v2ShadowEmission, { status: "disabled", backend: "filesystem" });
-  assert.equal(status.warnings.length, 3);
+    assert.equal(status.ok, true);
+    assert.equal(status.status, "degraded");
+    assert.deepEqual(status.checks.adblock, {
+      active: true,
+      engine: "loaded",
+      version: "adblock-rust-0.13.2",
+      engineVersion: "adblock-rust-0.13.2",
+      source: "Brave default ad-block lists",
+      lists: 31,
+      fetchedAt: new Date(0).toISOString(),
+      manifestDigest: "a".repeat(64)
+    });
+    assert.equal(status.checks.scanAccess, "open");
+    assert.equal(status.authenticated, false);
+    assert.equal(status.openAccess, true);
+    assert.equal(status.turnstile, false);
+    assert.equal(status.checks.dnsRebindingGuard, "connect-time-proxy");
+    assert.equal(status.checks.reportStore.configuredPath, false);
+    assert.equal(status.checks.scannerEgress, "default");
+    assert.equal(status.checks.scannerEgressRegion, "unrecorded");
+    assert.equal(status.checks.chromiumSandbox, "disabled");
+    assert.equal(status.checks.consentVerification, "disabled");
+    assert.deepEqual(status.checks.publicR2Reports, { status: "disabled" });
+    assert.deepEqual(status.checks.durableJobs, { requested: false, enabled: false, readiness: "disabled" });
+    assert.deepEqual(status.checks.encryptedWatches, { requested: false, enabled: false, readiness: "disabled" });
+    assert.deepEqual(status.checks.v2ShadowEmission, { status: "disabled", backend: "filesystem" });
+    assert.equal(status.warnings.length, 3);
+  } finally {
+    await rm(workDir, { recursive: true, force: true });
+  }
 });
 
 test("runtimeStatus discloses an egress label canonicalized before collection", async () => {
@@ -144,7 +195,6 @@ test("runtimeStatus recognizes the controlled acquisition alias without publishi
 
 test("runtimeStatus reports ok status when production controls are configured", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[CHROMIUM_SANDBOX_ENV] = "1";
 
@@ -241,7 +291,6 @@ test("runtimeStatus exposes only a full validated build revision", async () => {
 
 test("runtimeStatus makes public-r2 rollout readiness explicit and refuses misconfiguration", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
 
   process.env[PUBLIC_R2_REPORTS_ENV] = "sometimes";
@@ -391,7 +440,6 @@ test("runtimeStatus exposes Node-only durable-job readiness without claiming edg
 
 test("runtimeStatus fails durable-job readiness closed when requested prerequisites are absent", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[DURABLE_JOBS_ENV] = "1";
   process.env[DURABLE_JOBS_COORDINATOR_URL_ENV] = "https://user@scan.sitebehavior.org";
@@ -410,7 +458,6 @@ test("runtimeStatus fails durable-job readiness closed when requested prerequisi
 
 test("runtimeStatus reports an invalid durable-job flag as misconfigured, not enabled", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[DURABLE_JOBS_ENV] = "yes";
 
@@ -427,7 +474,6 @@ test("runtimeStatus reports an invalid durable-job flag as misconfigured, not en
 
 test("runtimeStatus makes an unrecorded public-r2 egress region observable", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[PUBLIC_R2_REPORTS_ENV] = "1";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
@@ -456,7 +502,6 @@ test("runtimeStatus makes an unrecorded public-r2 egress region observable", asy
 
 test("runtimeStatus rejects explicit egress regions outside the r2 text envelope", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[SCANNER_EGRESS_REGION_ENV] = "x".repeat(65);
 
@@ -468,7 +513,6 @@ test("runtimeStatus rejects explicit egress regions outside the r2 text envelope
 
 test("runtimeStatus exposes a configured private R2 shadow posture", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[CONSENT_VERIFICATION_ENV] = "1";
@@ -488,7 +532,6 @@ test("runtimeStatus exposes a configured private R2 shadow posture", async () =>
 
 test("runtimeStatus degrades explicit shadow flag and sink misconfiguration", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[CONSENT_VERIFICATION_ENV] = "1";
@@ -508,7 +551,6 @@ test("runtimeStatus degrades explicit shadow flag and sink misconfiguration", as
 
 test("runtimeStatus names consent verification required by observe-mode shadow emission", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
   process.env[V2_SHADOW_EMISSION_ENV] = "1";
@@ -522,7 +564,6 @@ test("runtimeStatus names consent verification required by observe-mode shadow e
 
 test("runtimeStatus refuses filesystem shadow readiness without full build provenance", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
   process.env[CONSENT_VERIFICATION_ENV] = "1";
   process.env[V2_SHADOW_EMISSION_ENV] = "1";
@@ -535,7 +576,6 @@ test("runtimeStatus refuses filesystem shadow readiness without full build prove
 
 test("runtimeStatus treats explicit open access as intentional, not a degradation", async () => {
   process.env[ALLOW_UNAUTHENTICATED_SCANS_ENV] = "1";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
 
   const status = await runtimeStatus(loadedAdblock);
@@ -550,7 +590,6 @@ test("runtimeStatus treats explicit open access as intentional, not a degradatio
 
 test("runtimeStatus degrades when Brave adblock cannot load", async () => {
   process.env[SCAN_ACCESS_TOKEN_ENV] = "secret-key";
-  process.env[REPORT_STORE_DIR_ENV] = "/var/lib/site-behavior-lab/reports";
   process.env[SCANNER_EGRESS_ENV] = "github-actions-ubuntu";
 
   const status = await runtimeStatus(async () => ({
@@ -571,6 +610,22 @@ test("runtimeStatus degrades when Brave adblock cannot load", async () => {
   assert.equal(status.capabilities.singleScan, true);
   assert.deepEqual(status.warnings, ["Brave Shields classification is unavailable; tracker labels use the curated catalog only."]);
 });
+
+/**
+ * Child-process env for the open-local-defaults case: the surrounding shell
+ * must not leak scanner configuration (or a production NODE_ENV) into the
+ * posture under test.
+ */
+function withoutScannerEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [name, value] of Object.entries(process.env)) {
+    if (name.startsWith("SITE_BEHAVIOR_LAB_") || name.startsWith("CLOUDFLARE_") || name === "NODE_ENV") {
+      continue;
+    }
+    env[name] = value;
+  }
+  return env;
+}
 
 async function loadedAdblock() {
   return {

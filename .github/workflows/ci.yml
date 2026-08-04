@@ -214,6 +214,8 @@ jobs:
   app:
     name: Typecheck, Unit Tests, Build
     runs-on: ubuntu-latest
+    # A deadlocked unit test must fail this job fast, never consume the 6-hour default budget.
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -322,6 +324,8 @@ jobs:
   smoke:
     name: Chromium Smoke Test
     runs-on: ubuntu-latest
+    # A hung build or smoke run must fail this job fast, never consume the 6-hour default budget.
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
