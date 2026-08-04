@@ -1159,6 +1159,25 @@ function isReportFile(file: string): boolean {
   return /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(file);
 }
 
+/**
+ * Await a harness signal with a bound. A regression that stops dispatching the
+ * awaited request then fails with its own message instead of hanging the suite
+ * until the job budget kills it.
+ */
+async function withTestDeadline(signal: Promise<void>, message: string, timeoutMs = 30_000): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      signal,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 function configureFakeR2(handler: (request: Request) => Promise<Response>): void {
   process.env[REPORT_STORE_BACKEND_ENV] = "r2";
   process.env.SITE_BEHAVIOR_LAB_R2_BUCKET = "test-reports";
@@ -1367,6 +1386,10 @@ test("an expired permalink read never mutates the retention ledger outside the s
   const heldRead = new Promise<void>((resolve) => {
     releaseHolder = resolve;
   });
+  let announceExpiredRead: () => void = () => undefined;
+  const expiredReadDispatched = new Promise<void>((resolve) => {
+    announceExpiredRead = resolve;
+  });
   const requests: string[] = [];
   configureFakeR2(async (request) => {
     const key = decodeURIComponent(new URL(request.url).pathname).replace("/test-reports/", "");
@@ -1377,6 +1400,7 @@ test("an expired permalink read never mutates the retention ledger outside the s
       return new Response(null, { status: 404 });
     }
     if (request.method === "GET" && key === `reports/${expiredId}.json`) {
+      announceExpiredRead();
       return new Response("{}\n", {
         status: 200,
         headers: {
@@ -1394,17 +1418,34 @@ test("an expired permalink read never mutates the retention ledger outside the s
   const reconciling = reconcilePreparedScanReportBundle(holder.manifest);
   await holderStarted;
   const expiredRead = readStoredScanReportById(expiredId);
-  for (let turn = 0; turn < 20; turn += 1) await new Promise<void>((resolve) => setImmediate(resolve));
+  try {
+    // Wait for the read's own GET to be observed rather than guessing at a
+    // number of event-loop turns. Request signing is asynchronous, so on a
+    // loaded machine the GET lands after any fixed spin and the assertion below
+    // then compares against a list the client is still appending to. That is a
+    // property of the harness, not of the store, and it failed a container
+    // build with an "expected" and "actual" that printed identically.
+    await withTestDeadline(expiredReadDispatched, "the expired permalink read never dispatched its GET");
+    // Only now spin turns, whose job is to give an out-of-FIFO ledger write the
+    // chance to appear if the discipline this test guards were ever broken.
+    for (let turn = 0; turn < 20; turn += 1) await new Promise<void>((resolve) => setImmediate(resolve));
 
-  // The read itself is still unblocked, but the durable retention-debt ledger
-  // must not be touched while a mutation-lock holder is in flight: a marker a
-  // concurrent prune sees is read as a failed delete and refuses publication.
-  assert.deepEqual(requests, [
-    `GET reports/${holder.manifest.reportId}.json`,
-    `GET reports/${expiredId}.json`
-  ]);
+    // The read itself is still unblocked, but the durable retention-debt ledger
+    // must not be touched while a mutation-lock holder is in flight: a marker a
+    // concurrent prune sees is read as a failed delete and refuses publication.
+    assert.deepEqual(requests, [
+      `GET reports/${holder.manifest.reportId}.json`,
+      `GET reports/${expiredId}.json`
+    ]);
+  } finally {
+    // Release even when an assertion above throws. A stranded holder leaves the
+    // held read and the reconcile in flight past the end of the test, where they
+    // later reject on their own deadlines as unhandled rejections that obscure
+    // the real failure.
+    releaseHolder();
+    await Promise.allSettled([reconciling, expiredRead]);
+  }
 
-  releaseHolder();
   assert.deepEqual(await reconciling, { outcome: "missing" });
   assert.deepEqual(await expiredRead, { outcome: "not-found" });
   // The ledger discipline itself is unchanged: mark, delete, then clear.
