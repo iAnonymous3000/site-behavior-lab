@@ -19,6 +19,8 @@ type Snapshot = {
   state: "queued" | "leased" | "publishing" | "succeeded" | "failed" | "expired" | "cancelled";
   attemptCount: number;
   leaseGeneration: number;
+  totalRuns: 1 | 2;
+  completedRuns: number;
   leaseExpiresAt: number | null;
 };
 
@@ -250,7 +252,7 @@ test(
       const cancelledReport = idFor(10_001);
       const admitted = await requestJson<Snapshot>(miniflare, "/jobs", {
         method: "POST",
-        body: jsonBody({ jobId: cancelledJob, reportId: cancelledReport, now: createdAt })
+        body: jsonBody({ jobId: cancelledJob, reportId: cancelledReport, now: createdAt, compare: false })
       });
       assert.equal(admitted.response.status, 202);
       assert.equal(admitted.body.state, "queued");
@@ -340,7 +342,7 @@ test(
         (
           await requestJson(miniflare, "/jobs", {
             method: "POST",
-            body: jsonBody({ jobId: cancelledJob, reportId: cancelledReport, now: createdAt })
+            body: jsonBody({ jobId: cancelledJob, reportId: cancelledReport, now: createdAt, compare: false })
           })
         ).response.status,
         409,
@@ -371,6 +373,41 @@ test(
       const succeeded = await ownerMutation(miniflare, succeededJob, "resolve", owner, createdAt + 6);
       assert.equal(succeeded.state, "succeeded");
       assert.equal((await getSnapshot(miniflare, succeededJob)).state, "succeeded");
+
+      // Per-run progress must survive the Durable Object restart it exists for.
+      // Before it was recorded, a reader who recovered a half-finished
+      // comparison was told "0 of 2" until the job reached publication. The
+      // monotonic clamp is proven here against real workerd SQLite, not only
+      // against the node:sqlite driver the store unit tests use. This runs last
+      // because the lease it holds occupies the harness's single claim slot.
+      const comparisonJob = idFor(4);
+      const comparison = await admit(miniflare, comparisonJob, idFor(10_004), createdAt + 7, true);
+      assert.equal(comparison.totalRuns, 2);
+      assert.equal(comparison.completedRuns, 0);
+      const comparisonOwner = await claim(miniflare, comparisonJob, createdAt + 8);
+      assert.equal(
+        (await heartbeat(miniflare, comparisonJob, comparisonOwner, createdAt + 9, 1)).completedRuns,
+        1
+      );
+
+      await miniflare.unsafeEvictDurableObject(WORKER_NAME, CLASS_NAME, { name: OBJECT_NAME });
+      const afterEviction = await getSnapshot(miniflare, comparisonJob);
+      assert.deepEqual(
+        { completedRuns: afterEviction.completedRuns, totalRuns: afterEviction.totalRuns },
+        { completedRuns: 1, totalRuns: 2 },
+        "the recorded visit count survives Durable Object eviction"
+      );
+
+      assert.equal(
+        (await heartbeat(miniflare, comparisonJob, comparisonOwner, createdAt + 10, 0)).completedRuns,
+        1,
+        "a replayed renewal cannot walk a reader's progress backwards"
+      );
+      assert.equal(
+        (await heartbeat(miniflare, comparisonJob, comparisonOwner, createdAt + 11, 9)).completedRuns,
+        2,
+        "a misreporting lease holder cannot claim more visits than were admitted"
+      );
     } finally {
       await miniflare?.dispose();
       await rm(temporaryDirectory, { recursive: true, force: true });
@@ -398,12 +435,33 @@ function bundleRuntimeWorker(outputDirectory: string): string {
   return path.join(outputDirectory, "durable-scan-job-runtime.test.js");
 }
 
-async function admit(miniflare: Miniflare, jobId: string, reportId: string, now: number): Promise<Snapshot> {
+async function admit(
+  miniflare: Miniflare,
+  jobId: string,
+  reportId: string,
+  now: number,
+  compare = false
+): Promise<Snapshot> {
   const result = await requestJson<Snapshot>(miniflare, "/jobs", {
     method: "POST",
-    body: jsonBody({ jobId, reportId, now })
+    body: jsonBody({ jobId, reportId, now, compare })
   });
   assert.equal(result.response.status, 202);
+  return result.body;
+}
+
+async function heartbeat(
+  miniflare: Miniflare,
+  jobId: string,
+  owner: Lease,
+  now: number,
+  completedRuns: number
+): Promise<Snapshot> {
+  const result = await requestJson<Snapshot>(miniflare, `/jobs/${jobId}/heartbeat`, {
+    method: "POST",
+    body: jsonBody({ generation: owner.generation, leaseToken: owner.leaseToken, now, completedRuns })
+  });
+  assert.equal(result.response.status, 200);
   return result.body;
 }
 

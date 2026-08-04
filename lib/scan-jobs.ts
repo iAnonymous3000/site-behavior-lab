@@ -449,7 +449,7 @@ export async function activateDurableScanJob(
     // Validate and renew the exact DO-issued owner before a target visit can
     // start. A queued or expired lease can therefore never execute merely
     // because its activation request reached a still-live Node process late.
-    await coordinator.heartbeat(owner);
+    await coordinator.heartbeat(owner, { completedRuns: 0 });
     // The DO may commit cancellation and deliver its generation-only abort
     // while this request is waiting for the successful heartbeat response.
     // Recheck before installing a record or starting any target work.
@@ -978,7 +978,13 @@ function scheduleNextDurableHeartbeat(record: InternalScanJobRecord): void {
   durable.heartbeatTimer = setTimeout(() => {
     durable.heartbeatTimer = undefined;
     void durable.coordinator
-      .heartbeat(durable.owner, record.abortController.signal)
+      .heartbeat(
+        durable.owner,
+        // The live in-memory count, so a reader recovering this job from the
+        // Durable Object sees the visits this worker actually finished.
+        { completedRuns: record.progress.completedRuns },
+        record.abortController.signal
+      )
       .then(() => scheduleNextDurableHeartbeat(record))
       .catch((error) => {
         if (isDefinitiveCoordinatorConflict(error)) {

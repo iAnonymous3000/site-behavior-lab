@@ -43,7 +43,25 @@ export type DurableScanJobRecoverySnapshot = Readonly<{
   reportId: string;
   state: DurableScanJobInternalState;
   totalRuns: number;
+  /** Controlled visits the Durable Object recorded for the live attempt. */
+  completedRuns: number;
 }>;
+
+/**
+ * Put the Durable Object's recorded run count onto the public progress wire.
+ * The stored value is already bounded at its single write site; clamping again
+ * here keeps a corrupted or hand-edited row from emitting progress that
+ * `readScanJobProgress` would reject on the reader side.
+ */
+function recoveredRunCounts(
+  snapshot: DurableScanJobRecoverySnapshot
+): Readonly<{ completedRuns: number; totalRuns: 1 | 2 }> {
+  const totalRuns = snapshot.totalRuns === 2 ? 2 : 1;
+  const completedRuns = Number.isSafeInteger(snapshot.completedRuns)
+    ? Math.min(Math.max(snapshot.completedRuns, 0), totalRuns)
+    : 0;
+  return { completedRuns, totalRuns };
+}
 
 type SnapshotRecoveryDependencies = {
   fetchReport: (reportId: string, signal: AbortSignal) => Promise<Response>;
@@ -108,13 +126,13 @@ export async function recoverDurableScanJobSnapshotResponse(
   dependencies: SnapshotRecoveryDependencies
 ): Promise<Response> {
   const status = publicDurableScanJobStatus(snapshot.state);
-  const totalRuns = snapshot.totalRuns === 2 ? 2 : 1;
+  const { completedRuns, totalRuns } = recoveredRunCounts(snapshot);
   const progress =
     snapshot.state === "queued"
       ? { phase: "queued", completedRuns: 0, totalRuns }
       : snapshot.state === "publishing" || snapshot.state === "succeeded"
         ? { phase: "saving", completedRuns: totalRuns, totalRuns }
-        : { phase: "waiting", completedRuns: 0, totalRuns };
+        : { phase: "waiting", completedRuns, totalRuns };
 
   if (snapshot.state === "succeeded") {
     let recovered: BoundedRecoveryReport;
@@ -196,7 +214,7 @@ export function durableScanJobCancellationResponse(
       ok: true,
       jobId: snapshot.jobId,
       status: "cancelled",
-      progress: { phase: "waiting", completedRuns: 0, totalRuns: snapshot.totalRuns === 2 ? 2 : 1 },
+      progress: { phase: "waiting", ...recoveredRunCounts(snapshot) },
       error: "This scan job was cancelled."
     },
     source
