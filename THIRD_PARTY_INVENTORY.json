@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "ad530278ae30fdd8ac10af343f9d3aa90efa4f35f829888ceb9eb1ae1f337cc1"
+      "sha256": "e5e92444659239cd36591f222ac83083b314f6e388f2c07b3f896353d14c6c0e"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -160,13 +160,13 @@
     },
     {
       "name": "@cloudflare/workers-types",
-      "version": "5.20260731.1",
+      "version": "5.20260801.1",
       "lockPath": "node_modules/@cloudflare/workers-types",
       "license": "MIT OR Apache-2.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20260731.1.tgz",
-      "integrity": "sha512-ly+eua642FCR2nbQGi/OxqlVaJI3fNdyqK7G4u6jWCAZ4WYhOBvZWyf0M7s5zurWbNQW3YjelOxuKqR0zYK90w==",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20260801.1.tgz",
+      "integrity": "sha512-XCv5xWi47WQOK0LpLa6997Mrpz8Ct+nZmp/M5Xp8Z4BFsarf7nYjkznGOcOoYK5m1GfbMFEEuQ2OIZnbIWoe9A==",
       "developmentOnly": true,
       "optional": false
     },

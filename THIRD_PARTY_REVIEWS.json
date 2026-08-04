@@ -130,10 +130,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workers-types@5.20260731.1",
+      "key": "npm:@cloudflare/workers-types@5.20260801.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workers-types",
-      "version": "5.20260731.1",
+      "version": "5.20260801.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
