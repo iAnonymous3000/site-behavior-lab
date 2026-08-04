@@ -114,7 +114,22 @@ test("runtimeStatus reports degraded status for open local defaults", async () =
   assert.deepEqual(status.checks.durableJobs, { requested: false, enabled: false, readiness: "disabled" });
   assert.deepEqual(status.checks.encryptedWatches, { requested: false, enabled: false, readiness: "disabled" });
   assert.deepEqual(status.checks.v2ShadowEmission, { status: "disabled", backend: "filesystem" });
-  assert.equal(status.warnings.length, 3);
+
+  // This is the one scenario that deliberately leaves the report store path
+  // unconfigured, so its retention verdict is read from whatever happens to sit
+  // at the working directory's default path: empty in CI, but a real local
+  // store on a machine that has run scans. Everything else in this scenario is
+  // decided by the environment the test controls, so only that one warning is
+  // separated out rather than loosening the count for all of them.
+  const [environmentDerived, controlled] = status.warnings.reduce<[string[], string[]]>(
+    (split, warning) => {
+      split[warning.startsWith("Physical report") ? 0 : 1].push(warning);
+      return split;
+    },
+    [[], []]
+  );
+  assert.ok(environmentDerived.length <= 1, "physical retention contributes at most one warning");
+  assert.equal(controlled.length, 3);
 });
 
 test("runtimeStatus discloses an egress label canonicalized before collection", async () => {

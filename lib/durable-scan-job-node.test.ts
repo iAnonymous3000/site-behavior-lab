@@ -900,12 +900,17 @@ test("the coordinator client authenticates fixed-origin control posts without fo
     }
   });
 
-  await client.heartbeat(owner(1, LEASE_ONE));
+  await client.heartbeat(owner(1, LEASE_ONE), { completedRuns: 1 });
   assert.equal(capturedUrl, `https://scanner.example/__site-behavior-lab/durable-scans/${JOB_ID}/heartbeat`);
   assert.equal(capturedInit?.method, "POST");
   assert.equal(capturedInit?.redirect, "error");
   assert.equal(new Headers(capturedInit?.headers).get(DURABLE_SCAN_JOB_INTERNAL_HEADER), INTERNAL_TOKEN);
-  assert.deepEqual(JSON.parse(String(capturedInit?.body)), owner(1, LEASE_ONE));
+  // The renewal carries the run count, so a reader recovering this job from the
+  // Durable Object is not told the worker is still on its first visit.
+  assert.deepEqual(JSON.parse(String(capturedInit?.body)), {
+    ...owner(1, LEASE_ONE),
+    completedRuns: 1
+  });
   assert.throws(
     () =>
       createDurableScanJobCoordinatorClient({
@@ -945,7 +950,7 @@ test("the coordinator client bounds a stalled control request", async () => {
   });
 
   await assert.rejects(
-    () => client.heartbeat(owner(1, LEASE_ONE)),
+    () => client.heartbeat(owner(1, LEASE_ONE), { completedRuns: 0 }),
     (error: unknown) => error instanceof DurableScanJobCoordinatorError && error.status === null
   );
 });

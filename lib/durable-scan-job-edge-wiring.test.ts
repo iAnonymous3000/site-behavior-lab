@@ -599,7 +599,14 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   assert.match(container, /async cancelDurableJob\(jobId: string\): Promise<DurableScanJobCancellationResult>/);
   assert.match(
     container,
-    /async heartbeatDurableJob\(owner: DurableScanJobExecutionOwner\): Promise<DurableScanJobMutationResult>/
+    /async heartbeatDurableJob\(\s*owner: DurableScanJobExecutionOwner,\s*completedRuns: number\s*\): Promise<DurableScanJobMutationResult>/
+  );
+  // The renewal's run count is untrusted wire input from the lease holder, so
+  // the edge must bound it before the Durable Object records it. The clock stays
+  // the DO's own, which the Date.now() refusal below still enforces.
+  assert.match(
+    source,
+    /const completedRuns = durableHeartbeatCompletedRuns\(body\);\s*\n\s*if \(completedRuns === null\) return privateControlResponse\(400\);/
   );
   assert.match(container, /findDurableJob\(jobId: string\): DurableScanJobSnapshot \| null/);
   assert.match(container, /findRegisteredScanJob\(jobId: string\): DurableScanJobRegistration \| null/);

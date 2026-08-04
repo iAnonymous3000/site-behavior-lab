@@ -140,7 +140,7 @@ test("non-success report bodies remain bounded and cannot leak internal response
 
 test("authoritative status also sanitizes bounded non-success report responses", async () => {
   const response = await recoverDurableScanJobSnapshotResponse(
-    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 1 },
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 1, completedRuns: 1 },
     missingResponse(),
     {
       fetchReport: async () =>
@@ -209,7 +209,7 @@ test("durable recovery rejects oversized successful report bodies before bufferi
 
   let snapshotCancelled = false;
   const snapshot = await recoverDurableScanJobSnapshotResponse(
-    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2 },
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2, completedRuns: 2 },
     missingResponse(),
     {
       fetchReport: async () => declaredOversizedReportResponse(() => { snapshotCancelled = true; })
@@ -227,7 +227,7 @@ test("authoritative recovery bounds report time-to-headers and aborts the fetch 
   let fetchSignalAborted = false;
   const seen: unknown[] = [];
   const response = await recoverDurableScanJobSnapshotResponse(
-    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2 },
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2, completedRuns: 2 },
     missingResponse(),
     {
       fetchReport: async (_reportId, signal) => {
@@ -254,7 +254,7 @@ test("authoritative recovery bounds report time-to-headers and aborts the fetch 
 test("authoritative recovery's same deadline covers a stalled successful body", async () => {
   let cancelled = false;
   const response = await recoverDurableScanJobSnapshotResponse(
-    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 1 },
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 1, completedRuns: 1 },
     missingResponse(),
     {
       fetchReport: async () =>
@@ -429,7 +429,7 @@ test("authoritative durable status never leaks internal state or storage metadat
 test("authoritative durable success embeds the exact saved report", async () => {
   for (const report of [makeScanReportV1(), makeShieldsInterventionReportV2R2()]) {
     const response = await recoverDurableScanJobSnapshotResponse(
-      { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2 },
+      { jobId: JOB_ID, reportId: REPORT_ID, state: "succeeded", totalRuns: 2, completedRuns: 2 },
       missingResponse(),
       {
         fetchReport: async (reportId) => {
@@ -450,7 +450,7 @@ test("authoritative durable success embeds the exact saved report", async () => 
 
 test("authoritative status emits attempt evidence only when the staging hook supplies it", async () => {
   const response = await recoverDurableScanJobSnapshotResponse(
-    { jobId: JOB_ID, reportId: REPORT_ID, state: "queued", totalRuns: 1 },
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "queued", totalRuns: 1, completedRuns: 0 },
     missingResponse(),
     {
       fetchReport: async () => assert.fail("queued states must not probe the report store"),
@@ -478,7 +478,7 @@ test("authoritative status emits attempt evidence only when the staging hook sup
   });
 
   const production = await recoverDurableScanJobSnapshotResponse(
-    { jobId: JOB_ID, reportId: REPORT_ID, state: "queued", totalRuns: 1 },
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "queued", totalRuns: 1, completedRuns: 0 },
     missingResponse(),
     { fetchReport: async () => assert.fail("queued states must not probe the report store") }
   );
@@ -487,7 +487,7 @@ test("authoritative status emits attempt evidence only when the staging hook sup
 
 test("authoritative durable cancellation is control-only and idempotent", async () => {
   const response = durableScanJobCancellationResponse(
-    { jobId: JOB_ID, reportId: REPORT_ID, state: "cancelled", totalRuns: 1 },
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "cancelled", totalRuns: 1, completedRuns: 0 },
     missingResponse()
   );
   const wire = await response.text();
@@ -503,7 +503,7 @@ test("authoritative durable cancellation is control-only and idempotent", async 
 
 test("a leased durable job reports running with progress the client validator accepts", async () => {
   const response = await recoverDurableScanJobSnapshotResponse(
-    { jobId: JOB_ID, reportId: REPORT_ID, state: "leased", totalRuns: 1 },
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "leased", totalRuns: 1, completedRuns: 0 },
     missingResponse(),
     { fetchReport: async () => assert.fail("a leased job must not probe the report store") }
   );
@@ -524,6 +524,47 @@ test("a leased durable job reports running with progress the client validator ac
   assert.match(`${queued.title} ${queued.detail}`, /queued|waiting to start/i);
   assert.doesNotMatch(`${running.title} ${running.detail}`, /waiting|slot|queued/i);
   assert.match(`${running.title} ${running.detail}`, /in progress|has started/i);
+});
+
+test("a recovered comparison reports the visits the Durable Object recorded", async () => {
+  const recovered = async (completedRuns: number) => {
+    const response = await recoverDurableScanJobSnapshotResponse(
+      { jobId: JOB_ID, reportId: REPORT_ID, state: "leased", totalRuns: 2, completedRuns },
+      missingResponse(),
+      { fetchReport: async () => assert.fail("a leased job must not probe the report store") }
+    );
+    return (await response.json()).progress;
+  };
+
+  // Before this was recorded, a reader recovering a half-finished comparison was
+  // told "0 of 2" for the whole second visit, and the count only moved when the
+  // job reached publication.
+  const midway = readScanJobProgress(await recovered(1));
+  if (!midway) assert.fail("the recovered progress must survive the client validator");
+  assert.deepEqual(midway, { phase: "waiting", completedRuns: 1, totalRuns: 2 });
+  assert.equal(scanJobProgressCopy(midway).completedRuns, "1 of 2 controlled visits completed.");
+
+  assert.deepEqual(await recovered(0), { phase: "waiting", completedRuns: 0, totalRuns: 2 });
+
+  // A hand-edited or corrupted row must not emit progress the reader would drop,
+  // which would freeze an already deployed page on stale copy.
+  for (const corrupt of [-1, 5, 1.5, Number.NaN]) {
+    const clamped = readScanJobProgress(await recovered(corrupt));
+    if (!clamped) assert.fail(`a ${corrupt} run count must still emit valid progress`);
+    assert.ok(clamped.completedRuns >= 0 && clamped.completedRuns <= 2);
+  }
+});
+
+test("a cancelled durable job reports the visits it finished before cancellation", async () => {
+  const response = durableScanJobCancellationResponse(
+    { jobId: JOB_ID, reportId: REPORT_ID, state: "cancelled", totalRuns: 2, completedRuns: 1 },
+    missingResponse()
+  );
+  const parsed = await response.json();
+  assert.deepEqual(parsed.progress, { phase: "waiting", completedRuns: 1, totalRuns: 2 });
+  if (!readScanJobProgress(parsed.progress)) {
+    assert.fail("the cancellation wire progress must survive the client validator");
+  }
 });
 
 function missingResponse(): Response {

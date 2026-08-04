@@ -50,8 +50,19 @@ export type DurableScanJobResolution =
   | { outcome: "failed"; error: string }
   | { outcome: "cancelled"; error: string };
 
+/**
+ * The run count the lease holder has finished. It rides the lease renewal so a
+ * reader recovering the job after a coordinator restart sees the progress the
+ * worker actually reached instead of restarting the count at zero.
+ */
+export type DurableScanJobHeartbeat = Readonly<{ completedRuns: number }>;
+
 export interface DurableScanJobCoordinator {
-  heartbeat(owner: DurableScanJobExecutionOwner, signal?: AbortSignal): Promise<void>;
+  heartbeat(
+    owner: DurableScanJobExecutionOwner,
+    progress: DurableScanJobHeartbeat,
+    signal?: AbortSignal
+  ): Promise<void>;
   beginPublishing(owner: DurableScanJobExecutionOwner, manifest: unknown, signal?: AbortSignal): Promise<void>;
   resolve(owner: DurableScanJobExecutionOwner, resolution: DurableScanJobResolution, signal?: AbortSignal): Promise<void>;
 }
@@ -223,7 +234,8 @@ export function createDurableScanJobCoordinatorClient(
   };
 
   return {
-    heartbeat: (owner, signal) => post(owner, "heartbeat", {}, signal),
+    heartbeat: (owner, progress, signal) =>
+      post(owner, "heartbeat", { completedRuns: progress.completedRuns }, signal),
     beginPublishing: (owner, manifest, signal) => post(owner, "begin-publishing", { manifest }, signal),
     resolve: (owner, resolution, signal) => post(owner, "resolve", resolution, signal)
   };
