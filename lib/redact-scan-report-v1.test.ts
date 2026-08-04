@@ -216,6 +216,39 @@ test("v1 redaction preserves exact current and historical canonical scanner disc
   assert.match(redactScanResultV1(report).report.conditions.scannerDisclosure, /invalid and was removed/);
 });
 
+test("a reviewed superseded methodology survives the toolchain move that retired it", () => {
+  // The regexes above only reconstruct disclosures whose methodology token ENDS
+  // at the Playwright version. A report published under an extended identity is
+  // a fixed point only while that identity is current, so a Playwright move
+  // orphans it unless the outgoing identity joins the reviewed list. The
+  // committed corpus proves this today, but retention may prune those reports;
+  // this pins the contract independently of what the corpus still holds.
+  const report = makeScanReportV1() as ScanResult;
+  report.conditions.scannerEgress = "this scanner instance";
+  report.conditions.shieldsMode = "classification";
+  const current = scannerDisclosure("node-playwright", {
+    chromiumVersion: report.conditions.chromiumVersion,
+    locale: report.conditions.locale,
+    scannerEgress: report.conditions.scannerEgress,
+    shieldsMode: report.conditions.shieldsMode,
+    timezone: report.conditions.timezone
+  });
+  const supersededMethodology =
+    "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2";
+  const superseded = current
+    .replace(`Playwright ${NODE_PLAYWRIGHT_VERSION}`, "Playwright 1.62.0")
+    .replace(NODE_SCANNER_METHODOLOGY_VERSION, supersededMethodology);
+  report.conditions.scannerDisclosure = superseded;
+  assert.equal(redactScanResultV1(report).report.conditions.scannerDisclosure, superseded);
+
+  // An unreviewed extended identity is still refused: the reviewed list is
+  // exact, so a report cannot mint its own methodology tail and publish it.
+  report.conditions.scannerDisclosure = current
+    .replace(`Playwright ${NODE_PLAYWRIGHT_VERSION}`, "Playwright 1.62.0")
+    .replace(NODE_SCANNER_METHODOLOGY_VERSION, `${supersededMethodology}+unreviewed-suffix-v1`);
+  assert.match(redactScanResultV1(report).report.conditions.scannerDisclosure, /invalid and was removed/);
+});
+
 test("the v1 transform sanitizes every page-controlled field without mutating its input", () => {
   const input = sensitiveSingle();
   const before = JSON.stringify(input);

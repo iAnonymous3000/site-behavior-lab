@@ -73,6 +73,7 @@ import {
   type DetectorCalibrationStudyV3
 } from "./detector-calibration";
 import { committedCalibrationStudyAnalyses } from "./detector-calibration-source";
+import { NODE_PLAYWRIGHT_VERSION } from "./legacy-methodology";
 import { sha256Hex } from "./sha256";
 
 type EvidenceJson = {
@@ -4284,7 +4285,9 @@ function runtimeIdentity(): DetectorCalibrationRuntimeIdentity {
     observer: "node-playwright",
     automation: "playwright-chromium",
     nodeVersion: "24.14.1",
-    playwrightVersion: "1.62.0",
+    // The binding verifier compares this against the live pin, so the fixture
+    // has to mean "the current toolchain" rather than one frozen version.
+    playwrightVersion: NODE_PLAYWRIGHT_VERSION,
     browserName: "chromium",
     browserVersion: "145.0.7632.6",
     operatingSystem: "linux",

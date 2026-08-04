@@ -1726,10 +1726,10 @@
       "notes": null
     },
     {
-      "key": "npm:playwright@1.62.0",
+      "key": "npm:playwright@1.62.1",
       "ecosystem": "npm",
       "name": "playwright",
-      "version": "1.62.0",
+      "version": "1.62.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -1740,10 +1740,10 @@
       "notes": null
     },
     {
-      "key": "npm:playwright-core@1.62.0",
+      "key": "npm:playwright-core@1.62.1",
       "ecosystem": "npm",
       "name": "playwright-core",
-      "version": "1.62.0",
+      "version": "1.62.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -1908,10 +1908,10 @@
       "notes": null
     },
     {
-      "key": "npm:tldts@7.4.9",
+      "key": "npm:tldts@7.4.10",
       "ecosystem": "npm",
       "name": "tldts",
-      "version": "7.4.9",
+      "version": "7.4.10",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1922,10 +1922,10 @@
       "notes": null
     },
     {
-      "key": "npm:tldts-core@7.4.9",
+      "key": "npm:tldts-core@7.4.10",
       "ecosystem": "npm",
       "name": "tldts-core",
-      "version": "7.4.9",
+      "version": "7.4.10",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -3042,10 +3042,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt@sha256:59774b7433695ba1d437d4cc2d91b9cb3fc70e51a68e8a0ff3f4d2739c457c3c",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt@sha256:8c12c4d5162a213e7ef42adb0ec6252938c2bd6516b01ed2c456414067677f8f",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt",
-      "version": "sha256:59774b7433695ba1d437d4cc2d91b9cb3fc70e51a68e8a0ff3f4d2739c457c3c",
+      "version": "sha256:8c12c4d5162a213e7ef42adb0ec6252938c2bd6516b01ed2c456414067677f8f",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3056,10 +3056,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2020.txt@sha256:20ea778ccc7c80f3ec3bd306b71177dfe69d906d5d12bb573d945810d72876e8",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2020.txt@sha256:6f4db672c0ca29a1b21b5903e7e3a1efd94d41c1294378d2d9084e00d8e57a02",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2020.txt",
-      "version": "sha256:20ea778ccc7c80f3ec3bd306b71177dfe69d906d5d12bb573d945810d72876e8",
+      "version": "sha256:6f4db672c0ca29a1b21b5903e7e3a1efd94d41c1294378d2d9084e00d8e57a02",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3070,10 +3070,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2021.txt@sha256:65581044e8f04f9965ed7dc3b738622b3d7968cd250c0a0be1083c9925fd24bc",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2021.txt@sha256:8a0cf156efd89fc3cd64615cbbf15ec8a7d87366f74b0644504211a9d509cdc8",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2021.txt",
-      "version": "sha256:65581044e8f04f9965ed7dc3b738622b3d7968cd250c0a0be1083c9925fd24bc",
+      "version": "sha256:8a0cf156efd89fc3cd64615cbbf15ec8a7d87366f74b0644504211a9d509cdc8",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3084,10 +3084,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2022.txt@sha256:e1d3d23e7f88279ef357b91a000d0a440e2c0999602ccc92795f7c28ccbfe6bf",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2022.txt@sha256:e3439e802774b8b611f2c1350bdc5138f3822d2c1d9e53104cec8b442e1570f7",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2022.txt",
-      "version": "sha256:e1d3d23e7f88279ef357b91a000d0a440e2c0999602ccc92795f7c28ccbfe6bf",
+      "version": "sha256:e3439e802774b8b611f2c1350bdc5138f3822d2c1d9e53104cec8b442e1570f7",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3098,10 +3098,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2023.txt@sha256:8411d816c128cf3202ca488a57b5cc37da401ae46a710ccb96a9cad7a4ad44b3",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2023.txt@sha256:4ea64fabfb1a08d1ca614f0774b69f7ab0a27d2b417eb99c66d32018e98e695b",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2023.txt",
-      "version": "sha256:8411d816c128cf3202ca488a57b5cc37da401ae46a710ccb96a9cad7a4ad44b3",
+      "version": "sha256:4ea64fabfb1a08d1ca614f0774b69f7ab0a27d2b417eb99c66d32018e98e695b",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3112,10 +3112,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2024.txt@sha256:3fc84540e5dd0000ef60c1519f01098ee995882cee20e0eb66383b188143314f",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2024.txt@sha256:04b4c7181e6dde465c184d82fd9b43d5fa3fff818c33a2544188b43f1a75dbde",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2024.txt",
-      "version": "sha256:3fc84540e5dd0000ef60c1519f01098ee995882cee20e0eb66383b188143314f",
+      "version": "sha256:04b4c7181e6dde465c184d82fd9b43d5fa3fff818c33a2544188b43f1a75dbde",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3126,10 +3126,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2025.txt@sha256:7c97e12b493f90a19d6b0576b812c362b0e3529044541d353101f6bd1a7fd10d",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2025.txt@sha256:6810bd74018e6024697741321bca6b9668b24ed9afcbd9e8817a7528f14550a9",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2025.txt",
-      "version": "sha256:7c97e12b493f90a19d6b0576b812c362b0e3529044541d353101f6bd1a7fd10d",
+      "version": "sha256:6810bd74018e6024697741321bca6b9668b24ed9afcbd9e8817a7528f14550a9",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3140,10 +3140,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2026.txt@sha256:cfb1a58112dba312faadc0e680582338844c1ff1d68155c9f8150b42dc66ebcf",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2026.txt@sha256:b27b1f07cea81bae624419fb88c295fc7d2728bbd67d6c5b7528b52936106643",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2026.txt",
-      "version": "sha256:cfb1a58112dba312faadc0e680582338844c1ff1d68155c9f8150b42dc66ebcf",
+      "version": "sha256:b27b1f07cea81bae624419fb88c295fc7d2728bbd67d6c5b7528b52936106643",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3154,10 +3154,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-general.txt@sha256:549d0c71f464f1e18b5a28fd373e4242d50cacf804540508566327b06d9c3b65",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-general.txt@sha256:5c5232dc273476d1c310c226df1aeed102f09a099f457b6356d56eefdb6c8dfa",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-general.txt",
-      "version": "sha256:549d0c71f464f1e18b5a28fd373e4242d50cacf804540508566327b06d9c3b65",
+      "version": "sha256:5c5232dc273476d1c310c226df1aeed102f09a099f457b6356d56eefdb6c8dfa",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3168,10 +3168,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt@sha256:ca57207511752cbd54da5774f5ca75b4b4f112484d62117033e37451c0d5cdf8",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt@sha256:ada4ce8c81ee5d8758e93ec9e80f2b80a46e7204bd51710a5be072a4c2ee35a7",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
-      "version": "sha256:ca57207511752cbd54da5774f5ca75b4b4f112484d62117033e37451c0d5cdf8",
+      "version": "sha256:ada4ce8c81ee5d8758e93ec9e80f2b80a46e7204bd51710a5be072a4c2ee35a7",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3182,10 +3182,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resource-abuse.txt@sha256:26e89c6dab190b00e18f4be32f6a2660480572cfb6ec2cf67b382053b2cf5269",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resource-abuse.txt@sha256:3283caf2636f5fdc921f05fdaee59490ec34fc0644b89b0477e4e04cd7f97292",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resource-abuse.txt",
-      "version": "sha256:26e89c6dab190b00e18f4be32f6a2660480572cfb6ec2cf67b382053b2cf5269",
+      "version": "sha256:3283caf2636f5fdc921f05fdaee59490ec34fc0644b89b0477e4e04cd7f97292",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3196,10 +3196,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt@sha256:9052ac657ff6eed8316223658776c662f40381ffbc702abdd3721232ab6d4751",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt@sha256:77552f73507a1a2f8f7efbb34d680a2231b9bd6a56ecec32a190d6dc31b450ec",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt",
-      "version": "sha256:9052ac657ff6eed8316223658776c662f40381ffbc702abdd3721232ab6d4751",
+      "version": "sha256:77552f73507a1a2f8f7efbb34d680a2231b9bd6a56ecec32a190d6dc31b450ec",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3210,10 +3210,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt@sha256:28a2c52152f7c4c6f4f36e88def790230f1ddf8071455bb510c2aab41b325223",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt@sha256:7051f894b457dd958832676be885e002aeca4d20f6f5b81a4ddcd3f1241627b2",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt",
-      "version": "sha256:28a2c52152f7c4c6f4f36e88def790230f1ddf8071455bb510c2aab41b325223",
+      "version": "sha256:7051f894b457dd958832676be885e002aeca4d20f6f5b81a4ddcd3f1241627b2",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3224,10 +3224,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/ubo-link-shorteners.txt@sha256:870896ea2770c97f285589f24f5af61032ad13aec3222f223120486f5c24409d",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/ubo-link-shorteners.txt@sha256:9fa49ec95d7e016180471628ba494e39542a0eebe46e67397402feebb361cdca",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/ubo-link-shorteners.txt",
-      "version": "sha256:870896ea2770c97f285589f24f5af61032ad13aec3222f223120486f5c24409d",
+      "version": "sha256:9fa49ec95d7e016180471628ba494e39542a0eebe46e67397402feebb361cdca",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3238,10 +3238,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://easylist.to/easylist/easylist.txt@sha256:b0750ebc34115de53614e676cd43ae860fe03a5162c78a186e682990680da0ac",
+      "key": "filter-list:https://easylist.to/easylist/easylist.txt@sha256:848c97fd73720c8df874b8cbc13c111444c984a86b773aa95e5a1dab70af94a3",
       "ecosystem": "filter-list",
       "name": "https://easylist.to/easylist/easylist.txt",
-      "version": "sha256:b0750ebc34115de53614e676cd43ae860fe03a5162c78a186e682990680da0ac",
+      "version": "sha256:848c97fd73720c8df874b8cbc13c111444c984a86b773aa95e5a1dab70af94a3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3252,10 +3252,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-agh-online.txt@sha256:c4062e909ff8ae96497e37aa825cdf4d1ecf9abb1c98056f3183dafbd764f85f",
+      "key": "filter-list:https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-agh-online.txt@sha256:67e025e25302539eb57b2e908640ff4b755fa4952ad6af8b2e71832e226fee51",
       "ecosystem": "filter-list",
       "name": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-agh-online.txt",
-      "version": "sha256:c4062e909ff8ae96497e37aa825cdf4d1ecf9abb1c98056f3183dafbd764f85f",
+      "version": "sha256:67e025e25302539eb57b2e908640ff4b755fa4952ad6af8b2e71832e226fee51",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3350,10 +3350,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://easylist.to/easylist/easyprivacy.txt@sha256:77eda133853dfa67a7be03fd0d691f2fd3b86165c9d4836353d9b71247da33f4",
+      "key": "filter-list:https://easylist.to/easylist/easyprivacy.txt@sha256:aa5742abd5397c6c37108764f0b81fbc87d592247d13cbffcc321df10ee17a1c",
       "ecosystem": "filter-list",
       "name": "https://easylist.to/easylist/easyprivacy.txt",
-      "version": "sha256:77eda133853dfa67a7be03fd0d691f2fd3b86165c9d4836353d9b71247da33f4",
+      "version": "sha256:aa5742abd5397c6c37108764f0b81fbc87d592247d13cbffcc321df10ee17a1c",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3364,10 +3364,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt@sha256:86428d01a7e8efdc6283203f0302ecb6366d7e21e26fcd269e6025c13615dab3",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt@sha256:6121709a817c42ff7e4e395a2b34715a054689c9605a454fdc64892c6d2b9de6",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
-      "version": "sha256:86428d01a7e8efdc6283203f0302ecb6366d7e21e26fcd269e6025c13615dab3",
+      "version": "sha256:6121709a817c42ff7e4e395a2b34715a054689c9605a454fdc64892c6d2b9de6",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3392,10 +3392,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty.txt@sha256:7a134c2d9487fa9c8299f6267074a857bed588569edd570da5aa1d145714ebc6",
+      "key": "filter-list:https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty.txt@sha256:1b3033b15b05f87caed31f6ed3ef6bf80aba310d25c02db0064e238676a8f394",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/brave/adblock-lists/master/brave-lists/brave-firstparty.txt",
-      "version": "sha256:7a134c2d9487fa9c8299f6267074a857bed588569edd570da5aa1d145714ebc6",
+      "version": "sha256:1b3033b15b05f87caed31f6ed3ef6bf80aba310d25c02db0064e238676a8f394",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3420,10 +3420,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://secure.fanboy.co.nz/fanboy-cookiemonster_ubo.txt@sha256:0cc8e510d6136509e6307883c5404ffc572d22abcccefbadfdffae9e4319fb55",
+      "key": "filter-list:https://secure.fanboy.co.nz/fanboy-cookiemonster_ubo.txt@sha256:673707220e081618c304b8ad938bd9d24d807d58644266a4ac6b11eb6f0426a3",
       "ecosystem": "filter-list",
       "name": "https://secure.fanboy.co.nz/fanboy-cookiemonster_ubo.txt",
-      "version": "sha256:0cc8e510d6136509e6307883c5404ffc572d22abcccefbadfdffae9e4319fb55",
+      "version": "sha256:673707220e081618c304b8ad938bd9d24d807d58644266a4ac6b11eb6f0426a3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3434,10 +3434,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances-cookies.txt@sha256:9d2dfa2cf99b94dcdfa7db90873b97131a3bafd78b978bb524eff87ed412efa8",
+      "key": "filter-list:https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances-cookies.txt@sha256:b4b6690d0e865f83985c76a750e668c6524cef359a010ce2d432d6a239b1c92a",
       "ecosystem": "filter-list",
       "name": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances-cookies.txt",
-      "version": "sha256:9d2dfa2cf99b94dcdfa7db90873b97131a3bafd78b978bb524eff87ed412efa8",
+      "version": "sha256:b4b6690d0e865f83985c76a750e668c6524cef359a010ce2d432d6a239b1c92a",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,
@@ -3462,10 +3462,10 @@
       "notes": null
     },
     {
-      "key": "filter-list:https://secure.fanboy.co.nz/fanboy-mobile-notifications.txt@sha256:2900ac268a1147f70d1f17acd2a67e6739e961dc387184144f8017fc556059a3",
+      "key": "filter-list:https://secure.fanboy.co.nz/fanboy-mobile-notifications.txt@sha256:9a660caf40fdc7d0b004054f150637a90961e6da5111cccfddafb9e26463ee64",
       "ecosystem": "filter-list",
       "name": "https://secure.fanboy.co.nz/fanboy-mobile-notifications.txt",
-      "version": "sha256:2900ac268a1147f70d1f17acd2a67e6739e961dc387184144f8017fc556059a3",
+      "version": "sha256:9a660caf40fdc7d0b004054f150637a90961e6da5111cccfddafb9e26463ee64",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,

@@ -4,12 +4,12 @@ ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=""
 # Keep one literal, immutable external base so Docker Dependabot can update it.
 # lib/toolchain-provenance.test.ts ties this tag to package.json and requires
 # the digest, preventing the runtime image from drifting behind the scanner.
-FROM mcr.microsoft.com/playwright:v1.62.0-noble@sha256:baed2032d533817f3dbe6425de795788430ba345e819a1201337009ba17c9d07 AS playwright-base
+FROM mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e AS playwright-base
 
 # The digest-pinned Playwright base intentionally carries a newer runtime than
 # the host/Actions authoring toolchain. Fail the image build if that immutable
 # base ever resolves to different Node or npm bytes without a reviewed epoch.
-RUN test "$(node --version)" = "v24.18.0" \
+RUN test "$(node --version)" = "v24.18.1" \
   && test "$(npm --version)" = "11.16.0"
 
 FROM playwright-base AS build

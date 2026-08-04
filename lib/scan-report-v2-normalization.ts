@@ -37,19 +37,27 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
 });
 
 /**
- * Identities this generation has already published, retired by a WIDENING of
- * the sanitizer's public-string vocabulary.
+ * Identities this generation has already published and retired without
+ * remediating a single byte. Two kinds of change qualify, and nothing else.
  *
- * A widening admits strings the older pass replaced with a placeholder, so
- * every report the older pass produced is still a fixed point of the newer one
- * and needs no remediation. It keeps its own identity, because it really was
- * sanitized under the narrower vocabulary and a reader comparing two reports
- * must be able to see that.
+ * A WIDENING of the sanitizer's public-string vocabulary admits strings the
+ * older pass replaced with a placeholder, so every report the older pass
+ * produced is still a fixed point of the newer one. It keeps its own identity,
+ * because it really was sanitized under the narrower vocabulary and a reader
+ * comparing two reports must be able to see that.
+ *
+ * A public-suffix ENGINE refresh that provably admits the same strings also
+ * qualifies, and only with the proof: the vocabulary is unchanged, so the
+ * fixed-point property holds exactly when the new engine returns the same
+ * registrable domain, suffix, and ICANN/private flags for every hostname the
+ * published corpus and the reviewed allowlists contain. Verify that
+ * differentially before adding the entry, never assume it from a patch-level
+ * version bump.
  *
  * Exact strings, never a pattern, for the same reason the v3 set is exact: an
  * unreviewed or self-declared identity must fail closed rather than be blessed
  * by inference. Only add an entry for a change that cannot remove a string from
- * the admitted set; a narrowing REQUIRES remediation instead.
+ * the admitted set; anything that can REQUIRES remediation instead.
  */
 export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
@@ -83,7 +91,18 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     // disclosure alongside the sentence it replaces. Both changes only admit;
     // nothing an older pass admitted was removed, so every published report
     // stays a fixed point.
-    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1",
+    // Retired by the 2026-08-04 measurement epoch, which moved the public
+    // suffix engine to tldts@7.4.10. The admitted public-string vocabulary is
+    // byte-identical on both sides (the policy digest does not move), and
+    // 7.4.10 is a data-only refresh of the suffix trie: parsing every
+    // hostname-shaped string in the published corpus, the allowlists, and the
+    // tracker catalog under both engines produced identical registrable
+    // domains, suffixes, and ICANN/private flags, so no published report loses
+    // an admitted string and every one stays a fixed point. The identity still
+    // moves, because the engine that computed those domains is recorded
+    // methodology and a reader comparing two reports must be able to see it.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
@@ -93,7 +112,9 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:68c36f5132e92c25d024a23e201f931304ff9527063ac622f622e5955682bf23+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:b68c7b0c0312d1ea5799aa491859ff88737e16da2791453b0936a9b4c14d62a7+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     // Retired by scanner-warning-patterns-v8; see the node-playwright entry.
-    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1"
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:ec263b9176229101c26212bf1cef8a04cdeb167777a2f8501a842b4eab53d0ae+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    // Retired by the tldts@7.4.10 public-suffix move; see the node-playwright entry.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1"
   ]),
   "browser-run-worker": Object.freeze([])
 });
