@@ -28,12 +28,24 @@ import {
   HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
   HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION,
   HISTORICAL_NODE_R2_V4_TRACKER_CATALOG,
+  HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
+  HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+  HISTORICAL_PAGEGRAPH_R2_DETECTOR_VERSION,
+  HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS,
+  HISTORICAL_PAGEGRAPH_R2_METHODOLOGY_VERSION,
   NODE_R2_PRODUCER_TUPLES,
+  PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
+  PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+  PAGEGRAPH_R2_DETECTOR_VERSION,
+  PAGEGRAPH_R2_EXPECTED_DETECTORS,
+  PAGEGRAPH_R2_METHODOLOGY_VERSION,
   PAGEGRAPH_R2_PRODUCER_TUPLES,
   R2ProducerContractError,
   assertR2ProducerContract,
   type NodeR2ProducerTuple
 } from "./scan-report-v2-r2-producer-contract";
+import { canonicalJson } from "./scan-report-v2-fingerprints";
+import { sha256Hex } from "./sha256";
 import { makeScanRunV2R2 } from "./scan-report-v2-r2-fixtures";
 import {
   SERVICE_ROLE_TAXONOMY_DIGEST,
@@ -516,15 +528,101 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
   ];
   assert.equal(PAGEGRAPH_R2_PRODUCER_TUPLES.length, oracle.length + 1);
   assert.equal(Object.isFrozen(PAGEGRAPH_R2_PRODUCER_TUPLES), true);
+  const activeMethodologySuffix = active.provenance.methodologyVersion.slice(
+    PAGEGRAPH_R2_METHODOLOGY_VERSION.length
+  );
   for (const { normalizationVersion, catalog, mixedVersion } of oracle) {
+    // Replay each retired identity from its own frozen producer row, not the
+    // live builder: taking the registry, ledger, and methodology base from the
+    // builder would let a future live bump silently restate what these closed
+    // rows accept, mirroring the Node remediation replay.
+    const frozenTuple = PAGEGRAPH_R2_PRODUCER_TUPLES.find(
+      (tuple) => tuple.normalizationVersion === normalizationVersion
+    );
+    assert.notEqual(
+      frozenTuple,
+      undefined,
+      `no frozen PageGraph producer row for ${normalizationVersion}`
+    );
     const run = structuredClone(active);
     run.toolchain.normalizationVersion = normalizationVersion;
     run.toolchain.trackerCatalog = { ...catalog };
+    run.provenance.methodologyVersion = `${frozenTuple!.methodologyVersion}${activeMethodologySuffix}`;
+    run.provenance.detectorRegistry = { ...frozenTuple!.detectorRegistry };
+    run.detectors = structuredClone(frozenTuple!.detectors);
     assert.doesNotThrow(() => assertR2ProducerContract(run), normalizationVersion);
     run.toolchain.trackerCatalog.version = mixedVersion;
     assert.throws(() => assertR2ProducerContract(run), R2ProducerContractError);
   }
   assert.doesNotThrow(() => assertR2ProducerContract(active));
+});
+
+test("closed PageGraph epochs are pinned literals that still match the live identity today", () => {
+  const closedIds = PAGEGRAPH_R2_PRODUCER_TUPLES.filter(
+    (tuple) => tuple.id !== "pagegraph-v4-active"
+  ).map((tuple) => tuple.id);
+  assert.equal(closedIds.length > 0, true);
+  // (a) The frozen registry digest is this exact hex, and it is the sha256 of
+  // the frozen version + ledger, so neither the pin nor its inputs can drift
+  // on their own.
+  assert.equal(
+    HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
+    "570dd008086e2ebbee8abfe96ff278c46f6f388bce6363ef3cfc3704bee8a321"
+  );
+  assert.equal(
+    sha256Hex(
+      canonicalJson({
+        version: HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+        detectors: HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS
+      })
+    ),
+    HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST
+  );
+  // (b) The frozen identity deep-equals the live one TODAY. The first real
+  // divergence must fail here and force a reviewed decision: freeze a new
+  // PageGraph epoch row instead of restating the closed ones.
+  const divergence = (field: string): string =>
+    `live PageGraph ${field} diverged from the frozen literal pinned by the closed epochs ` +
+    `${closedIds.join(", ")}; add a new reviewed epoch row instead of restating them`;
+  assert.equal(
+    PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+    HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+    divergence("detector registry version")
+  );
+  assert.equal(
+    PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
+    HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
+    divergence("detector registry digest")
+  );
+  assert.equal(
+    PAGEGRAPH_R2_DETECTOR_VERSION,
+    HISTORICAL_PAGEGRAPH_R2_DETECTOR_VERSION,
+    divergence("detector version")
+  );
+  assert.equal(
+    PAGEGRAPH_R2_METHODOLOGY_VERSION,
+    HISTORICAL_PAGEGRAPH_R2_METHODOLOGY_VERSION,
+    divergence("methodology version")
+  );
+  assert.deepEqual(
+    PAGEGRAPH_R2_EXPECTED_DETECTORS,
+    HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS,
+    divergence("detector ledger")
+  );
+  // Every closed row names the frozen identity, never the live constants.
+  for (const tuple of PAGEGRAPH_R2_PRODUCER_TUPLES) {
+    if (tuple.id === "pagegraph-v4-active") continue;
+    assert.deepEqual(
+      tuple.detectorRegistry,
+      {
+        version: HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
+        digest: HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST
+      },
+      tuple.id
+    );
+    assert.deepEqual(tuple.detectors, HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS, tuple.id);
+    assert.equal(tuple.methodologyVersion, HISTORICAL_PAGEGRAPH_R2_METHODOLOGY_VERSION, tuple.id);
+  }
 });
 
 test("every committed managed bundle remains readable through the exact producer rows", () => {

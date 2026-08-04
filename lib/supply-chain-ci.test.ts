@@ -9,7 +9,10 @@ const appStart = workflow.indexOf("\n  app:", supplyChainStart);
 const promoteStart = workflow.indexOf("\n  promote:");
 const attestStart = workflow.indexOf("\n  attest:");
 const supplyChainJob = workflow.slice(supplyChainStart, appStart);
+const smokeStart = workflow.indexOf("\n  smoke:");
 const dockerStart = workflow.indexOf("\n  docker:");
+const appJob = workflow.slice(appStart, smokeStart);
+const smokeJob = workflow.slice(smokeStart, dockerStart);
 const dockerJob = workflow.slice(dockerStart, attestStart);
 const attestJob = workflow.slice(attestStart, promoteStart);
 const promoteJob = workflow.slice(promoteStart);
@@ -21,6 +24,17 @@ test("supply-chain CI uses a read-only job and blocks production promotion", () 
   assert.match(supplyChainJob, /permissions:\n\s+contents: read/);
   assert.doesNotMatch(supplyChainJob, /contents: write|pull-requests: write|security-events: write/);
   assert.match(promoteJob, /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke\n\s+- attest/);
+});
+
+test("every unit-suite and smoke job pins a budget below the 6-hour default", () => {
+  // The refresh lane learned this on 2026-08-03: one deadlocked test inherits
+  // the 360-minute default and burns the whole job budget. Every job that
+  // runs the suite or a live app must pin its own ceiling, like
+  // update-brave-lists.yml does for its unit-test step.
+  assert.notEqual(smokeStart, -1);
+  assert.match(appJob, /\n {4}timeout-minutes: 45\n/);
+  assert.match(smokeJob, /\n {4}timeout-minutes: 45\n/);
+  assert.match(dockerJob, /\n {4}timeout-minutes: 45\n/);
 });
 
 test("provenance attestation is isolated, immutable, and limited to exact evidence subjects", () => {
