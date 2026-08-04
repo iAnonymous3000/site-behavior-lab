@@ -21,6 +21,7 @@ import {
   createDurableScanJobLeaseCredentials,
   findDurableScanJobSnapshot,
   hashDurableScanJobLeaseToken,
+  heartbeatDurableScanJob,
   importDurableScanJobEncryptionKey,
   requeueOrFailExpiredDurableScanJobLease,
   resolveDurableScanJob,
@@ -80,6 +81,10 @@ type OwnerCommand = {
   leaseToken: string;
   now: number;
 };
+
+type ComparisonAdmissionCommand = AdmissionCommand & { compare: boolean };
+
+type HeartbeatCommand = OwnerCommand & { completedRuns: number };
 
 type RecoveryAlarmTarget = {
   jobId: string;
@@ -237,13 +242,18 @@ export class DurableScanJobRuntimeHarness extends DurableObject<RuntimeEnv> {
     }
 
     if (request.method === "POST" && url.pathname === "/jobs") {
-      const command = await exactJson<AdmissionCommand>(request, ["jobId", "reportId", "now"]);
+      const command = await exactJson<ComparisonAdmissionCommand>(request, [
+        "jobId",
+        "reportId",
+        "now",
+        "compare"
+      ]);
       const key = await importDurableScanJobEncryptionKey(this.runtimeEnv.DURABLE_RUNTIME_KEY);
       const admission = await createDurableScanJobAdmission(key, {
         jobId: command.jobId,
         reportId: command.reportId,
         createdAt: command.now,
-        payload: payload(command.now)
+        payload: payload(command.now, command.compare)
       });
       const snapshot = this.state.storage.transactionSync(() =>
         admitDurableScanJob(this.state.storage.sql, admission)
@@ -289,6 +299,26 @@ export class DurableScanJobRuntimeHarness extends DurableObject<RuntimeEnv> {
             leaseExpiresAt: claim.leaseExpiresAt
           })
         : json({ error: "not-claimable" }, 409);
+    }
+
+    if (request.method === "POST" && action === "heartbeat") {
+      const command = await exactJson<HeartbeatCommand>(request, [
+        "generation",
+        "leaseToken",
+        "now",
+        "completedRuns"
+      ]);
+      const tokenHash = await hashDurableScanJobLeaseToken(command.leaseToken);
+      const snapshot = this.state.storage.transactionSync(() =>
+        heartbeatDurableScanJob(this.state.storage.sql, {
+          jobId,
+          generation: command.generation,
+          tokenHash,
+          completedRuns: command.completedRuns,
+          now: command.now
+        })
+      );
+      return json(snapshot);
     }
 
     if (request.method === "POST" && action === "begin-publishing") {
@@ -350,16 +380,16 @@ export default {
   }
 };
 
-function payload(admittedAt: number): DurableScanJobPayload {
+function payload(admittedAt: number, compare = false): DurableScanJobPayload {
   return {
     version: 1,
     url: "https://example.com/",
     device: "desktop",
     gpcEnabled: false,
-    compareGpc: false,
+    compareGpc: compare,
     compareShields: false,
     compareConsent: false,
-    rateLimitCost: 1,
+    rateLimitCost: compare ? 2 : 1,
     admittedAt,
     reportMode: "r2",
     alreadyCharged: true

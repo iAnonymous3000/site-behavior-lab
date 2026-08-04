@@ -106,10 +106,111 @@ test("the durable store schema sentinel fails closed across incompatible rollout
     ensureDurableScanJobStore(sql);
     assert.equal(
       Number(database.prepare("SELECT version FROM durable_scan_job_schema WHERE singleton = 1").get()?.version),
-      1
+      2
     );
-    database.exec("UPDATE durable_scan_job_schema SET version = 2 WHERE singleton = 1");
+    // Only the known predecessor migrates; a version this build has never seen
+    // still refuses to serve rather than guessing at the shape.
+    database.exec("UPDATE durable_scan_job_schema SET version = 3 WHERE singleton = 1");
     assert.throws(() => ensureDurableScanJobStore(sql), DurableScanJobValidationError);
+  });
+});
+
+test("a schema-1 store migrates to per-run progress without losing admitted work", async () => {
+  await withDatabase(async (database, sql) => {
+    const key = await importDurableScanJobEncryptionKey(KEY_WIRE);
+    admitDurableScanJob(sql, await makeAdmission(key, 120, 120_000));
+
+    // Reconstruct the schema-1 shape: the missing column and the older sentinel
+    // are exactly what that rollout left behind.
+    database.exec("ALTER TABLE durable_scan_jobs DROP COLUMN completed_runs");
+    database.exec("UPDATE durable_scan_job_schema SET version = 1 WHERE singleton = 1");
+
+    ensureDurableScanJobStore(sql);
+    assert.equal(
+      Number(database.prepare("SELECT version FROM durable_scan_job_schema WHERE singleton = 1").get()?.version),
+      2
+    );
+    const migrated = findDurableScanJobSnapshot(sql, idFor(120));
+    assert.equal(migrated?.state, "queued", "migration must not drop admitted work");
+    assert.equal(migrated?.completedRuns, 0, "a schema-1 row recorded no run count, so it migrates to zero");
+
+    // Re-entering the migration must not fail on a duplicate column, so a retry
+    // after an interrupted upgrade still converges.
+    database.exec("UPDATE durable_scan_job_schema SET version = 1 WHERE singleton = 1");
+    ensureDurableScanJobStore(sql);
+    assert.equal(findDurableScanJobSnapshot(sql, idFor(120))?.completedRuns, 0);
+  });
+});
+
+test("lease renewals record run progress that only moves forward and never past the admitted runs", async () => {
+  await withDatabase(async (_database, sql) => {
+    const key = await importDurableScanJobEncryptionKey(KEY_WIRE);
+    const createdAt = 200_000;
+    const admission = await makeAdmission(key, 130, createdAt, { compareGpc: true, rateLimitCost: 2 });
+    assert.equal(admission.totalRuns, 2);
+    admitDurableScanJob(sql, admission);
+    const [credential] = await createDurableScanJobLeaseCredentials(1);
+    const [claim] = claimDurableScanJobs(sql, { now: createdAt + 1, capacity: 1, credentials: [credential] });
+    assert.equal(findDurableScanJobSnapshot(sql, claim.jobId)?.completedRuns, 0);
+
+    const tokenHash = await hashDurableScanJobLeaseToken(claim.leaseToken);
+    const renew = (now: number, completedRuns?: number) =>
+      heartbeatDurableScanJob(sql, {
+        jobId: claim.jobId,
+        generation: claim.leaseGeneration,
+        tokenHash,
+        completedRuns,
+        now
+      });
+
+    assert.equal(renew(createdAt + 2, 1).completedRuns, 1, "the reported count is what a recovering reader sees");
+    assert.equal(renew(createdAt + 3).completedRuns, 1, "a renewal without a count leaves progress alone");
+    assert.equal(renew(createdAt + 4, 0).completedRuns, 1, "a replayed renewal cannot walk progress backwards");
+    assert.equal(renew(createdAt + 5, 9).completedRuns, 2, "a holder cannot claim more visits than were admitted");
+    assert.throws(() => renew(createdAt + 6, -1), DurableScanJobValidationError);
+    assert.throws(() => renew(createdAt + 7, 1.5), DurableScanJobValidationError);
+  });
+});
+
+test("a restarted attempt reports no completed runs", async () => {
+  await withDatabase(async (_database, sql) => {
+    const key = await importDurableScanJobEncryptionKey(KEY_WIRE);
+    const createdAt = 300_000;
+    admitDurableScanJob(sql, await makeAdmission(key, 140, createdAt, { compareShields: true, rateLimitCost: 2 }));
+    const [firstCredential] = await createDurableScanJobLeaseCredentials(1);
+    const [first] = claimDurableScanJobs(sql, {
+      now: createdAt + 1,
+      capacity: 1,
+      credentials: [firstCredential]
+    });
+    const renewed = heartbeatDurableScanJob(sql, {
+      jobId: first.jobId,
+      generation: first.leaseGeneration,
+      tokenHash: await hashDurableScanJobLeaseToken(first.leaseToken),
+      completedRuns: 1,
+      now: createdAt + 2
+    });
+    assert.equal(renewed.completedRuns, 1);
+    const abandonedAt = renewed.leaseExpiresAt;
+    if (abandonedAt === null) assert.fail("a renewed lease must carry an expiry");
+
+    // The replacement attempt re-runs the whole job, so carrying the abandoned
+    // attempt's count forward would credit visits the new worker never made.
+    const requeued = requeueOrFailExpiredDurableScanJobLease(sql, {
+      jobId: first.jobId,
+      generation: first.leaseGeneration,
+      now: abandonedAt
+    });
+    assert.equal(requeued.state, "queued");
+    assert.equal(requeued.completedRuns, 0);
+
+    const [second] = claimDurableScanJobs(sql, {
+      now: abandonedAt,
+      capacity: 1,
+      credentials: await createDurableScanJobLeaseCredentials(1)
+    });
+    assert.equal(second.attemptCount, 2);
+    assert.equal(findDurableScanJobSnapshot(sql, second.jobId)?.completedRuns, 0);
   });
 });
 

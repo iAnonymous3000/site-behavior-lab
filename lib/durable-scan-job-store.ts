@@ -30,7 +30,7 @@ const NONCE_BYTES = 12;
 const LEASE_TOKEN_BYTES = 32;
 const SHA256_BYTES = 32;
 const MAX_PAYLOAD_PLAINTEXT_BYTES = 4_608;
-const DURABLE_SCAN_JOB_SCHEMA_VERSION = 1;
+const DURABLE_SCAN_JOB_SCHEMA_VERSION = 2;
 const MAX_PAYLOAD_CIPHERTEXT_BYTES = MAX_PAYLOAD_PLAINTEXT_BYTES + 16;
 const MAX_PUBLICATION_MANIFEST_BYTES = 16 * 1_024;
 const BASE64URL_PATTERN = /^[A-Za-z0-9_-]+$/;
@@ -113,6 +113,8 @@ export type DurableScanJobSnapshot = Readonly<{
   totalRuns: 1 | 2;
   attemptCount: number;
   leaseGeneration: number;
+  /** Controlled visits the lease holder has reported finishing, 0..totalRuns. */
+  completedRuns: number;
   leaseExpiresAt: number | null;
   publicationManifest: DurableScanJobPublicationManifest | null;
   terminalReason: string | null;
@@ -204,6 +206,7 @@ type DurableScanJobRow = Record<string, SqlValue> & {
   total_runs: number;
   attempt_count: number;
   lease_generation: number;
+  completed_runs: number;
   lease_token_hash: ArrayBuffer | null;
   lease_expires_at: number | null;
   payload_version: number;
@@ -380,11 +383,12 @@ export function ensureDurableScanJobStore(sql: DurableScanJobStoreSql): void {
     "INSERT OR IGNORE INTO durable_scan_job_schema (singleton, version) VALUES (1, ?)",
     DURABLE_SCAN_JOB_SCHEMA_VERSION
   );
-  const schemaVersion = sql
+  const recordedVersion = sql
     .exec<Record<string, SqlValue> & { version: number }>(
       "SELECT version FROM durable_scan_job_schema WHERE singleton = 1 LIMIT 1"
     )
     .toArray()[0]?.version;
+  const schemaVersion = recordedVersion === 1 ? migrateDurableScanJobStoreToV2(sql) : recordedVersion;
   if (schemaVersion !== DURABLE_SCAN_JOB_SCHEMA_VERSION) {
     throw new DurableScanJobValidationError("Unsupported durable scan-job store schema version.");
   }
@@ -399,6 +403,7 @@ export function ensureDurableScanJobStore(sql: DurableScanJobStoreSql): void {
       total_runs INTEGER NOT NULL CHECK(total_runs IN (1,2)),
       attempt_count INTEGER NOT NULL DEFAULT 0 CHECK(attempt_count BETWEEN 0 AND ${DURABLE_SCAN_JOB_MAX_ATTEMPTS}),
       lease_generation INTEGER NOT NULL DEFAULT 0 CHECK(lease_generation >= 0),
+      completed_runs INTEGER NOT NULL DEFAULT 0,
       lease_token_hash BLOB,
       lease_expires_at INTEGER,
       payload_version INTEGER NOT NULL CHECK(payload_version = ${DURABLE_SCAN_JOB_PAYLOAD_VERSION}),
@@ -429,6 +434,34 @@ export function ensureDurableScanJobStore(sql: DurableScanJobStoreSql): void {
   sql.exec(
     "CREATE INDEX IF NOT EXISTS durable_scan_jobs_purge ON durable_scan_jobs(purge_at, job_id)"
   );
+}
+
+/**
+ * Add the per-run progress column to a store admitted under schema 1.
+ *
+ * SQLite cannot attach a CHECK by ALTER, so `completed_runs` deliberately
+ * carries no column constraint in either shape: a migrated table and a freshly
+ * created one must be identical, and the 0..total_runs bound is imposed at the
+ * single write site in `heartbeatDurableScanJob`. A schema-1 row recorded no
+ * run count, so it migrates to zero rather than to a count the Durable Object
+ * never observed.
+ */
+function migrateDurableScanJobStoreToV2(sql: DurableScanJobStoreSql): number {
+  const definition = sql
+    .exec<Record<string, SqlValue> & { sql: string | null }>(
+      "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'durable_scan_jobs' LIMIT 1"
+    )
+    .toArray()[0]?.sql;
+  // ALTER TABLE ADD COLUMN rewrites sqlite_master, so this probe also makes the
+  // migration idempotent if it is ever re-entered outside a transaction.
+  if (typeof definition === "string" && !/\bcompleted_runs\b/.test(definition)) {
+    sql.exec("ALTER TABLE durable_scan_jobs ADD COLUMN completed_runs INTEGER NOT NULL DEFAULT 0");
+  }
+  sql.exec(
+    "UPDATE durable_scan_job_schema SET version = ? WHERE singleton = 1",
+    DURABLE_SCAN_JOB_SCHEMA_VERSION
+  );
+  return DURABLE_SCAN_JOB_SCHEMA_VERSION;
 }
 
 /** Caller must invoke this synchronous operation inside the DO transactionSync boundary. */
@@ -477,10 +510,10 @@ export function admitDurableScanJob(
   sql.exec(
     `INSERT INTO durable_scan_jobs (
       job_id, report_id, state, created_at, deadline_at, purge_at, total_runs,
-      attempt_count, lease_generation, lease_token_hash, lease_expires_at,
+      attempt_count, lease_generation, completed_runs, lease_token_hash, lease_expires_at,
       payload_version, payload_key_id, payload_nonce, payload_ciphertext,
       publication_manifest, terminal_reason, finished_at, updated_at
-    ) VALUES (?, ?, 'queued', ?, ?, ?, ?, 0, 0, NULL, NULL, ?, ?, ?, ?, NULL, NULL, NULL, ?)`,
+    ) VALUES (?, ?, 'queued', ?, ?, ?, ?, 0, 0, 0, NULL, NULL, ?, ?, ?, ?, NULL, NULL, NULL, ?)`,
     admission.jobId,
     admission.reportId,
     admission.createdAt,
@@ -556,7 +589,7 @@ export function claimDurableScanJobs(
     sql.exec(
       `UPDATE durable_scan_jobs
        SET state = 'leased', attempt_count = ?, lease_generation = ?, lease_token_hash = ?,
-           lease_expires_at = ?, publication_manifest = NULL, updated_at = ?
+           lease_expires_at = ?, publication_manifest = NULL, completed_runs = 0, updated_at = ?
        WHERE job_id = ? AND state = 'queued' AND attempt_count = ? AND lease_generation = ? AND deadline_at > ?`,
       attemptCount,
       generation,
@@ -582,11 +615,26 @@ export function claimDurableScanJobs(
   return claims;
 }
 
+/**
+ * Renew the lease and durably record the run count the lease holder reports.
+ *
+ * `completedRuns` is advisory evidence from the fenced lease holder, so it is
+ * only ever allowed to move forward and never past `total_runs`: an out-of-order
+ * or replayed renewal cannot walk a reader's progress backwards, and a
+ * misreporting holder cannot claim more visits than the job admitted. A renewal
+ * that omits the count leaves the stored value untouched.
+ */
 export function heartbeatDurableScanJob(
   sql: DurableScanJobStoreSql,
-  input: LeaseMutationInput
+  input: LeaseMutationInput & Readonly<{ completedRuns?: number }>
 ): DurableScanJobSnapshot {
   ensureDurableScanJobStore(sql);
+  const reportedCompletedRuns = input.completedRuns ?? 0;
+  if (!Number.isSafeInteger(reportedCompletedRuns) || reportedCompletedRuns < 0) {
+    throw new DurableScanJobValidationError(
+      "Durable scan-job progress must be reported as a non-negative integer run count."
+    );
+  }
   const row = requireCurrentLease(sql, input, ["leased", "publishing"]);
   const leaseCeiling =
     rowState(row) === "publishing"
@@ -606,8 +654,9 @@ export function heartbeatDurableScanJob(
     leaseCeiling
   );
   sql.exec(
-    "UPDATE durable_scan_jobs SET lease_expires_at = ?, updated_at = ? WHERE job_id = ? AND lease_generation = ? AND lease_expires_at > ? AND deadline_at > ?",
+    "UPDATE durable_scan_jobs SET lease_expires_at = ?, completed_runs = MIN(total_runs, MAX(completed_runs, ?)), updated_at = ? WHERE job_id = ? AND lease_generation = ? AND lease_expires_at > ? AND deadline_at > ?",
     leaseExpiresAt,
+    reportedCompletedRuns,
     input.now,
     input.jobId,
     input.generation,
@@ -757,7 +806,7 @@ export function requeueOrFailExpiredDurableScanJobLease(
     sql.exec(
       `UPDATE durable_scan_jobs
        SET state = 'queued', lease_token_hash = NULL, lease_expires_at = NULL,
-           publication_manifest = NULL, updated_at = ?
+           publication_manifest = NULL, completed_runs = 0, updated_at = ?
        WHERE job_id = ? AND state = 'leased' AND lease_generation = ? AND lease_expires_at <= ?`,
       input.now,
       input.jobId,
@@ -1063,6 +1112,10 @@ function requireRow(sql: DurableScanJobStoreSql, jobId: string): DurableScanJobR
 function snapshotFromRow(row: DurableScanJobRow): DurableScanJobSnapshot {
   const totalRuns = integer(row.total_runs, "total runs");
   if (totalRuns !== 1 && totalRuns !== 2) throw new DurableScanJobStateError("conflict", "Invalid durable row total runs.", null);
+  const completedRuns = integer(row.completed_runs, "completed runs");
+  if (completedRuns < 0 || completedRuns > totalRuns) {
+    throw new DurableScanJobStateError("conflict", "Invalid durable row completed runs.", null);
+  }
   return Object.freeze({
     jobId: text(row.job_id, "job ID"),
     reportId: text(row.report_id, "report ID"),
@@ -1073,6 +1126,7 @@ function snapshotFromRow(row: DurableScanJobRow): DurableScanJobSnapshot {
     totalRuns,
     attemptCount: integer(row.attempt_count, "attempt count"),
     leaseGeneration: integer(row.lease_generation, "lease generation"),
+    completedRuns,
     leaseExpiresAt: nullableInteger(row.lease_expires_at, "lease expiry"),
     publicationManifest: nullableText(row.publication_manifest, "publication manifest"),
     terminalReason: nullableText(row.terminal_reason, "terminal reason"),

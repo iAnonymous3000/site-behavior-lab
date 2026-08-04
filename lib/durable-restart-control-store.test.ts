@@ -336,6 +336,7 @@ function leasedSnapshot(
     totalRuns: 1,
     attemptCount: 1,
     leaseGeneration: 1,
+    completedRuns: 0,
     leaseExpiresAt: CREATED_AT + 60_000,
     publicationManifest: null,
     terminalReason: null,

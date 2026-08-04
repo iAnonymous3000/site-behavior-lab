@@ -1292,7 +1292,10 @@ export class ScannerContainer extends Container<Env> {
     };
   }
 
-  async heartbeatDurableJob(owner: DurableScanJobExecutionOwner): Promise<DurableScanJobMutationResult> {
+  async heartbeatDurableJob(
+    owner: DurableScanJobExecutionOwner,
+    completedRuns: number
+  ): Promise<DurableScanJobMutationResult> {
     const tokenHash = await hashDurableScanJobLeaseToken(owner.leaseToken);
     try {
       const now = Date.now();
@@ -1301,6 +1304,7 @@ export class ScannerContainer extends Container<Env> {
           jobId: owner.jobId,
           generation: owner.generation,
           tokenHash,
+          completedRuns,
           now
         });
       });
@@ -4027,6 +4031,34 @@ async function refuseUnauthorizedDurableScanJobControl(request: Request, env: En
   return null;
 }
 
+// A sanity ceiling for the renewal wire only. The authoritative bound is the
+// row's own total_runs, which the store clamps against on write.
+const DURABLE_SCAN_JOB_MAX_TOTAL_RUNS = 2;
+
+/**
+ * Read the run count carried by a lease renewal.
+ *
+ * A lease holder from a build that predates the field omits it, so both body
+ * shapes stay valid and a rolling deploy never rejects renewals it should have
+ * accepted. An omitted count reads as zero, which the store treats as "leave the
+ * recorded progress alone" rather than as an assertion that no run has finished.
+ * Returns null when the body is not a valid renewal.
+ */
+function durableHeartbeatCompletedRuns(body: unknown): number | null {
+  if (recordHasExactKeys(body, ["jobId", "generation", "leaseToken"])) return 0;
+  if (!recordHasExactKeys(body, ["jobId", "generation", "leaseToken", "completedRuns"])) return null;
+  const completedRuns = (body as Record<string, unknown>).completedRuns;
+  if (
+    typeof completedRuns !== "number" ||
+    !Number.isSafeInteger(completedRuns) ||
+    completedRuns < 0 ||
+    completedRuns > DURABLE_SCAN_JOB_MAX_TOTAL_RUNS
+  ) {
+    return null;
+  }
+  return completedRuns;
+}
+
 async function handleDurableScanJobCoordinatorRequest(
   request: Request,
   env: Env,
@@ -4065,8 +4097,9 @@ async function handleDurableScanJobCoordinatorRequest(
   try {
     const scanner = getContainer(env.SCANNER);
     if (path.action === "heartbeat") {
-      if (!recordHasExactKeys(body, ["jobId", "generation", "leaseToken"])) return privateControlResponse(400);
-      const result = await scanner.heartbeatDurableJob(owner);
+      const completedRuns = durableHeartbeatCompletedRuns(body);
+      if (completedRuns === null) return privateControlResponse(400);
+      const result = await scanner.heartbeatDurableJob(owner, completedRuns);
       if (result.status === "conflict") return privateControlResponse(409);
     } else if (path.action === "begin-publishing") {
       if (!recordHasExactKeys(body, ["jobId", "generation", "leaseToken", "manifest"])) {

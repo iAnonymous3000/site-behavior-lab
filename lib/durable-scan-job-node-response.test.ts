@@ -30,7 +30,7 @@ test("coordinator control responses cannot exceed the decompressed byte cap", as
   });
 
   await assert.rejects(
-    () => client.heartbeat({ jobId: JOB_ID, generation: 1, leaseToken: LEASE_TOKEN }),
+    () => client.heartbeat({ jobId: JOB_ID, generation: 1, leaseToken: LEASE_TOKEN }, { completedRuns: 0 }),
     (error: unknown) => error instanceof DurableScanJobCoordinatorError && error.status === null
   );
   assert.equal(cancelled, true);
