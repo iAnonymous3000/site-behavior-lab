@@ -1570,7 +1570,7 @@ test("release finalization cannot be rewritten transiently and restored", (t) =>
   );
 });
 
-test("only the two exact generated aggregates may be modified", async (t) => {
+test("only the three exact generated aggregates may be modified", async (t) => {
   await t.test("generated index category cannot name arbitrary JSON", (child) => {
     const fixture = makeFixture(child);
     const binding = readBinding(fixture.root);

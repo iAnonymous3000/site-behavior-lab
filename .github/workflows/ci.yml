@@ -283,6 +283,13 @@ jobs:
       - name: Verify append-only corrections history
         run: npm run corrections:verify-history -- "${{ steps.corrections_baseline.outputs.baseline }}"
 
+      # Same trusted ancestor, a different property: the corrections gate proves
+      # published qualifications were not rewritten, this one proves the
+      # publication chain itself was only ever appended to. Reusing the resolved
+      # baseline keeps one definition of "trusted ancestor" in this workflow.
+      - name: Verify append-only publication transparency log
+        run: npm run transparency:verify-history -- "${{ steps.corrections_baseline.outputs.baseline }}"
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 

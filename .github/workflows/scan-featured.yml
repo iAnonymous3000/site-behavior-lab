@@ -641,6 +641,7 @@ jobs:
           npm run reports:remediate -- --check
           npm run reports:manifest
           npm run corpus:stats
+          npm run transparency:log
 
       - name: Refuse freeze-time deletion of governed reports
         if: env.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE == '1'
@@ -672,7 +673,7 @@ jobs:
           fi
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
-          git add public/reports public/corpus-stats.json
+          git add public/reports public/corpus-stats.json public/transparency-log.json
           if [[ "$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE" == "1" && "$FEATURED_REPORT_MODE" == "r2" ]]; then
             if [[ ! "$CONTROLLED_PUBLICATION_PATH" =~ ^research/controlled-publications/[1-9][0-9]*-[1-9][0-9]*$ ]]; then
               echo "::error title=Controlled publication archive missing::The freeze-time r2 publisher did not produce its exact cross-binding archive."

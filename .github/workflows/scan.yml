@@ -417,6 +417,7 @@ jobs:
           npm run reports:remediate -- --check
           npm run reports:manifest
           npm run corpus:stats
+          npm run transparency:log
 
       - name: Commit static report
         id: commit
@@ -430,7 +431,7 @@ jobs:
           fi
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
-          git add public/reports public/corpus-stats.json
+          git add public/reports public/corpus-stats.json public/transparency-log.json
           if git diff --cached --quiet; then
             echo "No report changes to commit."
             exit 0

@@ -99,7 +99,10 @@
     "reports:remediate": "node scripts/run-schema-cli.mjs remediate-reports",
     "reports:aggregate-v2-shadow": "node scripts/run-schema-cli.mjs aggregate-v2-shadow",
     "reports:verify-v2-shadow": "node scripts/run-schema-cli.mjs verify-v2-shadow",
-    "release:evidence": "node scripts/release-evidence.mjs"
+    "release:evidence": "node scripts/release-evidence.mjs",
+    "transparency:log": "node scripts/run-schema-cli.mjs publication-transparency-log",
+    "transparency:log:check": "node scripts/run-schema-cli.mjs publication-transparency-log --check",
+    "transparency:verify-history": "node scripts/run-schema-cli.mjs publication-transparency-log --verify-history"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",

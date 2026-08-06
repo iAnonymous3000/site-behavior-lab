@@ -26,6 +26,7 @@
     "lib/publish-scan-report-cli.ts",
     "lib/prune-static-reports-cli.ts",
     "lib/corrections-ledger-history-cli.ts",
+    "lib/publication-transparency-log-cli.ts",
     "lib/remediation-inventory-cli.ts",
     "lib/remediate-reports-cli.ts",
     "lib/report-publication-artifact-cli.ts",
