@@ -2,6 +2,11 @@ import Link from "next/link";
 import { githubSourceUrlAtBuildCommit } from "@/lib/build-source-url";
 import { committedDetectorCalibrationReadiness } from "@/lib/detector-calibration-source";
 import { detectorValidationMetadata, detectorValidationRows } from "@/lib/detector-validation";
+import {
+  COVERAGE_BOUNDARY_ENTRIES,
+  COVERAGE_BOUNDARY_REASON_COPY,
+  coverageBoundaryMetadata
+} from "@/lib/detector-coverage-boundary";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { trackerCatalogMetadata, trackerCatalogRecords } from "@/lib/tracker-catalog";
 import { CatalogSearch } from "./catalog-search";
@@ -150,6 +155,50 @@ export default function CatalogPage() {
           Matrix {detectorValidationMetadata.version} · registry {detectorValidationMetadata.registryVersion} · digest {detectorValidationMetadata.digest}
           {BUILD_COMMIT && <> · build <code>{BUILD_COMMIT}</code></>}
         </p>
+      </section>
+
+      <section className={styles.section} id="coverage-boundary">
+        <h2>What this scanner does not measure</h2>
+        <p className={styles.sectionIntro}>
+          Coverage is only a meaningful claim if its edges are stated. These are the privacy-relevant
+          things a report never rules out, so a quiet report is not read as an all-clear. The list is
+          grouped by why each one is absent, because a surface we have not built is a different fact
+          from one we decline to build and from one no page visit can see.
+        </p>
+        <p className={styles.note}>
+          {coverageBoundaryMetadata.checkedClaims} of these {coverageBoundaryMetadata.entries} entries are
+          enforced against the scanner source by a test: if that surface is ever instrumented, the build
+          fails until this page is corrected. The rest rely on review, and are marked accordingly.
+        </p>
+
+        {(["not-instrumented", "declined", "unobservable"] as const).map((reason) => {
+          const group = COVERAGE_BOUNDARY_ENTRIES.filter((entry) => entry.reason === reason);
+          if (group.length === 0) return null;
+          const copy = COVERAGE_BOUNDARY_REASON_COPY[reason];
+          return (
+            <div className={styles.boundaryGroup} key={reason}>
+              <h3>{copy.label}</h3>
+              <p className={styles.limitations}>{copy.meaning}</p>
+              <div className={styles.validationGrid}>
+                {group.map((entry) => (
+                  <article className={styles.validationCard} id={entry.id} key={entry.id}>
+                    <h4>{entry.label}</h4>
+                    <p className={styles.caseCounts}>
+                      <span>
+                        {entry.absentIdentifiers && entry.absentIdentifiers.length > 0
+                          ? "enforced by test"
+                          : "reviewed, not test-enforced"}
+                      </span>
+                    </p>
+                    <p className={styles.limitations}>{entry.explanation}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        <p className={styles.digest}>Boundary {coverageBoundaryMetadata.version}</p>
       </section>
       <TrustLinks />
     </main>

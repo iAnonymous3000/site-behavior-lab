@@ -260,6 +260,24 @@
   overflow-wrap: anywhere;
 }
 
+.boundaryGroup {
+  margin-top: 22px;
+}
+
+.boundaryGroup h3 {
+  font-size: 15px;
+  margin: 0 0 4px;
+}
+
+.boundaryGroup .validationGrid {
+  margin-top: 12px;
+}
+
+.boundaryGroup h4 {
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+
 @media (max-width: 700px) {
   .page {
     padding: 32px 16px 60px;
