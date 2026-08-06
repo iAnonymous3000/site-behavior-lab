@@ -5,6 +5,30 @@ report's bytes back to a Sigstore-attested CI run at an exact git SHA. It
 documents the chain that already exists; it does not add one. Read the
 boundaries section first so you know what the chain does and does not prove.
 
+## Start here: one command
+
+Most of what follows is automated. From a clone of this repository:
+
+```bash
+npm run verify:report -- 20260803-8850a5695425835ae562ece2431a2de6
+```
+
+It fetches the report and its provenance sidecar from the live site, checks the
+bytes against the digest published in `reports/index.json`, recomputes the
+canonical digest and compares it with the sidecar, and runs the same managed
+reader the site itself uses. It exits non-zero if any check fails, and prints
+what it did not prove.
+
+Pass a full report URL instead of an id if that is what you have. Add
+`--from <dir>` to verify local files, or `--origin <url>` to verify another
+deployment.
+
+That command covers steps 1 and 4 below and adds the schema and redaction
+checks. Step 3, the Sigstore attestation, still needs the `gh` CLI and is not
+automated here, because it verifies a different thing: not that the bytes are
+what we published, but that a specific CI run at a specific commit produced
+them.
+
 ## What is covered
 
 Committed corpus reports: every `<id>.json` and `<id>.provenance.json` under

@@ -102,7 +102,8 @@
     "release:evidence": "node scripts/release-evidence.mjs",
     "transparency:log": "node scripts/run-schema-cli.mjs publication-transparency-log",
     "transparency:log:check": "node scripts/run-schema-cli.mjs publication-transparency-log --check",
-    "transparency:verify-history": "node scripts/run-schema-cli.mjs publication-transparency-log --verify-history"
+    "transparency:verify-history": "node scripts/run-schema-cli.mjs publication-transparency-log --verify-history",
+    "verify:report": "node scripts/run-schema-cli.mjs verify-published-report"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",
