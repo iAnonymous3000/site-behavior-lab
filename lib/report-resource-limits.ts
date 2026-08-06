@@ -25,3 +25,10 @@ export const STATIC_REPORT_MANIFEST_JSON_MAX_BYTES = 32 * 1024 * 1024;
 
 /** Generated aggregate corpus statistics control file. */
 export const CORPUS_STATS_JSON_MAX_BYTES = 16 * 1024 * 1024;
+
+/**
+ * Append-only publication transparency log. Entries are fixed-width digests
+ * and ids, so this bounds roughly a million publications; anchors carry
+ * inline proof bytes and are separately capped per anchor.
+ */
+export const TRANSPARENCY_LOG_JSON_MAX_BYTES = 16 * 1024 * 1024;

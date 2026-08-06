@@ -161,6 +161,7 @@ export type MeasurementEvidenceCategory =
   | "featured-provenance"
   | "generated-report-index"
   | "generated-corpus-stats"
+  | "generated-transparency-log"
   | "runner-receipt"
   | "controlled-publication-manifest"
   | "controlled-publication-receipt"
@@ -720,6 +721,14 @@ const EVIDENCE_PATH_POLICIES: Readonly<
   },
   "generated-corpus-stats": {
     pattern: /^public\/corpus-stats\.json$/,
+    allowedChange: "generated-update"
+  },
+  // Publishing a report appends to the transparency chain in the same commit,
+  // so the chain has to be a permitted generated update. It stays byte-pinned
+  // like every other evidence entry, and the append-only history gate is what
+  // stops a "regeneration" from quietly rewriting entries already published.
+  "generated-transparency-log": {
+    pattern: /^public\/transparency-log\.json$/,
     allowedChange: "generated-update"
   },
   "runner-receipt": {

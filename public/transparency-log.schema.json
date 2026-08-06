@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sitebehavior.org/transparency-log.schema.json",
+  "title": "Site Behavior Lab publication transparency log",
+  "description": "Append-only hash chain over every published report. Each entry commits to its predecessor, so the head commits to the entire publication history. The chain proves order and integrity; it does not prove existence at a point in time unless a corresponding external anchor is present.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "chainAlgorithm", "entryCount", "head", "entries", "anchors"],
+  "properties": {
+    "$schema": {
+      "const": "https://sitebehavior.org/transparency-log.schema.json"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "chainAlgorithm": {
+      "const": "sha256-canon-v1",
+      "description": "Names the hash and the serialization together. It is part of every entry preimage, so changing either rule is a new algorithm identity rather than a silent redefinition."
+    },
+    "entryCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "head": {
+      "description": "The last entry digest, or null for an empty log.",
+      "oneOf": [{ "$ref": "#/$defs/sha256Hex" }, { "type": "null" }]
+    },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" }
+    },
+    "anchors": {
+      "type": "array",
+      "description": "External existence proofs over a chain head. Empty means no third-party witness exists yet, and therefore no claim about when the log existed may be made.",
+      "items": { "$ref": "#/$defs/anchor" }
+    }
+  },
+  "$defs": {
+    "sha256Hex": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequence", "reportId", "reportWireSha256", "publicDigest", "entryDigest"],
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Position in publication order, which is the log's own append order rather than report-id order."
+        },
+        "reportId": {
+          "type": "string",
+          "pattern": "^[0-9]{8}-[0-9a-f]{32}$"
+        },
+        "reportWireSha256": {
+          "description": "sha256 of the exact published report wire bytes.",
+          "$ref": "#/$defs/sha256Hex"
+        },
+        "publicDigest": {
+          "description": "Canonical (canon-v1) digest from the report's provenance sidecar.",
+          "$ref": "#/$defs/sha256Hex"
+        },
+        "entryDigest": {
+          "description": "sha256 over the canonical JSON of {chainAlgorithm, previousEntryDigest, sequence, reportId, reportWireSha256, publicDigest}, where previousEntryDigest is null only at sequence 0.",
+          "$ref": "#/$defs/sha256Hex"
+        }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entryCount", "head", "proofType", "proof"],
+      "properties": {
+        "entryCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of entries the witnessed head covers."
+        },
+        "head": {
+          "description": "Must equal the chain head at exactly entryCount entries.",
+          "$ref": "#/$defs/sha256Hex"
+        },
+        "proofType": {
+          "enum": ["opentimestamps"]
+        },
+        "proof": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "maxLength": 65536,
+          "description": "Proof bytes, inline so the log stays self-contained and verifiable offline."
+        }
+      }
+    }
+  }
+}
