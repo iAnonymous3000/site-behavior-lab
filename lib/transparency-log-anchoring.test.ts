@@ -257,7 +257,10 @@ test("the CLI submits the exact head digest and commits a validated anchor", asy
       const status = runCli(dir, ["--status"]);
       assert.equal(status.status, 0, status.stderr);
       assert.match(status.stdout, /pending calendar aggregation/);
-      assert.match(status.stdout, /ots verify/);
+      // The printed command must be the digest form with the REAL head: a bare
+      // \`ots verify head.ots\` looks for a file named \`head\` and dead-ends,
+      // which the reference client confirmed empirically.
+      assert.match(status.stdout, /ots verify -d [0-9a-f]{64} head\.ots/);
     }
   );
 });

@@ -181,7 +181,7 @@ export default function MethodologyPage() {
         </p>
       </section>
 
-      <section className="legal-section">
+      <section className="legal-section" id="corpus">
         <h2>The corpus and percentiles</h2>
         <p>
           Findings like &quot;at or above the 90th-percentile mark for third-party domains&quot; use one exact
@@ -194,6 +194,14 @@ export default function MethodologyPage() {
           Corpus coverage counts distinct sites with a successful single run or primary comparison arm,
           including capped recordings; two successful primary arms still count the site once. A site
           represented only by failed or block-page visits was attempted but is outside that loaded coverage count.
+        </p>
+        <p>
+          Nearly all committed corpus reports today are frozen schema v1: they predate or fall back from the
+          controlled v2 collection lane, carry no recorded producer build commit and no consent-registration
+          readback, and support descriptive claims only, never causal ones. Live scans from this site&apos;s scan form
+          emit the current v2 wire with those recorded facts. The corpus shifts toward v2 only as controlled
+          collection replaces the disclosed v1 lane, and each report page states its own schema generation, so no
+          reader needs this paragraph to know which kind they are looking at.
           Each metric&apos;s measured sample can be narrower still when that evidence family was censored.
           Percentile wording activates only after both the exact methodology cohort and that metric&apos;s own
           distribution contain at least 50 eligible sites; each percentile card names the metric-specific
@@ -228,18 +236,24 @@ export default function MethodologyPage() {
             step-by-step guide
           </a>
           ). Also checkable: a report&apos;s structural validity against the frozen published schemas, its internal
-          consistency (the validators are open source), and that the corpus statistics regenerate from the same
-          committed files this site renders.
+          consistency (the validators are open source), that the corpus statistics regenerate from the same
+          committed files this site renders, and every publication&apos;s place in the{" "}
+          <a href="/transparency-log.json">append-only transparency log</a>, whose chain heads carry OpenTimestamps
+          anchors: once an anchor&apos;s Bitcoin attestation completes, every entry beneath that head provably existed
+          before the confirming block, on a clock nobody involved controls. A single command,{" "}
+          <code>npm run verify:report</code>, replays the byte and digest checks for any committed report.
         </p>
         <p>
           Taken on trust in this operator today: that the deployed scanner ran the attested code for any individual
           live scan (the deployment&apos;s self-reported build is checked hourly, but no per-scan record binds a
-          specific visit to an attested image), every timestamp (server clocks, with no external time anchor), and
-          the retention of ephemeral share reports, which expire and are attested by nothing outside this
-          deployment&apos;s storage. The methodology-identity digests in each report bind declared vocabularies and
-          contracts, not the implementation code itself; the implementation is bound by the commit-level attestation
-          above, at the covering git SHA. Closing the per-scan and time-anchor gaps is tracked release work, not a
-          disclosed aspiration of the current system.
+          specific visit to an attested image), the timestamps recorded inside reports (scanner clocks; the
+          transparency log&apos;s anchors bound publication times externally, but a fresh anchor is a calendar promise
+          until its Bitcoin attestation completes, and per-entry inclusion timing is coarser than per-report clocks),
+          and the retention of ephemeral share reports, which expire and join no log. The methodology-identity
+          digests in each report bind declared vocabularies and contracts, not the implementation code itself; the
+          implementation is bound by the commit-level attestation above, at the covering git SHA. Closing the
+          per-scan binding gap and anchoring ephemeral reports is tracked release work, not a disclosed aspiration of
+          the current system.
         </p>
       </section>
 

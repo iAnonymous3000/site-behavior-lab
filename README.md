@@ -92,6 +92,19 @@ the gate yourself before relying on it:
 npm run release:readiness
 ```
 
+To verify a published report's exact bytes against what this project
+published, one command replays the digest chain:
+
+```bash
+npm run verify:report -- <report-id>
+```
+
+Every publication is also chained into the append-only
+[transparency log](https://sitebehavior.org/transparency-log.json), whose
+heads carry OpenTimestamps anchors, and the detectors' enumerated blind spots
+are published on the [catalog page](https://sitebehavior.org/catalog/) with
+the test that keeps each claim honest.
+
 Two limits matter most for serious work, and both are deliberate:
 
 - **No published detector accuracy.** No claim-bearing detector

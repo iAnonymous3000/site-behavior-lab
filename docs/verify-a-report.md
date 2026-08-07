@@ -126,8 +126,15 @@ state them for you.
 ```bash
 jq -r '.anchors[0].proof' public/transparency-log.json | base64 -d > head.ots
 ots upgrade head.ots
-ots verify head.ots
+ots verify -d "$(jq -r '.anchors[0].head' public/transparency-log.json)" head.ots
 ```
+
+  The `-d` form is required because the proof anchors a digest rather than a
+  file on disk; a bare `ots verify head.ots` looks for a file named `head` and
+  fails. The final block-header check needs a local Bitcoin node; without one,
+  `ots info head.ots` prints the complete operation tree and attestations.
+  Both commands were exercised against the committed anchors with the
+  reference client (opentimestamps-client 0.7.2).
 
   A fresh anchor is a calendar's signed promise until the aggregation window
   closes (typically hours); `npm run transparency:log:anchor:status` reports
