@@ -441,7 +441,11 @@ function requestMatchesStatusFilter(request: NetworkRequestRecord, filter: Reque
 
 function RequestProvenanceCell({ request }: { request: NetworkRequestRecord }) {
   const summary = requestProvenanceSummary(request);
-  if (!summary) return <span className="muted">-</span>;
+  // Same rule as requestPhaseLabel above: a dash glyph is not an accessible
+  // cell value. This is not a rare path -- a v1 report, or any capture without
+  // PageGraph attribution, renders nothing here on every row, so the whole
+  // column read as blank. Name the state instead.
+  if (!summary) return <span className="muted">Not attributed</span>;
 
   return (
     <span className="provenance-cell">

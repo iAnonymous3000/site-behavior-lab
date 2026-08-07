@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { TrackerCatalogRecord } from "@/lib/tracker-catalog";
 import styles from "./catalog.module.css";
 
@@ -24,6 +24,19 @@ export function CatalogSearch({ records }: Props) {
     });
   }, [category, query, records]);
 
+  const countSummary = `Showing ${visible.length} of ${records.length} maintainer-reviewed domain mappings.`;
+
+  // The count changes on every keystroke, and polite announcements queue rather
+  // than replace, so announcing it live turned an eleven-character search into
+  // eleven announcements still playing after typing stopped. Sighted users keep
+  // the instant count; the announced copy waits for a pause. Same treatment the
+  // gallery's search already carries.
+  const [announcedCount, setAnnouncedCount] = useState(countSummary);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setAnnouncedCount(countSummary), 600);
+    return () => window.clearTimeout(timer);
+  }, [countSummary]);
+
   return (
     <div>
       <div className={styles.controls} role="search" aria-label="Search the known-service catalog">
@@ -45,8 +58,11 @@ export function CatalogSearch({ records }: Props) {
         </label>
       </div>
 
-      <p className={styles.resultCount} aria-live="polite">
-        Showing {visible.length} of {records.length} maintainer-reviewed domain mappings.
+      <p className={styles.resultCount}>
+        {countSummary}
+        <span className="visually-hidden" role="status" aria-live="polite">
+          {announcedCount}
+        </span>
       </p>
 
       {visible.length > 0 ? (
