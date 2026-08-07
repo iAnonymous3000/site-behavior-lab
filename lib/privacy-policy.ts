@@ -1,5 +1,9 @@
 import { partyKey } from "./domain-utils";
-import type { PrivacyPolicyClaim, PrivacyPolicySummary } from "./types";
+import type {
+  PrivacyPolicyClaim,
+  PrivacyPolicyClaimKind,
+  PrivacyPolicySummary
+} from "./types";
 
 export type { PrivacyPolicyClaim, PrivacyPolicyClaimKind, PrivacyPolicySummary } from "./types";
 
@@ -339,12 +343,38 @@ function noSellingOrSharingClaimScope(sentence: string): NoSellingOrSharingClaim
 }
 
 /**
+ * The claim kinds the report actually compares against observed evidence.
+ *
+ * `honors-gpc` is deliberately absent and must stay absent: honoring GPC means
+ * not selling or sharing data, which request counts cannot observe, so no
+ * count-based comparison may contradict it. It is still extracted and still
+ * stored in the policy summary; it simply never participates in a check.
+ *
+ * This list is the single source of truth for "checkable". It used to exist
+ * only implicitly, as the set of kinds the findings board happened to write a
+ * comparison for, while the predicate below answered the same question its own
+ * way and included `honors-gpc`. The two disagreed, so a policy whose only
+ * match was a GPC claim published "no checked statement contradicted" and
+ * "1 checkable statement matched" after running zero comparisons.
+ */
+export const COMPARED_POLICY_CLAIM_KINDS: readonly PrivacyPolicyClaimKind[] = [
+  "no-third-party-cookies",
+  "no-cookies",
+  "no-selling-or-sharing"
+];
+
+/**
  * Revalidate stored claims at render time as well as extraction time. Public
  * archives can contain claims produced by an older detector revision; a
  * qualified historical quote must not keep driving a current contradiction
  * card merely because its old wire enum is still valid.
+ *
+ * "Checkable" means exactly "this scan will compare it against evidence", so a
+ * kind the board never compares is not checkable, however well-formed its
+ * quote is.
  */
 export function isCurrentlyCheckablePolicyClaim(claim: PrivacyPolicyClaim): boolean {
+  if (!COMPARED_POLICY_CLAIM_KINDS.includes(claim.kind)) return false;
   if (claim.kind !== "no-selling-or-sharing") return true;
   // A capped quote may have lost a qualifier after its retained prefix.
   if (claim.quote.trimEnd().endsWith("...")) return false;
