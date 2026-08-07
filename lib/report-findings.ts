@@ -1676,10 +1676,17 @@ export function buildFindings(
     unsupportedFamilies.length > 0 &&
     (overallLevel === "ok" || overallLevel === "quiet" || overallLevel === "info");
   // "quiet" is a NULL RESULT, not a signal: it is the level a flat comparison
-  // delta or an absent-provenance note carries, and it is only reachable when
-  // every metric card is "ok" (metricSeverity returns "ok" at zero and "info"
-  // at one). Reading it as review-worthy put an alert icon and "this visit has
-  // review-worthy signals" over a board whose every substantive card said ok.
+  // delta or an absent-provenance note carries. Reading it as review-worthy put
+  // an alert icon and "this visit has review-worthy signals" over a board whose
+  // every substantive card said ok.
+  //
+  // That holds only because no metric benchmark may rank a positive count as
+  // "quiet". Both benchmark producers now agree that any nonzero observation is
+  // at least "info": levelForMetric above, and corpusBenchmark in
+  // corpus-stats.ts. corpusBenchmark used to return "quiet" for a below-median
+  // count, which broke this premise silently -- the board published "did not
+  // observe ... third-party cookies" over a card saying they were present.
+  // corpus-stats.test.ts pins the invariant so it cannot drift back.
   const quietEnough = overallLevel === "ok" || overallLevel === "quiet";
   findings.unshift({
     id: "bottom-line",

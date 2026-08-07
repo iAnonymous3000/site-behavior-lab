@@ -131,7 +131,7 @@ test("the honesty gate blocks percentile claims below the minimum sample", () =>
 test("corpusBenchmark maps values to percentile bands once the corpus is usable", () => {
   const corpus = makeCorpus(200);
   assert.equal(corpusBenchmark(corpus, "thirdPartyDomains", 0)?.level, "ok");
-  assert.equal(corpusBenchmark(corpus, "thirdPartyDomains", 5)?.level, "quiet"); // below p50
+  assert.equal(corpusBenchmark(corpus, "thirdPartyDomains", 5)?.level, "info"); // below p50, still observed
   assert.equal(corpusBenchmark(corpus, "thirdPartyDomains", 12)?.level, "info"); // >= p50
   assert.equal(corpusBenchmark(corpus, "thirdPartyDomains", 25)?.level, "warn"); // >= p75
   assert.equal(corpusBenchmark(corpus, "thirdPartyDomains", 40)?.level, "loud"); // >= p90
@@ -140,6 +140,53 @@ test("corpusBenchmark maps values to percentile bands once the corpus is usable"
   // than 90% of sites" (which heavy ties can make false).
   const loud = corpusBenchmark(corpus, "thirdPartyDomains", 50);
   assert.match(loud?.label ?? "", /At or above the 90th-percentile mark for .* across the 200 sites measured for this metric/);
+});
+
+// The findings board reads "quiet" as a NULL RESULT: it is the level a flat
+// comparison delta or an absent-provenance note carries, and the bottom-line
+// summary keeps its green "few review signals" verdict over a board whose
+// strongest level is quiet. That is only sound while no benchmark ranks a
+// value the visit actually observed as "quiet".
+//
+// It was not sound. corpusBenchmark returned "quiet" for any count in
+// [1, p50), so a report with one below-median third-party cookie published
+// "The automated visit did not observe ... third-party cookies" directly above
+// a card titled "Third-party cookies were present", and the bottom-line icon
+// flipped from green to red once corpus-stats.json finished loading, because
+// the fixed-threshold fallback calls the same value "info".
+//
+// Sweep the whole positive domain rather than sampling bands, so a future
+// reordering of the comparisons cannot reopen a gap between them.
+test("a count the visit observed is never ranked quiet", () => {
+  const corpus = makeCorpus(200);
+  const distribution = corpus.metrics.thirdPartyDomains;
+  assert.ok(distribution, "the sweep needs a distribution to range over");
+
+  assert.equal(
+    corpusBenchmark(corpus, "thirdPartyDomains", 0)?.level,
+    "ok",
+    "zero is the only absence, and absence is 'ok', not 'quiet'"
+  );
+
+  const observedLevels = new Set<string>();
+  for (let value = 1; value <= distribution.p90 + 10; value += 1) {
+    const level = corpusBenchmark(corpus, "thirdPartyDomains", value)?.level;
+    assert.notEqual(
+      level,
+      "quiet",
+      `a visit that observed ${value} third-party domains must not rank as a null result`
+    );
+    observedLevels.add(String(level));
+  }
+
+  // Mutation guard: if this sweep ever stops covering more than one band the
+  // assertion above becomes near-vacuous, so prove it exercised the real
+  // ladder rather than one repeated value.
+  assert.deepEqual(
+    [...observedLevels].sort(),
+    ["info", "loud", "warn"],
+    "the sweep must cross every positive band"
+  );
 });
 
 test("corpusBenchmark names the metric denominator rather than the broader cohort size", () => {
