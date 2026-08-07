@@ -36,6 +36,8 @@ import {
   type CorpusCohortIdentity
 } from "@/lib/corpus-cohort";
 import { committedReportLocation } from "@/lib/report-locator";
+import { HEADLINE_PLATFORMS } from "@/lib/report-insights";
+import { humanList } from "@/lib/text-format";
 import { scanJobProgressCopy } from "@/lib/scan-job-progress";
 import {
   LatestClientOperation,
@@ -787,7 +789,18 @@ function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }
 const SCAN_CHECKS: { icon: typeof Eye; label: string; question: string }[] = [
   { icon: Radar, label: "Catalog matches", question: "Which request rows matched the reviewed service catalog, and what roles does that catalog assign?" },
   { icon: Cookie, label: "Third-party cookie records", question: "Which cookie records crossed the site's registrable-domain boundary?" },
-  { icon: Network, label: "Named platforms", question: "Were requests dispatched to catalogued Google, Meta, TikTok, or X domains?" },
+  {
+    icon: Network,
+    label: "Named platforms",
+    // Derived, not restated: this sentence was a hand-written copy that named
+    // four platforms and went stale when Microsoft, LinkedIn, and Pinterest
+    // joined the shared constant, so the homepage advertised less than the
+    // report actually checks.
+    question: `Were requests dispatched to catalogued ${humanList(
+      HEADLINE_PLATFORMS,
+      HEADLINE_PLATFORMS.length
+    )} domains?`
+  },
   { icon: Radar, label: "Google Analytics remarketing", question: "Did the scan see the Analytics-to-DoubleClick request marker?" },
   { icon: Fingerprint, label: "Fingerprint-like API calls", question: "Did canvas, WebGL, or audio behavior cross a documented heuristic threshold?" },
   { icon: Eye, label: "Session-replay signals", question: "Did a catalogued service appear or broad interaction listeners register?" },

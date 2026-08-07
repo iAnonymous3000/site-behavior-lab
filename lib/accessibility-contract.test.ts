@@ -477,3 +477,32 @@ test("every route reaches the trust surfaces and the theme control", () => {
     assert.match(source(file), /<TrustLinks \/>/, `${file} renders no trust surface`);
   }
 });
+
+test("the homepage checklist describes the checks the report actually runs", () => {
+  // SCAN_CHECKS used to restate the named-platform list by hand, and named four
+  // platforms after Microsoft, LinkedIn, and Pinterest had joined the shared
+  // constant: the homepage advertised less than the report checks, while the
+  // report's own absence copy printed all seven. Derived now, and pinned here
+  // so a future hand-written copy fails instead of drifting silently.
+  const home = source("app/site-behavior-app.tsx");
+  assert.doesNotMatch(
+    home,
+    /catalogued Google, Meta, TikTok, or X domains/,
+    "the platform list must be derived from HEADLINE_PLATFORMS, not restated"
+  );
+  assert.match(home, /humanList\(\s*HEADLINE_PLATFORMS,\s*HEADLINE_PLATFORMS\.length\s*\)/);
+
+  // And the constant it derives from is the one the report reads.
+  const insights = source("lib/report-insights.ts");
+  const declared = insights.match(/export const HEADLINE_PLATFORMS = \[([^\]]*)\]/);
+  assert.ok(declared, "HEADLINE_PLATFORMS must stay a literal this test can read");
+  const platforms = declared[1].split(",").map((name) => name.trim().replace(/^"|"$/g, "")).filter(Boolean);
+  assert.ok(platforms.length >= 4, "expected the shared platform list to be non-trivial");
+  const findings = source("lib/report-findings.ts");
+  for (const platform of platforms) {
+    assert.ok(
+      findings.includes(platform),
+      `${platform} is in HEADLINE_PLATFORMS but never appears in the findings copy`
+    );
+  }
+});
