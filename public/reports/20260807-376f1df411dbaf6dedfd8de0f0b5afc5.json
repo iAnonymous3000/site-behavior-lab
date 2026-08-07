@@ -8,8 +8,8 @@
     "baseline": "No blocking",
     "variant": "Brave-list blocking"
   },
-  "requestedUrl": "https://www.cdc.gov/",
-  "scannedAt": "2026-07-27T10:23:09.872Z",
+  "requestedUrl": "https://www.irs.gov/",
+  "scannedAt": "2026-08-07T04:14:05.755Z",
   "device": "desktop",
   "baseline": {
     "ok": true,
@@ -18,24 +18,24 @@
     "summary": {
       "pageTitle": "",
       "status": 200,
-      "durationMs": 12167,
-      "firstPartyDomain": "www.cdc.gov",
+      "durationMs": 6776,
+      "firstPartyDomain": "www.irs.gov",
       "totalRequests": 51,
-      "thirdPartyRequests": 4,
-      "knownTrackerRequests": 3,
-      "thirdPartyDomains": 3,
-      "cookies": 11,
+      "thirdPartyRequests": 15,
+      "knownTrackerRequests": 6,
+      "thirdPartyDomains": 5,
+      "cookies": 6,
       "thirdPartyCookies": 0,
-      "storageEntries": 0,
-      "fingerprintEvents": 1,
-      "shieldsBlockedRequests": 5
+      "storageEntries": 5,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 9
     },
     "conditions": {
-      "requestedUrl": "https://www.cdc.gov/",
-      "finalUrl": "https://www.cdc.gov/{seg}",
-      "scannedAt": "2026-07-27T10:22:57.698Z",
-      "chromiumVersion": "149.0.7827.55",
-      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "requestedUrl": "https://www.irs.gov/",
+      "finalUrl": "https://www.irs.gov/",
+      "scannedAt": "2026-08-07T04:13:58.971Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
       "timezone": "UTC",
       "locale": "en-US",
       "language": "en-US",
@@ -54,26 +54,26 @@
         "active": true,
         "source": "Brave default ad-block lists",
         "lists": 31,
-        "fetchedAt": "2026-07-25T14:05:35.223Z"
+        "fetchedAt": "2026-08-04T00:19:10.559Z"
       },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
-        "version": "hand-curated-2026.06",
+        "version": "hand-curated-2026.08",
         "region": "US-biased",
-        "entries": 133,
-        "curatedOverrides": 133,
+        "entries": 146,
+        "curatedOverrides": 146,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
         "id": 1,
-        "url": "https://www.cdc.gov/",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "document",
-        "status": 301,
+        "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
@@ -81,545 +81,520 @@
       },
       {
         "id": 2,
-        "url": "https://www.cdc.gov/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "document",
+        "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 177
+        "blockedByShields": false,
+        "startedAtMs": 109
       },
       {
         "id": 3,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 291
+        "startedAtMs": 109
       },
       {
         "id": 4,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 291
-      },
-      {
-        "id": 5,
-        "url": "https://www.cdc.gov/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 291
+        "startedAtMs": 112
+      },
+      {
+        "id": 5,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 6,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 292
+        "blockedByShields": true,
+        "startedAtMs": 113
       },
       {
         "id": 7,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "image",
+        "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 292
+        "blockedByShields": true,
+        "startedAtMs": 113
       },
       {
         "id": 8,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 292
+        "startedAtMs": 113
       },
       {
         "id": 9,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 361
+        "startedAtMs": 113
       },
       {
         "id": 10,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 370
+        "startedAtMs": 168
       },
       {
         "id": 11,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 372
+        "startedAtMs": 187
       },
       {
         "id": 12,
-        "url": "https://www.cdc.gov/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 189
+      },
+      {
+        "id": 13,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 373
+        "startedAtMs": 190
       },
       {
-        "id": 13,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "id": 14,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 191
+      },
+      {
+        "id": 15,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 191
+      },
+      {
+        "id": 16,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 191
+      },
+      {
+        "id": 17,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 192
+      },
+      {
+        "id": 18,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 193
+      },
+      {
+        "id": 19,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 193
+      },
+      {
+        "id": 20,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 193
+      },
+      {
+        "id": 21,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 194
+      },
+      {
+        "id": 22,
+        "url": "https://static.addtoany.com/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 194
+      },
+      {
+        "id": 23,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 194
+      },
+      {
+        "id": 24,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 195
+      },
+      {
+        "id": 25,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 243
+      },
+      {
+        "id": 26,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 27,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 28,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 29,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 30,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 31,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 32,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 33,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 34,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 35,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 36,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 37,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 250
+      },
+      {
+        "id": 38,
+        "url": "https://static.addtoany.com/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 319
+      },
+      {
+        "id": 39,
+        "url": "https://static.addtoany.com/{seg}/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
         "startedAtMs": 374
       },
       {
-        "id": 14,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 375
-      },
-      {
-        "id": 15,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 375
-      },
-      {
-        "id": 16,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 375
-      },
-      {
-        "id": 17,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 375
-      },
-      {
-        "id": 18,
-        "url": "https://www.cdc.gov/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 376
-      },
-      {
-        "id": 19,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 376
-      },
-      {
-        "id": 20,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 376
-      },
-      {
-        "id": 21,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 376
-      },
-      {
-        "id": 22,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 376
-      },
-      {
-        "id": 23,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 376
-      },
-      {
-        "id": 24,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 376
-      },
-      {
-        "id": 25,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 376
-      },
-      {
-        "id": 26,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 377
-      },
-      {
-        "id": 27,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 377
-      },
-      {
-        "id": 28,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 377
-      },
-      {
-        "id": 29,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "stylesheet",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 377
-      },
-      {
-        "id": 30,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 405
-      },
-      {
-        "id": 31,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 405
-      },
-      {
-        "id": 32,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 406
-      },
-      {
-        "id": 33,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 407
-      },
-      {
-        "id": 34,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 407
-      },
-      {
-        "id": 35,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 407
-      },
-      {
-        "id": 36,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 411
-      },
-      {
-        "id": 37,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 412
-      },
-      {
-        "id": 38,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 412
-      },
-      {
-        "id": 39,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 412
-      },
-      {
         "id": 40,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "font",
+        "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 412
+        "startedAtMs": 376
       },
       {
         "id": 41,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 703
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 489
       },
       {
         "id": 42,
-        "url": "https://{label}.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "{label}.cdc.gov",
-        "method": "GET",
-        "resourceType": "fetch",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "startedAtMs": 738
-      },
-      {
-        "id": 43,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
-        "thirdParty": false,
+        "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 738
+        "startedAtMs": 490
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.digitalgov.gov/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 491
       },
       {
         "id": 44,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "fetch",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 739
-      },
-      {
-        "id": 45,
-        "url": "https://{label}.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "{label}.cdc.gov",
-        "method": "GET",
-        "resourceType": "fetch",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "startedAtMs": 739
-      },
-      {
-        "id": 46,
-        "url": "https://www.cdc.gov/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "fetch",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 743
-      },
-      {
-        "id": 47,
         "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
         "domain": "{label}.digitalgov.gov",
         "method": "GET",
@@ -628,10 +603,10 @@
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 822
+        "startedAtMs": 548
       },
       {
-        "id": 48,
+        "id": 45,
         "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
         "domain": "www.googletagmanager.com",
         "method": "GET",
@@ -645,39 +620,27 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 822
+        "startedAtMs": 549
       },
       {
-        "id": 49,
-        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
-        "domain": "www.google-analytics.com",
-        "method": "POST",
-        "resourceType": "fetch",
-        "status": 204,
-        "thirdParty": true,
-        "tracker": {
-          "domain": "google-analytics.com",
-          "entity": "Google",
-          "category": "analytics / tag management",
-          "confidence": "curated"
-        },
-        "blockedByShields": true,
-        "startedAtMs": 1093
-      },
-      {
-        "id": 50,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "id": 46,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 1101
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 550
       },
       {
-        "id": 51,
+        "id": 47,
         "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
         "domain": "www.google-analytics.com",
         "method": "POST",
@@ -691,10 +654,81 @@
           "confidence": "curated"
         },
         "blockedByShields": true,
-        "startedAtMs": 6094
+        "startedAtMs": 668
+      },
+      {
+        "id": 48,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 758
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 795
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 822
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 847
       }
     ],
     "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
       {
         "domain": "www.google-analytics.com",
         "requests": 2,
@@ -714,15 +748,38 @@
         ]
       },
       {
-        "domain": "www.googletagmanager.com",
-        "requests": 1,
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
         "thirdParty": true,
-        "tracker": {
-          "domain": "googletagmanager.com",
-          "entity": "Google",
-          "category": "analytics / tag management",
-          "confidence": "curated"
-        },
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.addtoany.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
         "blockedByShields": true,
         "statuses": [
           200
@@ -732,26 +789,12 @@
         ]
       },
       {
-        "domain": "{label}.digitalgov.gov",
-        "requests": 1,
-        "thirdParty": true,
-        "tracker": null,
-        "blockedByShields": false,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "script"
-        ]
-      },
-      {
-        "domain": "www.cdc.gov",
-        "requests": 45,
+        "domain": "www.irs.gov",
+        "requests": 36,
         "thirdParty": false,
         "tracker": null,
-        "blockedByShields": false,
+        "blockedByShields": true,
         "statuses": [
-          301,
           200
         ],
         "resourceTypes": [
@@ -759,60 +802,26 @@
           "stylesheet",
           "script",
           "image",
-          "font",
-          "fetch"
-        ]
-      },
-      {
-        "domain": "{label}.cdc.gov",
-        "requests": 2,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": true,
-        "statuses": [
-          200
-        ],
-        "resourceTypes": [
-          "fetch"
+          "font"
         ]
       }
     ],
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".cdc.gov",
+        "domain": ".irs.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
+        "httpOnly": true,
         "session": true,
         "thirdParty": false
       },
       {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
+        "name": "_abck",
+        "domain": ".irs.gov",
         "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": true,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
+        "sameSite": "Lax",
         "secure": true,
         "httpOnly": false,
         "session": false,
@@ -820,57 +829,17 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".cdc.gov",
+        "domain": ".irs.gov",
         "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
+        "sameSite": "Lax",
+        "secure": false,
         "httpOnly": false,
         "session": false,
         "thirdParty": false
       },
       {
         "name": "_ga",
-        "domain": ".cdc.gov",
+        "domain": ".irs.gov",
         "path": "/",
         "sameSite": "Strict",
         "secure": true,
@@ -880,7 +849,17 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".cdc.gov",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".irs.gov",
         "path": "/",
         "sameSite": "Strict",
         "secure": true,
@@ -889,29 +868,76 @@
         "thirdParty": false
       }
     ],
-    "storage": [],
-    "fingerprintEvents": [
+    "storage": [
       {
-        "api": "canvas.toDataURL",
-        "count": 1
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 17
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
       }
     ],
-    "fingerprintDetections": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "mousedown",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.digitalgov.gov/",
+            "https://static.addtoany.com/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 16
+        }
+      }
+    ],
     "privacyPolicy": {
-      "url": "https://www.cdc.gov/{seg}/{seg}",
+      "url": "https://www.irs.gov/{seg}/{seg}",
       "claims": [],
-      "mentionedEntities": [
+      "mentionedEntities": [],
+      "unmentionedEntities": [
         "Google"
       ],
-      "unmentionedEntities": [],
-      "policyTextLength": 21096
+      "policyTextLength": 56750
     },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
-      "The page did not reach network idle before the scan window ended.",
-      "Read the site's privacy policy (https://www.cdc.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.irs.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "variant": {
@@ -921,24 +947,24 @@
     "summary": {
       "pageTitle": "",
       "status": 200,
-      "durationMs": 2960,
-      "firstPartyDomain": "www.cdc.gov",
-      "totalRequests": 46,
-      "thirdPartyRequests": 1,
+      "durationMs": 5721,
+      "firstPartyDomain": "www.irs.gov",
+      "totalRequests": 37,
+      "thirdPartyRequests": 3,
       "knownTrackerRequests": 0,
       "thirdPartyDomains": 1,
-      "cookies": 9,
+      "cookies": 3,
       "thirdPartyCookies": 0,
       "storageEntries": 0,
-      "fingerprintEvents": 1,
-      "shieldsBlockedRequests": 3
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
     },
     "conditions": {
-      "requestedUrl": "https://www.cdc.gov/",
-      "finalUrl": "https://www.cdc.gov/{seg}",
-      "scannedAt": "2026-07-27T10:23:09.872Z",
-      "chromiumVersion": "149.0.7827.55",
-      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+      "requestedUrl": "https://www.irs.gov/",
+      "finalUrl": "https://www.irs.gov/",
+      "scannedAt": "2026-08-07T04:14:05.755Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
       "timezone": "UTC",
       "locale": "en-US",
       "language": "en-US",
@@ -957,575 +983,468 @@
         "active": true,
         "source": "Brave default ad-block lists",
         "lists": 31,
-        "fetchedAt": "2026-07-25T14:05:35.223Z"
+        "fetchedAt": "2026-08-04T00:19:10.559Z"
       },
       "trackerCatalog": {
         "source": "Hand-curated service catalog",
-        "version": "hand-curated-2026.06",
+        "version": "hand-curated-2026.08",
         "region": "US-biased",
-        "entries": 133,
-        "curatedOverrides": 133,
+        "entries": 146,
+        "curatedOverrides": 146,
         "license": "AGPL-3.0-or-later"
       },
-      "scannerDisclosure": "Automated Chromium scan using Playwright 1.61.1 from github-actions-ubuntu with browser 149.0.7827.55, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.61.1; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
     },
     "requests": [
       {
         "id": 1,
-        "url": "https://www.cdc.gov/",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "document",
-        "status": 301,
+        "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 45
+        "startedAtMs": 44
       },
       {
         "id": 2,
-        "url": "https://www.cdc.gov/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "document",
+        "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 171
+        "blockedByShields": false,
+        "startedAtMs": 112
       },
       {
         "id": 3,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 282
+        "startedAtMs": 113
       },
       {
         "id": 4,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "script",
+        "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 282
+        "startedAtMs": 113
       },
       {
         "id": 5,
-        "url": "https://www.cdc.gov/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "stylesheet",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 282
-      },
-      {
-        "id": 6,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 282
-      },
-      {
-        "id": 7,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 284
+        "startedAtMs": 113
       },
       {
         "id": 8,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 285
+        "startedAtMs": 115
       },
       {
         "id": 9,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 360
+        "startedAtMs": 116
       },
       {
         "id": 10,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 361
+        "startedAtMs": 185
       },
       {
         "id": 11,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{n}/{n}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 361
+        "startedAtMs": 187
       },
       {
         "id": 12,
-        "url": "https://www.cdc.gov/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "script",
+        "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 363
+        "startedAtMs": 191
       },
       {
         "id": 13,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 363
+        "startedAtMs": 192
       },
       {
         "id": 14,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 363
+        "startedAtMs": 192
       },
       {
         "id": 15,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 364
+        "startedAtMs": 192
       },
       {
         "id": 16,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "script",
+        "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 364
+        "startedAtMs": 193
       },
       {
         "id": 17,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "script",
+        "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 364
+        "startedAtMs": 193
       },
       {
         "id": 18,
-        "url": "https://www.cdc.gov/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "script",
+        "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 364
+        "startedAtMs": 194
       },
       {
         "id": 19,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 365
+        "startedAtMs": 195
       },
       {
         "id": 20,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 365
+        "startedAtMs": 195
       },
       {
         "id": 21,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
         "resourceType": "image",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 365
+        "startedAtMs": 195
       },
       {
         "id": 22,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 367
-      },
-      {
-        "id": 23,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 367
-      },
-      {
-        "id": 24,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{n}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 367
-      },
-      {
-        "id": 25,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 368
-      },
-      {
-        "id": 26,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 368
-      },
-      {
-        "id": 27,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 368
-      },
-      {
-        "id": 28,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 368
-      },
-      {
-        "id": 29,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "stylesheet",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 369
-      },
-      {
-        "id": 30,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 370
-      },
-      {
-        "id": 31,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "image",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 396
-      },
-      {
-        "id": 32,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 396
-      },
-      {
-        "id": 33,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 397
-      },
-      {
-        "id": 34,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 398
-      },
-      {
-        "id": 35,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 398
-      },
-      {
-        "id": 36,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 398
-      },
-      {
-        "id": 37,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 399
-      },
-      {
-        "id": 38,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 400
-      },
-      {
-        "id": 39,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 400
-      },
-      {
-        "id": 40,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "font",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 401
-      },
-      {
-        "id": 41,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 687
-      },
-      {
-        "id": 43,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "script",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 712
-      },
-      {
-        "id": 44,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "fetch",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 712
-      },
-      {
-        "id": 46,
-        "url": "https://www.cdc.gov/{seg}/{seg}",
-        "domain": "www.cdc.gov",
-        "method": "GET",
-        "resourceType": "fetch",
-        "status": 200,
-        "thirdParty": false,
-        "tracker": null,
-        "blockedByShields": false,
-        "startedAtMs": 717
-      },
-      {
-        "id": 47,
-        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
-        "domain": "{label}.digitalgov.gov",
+        "url": "https://static.addtoany.com/{seg}/{seg}",
+        "domain": "static.addtoany.com",
         "method": "GET",
         "resourceType": "script",
         "status": 200,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 782
+        "startedAtMs": 196
       },
       {
-        "id": 49,
-        "url": "https://www.cdc.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
-        "domain": "www.cdc.gov",
+        "id": 23,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
         "method": "GET",
-        "resourceType": "script",
+        "resourceType": "stylesheet",
         "status": 200,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 855
+        "startedAtMs": 196
+      },
+      {
+        "id": 24,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 232
+      },
+      {
+        "id": 25,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 233
+      },
+      {
+        "id": 26,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 233
+      },
+      {
+        "id": 27,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 234
+      },
+      {
+        "id": 28,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 234
+      },
+      {
+        "id": 29,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 236
+      },
+      {
+        "id": 30,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 236
+      },
+      {
+        "id": 31,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 236
+      },
+      {
+        "id": 32,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 237
+      },
+      {
+        "id": 33,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 237
+      },
+      {
+        "id": 34,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 237
+      },
+      {
+        "id": 35,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 238
+      },
+      {
+        "id": 36,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 239
+      },
+      {
+        "id": 37,
+        "url": "https://static.addtoany.com/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 38,
+        "url": "https://static.addtoany.com/{seg}/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 414
+      },
+      {
+        "id": 39,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 415
       }
     ],
     "domains": [
       {
-        "domain": "{label}.digitalgov.gov",
-        "requests": 1,
+        "domain": "static.addtoany.com",
+        "requests": 3,
         "thirdParty": true,
         "tracker": null,
         "blockedByShields": false,
@@ -1533,17 +1452,17 @@
           200
         ],
         "resourceTypes": [
-          "script"
+          "script",
+          "document"
         ]
       },
       {
-        "domain": "www.cdc.gov",
-        "requests": 45,
+        "domain": "www.irs.gov",
+        "requests": 34,
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
         "statuses": [
-          301,
           200
         ],
         "resourceTypes": [
@@ -1551,47 +1470,26 @@
           "stylesheet",
           "script",
           "image",
-          "font",
-          "fetch"
+          "font"
         ]
       }
     ],
     "cookies": [
       {
         "name": "[redacted]",
-        "domain": ".cdc.gov",
+        "domain": ".irs.gov",
         "path": "/",
         "sameSite": "None",
         "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
+        "httpOnly": true,
         "session": true,
         "thirdParty": false
       },
       {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
+        "name": "_abck",
+        "domain": ".irs.gov",
         "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": true,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
+        "sameSite": "Lax",
         "secure": true,
         "httpOnly": false,
         "session": false,
@@ -1599,103 +1497,59 @@
       },
       {
         "name": "[redacted]",
-        "domain": ".cdc.gov",
+        "domain": ".irs.gov",
         "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
-        "httpOnly": false,
-        "session": false,
-        "thirdParty": false
-      },
-      {
-        "name": "[redacted]",
-        "domain": ".cdc.gov",
-        "path": "/",
-        "sameSite": "None",
-        "secure": true,
+        "sameSite": "Lax",
+        "secure": false,
         "httpOnly": false,
         "session": false,
         "thirdParty": false
       }
     ],
     "storage": [],
-    "fingerprintEvents": [
-      {
-        "api": "canvas.toDataURL",
-        "count": 1
-      }
-    ],
+    "fingerprintEvents": [],
     "fingerprintDetections": [],
     "privacyPolicy": {
-      "url": "https://www.cdc.gov/{seg}/{seg}",
+      "url": "https://www.irs.gov/{seg}/{seg}",
       "claims": [],
       "mentionedEntities": [],
       "unmentionedEntities": [],
-      "policyTextLength": 21096
+      "policyTextLength": 56750
     },
     "screenshot": null,
     "warnings": [
       "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
       "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
       "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-      "Read the site's privacy policy (https://www.cdc.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.irs.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
     ]
   },
   "diff": {
     "totalRequests": {
       "before": 51,
-      "after": 46,
-      "delta": -5
+      "after": 37,
+      "delta": -14
     },
     "thirdPartyRequests": {
-      "before": 4,
-      "after": 1,
-      "delta": -3
+      "before": 15,
+      "after": 3,
+      "delta": -12
     },
     "knownTrackerRequests": {
-      "before": 3,
+      "before": 6,
       "after": 0,
-      "delta": -3
+      "delta": -6
     },
     "thirdPartyDomains": {
-      "before": 3,
+      "before": 5,
       "after": 1,
-      "delta": -2
+      "delta": -4
     },
     "cookies": {
-      "before": 11,
-      "after": 9,
-      "delta": -2
+      "before": 6,
+      "after": 3,
+      "delta": -3
     },
     "thirdPartyCookies": {
       "before": 0,
@@ -1703,19 +1557,34 @@
       "delta": 0
     },
     "storageEntries": {
-      "before": 0,
+      "before": 5,
       "after": 0,
-      "delta": 0
+      "delta": -5
     },
     "fingerprintEvents": {
-      "before": 1,
-      "after": 1,
+      "before": 0,
+      "after": 0,
       "delta": 0
     },
     "addedDomains": [],
     "removedDomains": [
       {
-        "domain": "{label}.cdc.gov",
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
         "requests": 2,
         "tracker": null
       },
@@ -1728,23 +1597,13 @@
           "category": "analytics / tag management",
           "confidence": "curated"
         }
-      },
-      {
-        "domain": "www.googletagmanager.com",
-        "requests": 1,
-        "tracker": {
-          "domain": "googletagmanager.com",
-          "entity": "Google",
-          "category": "analytics / tag management",
-          "confidence": "curated"
-        }
       }
     ],
     "addedEntities": [],
     "removedEntities": [
       {
         "entity": "Google",
-        "requests": 3,
+        "requests": 6,
         "domains": 2
       }
     ],
@@ -1752,20 +1611,31 @@
     "removedCookies": [
       {
         "name": "_ga",
-        "domain": ".cdc.gov",
+        "domain": ".irs.gov",
         "thirdParty": false
       }
     ],
     "addedStorageKeys": [],
-    "removedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      }
+    ],
     "addedFingerprinting": [],
-    "removedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
     "addedProvenance": [],
     "removedProvenance": [],
     "shieldsBlockedRequests": {
-      "before": 5,
-      "after": 3,
-      "delta": -2
+      "before": 9,
+      "after": 2,
+      "delta": -7
     }
   },
   "warnings": [
@@ -1773,16 +1643,17 @@
     "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
-    "No blocking: The page did not reach network idle before the scan window ended.",
-    "No blocking: Read the site's privacy policy (https://www.cdc.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Read the site's privacy policy (https://www.irs.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
     "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
     "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
-    "Brave-list blocking: Read the site's privacy policy (https://www.cdc.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.irs.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
-    "id": "20260727-aa2994f2826498bbdf7e122ebb42cb59",
-    "path": "/reports/20260727-aa2994f2826498bbdf7e122ebb42cb59/",
-    "jsonPath": "/reports/20260727-aa2994f2826498bbdf7e122ebb42cb59.json"
+    "id": "20260807-376f1df411dbaf6dedfd8de0f0b5afc5",
+    "path": "/reports/20260807-376f1df411dbaf6dedfd8de0f0b5afc5/",
+    "jsonPath": "/reports/20260807-376f1df411dbaf6dedfd8de0f0b5afc5.json"
   }
 }
