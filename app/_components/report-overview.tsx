@@ -38,6 +38,7 @@ import {
 import {
   buildEvidenceHash,
   findingEvidenceLink,
+  renderedEvidenceArm,
   requestTimingSummary,
   type EvidenceArm
 } from "@/lib/report-evidence-navigation";
@@ -238,10 +239,7 @@ export function FindingsBoard({
   headline: ReportHeadline;
 }) {
   const corpus = useCorpusStats();
-  const evidenceArm: EvidenceArm | undefined =
-    view.reportType === "comparison"
-      ? headline.focusArm ?? (view.comparison?.temporalPair ? "variant" : "baseline")
-      : undefined;
+  const evidenceArm: EvidenceArm | undefined = renderedEvidenceArm(view, headline);
   // The board describes the same arm as the headline, the stat chips, the
   // tables, and the evidence links this component already derives below.
   const findings = buildFindings(view, corpus, facts, evidenceArm);

@@ -355,7 +355,22 @@ export function buildFindings(
   // drops them from the distribution outright. runInCorpusDistributionPopulation
   // is the one predicate both sides now read, so the renderer cannot rank a run
   // against a population the builder defined to exclude it.
-  const benchmarkPopulationMatches = runInCorpusDistributionPopulation(run);
+  //
+  // A focused non-display arm is excluded on top of that. The corpus
+  // distribution admits only lead runs, and the cohort selected above is keyed
+  // by the DISPLAY run's identity, including its requested-GPC condition; a
+  // GPC comparison's alarm headline focuses the GPC-on variant, whose counts
+  // would otherwise rank against the gpc-off cohort under scope copy claiming
+  // an exact-cohort match. The consent branches only dodged this because their
+  // variant's consent mode already fails the population predicate. Fixed
+  // reference thresholds still apply to a focused variant; only percentile
+  // wording is withheld.
+  const displayArm: "baseline" | "variant" =
+    view.comparison?.temporalPair ? "variant" : "baseline";
+  const boardDescribesDisplayRun =
+    focusArm === undefined || view.reportType !== "comparison" || focusArm === displayArm;
+  const benchmarkPopulationMatches =
+    boardDescribesDisplayRun && runInCorpusDistributionPopulation(run);
   const domainsBenchmarkAllowed =
     benchmarkPopulationMatches && facts.claims["third-party-services"].benchmarkAllowed;
   const cookiesBenchmarkAllowed =

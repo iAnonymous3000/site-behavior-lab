@@ -2778,3 +2778,41 @@ test("the findings board describes the arm the rest of the page describes", () =
   const unspecified = byId(buildFindings(view, null), "third-party-services");
   assert.equal(unspecified.lead, onBaseline.lead);
 });
+
+test("a focused variant arm is never ranked against the display run's cohort", () => {
+  // The corpus distribution admits only lead runs, and the cohort buildFindings
+  // selects is keyed by the display run's identity, including its requested-GPC
+  // condition. A GPC comparison's alarm headline focuses the GPC-on variant;
+  // ranking that arm's counts against the gpc-off cohort is cross-cohort
+  // pooling under scope copy claiming an exact-cohort match, and it
+  // systematically understates the site because GPC-on visits carry fewer
+  // requests. The consent focus branches only dodge this because their
+  // variant's consent mode already fails the population predicate; the GPC
+  // branch has no such shield, so the arm gate must supply it.
+  const corpus = makeCorpus(60);
+  const baseline = makeResult({
+    domains: [makeTrackerDomain("ads.example.net", 40, "AdCo", "advertising")],
+    thirdPartyRequests: 40,
+    thirdPartyDomains: 25
+  });
+  const variant = makeResult({
+    domains: [makeTrackerDomain("ads.example.net", 30, "AdCo", "advertising")],
+    thirdPartyRequests: 30,
+    thirdPartyDomains: 20
+  });
+  const view = viewFromV1Report(gpcPair(baseline, variant));
+
+  const displayBoard = byId(buildFindings(view, corpus, undefined, "baseline"), "third-party-services");
+  assert.match(
+    displayBoard.benchmark ?? "",
+    /percentile mark|median/,
+    "the display arm is the cohort's own population and must keep its percentile badge"
+  );
+
+  const variantBoard = byId(buildFindings(view, corpus, undefined, "variant"), "third-party-services");
+  assert.equal(
+    variantBoard.benchmark,
+    undefined,
+    "a variant arm belongs to no corpus cohort and must not carry percentile wording"
+  );
+});

@@ -1,4 +1,5 @@
 import { buildReportFacts, type ReportFacts } from "./report-facts";
+import { renderedEvidenceArm } from "./report-evidence-navigation";
 import { buildFindings, type Finding } from "./report-findings";
 import { buildReportHeadline, type ReportHeadline } from "./report-headline";
 import type { ReportView } from "./scan-report-views";
@@ -170,7 +171,14 @@ export function validateReportPresentation(
 } {
   const facts = buildReportFacts(view);
   const headline = buildReportHeadline(view, facts);
-  const findings = buildFindings(view, corpus, facts);
+  // Validate the board readers actually see. The renderer threads the
+  // headline's focused arm into buildFindings (report-overview derives
+  // exactly this value for the evidence links), so validating a default
+  // display-arm board here would re-split the contract this gate exists to
+  // hold together: the fidelity invariants and the committed-corpus check
+  // would go green over findings nobody renders while the rendered board
+  // went unvalidated.
+  const findings = buildFindings(view, corpus, facts, renderedEvidenceArm(view, headline));
   return {
     facts,
     headline,

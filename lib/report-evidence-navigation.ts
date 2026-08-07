@@ -10,6 +10,22 @@ export type EvidenceRequestSignal =
   | "fingerprinting"
   | "provenance";
 
+/**
+ * Which comparison arm the page is describing: the headline's focused arm when
+ * it set one, otherwise the display run's arm (the newer run of a temporal
+ * pair, the baseline of an intervention pair). The renderer, the evidence
+ * links, and the consistency gate must all read the SAME derivation -- the
+ * gate validating a differently-derived board than the one rendered is
+ * exactly the split this function exists to prevent.
+ */
+export function renderedEvidenceArm(
+  view: { reportType: string; comparison?: { temporalPair?: unknown } | null },
+  headline: { focusArm?: EvidenceArm | null }
+): EvidenceArm | undefined {
+  if (view.reportType !== "comparison") return undefined;
+  return headline.focusArm ?? (view.comparison?.temporalPair ? "variant" : "baseline");
+}
+
 export type EvidenceTarget = {
   section: EvidenceSection;
   arm?: EvidenceArm;
