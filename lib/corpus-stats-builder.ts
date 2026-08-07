@@ -21,7 +21,12 @@ import {
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { buildRunFacts } from "./report-facts";
 import { trackingServiceRequests } from "./report-insights";
-import { displayRunView, familyCensoredOnRun, runHitRequestRecordingCap, toReportView } from "./scan-report-view";
+import {
+  displayRunView,
+  runHitRequestRecordingCap,
+  runInCorpusDistributionPopulation,
+  toReportView
+} from "./scan-report-view";
 import {
   listDanglingStaticSidecarIds,
   listStaticReportCandidateIds,
@@ -126,15 +131,18 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // exactly the ones that cap) and misranks every real site against a
     // truncated ceiling. The per-report pages disclose capped runs as cut
     // short.
-    if (familyCensoredOnRun(result, "requests") || runHitRequestRecordingCap(result)) continue;
-
+    //
     // A consent-interaction arm is a post-intervention state, not a default
     // visit: a consent comparison's baseline clicked "accept all" before
     // collection, so its counts describe the accepted-cookies experience.
     // Ranking ordinary scans against it would contaminate the cohort the
     // distribution claims to describe (the plain first visit). Covered, but
     // never measured.
-    if (result.conditions.consentMode === "accept-all" || result.conditions.consentMode === "reject-all") continue;
+    //
+    // Both of those rules, plus the completion check above, live in
+    // runInCorpusDistributionPopulation so the findings board applies exactly
+    // the same population rule when it decides whether to show a percentile.
+    if (!runInCorpusDistributionPopulation(result)) continue;
 
     // One definition of "when this report was measured", shared with
     // lib/corpus-overview.ts, which ranks the same cohorts by view.scannedAt

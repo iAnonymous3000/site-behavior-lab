@@ -6,6 +6,7 @@ import { afterEach, beforeEach, test } from "node:test";
 import { createComparisonReport } from "./compare-reports";
 import { buildCorpusStats } from "./corpus-stats-builder";
 import { loadCorpusOverview } from "./corpus-overview";
+import { runInCorpusDistributionPopulation, type RunView } from "./scan-report-view";
 import { LEGACY_V1_METHODOLOGY_UNSPECIFIED, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import {
   METRIC_CONTRACT_DIGEST,
@@ -603,3 +604,50 @@ test("the published artifact and the rendered aggregate name the same cohort", a
     "the primary cohort must carry a parseable newest measurement"
   );
 });
+
+test("the renderer and the builder share one corpus-population rule", () => {
+  // The builder drops a run from the distribution when its request family was
+  // censored or it hit the recording cap; the findings board used to check only
+  // completion and consent mode. A v2 run that exhausted its request budget
+  // stays quality.outcome === "complete" (budget-exhausted lands in reasons,
+  // never failureReasons) with only the requests family censored, so the board
+  // rendered a percentile badge ranking it against a population the builder had
+  // excluded it from. Both now read runInCorpusDistributionPopulation.
+  const capped = makeRunView({ requestsCensored: true });
+  assert.equal(
+    capped.quality.outcome,
+    "complete",
+    "the case only bites because an exhausted request budget still completes"
+  );
+  assert.equal(runInCorpusDistributionPopulation(capped), false);
+
+  for (const consentMode of ["accept-all", "reject-all"] as const) {
+    assert.equal(runInCorpusDistributionPopulation(makeRunView({ consentMode })), false);
+  }
+  assert.equal(runInCorpusDistributionPopulation(makeRunView({ failed: true })), false);
+
+  // Inverse, so a predicate that always returned false could not pass.
+  assert.equal(runInCorpusDistributionPopulation(makeRunView({})), true);
+});
+
+function makeRunView(options: {
+  requestsCensored?: boolean;
+  consentMode?: "observe" | "accept-all" | "reject-all";
+  failed?: boolean;
+}): RunView {
+  const view = {
+    quality: {
+      outcome: options.failed ? "failed" : "complete",
+      reasons: options.requestsCensored ? ["budget-exhausted:request-capture"] : [],
+      byFamily: {
+        requests: {
+          outcome: options.requestsCensored ? "censored" : "complete",
+          reasons: options.requestsCensored ? ["budget-exhausted:request-capture"] : []
+        }
+      }
+    },
+    conditions: { consentMode: options.consentMode ?? "observe" },
+    warnings: []
+  } as unknown as RunView;
+  return view;
+}
