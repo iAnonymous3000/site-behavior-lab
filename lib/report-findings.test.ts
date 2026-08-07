@@ -12,6 +12,7 @@ import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildFindings, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { HEADLINE_PLATFORMS, isTrackingTrackerMatch } from "./report-insights";
+import { COMPARED_POLICY_CLAIM_KINDS } from "./privacy-policy";
 import { reviewedOwnershipRelationship } from "./reviewed-ownership";
 import type { CorpusStats } from "./corpus-stats";
 import { readStoredScanReport } from "./scan-report-reader";
@@ -43,6 +44,7 @@ import {
   type DomainSummary,
   type FingerprintDetectionSummary,
   type NetworkRequestRecord,
+  type PrivacyPolicyClaimKind,
   type ScanResult
 } from "./types";
 
@@ -1879,10 +1881,93 @@ test("an honored-GPC claim is never contradicted by request counts", () => {
   const report = gpcPair(baseline, variant);
 
   const card = byId(buildFindings(viewFromV1Report(report), null), "privacy-policy");
-  assert.equal(card.level, "ok");
   assert.doesNotMatch(card.lead, /Global Privacy Control is honored, but/);
   assert.match(card.detail, /never checked against request counts/);
+
+  // A GPC claim is not merely uncontradicted, it is unchecked. Counting it as
+  // a checkable statement published "Privacy policy read; no checked statement
+  // contradicted" and "1 checkable statement matched" over zero comparisons,
+  // on 8 committed reports. The card must say nothing was checked instead.
+  assert.equal(card.level, "info");
+  assert.equal(card.methodology, true);
+  assert.match(card.title, /it made no statement this scan can check/);
+  assert.match(card.evidence, /0 checkable statements matched/);
+  assert.match(card.lead, /nothing was compared against this visit's evidence/);
 });
+
+test("a claim kind the board never compares is never counted as checkable", () => {
+  // The reassuring "no checked statement contradicted" branch is only honest
+  // while every claim counted as checkable actually gets compared. Rather than
+  // trusting that the comparison block and the predicate stay in step, walk
+  // every kind in the wire vocabulary: a kind outside
+  // COMPARED_POLICY_CLAIM_KINDS must produce the unavailable card, and a kind
+  // inside it must produce a real comparison. A newly added kind fails here
+  // until someone decides which side it belongs on.
+  const ALL_KINDS: PrivacyPolicyClaimKind[] = [
+    "no-cookies",
+    "no-third-party-cookies",
+    "no-selling-or-sharing",
+    "honors-gpc"
+  ];
+
+  for (const kind of ALL_KINDS) {
+    const result = makeResult({
+      domains: [makeTrackerDomain("ads.example.net", 40, "AdCo", "advertising")],
+      thirdPartyRequests: 40,
+      thirdPartyDomains: 1
+    });
+    result.privacyPolicy = {
+      url: "https://example.com/privacy",
+      claims: [{ kind, quote: quoteForClaimKind(kind) }],
+      // Keep the entity sides empty so the only thing under test is whether
+      // the claim itself counted as checkable.
+      mentionedEntities: ["AdCo"],
+      unmentionedEntities: [],
+      policyTextLength: 5000
+    };
+    const card = byId(
+      buildFindings(viewFromV1Report(result), null),
+      "privacy-policy"
+    );
+
+    if (COMPARED_POLICY_CLAIM_KINDS.includes(kind)) {
+      assert.match(
+        card.evidence,
+        /1 checkable statement matched/,
+        `${kind} is compared, so it must count as checkable`
+      );
+      assert.doesNotMatch(
+        card.title,
+        /made no statement this scan can check/,
+        `${kind} is compared, so the card must not claim nothing was checkable`
+      );
+    } else {
+      assert.match(
+        card.evidence,
+        /0 checkable statements matched/,
+        `${kind} is never compared, so it must not count as checkable`
+      );
+      assert.match(
+        card.title,
+        /made no statement this scan can check/,
+        `${kind} is never compared, so the card must say so`
+      );
+    }
+  }
+});
+
+function quoteForClaimKind(kind: PrivacyPolicyClaimKind): string {
+  switch (kind) {
+    case "no-cookies":
+      return "We do not use cookies.";
+    case "no-third-party-cookies":
+      return "We do not use third-party cookies.";
+    case "no-selling-or-sharing":
+      return "We do not sell or share your personal information.";
+    case "honors-gpc":
+      return "We honor Global Privacy Control signals.";
+  }
+}
 
 function makeResult(overrides: ResultOverrides = {}): ScanResult {
   const domains = overrides.domains ?? [];

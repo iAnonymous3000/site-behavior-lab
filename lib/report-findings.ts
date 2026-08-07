@@ -652,6 +652,12 @@ export function buildFindings(
     // observe; a site can honor the signal while loading identical requests.
     // The claim stays in the stored policy summary, but no request-count
     // comparison is allowed to contradict it.
+    //
+    // Enforced rather than remembered: COMPARED_POLICY_CLAIM_KINDS in
+    // privacy-policy.ts is what isCurrentlyCheckablePolicyClaim filters on, so
+    // a kind with no comparison here cannot be counted as checkable, and the
+    // card falls to its "nothing this scan can check" branch instead of
+    // publishing a reassurance backed by zero comparisons.
 
     // Frozen producer arrays recorded every catalogued entity as a potential
     // tracking company. Rebind them to the current, positive ServiceRole
