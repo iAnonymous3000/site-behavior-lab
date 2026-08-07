@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useAnnouncedValue } from "../_hooks/use-announced-value";
 import type { TrackerCatalogRecord } from "@/lib/tracker-catalog";
 import styles from "./catalog.module.css";
 
@@ -25,17 +26,7 @@ export function CatalogSearch({ records }: Props) {
   }, [category, query, records]);
 
   const countSummary = `Showing ${visible.length} of ${records.length} maintainer-reviewed domain mappings.`;
-
-  // The count changes on every keystroke, and polite announcements queue rather
-  // than replace, so announcing it live turned an eleven-character search into
-  // eleven announcements still playing after typing stopped. Sighted users keep
-  // the instant count; the announced copy waits for a pause. Same treatment the
-  // gallery's search already carries.
-  const [announcedCount, setAnnouncedCount] = useState(countSummary);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setAnnouncedCount(countSummary), 600);
-    return () => window.clearTimeout(timer);
-  }, [countSummary]);
+  const announcedCount = useAnnouncedValue(countSummary);
 
   return (
     <div>

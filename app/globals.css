@@ -3876,8 +3876,13 @@ a {
    Scoped above the narrow breakpoint on purpose: below 720px the header is
    visually hidden and each cell carries its own data-label, so a bounded
    scroller there would add a cramped inner scroll box for no gain. max-height
-   only engages when the table is actually long, so short tables are unchanged. */
-@media (min-width: 721px) {
+   only engages when the table is actually long, so short tables are unchanged.
+
+   `screen and` is load-bearing: a bare min-width also matches PRINT (a letter
+   page is about 816 CSS px wide), and the print block at the bottom of this
+   file only resets overflow, so an unscoped height bound would clip every
+   long printed table to its first 680px. */
+@media screen and (min-width: 721px) {
   .table-wrap {
     max-height: min(70vh, 680px);
   }

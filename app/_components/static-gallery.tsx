@@ -3,6 +3,7 @@
 import { ExternalLink, FileJson, Loader2, Search, Upload } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type Ref } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
+import { useAnnouncedValue } from "../_hooks/use-announced-value";
 import { FileUploadButton } from "./file-upload-button";
 import { readLoadedReport } from "@/lib/client-report-reader";
 import { comparableSubjectHosts } from "@/lib/comparison-eligibility";
@@ -113,15 +114,7 @@ function StaticReportGallery({
     "en-US"
   )} shown`;
 
-  // The count changes on every keystroke, and polite announcements queue rather than
-  // replace, so announcing it live turned an eight-character search into eight
-  // announcements still playing after typing stopped. Sighted users keep the instant
-  // count; the announced copy waits for a pause.
-  const [announcedCount, setAnnouncedCount] = useState(countSummary);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setAnnouncedCount(countSummary), 600);
-    return () => window.clearTimeout(timer);
-  }, [countSummary]);
+  const announcedCount = useAnnouncedValue(countSummary);
 
   useEffect(() => {
     const pendingIndex = pendingFocusIndexRef.current;
