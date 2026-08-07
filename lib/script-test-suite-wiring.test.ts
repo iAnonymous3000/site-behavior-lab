@@ -79,6 +79,6 @@ test("the calibration ceremony suites run after the launcher that builds dist/sc
 
   assert.equal(
     packageJson.scripts["test:calibration-ceremony"],
-    "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs"
+    "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs scripts/calibration-assemble-custody-lib.test.mjs"
   );
 });
