@@ -103,6 +103,8 @@
     "transparency:log": "node scripts/run-schema-cli.mjs publication-transparency-log",
     "transparency:log:check": "node scripts/run-schema-cli.mjs publication-transparency-log --check",
     "transparency:verify-history": "node scripts/run-schema-cli.mjs publication-transparency-log --verify-history",
+    "transparency:log:anchor": "node scripts/run-schema-cli.mjs transparency-log-anchor --submit",
+    "transparency:log:anchor:status": "node scripts/run-schema-cli.mjs transparency-log-anchor --status",
     "verify:report": "node scripts/run-schema-cli.mjs verify-published-report"
   },
   "dependencies": {

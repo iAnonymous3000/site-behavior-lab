@@ -113,10 +113,26 @@ state them for you.
   the receipt states which lane produced it. It does not independently prove
   what the scanned site served, and cannot: the site's response to one visit is
   not reproducible by anyone, including us.
-- **Timestamps are operator-clock claims.** A committed report's `createdAt`
-  is bounded above by its attestation's creation time (a third-party clock) and
-  by the git commit that introduced it, but the recorded times inside the
-  report come from the scanner's own clock.
+- **Timestamps inside a report are operator-clock claims.** A committed
+  report's `createdAt` is bounded above by its attestation's creation time (a
+  third-party clock) and by the git commit that introduced it, but the
+  recorded times inside the report come from the scanner's own clock.
+  Independently of both, the transparency log's chain heads are anchored
+  through OpenTimestamps: once an anchor carries its Bitcoin attestation,
+  every log entry beneath that head provably existed before the block that
+  confirms it, on a clock nobody involved controls. Extract and check an
+  anchor with the standard tooling:
+
+```bash
+jq -r '.anchors[0].proof' public/transparency-log.json | base64 -d > head.ots
+ots upgrade head.ots
+ots verify head.ots
+```
+
+  A fresh anchor is a calendar's signed promise until the aggregation window
+  closes (typically hours); `npm run transparency:log:anchor:status` reports
+  which state each committed anchor is in, and never claims more than the
+  proof carries.
 - **Production container scans are attested at build, not at scan time.** The
   deployed scanner's image is built from the promoted SHA, and
   production-health checks the live deployment's self-reported SHA hourly, but

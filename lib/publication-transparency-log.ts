@@ -17,11 +17,14 @@ import { sha256Hex } from "./sha256";
  * INTEGRITY. On its own it proves nothing about WHEN, because the party that
  * can rewrite the chain can also rewrite it consistently. Existence at a point
  * in time requires an external witness that we cannot forge, which is what
- * `anchors` carries. `anchors` is empty today, so the honest current claim is
- * exactly "append-only and internally consistent, corroborated by public Git
- * history", and no published copy may say more than that. The seam is
- * validated rather than speculative: an anchor whose head does not match the
- * chain at its own entry count is rejected here.
+ * `anchors` carries. Anchors are OpenTimestamps proofs over chain heads,
+ * produced by transparency-log-anchor-cli and committed with the log; while
+ * the array is empty the honest claim is exactly "append-only and internally
+ * consistent, corroborated by public Git history", and no published copy may
+ * say more than that. The seam is validated rather than speculative: an
+ * anchor whose head does not match the chain at its own entry count is
+ * rejected here, and a freshly minted proof that does not commit to our head
+ * is rejected before it can ever be stored.
  *
  * ENTRY ORDER IS PUBLICATION ORDER, NOT ID ORDER. Sorting by report id would
  * look tidier, but back-filling one older report would then insert into the
@@ -48,7 +51,7 @@ export const TRANSPARENCY_LOG_CHAIN_ALGORITHM = "sha256-canon-v1";
 const SHA256_HEX_PATTERN = /^[0-9a-f]{64}$/;
 const BASE64_PATTERN = /^[A-Za-z0-9+/]*={0,2}$/;
 const ANCHOR_PROOF_TYPES = new Set(["opentimestamps"]);
-const MAX_ANCHOR_PROOF_CHARS = 64 * 1024;
+export const TRANSPARENCY_LOG_MAX_ANCHOR_PROOF_CHARS = 64 * 1024;
 
 const LOG_KEYS = new Set([
   "$schema",
@@ -214,7 +217,7 @@ export function parseTransparencyLog(value: unknown): ParsedTransparencyLog {
       throw new Error(`${label}.proofType is not a supported proof type`);
     }
     const proof = requiredString(anchor.proof, `${label}.proof`);
-    if (proof.length > MAX_ANCHOR_PROOF_CHARS) throw new Error(`${label}.proof exceeds the proof size ceiling`);
+    if (proof.length > TRANSPARENCY_LOG_MAX_ANCHOR_PROOF_CHARS) throw new Error(`${label}.proof exceeds the proof size ceiling`);
     if (!BASE64_PATTERN.test(proof)) throw new Error(`${label}.proof must be base64`);
     return {
       entryCount: entryCount as number,
