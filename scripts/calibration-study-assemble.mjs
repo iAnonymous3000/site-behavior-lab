@@ -14,6 +14,12 @@ import {
   fetchAuthenticatedCalibrationLabelCommitments,
   validateCalibrationLabelSources
 } from "./calibration-label-sources-lib.mjs";
+import { fetchAuthenticatedCalibrationLabelRoster } from "./calibration-label-roster-lib.mjs";
+import {
+  canonicalCalibrationAcquisitionText,
+  fetchCalibrationAcquisitionAttemptLedger
+} from "./calibration-acquisition-authorization-lib.mjs";
+import { acquireAssemblyCustody } from "./calibration-assemble-custody-lib.mjs";
 import {
   assembleCalibrationStudy,
   assertCalibrationDecisionApproved,
@@ -27,17 +33,10 @@ import {
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const options = parseOptions(process.argv.slice(2));
-// assembleCalibrationStudy requires the pre-acquisition roster custody files,
-// which this CLI does not yet acquire, so its failure is certain. That
-// certain failure must come here, before the reveal key is consumed or any
-// sealed envelope is decrypted.
-throw new Error(
-  "Pre-acquisition roster custody wiring is not yet implemented in this CLI; assemble mode refuses before revealing sealed labels."
-);
-const revealPrivateKeyPem = requiredSecret(
-  "CALIBRATION_LABEL_REVEAL_PRIVATE_KEY"
-);
-delete process.env.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY;
+// The reveal private key is read only AFTER the pre-acquisition custody
+// phase has succeeded (see below): a custody failure must never cost a
+// sealed envelope its secrecy. Nothing before that point may touch the
+// secret, and the custody phase itself performs no decryption.
 const checkoutCommit = git(["rev-parse", "HEAD"]).toLowerCase();
 if (checkoutCommit !== options.assemblyHeadCommit) {
   throw new Error("assembly checkout does not match the trusted workflow head");
@@ -149,6 +148,45 @@ if (
     "authenticated acquisition job runner name disagrees with the freeze-attested runner identity"
   );
 }
+// ---- Pre-acquisition custody phase: the wiring the old refusal guarded. ----
+// Re-fetch the roster artifact the authorization pinned, re-derive the
+// selection snapshot and attempt ledger from live Actions history, and
+// cross-bind all three against the acquisition's own embedded records. Only
+// when every identity agrees does the reveal key get read below.
+const authorization = acquisitionInspection.acquisition.authorization;
+const { custody, roster } = await acquireAssemblyCustody({
+  studyId: options.studyId,
+  authorization,
+  acquisitionSnapshotText: canonicalCalibrationAcquisitionText(
+    acquisitionInspection.acquisition.rosterSelectionSnapshot
+  ),
+  carrierCommit: metadata.headCommit,
+  fetchRoster: async () =>
+    fetchAuthenticatedCalibrationLabelRoster({
+      studyId: options.studyId,
+      detector: options.detector,
+      candidateCommit: options.candidateCommit,
+      carrierCommit: metadata.headCommit,
+      labelSealingKey: candidate.labelSealingKey,
+      runId: authorization.roster.runId,
+      runAttempt: authorization.roster.runAttempt,
+      authorizationNonce: authorization.nonce,
+      caseInputRootSha256: authorization.caseInputRootSha256,
+      scratchDir: path.join(
+        path.dirname(options.extractedDir),
+        "calibration-roster-custody"
+      )
+    }),
+  fetchAttemptLedger: async () =>
+    fetchCalibrationAcquisitionAttemptLedger({ authorization })
+});
+
+// Custody held; the sealed envelopes may now be opened.
+const revealPrivateKeyPem = requiredSecret(
+  "CALIBRATION_LABEL_REVEAL_PRIVATE_KEY"
+);
+delete process.env.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY;
+
 const assembledAt = new Date().toISOString();
 const labelEntries = readdirSync(options.labelsDir, { withFileTypes: true });
 if (
@@ -198,6 +236,7 @@ const authenticatedCommitments =
 const labels = assembleAuthenticatedCalibrationLabels({
   candidate,
   candidateCommit: options.candidateCommit,
+  roster,
   commitments: authenticatedCommitments,
   privateKeyPem: revealPrivateKeyPem,
   acquisitionRunStartedAt: metadata.runStartedAt,
@@ -228,6 +267,7 @@ const assembled = assembleCalibrationStudy({
   candidate,
   acquisitionInspection,
   labels,
+  custody,
   releaseIdentity,
   analyze: calibration.analyzeDetectorCalibrationStudy,
   runtimeReceiptArtifact: {

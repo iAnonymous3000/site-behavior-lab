@@ -1462,7 +1462,11 @@ test("workflow keeps acquisition, labels, assembly, and publication in separate 
   );
   assert.match(
     assemblyScript,
-    /const revealPrivateKeyPem = requiredSecret\([\s\S]*delete process\.env\.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY;[\s\S]*const checkoutCommit = git/
+    // The reveal key is read only AFTER the pre-acquisition custody phase
+    // succeeds: a custody failure must never cost a sealed envelope its
+    // secrecy. The ordering is asserted here and, independently, in
+    // calibration-assemble-custody-lib.test.mjs.
+    /const checkoutCommit = git[\s\S]*acquireAssemblyCustody\(\{[\s\S]*const revealPrivateKeyPem = requiredSecret\([\s\S]*delete process\.env\.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY;[\s\S]*assembleAuthenticatedCalibrationLabels\(\{/
   );
   assert.equal(
     assemblyScript.match(
