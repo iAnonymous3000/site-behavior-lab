@@ -29,7 +29,6 @@ import type { ScanJobProgress, ScanJobStatus, ScanJobSubmissionResponse } from "
 import {
   DURABLE_SCAN_JOB_HEARTBEAT_INTERVAL_MS,
   DurableScanJobCoordinatorError,
-  assertDurableScanJobExecutionOwner,
   createDurableScanJobCoordinatorClient,
   isDurableScanJobActivation,
   isScanJobId,
@@ -131,11 +130,6 @@ export type DurableScanJobActivationResponse = {
   jobId: string;
   generation: number;
   status: "activated" | "already-active";
-};
-
-export type DurableScanJobCancellationControl = DurableScanJobExecutionOwner & {
-  ok: true;
-  status: "cancelled";
 };
 
 export type DurableScanJobGenerationControl = {
@@ -509,45 +503,19 @@ export async function activateDurableScanJob(
   }
 }
 
-/** Trusted status read: a stale or guessed owner learns nothing. */
-export function getOwnedDurableScanJobStatus(
-  owner: DurableScanJobExecutionOwner
-): RuntimeScanJobStatusResponse | null {
-  assertDurableScanJobExecutionOwner(owner);
-  pruneScanJobs();
-  const record = jobs.get(owner.jobId);
-  return record && durableOwnerMatches(record, owner) ? scanJobStatusResponse(record) : null;
-}
-
-/**
- * Trusted abort delivery after the Durable Object has won cancellation. The
- * response is control-only but echoes the exact fence so the private route can
- * prove which local execution it stopped.
- */
-export function cancelOwnedDurableScanJob(
-  owner: DurableScanJobExecutionOwner
-): DurableScanJobCancellationControl | null {
-  assertDurableScanJobExecutionOwner(owner);
-  const record = jobs.get(owner.jobId);
-  if (!record || !durableOwnerMatches(record, owner)) return null;
-  if (record.publicationStarted) {
-    throw new PublicScanError("This scan report is already being saved and can no longer be cancelled.", 409);
-  }
-  if (record.status === "cancelled") {
-    return { ok: true, status: "cancelled", ...owner };
-  }
-  if (record.status !== "queued" && record.status !== "running") {
-    throw new PublicScanError("This scan job has already finished and cannot be cancelled.", 409);
-  }
-
-  const wasQueued = record.status === "queued";
-  markCancelled(record);
-  removeQueuedJobId(record.id);
-  stopDurableHeartbeat(record);
-  record.abortController.abort(new DOMException(JOB_CANCELLED_MESSAGE, "AbortError"));
-  if (wasQueued) record.done.resolve();
-  return { ok: true, status: "cancelled", ...owner };
-}
+// REMOVED: getOwnedDurableScanJobStatus and cancelOwnedDurableScanJob, the
+// raw-lease-token owner surface. No production route could ever construct
+// their owner shape: the internal route's guard admits exactly
+// {jobId, generation}, and the Durable Object deliberately stores only a
+// digest of the raw lease token, so the protocol itself cannot produce the
+// argument. They also duplicated the publication fence locally, while the
+// authoritative fence lives in the DO store (cancelDurableScanJob throws
+// "conflict" for a publishing row; pinned by durable-scan-job-store.test.ts).
+// A tested surface that looks authoritative while nothing can reach it is
+// this repo's known worst defect class -- see the NOTE in
+// durable-scan-job-store.ts on the wake-computation twin that was removed for
+// the same reason. Their test coverage moved onto getScanJobStatus plus
+// durableScanJobFenceForTests below.
 
 /**
  * Best-effort local abort after the Durable Object has already committed the
@@ -707,6 +675,25 @@ export function cancelScanJob(id: string): RuntimeScanJobStatusResponse | null {
     record.done.resolve();
   }
   return cancellationResponse(record);
+}
+
+/**
+ * Test-only introspection of a durable record's fence state: which owner
+ * currently holds the job and whether local publication has begun.
+ *
+ * Deliberately not a production surface. The DO is the authority for both
+ * facts, and the last production-shaped readers of them here turned out to be
+ * unreachable (see the note above the generation cancellation path). Tests
+ * still need to pin generation replacement and the synchronous publication
+ * fence, and an explicitly test-named hook cannot be mistaken for protocol.
+ */
+export function durableScanJobFenceForTests(
+  id: string
+): { owner: DurableScanJobExecutionOwner; publicationStarted: boolean } | null {
+  const record = jobs.get(id);
+  return record?.durable
+    ? { owner: { ...record.durable.owner }, publicationStarted: record.publicationStarted }
+    : null;
 }
 
 export async function waitForScanJobForTests(id: string): Promise<void> {
@@ -1111,15 +1098,6 @@ function durableActivationDisposition(
   // heartbeat succeeds. The authoritative DO never issues a newer generation
   // after beginPublishing wins, but may requeue when that CAS never arrived.
   return "replace";
-}
-
-function durableOwnerMatches(record: InternalScanJobRecord, owner: DurableScanJobExecutionOwner): boolean {
-  const current = record.durable?.owner;
-  return Boolean(
-    current &&
-      current.generation === owner.generation &&
-      leaseTokensEqual(current.leaseToken, owner.leaseToken)
-  );
 }
 
 function leaseTokensEqual(left: string, right: string): boolean {
