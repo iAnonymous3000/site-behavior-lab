@@ -229,6 +229,7 @@ import {
   withDurableScanJobAdmissionDeadline
 } from "../lib/durable-scan-job-edge-wiring";
 import {
+  DEFAULT_DURABLE_SCAN_JOB_PUMP_BUDGET,
   runDurableScanJobPumpTurn,
   type DurableScanJobPumpTaskContext
 } from "../lib/durable-scan-job-pump-controller";
@@ -1765,8 +1766,16 @@ export class ScannerContainer extends Container<Env> {
     // nothing attempted. The turn used to claim full execution capacity even
     // when core dispatch had consumed nearly all of its budget, so a slow
     // turn taxed watches it never looked at.
+    // The controller's optional-item ceiling is the third bound, imported and
+    // applied at the point of consumption: the turn runs on the default pump
+    // budget, and the controller yields before processing any item past
+    // maxOptionalItems, so a claim beyond it would be committed and then
+    // stranded no matter how much wall clock remains. Execution capacity and
+    // that ceiling are equal today, which is exactly why an unbound copy
+    // would have survived every test until someone raised one of them.
     const fundableClaims = Math.min(
       DURABLE_SCAN_JOB_EXECUTION_CAPACITY,
+      DEFAULT_DURABLE_SCAN_JOB_PUMP_BUDGET.maxOptionalItems,
       Math.floor(context.remainingTimeMs / ENCRYPTED_WATCH_CLAIM_TIME_RESERVE_MS)
     );
     if (fundableClaims <= 0) {

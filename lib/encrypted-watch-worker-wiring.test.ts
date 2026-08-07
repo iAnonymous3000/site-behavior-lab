@@ -285,8 +285,8 @@ test("the pump claims only the watches its remaining wall clock can fund", async
   // cannot fund one item must not open the claim transaction at all.
   assert.match(
     method,
-    /const fundableClaims = Math\.min\(\s*DURABLE_SCAN_JOB_EXECUTION_CAPACITY,\s*Math\.floor\(context\.remainingTimeMs \/ ENCRYPTED_WATCH_CLAIM_TIME_RESERVE_MS\)\s*\)/,
-    "the claim count must be derived from remaining turn time"
+    /const fundableClaims = Math\.min\(\s*DURABLE_SCAN_JOB_EXECUTION_CAPACITY,\s*DEFAULT_DURABLE_SCAN_JOB_PUMP_BUDGET\.maxOptionalItems,\s*Math\.floor\(context\.remainingTimeMs \/ ENCRYPTED_WATCH_CLAIM_TIME_RESERVE_MS\)\s*\)/,
+    "the claim count must be bounded by execution capacity, the controller's optional-item ceiling, and remaining turn time"
   );
   assert.match(method, /if \(fundableClaims <= 0\) \{/, "an unfundable turn must claim nothing");
   assert.match(
