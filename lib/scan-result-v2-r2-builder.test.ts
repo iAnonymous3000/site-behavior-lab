@@ -1524,3 +1524,79 @@ test("every capture-loss detail a producer can record is registered in BUDGET_FA
   assert.deepEqual(unregistered, [], `capture-loss details missing from BUDGET_FAMILIES: ${unregistered.join(", ")}`);
   assert.deepEqual(misfiled, [], `capture-loss details registered under the wrong family: ${misfiled.join(", ")}`);
 });
+
+test("a listener-coverage origin with no publishable domain drops the detection instead of the report", () => {
+  // A session-recording script served path-style from S3, or from a bare-IP
+  // CDN, has no publishable registrable domain, so redaction turns its origin
+  // into the invalid-URL marker and the shared detection guard refuses it. The
+  // guard also refuses an empty origin list, because naming the origin is this
+  // detection's evidence, so there is nothing honest left to publish.
+  //
+  // That used to throw "Unknown fingerprint detection kind" out of
+  // buildNodeScanReportV2R2. In production r2 mode nothing catches it, so a
+  // completed measurement was discarded, the visitor got a 500, and the error
+  // named a cause that had not happened. The detection must be dropped and the
+  // loss recorded instead.
+  for (const origin of [
+    "https://s3.us-east-1.amazonaws.com",
+    "https://93.184.216.34",
+    "https://web.app"
+  ]) {
+    const input = baseInput();
+    input.evidence.fingerprintDetections.push({
+      kind: "session-recording",
+      heuristic: "interaction-listener-coverage-v1",
+      count: 1,
+      evidence: {
+        eventTypes: ["mousemove"],
+        listenerTargets: ["document"],
+        thirdPartyOrigins: [origin],
+        totalListenerCalls: 3
+      },
+      phaseId: 0
+    });
+
+    const report = buildNodeScanReportV2R2(input);
+    assert.equal(
+      report.run.evidence.fingerprintDetections.length,
+      0,
+      `${origin} has nothing publishable, so no detection may be emitted`
+    );
+
+    const loss = report.run.qualityFacts.captureLoss.filter(
+      (entry) =>
+        entry.family === "detector-output" &&
+        entry.detail === "public-fingerprint-detections" &&
+        entry.kind === "dropped"
+    );
+    assert.equal(loss.length, 1, `${origin} must record exactly one dropped-detection loss`);
+    assert.equal(loss[0].count, 1);
+  }
+});
+
+test("a publishable listener-coverage origin still survives redaction", () => {
+  // The inverse of the drop above: without this, a redactor that dropped every
+  // detection would satisfy the test above while publishing nothing.
+  const input = baseInput();
+  input.evidence.fingerprintDetections.push({
+    kind: "session-recording",
+    heuristic: "interaction-listener-coverage-v1",
+    count: 1,
+    evidence: {
+      eventTypes: ["mousemove"],
+      listenerTargets: ["document"],
+      thirdPartyOrigins: ["https://cdn.example.com"],
+      totalListenerCalls: 3
+    },
+    phaseId: 0
+  });
+
+  const report = buildNodeScanReportV2R2(input);
+  assert.equal(report.run.evidence.fingerprintDetections.length, 1);
+  assert.deepEqual(
+    report.run.qualityFacts.captureLoss.filter(
+      (entry) => entry.detail === "public-fingerprint-detections" && entry.kind === "dropped"
+    ),
+    []
+  );
+});

@@ -705,16 +705,38 @@ function sanitizeEvidence(
     }
     return { ...event };
   });
-  const fingerprintDetections = clipArray(
+  const fingerprintDetectionSource = clipArray(
     source.fingerprintDetections,
     MAX_FINGERPRINT_DETECTIONS,
     "detector-output",
     "public-fingerprint-detections",
     qualityFacts
-  ).map((entry) => {
-    const { phaseId, ...detection } = entry;
-    return { ...sanitizeFingerprintDetection(detection, pass), phaseId };
-  });
+  );
+  const publishableFingerprintDetections = fingerprintDetectionSource
+    .map((entry) => {
+      const { phaseId, ...detection } = entry;
+      const sanitized = sanitizeFingerprintDetection(detection, pass);
+      return sanitized === null ? null : { ...sanitized, phaseId };
+    })
+    .filter((detection) => detection !== null);
+  if (publishableFingerprintDetections.length !== fingerprintDetectionSource.length) {
+    // A listener-coverage detection whose only third-party origin has no
+    // publishable registrable domain (a path-style S3 URL, a bare-IP CDN, a
+    // host that is itself a public suffix) redacts to a value the shared guard
+    // refuses, and the guard also refuses an empty origin list, because naming
+    // the origin IS this detection's evidence. There is nothing honest left to
+    // publish, so the detection is dropped and the loss is recorded. It used to
+    // throw "Unknown fingerprint detection kind", which aborted the whole
+    // report: a completed measurement was discarded, the visitor got a 500, and
+    // the operator-visible cause named something that had not happened.
+    recordPublicNonBudgetCaptureLoss(
+      "detector-output",
+      "public-fingerprint-detections",
+      fingerprintDetectionSource.length - publishableFingerprintDetections.length,
+      qualityFacts
+    );
+  }
+  const fingerprintDetections = publishableFingerprintDetections;
 
   const clippedCnameCloaks = clipArray(
     source.cnameCloaks,
@@ -989,10 +1011,37 @@ function sanitizePrivacyPolicy(
   );
 }
 
+// The closed set of detection kinds the redactor knows how to handle. Stated
+// here so the caller below can tell "this is not a kind we understand", which
+// is a producer bug and must fail closed, apart from "this kind redacted to
+// something unpublishable", which is ordinary evidence loss. Collapsing the two
+// into one throw is what turned an unpublishable script origin into a failed
+// scan.
+const REDACTABLE_FINGERPRINT_DETECTION_KINDS: ReadonlySet<
+  FingerprintDetectionSummary["kind"]
+> = new Set([
+  "canvas-fingerprinting",
+  "canvas-font-fingerprinting",
+  "webgl-fingerprinting",
+  "audio-fingerprinting",
+  "webrtc-fingerprinting",
+  "session-recording",
+  "input-monitoring",
+  "keystroke-exfiltration"
+]);
+
+/**
+ * Returns null when this detection has nothing publishable left after
+ * redaction. Throws only when the kind itself is unknown, which no measurement
+ * can produce and which therefore stays fail-closed.
+ */
 function sanitizeFingerprintDetection(
   detection: FingerprintDetectionSummary,
   pass: RedactionPass
-): FingerprintDetectionSummary {
+): FingerprintDetectionSummary | null {
+  if (!REDACTABLE_FINGERPRINT_DETECTION_KINDS.has(detection.kind)) {
+    throw new Error("Unknown fingerprint detection kind.");
+  }
   if (detection.kind === "canvas-fingerprinting") {
     assertStringVocabulary("canvas read API", detection.evidence.readApis, CANVAS_READ_APIS);
   } else if (detection.kind === "webgl-fingerprinting") {
@@ -1010,7 +1059,10 @@ function sanitizeFingerprintDetection(
     assertStringVocabulary("sentinel encoding", detection.evidence.encodings, KEYSTROKE_ENCODINGS);
   }
   const redacted = redactFingerprintDetection(detection, pass);
-  if (redacted === null) throw new Error("Unknown fingerprint detection kind.");
+  // The kind is known (checked above), so a null here means redaction produced
+  // a value the shared detection guard refuses. The caller drops it and records
+  // the loss.
+  if (redacted === null) return null;
   if (redacted.kind === "canvas-fingerprinting") {
     assertStringVocabulary("canvas read API", redacted.evidence.readApis, CANVAS_READ_APIS);
   } else if (redacted.kind === "webgl-fingerprinting") {
