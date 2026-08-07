@@ -590,7 +590,7 @@ export type KeystrokeProbeOutcome =
   | { status: "skipped"; reason: "load-failed"; detection: null; subjectLost: true }
   | { status: "failed"; reason: "scan-failed"; detection: null };
 
-type KeystrokeProbeLifecycle = {
+export type KeystrokeProbeLifecycle = {
   cancelled: boolean;
   typedFieldCount: number;
   stopCapture: () => void;
@@ -3384,7 +3384,11 @@ async function applyConsentChoice(
  * was no time to probe. The form is never submitted and typed values are
  * synthetic, so this performs no real action on the site.
  */
-async function probeKeystrokeExfiltration(
+// Exported for the disclosure regression test: the failure this function must
+// survive is typeSentinelIntoFields rejecting after it has already typed into
+// fields, which cannot be provoked from scanSiteWithMeasurement without a full
+// browser. Same reason typeSentinelIntoFields itself is exported.
+export async function probeKeystrokeExfiltration(
   page: Page,
   trustedSubjectUrl: string,
   firstPartyHostname: string,
@@ -3414,7 +3418,14 @@ async function probeKeystrokeExfiltration(
   // the time anything below can throw, and those requests stay in the retained
   // log, so a scan that reports them without saying the scanner provoked them
   // is publishing its own traffic as the site's.
-  let typedFieldCount = 0;
+  //
+  // The count therefore has to be read from lifecycle.typedFieldCount, which
+  // onTypedField advances after every field that actually took the sentinel.
+  // A local mirror assigned from the resolved `typed.count` cannot serve this:
+  // when typeSentinelIntoFields is what rejects, the assignment never runs and
+  // the mirror is still 0, so the catch below silently skipped the disclosure
+  // for fields it had already typed into. The scan-level handler above reads
+  // the live counter for exactly this reason.
   try {
     typed = await typeSentinelIntoFields(
       page,
@@ -3428,7 +3439,6 @@ async function probeKeystrokeExfiltration(
         }
       }
     );
-    typedFieldCount = typed.count;
     if (lifecycle.cancelled) {
       return { status: "partial", reason: "budget-unavailable", detection: null };
     }
@@ -3463,7 +3473,9 @@ async function probeKeystrokeExfiltration(
     // here never discards the real-time captures above.
     await flushUnloadBeacons(page, started).catch(() => undefined);
   } catch {
-    if (!lifecycle.cancelled && typedFieldCount > 0) addKeystrokeProbeDisclosure(warnings, typedFieldCount);
+    if (!lifecycle.cancelled && lifecycle.typedFieldCount > 0) {
+      addKeystrokeProbeDisclosure(warnings, lifecycle.typedFieldCount);
+    }
     return { status: "failed", reason: "scan-failed", detection: null };
   } finally {
     lifecycle.stopCapture();
