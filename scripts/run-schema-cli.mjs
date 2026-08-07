@@ -55,6 +55,7 @@ const TARGETS = {
     "runner-destruction-evidence.mjs"
   ],
   "publication-transparency-log": ["dist", "schema", "lib", "publication-transparency-log-cli.js"],
+  "transparency-log-anchor": ["dist", "schema", "lib", "transparency-log-anchor-cli.js"],
   "remediate-reports": ["dist", "schema", "lib", "remediate-reports-cli.js"],
   "toolchain-canary": ["scripts", "toolchain-canary.mjs"],
   "verify-published-report": ["dist", "schema", "lib", "verify-published-report-cli.js"],

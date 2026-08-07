@@ -27,6 +27,7 @@
     "lib/prune-static-reports-cli.ts",
     "lib/corrections-ledger-history-cli.ts",
     "lib/publication-transparency-log-cli.ts",
+    "lib/transparency-log-anchor-cli.ts",
     "lib/verify-published-report-cli.ts",
     "lib/remediation-inventory-cli.ts",
     "lib/remediate-reports-cli.ts",
