@@ -49,6 +49,7 @@ import { isCurrentlyCheckablePolicyClaim } from "./privacy-policy";
 import {
   comparisonArmViews,
   familyCensoredOnRun,
+  runInCorpusDistributionPopulation,
   runCensorshipNotes,
   unsupportedEvidenceFamilies,
   type ClaimGate,
@@ -326,16 +327,19 @@ export function buildFindings(
   const pixelDetectorCensored = facts.claims["pixel-events"].blockers.some(
     (blocker) => blocker !== "subject-not-established"
   );
-  const runCompleted = run.quality.outcome === "complete";
   // The distribution these percentiles rank against is built from plain first
   // visits only: corpus-stats-builder, entryEligibleForCorpusRollups, and the
   // researcher export all drop a post-choice consent arm from the denominator.
   // Ranking such an arm against it compares an accepted-cookies state to a
   // pre-consent population, in the direction that inflates the rank, on the
   // very page whose own bottom line says post-choice visits are excluded.
-  const postChoiceConsentLead =
-    run.conditions.consentMode === "accept-all" || run.conditions.consentMode === "reject-all";
-  const benchmarkPopulationMatches = runCompleted && !postChoiceConsentLead;
+  //
+  // Request-capped and request-censored runs are excluded for the same reason:
+  // their activity counts are floors cut off mid-collection, and the builder
+  // drops them from the distribution outright. runInCorpusDistributionPopulation
+  // is the one predicate both sides now read, so the renderer cannot rank a run
+  // against a population the builder defined to exclude it.
+  const benchmarkPopulationMatches = runInCorpusDistributionPopulation(run);
   const domainsBenchmarkAllowed =
     benchmarkPopulationMatches && facts.claims["third-party-services"].benchmarkAllowed;
   const cookiesBenchmarkAllowed =

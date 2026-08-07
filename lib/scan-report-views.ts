@@ -1292,6 +1292,33 @@ export function familyCensoredOnRun(run: RunView, family: string): boolean {
   );
 }
 
+/**
+ * Whether a run belongs to the population the corpus percentile distributions
+ * describe: a completed, uncensored, uncapped, pre-consent visit.
+ *
+ * One predicate rather than two, because the corpus builder and the findings
+ * board were both deciding this and had drifted. The builder dropped any run
+ * whose request family was censored or that hit the recording cap; the board
+ * checked only completion and consent mode, so a v2 run that exhausted its
+ * request budget still rendered a percentile badge ranking it against a
+ * population defined to exclude it. That divergence is v2-only: a v1
+ * budget-exhausted warning censors every family, which is what the board's
+ * cookie gate was implicitly relying on.
+ *
+ * Callers still apply their own extra rules (the builder additionally requires
+ * a usable status and a non-reserved domain; the board additionally consults
+ * the per-family claim gates). This covers only the shared population rule.
+ */
+export function runInCorpusDistributionPopulation(run: RunView): boolean {
+  return (
+    run.quality.outcome === "complete" &&
+    !familyCensoredOnRun(run, "requests") &&
+    !runHitRequestRecordingCap(run) &&
+    run.conditions.consentMode !== "accept-all" &&
+    run.conditions.consentMode !== "reject-all"
+  );
+}
+
 const REQUEST_RECORDING_CAP_WARNING_FRAGMENT = "stopped recording or loading additional requests";
 
 /**
