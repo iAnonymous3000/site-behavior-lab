@@ -130,7 +130,7 @@ const META_UD_FIELDS: Record<string, PixelMatchField> = {
  * putting a visitor's name or account identifier there, so custom names are
  * generalized to {@link CUSTOM_EVENT_LABEL} instead of being persisted.
  */
-const META_STANDARD_EVENTS = buildEventVocabulary([
+export const META_STANDARD_EVENTS = buildEventVocabulary([
   "PageView",
   "AddPaymentInfo",
   "AddToCart",
@@ -151,7 +151,7 @@ const META_STANDARD_EVENTS = buildEventVocabulary([
   "ViewContent"
 ]);
 
-const TIKTOK_STANDARD_EVENTS = buildEventVocabulary([
+export const TIKTOK_STANDARD_EVENTS = buildEventVocabulary([
   "Pageview",
   "AddPaymentInfo",
   "AddToCart",
@@ -169,7 +169,15 @@ const TIKTOK_STANDARD_EVENTS = buildEventVocabulary([
   "ViewContent"
 ]);
 
-const CUSTOM_EVENT_LABEL = "custom event";
+export const CUSTOM_EVENT_LABEL = "custom event";
+
+/**
+ * X names its two outcomes inline in decodeX rather than from a vocabulary
+ * map, because they are derived from parameters rather than matched against a
+ * catalogued list. Stated here so the redactor's frozen snapshot can be checked
+ * against the producer for all three platforms rather than two.
+ */
+export const X_EVENT_NAMES: readonly string[] = ["Purchase", "Conversion tracking"];
 
 function buildEventVocabulary(names: string[]): Map<string, string> {
   return new Map(names.map((name) => [name.toLowerCase(), name]));

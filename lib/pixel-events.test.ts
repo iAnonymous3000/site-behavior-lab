@@ -1,6 +1,19 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { MAX_DECODED_BODY_CHARS, decodePixelRequest, summarizePixelEvents, type PixelEventInput } from "./pixel-events";
+import {
+  CUSTOM_EVENT_LABEL,
+  MAX_DECODED_BODY_CHARS,
+  META_STANDARD_EVENTS,
+  TIKTOK_STANDARD_EVENTS,
+  X_EVENT_NAMES,
+  decodePixelRequest,
+  summarizePixelEvents,
+  type PixelEventInput
+} from "./pixel-events";
+import {
+  ADMITTED_PIXEL_CUSTOM_EVENT_LABEL,
+  admittedPixelEventVocabulary
+} from "./redact-scan-report-v1";
 
 const HASH = "a".repeat(64);
 
@@ -193,4 +206,50 @@ test("decodePixelRequest ignores an over-large POST body but still reads the URL
     postData: `pad=${"a".repeat(MAX_DECODED_BODY_CHARS)}`
   });
   assert.equal(urlEncoded?.events.join(","), "PageView");
+});
+
+test("the producer vocabulary and the frozen redaction snapshot agree", () => {
+  // The admitted pixel event names are written out twice: the producer decides
+  // what a scan can identify (this module), and lib/redact-scan-report-v1.ts
+  // keeps its own frozen snapshot because that snapshot feeds
+  // PUBLIC_STRING_POLICY_DIGEST and therefore the published normalization
+  // identity of every committed report. The two are deliberately NOT wired
+  // together: importing one into the other would let an ordinary producer edit
+  // silently move a frozen contract.
+  //
+  // Nothing bound them, though, so they could drift. If Meta shipped a new
+  // standard event and only the producer list learned it, a scan that
+  // positively identified that event would have it rewritten to "custom event"
+  // on publication, telling the reader the site fired something unidentified,
+  // while both modules' own tests stayed green. This is the binding: drift now
+  // fails here, where the person editing the producer list sees it, and the
+  // fix is a deliberate identity move rather than a silent downgrade.
+  const admitted = admittedPixelEventVocabulary();
+
+  assert.equal(
+    CUSTOM_EVENT_LABEL,
+    ADMITTED_PIXEL_CUSTOM_EVENT_LABEL,
+    "the generalized label must read identically on both sides"
+  );
+
+  const producer: Record<string, string[]> = {
+    Meta: [...META_STANDARD_EVENTS.values()].sort(),
+    TikTok: [...TIKTOK_STANDARD_EVENTS.values()].sort(),
+    X: [...X_EVENT_NAMES].sort()
+  };
+
+  assert.deepEqual(
+    Object.keys(admitted).sort(),
+    Object.keys(producer).sort(),
+    "both sides must cover the same platforms"
+  );
+
+  for (const [platform, names] of Object.entries(producer)) {
+    assert.ok(names.length > 0, `${platform} vocabulary must be non-empty`);
+    assert.deepEqual(
+      admitted[platform].events.filter((name) => name !== ADMITTED_PIXEL_CUSTOM_EVENT_LABEL),
+      names,
+      `${platform}: the producer can identify an event the published vocabulary does not admit, so publication would generalize it to "custom event"`
+    );
+  }
 });
