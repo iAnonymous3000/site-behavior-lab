@@ -18,8 +18,7 @@ import { MeasurementKernel } from "./measurement-kernel";
 import { buildScanConditions, buildScanResult } from "./scan-result-builder";
 import {
   MAX_RECORDED_REQUEST_URL_CHARS,
-  ScanNetworkRecorder
-} from "./scan-runtime";
+  ScanNetworkRecorder, withScanDeadline } from "./scan-runtime";
 import type { FingerprintDetectionSummary } from "./types";
 import {
   boundedPolicyTextFromWire,
@@ -647,6 +646,38 @@ test("scanTimeout throws a public timeout error after the scan budget is exhaust
     () => scanTimeout(1_000, 30_000, 46_000),
     (error) => error instanceof PublicScanError && error.status === 504
   );
+});
+
+test("an operation handed to an exhausted deadline is adopted, never abandoned unhandled", async () => {
+  // Observed in production at fdcd837: after a site exhausted the scan budget,
+  // later withScanDeadline call sites threw from the budget check BEFORE
+  // Promise.race could subscribe to the already-created page.evaluate promise.
+  // Context teardown then rejected those orphans as process-level
+  // unhandledRejection ("Target page, context or browser has been closed"),
+  // four times in one featured run. The race itself is safe; the synchronous
+  // throw ahead of it was the leak.
+  const rejections: unknown[] = [];
+  const capture = (reason: unknown) => {
+    rejections.push(reason);
+  };
+  process.on("unhandledRejection", capture);
+  try {
+    let rejectLater: (reason: Error) => void = () => undefined;
+    const straggler = new Promise<never>((_, reject) => {
+      rejectLater = reject;
+    });
+    const exhaustedStart = Date.now() - 10 * 60_000;
+    // The default factory throws a plain Error; scanner call sites supply
+    // their own PublicScanError factory. The class is not the point here.
+    await assert.rejects(() => withScanDeadline(straggler, exhaustedStart, 1_000));
+    // The teardown rejection arrives after the deadline error was thrown.
+    rejectLater(new Error("page.evaluate: Target page, context or browser has been closed"));
+    await new Promise((resolve) => setImmediate(resolve));
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepEqual(rejections, [], "an abandoned operation must be adopted, not left to reject unhandled");
+  } finally {
+    process.removeListener("unhandledRejection", capture);
+  }
 });
 
 test("ScanRequestBudget allows exactly the configured request cap and warns once after it", () => {
