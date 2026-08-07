@@ -212,20 +212,39 @@ export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>
   const offLine = pool.filter((candidate) => !isOnCurrentMeasurementLine(candidate.identity));
   const incumbent = pickByCompositionAndRecency(offLine);
   if (onLine.length === 0) return incumbent;
-  const lineWinner = pickByCompositionAndRecency(onLine);
-  if (!lineWinner) return incumbent;
-  // The handoff gate. Fails open when either side carries no site keys: a
-  // caller that never supplies them cannot be judged, which is the same rule
-  // the composition veto already applies to itself.
-  if (incumbent && missingShare(lineWinner, incumbent) > MAX_DROPPED_SITE_SHARE) return incumbent;
-  return lineWinner;
+  // The handoff gate, applied per contender rather than winner-take-or-revert.
+  // One newest-but-partial line cohort failing continuity must not disqualify
+  // the whole line: the composition veto cannot reach a same-line cohort in a
+  // fresh tuple (a curated-catalog edit changes the tuple without changing the
+  // line), so recency alone would either crown the partial or, refused, hand
+  // the aggregate BACK to a retired off-line incumbent that fresh line
+  // evidence already superseded. Both are wrong, and the second was observed
+  // in review before it could ship a reversion. So: contenders are tried in
+  // the established order, and the first that retains the incumbent's
+  // population takes the aggregate; only a line with no such cohort leaves
+  // the incumbent publishing.
+  //
+  // The gate fails open when either side carries no site keys: a caller that
+  // never supplies them cannot be judged, which is the same rule the
+  // composition veto already applies to itself.
+  for (const contender of lineContendersInOrder(onLine)) {
+    if (!incumbent || missingShare(contender, incumbent) <= MAX_DROPPED_SITE_SHARE) return contender;
+  }
+  return incumbent;
 }
 
 /** The established rule: composition-vetted, then newest evidence wins. */
 function pickByCompositionAndRecency<Identity extends CorpusCohortIdentity>(
   pool: readonly CorpusCohortCandidate<Identity>[]
 ): CorpusCohortCandidate<Identity> | null {
-  if (pool.length === 0) return null;
+  return lineContendersInOrder(pool)[0] ?? null;
+}
+
+/** Same rule, whole ordering: veto survivors first, then the vetoed fallback. */
+function lineContendersInOrder<Identity extends CorpusCohortIdentity>(
+  pool: readonly CorpusCohortCandidate<Identity>[]
+): CorpusCohortCandidate<Identity>[] {
+  if (pool.length === 0) return [];
   // Recency may not buy a narrower universe. A candidate leads only if it is
   // not missing a material share of any other qualifying cohort's sites; when
   // every candidate drops one of the others, no composition is comparable and
@@ -242,7 +261,7 @@ function pickByCompositionAndRecency<Identity extends CorpusCohortIdentity>(
       right.siteCount - left.siteCount ||
       left.identity.id.localeCompare(right.identity.id)
     );
-  })[0];
+  });
 }
 
 /** Share of `baseline`'s sites that `candidate` does not cover; 0 when unjudgeable. */
@@ -294,13 +313,22 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
 /**
  * Reader-facing name for a cohort, covering every component of its id.
  *
- * The gate keys on schema, methodology, catalog, ServiceRole taxonomy, metric
- * contract, producer, AND the requested GPC condition, so naming a cohort by its
- * methodology alone can print byte-identical labels for two cohorts the gate
- * holds apart: after the gpc-off refresh, two categories differing only in the
- * requested signal both read "measured under one methodology cohort
- * (shields-request-context-v2-...)" while the page also tells the reader their
- * medians are not comparable.
+ * COHORT IDENTITY keys on schema, methodology, catalog, ServiceRole taxonomy,
+ * metric contract, producer, AND the requested GPC condition, so naming a
+ * cohort by its methodology alone can print byte-identical labels for two
+ * cohorts the aggregation gate holds apart: after the gpc-off refresh, two
+ * categories differing only in the requested signal both read "measured under
+ * one methodology cohort (shields-request-context-v2-...)" while the page also
+ * tells the reader their medians are not comparable.
+ *
+ * The composition VETO deliberately does NOT key on the GPC condition, unlike
+ * the identity: two same-line refreshes that differ only in the requested
+ * signal describe the same measured population, so a broader one may veto a
+ * narrower one (that veto is what kept the 2026-07-27 gpc-off partial from
+ * taking the aggregate off the 64-site gpc-on cohort). Identity separates
+ * what may POOL; the veto separates what may SPEAK for the corpus. The pinned
+ * test "the composition veto crosses the requested-GPC condition on purpose"
+ * holds this distinction in place.
  *
  * The raw id is not usable here: it percent-encodes its components. This
  * renders every field as prose, from the typed identity, so the label and the

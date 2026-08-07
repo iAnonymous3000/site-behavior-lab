@@ -447,3 +447,54 @@ test("a line winner that cannot be judged for continuity hands off, matching the
   };
   assert.equal(selectPrimaryCorpusCohort([incumbent, unjudgeable], MIN)?.identity.id, unjudgeable.identity.id);
 });
+
+
+test("a within-line catalog change cannot revert the aggregate to the retired incumbent", () => {
+  // The audit scenario, reproduced before fixing: the union already took the
+  // aggregate; a curated-catalog edit then lands a NEWER gallery-only cohort
+  // on the same line but in a fresh tuple no line cohort can veto. Recency
+  // must not crown it, and its refusal must not hand the aggregate back to
+  // the retired off-line incumbent either. The union it failed to displace
+  // keeps publishing.
+  const population = sitesNamed(64, "mixed");
+  const incumbent = incumbentCandidate("v1:old-era:gpc-on", population, "2026-07-25T18:00:00.000Z");
+  const union = lineCandidate(
+    "v1:line-union:gpc-off",
+    [...population.slice(2), ...sitesNamed(30, "expansion")],
+    "2026-08-07T05:00:00.000Z"
+  );
+  const partialNewCatalog = lineCandidate(
+    "v1:line-partial-new-catalog:gpc-off",
+    [...population.slice(0, 40), ...sitesNamed(17, "gallery-extra")],
+    "2026-08-10T06:00:00.000Z",
+    { trackerCatalogDigest: "b".repeat(64) }
+  );
+
+  const picked = selectPrimaryCorpusCohort([incumbent, union, partialNewCatalog], MIN);
+  assert.equal(picked?.identity.id, union.identity.id);
+  assert.equal(selectPrimaryCorpusCohort([partialNewCatalog, incumbent, union], MIN)?.identity.id, union.identity.id);
+});
+
+
+test("the composition veto crosses the requested-GPC condition on purpose", () => {
+  // Identity separates what may pool; the veto separates what may speak for
+  // the corpus. Two same-tuple refreshes differing only in the requested GPC
+  // signal describe one population, so the broader vetoes the narrower even
+  // across the condition, which is exactly what kept the 2026-07-27 gpc-off
+  // partial (59 sites, missing 45% of the population) from taking the
+  // aggregate off the 64-site gpc-on cohort.
+  const population = sitesNamed(64, "mixed");
+  const broadOn: CorpusCohortCandidate = {
+    identity: identity({ id: "v1:m:gpc-on", gpc: true }),
+    siteCount: population.length,
+    latestRunAt: "2026-07-25T18:00:00.000Z",
+    sites: population
+  };
+  const narrowOffNewer: CorpusCohortCandidate = {
+    identity: identity({ id: "v1:m:gpc-off", gpc: false }),
+    siteCount: 59,
+    latestRunAt: "2026-07-27T10:00:00.000Z",
+    sites: [...population.slice(0, 35), ...sitesNamed(24, "swapped")]
+  };
+  assert.equal(selectPrimaryCorpusCohort([broadOn, narrowOffNewer], MIN)?.identity.id, broadOn.identity.id);
+});
