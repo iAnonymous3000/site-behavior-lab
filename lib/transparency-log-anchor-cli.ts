@@ -208,10 +208,13 @@ function reportStatus(log: ParsedTransparencyLog): void {
         : `pending calendar aggregation (${inspection.pendingAttestations} promise${inspection.pendingAttestations === 1 ? "" : "s"})`;
     console.log(`anchors[${index}]: ${anchor.entryCount} entries, head ${anchor.head.slice(0, 16)}..., ${state}`);
   }
+  const newestAnchor = log.anchors[log.anchors.length - 1];
   console.log(
-    "Full verification uses the standard OpenTimestamps tooling: extract one anchor's proof with\n" +
-      `  jq -r '.anchors[0].proof' ${LOG_PATH} | base64 -d > head.ots\n` +
-      "then `ots upgrade head.ots` once the Bitcoin attestation exists, and `ots verify head.ots` against the head digest."
+    "Full verification uses the standard OpenTimestamps client: extract one anchor's proof with\n" +
+      `  jq -r '.anchors[${log.anchors.length - 1}].proof' ${LOG_PATH} | base64 -d > head.ots\n` +
+      `then \`ots upgrade head.ots\` once the Bitcoin attestation exists, and\n` +
+      `  ots verify -d ${newestAnchor.head} head.ots\n` +
+      "(the -d form is required: the proof anchors a digest, not a file on disk. The final header check needs a local Bitcoin node; without one, `ots info head.ots` still shows the full operation tree and attestations.)"
   );
 }
 

@@ -4,8 +4,9 @@ Phase 6 of the release-1.0 roadmap is "critical-evidence readiness": a report a
 third party can rely on under adversarial scrutiny, after 1.0 and detector
 calibration. `RELEASE_READINESS.json` tracks the gates that precede it; this
 note enumerates what the package itself must contain, so the list exists
-somewhere other than in audit transcripts. Nothing here is shipped or
-scheduled; each item names the gap it closes.
+somewhere other than in audit transcripts. Item 5's ledger half shipped on
+2026-08-07; everything else is unshipped, and each item names the gap it
+closes.
 
 An "evidence package" is everything a third party needs to verify one report
 offline, given only the package and public trust roots.
@@ -29,10 +30,15 @@ offline, given only the package and public trust roots.
    the image digest where retrievable, filed as an operator attestation the
    same way the existing `research/ops-receipts/` gates work. Closes the
    largest current gap: nothing binds a live scan to an attested image.
-5. **An external time anchor.** An append-only, periodically committed digest
-   ledger (or Rekor entries) covering published report digests, giving every
-   report a third-party inclusion time. Closes the operator-clock gap for
-   ephemeral reports and tightens it for committed ones.
+5. **An external time anchor.** PARTIALLY SHIPPED 2026-08-07: the append-only
+   transparency log (`public/transparency-log.json`) chains every published
+   report digest, and its heads carry OpenTimestamps anchors
+   (`npm run transparency:log:anchor`), so entries beneath an attested head
+   have a Bitcoin-bounded existence time. Still open from this item:
+   ephemeral share reports join no log, and inclusion timing is per-head
+   rather than per-report (an entry's bound is the newest anchored head above
+   it). The ledger-vs-Rekor design decision is settled in favor of the
+   committed ledger.
 6. **The toolchain snapshot references.** Catalog digest, filter-list manifest
    digest, detector registry version/digest, methodology version: all already
    inside the report wire; the package should state where each is pinned in
@@ -49,9 +55,10 @@ offline, given only the package and public trust roots.
 
 ## Sequencing
 
-Items 2 and 3 are repo-side and small. Item 4 is operator work in the existing
-attestation pattern. Item 5 is a design decision (ledger vs Rekor) deferred to
-the 1.1 evidence-package window. If it needs a report wire field, that is the
+Items 2 and 3 are repo-side and small; item 3's byte and digest checks are
+now automated by `npm run verify:report`. Item 4 is operator work in the
+existing attestation pattern. Item 5's remaining halves (ephemeral coverage,
+per-entry timing) stay in the 1.1 evidence-package window. If it needs a report wire field, that is the
 time to evaluate r3; 1.0 deliberately keeps v2/r2 and banks the revision
 instead of minting it for schema-prose errata alone. Items 6-8 are
 documentation once calibration (3B) and the claim-boundary sign-off exist.
