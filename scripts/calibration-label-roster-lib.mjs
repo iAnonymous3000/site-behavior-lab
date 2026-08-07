@@ -629,53 +629,15 @@ export function validateCalibrationLabelRosterRunSelectionSnapshot(
   return { ...core, snapshotSha256 };
 }
 
-export function compareCalibrationLabelRosterRunSelectionSnapshots(input) {
-  const expected = input.expected ?? {};
-  const archivedSnapshot =
-    validateCalibrationLabelRosterRunSelectionSnapshot(
-      input.archivedSnapshot,
-      expected
-    );
-  const liveSnapshot = validateCalibrationLabelRosterRunSelectionSnapshot(
-    input.liveSnapshot,
-    expected
-  );
-  if (
-    canonicalizeCalibrationValue(archivedSnapshot) !==
-      canonicalizeCalibrationValue(liveSnapshot)
-  ) {
-    throw new Error(
-      "live same-identity roster run enumeration changed after acquisition authorization"
-    );
-  }
-  return archivedSnapshot;
-}
-
-export function verifyLiveCalibrationLabelRosterRunSelection(input) {
-  const archivedSnapshot =
-    validateCalibrationLabelRosterRunSelectionSnapshot(
-      input.archivedSnapshot,
-      input.expected
-    );
-  const runs = fetchCalibrationLabelRosterRuns(
-    input.repository ?? REPOSITORY
-  );
-  const liveSnapshot = assertUniqueCalibrationLabelRosterRun({
-    runs,
-    studyId: archivedSnapshot.identity.studyId,
-    candidateCommit: archivedSnapshot.identity.candidateCommit,
-    carrierCommit: archivedSnapshot.identity.carrierCommit,
-    caseInputRootSha256:
-      archivedSnapshot.identity.caseInputRootSha256,
-    selectedRunId: archivedSnapshot.selectedRun.runId
-  });
-  compareCalibrationLabelRosterRunSelectionSnapshots({
-    archivedSnapshot,
-    liveSnapshot,
-    expected: input.expected
-  });
-  return liveSnapshot;
-}
+// REMOVED: verifyLiveCalibrationLabelRosterRunSelection and its
+// compareCalibrationLabelRosterRunSelectionSnapshots helper. Nothing could
+// enter that path -- the only tracked reference to the composer was its own
+// declaration -- and the live-drift check it performed is independently
+// implemented and actually wired as compareCalibrationLabelRosterSelectionLedgers
+// in calibration-acquisition-authorization-lib.mjs. Two implementations of one
+// check, one of them unreachable, is the shape this repo has already removed
+// twice; see the NOTE in lib/durable-scan-job-store.ts on why a contract that
+// looks authoritative while pinning nothing is left as a trap otherwise.
 
 export async function waitForTerminalCalibrationLabelRosterRun(input) {
   const runId = positiveInteger(input.runId, "roster run id");
