@@ -172,12 +172,14 @@ export const TIKTOK_STANDARD_EVENTS = buildEventVocabulary([
 export const CUSTOM_EVENT_LABEL = "custom event";
 
 /**
- * X names its two outcomes inline in decodeX rather than from a vocabulary
- * map, because they are derived from parameters rather than matched against a
- * catalogued list. Stated here so the redactor's frozen snapshot can be checked
- * against the producer for all three platforms rather than two.
+ * X derives its two outcomes from parameters rather than matching a catalogued
+ * list, so its vocabulary is these two names. decodeX emits THESE constants --
+ * not inline strings -- so the exported list and the producer cannot drift
+ * apart while the guard test compares the list to the redactor's snapshot.
  */
-export const X_EVENT_NAMES: readonly string[] = ["Purchase", "Conversion tracking"];
+export const X_PIXEL_PURCHASE_EVENT = "Purchase";
+export const X_PIXEL_CONVERSION_EVENT = "Conversion tracking";
+export const X_EVENT_NAMES: readonly string[] = [X_PIXEL_PURCHASE_EVENT, X_PIXEL_CONVERSION_EVENT];
 
 function buildEventVocabulary(names: string[]): Map<string, string> {
   return new Map(names.map((name) => [name.toLowerCase(), name]));
@@ -284,7 +286,7 @@ function decodeX(parsed: URL, input: PixelEventInput): DecodedPixel {
   return {
     platform: "X",
     product: "X (Twitter) Pixel",
-    events: [purchase ? "Purchase" : "Conversion tracking"],
+    events: [purchase ? X_PIXEL_PURCHASE_EVENT : X_PIXEL_CONVERSION_EVENT],
     advancedMatching: []
   };
 }

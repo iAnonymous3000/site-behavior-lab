@@ -237,7 +237,7 @@ export function admittedPixelEventVocabulary(): Record<string, { product: string
   );
 }
 
-export const ADMITTED_PIXEL_CUSTOM_EVENT_LABEL: string = "custom event";
+// Bound by reference below, after PIXEL_CUSTOM_EVENT_LABEL is declared.
 
 /**
  * The generalized label a site-defined event name collapses to. Declared here
@@ -247,6 +247,13 @@ export const ADMITTED_PIXEL_CUSTOM_EVENT_LABEL: string = "custom event";
  * published normalization identity. The guard test asserts the two agree.
  */
 const PIXEL_CUSTOM_EVENT_LABEL = "custom event";
+
+/**
+ * The same constant under its guard-facing name: one declaration, exported by
+ * reference, so the label the guard test compares against the producer is
+ * physically the label redactPixelEvents generalizes to.
+ */
+export const ADMITTED_PIXEL_CUSTOM_EVENT_LABEL: string = PIXEL_CUSTOM_EVENT_LABEL;
 
 const PIXEL_PRODUCTS = {
   Meta: {
