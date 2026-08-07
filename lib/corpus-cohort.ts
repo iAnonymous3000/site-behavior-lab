@@ -136,6 +136,26 @@ export type CorpusCohortCandidate<Identity extends CorpusCohortIdentity = Corpus
 export const MAX_DROPPED_SITE_SHARE = 0.1;
 
 /**
+ * The measurement line whose cohorts may take over the published aggregate.
+ *
+ * A reviewed literal, deliberately NOT imported from the live scanner
+ * constants: closed-epoch identity work in this repository learned the hard
+ * way that aliasing an ACTIVE_* constant lets an epoch move silently restate
+ * what published evidence was measured against. Here the coupling runs the
+ * safe direction instead: the parity test in corpus-cohort.test.ts fails
+ * after any toolchain move until this literal is re-reviewed to equal what
+ * new reports will actually record, so advancing the line is always a
+ * deliberate, diff-visible act.
+ */
+export const CURRENT_MEASUREMENT_LINE_METHODOLOGY =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2";
+
+/** v1 stays the deployed benchmark generation; the line lives inside it. */
+export function isOnCurrentMeasurementLine(identity: CorpusCohortIdentity): boolean {
+  return identity.schemaVersion === 1 && identity.methodologyVersion === CURRENT_MEASUREMENT_LINE_METHODOLOGY;
+}
+
+/**
  * Choose the ONE cohort a corpus-wide aggregate speaks for.
  *
  * Size alone is the wrong rule and used to be this repository's: a cohort keyed
@@ -154,6 +174,27 @@ export const MAX_DROPPED_SITE_SHARE = 0.1;
  * that state anyway and the newest evidence is the more honest thing to date
  * the corpus by.
  *
+ * THE MEASUREMENT LINE closes the hole the composition veto cannot reach. The
+ * veto only compares cohorts whose identity tuples match, so the FIRST cohort
+ * of a new toolchain era faces zero comparable cohorts and recency alone
+ * would crown it, however lopsided its population. On 2026-07-27 exactly that
+ * shape published a gallery-only cohort whose median third-party requests
+ * read 87 where the mixed corpus read 11. So:
+ *
+ * - Cohorts on the current line compete among themselves under the same floor
+ *   and composition rules as always.
+ * - The line's winner takes the aggregate from the incumbent (the winner the
+ *   established rule picks among everything else) only if it retains the
+ *   incumbent's population, judged on site keys alone. The identity tuple is
+ *   deliberately ignored here: the tuple just changed, that is what an epoch
+ *   move is, and population continuity is the one comparison that survives it.
+ * - While the current line is empty or its cohorts fail that handoff, the
+ *   incumbent keeps publishing and the freshness badge keeps saying STALE.
+ *   That is the honest description of an incomplete migration, and it is
+ *   temporary by construction: one composition-complete refresh on the
+ *   current line clears both. A permanent cross-era veto would instead freeze
+ *   the aggregate on a cohort that can never be rescanned.
+ *
  * v1 keeps precedence while v1 remains the deployed benchmark source. Promoting
  * an r2 cohort is a separate, deliberate policy change, not a side effect of it
  * happening to be newer.
@@ -167,6 +208,24 @@ export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>
   const generation = legacy.length > 0 ? legacy : candidates;
   const usable = generation.filter((candidate) => candidate.siteCount >= minSiteCount);
   const pool = usable.length > 0 ? usable : generation;
+  const onLine = pool.filter((candidate) => isOnCurrentMeasurementLine(candidate.identity));
+  const offLine = pool.filter((candidate) => !isOnCurrentMeasurementLine(candidate.identity));
+  const incumbent = pickByCompositionAndRecency(offLine);
+  if (onLine.length === 0) return incumbent;
+  const lineWinner = pickByCompositionAndRecency(onLine);
+  if (!lineWinner) return incumbent;
+  // The handoff gate. Fails open when either side carries no site keys: a
+  // caller that never supplies them cannot be judged, which is the same rule
+  // the composition veto already applies to itself.
+  if (incumbent && missingShare(lineWinner, incumbent) > MAX_DROPPED_SITE_SHARE) return incumbent;
+  return lineWinner;
+}
+
+/** The established rule: composition-vetted, then newest evidence wins. */
+function pickByCompositionAndRecency<Identity extends CorpusCohortIdentity>(
+  pool: readonly CorpusCohortCandidate<Identity>[]
+): CorpusCohortCandidate<Identity> | null {
+  if (pool.length === 0) return null;
   // Recency may not buy a narrower universe. A candidate leads only if it is
   // not missing a material share of any other qualifying cohort's sites; when
   // every candidate drops one of the others, no composition is comparable and
@@ -184,6 +243,18 @@ export function selectPrimaryCorpusCohort<Identity extends CorpusCohortIdentity>
       left.identity.id.localeCompare(right.identity.id)
     );
   })[0];
+}
+
+/** Share of `baseline`'s sites that `candidate` does not cover; 0 when unjudgeable. */
+function missingShare<Identity extends CorpusCohortIdentity>(
+  candidate: CorpusCohortCandidate<Identity>,
+  baseline: CorpusCohortCandidate<Identity>
+): number {
+  const own = new Set(candidate.sites ?? []);
+  const baselineSites = baseline.sites ?? [];
+  if (own.size === 0 || baselineSites.length === 0) return 0;
+  const missing = baselineSites.reduce((total, site) => (own.has(site) ? total : total + 1), 0);
+  return missing / baselineSites.length;
 }
 
 function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
@@ -216,8 +287,7 @@ function dropsAComparableCohortsSites<Identity extends CorpusCohortIdentity>(
     // and hand the aggregate to whatever frozen cohort remained.
     const otherSites = other.sites ?? [];
     if (otherSites.length === 0 || other.siteCount <= candidate.siteCount) return false;
-    const missing = otherSites.reduce((total, site) => (own.has(site) ? total : total + 1), 0);
-    return missing / otherSites.length > MAX_DROPPED_SITE_SHARE;
+    return missingShare(candidate, other) > MAX_DROPPED_SITE_SHARE;
   });
 }
 

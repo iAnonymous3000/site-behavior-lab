@@ -1,14 +1,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  CURRENT_MEASUREMENT_LINE_METHODOLOGY,
   corpusCohortIdentityForView,
   corpusCohortDifferences,
   corpusCohortLabel,
   corpusCohortSummaryLabel,
+  isOnCurrentMeasurementLine,
   selectPrimaryCorpusCohort,
   type CorpusCohortCandidate,
   type CorpusCohortIdentity
 } from "./corpus-cohort";
+import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
 import { canonicalJson } from "./canonical-json";
 import {
   METRIC_CONTRACT_DIGEST,
@@ -330,4 +333,117 @@ test("the summary label is the prefix of the full label, not a second copy of it
     // The summary is the human half only: no 64-character digests.
     assert.doesNotMatch(summary, /[0-9a-f]{32}/);
   }
+});
+
+
+// ---------------------------------------------------------------------------
+// The current measurement line.
+
+function sitesNamed(count: number, prefix: string): string[] {
+  return Array.from({ length: count }, (_, index) => `${prefix}-${index}.example`);
+}
+
+function lineCandidate(
+  id: string,
+  sites: string[],
+  latestRunAt: string,
+  overrides: Partial<CorpusCohortIdentity> = {}
+): CorpusCohortCandidate {
+  return {
+    identity: identity({ id, methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY, gpc: false, ...overrides }),
+    siteCount: sites.length,
+    latestRunAt,
+    sites
+  };
+}
+
+function incumbentCandidate(id: string, sites: string[], latestRunAt: string): CorpusCohortCandidate {
+  return {
+    identity: identity({ id, methodologyVersion: "previous-era-method" }),
+    siteCount: sites.length,
+    latestRunAt,
+    sites
+  };
+}
+
+test("the current-line literal equals what new reports will record, so an epoch move must re-review it", () => {
+  // This is the coupling that keeps the line honest. When a toolchain move
+  // changes the recorded methodology, this fails until the reviewed literal in
+  // corpus-cohort.ts is deliberately advanced, and the docblock there explains
+  // what to check before advancing it.
+  assert.equal(CURRENT_MEASUREMENT_LINE_METHODOLOGY, NODE_SCANNER_METHODOLOGY_VERSION);
+  assert.equal(isOnCurrentMeasurementLine(identity({ id: "x", methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY })), true);
+  assert.equal(isOnCurrentMeasurementLine(identity({ id: "x", methodologyVersion: "previous-era-method" })), false);
+  // The line lives inside the v1 benchmark generation only.
+  assert.equal(
+    isOnCurrentMeasurementLine(identity({ id: "x", schemaVersion: 2, methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY })),
+    false
+  );
+});
+
+test("the first cohort of a new line cannot take the aggregate while dropping the incumbent's population", () => {
+  // The 2026-07-27 shape, replayed against the fix: a gallery-only refresh in
+  // a brand-new era is bigger AND newer, but it lost the de-bias half of the
+  // population the published aggregate described. No tuple-comparable cohort
+  // exists to veto it; the handoff gate is what refuses it.
+  const population = sitesNamed(64, "mixed");
+  const incumbent = incumbentCandidate("v1:old-era:gpc-on", population, "2026-07-25T18:00:00.000Z");
+  const galleryOnly = lineCandidate(
+    "v1:new-era-gallery:gpc-off",
+    [...population.slice(0, 40), ...sitesNamed(41, "gallery-extra")],
+    "2026-08-07T05:00:00.000Z"
+  );
+
+  assert.equal(selectPrimaryCorpusCohort([incumbent, galleryOnly], MIN)?.identity.id, incumbent.identity.id);
+  assert.equal(selectPrimaryCorpusCohort([galleryOnly, incumbent], MIN)?.identity.id, incumbent.identity.id);
+});
+
+test("a composition-complete refresh on the current line takes the aggregate without a permanent cross-era freeze", () => {
+  const population = sitesNamed(64, "mixed");
+  const incumbent = incumbentCandidate("v1:old-era:gpc-on", population, "2026-07-25T18:00:00.000Z");
+  const complete = lineCandidate(
+    "v1:new-era-complete:gpc-off",
+    [...population.slice(4), ...sitesNamed(50, "expansion")],
+    "2026-08-07T05:00:00.000Z"
+  );
+
+  // 60 of 64 retained is a 6.25% drop, inside the 10% tolerance: the line
+  // takes over even though its identity tuple matches nothing that came
+  // before. The incumbent being unrescannable can never freeze the aggregate.
+  assert.equal(selectPrimaryCorpusCohort([incumbent, complete], MIN)?.identity.id, complete.identity.id);
+});
+
+test("within the current line the established floor and composition rules still govern", () => {
+  const population = sitesNamed(64, "mixed");
+  const incumbent = incumbentCandidate("v1:old-era:gpc-on", population, "2026-07-25T18:00:00.000Z");
+  // A newer line cohort under the floor cannot ride the line past usability.
+  const tiny = lineCandidate("v1:new-era-tiny:gpc-off", [...population.slice(0, MIN - 1)], "2026-08-08T05:00:00.000Z");
+  assert.equal(selectPrimaryCorpusCohort([incumbent, tiny], MIN)?.identity.id, incumbent.identity.id);
+
+  // Two line cohorts: the broader one vetoes the narrower partial refresh,
+  // exactly as it always did within one era, and then hands off cleanly.
+  const broad = lineCandidate("v1:new-era-broad:gpc-off", [...population, ...sitesNamed(40, "expansion")], "2026-08-07T05:00:00.000Z");
+  const narrow = lineCandidate("v1:new-era-narrow:gpc-off", [...population.slice(0, 52)], "2026-08-08T05:00:00.000Z");
+  assert.equal(selectPrimaryCorpusCohort([incumbent, broad, narrow], MIN)?.identity.id, broad.identity.id);
+});
+
+test("with no current-line cohort the selection is byte-for-byte the established rule", () => {
+  // Regression pin: every cohort in today's corpus is off-line, so this
+  // change must not move the published aggregate until a line cohort lands.
+  const frozen = candidate("v1:legacy:gpc-on", 85, "2026-07-06T09:35:00.000Z");
+  const previous = candidate("v1:previous-era:gpc-on", 64, "2026-07-25T18:00:00.000Z");
+  assert.equal(selectPrimaryCorpusCohort([frozen, previous], MIN)?.identity.id, previous.identity.id);
+});
+
+test("a line winner that cannot be judged for continuity hands off, matching the veto's own rule", () => {
+  // Site keys are optional on the candidate shape. Without them the gate
+  // cannot judge population continuity, and inventing a refusal it cannot
+  // support would freeze the aggregate on silence.
+  const incumbent = incumbentCandidate("v1:old-era:gpc-on", sitesNamed(64, "mixed"), "2026-07-25T18:00:00.000Z");
+  const unjudgeable: CorpusCohortCandidate = {
+    identity: identity({ id: "v1:new-era-no-sites:gpc-off", methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY, gpc: false }),
+    siteCount: 70,
+    latestRunAt: "2026-08-07T05:00:00.000Z"
+  };
+  assert.equal(selectPrimaryCorpusCohort([incumbent, unjudgeable], MIN)?.identity.id, unjudgeable.identity.id);
 });

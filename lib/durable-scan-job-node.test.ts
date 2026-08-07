@@ -881,8 +881,17 @@ test("terminal durable records are dropped from local memory without rewriting D
   await waitForScanJobForTests(JOB_ID);
   assert.equal(scanJobStateForTests().retainedJobs, 1);
 
-  // No status, admission, or pruning call occurs while this process is idle.
-  await new Promise<void>((resolve) => setTimeout(resolve, 125));
+  // The record must leave local memory on the cleanup timer alone: no status,
+  // admission, or pruning call happens while this process is idle, and the
+  // introspection polled here is test-only observation, not a stimulus. A
+  // fixed 125 ms sleep raced the 100 ms timer with 25 ms of margin, which is
+  // exactly the failure shape that broke a container deploy on a contended
+  // runner. Wait on the observable state instead, bounded so a cleanup timer
+  // that never fires still fails this test loudly rather than hanging it.
+  const cleanupDeadline = Date.now() + 5_000;
+  while (scanJobStateForTests().retainedJobs > 0 && Date.now() < cleanupDeadline) {
+    await new Promise<void>((resolve) => setTimeout(resolve, 10));
+  }
   assert.equal(scanJobStateForTests().retainedJobs, 0);
   assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE)), null);
 });
