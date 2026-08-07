@@ -223,6 +223,31 @@ function pixelCatalogFor(platform: string): (typeof PIXEL_PRODUCTS)[keyof typeof
     : null;
 }
 
+/**
+ * The admitted pixel vocabulary, read-only, for the guard test that checks this
+ * frozen snapshot against the producer that feeds it. Exported as a copy so a
+ * caller cannot mutate the snapshot the identity digest is derived from.
+ */
+export function admittedPixelEventVocabulary(): Record<string, { product: string; events: string[] }> {
+  return Object.fromEntries(
+    Object.entries(PIXEL_PRODUCTS).map(([platform, catalog]) => [
+      platform,
+      { product: catalog.product, events: [...catalog.events].sort() }
+    ])
+  );
+}
+
+export const ADMITTED_PIXEL_CUSTOM_EVENT_LABEL: string = "custom event";
+
+/**
+ * The generalized label a site-defined event name collapses to. Declared here
+ * rather than imported from the producer on purpose: this module is the frozen
+ * v1 redaction snapshot and feeds PUBLIC_STRING_POLICY_DIGEST, so importing a
+ * mutable producer constant would let an ordinary producer edit move the
+ * published normalization identity. The guard test asserts the two agree.
+ */
+const PIXEL_CUSTOM_EVENT_LABEL = "custom event";
+
 const PIXEL_PRODUCTS = {
   Meta: {
     product: "Meta Pixel",
@@ -1118,6 +1143,16 @@ function redactPageGraphInitiatorType(value: string): string {
 /**
  * The r2 producer uses this before generalization so unknown producer
  * vocabulary cannot disappear while its detector still claims completeness.
+ *
+ * Deliberately does NOT validate `event.events`. A site-defined event name is
+ * exactly what redactPixelEvents exists to generalize, and this function also
+ * runs on the remediation and migration paths over historical and untrusted
+ * bytes, where refusing an unrecognized name would reject a report the
+ * sanitizer is supposed to clean. The producer has already resolved every name
+ * to a catalogued form or the custom label before publication, so the risk here
+ * is not a hostile name but the two vocabularies drifting apart; that is bound
+ * by a guard test in pixel-events.test.ts, which fails when someone edits the
+ * producer list, rather than at runtime on a reader's report.
  */
 export function assertKnownPixelEventVocabulary(event: PixelEventSummary): void {
   const catalog = pixelCatalogFor(event.platform);
@@ -1140,7 +1175,7 @@ export function redactPixelEvents(events: PixelEventSummary[]): PixelEventSummar
     if (!catalog) continue;
     const allowedEvents = catalog.events as ReadonlySet<string>;
     const sanitizedEvents = Array.from(
-      new Set(event.events.map((name) => (allowedEvents.has(name) ? name : "custom event")))
+      new Set(event.events.map((name) => (allowedEvents.has(name) ? name : PIXEL_CUSTOM_EVENT_LABEL)))
     ).sort((a, b) => a.localeCompare(b));
     const advancedMatching = Array.from(
       new Set(event.advancedMatching.filter((field) => KNOWN_PIXEL_MATCH_FIELDS.has(field)))
