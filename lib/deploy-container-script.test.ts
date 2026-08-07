@@ -3,8 +3,8 @@ import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { execFileSync } from "node:child_process";
 import test, { after } from "node:test";
+import { initFixtureRepo, runFixtureGit } from "./git-fixture";
 import ts from "typescript";
 
 const ROOT = process.cwd();
@@ -29,18 +29,13 @@ for (const config of [
 ]) {
   copyFileSync(path.join(ROOT, config), path.join(FIXTURE_ROOT, config));
 }
-execFileSync("git", ["init", "--quiet"], { cwd: FIXTURE_ROOT });
-execFileSync("git", ["config", "user.email", "container-deploy-test@sitebehavior.invalid"], {
-  cwd: FIXTURE_ROOT
+initFixtureRepo(FIXTURE_ROOT, {
+  name: "Container deploy test",
+  email: "container-deploy-test@sitebehavior.invalid"
 });
-execFileSync("git", ["config", "user.name", "Container deploy test"], { cwd: FIXTURE_ROOT });
-execFileSync("git", ["config", "commit.gpgsign", "false"], { cwd: FIXTURE_ROOT });
-execFileSync("git", ["add", "."], { cwd: FIXTURE_ROOT });
-execFileSync("git", ["commit", "--quiet", "-m", "fixture"], { cwd: FIXTURE_ROOT });
-const COMMIT = execFileSync("git", ["rev-parse", "HEAD"], {
-  cwd: FIXTURE_ROOT,
-  encoding: "utf8"
-}).trim();
+runFixtureGit(FIXTURE_ROOT, ["add", "."]);
+runFixtureGit(FIXTURE_ROOT, ["commit", "--quiet", "-m", "fixture"]);
+const COMMIT = runFixtureGit(FIXTURE_ROOT, ["rev-parse", "HEAD"]).trim();
 
 function run(args: string[]) {
   return spawnSync(process.execPath, [SCRIPT, ...args], {

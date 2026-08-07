@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { initFixtureRepo, runFixtureGit } from "./git-fixture";
 import Ajv2020 from "ajv/dist/2020";
 import {
   assertCorrectionsLedgerHistory,
@@ -257,13 +258,12 @@ test("the Git history gate fails closed without a base and catches pinned-byte r
     writeFileSync(ledgerPath, `${JSON.stringify(ledger, null, 2)}\n`);
     writeFileSync(reportPath, "original-report-bytes\n");
     writeFileSync(path.join(repo, "public", "reports", `${reportId}.provenance.json`), "original-sidecar-bytes\n");
-    execFileSync("git", ["init", "-q"], { cwd: repo });
-    execFileSync("git", ["add", "public"], { cwd: repo });
-    execFileSync(
-      "git",
-      ["-c", "user.name=Site Behavior Lab", "-c", "user.email=ci@sitebehavior.org", "commit", "-qm", "base"],
-      { cwd: repo }
-    );
+    initFixtureRepo(repo, {
+      name: "Site Behavior Lab",
+      email: "ci@sitebehavior.org"
+    });
+    runFixtureGit(repo, ["add", "public"]);
+    runFixtureGit(repo, ["commit", "-qm", "base"]);
 
     assert.equal(runHistoryCli(cliPath, repo, "HEAD").status, 0);
     writeFileSync(reportPath, "rewritten-report-bytes\n");

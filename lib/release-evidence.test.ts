@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpSync } from "node:fs";
 import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
+import { runFixtureGit } from "./git-fixture";
 
 const ROOT = process.cwd();
 const RELEASE_SCRIPT = path.join(ROOT, "scripts", "release-evidence.mjs");
@@ -682,7 +683,7 @@ function runEvidence(cwd: string, args: string[], overrides: NodeJS.ProcessEnv =
 }
 
 function git(cwd: string, args: string[]): string {
-  return execFileSync("git", args, { cwd, encoding: "utf8" });
+  return runFixtureGit(cwd, args);
 }
 
 test("the release workflow tags only a promoted, CI-green revision and attests its receipt", async () => {

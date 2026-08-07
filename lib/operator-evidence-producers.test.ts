@@ -13,6 +13,7 @@ import {
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { initFixtureRepo, runFixtureGit } from "./git-fixture";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ScriptExports = Record<string, any>;
@@ -1621,29 +1622,16 @@ test("container licensing receipt derives image and package digests from exact r
     const noticeBytes = "candidate legal notice\n";
     const noticePath = path.join(disappearingRoot, "NOTICE");
     writeFileSync(noticePath, noticeBytes);
-    for (const args of [
-      ["init", "-q"],
-      ["add", "NOTICE"],
-      [
-        "-c",
-        "user.name=Fixture",
-        "-c",
-        "user.email=fixture@example.test",
-        "commit",
-        "-qm",
-        "fixture"
-      ]
-    ]) {
-      const result = spawnSync("git", ["-C", disappearingRoot, ...args], {
-        encoding: "utf8"
-      });
-      assert.equal(result.status, 0, result.stderr);
-    }
-    const candidateCommit = spawnSync(
-      "git",
-      ["-C", disappearingRoot, "rev-parse", "HEAD"],
-      { encoding: "utf8" }
-    ).stdout.trim();
+    initFixtureRepo(disappearingRoot, {
+      name: "Fixture",
+      email: "fixture@example.test"
+    });
+    runFixtureGit(disappearingRoot, ["add", "NOTICE"]);
+    runFixtureGit(disappearingRoot, ["commit", "-qm", "fixture"]);
+    const candidateCommit = runFixtureGit(disappearingRoot, [
+      "rev-parse",
+      "HEAD"
+    ]).trim();
     const evidenceRef = `repo:NOTICE#sha256=${createHash("sha256")
       .update(noticeBytes)
       .digest("hex")}`;

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import {
   createHash,
   createPublicKey,
@@ -12,7 +12,6 @@ import {
   mkdtempSync,
   readFileSync,
   renameSync,
-  rmSync,
   symlinkSync,
   unlinkSync,
   writeFileSync
@@ -21,6 +20,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
 import { canonicalJson } from "./canonical-json";
+import { removeFixtureTree, runFixtureGit } from "./git-fixture";
 import {
   inspectMeasurementCandidateBinding,
   measurementCandidateAttestationVerifyArgs,
@@ -556,7 +556,7 @@ test("a fake PATH or ignored-cache gh cannot satisfy attestation verification", 
     return;
   }
   const fixture = mkdtempSync(path.join(tmpdir(), "sbl-fake-gh-"));
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
+  t.after(() => removeFixtureTree(fixture));
   const fakeBin = path.join(fixture, "bin");
   const fakeSystemGh = path.join(fakeBin, "gh");
   mkdirSync(fakeBin, { recursive: true });
@@ -1037,7 +1037,7 @@ test("the pre-candidate durable prerequisite rejects widened transitions and sho
       const root = mkdtempSync(
         path.join(tmpdir(), "sbl-staging-source-trust-")
       );
-      child.after(() => rmSync(root, { recursive: true, force: true }));
+      child.after(() => removeFixtureTree(root));
       git(root, ["init", "-q"]);
       git(root, ["config", "user.name", "Staging Source Test"]);
       git(root, [
@@ -1098,9 +1098,7 @@ test("the pre-candidate durable prerequisite rejects widened transitions and sho
       const root = mkdtempSync(
         path.join(tmpdir(), "sbl-staging-helper-trust-")
       );
-      child.after(() =>
-        rmSync(root, { recursive: true, force: true })
-      );
+      child.after(() => removeFixtureTree(root));
       for (const relativePath of
         MEASUREMENT_STAGING_TEARDOWN_SOURCE_CLOSURE_PATHS) {
         const absolutePath = path.join(
@@ -1954,7 +1952,7 @@ function makeFixture(
   } = {}
 ): Fixture {
   const root = mkdtempSync(path.join(tmpdir(), "sbl-measurement-binding-"));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
+  t.after(() => removeFixtureTree(root));
   git(root, ["init", "-q"]);
   git(root, ["config", "user.name", "Measurement Binding Test"]);
   git(root, ["config", "user.email", "measurement-binding@example.invalid"]);
@@ -4315,9 +4313,5 @@ function commitAll(root: string, message: string): void {
 }
 
 function git(root: string, args: string[]): string {
-  return execFileSync("git", args, {
-    cwd: root,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"]
-  });
+  return runFixtureGit(root, args);
 }
