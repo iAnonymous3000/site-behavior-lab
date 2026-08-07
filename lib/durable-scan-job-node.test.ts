@@ -19,9 +19,9 @@ import {
 import {
   activateDurableScanJob,
   cancelDurableScanJobGeneration,
-  cancelOwnedDurableScanJob,
-  getOwnedDurableScanJobStatus,
+  durableScanJobFenceForTests,
   durableScanJobsEnabled,
+  getScanJobStatus,
   prepareDurableScanJobRequest,
   reconcileDurableScanJobPublication,
   resetScanJobStateForTests,
@@ -318,7 +318,8 @@ test("a newer generation renews while waiting for its superseded full-capacity s
   releaseFirst.resolve();
   await waitForScanJobForTests(JOB_ID);
   assert.equal(replayScans, 1);
-  assert.equal(getOwnedDurableScanJobStatus({ jobId: JOB_ID, generation: 2, leaseToken: LEASE_THREE })?.status, "succeeded");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "succeeded");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, { jobId: JOB_ID, generation: 2, leaseToken: LEASE_THREE });
 
   cancelDurableScanJobGeneration({ jobId: JOB_ID_TWO, generation: 1 });
   await waitForScanJobForTests(JOB_ID_TWO);
@@ -349,7 +350,8 @@ test("a superseded generation cleanup deadline cannot delete its replacement", a
   await new Promise<void>((resolve) => setTimeout(resolve, 40));
 
   assert.equal(scanJobStateForTests().retainedJobs, 1);
-  assert.equal(getOwnedDurableScanJobStatus(owner(2, LEASE_TWO))?.status, "succeeded");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "succeeded");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(2, LEASE_TWO));
 });
 
 test("activation is idempotent and never charges the Node limiter", async () => {
@@ -381,7 +383,8 @@ test("activation is idempotent and never charges the Node limiter", async () => 
   assert.equal(scanLimitStateForTests().trackedClients, 0);
   assert.equal(scans, 1);
   assert.deepEqual(events, ["heartbeat:1", "begin:1", "resolve:succeeded:1"]);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "succeeded");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "succeeded");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
 });
 
 test("a newer generation aborts and replaces a stale nonpublishing activation", async () => {
@@ -420,8 +423,10 @@ test("a newer generation aborts and replaces a stale nonpublishing activation", 
   await waitForScanJobForTests(JOB_ID);
   assert.equal(firstAborted, true);
   assert.equal(secondScans, 1);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE)), null);
-  assert.equal(getOwnedDurableScanJobStatus(owner(2, LEASE_TWO))?.status, "succeeded");
+  // The current owner being generation 2 is what proves generation 1's lease
+  // no longer matches; the old null-read of a stale owner said less.
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "succeeded");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(2, LEASE_TWO));
   await assert.rejects(
     () => activateDurableScanJob(activation(preparation, 1, LEASE_ONE), { coordinator: recordingCoordinator([]) }),
     /stale/i
@@ -455,7 +460,8 @@ test("a definitive heartbeat conflict aborts stale execution without resolving i
   });
   await waitForScanJobForTests(JOB_ID);
 
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "cancelled");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "cancelled");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
   assert.equal(resolveCalls, 0);
 });
 
@@ -480,7 +486,8 @@ test("a missing post-commit reconciliation detaches without inventing a terminal
     publication: missingPublication
   });
   await waitForScanJobForTests(JOB_ID);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "running");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "running");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
   assert.deepEqual(firstEvents, ["heartbeat:1", "begin:1"]);
 
   assert.equal(scans, 1);
@@ -516,12 +523,14 @@ test("durable publication timeout settles even when commit ignores its bounded s
   assert.equal(commitSignal.reason instanceof DOMException && commitSignal.reason.name, "TimeoutError");
   assert.equal(reconciliationCalls, 0, "an expired publication must not invoke reconciliation");
   assert.deepEqual(events, ["heartbeat:1", "begin:1"]);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "running");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "running");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
 
   lateCommit.resolve(r2ScanResult().result);
   await new Promise<void>((resolve) => setImmediate(resolve));
   assert.deepEqual(events, ["heartbeat:1", "begin:1"]);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "running");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "running");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
 });
 
 test("private publication reconciliation settles and observes a late adapter rejection", async () => {
@@ -567,7 +576,8 @@ test("a reconciliation transport failure never resolves publishing as failed", a
   });
   await waitForScanJobForTests(JOB_ID);
 
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "running");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "running");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
   assert.deepEqual(events, ["heartbeat:1", "begin:1"]);
 });
 
@@ -637,7 +647,8 @@ test("an outcome-unknown begin-publishing call never starts R2 or resolves faile
 
   assert.equal(commits, 0);
   assert.equal(resolves, 0);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "running");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "running");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
 
   const replayEvents: string[] = [];
   await activateDurableScanJob(activation(preparation, 2, LEASE_TWO), {
@@ -670,7 +681,8 @@ test("trusted generation-only cancellation refuses an older control and cancels 
   await scanStarted.promise;
 
   assert.equal(cancelDurableScanJobGeneration({ jobId: JOB_ID, generation: 1 }), null);
-  assert.equal(getOwnedDurableScanJobStatus(owner(2, LEASE_TWO))?.status, "running");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "running");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(2, LEASE_TWO));
   const cancelled = cancelDurableScanJobGeneration({ jobId: JOB_ID, generation: 2 });
   assert.deepEqual(cancelled, {
     ok: true,
@@ -680,7 +692,8 @@ test("trusted generation-only cancellation refuses an older control and cancels 
   });
   assert.equal(JSON.stringify(cancelled).includes(LEASE_TWO), false);
   await waitForScanJobForTests(JOB_ID);
-  assert.equal(getOwnedDurableScanJobStatus(owner(2, LEASE_TWO))?.status, "cancelled");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "cancelled");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(2, LEASE_TWO));
   assert.deepEqual(events, ["heartbeat:2", "resolve:cancelled:2"]);
   assert.throws(
     () =>
@@ -717,7 +730,8 @@ test("authoritative generation-two cancellation aborts a still-running generatio
     generation: 2
   });
   await waitForScanJobForTests(JOB_ID);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "cancelled");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "cancelled");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
   assert.equal(commits, 0);
 });
 
@@ -800,8 +814,10 @@ test("authoritative cancellation wins after heartbeat success but before activat
   await activationRejected;
   await waitForScanJobForTests(JOB_ID);
   assert.equal(secondScans, 0);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "cancelled");
-  assert.equal(getOwnedDurableScanJobStatus(owner(2, LEASE_TWO)), null);
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "cancelled");
+  // Generation 2 never installed: the record's owner is still generation 1,
+  // which the deepEqual above pins exactly.
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
 });
 
 test("authoritative cancellation aborts a pending local publication CAS despite the local fence", async () => {
@@ -833,7 +849,8 @@ test("authoritative cancellation aborts a pending local publication CAS despite 
   assert.equal(cancelDurableScanJobGeneration({ jobId: JOB_ID, generation: 1 })?.status, "cancelled");
   await waitForScanJobForTests(JOB_ID);
   assert.equal(commits, 0);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "cancelled");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "cancelled");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
 });
 
 test("durable publication sets the local fence synchronously and awaits coordinator approval", async () => {
@@ -862,12 +879,17 @@ test("durable publication sets the local fence synchronously and awaits coordina
   });
   await milestoneOrSettledJob(JOB_ID, beginReached.promise, () => beginPublishingReached, "coordinator.beginPublishing");
   assert.equal(commits, 0, "commit must wait for begin-publishing");
-  assert.throws(() => cancelOwnedDurableScanJob(owner(1, LEASE_ONE)), /already being saved/i);
+  assert.equal(
+    durableScanJobFenceForTests(JOB_ID)?.publicationStarted,
+    true,
+    "the local fence must be set before coordinator approval resolves"
+  );
 
   releaseBegin.resolve();
   await waitForScanJobForTests(JOB_ID);
   assert.equal(commits, 1);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE))?.status, "succeeded");
+  assert.equal(getScanJobStatus(JOB_ID)?.status, "succeeded");
+  assert.deepEqual(durableScanJobFenceForTests(JOB_ID)?.owner, owner(1, LEASE_ONE));
 });
 
 test("terminal durable records are dropped from local memory without rewriting DO state", async () => {
@@ -893,7 +915,8 @@ test("terminal durable records are dropped from local memory without rewriting D
     await new Promise<void>((resolve) => setTimeout(resolve, 10));
   }
   assert.equal(scanJobStateForTests().retainedJobs, 0);
-  assert.equal(getOwnedDurableScanJobStatus(owner(1, LEASE_ONE)), null);
+  assert.equal(getScanJobStatus(JOB_ID), null);
+  assert.equal(durableScanJobFenceForTests(JOB_ID), null);
 });
 
 test("the coordinator client authenticates fixed-origin control posts without following redirects", async () => {
