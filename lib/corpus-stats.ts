@@ -278,7 +278,18 @@ export function corpusBenchmark(
   if (value >= distribution.p75)
     return { level: "warn", label: `At or above the 75th-percentile mark for ${label} across the ${sites}.` };
   if (value >= distribution.p50) return { level: "info", label: `At or above the median for ${label} across the ${sites}.` };
-  return { level: "quiet", label: `Below the median for ${label} across the ${sites}.` };
+  // Below the median is still something the visit OBSERVED, so it ranks with
+  // every other positive count at "info". It used to return "quiet", and that
+  // was the one place in the codebase where "quiet" meant a real observation
+  // rather than a null result. The findings board reads "quiet" as a null
+  // result (see report-findings.ts), so a single below-median third-party
+  // cookie published "the automated visit did not observe ... third-party
+  // cookies" directly above a card reading "Third-party cookies were present".
+  // It also made the bottom-line icon flip green-to-red when corpus-stats.json
+  // finished loading, because the fixed-threshold fallback calls the same
+  // value "info". The percentile wording it earned is kept in the label; only
+  // the severity rank changes.
+  return { level: "info", label: `Below the median for ${label} across the ${sites}.` };
 }
 
 /**
