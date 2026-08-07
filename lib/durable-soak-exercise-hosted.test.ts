@@ -12,6 +12,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { initFixtureRepo, runFixtureGit } from "./git-fixture";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ScriptExports = Record<string, any>;
@@ -388,35 +389,13 @@ test("candidate verification runs durable source-closure enforcement only for th
         `${relativePath}: source\n`
       );
     }
-    execFileSync("git", ["init", "-q"], { cwd: root });
-    execFileSync(
-      "git",
-      ["config", "user.name", "Durable Source Test"],
-      { cwd: root }
-    );
-    execFileSync(
-      "git",
-      ["config", "user.email", "durable@example.test"],
-      { cwd: root }
-    );
-    execFileSync("git", ["add", "."], { cwd: root });
-    execFileSync(
-      "git",
-      [
-        "-c",
-        "commit.gpgsign=false",
-        "commit",
-        "-q",
-        "-m",
-        "source"
-      ],
-      { cwd: root }
-    );
-    const sourceCommit = execFileSync(
-      "git",
-      ["rev-parse", "HEAD"],
-      { cwd: root, encoding: "utf8" }
-    ).trim();
+    initFixtureRepo(root, {
+      name: "Durable Source Test",
+      email: "durable@example.test"
+    });
+    runFixtureGit(root, ["add", "."]);
+    runFixtureGit(root, ["commit", "-q", "-m", "source"]);
+    const sourceCommit = runFixtureGit(root, ["rev-parse", "HEAD"]).trim();
     const contextPath = path.join(root, "context.json");
     writeFileSync(
       contextPath,

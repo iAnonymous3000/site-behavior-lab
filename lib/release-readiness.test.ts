@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { runFixtureGit } from "./git-fixture";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import {
   makePublicSingleReportV2R2,
@@ -24,12 +25,7 @@ function script(name: string) {
 }
 
 function testGit(root: string, args: string[], env: Record<string, string> = {}) {
-  return execFileSync("git", args, {
-    cwd: root,
-    encoding: "utf8",
-    env: { ...process.env, ...env },
-    stdio: ["ignore", "pipe", "pipe"]
-  }).trim();
+  return runFixtureGit(root, args, env).trim();
 }
 
 // The runtime container image builds from a git-less context by design (.git

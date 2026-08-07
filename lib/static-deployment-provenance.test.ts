@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
+import { runFixtureGit } from "./git-fixture";
 
 const verifier = path.resolve("scripts/static-deployment-provenance.mjs");
 const commitEnvNames = ["SITE_BEHAVIOR_LAB_BUILD_COMMIT", "CF_PAGES_COMMIT_SHA", "GITHUB_SHA"];
@@ -76,7 +77,7 @@ async function cleanRepository(t: TestContext) {
 }
 
 function git(cwd: string, args: string[]): string {
-  return execFileSync("git", args, { cwd, encoding: "utf8" });
+  return runFixtureGit(cwd, args);
 }
 
 function verify(cwd: string, overrides: NodeJS.ProcessEnv = {}) {

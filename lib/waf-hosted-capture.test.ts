@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   mkdtempSync,
@@ -14,6 +13,7 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { runFixtureGit } from "./git-fixture";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ScriptExports = Record<string, any>;
@@ -284,15 +284,9 @@ function storedZip(entries: Array<{ name: string; bytes: Buffer }>) {
 }
 
 function testGit(root: string, args: string[]) {
-  return execFileSync("git", args, {
-    cwd: root,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-    env: {
-      ...process.env,
-      GIT_AUTHOR_DATE: "2026-08-01T15:00:00Z",
-      GIT_COMMITTER_DATE: "2026-08-01T15:00:00Z"
-    }
+  return runFixtureGit(root, args, {
+    GIT_AUTHOR_DATE: "2026-08-01T15:00:00Z",
+    GIT_COMMITTER_DATE: "2026-08-01T15:00:00Z"
   }).trim();
 }
 

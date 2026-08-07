@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   mkdirSync,
@@ -12,6 +11,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { runFixtureGit } from "./git-fixture";
 import {
   MEASUREMENT_STAGING_TEARDOWN_SOURCE_CLOSURE_PATHS
 } from "./measurement-candidate-binding";
@@ -107,15 +107,9 @@ const ACCEPTED_HISTORY = new Set([
 ]);
 
 function git(root: string, args: string[]) {
-  return execFileSync("git", args, {
-    cwd: root,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-    env: {
-      ...process.env,
-      GIT_AUTHOR_DATE: "2026-08-01T18:00:00Z",
-      GIT_COMMITTER_DATE: "2026-08-01T18:00:00Z"
-    }
+  return runFixtureGit(root, args, {
+    GIT_AUTHOR_DATE: "2026-08-01T18:00:00Z",
+    GIT_COMMITTER_DATE: "2026-08-01T18:00:00Z"
   }).trim();
 }
 
