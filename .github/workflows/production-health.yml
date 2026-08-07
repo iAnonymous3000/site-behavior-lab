@@ -172,7 +172,7 @@ jobs:
             # detect. Pages serves static files identically for any query
             # string, so the unique parameter changes nothing but the cache key.
             if curl --fail --silent --show-error --connect-timeout 5 --max-time 10 \
-              "$PAGES_DEPLOYMENT_URL?monitor=${GITHUB_RUN_ID}-${attempt}" > "$RUNNER_TEMP/production-pages-deployment.json"; then
+              "$PAGES_DEPLOYMENT_URL?monitor=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}" > "$RUNNER_TEMP/production-pages-deployment.json"; then
               pages=$(jq -r '.deployment // empty' "$RUNNER_TEMP/production-pages-deployment.json" 2>/dev/null || true)
             fi
             if [[ "$scanner" == "$EXPECTED_PRODUCTION_SHA" && "$pages" == "$EXPECTED_PRODUCTION_SHA" ]]; then

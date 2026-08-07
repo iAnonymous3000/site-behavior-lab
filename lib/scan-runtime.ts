@@ -242,7 +242,20 @@ export async function withScanDeadline<T>(
   maxDurationMs: number,
   createTimeoutError: ScanTimeoutErrorFactory = defaultScanTimeoutError
 ): Promise<T> {
-  const timeoutMs = scanTimeoutMs(started, maxDurationMs, maxDurationMs, Date.now(), createTimeoutError);
+  let timeoutMs: number;
+  try {
+    timeoutMs = scanTimeoutMs(started, maxDurationMs, maxDurationMs, Date.now(), createTimeoutError);
+  } catch (error) {
+    // The budget was exhausted before the race could subscribe to the
+    // operation, so the caller's already-created promise would be abandoned
+    // with no handler: when teardown later closes the page it rejects as a
+    // process-level unhandledRejection ("Target page, context or browser has
+    // been closed", observed four times in one featured run). Adopt its
+    // eventual settlement before failing; the race below never has this
+    // problem because Promise.race subscribes to every competitor.
+    operation.catch(() => undefined);
+    throw error;
+  }
   let timer: ReturnType<typeof setTimeout> | null = null;
 
   try {
