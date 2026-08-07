@@ -790,3 +790,46 @@ test("Worker health performs the edge key upgrade and fail-closed downgrade", as
   const purge = source.slice(purgeStart, purgeEnd);
   assert.match(purge, /purgeDurableReplayFaults\(this\.ctx\.storage\.sql, now\)/);
 });
+
+test("every consumer resolves the durable encryption key the same way", async () => {
+  // The edge validator trimmed the key while the Durable Object imported the
+  // raw env var. A key with a trailing newline -- the ordinary result of
+  // pasting into a `wrangler secret put` prompt -- therefore passed
+  // requireDurableScanJobConfig, passed the pre-admission import, and passed
+  // the edge health probe, so checks.durableJobs.readiness reported "ready"
+  // and production-health asserted that same field green, while every
+  // admission failed inside the DO with a generic 503 and one log line.
+  //
+  // Pin the single resolution rather than the trimming: any second reader of
+  // the raw env var can reintroduce the split.
+  const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
+
+  assert.match(
+    source,
+    /function durableScanJobEncryptionKeyValue\(env: Env\): string \{\s*return env\[DURABLE_SCAN_JOB_ENCRYPTION_KEY_ENV\]\?\.trim\(\) \?\? "";\s*\}/,
+    "the key must be resolved by one named helper"
+  );
+
+  // The real invariant: nothing may be IMPORTED as a key except the resolved
+  // value. A raw env read still appears in the restart route's
+  // secretCollisionCandidates list, and belongs there -- that check compares
+  // stored secrets for reuse, so it wants the bytes as configured, not a
+  // normalized copy.
+  const imports = [...source.matchAll(/importDurableScanJobEncryptionKey\(\s*([A-Za-z0-9_.]+(?:\([^)]*\))?)\s*\)/g)];
+  assert.ok(imports.length >= 2, "expected the key import to have consumers to check");
+  for (const [, argument] of imports) {
+    assert.match(
+      argument,
+      /^(?:config\.encryptionKey|durableScanJobEncryptionKeyValue\(this\.env\))$/,
+      `importDurableScanJobEncryptionKey received ${JSON.stringify(argument)}; it must receive the resolved key`
+    );
+  }
+
+  // And both known consumers go through it.
+  for (const consumer of [
+    /const encryptionKey = durableScanJobEncryptionKeyValue\(env\);/,
+    /importDurableScanJobEncryptionKey\(\s*durableScanJobEncryptionKeyValue\(this\.env\)\s*\)/
+  ]) {
+    assert.match(source, consumer);
+  }
+});

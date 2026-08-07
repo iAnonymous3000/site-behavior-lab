@@ -2513,8 +2513,13 @@ export class ScannerContainer extends Container<Env> {
   }
 
   private durableEncryptionKey(): Promise<DurableScanJobEncryptionKey> {
+    // Resolved through the shared helper, not the raw env var: the edge
+    // validator and health probe accept the trimmed value, so importing
+    // anything else here would let admissions fail under a "ready" health
+    // report. Configuration is fixed for an instance's lifetime, so caching
+    // the settled promise (including a rejection) is deliberate.
     this.durableEncryptionKeyPromise ??= importDurableScanJobEncryptionKey(
-      this.env.SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY ?? ""
+      durableScanJobEncryptionKeyValue(this.env)
     );
     return this.durableEncryptionKeyPromise;
   }
@@ -3070,9 +3075,25 @@ function durableScanJobsFlagMisconfigured(env: Env): boolean {
   return durableScanJobsFlagState(env[DURABLE_SCAN_JOBS_ENV]) === "misconfigured";
 }
 
+/**
+ * The encryption-key string, resolved once for every consumer.
+ *
+ * The edge validator trimmed this value while the Durable Object imported the
+ * raw env var, so a key carrying a trailing newline -- the ordinary result of
+ * pasting into a secret prompt -- passed every edge check and failed every
+ * admission. That divergence was invisible in exactly the wrong way: the edge
+ * health probe validates the trimmed value, so `checks.durableJobs.readiness`
+ * reported "ready", production-health asserts that same field, and the
+ * monitoring stayed green while no scan could be admitted. One resolution now,
+ * so the two halves cannot disagree about what the key is.
+ */
+function durableScanJobEncryptionKeyValue(env: Env): string {
+  return env[DURABLE_SCAN_JOB_ENCRYPTION_KEY_ENV]?.trim() ?? "";
+}
+
 function requireDurableScanJobConfig(env: Env): DurableScanJobConfig {
   if (!durableScanJobsEnabled(env)) throw new Error("Durable scan jobs are disabled.");
-  const encryptionKey = env[DURABLE_SCAN_JOB_ENCRYPTION_KEY_ENV]?.trim() ?? "";
+  const encryptionKey = durableScanJobEncryptionKeyValue(env);
   const internalToken = requireDurableScanJobInternalToken(env);
   const coordinatorValue = env[DURABLE_SCAN_JOB_COORDINATOR_URL_ENV]?.trim() ?? "";
   if (
