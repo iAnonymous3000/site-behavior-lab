@@ -66,7 +66,7 @@
     "calibration:finalize": "node scripts/run-schema-cli.mjs calibration-finalize",
     "calibration:seal-label-source": "node scripts/calibration-label-source-seal.mjs",
     "test:calibration-producer": "node scripts/run-schema-cli.mjs calibration-producer-test",
-    "test:calibration-ceremony": "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs",
+    "test:calibration-ceremony": "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs scripts/calibration-assemble-custody-lib.test.mjs",
     "test:aa-producer": "node --test scripts/aa-study-producer-lib.test.mjs",
     "check": "npm run typecheck && npm run cf:typecheck && npm run test:unit && npm run build",
     "corpus:pagegraph": "tsc -p tsconfig.test.json && node .unit-test-dist/lib/pagegraph-corpus-cli.js",

@@ -382,10 +382,16 @@ no reference plaintext, blind-tiebreaker value, or reveal key.
 
 ## Assemble dispatch
 
-**Status: assemble custody wiring not yet implemented.** The assemble CLI does
-not yet perform the roster re-fetch and custody cross-binding described below.
-Until that wiring lands, assemble mode fails closed before the reveal key is
-consumed or any sealed envelope is decrypted; no sealed label is revealed.
+The assemble CLI re-fetches the authenticated roster artifact the
+authorization pinned, re-derives the selection snapshot and acquisition
+attempt ledger from live Actions history, and cross-binds every pinned
+coordinate (roster bytes, run, artifact, archive digest, commitment set, and
+the acquisition-embedded snapshot) before the reveal key is read. A custody
+failure therefore never costs a sealed envelope its secrecy, and the three
+custody files the study binds by digest are archived from the same verified
+bytes. The binding rules live in
+`scripts/calibration-assemble-custody-lib.mjs` and are exercised offline by
+`scripts/calibration-assemble-custody-lib.test.mjs`.
 
 Select `assemble` from `main` and provide the same study, detector, and C plus:
 
