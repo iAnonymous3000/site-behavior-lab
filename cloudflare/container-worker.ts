@@ -348,6 +348,21 @@ const MAX_COORDINATOR_BODY_BYTES = 32_768;
 const DURABLE_SCAN_JOB_PUMP_CALLBACK = "pumpDurableScanJobs";
 const DURABLE_SCAN_JOB_EXECUTION_CAPACITY = 2;
 
+/**
+ * Minimum turn time a single encrypted-watch claim must be able to fund before
+ * the pump commits its lease. A claim is a committing state change: it charges
+ * the daily global budget and, if the turn then runs out of time, the expired
+ * lease is recovered as a FAILED run -- one of the watch's five lifetime
+ * rescans burned with the target never attempted, and the next try a full
+ * cadence away. Under-claiming has no such cost: an unclaimed due watch is
+ * simply claimed by the next pump turn. So this reserve is deliberately
+ * conservative: an internal prepare round trip against a possibly cold
+ * container plus the admission writes, not a p50. It gates only how many
+ * leases the turn may commit; the controller still gives each admitted item
+ * all of the turn's remaining time.
+ */
+const ENCRYPTED_WATCH_CLAIM_TIME_RESERVE_MS = 10_000;
+
 type DurablePumpSchedulePayload = { epoch: string };
 type DurablePumpScheduleContext = { taskId: string };
 
@@ -1743,12 +1758,27 @@ export class ScannerContainer extends Container<Env> {
       return [];
     }
 
-    const credentials = await createEncryptedWatchLeaseCredentials(DURABLE_SCAN_JOB_EXECUTION_CAPACITY);
+    // Claim only what this turn's remaining wall clock can plausibly fund.
+    // Claiming is not reserving: each claim commits a lease and charges the
+    // daily budget, and a lease the turn abandons is recovered as a failed
+    // run, permanently burning one of the watch's five lifetime rescans with
+    // nothing attempted. The turn used to claim full execution capacity even
+    // when core dispatch had consumed nearly all of its budget, so a slow
+    // turn taxed watches it never looked at.
+    const fundableClaims = Math.min(
+      DURABLE_SCAN_JOB_EXECUTION_CAPACITY,
+      Math.floor(context.remainingTimeMs / ENCRYPTED_WATCH_CLAIM_TIME_RESERVE_MS)
+    );
+    if (fundableClaims <= 0) {
+      this.maintainEncryptedWatchRetention();
+      return [];
+    }
+    const credentials = await createEncryptedWatchLeaseCredentials(fundableClaims);
     throwIfDurablePumpAborted(context.signal);
     const claims = this.ctx.storage.transactionSync(() =>
       claimDueEncryptedWatches(this.ctx.storage.sql, {
         now: Date.now(),
-        capacity: DURABLE_SCAN_JOB_EXECUTION_CAPACITY,
+        capacity: fundableClaims,
         credentials
       })
     );

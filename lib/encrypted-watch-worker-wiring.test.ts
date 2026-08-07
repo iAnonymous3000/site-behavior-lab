@@ -268,3 +268,53 @@ test("optional watch-history faults cannot roll back ordinary durable terminal m
   assert.match(purge, /settleSynchronizeAndPurgeDurableScanJobs\(this\.ctx\.storage\.sql, now\)/);
   assert.doesNotMatch(purge, /Safely|purgeDurableScanJobs/);
 });
+
+test("the pump claims only the watches its remaining wall clock can fund", async () => {
+  const source = await workerSource();
+  const method = source.slice(
+    source.indexOf("private async listEncryptedWatchPumpItems("),
+    source.indexOf("private async admitEncryptedWatchClaim(")
+  );
+
+  // A claim is a committing state change: it charges the daily budget, and an
+  // abandoned lease is recovered as a FAILED run, burning one of the watch's
+  // five lifetime rescans with the target never attempted. The load phase used
+  // to claim full execution capacity even when core dispatch had consumed the
+  // turn, so a slow turn taxed watches it never looked at. The claim count
+  // must therefore be derived from the turn's remaining time, and a turn that
+  // cannot fund one item must not open the claim transaction at all.
+  assert.match(
+    method,
+    /const fundableClaims = Math\.min\(\s*DURABLE_SCAN_JOB_EXECUTION_CAPACITY,\s*Math\.floor\(context\.remainingTimeMs \/ ENCRYPTED_WATCH_CLAIM_TIME_RESERVE_MS\)\s*\)/,
+    "the claim count must be derived from remaining turn time"
+  );
+  assert.match(method, /if \(fundableClaims <= 0\) \{/, "an unfundable turn must claim nothing");
+  assert.match(
+    method,
+    /createEncryptedWatchLeaseCredentials\(fundableClaims\)/,
+    "credentials must match the funded claim count, not full capacity"
+  );
+  assert.match(
+    method,
+    /capacity: fundableClaims/,
+    "the store must never be asked for more claims than the turn can fund"
+  );
+  const zeroReturn = method.indexOf("if (fundableClaims <= 0)");
+  const credentialCall = method.indexOf("createEncryptedWatchLeaseCredentials");
+  const claimTransaction = method.indexOf("claimDueEncryptedWatches");
+  assert.ok(
+    zeroReturn !== -1 && zeroReturn < credentialCall && credentialCall < claimTransaction,
+    "the zero-fundable exit must run before credentials are minted or the claim transaction opens"
+  );
+
+  // The reserve is a claim-admission gate, not a per-item allocation, and it
+  // must stay conservative: under-claiming defers a watch to the next turn,
+  // over-claiming burns a lifetime run. Pin the floor so a future tuning pass
+  // cannot quietly turn the guard into a no-op.
+  const reserve = source.match(/const ENCRYPTED_WATCH_CLAIM_TIME_RESERVE_MS = ([\d_]+);/);
+  assert.ok(reserve, "the reserve constant must exist");
+  assert.ok(
+    Number(reserve[1].replaceAll("_", "")) >= 5_000,
+    "a reserve below 5s cannot fund a cold-container prepare round trip"
+  );
+});
