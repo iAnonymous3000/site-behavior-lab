@@ -1011,24 +1011,32 @@ function sanitizePrivacyPolicy(
   );
 }
 
-// The closed set of detection kinds the redactor knows how to handle. Stated
-// here so the caller below can tell "this is not a kind we understand", which
-// is a producer bug and must fail closed, apart from "this kind redacted to
-// something unpublishable", which is ordinary evidence loss. Collapsing the two
-// into one throw is what turned an unpublishable script origin into a failed
-// scan.
-const REDACTABLE_FINGERPRINT_DETECTION_KINDS: ReadonlySet<
-  FingerprintDetectionSummary["kind"]
-> = new Set([
-  "canvas-fingerprinting",
-  "canvas-font-fingerprinting",
-  "webgl-fingerprinting",
-  "audio-fingerprinting",
-  "webrtc-fingerprinting",
-  "session-recording",
-  "input-monitoring",
-  "keystroke-exfiltration"
-]);
+// Whether each detection kind's REDACTION can legitimately produce output the
+// shared guard refuses. True only for the kinds whose evidence carries
+// third-party hosts: an origin with no publishable registrable domain redacts
+// to the invalid-URL marker and the guard rejects it, which is ordinary
+// evidence loss. For every other kind the redactor only clamps counts and
+// filters closed vocabularies, so a null from it means a producer bug and
+// must stay fail-closed.
+//
+// A Record keyed by the kind union rather than a hand-copied Set: the first
+// version of this restated the redactor's kind list as a literal with nothing
+// binding them, so a kind added to the union but missed here would flip its
+// unknown-kind failure into a silent drop. Now the compiler refuses the file
+// until a new kind is classified.
+const FINGERPRINT_REDACTION_MAY_REFUSE: Record<
+  FingerprintDetectionSummary["kind"],
+  boolean
+> = {
+  "canvas-fingerprinting": false,
+  "canvas-font-fingerprinting": false,
+  "webgl-fingerprinting": false,
+  "audio-fingerprinting": false,
+  "webrtc-fingerprinting": false,
+  "session-recording": true,
+  "input-monitoring": true,
+  "keystroke-exfiltration": true
+};
 
 /**
  * Returns null when this detection has nothing publishable left after
@@ -1039,7 +1047,7 @@ function sanitizeFingerprintDetection(
   detection: FingerprintDetectionSummary,
   pass: RedactionPass
 ): FingerprintDetectionSummary | null {
-  if (!REDACTABLE_FINGERPRINT_DETECTION_KINDS.has(detection.kind)) {
+  if (!Object.hasOwn(FINGERPRINT_REDACTION_MAY_REFUSE, detection.kind)) {
     throw new Error("Unknown fingerprint detection kind.");
   }
   if (detection.kind === "canvas-fingerprinting") {
@@ -1059,10 +1067,16 @@ function sanitizeFingerprintDetection(
     assertStringVocabulary("sentinel encoding", detection.evidence.encodings, KEYSTROKE_ENCODINGS);
   }
   const redacted = redactFingerprintDetection(detection, pass);
-  // The kind is known (checked above), so a null here means redaction produced
-  // a value the shared detection guard refuses. The caller drops it and records
-  // the loss.
-  if (redacted === null) return null;
+  if (redacted === null) {
+    // For a host-carrying kind, a refused redaction is ordinary evidence loss:
+    // the caller drops the detection and records it. For every other kind the
+    // redactor cannot legitimately refuse typed input, so a null is a producer
+    // bug and stays fail-closed instead of masquerading as capture loss.
+    if (!FINGERPRINT_REDACTION_MAY_REFUSE[detection.kind]) {
+      throw new Error("Unknown fingerprint detection kind.");
+    }
+    return null;
+  }
   if (redacted.kind === "canvas-fingerprinting") {
     assertStringVocabulary("canvas read API", redacted.evidence.readApis, CANVAS_READ_APIS);
   } else if (redacted.kind === "webgl-fingerprinting") {
