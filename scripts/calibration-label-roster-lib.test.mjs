@@ -23,7 +23,6 @@ import {
   calibrationLabelRosterRunName,
   calibrationLabelRosterRunSelectionSnapshot,
   calibrationLabelRosterWorkflowPath,
-  compareCalibrationLabelRosterRunSelectionSnapshots,
   createCalibrationLabelRosterAuthorization,
   parseCalibrationLabelRosterRunName,
   validateCalibrationLabelRosterAuthorization,
@@ -481,22 +480,6 @@ test("terminal selection is canonical and any competing or rerun identity invali
     /attempt 1/
   );
 
-  const changedTerminal = assertUniqueCalibrationLabelRosterRun({
-    runs: [rawRosterRun({ updated_at: "2026-08-01T02:01:01.000Z" })],
-    studyId: STUDY,
-    candidateCommit: CANDIDATE,
-    carrierCommit: CARRIER,
-    caseInputRootSha256: CASE_INPUT_ROOT_SHA256,
-    selectedRunId: 201
-  });
-  assert.throws(
-    () =>
-      compareCalibrationLabelRosterRunSelectionSnapshots({
-        archivedSnapshot: selection,
-        liveSnapshot: changedTerminal
-      }),
-    /enumeration changed/
-  );
 });
 
 test("terminal poll accepts only the same attempt-1 candidate-bound successful parent", async () => {

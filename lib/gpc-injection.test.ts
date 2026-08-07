@@ -591,7 +591,7 @@ test("source injection does not turn a continued string expression into a direct
   assert.equal((context.navigator as { globalPrivacyControl?: unknown }).globalPrivacyControl, true);
 });
 
-test("real Chromium preserves worker URLs, injects full module graphs, and fails closed when required", { timeout: 20_000 }, async () => {
+test("real Chromium preserves worker URLs, injects full module graphs, and fails closed when required", { timeout: 20_000 }, async (t) => {
   const originRequests: string[] = [];
   const server = createServer((request, response_) => {
     originRequests.push(request.url ?? "");
@@ -745,11 +745,19 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
     server.once("error", reject);
     server.listen(0, "127.0.0.1", resolve);
   });
+  // Registered the moment the resource exists, rather than in a finally block
+  // twenty lines below. Everything between acquiring the server and entering
+  // that block can throw -- chromium.launch on a runner missing browser deps,
+  // exposeBinding, addInitScript -- and a leaked listening server keeps the
+  // node:test process alive after its own timeout has already failed the test.
+  t.after(() => new Promise<void>((resolve) => server.close(() => resolve())));
 
   const address = server.address();
   assert.ok(address && typeof address === "object");
   const browser = await chromium.launch({ headless: true });
+  t.after(() => browser.close());
   const context = await browser.newContext();
+  t.after(() => context.close());
   const session = createGpcWorkerInjectionSession();
   await context.exposeBinding(session.bindingName, (source, value) => session.register(source, value));
   const page = await context.newPage();
@@ -778,118 +786,112 @@ test("real Chromium preserves worker URLs, injects full module graphs, and fails
     }
   });
 
+  await page.goto(`http://127.0.0.1:${address.port}/`);
   try {
-    await page.goto(`http://127.0.0.1:${address.port}/`);
-    try {
-      await page.waitForFunction(() => {
-        try { return JSON.parse(document.title).length === 8; } catch { return false; }
-      }, undefined, { timeout: 10_000 });
-    } catch (error) {
-      throw new Error(JSON.stringify({
-        cause: error instanceof Error ? error.message : String(error),
-        diagnostics: session.diagnostics(),
-        originRequests,
-        requestFailures,
-        routeErrors,
-        runtimeErrors,
-        title: await page.title(),
-        transformedUrls,
-        workerErrors: await page.evaluate(() => (globalThis as typeof globalThis & { __workerErrors?: unknown }).__workerErrors),
-        workerResults: await page.evaluate(() => (globalThis as typeof globalThis & { __testResults?: unknown }).__testResults)
-      }));
-    }
-    assert.equal(await page.evaluate(() => (globalThis as typeof globalThis & { ordinaryMarkerScriptLoaded?: boolean }).ordinaryMarkerScriptLoaded), true);
-    assert.deepEqual(JSON.parse(await page.title()), [
-      {
-        kind: "adversarial",
-        gpc: true,
-        dependencyAtEntry: true,
-        href: `http://127.0.0.1:${address.port}/assets/adversarial-module.js?entry=abc~def`,
-        meta: `http://127.0.0.1:${address.port}/assets/adversarial-module.js?entry=abc~def`,
-        typeReads: 1
-      },
-      { kind: "blob", blocked: true, revoked: true },
-      {
-        kind: "classic",
-        gpc: true,
-        strict: true,
-        href: `http://127.0.0.1:${address.port}/assets/classic.js?signature=abc~def`
-      },
-      {
-        kind: "gzip",
-        gpc: true,
-        href: `http://127.0.0.1:${address.port}/assets/gzip.js`
-      },
-      {
-        kind: "module",
-        gpc: true,
-        dependencyAtEntry: true,
-        leafAtEntry: true,
-        megabytes: "2.00 MB",
-        href: `http://127.0.0.1:${address.port}/assets/module.js?root=abc~def`,
-        meta: `http://127.0.0.1:${address.port}/assets/module.js?root=abc~def`
-      },
-      {
-        kind: "redirect",
-        blocked: true
-      },
-      {
-        kind: "shared",
-        gpc: true,
-        href: `http://127.0.0.1:${address.port}/assets/shared.js?shared=abc~def`
-      },
-      {
-        kind: "unparsed",
-        gpc: false,
-        manifest: true,
-        href: `http://127.0.0.1:${address.port}/assets/unparsed-module.js`
-      }
-    ]);
-    assert.equal(
-      transformedUrls.some((url) => url.includes("__site_behavior_lab_gpc_worker")),
-      false
-    );
-    assert.equal(originRequests.includes("/assets/ordinary.js?__site_behavior_lab_gpc_worker=1"), true);
-    assert.equal(originRequests.includes("/assets/adversarial-module.js?entry=abc~def"), true);
-    assert.equal(originRequests.includes("/assets/adversarial-dependency.js?dep=abc~def"), true);
-    assert.equal(originRequests.includes("/assets/classic.js?signature=abc~def"), true);
-    assert.equal(originRequests.includes("/assets/dependency.js?dep=abc~def"), true);
-    assert.equal(originRequests.includes("/assets/leaf.js?leaf=abc~def"), true);
-    assert.equal(originRequests.includes("/assets/shared.js?shared=abc~def"), true);
-    assert.equal(originRequests.includes("/assets/final.js?redirect=abc~def"), false);
-    // The unparsed module authorized nothing, so its own request is served
-    // untransformed and its dependency is left to load on its own terms.
-    assert.equal(originRequests.includes("/assets/unparsed-module.js"), true);
-    assert.equal(originRequests.includes("/assets/manifest.json"), true);
-    assert.equal(transformedUrls.some((url) => url.includes("unparsed-module.js")), false);
-    assert.deepEqual(routeErrors, [
-      `unsupported-worker:http://127.0.0.1:${address.port}/assets/redirect.js`
-    ]);
-    const constructorMarker = "site-behavior-lab.gpc-worker-registration";
-    assert.equal(
-      await page.evaluate((marker) => Reflect.get(Worker, Symbol.for(marker)) === true, constructorMarker),
-      true
-    );
-    const unroutedPage = await context.newPage();
-    assert.equal(
-      await unroutedPage.evaluate((marker) => Reflect.get(Worker, Symbol.for(marker)) === true, constructorMarker),
-      false,
-      "a context sibling without this Page's route transformer must not receive the registration wrapper"
-    );
-    await unroutedPage.close();
-    assert.deepEqual(session.diagnostics(), {
-      ambiguousWorkerRequestCount: 0,
-      captureLossCount: 3,
-      pendingWorkerRegistrationCount: 0,
-      transformFailureCount: 1,
-      unsupportedWorkerCount: 2
-    });
-    assert.match(GPC_WORKER_CAPTURE_LOSS_WARNING, /request evidence may be incomplete/);
-  } finally {
-    await context.close();
-    await browser.close();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await page.waitForFunction(() => {
+      try { return JSON.parse(document.title).length === 8; } catch { return false; }
+    }, undefined, { timeout: 10_000 });
+  } catch (error) {
+    throw new Error(JSON.stringify({
+      cause: error instanceof Error ? error.message : String(error),
+      diagnostics: session.diagnostics(),
+      originRequests,
+      requestFailures,
+      routeErrors,
+      runtimeErrors,
+      title: await page.title(),
+      transformedUrls,
+      workerErrors: await page.evaluate(() => (globalThis as typeof globalThis & { __workerErrors?: unknown }).__workerErrors),
+      workerResults: await page.evaluate(() => (globalThis as typeof globalThis & { __testResults?: unknown }).__testResults)
+    }));
   }
+  assert.equal(await page.evaluate(() => (globalThis as typeof globalThis & { ordinaryMarkerScriptLoaded?: boolean }).ordinaryMarkerScriptLoaded), true);
+  assert.deepEqual(JSON.parse(await page.title()), [
+    {
+      kind: "adversarial",
+      gpc: true,
+      dependencyAtEntry: true,
+      href: `http://127.0.0.1:${address.port}/assets/adversarial-module.js?entry=abc~def`,
+      meta: `http://127.0.0.1:${address.port}/assets/adversarial-module.js?entry=abc~def`,
+      typeReads: 1
+    },
+    { kind: "blob", blocked: true, revoked: true },
+    {
+      kind: "classic",
+      gpc: true,
+      strict: true,
+      href: `http://127.0.0.1:${address.port}/assets/classic.js?signature=abc~def`
+    },
+    {
+      kind: "gzip",
+      gpc: true,
+      href: `http://127.0.0.1:${address.port}/assets/gzip.js`
+    },
+    {
+      kind: "module",
+      gpc: true,
+      dependencyAtEntry: true,
+      leafAtEntry: true,
+      megabytes: "2.00 MB",
+      href: `http://127.0.0.1:${address.port}/assets/module.js?root=abc~def`,
+      meta: `http://127.0.0.1:${address.port}/assets/module.js?root=abc~def`
+    },
+    {
+      kind: "redirect",
+      blocked: true
+    },
+    {
+      kind: "shared",
+      gpc: true,
+      href: `http://127.0.0.1:${address.port}/assets/shared.js?shared=abc~def`
+    },
+    {
+      kind: "unparsed",
+      gpc: false,
+      manifest: true,
+      href: `http://127.0.0.1:${address.port}/assets/unparsed-module.js`
+    }
+  ]);
+  assert.equal(
+    transformedUrls.some((url) => url.includes("__site_behavior_lab_gpc_worker")),
+    false
+  );
+  assert.equal(originRequests.includes("/assets/ordinary.js?__site_behavior_lab_gpc_worker=1"), true);
+  assert.equal(originRequests.includes("/assets/adversarial-module.js?entry=abc~def"), true);
+  assert.equal(originRequests.includes("/assets/adversarial-dependency.js?dep=abc~def"), true);
+  assert.equal(originRequests.includes("/assets/classic.js?signature=abc~def"), true);
+  assert.equal(originRequests.includes("/assets/dependency.js?dep=abc~def"), true);
+  assert.equal(originRequests.includes("/assets/leaf.js?leaf=abc~def"), true);
+  assert.equal(originRequests.includes("/assets/shared.js?shared=abc~def"), true);
+  assert.equal(originRequests.includes("/assets/final.js?redirect=abc~def"), false);
+  // The unparsed module authorized nothing, so its own request is served
+  // untransformed and its dependency is left to load on its own terms.
+  assert.equal(originRequests.includes("/assets/unparsed-module.js"), true);
+  assert.equal(originRequests.includes("/assets/manifest.json"), true);
+  assert.equal(transformedUrls.some((url) => url.includes("unparsed-module.js")), false);
+  assert.deepEqual(routeErrors, [
+    `unsupported-worker:http://127.0.0.1:${address.port}/assets/redirect.js`
+  ]);
+  const constructorMarker = "site-behavior-lab.gpc-worker-registration";
+  assert.equal(
+    await page.evaluate((marker) => Reflect.get(Worker, Symbol.for(marker)) === true, constructorMarker),
+    true
+  );
+  const unroutedPage = await context.newPage();
+  assert.equal(
+    await unroutedPage.evaluate((marker) => Reflect.get(Worker, Symbol.for(marker)) === true, constructorMarker),
+    false,
+    "a context sibling without this Page's route transformer must not receive the registration wrapper"
+  );
+  await unroutedPage.close();
+  assert.deepEqual(session.diagnostics(), {
+    ambiguousWorkerRequestCount: 0,
+    captureLossCount: 3,
+    pendingWorkerRegistrationCount: 0,
+    transformFailureCount: 1,
+    unsupportedWorkerCount: 2
+  });
+  assert.match(GPC_WORKER_CAPTURE_LOSS_WARNING, /request evidence may be incomplete/);
 });
 
 function networkRegistration(
