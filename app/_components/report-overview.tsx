@@ -238,11 +238,13 @@ export function FindingsBoard({
   headline: ReportHeadline;
 }) {
   const corpus = useCorpusStats();
-  const findings = buildFindings(view, corpus, facts);
   const evidenceArm: EvidenceArm | undefined =
     view.reportType === "comparison"
       ? headline.focusArm ?? (view.comparison?.temporalPair ? "variant" : "baseline")
       : undefined;
+  // The board describes the same arm as the headline, the stat chips, the
+  // tables, and the evidence links this component already derives below.
+  const findings = buildFindings(view, corpus, facts, evidenceArm);
 
   return (
     <section className="findings-board">

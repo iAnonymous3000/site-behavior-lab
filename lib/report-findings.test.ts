@@ -2732,3 +2732,49 @@ test("the provenance chip claims recorded attribution, not a causal chain", () =
     /Requests whose recorded provenance can be shown: the initiator, script, or injecting actor the request is attributed to\./
   );
 });
+
+test("the findings board describes the arm the rest of the page describes", () => {
+  // Three headline branches describe the variant arm and set focusArm to it,
+  // and everything else on the page follows: stat chips, the arm switcher's
+  // default and therefore the metric grid and every evidence table, and each
+  // card's own "open the evidence" link. The board was the one surface still
+  // pinned to the display run, so the page stated two different counts for
+  // "this visit" and a card's evidence link landed in an arm its numbers did
+  // not come from.
+  //
+  // No committed report reaches those branches yet (swept all 574: zero have
+  // focusArm "variant"), so this pins the contract directly rather than
+  // through a fixture that happens to trip one.
+  const baseline = makeResult({
+    domains: [
+      makeTrackerDomain("ads.example.net", 40, "AdCo", "advertising"),
+      makeTrackerDomain("pixel.example.org", 12, "PixelCo", "advertising")
+    ],
+    thirdPartyRequests: 52,
+    thirdPartyDomains: 2
+  });
+  const variant = makeResult({
+    domains: [makeTrackerDomain("ads.example.net", 3, "AdCo", "advertising")],
+    thirdPartyRequests: 3,
+    thirdPartyDomains: 1
+  });
+  const view = viewFromV1Report(gpcPair(baseline, variant));
+
+  const onBaseline = byId(buildFindings(view, null, undefined, "baseline"), "third-party-services");
+  const onVariant = byId(buildFindings(view, null, undefined, "variant"), "third-party-services");
+
+  // The two arms must actually differ, or the assertion below proves nothing.
+  assert.notEqual(
+    onBaseline.lead,
+    onVariant.lead,
+    "the fixture's arms must differ for this contract to be observable"
+  );
+  // The baseline arm saw a second tracking company; the variant did not.
+  assert.match(onBaseline.lead, /PixelCo/);
+  assert.doesNotMatch(onVariant.lead, /PixelCo/);
+  assert.match(onVariant.lead, /AdCo/);
+
+  // Omitting the arm keeps the previous behaviour: the display run.
+  const unspecified = byId(buildFindings(view, null), "third-party-services");
+  assert.equal(unspecified.lead, onBaseline.lead);
+});
