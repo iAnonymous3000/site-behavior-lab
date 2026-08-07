@@ -255,9 +255,25 @@ function corpusBenchmarkScope(corpus: CorpusStats): string {
 export function buildFindings(
   view: ReportView,
   corpusInput: CorpusStats | null,
-  reportFacts = buildReportFacts(view)
+  reportFacts = buildReportFacts(view),
+  /**
+   * The comparison arm the rest of the page is describing, from the headline.
+   *
+   * Three headline branches (both consent branches and the GPC "still
+   * contacted" branch) describe the variant arm and set focusArm to it, and
+   * everything else follows: the stat chips, the arm switcher's default and so
+   * the metric grid, the traffic view and every evidence table, and even each
+   * card's own "open the evidence" link. The board was the one surface left
+   * pinned to the display run, so the same page stated two different counts for
+   * "this visit" and each card's evidence link landed in an arm its numbers did
+   * not come from.
+   *
+   * Passing it switches `facts`, and `run` is derived from `facts` below, so
+   * the whole board moves together rather than splitting a third way.
+   */
+  focusArm?: "baseline" | "variant"
 ): Finding[] {
-  const facts = reportFacts.display;
+  const facts = (focusArm && reportFacts.arms?.[focusArm]) ?? reportFacts.display;
   // New artifacts publish one distribution per exact schema/methodology/
   // producer/requested-GPC cohort. Select the report's own cohort or fail
   // closed. The
