@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "artifactKind": "site-behavior-detector-calibration-plan",
+  "studyId": "privacy-policy-2026-08",
+  "detector": "privacy-policy",
+  "declaredAt": "2026-08-19T00:00:00.000Z",
+  "targetPopulation": "Public https sites drawn from the frozen frame: sites across the corpus categories that served two successful unauthenticated automated desktop visits during the preregistered reliability sweep. Rates describe this frame population only and concern discovery and summarization of a linked privacy policy, never legal interpretation.",
+  "labelSealingKey": {
+    "algorithm": "rsa-oaep-sha256+a256gcm",
+    "keyId": "REPLACE-WITH-SHA256-OF-CANONICAL-SPKI-DER-AFTER-OPERATOR-KEYGEN",
+    "publicKeyPath": "calibration/privacy-policy-2026-08/label-sealing-public-key.pem",
+    "publicKeySha256": "REPLACE-WITH-SHA256-OF-COMMITTED-PEM-FILE-BYTES"
+  },
+  "design": {
+    "sampling": "simple-random",
+    "selectionProtocol": "Frame of exactly 400 sites drawn by seeded simple random sampling from the reliability-screened candidate pool defined in docs/calibration-prereg-drafts/frame-construction.md: a fixed pool of 600+ candidates composed half from the detector's likely-positive strata defined in frame-construction.md and half from likely-clean strata (reference, government, open source), every candidate having passed two pre-freeze automated visits under the exact measurement condition. The random seed is the SHA-256 of this study's committed preregistration.json, computed after commit and recorded in the frame tooling output, so the draw is deterministic, reproducible, and fixed before any acquisition.",
+    "referenceProtocol": "Each labeler independently reviews the blinded per-case evidence bundle and asserts present when the site offers a reachable privacy-policy page meeting the protocol's definition (same-site or approved policy host, policy-shaped path or label), and absent otherwise.",
+    "adjudicationProtocol": "Two through ten distinct GitHub actors label every case independently and blind to each other. One additional distinct actor precommits a blind tiebreaker source before acquisition. Agreements stand as final. Any disagreement is resolved by the precommitted tiebreaker alone, recorded as disagreement-resolved-by-blind-tiebreaker with the tiebreaker identity and artifact digest; no post-hoc discussion, relabeling, or majority vote occurs.",
+    "measurementCondition": {
+      "device": "desktop",
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "interpretation": "Rates are conditional on desktop visits with GPC disabled under passive consent observation with no consent action."
+    },
+    "independentUnits": true,
+    "predictionBlindedToReference": true,
+    "referenceBlindedToPrediction": true
+  },
+  "cases": []
+}
