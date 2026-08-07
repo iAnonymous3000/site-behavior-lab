@@ -190,16 +190,17 @@ a {
   border-radius: 6px;
 }
 
+/* The four `select:focus` / `.filter-input:focus` selectors that used to live in
+   this block have moved to the matching block near the end of the file. They
+   are re-declared with `outline: none` further down, and a media query adds no
+   specificity, so from here they lost the tie on source order and those
+   controls had no focus indicator at all in Windows High Contrast. */
 @media (forced-colors: active) {
   :focus-visible,
   .url-row:focus-within,
   .access-control:focus-within,
   .file-button:focus-within,
-  .static-gallery-search:focus-within,
-  .static-gallery-controls select:focus,
-  .static-compare-controls select:focus,
-  .request-log-tools select:focus,
-  .filter-input:focus {
+  .static-gallery-search:focus-within {
     outline: 3px solid Highlight;
     outline-offset: 2px;
   }
@@ -3425,9 +3426,26 @@ a {
   width: 100%;
 }
 
+/* The three fills sit at 1.04:1 to 1.32:1 against each other, so hue is the only
+   thing separating them, and forced-colors collapses all three to one system
+   colour. The counts are also printed as text in the legend below, so nothing is
+   lost to a reader either way, but this file's own rule (see .causal-edge-tracker)
+   is that a series gets a second visual channel besides hue. A hairline boundary
+   is that channel here: it survives forced colours, where currentColor is the
+   forced foreground. */
 .party-bar span {
   display: block;
   height: 100%;
+}
+
+.party-bar span + span {
+  border-left: 1px solid var(--surface);
+}
+
+@media (forced-colors: active) {
+  .party-bar span + span {
+    border-left-color: currentColor;
+  }
 }
 
 .party-seg-first { background: var(--sig-quiet); }
@@ -3845,6 +3863,24 @@ a {
 
 .table-wrap {
   overflow-x: auto;
+}
+
+/* `overflow-x: auto` alone makes .table-wrap the nearest scrollport for its
+   sticky header, and an unbounded scrollport never scrolls, so `thead th
+   { position: sticky }` below was inert on every evidence table: the header
+   left the viewport with the page. The domain table renders up to 100 rows and
+   the request log up to 80, which is exactly where a column header earns its
+   keep. Bounding the height gives the sticky header something to stick to, the
+   same way the catalog's own table does.
+
+   Scoped above the narrow breakpoint on purpose: below 720px the header is
+   visually hidden and each cell carries its own data-label, so a bounded
+   scroller there would add a cramped inner scroll box for no gain. max-height
+   only engages when the table is actually long, so short tables are unchanged. */
+@media (min-width: 721px) {
+  .table-wrap {
+    max-height: min(70vh, 680px);
+  }
 }
 
 table {
@@ -4846,5 +4882,27 @@ details[open] > summary .disclosure-chevron {
   /* A bare "opens in a new tab" is meaningless on paper. */
   .visually-hidden {
     display: none !important;
+  }
+}
+
+/* Focus indicators for controls whose own `:focus` rules set `outline: none`.
+   Those rules are declared after the site-wide forced-colors block near the top
+   of this file, and a media query adds no specificity, so an override placed up
+   there loses the tie on source order and paints nothing. Forced colors also
+   drops `box-shadow` and overrides `border-color`, so those controls' remaining
+   focus styling disappears too: without this block they have no focus indicator
+   at all in Windows High Contrast.
+
+   Keep this block last. Any new `outline: none` on a focusable control must
+   either use the transparent-outline technique documented at the top of this
+   file or add its selector here; the forced-colors cascade test fails
+   otherwise. */
+@media (forced-colors: active) {
+  .static-gallery-controls select:focus,
+  .static-compare-controls select:focus,
+  .request-log-tools select:focus,
+  .filter-input:focus {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
   }
 }

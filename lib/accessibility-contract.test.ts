@@ -203,6 +203,28 @@ test("the focus indicator survives forced-colors mode and clears 3:1 in both the
   assert.match(css, /:focus-visible \{\s*outline: 3px solid transparent;\s*outline-offset: 2px;\s*box-shadow: var\(--ring\);/);
   assert.match(css, /@media \(forced-colors: active\) \{[\s\S]*?outline: 3px solid Highlight;/);
 
+  // Presence is not enough, and asserting only presence is what let the defect
+  // through: four controls were named in the forced-colors block near the top
+  // of the file and then re-declared with `outline: none` further down. A media
+  // query adds no specificity, so those are specificity ties resolved by source
+  // order and the later `outline: none` won even inside forced-colors mode.
+  // Forced colors also discards box-shadow and overrides border-color, so those
+  // controls had no focus indicator at all in Windows High Contrast while this
+  // test stayed green.
+  //
+  // So check the cascade, not the text: every selector a forced-colors block
+  // gives an outline must not be given `outline: none` by any LATER rule.
+  for (const [selector, outlineIndex] of forcedColorsOutlineSelectors(css)) {
+    const cancelled = outlineNoneDeclarationIndexes(css, selector).filter(
+      (index) => index > outlineIndex
+    );
+    assert.deepEqual(
+      cancelled,
+      [],
+      `${selector} gets a forced-colors outline at ${outlineIndex} but a later rule sets outline: none at ${cancelled.join(", ")}, which wins on source order`
+    );
+  }
+
   // The ring is two solid bands, not a translucent wash: the alpha version measured
   // 1.60:1 in light theme against every surface token, well under WCAG 1.4.11.
   const ringDeclarations = css.match(/--ring: [^;]+;/g) ?? [];
@@ -215,6 +237,84 @@ test("the focus indicator survives forced-colors mode and clears 3:1 in both the
   // `.active` outranks the bare `:focus-visible` on box-shadow, so the selected segment
   // needs its own rule or it is the one control that shows no ring.
   assert.match(css, /\.segmented-control button:focus-visible \{\s*box-shadow: var\(--shadow-sm\), var\(--ring\);/);
+});
+
+/** Every selector that a `@media (forced-colors: active)` block gives an outline, with the offset of its block. */
+function forcedColorsOutlineSelectors(css: string): Array<[string, number]> {
+  const found: Array<[string, number]> = [];
+  const block = /@media \(forced-colors: active\) \{\s*([^{}]*?)\{[^{}]*?outline: 3px solid Highlight;/g;
+  let match: RegExpExecArray | null;
+  while ((match = block.exec(css)) !== null) {
+    for (const selector of match[1].split(",")) {
+      const trimmed = selector.trim();
+      if (trimmed) found.push([trimmed, match.index]);
+    }
+  }
+  return found;
+}
+
+/** Offsets of rules whose selector list contains exactly `selector` and which declare `outline: none`. */
+function outlineNoneDeclarationIndexes(css: string, selector: string): number[] {
+  const indexes: number[] = [];
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const rule = new RegExp(`(?:^|[,{}])\\s*${escaped}\\s*(?:,[^{}]*)?\\{([^{}]*)\\}`, "g");
+  let match: RegExpExecArray | null;
+  while ((match = rule.exec(css)) !== null) {
+    if (/outline:\s*none/.test(match[1])) indexes.push(match.index);
+  }
+  return indexes;
+}
+
+test("the forced-colors cascade test can actually see a cancelling rule", () => {
+  // Mutation check. The assertion above is a scan over parsed selectors, so a
+  // parser that silently matches nothing would make it vacuously true forever.
+  // Feed it the exact shape of the defect and require a catch.
+  const broken = [
+    "@media (forced-colors: active) {",
+    "  .filter-input:focus {",
+    "    outline: 3px solid Highlight;",
+    "  }",
+    "}",
+    ".filter-input:focus {",
+    "  border-color: var(--accent);",
+    "  outline: none;",
+    "}"
+  ].join("\n");
+
+  const selectors = forcedColorsOutlineSelectors(broken);
+  assert.deepEqual(
+    selectors.map(([selector]) => selector),
+    [".filter-input:focus"],
+    "the block parser must find the selector it is meant to protect"
+  );
+  assert.equal(
+    outlineNoneDeclarationIndexes(broken, ".filter-input:focus").filter(
+      (index) => index > selectors[0][1]
+    ).length,
+    1,
+    "the cancelling-rule parser must find a later outline: none"
+  );
+
+  // And the inverse: the shipped ordering must not look like a cancellation.
+  const fixed = [
+    ".filter-input:focus {",
+    "  border-color: var(--accent);",
+    "  outline: none;",
+    "}",
+    "@media (forced-colors: active) {",
+    "  .filter-input:focus {",
+    "    outline: 3px solid Highlight;",
+    "  }",
+    "}"
+  ].join("\n");
+  const fixedSelectors = forcedColorsOutlineSelectors(fixed);
+  assert.equal(fixedSelectors.length, 1);
+  assert.equal(
+    outlineNoneDeclarationIndexes(fixed, ".filter-input:focus").filter(
+      (index) => index > fixedSelectors[0][1]
+    ).length,
+    0
+  );
 });
 
 test("interactive controls draw their boundary with the 3:1 token, not the hairline one", () => {

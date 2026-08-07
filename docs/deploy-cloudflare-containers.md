@@ -68,8 +68,8 @@ export default {
 > also forwards the report-store, egress, async, CORS, and secret env vars into
 > the container via the `ScannerContainer` `envVars`. Use the committed file.
 
-`wrangler.container.jsonc` (kept separate from the retired Browser Run
-`wrangler.browser-run.jsonc` configuration):
+`wrangler.container.jsonc` (named rather than defaulted; the retired Browser Run
+worker's `wrangler.browser-run.jsonc` was deleted with its source on 2026-07-24):
 
 ```jsonc
 {
@@ -290,10 +290,10 @@ server-side, so nothing is uploaded from your machine. Worker secrets set before
 preserved across Workers Builds deploys. The deploy command must stay explicit: on
 2026-07-11 a Workers Builds settings regression reset it to the default
 (`npx wrangler versions upload`), which loaded the repo-root wrangler config, hit the
-retired Browser Run worker's name, and failed the build. The retired config is therefore
-named `wrangler.browser-run.jsonc` (no root `wrangler.jsonc` exists), so a defaulted
-command now fails with "no config file found" instead of silently targeting the wrong
-Worker. The production scanner always deploys through the wrapper, which defaults to
+retired Browser Run worker's name, and failed the build. That config was named
+`wrangler.browser-run.jsonc` rather than `wrangler.jsonc`, and has since been deleted
+along with the worker; no root `wrangler.jsonc` exists either, so a defaulted command
+fails with "no config file found" instead of silently targeting the wrong Worker. The production scanner always deploys through the wrapper, which defaults to
 the repo-root `wrangler.container.jsonc`. Its bounded `--config <filename>` override
 accepts only a regular `.jsonc` file directly in the repository root and exists for the
 separate `wrangler.container.staging.jsonc` replay-canary deployment; the production
