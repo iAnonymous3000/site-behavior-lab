@@ -239,15 +239,44 @@ test("the focus indicator survives forced-colors mode and clears 3:1 in both the
   assert.match(css, /\.segmented-control button:focus-visible \{\s*box-shadow: var\(--shadow-sm\), var\(--ring\);/);
 });
 
-/** Every selector that a `@media (forced-colors: active)` block gives an outline, with the offset of its block. */
+/**
+ * Every selector that a `@media (forced-colors: active)` block gives an
+ * outline, with the offset of its block.
+ *
+ * Walks every rule inside every forced-colors block. The first version of
+ * this parser matched only the FIRST rule per block and only the exact
+ * `outline: 3px solid Highlight` spelling, so a second rule in the same
+ * block, or a reformatted declaration, silently fell outside the guard while
+ * the test stayed green -- a guard quieter than the contract it claims to
+ * enforce is how the original defect survived.
+ */
 function forcedColorsOutlineSelectors(css: string): Array<[string, number]> {
   const found: Array<[string, number]> = [];
-  const block = /@media \(forced-colors: active\) \{\s*([^{}]*?)\{[^{}]*?outline: 3px solid Highlight;/g;
+  const block = /@media \(forced-colors: active\)\s*\{/g;
   let match: RegExpExecArray | null;
   while ((match = block.exec(css)) !== null) {
-    for (const selector of match[1].split(",")) {
-      const trimmed = selector.trim();
-      if (trimmed) found.push([trimmed, match.index]);
+    // Balanced-brace scan for the block body: rules nest exactly one level.
+    let depth = 1;
+    let index = block.lastIndex;
+    while (index < css.length && depth > 0) {
+      if (css[index] === "{") depth += 1;
+      else if (css[index] === "}") depth -= 1;
+      index += 1;
+    }
+    const body = css.slice(block.lastIndex, index - 1);
+    const rule = /([^{}]+)\{([^{}]*)\}/g;
+    let ruleMatch: RegExpExecArray | null;
+    while ((ruleMatch = rule.exec(body)) !== null) {
+      // Any outline the block grants counts, not one exact spelling; `none`
+      // and `transparent` grant nothing and are exactly what the cascade
+      // check exists to catch elsewhere. Extract-then-test rather than a
+      // lookahead after \s*, whose backtracking quietly re-admits `none`.
+      const outlineValue = /outline:\s*([^;]+);/.exec(ruleMatch[2]);
+      if (!outlineValue || /^(?:none|transparent)\b/.test(outlineValue[1].trim())) continue;
+      for (const selector of ruleMatch[1].split(",")) {
+        const trimmed = selector.trim();
+        if (trimmed) found.push([trimmed, match.index]);
+      }
     }
   }
   return found;
@@ -315,6 +344,35 @@ test("the forced-colors cascade test can actually see a cancelling rule", () => 
     ).length,
     0
   );
+
+  // The first parser matched only the FIRST rule per block and one exact
+  // outline spelling. Feed it both blind spots: a second rule in the same
+  // block, and a reformatted outline declaration. Both must be seen.
+  const multiRule = [
+    "@media (forced-colors: active) {",
+    "  .first-control:focus {",
+    "    outline: 3px solid Highlight;",
+    "  }",
+    "  .second-control:focus {",
+    "    outline: 2px dotted Highlight;",
+    "  }",
+    "}"
+  ].join("\n");
+  assert.deepEqual(
+    forcedColorsOutlineSelectors(multiRule).map(([selector]) => selector),
+    [".first-control:focus", ".second-control:focus"],
+    "every rule in a forced-colors block must be protected, not just the first"
+  );
+
+  // And an outline that grants nothing must not count as protection.
+  const noneRule = [
+    "@media (forced-colors: active) {",
+    "  .third-control:focus {",
+    "    outline: none;",
+    "  }",
+    "}"
+  ].join("\n");
+  assert.deepEqual(forcedColorsOutlineSelectors(noneRule), []);
 });
 
 test("interactive controls draw their boundary with the 3:1 token, not the hairline one", () => {
@@ -499,10 +557,15 @@ test("the homepage checklist describes the checks the report actually runs", () 
   const platforms = declared[1].split(",").map((name) => name.trim().replace(/^"|"$/g, "")).filter(Boolean);
   assert.ok(platforms.length >= 4, "expected the shared platform list to be non-trivial");
   const findings = source("lib/report-findings.ts");
-  for (const platform of platforms) {
-    assert.ok(
-      findings.includes(platform),
-      `${platform} is in HEADLINE_PLATFORMS but never appears in the findings copy`
-    );
-  }
+  // Bind the absence copy's literal sentence to the constant, not each name to
+  // a substring: `includes("X")` was satisfied by any capital X anywhere in
+  // the file, so that platform's check was vacuously green. The exact serial
+  // list is the one place the findings copy spells the platforms out, and
+  // deriving it here means adding a platform fails until that sentence is
+  // deliberately rewritten to include it.
+  const serialList = `${platforms.slice(0, -1).join(", ")}, or ${platforms.at(-1)}`;
+  assert.ok(
+    findings.includes(`No requests to catalogued ${serialList} domains`),
+    `the findings absence copy must name exactly the shared platform list (${serialList})`
+  );
 });
