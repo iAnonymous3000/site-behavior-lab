@@ -51,8 +51,10 @@ import {
   scanSiteWithMeasurement,
   scanTimeout,
   ScanWarningCollector,
+  probeKeystrokeExfiltration,
   sameScanSubjectUrl,
   typeSentinelIntoFields,
+  type KeystrokeProbeLifecycle,
   type ScanEvidenceDiagnostics
 } from "./scanner";
 import {
@@ -3907,4 +3909,100 @@ test("the widened policy wire allowance still enforces the character cap", () =>
   assert.equal(boundedPolicyTextFromWire(null), "");
   assert.equal(boundedPolicyTextFromWire("not json"), "");
   assert.equal(boundedPolicyTextFromWire(JSON.stringify({ truncated: true })), "");
+});
+
+test("a probe that throws after typing still discloses the fields it typed into", async () => {
+  // The keystroke probe types a synthetic sentinel into real form fields, and
+  // the requests that typing provokes stay in the retained request log. If the
+  // probe then fails, the report must still say the scanner provoked them;
+  // otherwise the scan publishes its own traffic as the site's.
+  //
+  // The failure that reaches this path is typeSentinelIntoFields itself
+  // rejecting mid-loop: its per-field work is wrapped in a catch, but the
+  // `elementHandle()` call that selects the next candidate is not. The
+  // disclosure therefore has to come from the live counter the typing loop
+  // advances, not from the resolved return value, which never arrives.
+  const makeHandle = () => ({
+    async isVisible() {
+      return true;
+    },
+    async evaluate<Arg>(callback: (element: HTMLElement, arg: Arg) => unknown, arg: Arg) {
+      const element = {
+        tagName: "INPUT",
+        isContentEditable: false,
+        getAttribute: () => "text",
+        blur: () => undefined
+      } as unknown as HTMLElement;
+      Object.defineProperty(globalThis, "probe-throw-collector", {
+        configurable: true,
+        value: {
+          fieldType: () => "text",
+          sentinelPresent: () => true,
+          blur: () => undefined
+        }
+      });
+      try {
+        return callback(element, arg);
+      } finally {
+        Reflect.deleteProperty(globalThis, "probe-throw-collector");
+      }
+    },
+    async focus() {},
+    async type() {},
+    async dispose() {}
+  });
+
+  const TYPED_BEFORE_FAILURE = 3;
+  const page = {
+    url: () => "https://www.example.com/form",
+    on: () => undefined,
+    off: () => undefined,
+    async waitForTimeout() {},
+    locator: () => ({
+      count: async () => TYPED_BEFORE_FAILURE + 2,
+      nth: (index: number) => ({
+        async elementHandle() {
+          // Candidate selection is the one await outside the per-field catch,
+          // so this is the real escape hatch that produces the failure.
+          if (index >= TYPED_BEFORE_FAILURE) {
+            throw new Error("execution context destroyed while selecting a field");
+          }
+          return makeHandle();
+        }
+      })
+    })
+  };
+
+  const warnings = new ScanWarningCollector();
+  const lifecycle: KeystrokeProbeLifecycle = {
+    cancelled: false,
+    typedFieldCount: 0,
+    stopCapture: () => undefined
+  };
+
+  const outcome = await probeKeystrokeExfiltration(
+    page as unknown as Parameters<typeof probeKeystrokeExfiltration>[0],
+    "https://www.example.com/form",
+    "www.example.com",
+    Date.now(),
+    warnings,
+    "probe-throw-collector",
+    lifecycle
+  );
+
+  assert.equal(outcome.status, "failed");
+  assert.equal(
+    lifecycle.typedFieldCount,
+    TYPED_BEFORE_FAILURE,
+    "the typing loop must have advanced the live counter before the throw"
+  );
+
+  const disclosure = warnings.list.find((warning) =>
+    /typed a synthetic test value/.test(warning)
+  );
+  assert.ok(
+    disclosure,
+    "a probe that typed into fields must disclose it even when it then failed"
+  );
+  assert.match(disclosure, new RegExp(`${TYPED_BEFORE_FAILURE} form fields`));
 });
