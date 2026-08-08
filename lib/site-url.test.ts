@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  printableReportHref,
   publicLibraryUrl,
   resolvePublicLibraryOrigin,
   resolveSiteOrigin,
@@ -87,3 +88,23 @@ function restore(name: string, value: string | undefined) {
   if (value === undefined) delete process.env[name];
   else process.env[name] = value;
 }
+
+test("printableReportHref survives both report-URL forms", () => {
+  // publicReportUrl appends the trailing slash only on the static export, so a
+  // naive template produced ".../reports/<id>print/" on the container. A
+  // browser found that; the source-regex contract test had encoded it as
+  // correct, which is why this is asserted on the function instead.
+  assert.equal(
+    printableReportHref("https://example.test/reports/20260101-" + "a".repeat(32)),
+    "https://example.test/reports/20260101-" + "a".repeat(32) + "/print/"
+  );
+  assert.equal(
+    printableReportHref("https://example.test/reports/20260101-" + "a".repeat(32) + "/"),
+    "https://example.test/reports/20260101-" + "a".repeat(32) + "/print/"
+  );
+  assert.equal(
+    printableReportHref("https://example.test/reports/x//"),
+    "https://example.test/reports/x/print/"
+  );
+  assert.doesNotMatch(printableReportHref("https://example.test/reports/x"), /xprint/);
+});

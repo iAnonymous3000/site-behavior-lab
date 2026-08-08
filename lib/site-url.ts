@@ -143,3 +143,15 @@ function parseIpv4(hostname: string): [number, number, number, number] | null {
   const octets = hostname.split(".").map(Number) as [number, number, number, number];
   return octets.every((octet) => octet >= 0 && octet <= 255) ? octets : null;
 }
+
+/**
+ * The printable rendering of a report, from that report's public URL.
+ *
+ * A plain `${reportUrl}print/` is wrong: publicReportUrl appends a trailing
+ * slash only on the static export, so on the container it produced
+ * `.../reports/<id>print/`. Normalising here keeps both callers correct
+ * regardless of which form they hold.
+ */
+export function printableReportHref(reportUrl: string): string {
+  return `${reportUrl.replace(/\/+$/, "")}/print/`;
+}

@@ -9,7 +9,7 @@ import {
   type ReportView,
   type RunView
 } from "@/lib/scan-report-views";
-import { sitePagesBasePath } from "@/lib/site-url";
+import { printableReportHref, sitePagesBasePath } from "@/lib/site-url";
 
 const SOURCE_REPOSITORY = "https://github.com/iAnonymous3000/site-behavior-lab";
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
@@ -111,7 +111,7 @@ export function ReportPageContext({
                 ship a dead link on every committed report. Same signal the
                 build uses, so the two cannot disagree. */}
             {!STATIC_EXPORT && (
-              <a className="secondary-button" href={`${reportUrl}print/`}>
+              <a className="secondary-button" href={printableReportHref(reportUrl)}>
                 Printable version
               </a>
             )}
