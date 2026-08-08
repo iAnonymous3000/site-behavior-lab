@@ -29,10 +29,20 @@ import { ReportRenderer } from "@/app/_components/report-renderer";
  *
  * Container-only by construction: `scripts/build-github-pages.mjs` lists this
  * directory in `serverOnlyAppDirs`, so the static export never contains it.
- * Serving 574 committed reports as eagerly-rendered evidence pages would add an
- * unmeasured multiple of the export's current size, and there is no total-size
- * gate to catch the overrun yet. `lib/print-route-contract.test.ts` holds that
- * arrangement in place; moving it onto Pages is one line plus a measured build.
+ * Prerendering it would render full evidence eagerly for every committed
+ * report and inline each report's payload into the RSC flight stream on top of
+ * the markup. Nobody has measured what that costs, and an estimate is worthless
+ * here because a printComplete page is not comparable to the summary page the
+ * current export measures.
+ *
+ * The overrun would now be CAUGHT rather than silently published:
+ * `scripts/smoke-static-site.mjs` bounds the whole export (268 MB against a
+ * 700 MB ceiling at the time of writing). So the remaining blocker is one
+ * measured `npm run build:pages && npm run test:smoke:static` with the
+ * `serverOnlyAppDirs` entry removed and this route added to
+ * `runtimeReportRouteFiles`, not the absence of a gate.
+ * `lib/print-route-contract.test.ts` holds the container-only arrangement in
+ * place and must be updated in the same change.
  */
 
 const correctionsLedger = parseCorrectionsLedger(corrections);

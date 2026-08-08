@@ -44,10 +44,13 @@ const serverOnlyAppDirs = [
   // The printable rendering is container-only. Prerendering it for every
   // committed report would render the full evidence eagerly 574 times and
   // inline each report's payload into the RSC flight stream on top of the
-  // markup, an unmeasured multiple of the export's current size against a
-  // published-site ceiling, with no total-size gate to catch the overrun.
-  // Moving it onto Pages means deleting this entry, adding the route to
-  // runtimeReportRouteFiles below, and measuring one build.
+  // markup. That cost is unmeasured, and an estimate is worthless because a
+  // printComplete page is not comparable to the summary page the current
+  // export measures. It would now be caught rather than silently published:
+  // scripts/smoke-static-site.mjs bounds the whole export against a declared
+  // ceiling. Moving it onto Pages means deleting this entry, adding the route
+  // to runtimeReportRouteFiles below, updating lib/print-route-contract.test.ts
+  // in the same change, and reading the gate's own number from one real build.
   path.join(rootDir, "app", "reports", "[id]", "print")
 ];
 const runtimeReportRouteFiles = [
