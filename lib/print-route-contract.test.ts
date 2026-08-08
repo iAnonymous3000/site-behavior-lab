@@ -125,3 +125,21 @@ test("the printable route is container-only, and says why in the file a reader l
 test("the printable route is not advertised to crawlers", () => {
   assert.doesNotMatch(source("app/sitemap.ts"), /\/print/, "the printable rendering must stay out of the sitemap");
 });
+
+test("the link to the printable route is conditioned on the same signal the build uses", () => {
+  // The route is excluded from the static export, so an unconditional link
+  // would ship a dead link on every one of the committed reports Pages serves.
+  // The condition must be the export signal itself, not a proxy for it.
+  const context = source("app/_components/report-page-context.tsx");
+  assert.match(context, /Printable version/, "a reader needs a way to reach the complete rendering");
+  assert.match(
+    context,
+    /NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1"/,
+    "the link must be gated on the export signal"
+  );
+  assert.match(
+    context,
+    /\{!STATIC_EXPORT && \(\s*<a[^>]*href=\{`\$\{reportUrl\}print\/`\}/,
+    "the printable link must render only when this is not the static export"
+  );
+});

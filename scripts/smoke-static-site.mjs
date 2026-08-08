@@ -632,6 +632,11 @@ async function main() {
       fail("saved report evidence is absent from the generated initial HTML");
     }
     if (reportHtml.includes("scan-workbench")) fail("generated report HTML contains the scanner workbench");
+    // The printable rendering is container-only (serverOnlyAppDirs), so a link
+    // to it here would be dead on every committed report Pages serves.
+    if (/href="[^"]*\/print\/?"/.test(reportHtml)) {
+      fail("generated report HTML links the container-only printable route");
+    }
     if (reportHtml.includes('"evidence":{"requests"')) fail("generated report HTML inlines raw request evidence");
     await assertStaticRouteBudgets(reportHtmlPath, {
       label: "saved report",

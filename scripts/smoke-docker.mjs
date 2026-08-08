@@ -132,6 +132,7 @@ async function runPublicR2ImageSmoke() {
       SMOKE_EXPECTED_STORAGE: "r2"
     });
     assertPublicR2Bundles(smokeR2.snapshot());
+    await assertPrintableReportRoute(scanner.baseUrl, smokeR2.snapshot());
     console.log(`Docker public-v2/R2 smoke passed for ${image} at ${scanner.baseUrl}.`);
   } catch (error) {
     await printScannerLogs(scanner.containerId);
@@ -197,6 +198,62 @@ async function printScannerLogs(containerId) {
   if (!result) return;
   const output = `${result.stdout}${result.stderr}`.trim();
   if (output) console.error(`Scanner container logs (${containerId.slice(0, 12)}):\n${output}`);
+}
+
+/**
+ * The printable route, rendered by the real container.
+ *
+ * Everything else that covers this route reads source text or drives a
+ * hand-written fixture, so the route could throw at runtime, or ReportRenderer's
+ * printComplete path could regress, with every gate still green. It is also the
+ * only surface where the container and the static export deliberately differ,
+ * and it exists on exactly one of them.
+ */
+async function assertPrintableReportRoute(baseUrl, objects) {
+  const reportKey = objects
+    .map(({ key }) => key)
+    .find((key) => /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/.test(key));
+  if (!reportKey) throw new Error("Printable-route smoke found no persisted report to render.");
+  const reportId = reportKey.slice("reports/".length, -".json".length);
+
+  const response = await fetch(`${baseUrl}/reports/${reportId}/print`, {
+    headers: { accept: "text/html" },
+    redirect: "manual"
+  });
+  if (response.status !== 200) {
+    throw new Error(`Printable report route answered ${response.status}; expected 200.`);
+  }
+  const html = await response.text();
+
+  // Present because the page is the complete rendering.
+  for (const [needle, why] of [
+    ["print-evidence-footer", "the printed evidence footer"],
+    ["Exact evidence bytes", "the wire digest sentence"],
+    ["Approved use", "the approved use boundary"],
+    ["app-footer-caveat", "the standing scope caveat"],
+    ["request-evidence", "the request log the interactive route defers"]
+  ]) {
+    if (!html.includes(needle)) {
+      throw new Error(`Printable report route did not render ${why} (${needle}).`);
+    }
+  }
+
+  // Absent because the whole point is that it does NOT defer its evidence.
+  if (html.includes("report-evidence-loader")) {
+    throw new Error("Printable report route rendered the lazy evidence prompt instead of the evidence.");
+  }
+  if (!/<meta[^>]+name="robots"[^>]+noindex/i.test(html)) {
+    throw new Error("Printable report route is missing its noindex robots directive.");
+  }
+
+  // The rendered row count is the property that separates this route from the
+  // interactive one; a summary-only regression would still satisfy the strings
+  // above. The interactive route renders none of these before a click.
+  const renderedRows = (html.match(/<tr\b/g) ?? []).length;
+  if (renderedRows < 2) {
+    throw new Error(`Printable report route rendered ${renderedRows} table rows; expected the evidence tables.`);
+  }
+  console.log(`Printable report route rendered ${renderedRows} evidence rows for ${reportId}.`);
 }
 
 function assertSandboxEnabled(health) {
