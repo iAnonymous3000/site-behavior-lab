@@ -99,11 +99,18 @@ published, one command replays the digest chain:
 npm run verify:report -- <report-id>
 ```
 
+Add `--from <dir>` to check bytes you saved yourself rather than the bytes this
+site serves today; if you intend to rely on a report, read
+[docs/evidence-custody.md](docs/evidence-custody.md) first, and note that a
+printed copy is a rendering whose footer carries the wire digest, not the
+evidence.
+
 Every publication is also chained into the append-only
 [transparency log](https://sitebehavior.org/transparency-log.json), whose
-heads carry OpenTimestamps anchors, and the detectors' enumerated blind spots
-are published on the [catalog page](https://sitebehavior.org/catalog/) with
-the test that keeps each claim honest.
+heads carry OpenTimestamps anchors covering the entries beneath them, and the
+detectors' enumerated blind spots are published on the
+[catalog page](https://sitebehavior.org/catalog/) with the test that keeps each
+claim honest.
 
 Two limits matter most for serious work, and both are deliberate:
 
