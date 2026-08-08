@@ -481,7 +481,7 @@ function StaticReportCard({
         <em>{report.requestedUrl}</em>
       </span>
       <span className="static-report-meta">
-        <span className="visually-hidden">{staticReportCardExtraEvidenceLabel(report)}</span>
+        <span className="visually-hidden print-text-equivalent">{staticReportCardExtraEvidenceLabel(report)}</span>
         <b>{staticReportRequestCountLabel(report, report.metrics.thirdPartyRequests, "third-party request")}</b>
         <small>
           {report.comparisonType === "shields" && (report.metrics.shieldsBlockedRequests ?? 0) > 0

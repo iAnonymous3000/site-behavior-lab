@@ -239,7 +239,7 @@ function IncompleteEvidenceChip({ capped }: { capped: boolean }) {
   return (
     <span className="capped-chip">
       {capped ? "recording capped" : "request evidence incomplete"}
-      <span className="visually-hidden">
+      <span className="visually-hidden print-text-equivalent">
         {capped
           ? ": this visit hit the exact request-recording cap, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."
           : ": this visit has incomplete request evidence from another bounded capture loss, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."}
