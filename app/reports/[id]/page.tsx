@@ -151,6 +151,25 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         }
         summary={<ReportPageSummary headline={headline} view={view} />}
       />
+      <footer className="print-evidence-footer">
+        <p>
+          Printed copy of {reportUrl}. This print is a rendering, not the evidence; the JSON wire is
+          canonical. Exact evidence bytes: SHA-256 <code>{result.wireSha256}</code>.
+        </p>
+        {result.origin === "committed" ? (
+          <p>
+            Verify independently: run <code>npm run verify:report -- {id}</code> in
+            github.com/iAnonymous3000/site-behavior-lab. This publication is chained into the
+            append-only transparency log at sitebehavior.org/transparency-log.json.
+          </p>
+        ) : (
+          <p>
+            This report is a time-limited share and expires on its retention schedule. If you rely on
+            this print, save the JSON evidence and its digest now; after expiry the digest above is
+            the only way to authenticate a retained copy.
+          </p>
+        )}
+      </footer>
     </>
   );
 }
