@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createServer } from "node:http";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
@@ -48,6 +48,25 @@ const maxReportHtmlBytes = 200 * 1024;
 // number is stated rather than absorbed so the regression stays visible, and
 // the 4 KB of headroom keeps the gate binding.
 const maxInitialJsGzipBytes = 190 * 1024;
+/**
+ * Ceiling on the WHOLE published artifact, not one page.
+ *
+ * The per-page budgets above cannot see this: they bound one report's HTML and
+ * its initial JavaScript, and 574 pages that each pass them can still produce
+ * an artifact the platform refuses to publish. Nothing asserted total size
+ * before, so the only signal of an overrun would have been a failed deploy.
+ *
+ * Derived. Measured today: out/ is 318 MB, of which out/reports is 298 MB and
+ * the two social cards per report are the bulk of it. The corpus pruner caps
+ * committed reports at 1,000, so the same export at the corpus's own maximum
+ * is roughly 554 MB. The ceiling clears that (a full corpus must never fail
+ * this gate) and sits below GitHub Pages' 1 GB published-site limit, which is
+ * the failure this exists to prevent. It still catches the change that
+ * motivated it: prerendering the printable route for every committed report
+ * renders full evidence eagerly 574 times and would breach this long before it
+ * breached the platform.
+ */
+const maxStaticExportBytes = 700 * 1024 * 1024;
 const staticFetchTimeoutMs = 10_000;
 const controlResponseMaxBytes = 64 * 1024;
 const schemaResponseMaxBytes = 2 * 1024 * 1024;
@@ -185,6 +204,7 @@ async function fetchResource(url, init, label, read) {
 }
 
 async function main() {
+  await assertStaticExportSize();
   const manifest = await readManifest();
   const phaseReport = await findR2PhaseSmokeReport(manifest);
   const longestOgReport = await findLongestOgReport(manifest);
@@ -890,6 +910,41 @@ async function assertStaticRouteBudgets(htmlPath, { label, maxHtmlBytes, maxInit
     fail(`${label} initial JavaScript is ${compressedBytes} gzip bytes; budget is ${maxInitialJsGzipBytes} bytes`);
   }
   pass(`${label} stays within HTML and initial-JavaScript budgets`);
+}
+
+async function directorySizeBytes(directory) {
+  let total = 0;
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const child = path.join(directory, entry.name);
+    if (entry.isDirectory()) total += await directorySizeBytes(child);
+    else if (entry.isFile()) total += (await stat(child)).size;
+  }
+  return total;
+}
+
+async function assertStaticExportSize() {
+  const byDirectory = [];
+  let total = 0;
+  for (const entry of await readdir(outDir, { withFileTypes: true })) {
+    const child = path.join(outDir, entry.name);
+    const bytes = entry.isDirectory() ? await directorySizeBytes(child) : (await stat(child)).size;
+    total += bytes;
+    byDirectory.push([entry.name, bytes]);
+  }
+
+  if (total > maxStaticExportBytes) {
+    // Attribute the overrun. A single scary number gets the ceiling raised
+    // reflexively; a breakdown says which half grew and whether it should have.
+    const breakdown = byDirectory
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([name, bytes]) => `${name} ${(bytes / 1024 / 1024).toFixed(1)} MB`)
+      .join(", ");
+    fail(
+      `static export is ${(total / 1024 / 1024).toFixed(1)} MB; ceiling is ${(maxStaticExportBytes / 1024 / 1024).toFixed(0)} MB. Largest: ${breakdown}`
+    );
+  }
+  pass(`static export is ${(total / 1024 / 1024).toFixed(1)} MB, within its ${(maxStaticExportBytes / 1024 / 1024).toFixed(0)} MB ceiling`);
 }
 
 function escapeRegex(value) {

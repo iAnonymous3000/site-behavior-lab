@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { usePrintComplete } from "./print-mode";
 import { comparisonArmViews, comparisonDiffView, type ReportView } from "@/lib/scan-report-views";
 import {
   comparisonSupportsExactClaimDelta,
@@ -361,7 +362,9 @@ function DiffList<T>({
   producerCapped: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const visible = expanded ? items : items.slice(0, DIFF_COLLAPSED_COUNT);
+  // Paper cannot expand a list, so print renders every retained entry.
+  const printComplete = usePrintComplete();
+  const visible = expanded || printComplete ? items : items.slice(0, DIFF_COLLAPSED_COUNT);
   // A capped diff list carries no record of how many entries it dropped, so
   // saying "show all N" over one would assert a completeness the report cannot
   // support.

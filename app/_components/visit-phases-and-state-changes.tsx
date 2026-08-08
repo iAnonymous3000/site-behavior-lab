@@ -2,6 +2,8 @@
 
 import { AlertTriangle, ChevronDown, Cookie, Database } from "lucide-react";
 import { useMemo, useState } from "react";
+import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
+import { usePrintComplete } from "./print-mode";
 import {
   STATE_CHANGE_ROW_LIMIT,
   buildVisitPhaseEvidence,
@@ -18,12 +20,16 @@ import { familyUnsupportedOnRun, type RunView } from "@/lib/scan-report-views";
  * views return null rather than presenting derived stand-ins as recorded fact.
  */
 export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
+  const printComplete = usePrintComplete();
   const evidence = useMemo(() => buildVisitPhaseEvidence(run), [run]);
   const [ledgerOpened, setLedgerOpened] = useState(false);
 
   if (evidence === null) return null;
 
-  const shownChanges = evidence.changes.slice(0, STATE_CHANGE_ROW_LIMIT);
+  const shownChanges = evidence.changes.slice(
+    0,
+    printComplete ? PRINT_ROW_CAPS.stateChanges : STATE_CHANGE_ROW_LIMIT
+  );
   const cookieUnsupported = familyUnsupportedOnRun(run, "cookies");
   const storageUnsupported = familyUnsupportedOnRun(run, "storage");
   const ledgerUnsupported = cookieUnsupported || storageUnsupported;
@@ -112,6 +118,9 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
 
       <details
         className="disclosure state-change-disclosure"
+        // Same pairing as the request log: onToggle never fires for an element
+        // that mounts open, so the body gate below tests printComplete too.
+        open={printComplete || undefined}
         onToggle={(event) => {
           if (event.currentTarget.open) setLedgerOpened(true);
         }}
@@ -122,7 +131,7 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
           <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
         </summary>
 
-        {ledgerOpened ? (
+        {printComplete || ledgerOpened ? (
           <div className="state-change-content">
             <p className="state-change-caveat">
               Changes are inferred from privacy-filtered snapshots at phase boundaries, not instrumented browser write
