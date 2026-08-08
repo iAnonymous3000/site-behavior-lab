@@ -4911,3 +4911,28 @@ details[open] > summary .disclosure-chevron {
     outline-offset: 2px;
   }
 }
+
+/* Screen never shows the print-evidence footer; print always does. A printed
+   report detaches from its caveats the moment it leaves the browser, so the
+   footer re-attaches the one pointer that survives paper: the exact wire
+   digest and how to verify it. */
+.print-evidence-footer {
+  display: none;
+}
+
+@media print {
+  .print-evidence-footer {
+    border-top: 1px solid #8b968d;
+    color: #333333;
+    display: block;
+    font-size: 10px;
+    line-height: 1.5;
+    margin-top: 18px;
+    padding-top: 10px;
+  }
+
+  .print-evidence-footer code {
+    font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+}
