@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
 import type { ReportCorrections } from "@/lib/corrections-ledger";
 import { reportActivation } from "@/lib/report-trust";
 import {
@@ -130,6 +131,13 @@ export function ReportPageContext({
             versioned report JSON contains the retained public evidence; see the <Link href="/methodology/">methodology</Link> for
             interpretation and retention limits.
           </p>
+          {CLAIM_BOUNDARY && (
+            <p className="evidence-receipt-note">
+              Approved use boundary: {claimBoundaryParagraph(CLAIM_BOUNDARY)} Recorded in this
+              project&apos;s release manifest on{" "}
+              <time dateTime={CLAIM_BOUNDARY.decidedAt}>{CLAIM_BOUNDARY.decidedAt.slice(0, 10)}</time>.
+            </p>
+          )}
         </details>
       </section>
     </div>
