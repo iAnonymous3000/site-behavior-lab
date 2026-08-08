@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "e5e92444659239cd36591f222ac83083b314f6e388f2c07b3f896353d14c6c0e"
+      "sha256": "3d068333d4c531bcaa2fd18f614e033f8e55bf683cee839a0beeca14ce2994c7"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -1444,13 +1444,13 @@
     },
     {
       "name": "nanoid",
-      "version": "3.3.16",
+      "version": "3.3.18",
       "lockPath": "node_modules/nanoid",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.16.tgz",
-      "integrity": "sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==",
+      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.18.tgz",
+      "integrity": "sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==",
       "developmentOnly": false,
       "optional": false
     },

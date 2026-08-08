@@ -1628,10 +1628,10 @@
       "notes": null
     },
     {
-      "key": "npm:nanoid@3.3.16",
+      "key": "npm:nanoid@3.3.18",
       "ecosystem": "npm",
       "name": "nanoid",
-      "version": "3.3.16",
+      "version": "3.3.18",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
