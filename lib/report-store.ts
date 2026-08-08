@@ -27,6 +27,18 @@ import { sha256Hex } from "./sha256";
 import type { ReportShare, ScanReport } from "./types";
 
 const DEFAULT_REPORT_MAX_AGE_DAYS = 7;
+/**
+ * The R2 bucket's own `reports-retention-backstop-8d` lifecycle rule, in days.
+ *
+ * The bucket, not this process, has the last word on how long a share's bytes
+ * exist: the rule deletes the whole `reports/` prefix at this age with no
+ * exemption path. Kept here so the application TTL can be clamped below it;
+ * lib/report-store.test.ts holds it to the value actually read back from the
+ * live bucket in research/ops-receipts/r2-lifecycle-readback.json, so changing
+ * the bucket rule without changing this constant fails a test rather than
+ * silently outliving or under-living the published expiry.
+ */
+const REPORT_BUCKET_BACKSTOP_DAYS = 8;
 const DEFAULT_REPORT_MAX_COUNT = 500;
 /**
  * Listing slots reserved for objects prune must tolerate but cannot yet delete:
@@ -925,8 +937,31 @@ function reportMaxAgeMs(): number {
   return reportMaxAgeDays() * 24 * 60 * 60 * 1_000;
 }
 
+/**
+ * Clamped strictly below the R2 bucket's own deletion rule, for the same class
+ * of reason as reportMaxCount() below but with a worse failure mode.
+ *
+ * Two independent retention contracts govern these bytes. This process writes
+ * `retention.expiresAt` into the provenance sidecar, publishes it, and refuses
+ * to delete a report before it. The bucket separately deletes everything under
+ * `reports/` at REPORT_BUCKET_BACKSTOP_DAYS, unconditionally, with no exemption
+ * path. Nothing tied the two together, so an operator setting this env to 30
+ * produced a store that promised a 30-day permalink and a bucket that destroyed
+ * it on day 8.
+ *
+ * That is not merely a broken link. docs/compatibility-promise.md is approved
+ * and digest-pinned in RELEASE_READINESS.json, and it promises a permalink
+ * "either serves the same measurement or honestly ceases to exist" on the
+ * documented application TTL. A share that 404s two thirds of the way through
+ * its own published expiry breaks that promise without anyone editing the
+ * promised document.
+ *
+ * Clamping rather than throwing keeps a misconfigured deployment serving
+ * reports with an honest, shorter expiry instead of refusing every scan.
+ */
 function reportMaxAgeDays(): number {
-  return positiveNumberFromEnv(REPORT_MAX_AGE_DAYS_ENV, DEFAULT_REPORT_MAX_AGE_DAYS);
+  const requested = positiveNumberFromEnv(REPORT_MAX_AGE_DAYS_ENV, DEFAULT_REPORT_MAX_AGE_DAYS);
+  return Math.min(requested, REPORT_BUCKET_BACKSTOP_DAYS - 1);
 }
 
 /**
