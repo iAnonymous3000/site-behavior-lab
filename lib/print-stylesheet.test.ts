@@ -45,6 +45,8 @@ const FIXTURE = `<!doctype html>
         <h3 class="visually-hidden print-text-equivalent" id="mapheading">Relationships shown in the causal map</h3>
         <ol class="visually-hidden print-text-equivalent" id="maplist"><li>3 requests to example.test</li></ol>
       </section>
+      <p class="print-only" id="armprint">Evidence below is from the baseline visit.</p>
+      <div class="arm-switcher" id="armswitcher"><span>Evidence shown:</span><button class="arm-option">Baseline</button></div>
       <div class="evidence-receipt-links" id="receiptlinks"><a href="#">Open report JSON</a></div>
       <a href="#">Source<span class="visually-hidden" id="newtab"> (opens in a new tab)</span></a>
       <p class="visually-hidden" role="status" aria-live="polite" id="live">3 results</p>
@@ -75,6 +77,8 @@ const PROBED_IDS = [
   "live",
   "footerlinks",
   "caveat",
+  "armprint",
+  "armswitcher",
   "printfooter"
 ] as const;
 
@@ -130,6 +134,10 @@ test("evidence and its qualifications survive onto paper", () => {
   assert.equal(visible.count, true, "the recorded-vs-shown count must print");
   assert.equal(visible.lazynote, true, "the unopened-disclosure note must print");
   assert.equal(visible.loader, true, "the evidence-explorer prompt must print");
+
+  // Every table below the switcher shows one arm. Paper cannot switch, so it
+  // has to say which arm it is showing and that the other is absent.
+  assert.equal(visible.armprint, true, "a printed comparison must name the arm it shows");
 });
 
 test("controls and screen-reader scaffolding stay off paper", () => {
@@ -139,6 +147,7 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   assert.equal(visible.chevron, false, "a disclosure chevron is decoration");
   assert.equal(visible.receiptlinks, false, "link buttons carry no text on paper");
   assert.equal(visible.footerlinks, false, "footer navigation is not evidence");
+  assert.equal(visible.armswitcher, false, "the arm switcher is a control; its print-only replacement carries the fact");
 
   // The exemption must be opt-in. If .visually-hidden were simply revealed,
   // these two would print as body copy.

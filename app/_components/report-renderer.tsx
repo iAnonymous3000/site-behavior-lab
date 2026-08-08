@@ -163,6 +163,15 @@ export function ReportRenderer({
             <ComparisonPanel view={reportView} facts={reportFacts} />
           )}
           {arms && (
+            /* The switcher itself is a control and does not print, and every
+               table below shows exactly one arm. On paper that would leave a
+               comparison report silently showing one visit's numbers with no
+               statement of which, so the arm is named in print-only text. */
+            <p className="print-only">
+              {`Evidence below is from the ${armDisplayLabel(reportView, displayedArmLabel)} visit. The other visit's evidence is not printed; open the report online to switch arms.`}
+            </p>
+          )}
+          {arms && (
             <div className="arm-switcher" role="group" aria-label="Which visit's evidence the tables below show">
               <span>Evidence shown:</span>
               {(["baseline", "variant"] as const).map((arm) => (

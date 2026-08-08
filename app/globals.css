@@ -4836,8 +4836,13 @@ details[open] > summary .disclosure-chevron {
   .section-tools,
   .filter-input,
   .disclosure-chevron,
-  .evidence-receipt-links {
+  .evidence-receipt-links,
+  .arm-switcher {
     display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
   }
 
   /* One exception to hiding .app-footer: its standing scope caveat is evidence
@@ -4980,6 +4985,12 @@ details[open] > summary .disclosure-chevron {
     outline: 3px solid Highlight;
     outline-offset: 2px;
   }
+}
+
+/* Text that exists only to replace an interactive affordance on paper. Screen
+   readers and screen viewers get the real control; print gets the sentence. */
+.print-only {
+  display: none;
 }
 
 /* Screen never shows the print-evidence footer; print always does. A printed
