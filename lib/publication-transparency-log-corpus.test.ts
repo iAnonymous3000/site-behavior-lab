@@ -7,8 +7,21 @@ import {
   parseTransparencyLog,
   verifyTransparencyLogChain
 } from "./publication-transparency-log";
+import { inspectOtsProof } from "./transparency-log-anchoring";
 import { sha256Hex } from "./sha256";
 import { listStaticReportCandidateIds, readStaticReportBundle } from "./static-report-files";
+
+/**
+ * How many published entries may sit above the newest anchored head.
+ *
+ * Derived, not guessed: the busiest week in the committed log published 152
+ * entries (2026 W30), and .github/workflows/anchor-transparency-log.yml runs
+ * weekly. The ceiling is two peak weeks plus headroom, so one missed anchoring
+ * run never fails an unrelated pull request, while a month of silence does.
+ * Raising it is a decision about how long publications may go unwitnessed;
+ * make it deliberately.
+ */
+const MAX_UNANCHORED_ENTRIES = 320;
 
 /**
  * The committed transparency log against the committed corpus.
@@ -104,4 +117,53 @@ test("log entries are unique and contiguous, so nothing was quietly dropped", as
   log.entries.forEach((entry, index) => {
     assert.equal(entry.sequence, index, "log sequence numbers must be contiguous from zero");
   });
+});
+
+test("every committed anchor is a real detached timestamp over a real chain head", async () => {
+  const log = await readLog();
+  assert.ok(log.anchors.length > 0, "the committed log must carry at least one anchor");
+
+  let previousEntryCount = 0;
+  for (const anchor of log.anchors) {
+    // Parsing only checks base64 shape and size, and chain verification only
+    // checks that the anchor names a head the chain reached. Neither opens the
+    // proof, so a foreign or truncated blob committed by mistake would pass
+    // both, and no human can review 300 characters of base64 in a diff.
+    const inspection = inspectOtsProof(
+      Buffer.from(anchor.proof, "base64"),
+      anchor.head
+    );
+    assert.ok(
+      inspection.pendingAttestations + inspection.bitcoinAttestations > 0,
+      `anchor at entryCount ${anchor.entryCount} carries neither a calendar nor a Bitcoin attestation`
+    );
+
+    assert.ok(
+      anchor.entryCount >= 1 && anchor.entryCount <= log.entries.length,
+      `anchor entryCount ${anchor.entryCount} is outside the log's ${log.entries.length} entries`
+    );
+    // A witness that moves backwards is either a rewind or a mis-ordered
+    // append; both mean the anchor list no longer reads as a history.
+    assert.ok(
+      anchor.entryCount >= previousEntryCount,
+      "committed anchors must not decrease in entryCount"
+    );
+    previousEntryCount = anchor.entryCount;
+  }
+});
+
+test("the anchored prefix of the log is disclosed, not assumed", async () => {
+  const log = await readLog();
+  const anchored = Math.max(...log.anchors.map((anchor) => anchor.entryCount));
+  const unanchored = log.entries.length - anchored;
+
+  // Not a failure: entries published after the newest anchor legitimately have
+  // no external time bound until the next anchoring run. This asserts the gap
+  // stays bounded, so "the log is anchored" never quietly becomes a statement
+  // about a small anchored prefix of a much longer log.
+  assert.ok(
+    unanchored <= MAX_UNANCHORED_ENTRIES,
+    `${unanchored} of ${log.entries.length} published entries sit above the newest anchored head ` +
+      `(${anchored}); run npm run transparency:log:anchor. The ceiling is ${MAX_UNANCHORED_ENTRIES}.`
+  );
 });
