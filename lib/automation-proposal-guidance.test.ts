@@ -5,6 +5,7 @@ import { test } from "node:test";
 
 const workflowsDirectory = path.join(process.cwd(), ".github", "workflows");
 const expectedProposalWorkflows = [
+  "anchor-transparency-log.yml",
   "archive-aa-study.yml",
   "archive-hosted-evidence.yml",
   "archive-release-receipt.yml",

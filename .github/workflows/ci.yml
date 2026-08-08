@@ -290,6 +290,25 @@ jobs:
       - name: Verify append-only publication transparency log
         run: npm run transparency:verify-history -- "${{ steps.corrections_baseline.outputs.baseline }}"
 
+      # Append-only is not coverage. This re-derives every committed report's
+      # wire digest and fails if a published report is missing from the chain,
+      # which the history check above cannot see.
+      - name: Verify transparency log covers every committed report
+        run: npm run transparency:log:check
+
+      # The printed evidence footer instructs readers to run this command, so
+      # it must be a command this project actually runs. --from is required:
+      # the CLI otherwise defaults to fetching the live site, which would make
+      # an unrelated pull request fail on a deploy lag or a network blip, and
+      # would silently assert something stronger than CI can know about the
+      # tree it just checked out.
+      - name: Verify a committed report offline, exactly as the printed footer instructs
+        run: |
+          set -euo pipefail
+          newest=$(node -e 'const r=require("./public/reports/index.json").reports; if(!r.length){console.error("no committed reports");process.exit(1);} console.log([...r].sort((a,b)=>a.id<b.id?1:-1)[0].id)')
+          echo "Verifying $newest"
+          npm run verify:report -- "$newest" --from public/reports
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 

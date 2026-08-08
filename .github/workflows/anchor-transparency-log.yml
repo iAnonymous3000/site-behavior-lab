@@ -1,0 +1,164 @@
+name: Anchor Transparency Log
+
+# Every published report is chained into public/transparency-log.json, but a
+# chain proves order, not time. The external time bound comes from anchoring
+# the chain HEAD through OpenTimestamps, and an anchor only covers entries
+# beneath the head it names. So an anchor taken once and never repeated leaves
+# every later publication with no bound at all: at the time this workflow
+# landed, 99 of 577 published entries sat above the newest anchored head.
+#
+# This runs weekly, submits the CURRENT head to the calendars, and proposes the
+# updated log through the normal reviewed automation/* pull-request path. It
+# never rewrites an existing anchor: the anchor list is append-only, and
+# assertTransparencyLogHistory compares committed anchors by whole object, so
+# an in-place edit fails CI by design.
+#
+# It does NOT upgrade a pending calendar promise into a Bitcoin attestation.
+# That needs the external opentimestamps client to replay the proof's operation
+# tree, which this repository deliberately does not reimplement; run
+# `npm run transparency:log:anchor:status` for the exact invocation.
+
+on:
+  schedule:
+    # Thursdays, deliberately away from the Monday corpus refresh so the two
+    # repo-writing runs do not queue behind each other on the shared group.
+    - cron: "23 5 * * 4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# The scan, featured-scan, and brave-list workflows all commit to the same
+# tree, and this one writes public/transparency-log.json, which scan.yml and
+# scan-featured.yml also write. Join their group or the pushes race.
+concurrency:
+  group: site-behavior-repo-writers-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  anchor:
+    name: Anchor the current chain head
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      # The proposal's push-event CI run is parked for manual approval; this
+      # starts separate non-promoting branch validation.
+      actions: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Report the anchor state before submitting
+        run: |
+          set -euo pipefail
+          npm run transparency:log:anchor:status | tee "$RUNNER_TEMP/anchor-before.txt"
+
+      - name: Submit the current head to the calendars
+        id: anchor
+        run: |
+          set -euo pipefail
+          # Anchoring is redundancy across independent calendars: the CLI exits
+          # nonzero only when every calendar failed, in which case nothing
+          # changed and the run should be visibly red rather than silently
+          # proposing an unchanged file.
+          npm run transparency:log:anchor | tee "$RUNNER_TEMP/anchor-submit.txt"
+          if git diff --quiet -- public/transparency-log.json; then
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "The current head is already anchored by every calendar; nothing to propose."
+          else
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Re-verify the log after anchoring
+        if: steps.anchor.outputs.changed == '1'
+        run: |
+          set -euo pipefail
+          # The proposal must satisfy the same checks main enforces: the chain
+          # recomputes, the append-only history holds against the committed
+          # version, and every committed report is covered.
+          npm run transparency:verify-history
+          npm run transparency:log:check
+          npm run transparency:log:anchor:status | tee "$RUNNER_TEMP/anchor-after.txt"
+
+      - name: Summarise
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "## Transparency log anchoring"
+            echo
+            echo '### Before'
+            echo '```'
+            cat "$RUNNER_TEMP/anchor-before.txt" 2>/dev/null || echo "(not captured)"
+            echo '```'
+            echo '### After'
+            echo '```'
+            cat "$RUNNER_TEMP/anchor-after.txt" 2>/dev/null || echo "(unchanged)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish reviewed anchor proposal
+        if: steps.anchor.outputs.changed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          PROPOSAL_BRANCH: automation/transparency-anchor-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          git config user.name "iAnonymous3000"
+          git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
+          # Only the log. Anything else in the tree at this point is an
+          # unrelated change that must not ride an automation proposal.
+          git add public/transparency-log.json
+          if ! git diff --cached --quiet -- ':!public/transparency-log.json'; then
+            echo "::error title=Refused::the anchoring run staged a file other than the transparency log"
+            exit 1
+          fi
+          git checkout -B "$PROPOSAL_BRANCH"
+          git commit -m "Anchor the current transparency-log head" \
+            -m "Appends one anchor per calendar that replied for the head at this run. Existing anchors are untouched; the list is append-only and CI compares committed anchors by whole object."
+          git push --force-with-lease origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+
+          proposal_body="$RUNNER_TEMP/anchor-pr.md"
+          printf '%s\n' \
+            '<!-- site-behavior-lab:transparency-anchor-pr -->' \
+            '# Anchor the current transparency-log head' \
+            '' \
+            '- Appends a detached OpenTimestamps proof for the head this run observed.' \
+            '- Existing anchors are untouched. An in-place edit would fail `transparency:verify-history`.' \
+            '- Fresh anchors carry a calendar promise; the Bitcoin attestation appears after the aggregation window and needs the external `ots upgrade` client.' \
+            "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
+            "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
+            > "$proposal_body"
+
+          pr_error="$RUNNER_TEMP/anchor-pr-error.txt"
+          if ! gh pr create \
+            --repo "$GITHUB_REPOSITORY" \
+            --base "$BASE_BRANCH" \
+            --head "$PROPOSAL_BRANCH" \
+            --title "Anchor the current transparency-log head" \
+            --body-file "$proposal_body" 2>"$pr_error"; then
+            cat "$pr_error" >&2
+            if ! grep -q "not permitted to create or approve pull requests" "$pr_error"; then
+              exit 1
+            fi
+            compare_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${BASE_BRANCH}...${PROPOSAL_BRANCH}?expand=1"
+            echo "::error title=Open the proposal manually::Actions may not create PRs in this repository. Open ${compare_url}"
+          fi
+          gh workflow run ci.yml --ref "$PROPOSAL_BRANCH" --repo "$GITHUB_REPOSITORY"
