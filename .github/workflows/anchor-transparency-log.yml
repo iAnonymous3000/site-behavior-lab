@@ -92,7 +92,16 @@ jobs:
           # The proposal must satisfy the same checks main enforces: the chain
           # recomputes, the append-only history holds against the committed
           # version, and every committed report is covered.
-          npm run transparency:verify-history
+          #
+          # The base is HEAD, explicitly, for two independent reasons. The
+          # anchor edit is still UNCOMMITTED here, so the committed state to
+          # compare against is HEAD itself; the CLI's HEAD^ default is built
+          # for CI, where the change is already a commit, and would compare
+          # against the wrong tree. And actions/checkout defaults to depth 1,
+          # where HEAD^ does not resolve at all: the CLI would refuse, the job
+          # would fail AFTER the calendars had already issued real timestamps,
+          # and the anchor would be discarded with the workspace every week.
+          npm run transparency:verify-history -- HEAD
           npm run transparency:log:check
           npm run transparency:log:anchor:status | tee "$RUNNER_TEMP/anchor-after.txt"
 

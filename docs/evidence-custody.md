@@ -80,9 +80,15 @@ is convenience.
 ## The boundary this does not move
 
 Saving bytes carefully makes a report *authentic*. It does not make it say more
-than it says. The project's approved boundary classifies every report as
-investigative evidence requiring independent corroboration, and excludes
-standalone legal determinations and sole-exhibit use. Detector error rates are
-not published in this release. A perfectly preserved report whose detector
-accuracy is unquantified is still investigative evidence, and custody discipline
-does not change that.
+than it says.
+
+This page deliberately does not restate the approved use boundary. It is a
+signed decision in `RELEASE_READINESS.json`, rendered from that single source
+onto every report page, every printed copy, and the
+[methodology page](https://sitebehavior.org/methodology/#trust-boundaries).
+Read it there, where it cannot have drifted from the decision.
+
+What custody discipline does not change is worth stating plainly: detector error
+rates are not published in this release, so a perfectly preserved report whose
+detector accuracy is unquantified is exactly as strong, and exactly as weak, as
+the boundary says it is.
