@@ -289,6 +289,31 @@ unconditionally refuses the canonical production hostname as defense in depth.
 If no safe staging hook exists, the canary fails as a prerequisite and the
 production flag remains off.
 
+### Choose the replay parent BEFORE deploying staging
+
+The replay receipts are named for the deployed commit, and the binding requires
+the durable-flip commit to be that commit's **direct first child**
+(`git rev-parse <toCommit>^` must equal the replay deployment commit). `main`
+allows only squash and rebase merges, so a commit that already has a child can
+never carry the transition: its one slot is spent, and the receipts captured
+against it are permanently ineligible no matter how sound the canary was.
+
+That is not hypothetical. The receipts archived by PR #98 name `78defca0`, and
+`0cf9e1c` landed as its child before any flip commit existed. They remain valid
+operational proof that durable replay works, and they can never serve the
+release transition.
+
+So run the preflight first, against the exact commit you intend to deploy, and
+freeze that commit:
+
+```bash
+npm run durable:replay-parent-preflight -- <commit-ish>
+```
+
+It refuses a spent parent, and on success prints the flip commit's required
+shape, the resulting config digest, and the two receipt paths. Nothing else may
+merge between that parent and the flip commit.
+
 For the lease-expiry canary, arm the staging hook so the first claimed worker is
 abandoned before resolution. Set `DURABLE_REPLAY_NO_POLL_MS` at or above the
 deployment-advertised lease-expiry plus scheduled-replay margin:

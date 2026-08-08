@@ -28,6 +28,17 @@ Work landing after the 0.4.0 milestone. Nothing here is released.
 - CI now verifies that the transparency log covers every committed report, and
   runs `verify:report` offline against the newest committed report, which is the
   command printed on every paper copy.
+- A container-only printable report route at `/reports/<id>/print`, which
+  server-renders the complete evidence rather than the summary-only rendering a
+  browser print of the interactive page produces. Its `printComplete` render
+  mode opens every disclosure and raises the row caps, so paper truncates only
+  where the scan truncated.
+- `lib/print-row-caps.ts`: print row ceilings derived from the committed
+  corpus's observed per-run maxima, so a printed report is complete for every
+  report the corpus has actually recorded.
+- A total static-export size gate in the static smoke run. Per-page budgets
+  cannot see an export made of many pages that each pass; this bounds the whole
+  artifact and names the largest directories when it fails.
 
 ### Fixed
 
