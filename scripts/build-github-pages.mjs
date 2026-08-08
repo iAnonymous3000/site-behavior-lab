@@ -40,7 +40,15 @@ const skippedNames = new Set([
 ]);
 
 const serverOnlyAppDirs = [
-  path.join(rootDir, "app", "api")
+  path.join(rootDir, "app", "api"),
+  // The printable rendering is container-only. Prerendering it for every
+  // committed report would render the full evidence eagerly 574 times and
+  // inline each report's payload into the RSC flight stream on top of the
+  // markup, an unmeasured multiple of the export's current size against a
+  // published-site ceiling, with no total-size gate to catch the overrun.
+  // Moving it onto Pages means deleting this entry, adding the route to
+  // runtimeReportRouteFiles below, and measuring one build.
+  path.join(rootDir, "app", "reports", "[id]", "print")
 ];
 const runtimeReportRouteFiles = [
   path.join("app", "reports", "[id]", "page.tsx"),

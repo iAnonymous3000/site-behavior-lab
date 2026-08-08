@@ -7,6 +7,8 @@ import { visitPhaseLabel } from "@/lib/report-phase-evidence";
 import { displayEvidenceName, displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
+import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
+import { usePrintComplete } from "./print-mode";
 import { listOverflowCopy } from "@/lib/report-table-copy";
 import {
   identifiedHostCatalogMatchLabel,
@@ -59,6 +61,7 @@ function roleTag(
 }
 
 function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunFacts }) {
+  const printComplete = usePrintComplete();
   const [query, setQuery] = useState("");
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const evidenceTarget = useEvidenceTarget("domains");
@@ -66,7 +69,7 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
     () => domains.filter((domain) => hostMatchesQuery(domain.domain, query)),
     [domains, query]
   );
-  const shown = filtered.slice(0, 100);
+  const shown = filtered.slice(0, printComplete ? PRINT_ROW_CAPS.domains : 100);
 
   useEffect(() => {
     if (!evidenceTarget) return;
@@ -160,6 +163,7 @@ function RequestTable({
   phases: PhaseSpan[] | null;
   facts: RunFacts;
 }) {
+  const printComplete = usePrintComplete();
   const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState("");
   const [signalFilter, setSignalFilter] = useState<RequestSignalFilter>("all");
@@ -192,7 +196,7 @@ function RequestTable({
     });
   }, [requests, query, resourceFilter, signalFilter, statusFilter]);
 
-  const shown = filtered.slice(0, 80);
+  const shown = filtered.slice(0, printComplete ? PRINT_ROW_CAPS.requests : REQUEST_SCREEN_ROW_CAP);
   const filtersActive = signalFilter !== "all" || statusFilter !== "all" || resourceFilter !== "all" || query.trim() !== "";
   function resetFilters() {
     setQuery("");
@@ -223,6 +227,10 @@ function RequestTable({
       id="request-evidence"
       ref={detailsRef}
       className="data-section disclosure"
+      // onToggle never fires for an element that mounts already open, so the
+      // body gate below must test printComplete too. The attribute alone would
+      // print an open disclosure with nothing inside it.
+      open={printComplete || undefined}
       onToggle={(event) => {
         if (event.currentTarget.open) setOpened(true);
       }}
@@ -236,7 +244,7 @@ function RequestTable({
         </span>
         <ChevronDown className="disclosure-chevron" size={16} aria-hidden="true" />
       </summary>
-      {opened ? (
+      {printComplete || opened ? (
         <>
       <div className="section-tools disclosure-tools request-log-tools">
         <div className="request-filter-chips" role="group" aria-label="Request signal filters">
@@ -354,12 +362,16 @@ function RequestTable({
           <p className="muted">These requests describe the returned document, not a verified normal page load.</p>
         )}
         {filtered.length > shown.length && (
-          <p className="row-more">Showing first 80 of {filtered.length} matching requests. Export JSON for the full log.</p>
+          <p className="row-more">
+            Showing first {shown.length} of {filtered.length} matching requests. Export JSON for the full log.
+          </p>
         )}
       </div>
         </>
       ) : (
-        <p className="muted disclosure-lazy-note">Open the request log to render its bounded first 80 rows and filters.</p>
+        <p className="muted disclosure-lazy-note">
+          Open the request log to render its bounded first {REQUEST_SCREEN_ROW_CAP} rows and filters.
+        </p>
       )}
     </details>
   );
@@ -385,6 +397,9 @@ function requestPhaseLabel(request: NetworkRequestRecord, labels: ReadonlyMap<nu
 
 type RequestSignalFilter = EvidenceRequestSignal;
 type RequestStatusFilter = "all" | "ok" | "redirect" | "client-error" | "server-error" | "pending";
+
+/** Screen keeps the log light until a reader asks for it; print does not. */
+const REQUEST_SCREEN_ROW_CAP = 80;
 
 const REQUEST_SIGNAL_FILTERS: { value: RequestSignalFilter; label: string; title: string }[] = [
   { value: "all", label: "All", title: "Every recorded request row." },
@@ -585,6 +600,7 @@ function ListOverflowNote({ total, shown, where }: { total: number; shown: numbe
 }
 
 function CookieList({ cookies, facts }: { cookies: CookieRecord[]; facts: RunFacts }) {
+  const printComplete = usePrintComplete();
   const state = facts.evidence.cookies.state;
   if (state === "unsupported") {
     return <p className="muted">Cookie evidence was not captured; this PageGraph import does not support it.</p>;
@@ -605,7 +621,7 @@ function CookieList({ cookies, facts }: { cookies: CookieRecord[]; facts: RunFac
     <div className="compact-list">
       {/* Redaction can generalize many names to the same marker, so content
           alone is not a unique identity for these static rows. */}
-      {cookies.slice(0, 12).map((cookie, index) => (
+      {cookies.slice(0, printComplete ? PRINT_ROW_CAPS.cookies : 12).map((cookie, index) => (
         <div key={`${index}:${cookie.domain}:${cookie.name}:${cookie.path}`}>
           {cookie.thirdParty ? (
             <AlertTriangle className="ico-third" size={14} aria-hidden="true" />
@@ -635,6 +651,7 @@ function CookieList({ cookies, facts }: { cookies: CookieRecord[]; facts: RunFac
 }
 
 function StorageList({ storage, facts }: { storage: StorageRecord[]; facts: RunFacts }) {
+  const printComplete = usePrintComplete();
   const state = facts.evidence.storage.state;
   if (state === "unsupported") {
     return <p className="muted">Storage evidence was not captured; this PageGraph import does not support it.</p>;
@@ -653,7 +670,7 @@ function StorageList({ storage, facts }: { storage: StorageRecord[]; facts: RunF
   const hiddenKeys = storage.filter((item) => !isReviewedStorageKey(item.key)).length;
   return (
     <div className="compact-list">
-      {storage.slice(0, 12).map((item, index) => (
+      {storage.slice(0, printComplete ? PRINT_ROW_CAPS.storage : 12).map((item, index) => (
         <div key={`${index}:${item.area}:${item.key}`}>
           <Database className="ico-neutral" size={14} aria-hidden="true" />
           <span>

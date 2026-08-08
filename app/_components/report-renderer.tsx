@@ -15,6 +15,7 @@ import {
   TopThirdParties,
   Warnings
 } from "./report-tables";
+import { PrintCompleteProvider } from "./print-mode";
 import { VisitPhasesAndStateChanges } from "./visit-phases-and-state-changes";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogToCsv } from "@/lib/csv-export";
@@ -46,10 +47,17 @@ import { plural } from "@/lib/text-format";
  */
 export function ReportRenderer({
   loaded,
-  liveApiServesReportPages
+  liveApiServesReportPages,
+  printComplete = false
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
+  /**
+   * Render every retained row and open every disclosure, for a page that will
+   * be printed. Defaults false so the interactive route is byte-identical to
+   * what it renders today.
+   */
+  printComplete?: boolean;
 }) {
   const reportView = loaded.view;
   const reportFacts = useMemo(() => buildReportFacts(reportView), [reportView]);
@@ -134,7 +142,7 @@ export function ReportRenderer({
   }
 
   return (
-    <>
+    <PrintCompleteProvider value={printComplete}>
       <p className="visually-hidden" role="status" aria-live="polite">
         {`Scan report ready for ${primaryRun.domain}: ${plural(
           primaryRun.evidence.requests.length,
@@ -343,7 +351,7 @@ export function ReportRenderer({
           />
         </div>
       </section>
-    </>
+    </PrintCompleteProvider>
   );
 }
 
