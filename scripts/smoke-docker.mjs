@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import {
   readResponseJsonWithinLimit,
+  readResponseTextWithinLimit,
   withHttpOperationDeadline
 } from "./http-response.mjs";
 import { savedReportRetainsScreenshot } from "./smoke-deployed-scanner-report.mjs";
@@ -200,6 +201,9 @@ async function printScannerLogs(containerId) {
   if (output) console.error(`Scanner container logs (${containerId.slice(0, 12)}):\n${output}`);
 }
 
+/** A complete report rendering is large; this bounds it without clipping one. */
+const PRINTABLE_ROUTE_MAX_BYTES = 8 * 1024 * 1024;
+
 /**
  * The printable route, rendered by the real container.
  *
@@ -223,7 +227,13 @@ async function assertPrintableReportRoute(baseUrl, objects) {
   if (response.status !== 200) {
     throw new Error(`Printable report route answered ${response.status}; expected 200.`);
   }
-  const html = await response.text();
+  // Bounded, like every other first-party response read in scripts/: an
+  // unbounded read here would let a misbehaving container stream without limit,
+  // and lib/script-http-response.test.ts refuses those by source scan.
+  const html = await readResponseTextWithinLimit(response, {
+    maxBytes: PRINTABLE_ROUTE_MAX_BYTES,
+    label: "printable report route"
+  });
 
   // Present because the page is the complete rendering.
   for (const [needle, why] of [

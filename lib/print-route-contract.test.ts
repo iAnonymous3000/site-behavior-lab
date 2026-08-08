@@ -137,9 +137,17 @@ test("the link to the printable route is conditioned on the same signal the buil
     /NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1"/,
     "the link must be gated on the export signal"
   );
+  // Assert the gate and the helper, not a hand-built template: the first
+  // version of this test matched `${reportUrl}print/` and so certified a
+  // missing separator as correct. lib/site-url.test.ts owns the URL shape.
   assert.match(
     context,
-    /\{!STATIC_EXPORT && \(\s*<a[^>]*href=\{`\$\{reportUrl\}print\/`\}/,
+    /\{!STATIC_EXPORT && \(/,
     "the printable link must render only when this is not the static export"
+  );
+  assert.match(
+    context,
+    /href=\{printableReportHref\(reportUrl\)\}/,
+    "the printable link must use the normalising helper, not string concatenation"
   );
 });
