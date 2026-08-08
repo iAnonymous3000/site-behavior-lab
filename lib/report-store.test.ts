@@ -11,6 +11,7 @@ import { REDACTION_VERSION } from "./redaction-v2";
 import { classifyReportStoreFailure } from "./report-store-failure-reason";
 import {
   DURABLE_SCAN_JOB_REPORT_MIN_SURVIVAL_MS,
+  REPORT_MAX_AGE_DAYS_ENV,
   REPORT_MIN_SURVIVAL_MS_ENV,
   REPORT_STORE_OPERATION_TIMEOUT_MS_ENV,
   commitPreparedScanReportBundle,
@@ -1064,6 +1065,35 @@ test("saveScanReport reports the configured report store directory in its status
     maxCount: 500,
     minSurvivalMs: 60_000
   });
+});
+
+test("the application TTL cannot outlive the bucket rule that actually deletes the bytes", async () => {
+  // The store publishes retention.expiresAt in the provenance sidecar and
+  // refuses early deletion, while the bucket deletes the whole reports/ prefix
+  // on its own schedule with no exemption. An unclamped env therefore promised
+  // a permalink the bucket destroyed first, breaking the digest-pinned
+  // compatibility promise without editing the promised document.
+  const receipt = JSON.parse(
+    await readFile(path.join(process.cwd(), "research", "ops-receipts", "r2-lifecycle-readback.json"), "utf8")
+  ) as { observedReportsDeletionRules: { prefix: string; effectiveDays: number }[] };
+
+  const reportsRule = receipt.observedReportsDeletionRules.find((rule) => rule.prefix === "reports/");
+  assert.ok(reportsRule, "the lifecycle readback must observe a reports/ deletion rule");
+
+  process.env[REPORT_MAX_AGE_DAYS_ENV] = String(reportsRule.effectiveDays + 22);
+  const stretched = reportStoreStatus().maxAgeDays;
+  assert.ok(
+    stretched < reportsRule.effectiveDays,
+    `the effective TTL (${stretched}d) must stay strictly under the bucket backstop (${reportsRule.effectiveDays}d)`
+  );
+
+  // A value already below the backstop is honoured unchanged: the clamp is a
+  // ceiling, not a fixed TTL.
+  process.env[REPORT_MAX_AGE_DAYS_ENV] = "3";
+  assert.equal(reportStoreStatus().maxAgeDays, 3);
+
+  delete process.env[REPORT_MAX_AGE_DAYS_ENV];
+  assert.equal(reportStoreStatus().maxAgeDays, 7);
 });
 
 test("reportStoreStatus exposes the effective count-pruning survival and its two-hour cap", () => {
