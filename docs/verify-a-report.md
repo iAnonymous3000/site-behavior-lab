@@ -97,6 +97,25 @@ are exactly what a green CI run at that public git SHA built, and the git
 history (protected by the active `Protect main history` ruleset) shows when
 they entered the corpus and every change since.
 
+## A printed copy
+
+Any report page prints. The print carries the evidence, the standing scope
+caveat, the approved use boundary, and a footer with the exact wire SHA-256 of
+the bytes it renders, plus the command above. It states in its own first
+sentence that it is a rendering and that the JSON wire is canonical, because a
+printed page is where evidence most easily detaches from its provenance.
+
+What a printed copy does not carry: interactive controls, the request-log
+filters, and any evidence the reader never expanded. Disclosures that were
+already rendered print open, but the interactive evidence explorer mounts on
+demand, so a print taken without opening it carries the summary and the receipt
+rather than the request rows. The page says so on the paper. For a printed
+comparison report, the arm shown is named explicitly, since the tables render
+one arm and paper cannot switch.
+
+If you intend to keep a copy, read [evidence-custody.md](evidence-custody.md)
+first: the paper is a rendering, and the bytes are the artefact.
+
 ## Boundaries: what this does NOT prove
 
 State these honestly when citing a report; an opposing expert will otherwise
@@ -108,6 +127,19 @@ state them for you.
   nothing outside the operator's storage attests its bytes today. For anything
   that matters, use or request a committed report, and save the bytes plus
   their digest yourself the moment you rely on them.
+- **A log entry outlives the report it names.** The transparency log is
+  append-only and report bundles are pruned on the corpus retention policy, so
+  the log currently holds three ids whose bundles are no longer published
+  (`20260727-aa2994f2...`, `20260727-de27d845...`, `20260727-ea52109861...`,
+  removed by the ordinary pruner in `0e3fbfb`). A logged id that returns 404 was
+  pruned, not withdrawn; a withdrawal appears in `public/corrections.json`
+  instead. Log membership is evidence that a report was published, never that it
+  still is.
+- **Anchors cover a prefix of the log, not all of it.** An OpenTimestamps anchor
+  bounds only the entries beneath the head it names. Entries published after the
+  newest anchor have no external time bound until the next weekly anchoring run
+  (`.github/workflows/anchor-transparency-log.yml`), and CI holds that gap under
+  a declared ceiling rather than assuming it is zero.
 - **The chain proves the bytes, not the visit.** The attestation shows CI built
   these bytes at this SHA. For CI-lane scans the same run performed the visit;
   the receipt states which lane produced it. It does not independently prove

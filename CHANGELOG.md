@@ -9,6 +9,39 @@ public API or a 1.0 release.
 
 Work landing after the 0.4.0 milestone. Nothing here is released.
 
+### Added
+
+- Printed report pages carry an evidence footer with the exact wire SHA-256 of
+  the bytes they render, the verification command in both its live-site and
+  `--from` forms, and a statement that the print is a rendering rather than the
+  evidence. Committed reports name the transparency log; time-limited shares are
+  told instead to save the bytes now, because no external anchor covers them.
+- The approved use boundary from `RELEASE_READINESS.json` is now shown to
+  readers, on paper, in the report evidence receipt, and on the methodology
+  page. It was an approved decision that no reader had ever been shown.
+- `docs/evidence-custody.md`: what to save, and when, to keep a report you
+  intend to rely on.
+- A weekly workflow anchors the current transparency-log head through
+  OpenTimestamps and proposes the appended log for review. Committed anchors are
+  now machine-checked against the head they claim, and the unanchored gap is
+  held under a declared ceiling.
+- CI now verifies that the transparency log covers every committed report, and
+  runs `verify:report` offline against the newest committed report, which is the
+  command printed on every paper copy.
+
+### Fixed
+
+- Printed reports dropped the standing scope caveat, the causal map's text
+  equivalent, and the capped-evidence qualifiers, while printing search boxes
+  and filter selects into the middle of the evidence. A printed comparison also
+  showed one arm's numbers without naming the arm.
+- The approved use boundary rendered as "not A and B", which parses as "not (A
+  and B)" and permits being exactly one of them. Each excluded use is now negated
+  individually.
+- `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` accepted any value, so a share could
+  publish an expiry the storage bucket's own eight-day deletion rule destroyed
+  first. The effective TTL is now clamped strictly below the bucket rule.
+
 ## [0.4.0] - 2026-08-01
 
 Promotes 0.4.0-rc.1 unchanged: the release-candidate rehearsal of the
