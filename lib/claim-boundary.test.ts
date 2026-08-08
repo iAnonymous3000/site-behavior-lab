@@ -119,17 +119,57 @@ test("the boundary reaches paper, the report receipt, and the methodology page",
 });
 
 test("the release manifest never enters a client bundle", () => {
-  const offenders = [...sourceFiles("app"), ...sourceFiles("lib")]
-    .filter((file) => file !== "lib/claim-boundary.ts" && !file.endsWith(".test.ts"))
-    .filter((file) => {
-      const contents = source(file);
-      if (!/^\s*["']use client["']/m.test(contents)) return false;
-      return /claim-boundary|RELEASE_READINESS/.test(contents);
-    });
+  // Grepping each file for its own "use client" line does not answer this.
+  // In the App Router the directive is inherited through imports: a module
+  // with no directive that is imported by a client component is compiled into
+  // the client bundle with it. print-evidence-footer.tsx carries no directive
+  // and imports this module, so moving it inside saved-report-client.tsx (an
+  // obvious refactor: the footer belongs with the report body) would ship the
+  // whole release manifest to every browser. So walk the graph.
+  const files = new Set([...sourceFiles("app"), ...sourceFiles("lib")]);
+
+  function resolve(fromFile: string, specifier: string): string | null {
+    let base: string;
+    if (specifier.startsWith("@/")) base = specifier.slice(2);
+    else if (specifier.startsWith(".")) base = path.posix.join(path.posix.dirname(fromFile), specifier);
+    else return null; // a package, not our source
+    for (const candidate of [base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`]) {
+      if (files.has(candidate)) return candidate;
+    }
+    return null;
+  }
+
+  function importsOf(file: string): string[] {
+    const contents = source(file);
+    const specifiers = [...contents.matchAll(/(?:from\s*|import\s*\()\s*["']([^"']+)["']/g)].map((m) => m[1]);
+    return specifiers
+      .map((specifier) => resolve(file, specifier))
+      .filter((resolved): resolved is string => resolved !== null);
+  }
+
+  const clientRoots = [...files].filter((file) => /^\s*["']use client["']/m.test(source(file)));
+  assert.ok(clientRoots.length > 0, "the walk must start somewhere; no client components were found");
+
+  const reachedBy = new Map<string, string[]>();
+  for (const rootFile of clientRoots) {
+    const queue: string[][] = [[rootFile]];
+    const seen = new Set([rootFile]);
+    while (queue.length > 0) {
+      const trail = queue.shift()!;
+      const current = trail[trail.length - 1];
+      for (const next of importsOf(current)) {
+        if (seen.has(next)) continue;
+        seen.add(next);
+        const extended = [...trail, next];
+        if (next === "lib/claim-boundary.ts") reachedBy.set(rootFile, extended);
+        queue.push(extended);
+      }
+    }
+  }
 
   assert.deepEqual(
-    offenders,
+    [...reachedBy.values()].map((trail) => trail.join(" -> ")),
     [],
-    "a client component imports the release manifest; keep the boundary on the server"
+    "a client component reaches the release manifest through its import graph; keep the boundary on the server"
   );
 });
