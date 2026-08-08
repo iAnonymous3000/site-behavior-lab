@@ -12,6 +12,7 @@ import {
 import { sitePagesBasePath } from "@/lib/site-url";
 
 const SOURCE_REPOSITORY = "https://github.com/iAnonymous3000/site-behavior-lab";
+const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
 
 /**
  * Server-rendered activation and verification surface for a saved report.
@@ -105,6 +106,15 @@ export function ReportPageContext({
           <div className="evidence-receipt-links">
             <a className="secondary-button" href={jsonHref}>Open report JSON</a>
             {provenanceHref && <a className="secondary-button" href={provenanceHref}>Open provenance sidecar</a>}
+            {/* Container-only. The printable rendering is excluded from the
+                static export by serverOnlyAppDirs, so linking it on Pages would
+                ship a dead link on every committed report. Same signal the
+                build uses, so the two cannot disagree. */}
+            {!STATIC_EXPORT && (
+              <a className="secondary-button" href={`${reportUrl}print/`}>
+                Printable version
+              </a>
+            )}
           </div>
         </div>
 
