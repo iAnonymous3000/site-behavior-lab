@@ -74,7 +74,12 @@ function resolveClaimBoundary(): ClaimBoundary | null {
   return {
     id: decision.recommended,
     summary: `This report is ${summary}.`,
-    exclusions: excluded.length > 0 ? `It is not ${joinClauses(excluded)}.` : "",
+    // Every clause carries its own "not". "It is not A and B" parses as
+    // "not (A and B)", which permits being exactly one of them: a materially
+    // weaker statement than the one that was approved, on the surface where a
+    // reader is least able to check it.
+    exclusions:
+      excluded.length > 0 ? `It is ${joinClauses(excluded.map((use) => `not ${use}`))}.` : "",
     decidedAt: decision.decidedAt
   };
 }
