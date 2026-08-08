@@ -4806,7 +4806,13 @@ details[open] > summary .disclosure-chevron {
     background: #ffffff;
   }
 
-  /* Controls, navigation, and progress affordances are not evidence. */
+  /* Controls, navigation, and progress affordances are not evidence.
+
+     Anything that signals MISSING evidence deliberately stays out of this
+     group: .disclosure-lazy-note, .report-evidence-loader, .change-list-toggle
+     and .count-badge are the only marks on paper that more exists than was
+     printed, and a printed page that drops them claims to be complete when it
+     is not. */
   .skip-link,
   .topbar-actions,
   .topbar-nav,
@@ -4814,6 +4820,7 @@ details[open] > summary .disclosure-chevron {
   .corpus-hero,
   .empty-state,
   .app-footer,
+  .app-footer-links,
   .report-actions,
   .headline-actions,
   .report-activation-actions,
@@ -4825,8 +4832,24 @@ details[open] > summary .disclosure-chevron {
   .pulse-dot,
   .icon-button,
   .error-banner,
-  .request-filter-chips {
+  .request-filter-chips,
+  .section-tools,
+  .filter-input,
+  .disclosure-chevron,
+  .evidence-receipt-links {
     display: none !important;
+  }
+
+  /* One exception to hiding .app-footer: its standing scope caveat is evidence
+     context, not chrome. A printed report that drops "one completed automated
+     visit per condition" asserts more than the page does. Two class selectors
+     beat the one above on specificity, so this wins despite both being
+     !important. The nav links in the same footer stay hidden. */
+  .report-page-shell .app-footer,
+  .report-page-shell .app-footer-caveat {
+    display: block !important;
+    border: 0;
+    padding: 0;
   }
 
   .app-shell {
@@ -4884,9 +4907,56 @@ details[open] > summary .disclosure-chevron {
     display: block !important;
   }
 
-  /* A bare "opens in a new tab" is meaningless on paper. */
-  .visually-hidden {
+  /* The reveal above is !important AND outranks the control hide group
+     (`details:not([open]) > *:not(summary)` scores 0,1,2 against `.section-tools`
+     at 0,1,0), so without this every control that is a direct child of a
+     collapsed disclosure comes back on paper: a search box and a row of filter
+     selects printed into the middle of the evidence. Two class selectors score
+     0,2,0 and take it back. A Chromium print-media test covers this, because
+     no amount of reading the selector list catches it. */
+  .disclosure .section-tools,
+  .disclosure .request-log-tools,
+  .disclosure .request-filter-chips,
+  .disclosure .filter-input {
     display: none !important;
+  }
+
+  /* A bare "opens in a new tab" is meaningless on paper, and so are the
+     role=status live regions and the select labels: printing them turns
+     screen-reader scaffolding into body copy. So .visually-hidden stays
+     hidden by default.
+
+     But some of it is the ONLY text form of a piece of evidence, and losing
+     that is not tidiness, it is data loss: the causal map's relationship list
+     is the text equivalent of an SVG that may not survive the page width, and
+     the capped-evidence qualifiers explain a chip that reads "recording
+     capped" and nothing else. Those opt in by name. Adding the class to a
+     control label is a mistake the print regression test catches. */
+  .visually-hidden:not(.print-text-equivalent) {
+    display: none !important;
+  }
+
+  .print-text-equivalent {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Paper needs margins and a size; the browser default is locale-dependent
+     and leaves table rows running into the trim edge. */
+  @page {
+    size: letter;
+    margin: 14mm 12mm;
+  }
+
+  p,
+  li {
+    orphans: 3;
+    widows: 3;
   }
 }
 

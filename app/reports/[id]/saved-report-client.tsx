@@ -201,7 +201,7 @@ export function SavedReportClient({
         </main>
 
         <footer className="app-footer">
-          <span>
+          <span className="app-footer-links">
             Site Behavior Lab: open-source web transparency tooling. {" "}
             <a className="footer-link" href={staticAssetPath("/glossary/")}>Glossary</a>{" · "}
             <a className="footer-link" href={staticAssetPath("/methodology/")}>Methodology</a>{" · "}
@@ -211,7 +211,7 @@ export function SavedReportClient({
             <a className="footer-link" href={staticAssetPath("/security/")}>Security</a>{" · "}
             <a className="footer-link" href={staticAssetPath("/corrections/")}>Corrections</a>
           </span>
-          <span>
+          <span className="app-footer-caveat">
             Reports use one completed automated visit per condition. Reproducible for this configuration, not a
             universal claim.
           </span>

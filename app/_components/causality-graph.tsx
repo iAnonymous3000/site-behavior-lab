@@ -222,8 +222,8 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
           The per-domain counts above cover only the paths drawn here; open the report JSON for the full set.
         </p>
       )}
-      <h3 className="visually-hidden">Relationships shown in the causal map</h3>
-      <ol className="visually-hidden">
+      <h3 className="visually-hidden print-text-equivalent">Relationships shown in the causal map</h3>
+      <ol className="visually-hidden print-text-equivalent">
         {edges.map((edge) => (
           <li key={`${edge.source}->${edge.dest}-text`}>
             {plural(edge.requests, "request")} to {edge.dest}
