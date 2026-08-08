@@ -1,0 +1,107 @@
+{
+  "kind": "site-behavior-durable-replay-receipt",
+  "receiptVersion": 1,
+  "recordedAt": "2026-08-08T18:18:29.406Z",
+  "mode": "lost-resolve",
+  "expectedDeploymentSha": "78defca09e8543c3b5b6597fe14e13e959209104",
+  "origin": {
+    "label": "durable-replay-staging",
+    "sha256": "d3569f938dbf2a35fbd7c5a49f3d19a990889c8f67cabc41ba9756d86b14fd62"
+  },
+  "timing": {
+    "startedAt": "2026-08-08T18:08:27.703Z",
+    "submittedAt": "2026-08-08T18:08:28.213Z",
+    "noPollMs": 600000,
+    "blindWindowEndedAt": "2026-08-08T18:18:28.217Z",
+    "statusObservedAt": "2026-08-08T18:18:28.711Z",
+    "reportReadbackAt": "2026-08-08T18:18:28.987Z",
+    "completedAt": "2026-08-08T18:18:29.405Z"
+  },
+  "preHealth": {
+    "observedAt": "2026-08-08T18:08:27.932Z",
+    "identity": {
+      "deploymentSha": "78defca09e8543c3b5b6597fe14e13e959209104",
+      "status": "ok",
+      "warningCount": 0,
+      "authenticated": true,
+      "openAccess": false,
+      "scansAvailable": true,
+      "chromiumSandbox": "enabled",
+      "publicR2Reports": "enabled",
+      "reportStore": "r2",
+      "durableJobs": {
+        "requested": true,
+        "enabled": true,
+        "readiness": "ready",
+        "coordinatorOriginSha256": "d3569f938dbf2a35fbd7c5a49f3d19a990889c8f67cabc41ba9756d86b14fd62",
+        "faultInjection": {
+          "environment": "staging",
+          "enabled": true,
+          "modes": [
+            "lease-expiry",
+            "lost-resolve"
+          ],
+          "modeHeaderName": "x-staging-fault-mode",
+          "tokenHeaderName": "x-staging-fault-token",
+          "minimumNoPollMs": 240000,
+          "attemptEvidence": true,
+          "completionBeforeStatusRequestEvidence": true,
+          "wholeOriginAccessGate": true
+        }
+      }
+    },
+    "identitySha256": "8738dd529aa043a7def6a04286ed0b1a016ad16d3160a482882b5fb9b01d3c71"
+  },
+  "postHealth": {
+    "observedAt": "2026-08-08T18:18:29.405Z",
+    "identity": {
+      "deploymentSha": "78defca09e8543c3b5b6597fe14e13e959209104",
+      "status": "ok",
+      "warningCount": 0,
+      "authenticated": true,
+      "openAccess": false,
+      "scansAvailable": true,
+      "chromiumSandbox": "enabled",
+      "publicR2Reports": "enabled",
+      "reportStore": "r2",
+      "durableJobs": {
+        "requested": true,
+        "enabled": true,
+        "readiness": "ready",
+        "coordinatorOriginSha256": "d3569f938dbf2a35fbd7c5a49f3d19a990889c8f67cabc41ba9756d86b14fd62",
+        "faultInjection": {
+          "environment": "staging",
+          "enabled": true,
+          "modes": [
+            "lease-expiry",
+            "lost-resolve"
+          ],
+          "modeHeaderName": "x-staging-fault-mode",
+          "tokenHeaderName": "x-staging-fault-token",
+          "minimumNoPollMs": 240000,
+          "attemptEvidence": true,
+          "completionBeforeStatusRequestEvidence": true,
+          "wholeOriginAccessGate": true
+        }
+      }
+    },
+    "identitySha256": "8738dd529aa043a7def6a04286ed0b1a016ad16d3160a482882b5fb9b01d3c71"
+  },
+  "execution": {
+    "terminalStatus": "succeeded",
+    "jobId": "20260808-20092dd9bad064615c1f72dbf016e440",
+    "reportId": "20260808-50afb2b66d6eff341e6ac00270c7ecfe",
+    "attempts": 1,
+    "faultTriggered": true,
+    "triggeredGeneration": 1,
+    "finishedBeforeStatusRequest": true,
+    "reportReadback": true
+  },
+  "evidenceRefs": [
+    "pre-health:sha256:8738dd529aa043a7def6a04286ed0b1a016ad16d3160a482882b5fb9b01d3c71",
+    "job:20260808-20092dd9bad064615c1f72dbf016e440",
+    "report:20260808-50afb2b66d6eff341e6ac00270c7ecfe",
+    "post-health:sha256:8738dd529aa043a7def6a04286ed0b1a016ad16d3160a482882b5fb9b01d3c71"
+  ],
+  "receiptDigest": "cc4a0d828ea5995235e4423fa17f34027b91bc3edcfd53f376a2004ea6e43dfc"
+}
