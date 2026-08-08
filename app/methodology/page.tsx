@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { TrustLinks } from "../_components/trust-links";
 
@@ -228,6 +229,17 @@ export default function MethodologyPage() {
 
       <section className="legal-section" id="trust-boundaries">
         <h2>What you must trust, and what you can check</h2>
+        {CLAIM_BOUNDARY && (
+          <p>
+            <strong>Approved use boundary.</strong> {claimBoundaryParagraph(CLAIM_BOUNDARY)} That is
+            this project&apos;s own recorded decision about its output, approved on{" "}
+            <time dateTime={CLAIM_BOUNDARY.decidedAt}>{CLAIM_BOUNDARY.decidedAt.slice(0, 10)}</time>{" "}
+            and carried in the release manifest rather than asserted here. It holds regardless of how
+            much of the chain below verifies: a report whose bytes are perfectly attested still
+            reports one automated visit, through detectors whose error rates this release does not
+            publish.
+          </p>
+        )}
         <p>
           Independently checkable, with no trust in this operator: every committed corpus report&apos;s exact bytes
           are hashed into a per-commit evidence manifest that a separate, checkout-free CI job attests with Sigstore,

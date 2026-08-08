@@ -1,3 +1,5 @@
+import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
+
 /**
  * Print-only evidence footer for a saved report.
  *
@@ -33,9 +35,11 @@ export function PrintEvidenceFooter({
       </p>
       {committed ? (
         <p>
-          Verify independently: run <code>npm run verify:report -- {id}</code> in
-          github.com/iAnonymous3000/site-behavior-lab. This publication is chained into the
-          append-only transparency log at sitebehavior.org/transparency-log.json.
+          Verify independently: in github.com/iAnonymous3000/site-behavior-lab run{" "}
+          <code>npm run verify:report -- {id}</code> to check the bytes this site serves, or add{" "}
+          <code>--from &lt;dir&gt;</code> to check a copy you saved yourself. This publication is
+          chained into the append-only transparency log at
+          sitebehavior.org/transparency-log.json.
         </p>
       ) : (
         <p>
@@ -44,6 +48,7 @@ export function PrintEvidenceFooter({
           the only way to authenticate a retained copy.
         </p>
       )}
+      {CLAIM_BOUNDARY && <p>Approved use: {claimBoundaryParagraph(CLAIM_BOUNDARY)}</p>}
     </footer>
   );
 }

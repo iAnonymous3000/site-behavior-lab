@@ -36,11 +36,18 @@ test("only committed reports are told they have an external chain", () => {
   const footer = source(FOOTER_COMPONENT);
 
   assert.ok(
-    footer.includes("Verify independently: run <code>npm run verify:report -- {id}</code> in"),
-    "committed reports name the verification command"
+    footer.includes("<code>npm run verify:report -- {id}</code> to check the bytes this site serves"),
+    "committed reports name the verification command and what it checks"
+  );
+  // The command defaults to fetching from the live site, so a reader holding
+  // saved bytes needs the other form named. Without it the printed
+  // instruction reads as an offline check that it is not.
+  assert.ok(
+    footer.includes("<code>--from &lt;dir&gt;</code> to check a copy you saved yourself"),
+    "the printed instruction must name the form that checks the reader's own copy"
   );
   assert.ok(
-    footer.includes("append-only transparency log at sitebehavior.org/transparency-log.json."),
+    footer.includes("sitebehavior.org/transparency-log.json."),
     "committed reports name the transparency log"
   );
 
