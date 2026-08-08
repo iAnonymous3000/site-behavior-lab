@@ -90,6 +90,17 @@ test("the paragraph states both what a report is and what it is not", () => {
   const paragraph = claimBoundaryParagraph(CLAIM_BOUNDARY);
   assert.match(paragraph, /^This report is /);
   assert.match(paragraph, /It is not /);
+
+  // Every excluded use must carry its own negation. "It is not A and B"
+  // parses as "not (A and B)", which permits being exactly one of them: a
+  // weaker claim than the approved decision, printed where a reader cannot
+  // check it. A single shared "not" is a real defect, not a style choice.
+  const excludes = manifest.decisions.claimBoundary.excludes ?? [];
+  assert.equal(
+    [...CLAIM_BOUNDARY.exclusions.matchAll(/\bnot\b/g)].length,
+    excludes.length,
+    "each excluded use must be negated individually"
+  );
 });
 
 test("the boundary reaches paper, the report receipt, and the methodology page", () => {
