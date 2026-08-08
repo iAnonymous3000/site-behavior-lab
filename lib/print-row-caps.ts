@@ -12,6 +12,13 @@
  * report truncates only where the SCAN truncated, and the existing
  * capped-evidence qualification already covers that case.
  *
+ * Those figures were true when this was written, and the corpus grows every
+ * Monday. `lib/print-row-caps.test.ts` re-derives the maxima through the same
+ * reader the print route renders from and fails if any cap stops clearing its
+ * family, so the paragraph above cannot quietly become false: a report large
+ * enough to breach a cap reddens the suite instead of silently losing rows on
+ * paper.
+ *
  * These are still ceilings, not a promise of completeness. `listOverflowCopy`
  * derives its "showing N of M" note from the numbers actually rendered and
  * returns null once nothing is withheld, so raising a cap can never leave a
