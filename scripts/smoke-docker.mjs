@@ -31,6 +31,11 @@ const skipBuild = /^(1|true|yes|on)$/i.test(process.env.DOCKER_SMOKE_SKIP_BUILD 
 const publicR2Smoke = /^(1|true|yes|on)$/i.test(process.env.DOCKER_SMOKE_PUBLIC_R2 || "");
 const healthRequestTimeoutMs = 10_000;
 const healthResponseMaxBytes = 256 * 1024;
+// Declared here, with the other module constants, because the top-level await
+// below calls into functions that read it. A const declared further down the
+// file is still in its temporal dead zone at that point: the function
+// declaration hoists, the binding does not, and the smoke died on exactly that.
+const printableRouteMaxBytes = 8 * 1024 * 1024;
 // Playwright's version-pinned default Docker seccomp profile plus the user-
 // namespace syscalls Chromium's sandbox needs. Keep it in lockstep with the
 // Playwright image/package pin rather than removing syscall filtering or
@@ -201,9 +206,6 @@ async function printScannerLogs(containerId) {
   if (output) console.error(`Scanner container logs (${containerId.slice(0, 12)}):\n${output}`);
 }
 
-/** A complete report rendering is large; this bounds it without clipping one. */
-const PRINTABLE_ROUTE_MAX_BYTES = 8 * 1024 * 1024;
-
 /**
  * The printable route, rendered by the real container.
  *
@@ -238,7 +240,7 @@ async function assertPrintableReportRoute(baseUrl, objects) {
         throw new Error(`Printable report route answered ${response.status}; expected 200.`);
       }
       return readResponseTextWithinLimit(response, {
-        maxBytes: PRINTABLE_ROUTE_MAX_BYTES,
+        maxBytes: printableRouteMaxBytes,
         label: "printable report route"
       });
     }
