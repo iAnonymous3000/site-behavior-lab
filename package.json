@@ -67,7 +67,7 @@
     "calibration:assemble": "node scripts/run-schema-cli.mjs calibration-assemble",
     "calibration:finalize": "node scripts/run-schema-cli.mjs calibration-finalize",
     "calibration:seal-label-source": "node scripts/calibration-label-source-seal.mjs",
-    "test:durable-producers": "node --test scripts/durable-replay-parent-lib.test.mjs scripts/durable-transition-receipt-lib.test.mjs",
+    "test:durable-producers": "node --test scripts/durable-replay-parent-lib.test.mjs scripts/durable-transition-receipt-lib.test.mjs scripts/staging-teardown-provider-adapter.test.mjs",
     "test:calibration-producer": "node scripts/run-schema-cli.mjs calibration-producer-test",
     "test:calibration-ceremony": "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs scripts/calibration-assemble-custody-lib.test.mjs",
     "test:aa-producer": "node --test scripts/aa-study-producer-lib.test.mjs",

@@ -304,6 +304,31 @@ function actionProblems(actions, beforeByName, session) {
       )
     );
   }
+
+  // A receipt in which every resource was already absent is not evidence of a
+  // teardown. It proves only that nothing was there, which is exactly what a
+  // rerun of a completed ceremony produces, and what an unprovisioned
+  // environment produces: both would otherwise validate and be archived as
+  // proof that staging was destroyed.
+  //
+  // Deliberately NOT "all twelve contract resources must have been present".
+  // A ceremony may legitimately scope out a half that was never deployed, so
+  // the requirement is participation, not completeness: at least one resource
+  // observed present and then removed under its contract disposition.
+  const participating = STAGING_RESOURCE_CONTRACT.filter((expected, index) => {
+    const before = beforeByName?.get(expected.logicalName);
+    return (
+      before?.state === "present" &&
+      actions[index]?.disposition === expected.removalDisposition
+    );
+  });
+  if (participating.length === 0) {
+    problems.push(
+      "inventory must show at least one resource observed present and removed; " +
+        "an all-already-absent receipt proves only that nothing was there"
+    );
+  }
+
   return problems;
 }
 
