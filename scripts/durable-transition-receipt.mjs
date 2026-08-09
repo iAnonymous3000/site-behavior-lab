@@ -21,11 +21,12 @@ import {
   TRANSITION_RECEIPT_PATH,
   buildDurableEnableTransitionReceipt,
   canonicalTransitionReceiptText,
-  replayReceiptSetDigest,
+  replaySetFacts,
   transitionReceiptSha256
 } from "./durable-transition-receipt-lib.mjs";
 
 const MAX_BUNDLE_BYTES = 4 * 1024 * 1024;
+const MAX_RECEIPT_BYTES = 256 * 1024;
 const rootDir = process.cwd();
 
 const args = process.argv.slice(2);
@@ -52,24 +53,40 @@ try {
   if (typeof deploymentCommit !== "string") {
     throw new Error("evidence bundle must name replay.deploymentCommit");
   }
-  const receiptBytesByMode = {};
+  const receipts = [];
   for (const mode of ["lease-expiry", "lost-resolve"]) {
-    receiptBytesByMode[mode] = readFileSync(
-      path.join(rootDir, "research", "ops-receipts", "durable-replay", `${deploymentCommit}-${mode}.json`)
+    const file = path.join(
+      rootDir,
+      "research",
+      "ops-receipts",
+      "durable-replay",
+      `${deploymentCommit}-${mode}.json`
     );
+    const bytes = readFileSync(file);
+    // Bounded like every other first-party read here: a receipt is small, and
+    // an unbounded read of a path assembled from input is the wrong default.
+    if (bytes.length === 0 || bytes.length > MAX_RECEIPT_BYTES) {
+      throw new Error(
+        `${file} must be a nonempty receipt no larger than ${MAX_RECEIPT_BYTES} bytes`
+      );
+    }
+    receipts.push(JSON.parse(bytes.toString("utf8")));
   }
-  const receiptSetDigest = replayReceiptSetDigest(receiptBytesByMode);
-  if (bundle.replay?.receiptSetDigest && bundle.replay.receiptSetDigest !== receiptSetDigest) {
+  // Digest AND window both come from the canonical verifier, so neither can be
+  // restated by the bundle.
+  const replay = replaySetFacts(receipts, deploymentCommit);
+  if (bundle.replay?.receiptSetDigest && bundle.replay.receiptSetDigest !== replay.receiptSetDigest) {
     throw new Error(
       `evidence bundle claims replay receipt-set digest ${bundle.replay.receiptSetDigest}, ` +
-        `but the committed receipts hash to ${receiptSetDigest}`
+        `but the committed receipts derive ${replay.receiptSetDigest}`
     );
   }
 
   const receipt = buildDurableEnableTransitionReceipt({
     fromCommit: bundle.transition?.fromCommit,
     toCommit: bundle.transition?.toCommit,
-    replay: { ...bundle.replay, receiptSetDigest },
+    replay: { deploymentCommit, ...replay },
+    stagingTeardownRecordedAt: bundle.stagingTeardownRecordedAt,
     secrets: bundle.secrets,
     changeControl: bundle.changeControl,
     ciRun: bundle.ciRun,

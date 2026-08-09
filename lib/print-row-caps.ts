@@ -5,7 +5,7 @@
  * scrolls and filters. Paper has neither problem and cannot be expanded, so a
  * screen cap on paper is silent truncation of evidence a reader asked for.
  *
- * Derived from the committed corpus rather than chosen: measured across 1,141
+ * Derived from the committed corpus rather than chosen: measured across 1,147
  * runs in 574 committed reports, the per-run maxima are 1,000 requests (which
  * is the scanner's own recording cap, not a tail), 188 domains, 329 cookies and
  * 150 storage keys. Each cap below clears its observed maximum, so a printed

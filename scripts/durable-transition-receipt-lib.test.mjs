@@ -9,7 +9,6 @@ import {
   actionsRunAttemptEndpoint,
   buildDurableEnableTransitionReceipt,
   canonicalTransitionReceiptText,
-  replayReceiptSetDigest,
   transitionReceiptSha256
 } from "./durable-transition-receipt-lib.mjs";
 
@@ -53,6 +52,7 @@ function input(overrides = {}) {
       evidenceStartedAt: "2026-08-09T00:00:00.000Z",
       evidenceCapturedAt: "2026-08-09T01:00:00.000Z"
     },
+    stagingTeardownRecordedAt: "2026-08-09T01:30:00.000Z",
     secrets: {
       checkedAt: "2026-08-09T02:00:00.000Z",
       durableJobsKeyPresent: true,
@@ -159,17 +159,13 @@ test("a caller cannot assert a conclusion the API did not report", () => {
 });
 
 test("warningCount is counted from the payload, never accepted as a number", () => {
-  const noisy = {
-    ...HEALTH_PAYLOAD,
-    warnings: ["egress region is placement-derived", "another"]
-  };
-  const receipt = buildDurableEnableTransitionReceipt(
-    input({ productionHealthPayload: noisy })
+  const receipt = buildDurableEnableTransitionReceipt(input());
+  assert.equal(receipt.productionHealth.warningCount, 0);
+  // Not a field: supplying one changes nothing, because the count is derived.
+  const withClaim = buildDurableEnableTransitionReceipt(
+    input({ productionHealthPayload: { ...HEALTH_PAYLOAD, warningCount: 99 } })
   );
-  // Derived, so a clean-looking receipt cannot be produced from a warning run.
-  // The binding then refuses it, which is the correct outcome: this producer's
-  // job is to describe the evidence, not to launder it.
-  assert.equal(receipt.productionHealth.warningCount, 2);
+  assert.equal(withClaim.productionHealth.warningCount, 0);
 });
 
 test("every run must be the governed workflow, on main, in this repository, at the transition commit", () => {
@@ -201,6 +197,35 @@ test("the replay evidence must name the transition's own parent", () => {
         input({ replay: { ...input().replay, deploymentCommit: "9".repeat(40) } })
       ),
     /must be the direct first child of the replay deployment commit/
+  );
+});
+
+test("the staging teardown is part of the chain, not skipped", () => {
+  // The binding's chain runs replay -> staging teardown -> secrets. Omitting
+  // the teardown step let this module bless a receipt the binding refuses,
+  // which is the one thing it exists to prevent.
+  assert.throws(
+    () => buildDurableEnableTransitionReceipt(input({ stagingTeardownRecordedAt: undefined })),
+    /stagingTeardown\.recordedAt must be a canonical UTC instant/
+  );
+  assert.throws(
+    () =>
+      buildDurableEnableTransitionReceipt(
+        input({ stagingTeardownRecordedAt: "2026-08-09T06:30:00.000Z" })
+      ),
+    /chronology is out of order/
+  );
+});
+
+test("a warning run is refused rather than written as a receipt nobody can use", () => {
+  assert.throws(
+    () =>
+      buildDurableEnableTransitionReceipt(
+        input({
+          productionHealthPayload: { ...HEALTH_PAYLOAD, warnings: ["egress region is placement-derived"] }
+        })
+      ),
+    /reported 1 warning\(s\)/
   );
 });
 
@@ -256,19 +281,36 @@ test("timestamps must be canonical, so the receipt round-trips byte-identically"
   );
 });
 
-test("the replay receipt-set digest is recomputed from bytes, in fixed mode order", () => {
-  const bytes = {
-    "lease-expiry": Buffer.from("one"),
-    "lost-resolve": Buffer.from("two")
-  };
-  const expected = createHash("sha256").update(Buffer.from("one")).update(Buffer.from("two")).digest("hex");
-  assert.equal(replayReceiptSetDigest(bytes), expected);
-  // Order is part of the digest: swapping the modes must not collide.
-  assert.notEqual(
-    replayReceiptSetDigest({ "lease-expiry": Buffer.from("two"), "lost-resolve": Buffer.from("one") }),
-    expected
+test("the replay digest and window are delegated, never invented here", async () => {
+  // An earlier version of this module hashed the two receipt FILES' raw bytes,
+  // a fourth incompatible definition of a digest the repository already defines
+  // exactly once. Every receipt it produced would have been refused. Assert the
+  // delegation itself, so a reimplementation cannot come back.
+  const source = readFileSync(
+    path.join(process.cwd(), "scripts", "durable-transition-receipt-lib.mjs"),
+    "utf8"
   );
-  assert.throws(() => replayReceiptSetDigest({ "lease-expiry": Buffer.from("one") }), /lost-resolve/);
+  assert.match(source, /verifyDurableReplayReceiptSet/, "must delegate to the canonical verifier");
+  // Precisely what went wrong, not "any hashing": this module legitimately
+  // hashes its OWN canonical receipt text in transitionReceiptSha256.
+  assert.doesNotMatch(
+    source,
+    /export function replayReceiptSetDigest/,
+    "must not export a second replay receipt-set digest"
+  );
+  assert.doesNotMatch(
+    source,
+    /readFileSync/,
+    "must not read the replay receipts itself; the verifier owns their semantics"
+  );
+
+  // And the delegation must be to the one definition the binding uses.
+  const canonical = readFileSync(
+    path.join(process.cwd(), "scripts", "durable-replay-receipt-lib.mjs"),
+    "utf8"
+  );
+  assert.match(canonical, /export function durableReplayReceiptSetDigest/);
+  assert.match(canonical, /export function verifyDurableReplayReceiptSet/);
 });
 
 test("the canonical text is exactly what the binding compares against", () => {

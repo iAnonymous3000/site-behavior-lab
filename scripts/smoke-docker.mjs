@@ -220,10 +220,18 @@ async function assertPrintableReportRoute(baseUrl, objects) {
   if (!reportKey) throw new Error("Printable-route smoke found no persisted report to render.");
   const reportId = reportKey.slice("reports/".length, -".json".length);
 
-  const response = await fetch(`${baseUrl}/reports/${reportId}/print`, {
-    headers: { accept: "text/html" },
-    redirect: "manual"
-  });
+  // Bounded in time as well as bytes: a container that returns headers and
+  // then stalls its body would otherwise hang CI rather than fail it. The
+  // health probe below uses the same deadline wrapper.
+  const response = await withHttpOperationDeadline(
+    { timeoutMs: 30_000, label: "printable report route" },
+    (signal) =>
+      fetch(`${baseUrl}/reports/${reportId}/print`, {
+        headers: { accept: "text/html" },
+        redirect: "manual",
+        signal
+      })
+  );
   if (response.status !== 200) {
     throw new Error(`Printable report route answered ${response.status}; expected 200.`);
   }

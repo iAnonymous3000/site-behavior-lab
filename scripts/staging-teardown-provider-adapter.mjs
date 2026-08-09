@@ -89,11 +89,15 @@ function requireObservation(value, logicalName, phase) {
  * Run a teardown against an adapter and return the sanitized transcript shape
  * that staging-teardown-evidence-lib.mjs consumes.
  *
- * `resources` is the ceremony's declared scope, so a half of staging that was
- * never provisioned can be left out deliberately rather than forcing the
- * operator to provision resources in order to destroy them. What it cannot do
- * is claim a teardown it did not perform: the downstream validator requires at
- * least one resource observed present and then removed.
+ * `resources` must be the FULL contract, every resource inventoried. That is
+ * not in tension with letting a never-provisioned half be scoped out: the
+ * inventory is how absence is proven, so a resource that was never deployed is
+ * recorded as observed-absent rather than omitted. The downstream validator
+ * (staging-teardown-evidence-lib.mjs) requires exactly
+ * STAGING_RESOURCE_CONTRACT.length entries and would refuse a subset, and it
+ * separately requires at least one resource observed present and removed, so a
+ * transcript can neither shrink its scope nor claim a teardown it did not
+ * perform.
  */
 export async function runStagingTeardown({
   adapter,
@@ -106,6 +110,10 @@ export async function runStagingTeardown({
   requireValue(
     Array.isArray(resources) && resources.length > 0,
     "the teardown ceremony must declare at least one resource in scope"
+  );
+  requireValue(
+    new Set(resources.map((resource) => resource.logicalName)).size === resources.length,
+    "the teardown ceremony must not name a resource twice"
   );
   requireValue(typeof now === "function", "runStagingTeardown requires an injected clock");
 

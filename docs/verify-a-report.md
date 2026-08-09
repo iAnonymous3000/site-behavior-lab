@@ -105,13 +105,20 @@ the bytes it renders, plus the command above. It states in its own first
 sentence that it is a rendering and that the JSON wire is canonical, because a
 printed page is where evidence most easily detaches from its provenance.
 
-What a printed copy does not carry: interactive controls, the request-log
-filters, and any evidence the reader never expanded. Disclosures that were
+On the static site, which is where committed reports are served, a printed copy
+does not carry: interactive controls, the request-log filters, and any evidence
+the reader never expanded. Disclosures that were
 already rendered print open, but the interactive evidence explorer mounts on
 demand, so a print taken without opening it carries the summary and the receipt
 rather than the request rows. The page says so on the paper. For a printed
 comparison report, the arm shown is named explicitly, since the tables render
 one arm and paper cannot switch.
+
+The scanner container additionally serves a complete printable rendering at
+`/reports/<id>/print`, linked from the report's evidence receipt as "Printable
+version". It server-renders every disclosure and raises the row caps, so the
+limitation above does not apply to it. That route is container-only and does not
+exist on the static site.
 
 If you intend to keep a copy, read [evidence-custody.md](evidence-custody.md)
 first: the paper is a rendering, and the bytes are the artefact.

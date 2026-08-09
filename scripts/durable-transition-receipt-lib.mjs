@@ -5,9 +5,9 @@
 // exact ordered key set, canonical serialization, and a chronology in which
 // every step precedes the next:
 //
-//   replay.evidenceCapturedAt <= secrets.checkedAt <= changeControl.mergedAt
-//     <= ci.completedAt <= promotion.convergedAt
-//     <= productionHealth.observedAt <= recordedAt
+//   replay.evidenceCapturedAt <= stagingTeardown.recordedAt
+//     <= secrets.checkedAt <= changeControl.mergedAt <= ci.completedAt
+//     <= promotion.convergedAt <= productionHealth.observedAt <= recordedAt
 //
 // A receipt is therefore trivially forgeable by hand, and the fields most worth
 // forging are exactly the ones an operator would otherwise type: whether CI
@@ -17,8 +17,10 @@
 // API responses and from committed bytes, and has no parameter through which a
 // caller can assert a conclusion. `conclusion: "success"` is read off the run
 // object; `warningCount` is the length of the health payload's own warnings
-// array; the replay digest is recomputed from the committed receipt files.
-// Where a value cannot be derived, this refuses rather than defaulting.
+// array, and a nonzero count is refused rather than written; the replay digest
+// and evidence window are delegated to the canonical replay-set verifier rather
+// than recomputed here. Where a value cannot be derived, this refuses rather
+// than defaulting.
 //
 // The authentication boundary is deliberate: this module never holds a
 // credential and performs no network call. A workflow step authenticates,
@@ -27,6 +29,7 @@
 // the code that shapes the receipt.
 
 import { createHash } from "node:crypto";
+import { verifyDurableReplayReceiptSet } from "./durable-replay-receipt-lib.mjs";
 
 export const TRANSITION_RECEIPT_PATH =
   "research/ops-receipts/durable-enable-transition.json";
@@ -150,6 +153,15 @@ function productionHealthFacts(response, healthPayload, expectedHeadCommit) {
         `(requested=${String(durable.requested)} enabled=${String(durable.enabled)} readiness=${String(durable.readiness)})`
     );
   }
+  if (healthPayload.warnings.length > 0) {
+    // The binding requires warningCount === 0. Deriving the count honestly and
+    // then writing it anyway would produce a write-once artifact that can never
+    // be used, so refuse here instead.
+    throw new Error(
+      `production health reported ${healthPayload.warnings.length} warning(s); ` +
+        "the transition requires a clean run"
+    );
+  }
   return {
     workflow: run.workflow,
     runId: run.runId,
@@ -167,17 +179,28 @@ function productionHealthFacts(response, healthPayload, expectedHeadCommit) {
   };
 }
 
-/** sha256 over the two committed replay receipt files, in fixed mode order. */
-export function replayReceiptSetDigest(receiptBytesByMode) {
-  const hash = createHash("sha256");
-  for (const mode of ["lease-expiry", "lost-resolve"]) {
-    const bytes = receiptBytesByMode[mode];
-    if (!bytes || bytes.length === 0) {
-      throw new Error(`replay receipt bytes for ${mode} are missing`);
-    }
-    hash.update(bytes);
+/**
+ * The replay set's canonical digest and evidence window, from the receipts.
+ *
+ * This deliberately delegates rather than computing anything. An earlier
+ * version of this module hashed the two receipt FILES' raw bytes, which is a
+ * fourth incompatible definition of a digest the binding already defines
+ * exactly once, and every receipt it produced would have been refused. The
+ * window timestamps come from the same place for the same reason: the binding
+ * pins evidenceStartedAt to the lease receipt's timing.startedAt and
+ * evidenceCapturedAt to the lost-resolve receipt's recordedAt, so a caller must
+ * not be able to supply either.
+ */
+export function replaySetFacts(receipts, expectedDeploymentSha) {
+  const verdict = verifyDurableReplayReceiptSet(receipts, expectedDeploymentSha);
+  if (!verdict.ok) {
+    throw new Error(`replay receipt set is invalid: ${verdict.issues.join("; ")}`);
   }
-  return hash.digest("hex");
+  return {
+    receiptSetDigest: verdict.receiptSetDigest,
+    evidenceStartedAt: verdict.evidenceStartedAt,
+    evidenceCapturedAt: verdict.evidenceCapturedAt
+  };
 }
 
 /**
@@ -190,6 +213,7 @@ export function buildDurableEnableTransitionReceipt({
   fromCommit,
   toCommit,
   replay,
+  stagingTeardownRecordedAt,
   secrets,
   changeControl,
   ciRun,
@@ -214,10 +238,18 @@ export function buildDurableEnableTransitionReceipt({
   if (typeof replayReceiptSetSha !== "string" || !SHA256.test(replayReceiptSetSha)) {
     throw new Error("replay.receiptSetDigest must be a sha256 recomputed from the committed receipts");
   }
+  // Derived by replaySetFacts from the receipts themselves, never accepted.
   const replayStartedAt = canonicalInstant(replay.evidenceStartedAt, "replay.evidenceStartedAt");
   const replayCapturedAt = canonicalInstant(replay.evidenceCapturedAt, "replay.evidenceCapturedAt");
 
   if (!secrets || typeof secrets !== "object") throw new Error("secrets observation is missing");
+  // The binding's chain runs replay -> STAGING TEARDOWN -> secrets -> ... and
+  // omitting the teardown step here would let this module bless a receipt the
+  // binding then refuses, which is exactly what it exists to prevent.
+  const teardownRecordedAt = canonicalInstant(
+    stagingTeardownRecordedAt,
+    "stagingTeardown.recordedAt"
+  );
   const secretsCheckedAt = canonicalInstant(secrets.checkedAt, "secrets.checkedAt");
   if (secrets.durableJobsKeyPresent !== true || secrets.durableJobsInternalTokenPresent !== true) {
     throw new Error("both durable secrets must be observed present before the transition");
@@ -263,6 +295,7 @@ export function buildDurableEnableTransitionReceipt({
   const chain = [
     ["replay.evidenceStartedAt", replayStartedAt],
     ["replay.evidenceCapturedAt", replayCapturedAt],
+    ["stagingTeardown.recordedAt", teardownRecordedAt],
     ["secrets.checkedAt", secretsCheckedAt],
     ["changeControl.mergedAt", mergedAt],
     ["ci.completedAt", ci.completedAt],

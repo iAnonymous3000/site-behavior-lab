@@ -5,7 +5,10 @@ third party can rely on under adversarial scrutiny, after 1.0 and detector
 calibration. `RELEASE_READINESS.json` tracks the gates that precede it; this
 note enumerates what the package itself must contain, so the list exists
 somewhere other than in audit transcripts. Item 5's ledger half shipped on
-2026-08-07; everything else is unshipped, and each item names the gap it
+2026-08-07, item 8 shipped as docs/evidence-custody.md, and item 7's
+claim-boundary half now renders from RELEASE_READINESS.json onto report pages,
+printed copies, and the methodology page (its detector-calibration-status half
+is still open). Everything else is unshipped, and each item names the gap it
 closes.
 
 An "evidence package" is everything a third party needs to verify one report
@@ -60,8 +63,8 @@ now automated by `npm run verify:report`. Item 4 is operator work in the
 existing attestation pattern. Item 5's remaining halves (ephemeral coverage,
 per-entry timing) stay in the 1.1 evidence-package window. If it needs a report wire field, that is the
 time to evaluate r3; 1.0 deliberately keeps v2/r2 and banks the revision
-instead of minting it for schema-prose errata alone. Items 6-8 are
-documentation once calibration (3B) and the claim-boundary sign-off exist.
+instead of minting it for schema-prose errata alone. Item 6 and item 7's calibration half are documentation once calibration (3B)
+exists; item 8 did not need it and has shipped.
 None of it is meaningful before detector calibration: a perfectly verified
 report whose detector accuracy is unquantified is still investigative
 evidence, and the package must not imply otherwise.
