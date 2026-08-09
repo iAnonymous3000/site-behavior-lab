@@ -42,27 +42,35 @@ try {
   process.exit(1);
 }
 
-// The default branch is where the ordered pre-candidate history has to live.
-// Prefer the remote's view: a stale local main would pass a parent the real
-// branch has already built past, which is the exact failure this guards.
-const defaultBranchRef =
-  gitOrNull(["rev-parse", "--verify", "--quiet", "origin/main^{commit}"]) !== null
-    ? "origin/main"
-    : "main";
+// Every default-branch ref that resolves, not just the first one. Checking
+// only origin/main passed a spent parent whenever the remote lagged local main
+// (an unpushed commit, or a fetch that has not run), and checking only local
+// main fails the same way in reverse. The union is the safe direction: a child
+// found on ANY of them disqualifies the parent, because the release history
+// will contain it.
+const defaultBranchRefs = ["origin/main", "main"].filter(
+  (ref) => gitOrNull(["rev-parse", "--verify", "--quiet", `${ref}^{commit}`]) !== null
+);
+if (defaultBranchRefs.length === 0) {
+  console.error("FAIL neither origin/main nor main resolves; cannot judge the default-branch history.");
+  process.exit(1);
+}
 
-const onDefaultBranch =
-  gitOrNull(["merge-base", "--is-ancestor", parentSha, `${defaultBranchRef}^{commit}`]) !== null ||
-  gitOrNull(["rev-parse", "--verify", `${defaultBranchRef}^{commit}`])?.trim() === parentSha;
+const onDefaultBranch = defaultBranchRefs.some(
+  (ref) =>
+    gitOrNull(["merge-base", "--is-ancestor", parentSha, `${ref}^{commit}`]) !== null ||
+    gitOrNull(["rev-parse", "--verify", `${ref}^{commit}`])?.trim() === parentSha
+);
 
-// A direct child is any commit on the default branch whose FIRST parent is our
-// commit. First-parent matters: the binding uses `<toCommit>^`, which is the
-// first parent, so only that slot is contested.
+// A direct child is any commit on a default branch whose FIRST parent is our
+// commit. First-parent matters: the binding uses `<toCommit>^`.
 const childShas = [];
-const descendants = gitOrNull(["rev-list", "--first-parent", `${parentSha}..${defaultBranchRef}`]);
-if (descendants) {
+for (const ref of defaultBranchRefs) {
+  const descendants = gitOrNull(["rev-list", "--first-parent", `${parentSha}..${ref}`]);
+  if (!descendants) continue;
   for (const sha of descendants.trim().split("\n").filter(Boolean)) {
     const firstParent = gitOrNull(["rev-parse", "--verify", `${sha}^`])?.trim();
-    if (firstParent === parentSha) childShas.push(sha);
+    if (firstParent === parentSha && !childShas.includes(sha)) childShas.push(sha);
   }
 }
 
