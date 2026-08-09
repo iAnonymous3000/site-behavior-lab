@@ -252,9 +252,11 @@ test("the closure lists must be extended at the moment the capture imports this 
     )
   );
 
+  // Only files that hold the path as a LITERAL. hosted-evidence-provenance-lib
+  // derives its list from the capture lib's constant, so demanding a literal
+  // there would be unsatisfiable and the future branch would be unreachable.
   const listSources = [
     "scripts/staging-teardown-hosted-capture-lib.mjs",
-    "scripts/hosted-evidence-provenance-lib.mjs",
     "lib/measurement-candidate-binding.ts"
   ];
   const listed = listSources.filter((file) =>

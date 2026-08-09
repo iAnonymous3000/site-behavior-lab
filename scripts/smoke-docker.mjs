@@ -223,25 +223,26 @@ async function assertPrintableReportRoute(baseUrl, objects) {
   // Bounded in time as well as bytes: a container that returns headers and
   // then stalls its body would otherwise hang CI rather than fail it. The
   // health probe below uses the same deadline wrapper.
-  const response = await withHttpOperationDeadline(
+  // Both the headers AND the body inside one deadline: reading the body after
+  // the wrapper returns leaves a stalled body unbounded in time, which is the
+  // hang this was meant to prevent.
+  const html = await withHttpOperationDeadline(
     { timeoutMs: 30_000, label: "printable report route" },
-    (signal) =>
-      fetch(`${baseUrl}/reports/${reportId}/print`, {
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/reports/${reportId}/print`, {
         headers: { accept: "text/html" },
         redirect: "manual",
         signal
-      })
+      });
+      if (response.status !== 200) {
+        throw new Error(`Printable report route answered ${response.status}; expected 200.`);
+      }
+      return readResponseTextWithinLimit(response, {
+        maxBytes: PRINTABLE_ROUTE_MAX_BYTES,
+        label: "printable report route"
+      });
+    }
   );
-  if (response.status !== 200) {
-    throw new Error(`Printable report route answered ${response.status}; expected 200.`);
-  }
-  // Bounded, like every other first-party response read in scripts/: an
-  // unbounded read here would let a misbehaving container stream without limit,
-  // and lib/script-http-response.test.ts refuses those by source scan.
-  const html = await readResponseTextWithinLimit(response, {
-    maxBytes: PRINTABLE_ROUTE_MAX_BYTES,
-    label: "printable report route"
-  });
 
   // Present because the page is the complete rendering.
   for (const [needle, why] of [

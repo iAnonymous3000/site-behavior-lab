@@ -615,7 +615,7 @@ function CookieList({ cookies, facts }: { cookies: CookieRecord[]; facts: RunFac
     return <p className="muted">No cookies were visible to the scan context.</p>;
   }
 
-  const shown = Math.min(cookies.length, 12);
+  const shown = Math.min(cookies.length, printComplete ? PRINT_ROW_CAPS.cookies : 12);
   const hiddenNames = cookies.filter((cookie) => !isReviewedCookieName(cookie.name)).length;
   return (
     <div className="compact-list">
@@ -666,7 +666,7 @@ function StorageList({ storage, facts }: { storage: StorageRecord[]; facts: RunF
     return <p className="muted">No local or session storage keys observed on the final page.</p>;
   }
 
-  const shown = Math.min(storage.length, 12);
+  const shown = Math.min(storage.length, printComplete ? PRINT_ROW_CAPS.storage : 12);
   const hiddenKeys = storage.filter((item) => !isReviewedStorageKey(item.key)).length;
   return (
     <div className="compact-list">

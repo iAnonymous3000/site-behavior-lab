@@ -38,6 +38,7 @@ function run(kind, overrides = {}) {
 
 const HEALTH_PAYLOAD = {
   status: "ok",
+  deployment: TO,
   warnings: [],
   checks: { durableJobs: { requested: true, enabled: true, readiness: "ready" } }
 };
@@ -120,6 +121,24 @@ test("a fully evidenced transition builds, in the exact key order the binding co
     "requested",
     "enabled",
     "readiness"
+  ]);
+  // The binding orders eight records, not five.
+  assert.deepEqual(Object.keys(receipt.replay), [
+    "deploymentCommit",
+    "receiptSetDigest",
+    "evidenceStartedAt",
+    "evidenceCapturedAt"
+  ]);
+  assert.deepEqual(Object.keys(receipt.secrets), [
+    "checkedAt",
+    "durableJobsKeyPresent",
+    "durableJobsInternalTokenPresent",
+    "valuesRecorded"
+  ]);
+  assert.deepEqual(Object.keys(receipt.changeControl), [
+    "pullRequestUrl",
+    "mergeCommit",
+    "mergedAt"
   ]);
   assert.equal(receipt.schemaVersion, 1);
   assert.equal(receipt.artifactKind, "site-behavior-durable-enable-transition");
@@ -271,6 +290,54 @@ test("change control must be a governed pull request that produced the transitio
         input({ changeControl: { ...input().changeControl, mergeCommit: "9".repeat(40) } })
       ),
     /must be the transition commit/
+  );
+});
+
+test("real Actions timestamps are accepted and normalised, not rejected", () => {
+  // The API emits second precision with a bare Z. Passing that through the
+  // receipt-side rule rejected every unmodified attempt response, so the
+  // producer could only have been fed hand-edited metadata.
+  const receipt = buildDurableEnableTransitionReceipt(
+    input({ ciRun: run("ci", { updated_at: "2026-08-09T04:00:00Z" }) })
+  );
+  assert.equal(receipt.ci.completedAt, "2026-08-09T04:00:00.000Z");
+  // A non-UTC string must not be silently reinterpreted.
+  assert.throws(
+    () =>
+      buildDurableEnableTransitionReceipt(
+        input({ ciRun: run("ci", { updated_at: "2026-08-09T04:00:00+02:00" }) })
+      ),
+    /must be UTC with a trailing Z/
+  );
+});
+
+test("the health payload must belong to the transition commit", () => {
+  // Otherwise a clean payload captured at any other deployment yields a receipt
+  // asserting clean durable readiness at the transition commit.
+  assert.throws(
+    () =>
+      buildDurableEnableTransitionReceipt(
+        input({ productionHealthPayload: { ...HEALTH_PAYLOAD, deployment: "e".repeat(40) } })
+      ),
+    /not the transition commit/
+  );
+  assert.throws(
+    () =>
+      buildDurableEnableTransitionReceipt(
+        input({ productionHealthPayload: { ...HEALTH_PAYLOAD, deployment: undefined } })
+      ),
+    /reports deployment undefined/
+  );
+});
+
+test("a run without a usable id is refused rather than stringified", () => {
+  assert.throws(
+    () => buildDurableEnableTransitionReceipt(input({ ciRun: run("ci", { id: undefined }) })),
+    /run id undefined is not a positive integer/
+  );
+  assert.throws(
+    () => buildDurableEnableTransitionReceipt(input({ ciRun: run("ci", { id: 0 }) })),
+    /is not a positive integer/
   );
 });
 

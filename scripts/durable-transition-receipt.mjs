@@ -112,10 +112,10 @@ try {
   console.log("  Pin this sha256 in the candidate binding's durablePrerequisite.transition.");
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);
-  if (message.includes("EEXIST")) {
+  if (error && typeof error === "object" && error.code === "EEXIST") {
     console.error(
-      `FAIL ${TRANSITION_RECEIPT_PATH} already exists. A transition is recorded once; ` +
-        "remove it deliberately if a previous attempt was abandoned."
+      `FAIL ${TRANSITION_RECEIPT_PATH} already exists (${message}). A transition is ` +
+        "recorded once; remove it deliberately if a previous attempt was abandoned."
     );
   } else {
     console.error(`FAIL ${message}`);

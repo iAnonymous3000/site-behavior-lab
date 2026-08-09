@@ -50,6 +50,32 @@ const WORKFLOW_PATHS = {
   productionHealth: ".github/workflows/production-health.yml"
 };
 
+/**
+ * A GitHub Actions timestamp, normalised to the receipt's instant form.
+ *
+ * The Actions API emits second precision with a bare Z ("2026-08-10T00:00:00Z")
+ * while the receipt requires the canonical millisecond form the binding
+ * round-trips. Passing Actions metadata through the receipt-side rule rejected
+ * every unmodified attempt response, so the producer could only ever have been
+ * fed hand-edited timestamps: the opposite of its purpose.
+ */
+function actionsInstant(value, label) {
+  if (typeof value !== "string" || value.length === 0 || value.length > 64) {
+    throw new Error(`${label} must be an ISO-8601 UTC instant`);
+  }
+  const parsed = Date.parse(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`${label} must be an ISO-8601 UTC instant, got ${value}`);
+  }
+  const normalized = new Date(parsed).toISOString();
+  // Reject anything that is not simply a precision difference, so a local-time
+  // or offset-bearing string cannot be silently reinterpreted as UTC.
+  if (!/Z$/.test(value)) {
+    throw new Error(`${label} must be UTC with a trailing Z, got ${value}`);
+  }
+  return normalized;
+}
+
 /** Bounded, canonical UTC instant, byte-identical on round trip. */
 function canonicalInstant(value, label) {
   if (typeof value !== "string" || value.length === 0 || value.length > 64) {
@@ -114,13 +140,16 @@ function runFacts(kind, response, { expectedHeadCommit }) {
   if (response.conclusion !== "success") {
     throw new Error(`${kind} run concluded ${String(response.conclusion)}, not success`);
   }
+  if (!/^[1-9][0-9]{0,19}$/.test(String(response.id))) {
+    throw new Error(`${kind} run id ${String(response.id)} is not a positive integer`);
+  }
   const runAttempt = response.run_attempt;
   if (!Number.isSafeInteger(runAttempt) || runAttempt < 1 || runAttempt > 100) {
     throw new Error(`${kind} run attempt ${String(runAttempt)} is out of range`);
   }
   // GitHub's run object has no completed_at; updated_at is the completion of
   // the attempt, and is the only authenticated completion time available.
-  const completedAt = canonicalInstant(response.updated_at, `${kind} run updated_at`);
+  const completedAt = actionsInstant(response.updated_at, `${kind} run updated_at`);
   return {
     workflow: WORKFLOW_REFS[kind],
     runId: String(response.id),
@@ -151,6 +180,17 @@ function productionHealthFacts(response, healthPayload, expectedHeadCommit) {
     throw new Error(
       "production health must positively prove durable readiness " +
         `(requested=${String(durable.requested)} enabled=${String(durable.enabled)} readiness=${String(durable.readiness)})`
+    );
+  }
+  // Ties the payload to the run's commit. Without it a clean payload captured
+  // at any other deployment yields a receipt asserting clean durable readiness
+  // at the transition commit, which is exactly the inference the later
+  // authenticated gate makes (liveHealth.deployment === toCommit) and which
+  // this module claims to check first.
+  if (healthPayload.deployment !== expectedHeadCommit) {
+    throw new Error(
+      `production health payload reports deployment ${String(healthPayload.deployment)}, ` +
+        `not the transition commit ${expectedHeadCommit}`
     );
   }
   if (healthPayload.warnings.length > 0) {

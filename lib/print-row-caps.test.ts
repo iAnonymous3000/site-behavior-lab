@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { PRINT_ROW_CAPS } from "./print-row-caps";
@@ -96,6 +97,24 @@ test("the caps are ceilings above the screen limits, not a second set of screen 
   assert.ok(
     PRINT_ROW_CAPS.stateChanges > STATE_CHANGE_ROW_LIMIT,
     "screen renders STATE_CHANGE_ROW_LIMIT change records"
+  );
+});
+
+test("the overflow note counts what print actually rendered, not the screen cap", () => {
+  // The cookie and storage lists rendered up to the print cap while telling the
+  // reader only twelve were shown, which is a false qualification on paper.
+  const tables = readFileSync(path.join(process.cwd(), "app", "_components", "report-tables.tsx"), "utf8");
+  for (const family of ["cookies", "storage"] as const) {
+    assert.match(
+      tables,
+      new RegExp(`Math\\.min\\(${family}\\.length, printComplete \\? PRINT_ROW_CAPS\\.${family} : 12\\)`),
+      `the ${family} shown-count must follow the cap actually applied`
+    );
+  }
+  assert.doesNotMatch(
+    tables,
+    /const shown = Math\.min\((?:cookies|storage)\.length, 12\);/,
+    "a hardcoded shown-count would understate a printed page"
   );
 });
 
