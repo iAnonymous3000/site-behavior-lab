@@ -3110,3 +3110,68 @@ test("a runner receipt that fails to parse cannot rename another receipt's carri
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test("a 0.x release does not demand a measurement binding it was never asked to produce", async () => {
+  // release.yml passes the governance digest unconditionally, so every receipt
+  // is schemaVersion 2. Its governance closure resolves BOTH the governance
+  // receipt and research/measurement-candidate-binding.json at source.commit,
+  // and a 0.x release produces neither: the workflow records
+  // binding_sha256=not-required for those versions. Running the closure for
+  // them failed the next release on artifacts that release never had.
+  const {
+    archivedReleaseGovernanceProblems,
+    releaseRequiresMeasurementBinding
+  } = await script("release-readiness-lib.mjs");
+
+  assert.equal(releaseRequiresMeasurementBinding("1.0.0"), true);
+  assert.equal(releaseRequiresMeasurementBinding("1.0.0-rc.1"), true);
+  assert.equal(releaseRequiresMeasurementBinding("0.4.0"), false);
+  assert.equal(releaseRequiresMeasurementBinding("0.5.0-rc.2"), false);
+  assert.equal(releaseRequiresMeasurementBinding("1.0.1"), false);
+  assert.equal(releaseRequiresMeasurementBinding(undefined), false);
+
+  // Only the BINDING half is scoped. The governance receipt is still resolved
+  // for both, which is what a hardened case asserts against a synthetic v0.3.0.
+  const head = runFixtureGit(process.cwd(), ["rev-parse", "HEAD"]).trim();
+  const digest = "a".repeat(64);
+
+  const required = archivedReleaseGovernanceProblems(process.cwd(), head, digest);
+  assert.ok(
+    required.some((problem: string) => /measurement-candidate-binding\.json is unavailable/.test(problem)),
+    `a binding-requiring release must still report the binding gap, got: ${required.join("; ")}`
+  );
+
+  const notRequired = archivedReleaseGovernanceProblems(process.cwd(), head, digest, {
+    requiresMeasurementBinding: false
+  });
+  assert.ok(
+    !notRequired.some((problem: string) => /measurement-candidate-binding\.json/.test(problem)),
+    `a 0.x release must not be asked for a binding, got: ${notRequired.join("; ")}`
+  );
+  // ...but the governance receipt itself is still verified in both modes.
+  for (const problems of [required, notRequired]) {
+    assert.ok(
+      problems.some((problem: string) => /governance receipt .* is unavailable at source\.commit/.test(problem)),
+      "the governance receipt must be resolved regardless of binding policy"
+    );
+  }
+});
+
+test("the binding-required rule matches the release workflow that owns it", async () => {
+  // One rule in two files is this repository's most expensive defect class, and
+  // the workflow half is bash so it cannot be imported. Read its regex instead.
+  const { releaseRequiresMeasurementBinding } = await script("release-readiness-lib.mjs");
+  const workflow = readFileSync(
+    path.join(process.cwd(), ".github", "workflows", "release.yml"),
+    "utf8"
+  );
+  assert.match(
+    workflow,
+    /\^1\\\.0\\\.0\(-rc\\\.\[1-9\]\[0-9\]\*\)\?\$/,
+    "release.yml no longer classifies exact 1.0 the way releaseRequiresMeasurementBinding does"
+  );
+  assert.match(workflow, /binding_sha256=not-required/, "0.x must still record not-required");
+  for (const version of ["1.0.0", "1.0.0-rc.7"]) {
+    assert.equal(releaseRequiresMeasurementBinding(version), true, version);
+  }
+});

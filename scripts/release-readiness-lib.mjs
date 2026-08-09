@@ -3678,11 +3678,20 @@ function archivedReleaseGitProblems(receipt, directoryVersion, { rootDir, receip
     receipt.schemaVersion === 2 &&
     SHA256.test(receipt.releaseTagGovernanceReceiptSha256 ?? "")
   ) {
+    // The governance RECEIPT is verified for every release, 0.x included: a
+    // tag naming a digest whose receipt is missing or tampered must fail, and
+    // a hardened case asserts exactly that against a synthetic v0.3.0.
+    //
+    // The measurement-candidate BINDING is different. release.yml records
+    // binding_sha256=not-required for 0.x and no binding exists in the
+    // repository, so demanding one there failed a release on an artifact it
+    // was never asked to produce. Only that half is scoped.
     reasons.push(
       ...archivedReleaseGovernanceProblems(
         rootDir,
         commit,
-        receipt.releaseTagGovernanceReceiptSha256
+        receipt.releaseTagGovernanceReceiptSha256,
+        { requiresMeasurementBinding: releaseRequiresMeasurementBinding(directoryVersion) }
       )
     );
   }
@@ -3727,10 +3736,25 @@ function archivedReleaseGitProblems(receipt, directoryVersion, { rootDir, receip
   return reasons;
 }
 
+/**
+ * Whether a release version must be bound to a measurement candidate.
+ *
+ * The authority is .github/workflows/release.yml's prepare job, which refuses
+ * an exact 1.0 release without RELEASE_MEASUREMENT_BINDING_SHA256 and records
+ * binding_sha256=not-required for 0.x. This restates that rule so the
+ * readiness evaluator can apply it too; releaseBindingPolicyDriftProblems ties
+ * the two together, because one rule in two files is this repository's most
+ * expensive defect class.
+ */
+export function releaseRequiresMeasurementBinding(version) {
+  return /^1\.0\.0(-rc\.[1-9][0-9]*)?$/.test(String(version ?? ""));
+}
+
 export function archivedReleaseGovernanceProblems(
   rootDir,
   sourceCommit,
-  governanceDigest
+  governanceDigest,
+  { requiresMeasurementBinding = true } = {}
 ) {
   if (!FULL_GIT_SHA.test(sourceCommit ?? "")) {
     return ["archived release governance closure requires a full source commit"];
@@ -3776,6 +3800,10 @@ export function archivedReleaseGovernanceProblems(
       );
     }
   }
+
+  // A release whose policy does not require a binding is complete here: the
+  // governance receipt above was still fully verified.
+  if (!requiresMeasurementBinding) return reasons;
 
   const bindingBytes = gitRead(rootDir, [
     "show",
