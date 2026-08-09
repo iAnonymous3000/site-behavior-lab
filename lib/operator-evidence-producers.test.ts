@@ -1180,6 +1180,68 @@ async function stagingTranscript() {
   };
 }
 
+test("a teardown receipt where nothing was present proves nothing, and is refused", async () => {
+  // The disposition of each action is DERIVED from the before-inventory state,
+  // so a transcript in which every resource was already absent produced a
+  // fully consistent receipt. That is exactly what a rerun of a completed
+  // ceremony yields, and what an environment that was never provisioned
+  // yields, and it would have been archived as proof that staging was
+  // destroyed.
+  const { buildStagingTeardownEvidence } = await script("staging-teardown-evidence-lib.mjs");
+
+  const transcript = await stagingTranscript();
+  for (const entry of transcript.inventory.before) {
+    entry.state = "absent";
+    entry.externalIds = [];
+  }
+  for (const action of transcript.inventory.actions) {
+    action.disposition = "already-absent";
+    action.externalIds = [];
+    action.evidenceArtifact.kind = "provider-inventory-response";
+  }
+
+  // The builder refuses to construct it at all, so such a receipt never exists
+  // to be archived, signed, or pinned.
+  assert.throws(
+    () =>
+      buildStagingTeardownEvidence({
+        sourceBytes: `${JSON.stringify(transcript)}\n`
+      }),
+    /at least one resource observed present and removed/
+  );
+});
+
+test("a ceremony may legitimately scope out resources that were never deployed", async () => {
+  // The requirement is participation, not completeness: a half of staging that
+  // was never provisioned must not force the whole receipt to be rejected, or
+  // the only way to pass would be to provision resources in order to destroy
+  // them.
+  const {
+    buildStagingTeardownEvidence,
+    validateStagingTeardownEvidence
+  } = await script("staging-teardown-evidence-lib.mjs");
+
+  const transcript = await stagingTranscript();
+  // Everything absent except the first resource, which is torn down for real.
+  for (const [index, entry] of transcript.inventory.before.entries()) {
+    if (index === 0) continue;
+    entry.state = "absent";
+    entry.externalIds = [];
+  }
+  for (const [index, action] of transcript.inventory.actions.entries()) {
+    if (index === 0) continue;
+    action.disposition = "already-absent";
+    action.externalIds = [];
+    action.evidenceArtifact.kind = "provider-inventory-response";
+  }
+
+  const receipt = buildStagingTeardownEvidence({
+    sourceBytes: `${JSON.stringify(transcript)}\n`
+  });
+  const verdict = validateStagingTeardownEvidence(receipt);
+  assert.equal(verdict.ok, true, verdict.problems.join("; "));
+});
+
 test("staging teardown hashes one sanitized same-session transcript without executing provider code", async () => {
   const {
     buildStagingTeardownEvidence,
