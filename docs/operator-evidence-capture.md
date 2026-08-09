@@ -346,7 +346,10 @@ domain-separated resource binding, hashes every exact sanitized response, and
 keeps only structured `{kind, sessionId, digest}` response references. It also
 binds the exact transcript byte length and SHA-256. Any surviving resource,
 wrong disposition, cross-session response, missing fixed resource, or
-non-monotonic timestamp refuses the canonical receipt. Output is create-only
+non-monotonic timestamp refuses the canonical receipt. So does a transcript in
+which no resource was observed present and removed: an all-already-absent
+inventory proves only that nothing was there, which is what a rerun of a
+completed ceremony produces. Output is create-only
 and symlink-safe.
 
 This receipt is a pre-candidate durable prerequisite: it carries
