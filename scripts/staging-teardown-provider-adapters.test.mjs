@@ -4293,6 +4293,17 @@ test("the exact composite adapter tears down all twelve resources with bounded p
   });
   assert.equal(adapter.kind, STAGING_TEARDOWN_COMPOSITE_ADAPTER_KIND);
 
+  // Snapshot the non-target universe before anything destructive happens.
+  const nonTargetBefore = {
+    r2OperatorTokenId: provider.state.r2OperatorToken?.id,
+    additionalAccountTokens: provider.state.additionalAccountTokens.length,
+    r2OperatorTokenName: provider.state.r2OperatorToken?.name
+  };
+  assert.ok(
+    nonTargetBefore.r2OperatorTokenId !== undefined,
+    "the fixture must contain non-target resources for this assertion to mean anything"
+  );
+
   let tick = 0;
   const transcript = await runStagingTeardown({
     adapter,
@@ -4311,6 +4322,22 @@ test("the exact composite adapter tears down all twelve resources with bounded p
   assert.equal(provider.state.containers.size, 0);
   assert.equal(provider.state.buckets.size, 0);
   assert.equal(provider.state.credentials.size, 0);
+
+  // The target maps emptying says the manifest was torn down. It says nothing
+  // about what ELSE was touched, and "deletes only what the manifest names" is
+  // the property this lane exists to guarantee. Compare the non-target universe
+  // against what existed before, independently of the fixture's 404s: if those
+  // are ever relaxed, a stray delete still fails here.
+  assert.equal(
+    provider.state.r2OperatorToken?.id,
+    nonTargetBefore.r2OperatorTokenId,
+    "the protected R2 operator token must survive the teardown"
+  );
+  assert.equal(
+    provider.state.r2OperatorToken?.name,
+    nonTargetBefore.r2OperatorTokenName,
+    "the protected R2 operator token must survive intact, not merely by id"
+  );
   assert.equal(provider.state.runner, null);
 
   const deletePaths = provider.calls
@@ -4992,6 +5019,10 @@ function fixtureProvider(target, { cascadeDns = false, certificatePollsBeforeDel
     if (method === "DELETE" && domainDelete) {
       const id = decodeURIComponent(domainDelete[1]);
       const domain = state.domains.get(id);
+      // A real provider 404s an unknown id. Returning success made a delete of
+      // something the adapter never observed indistinguishable from a correct
+      // one, so the suite could not detect out-of-manifest deletion at all.
+      if (domain === undefined) return cf(null, undefined, 404);
       state.domains.delete(id);
       if (cascadeDns && domain !== undefined) {
         for (const [recordId, record] of state.dnsRecords) {
@@ -5120,6 +5151,7 @@ function fixtureProvider(target, { cascadeDns = false, certificatePollsBeforeDel
     const containerDelete = pathname.match(/\/containers\/applications\/([^/]+)$/);
     if (method === "DELETE" && containerDelete) {
       const applicationId = decodeURIComponent(containerDelete[1]);
+      if (!state.containers.has(applicationId)) return cf(null, undefined, 404);
       state.containers.delete(applicationId);
       state.containerDeployments.delete(applicationId);
       state.containerRollouts.delete(applicationId);
@@ -5262,6 +5294,7 @@ function fixtureProvider(target, { cascadeDns = false, certificatePollsBeforeDel
     if (tokenRoute) {
       const id = decodeURIComponent(tokenRoute[1]);
       if (method === "DELETE") {
+        if (!state.credentials.has(id)) return cf(null, undefined, 404);
         state.credentials.delete(id);
         return cf({ id });
       }
