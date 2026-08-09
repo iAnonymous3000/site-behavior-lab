@@ -9,11 +9,13 @@ owners and the current gaps attached.
 
 ## Before anything else
 
-- [ ] CODE: finish the assemble custody wiring
-      (`scripts/calibration-study-assemble.mjs` refuses at line 35 today)
-      and the `calibration:frame` producer from frame-construction.md. No
-      ceremony can conclude without the first; no frame can freeze without
-      the second.
+- [x] CODE: assemble custody wiring is implemented in
+      `scripts/calibration-study-assemble.mjs` and
+      `scripts/calibration-assemble-custody-lib.mjs`, with refusal paths covered
+      by `scripts/calibration-assemble-custody-lib.test.mjs`.
+- [ ] CODE: build the deterministic `calibration:frame` producer from
+      frame-construction.md. No frame can freeze until it emits the canonical
+      case inputs, plan rows, labeler appendix, and sweep receipts.
 - [ ] OPERATOR: provision the controlled runner (`FEATURED_RUNNER_LABEL`)
       with attested egress. Also unlocks r2 corpus production.
 - [ ] OPERATOR: recruit two to ten labelers plus one tiebreaker, all
@@ -67,8 +69,8 @@ owners and the current gaps attached.
 The freeze window opens no earlier than 2026-08-10, and the drafts carry
 declaredAt 2026-08-19T00:00:00.000Z, matching the operations doc's own
 example date and the deferral re-adjudication window. The chain that must
-complete before that date: assemble wiring, frame tooling, runner, keygen,
-labeler commitments. The two long poles are the runner and the labelers;
+complete before that date: frame tooling, runner, keygen, and labeler
+commitments. The two long poles are the runner and the labelers;
 both are OPERATOR items with lead time, which is why they are listed first.
 
 ## What publishes when it works

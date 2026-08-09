@@ -150,14 +150,32 @@ function parseJsonBytes(bytes, label) {
   }
 }
 
-async function boundedResponseBytes(response, label, maximumBytes) {
+export async function readBoundedMeasurementFreezeResponseBytes(
+  response,
+  label,
+  maximumBytes
+) {
+  if (!Number.isSafeInteger(maximumBytes) || maximumBytes <= 0) {
+    throw new Error("measurement-freeze response byte ceiling is invalid");
+  }
   if (!response?.ok) {
     const status = Number.isSafeInteger(response?.status)
       ? response.status
       : "unknown";
+    cancelResponseBodyDetached(response);
     throw new Error(`${label} failed with HTTP ${status}`);
   }
-  const declared = response.headers?.get?.("content-length");
+  // Undici decodes gzip/br bodies but preserves their wire Content-Length.
+  // Only an identity body's declared length describes the bytes read below.
+  const contentEncoding = response.headers?.get?.("content-encoding");
+  const identityEncoded =
+    contentEncoding === null ||
+    contentEncoding === undefined ||
+    contentEncoding.trim().toLowerCase() === "identity";
+  const declared = identityEncoded
+    ? response.headers?.get?.("content-length")
+    : null;
+  let declaredLength = null;
   if (declared !== null && declared !== undefined) {
     const size = Number(declared);
     if (
@@ -165,31 +183,68 @@ async function boundedResponseBytes(response, label, maximumBytes) {
       size <= 0 ||
       size > maximumBytes
     ) {
+      cancelResponseBodyDetached(response);
       throw new Error(`${label} returned an out-of-bounds body`);
     }
+    declaredLength = size;
   }
   if (!response.body || typeof response.body.getReader !== "function") {
     throw new Error(`${label} returned no readable body`);
   }
   const reader = response.body.getReader();
-  const chunks = [];
+  // Keep one fixed allocation. A hostile API can otherwise remain under the
+  // byte ceiling while forcing one retained Buffer object per tiny chunk.
+  const bytes = Buffer.allocUnsafe(maximumBytes);
   let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (!(value instanceof Uint8Array) || value.byteLength === 0) {
-      await reader.cancel().catch(() => undefined);
-      throw new Error(`${label} returned an invalid body chunk`);
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array)) {
+        throw new Error(`${label} returned an invalid body chunk`);
+      }
+      if (value.byteLength === 0) continue;
+      if (value.byteLength > maximumBytes - total) {
+        throw new Error(`${label} exceeded its ${maximumBytes}-byte bound`);
+      }
+      bytes.set(value, total);
+      total += value.byteLength;
     }
-    total += value.byteLength;
-    if (total > maximumBytes) {
-      await reader.cancel().catch(() => undefined);
-      throw new Error(`${label} exceeded its ${maximumBytes}-byte bound`);
+  } catch (error) {
+    cancelReaderDetached(reader, "measurement-freeze response was refused");
+    throw error;
+  } finally {
+    try {
+      reader.releaseLock();
+    } catch {
+      // Broken cleanup must not mask the authoritative response verdict.
     }
-    chunks.push(Buffer.from(value));
   }
   if (total === 0) throw new Error(`${label} returned an empty body`);
-  return Buffer.concat(chunks, total);
+  if (declaredLength !== null && total !== declaredLength) {
+    throw new Error(`${label} body length does not match Content-Length`);
+  }
+  return Buffer.from(bytes.subarray(0, total));
+}
+
+function observeDetached(value) {
+  void Promise.resolve(value).catch(() => undefined);
+}
+
+function cancelResponseBodyDetached(response) {
+  try {
+    observeDetached(response?.body?.cancel?.());
+  } catch {
+    // Header/status refusal remains authoritative if cleanup is hostile.
+  }
+}
+
+function cancelReaderDetached(reader, reason) {
+  try {
+    observeDetached(reader.cancel(reason));
+  } catch {
+    // Body refusal remains authoritative if cleanup is hostile.
+  }
 }
 
 function githubHeaders(token, accept = "application/vnd.github+json") {
@@ -231,7 +286,11 @@ async function fetchJson(fetchImpl, apiBase, apiPath, token) {
     signal: AbortSignal.timeout(30_000)
   });
   return parseJsonBytes(
-    await boundedResponseBytes(response, label, MAX_API_JSON_BYTES),
+    await readBoundedMeasurementFreezeResponseBytes(
+      response,
+      label,
+      MAX_API_JSON_BYTES
+    ),
     label
   );
 }
@@ -243,7 +302,11 @@ async function fetchArchive(fetchImpl, apiBase, apiPath, token) {
     redirect: "follow",
     signal: AbortSignal.timeout(30_000)
   });
-  return boundedResponseBytes(response, label, MAX_ARCHIVE_BYTES);
+  return readBoundedMeasurementFreezeResponseBytes(
+    response,
+    label,
+    MAX_ARCHIVE_BYTES
+  );
 }
 
 function flattenedArtifactPages(pages) {

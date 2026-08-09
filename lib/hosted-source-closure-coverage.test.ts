@@ -43,8 +43,15 @@ const EXACT_PATHS = {
     "scripts/smoke-production-synthetic.mjs"
   ],
   "durable-soak:monitor": [
+    "package-lock.json",
+    "package.json",
+    "tsconfig.json",
+    "tsconfig.schema.json",
+    "lib/canonical-json.ts",
+    "lib/sha256.ts",
     "lib/strict-json.ts",
     "scripts/archive-hosted-evidence.mjs",
+    "scripts/build-schema.mjs",
     "scripts/durable-soak-exercise-evidence-lib.mjs",
     "scripts/durable-soak-ledger-lib.mjs",
     "scripts/durable-soak-ledger.mjs",
@@ -52,7 +59,12 @@ const EXACT_PATHS = {
     "scripts/hosted-evidence-provenance-lib.mjs",
     "scripts/operator-evidence-common.mjs",
     "scripts/staging-teardown-evidence-lib.mjs",
+    "scripts/staging-teardown-github-app-token.mjs",
     "scripts/staging-teardown-hosted-capture-lib.mjs",
+    "scripts/staging-teardown-provider-adapter.mjs",
+    "scripts/staging-teardown-provider-adapters.mjs",
+    "scripts/staging-teardown-provider-http.mjs",
+    "scripts/staging-teardown-target-projections.mjs",
     "scripts/waf-ceiling-evidence-lib.mjs",
     "scripts/waf-hosted-capture-lib.mjs"
   ],

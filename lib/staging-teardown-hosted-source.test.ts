@@ -28,6 +28,7 @@ function script(name: string) {
 
 const SOURCE_COMMIT = "a".repeat(40);
 const SESSION_ID = "123e4567-e89b-42d3-a456-426614174000";
+const TARGET_MANIFEST_SHA256 = "e".repeat(64);
 
 function sha256(bytes: Buffer) {
   return createHash("sha256").update(bytes).digest("hex");
@@ -150,6 +151,7 @@ async function stagingReceipt() {
   return staging.buildStagingTeardownEvidence({
     sourceBytes: `${JSON.stringify({
       stagingSourceCommit: SOURCE_COMMIT,
+      targetManifestSha256: TARGET_MANIFEST_SHA256,
       recordedAt: "2026-08-01T14:00:04.000Z",
       session: {
         id: SESSION_ID,
@@ -391,6 +393,59 @@ test("staging teardown hosted producer closure is an exact ordered source set", 
   }
 });
 
+test("hosted archive bootstraps the staging teardown semantic verifier", () => {
+  const workflow = readFileSync(
+    path.join(
+      process.cwd(),
+      ".github",
+      "workflows",
+      "archive-hosted-evidence.yml"
+    ),
+    "utf8"
+  );
+  const profileCondition =
+    "if: inputs.profile == 'waf-ceilings' || inputs.profile == 'staging-teardown'";
+  assert.equal(workflow.split(profileCondition).length - 1, 4);
+  const install = workflow.indexOf(
+    "- name: Install the compiled subject verifier dependency graph"
+  );
+  const compile = workflow.indexOf(
+    "- name: Compile the subject's canonical evidence serializer"
+  );
+  const collect = workflow.indexOf(
+    "- name: Collect immutable Actions metadata and artifact bytes"
+  );
+  assert.equal(install >= 0 && compile > install && collect > compile, true);
+  assert.match(workflow.slice(install, collect), /npm ci --ignore-scripts/);
+  assert.match(
+    workflow.slice(compile, collect),
+    /npm run build:schema/
+  );
+  const proposalInstall = workflow.indexOf(
+    "- name: Install the proposal verifier dependency graph"
+  );
+  const proposalCompile = workflow.indexOf(
+    "- name: Compile the proposal verifier's canonical evidence serializer"
+  );
+  const verify = workflow.indexOf(
+    "- name: Reconstruct and verify the canonical archive"
+  );
+  assert.equal(
+    proposalInstall > collect &&
+      proposalCompile > proposalInstall &&
+      verify > proposalCompile,
+    true
+  );
+  assert.match(
+    workflow.slice(proposalInstall, verify),
+    /npm ci --ignore-scripts/
+  );
+  assert.match(
+    workflow.slice(proposalCompile, verify),
+    /npm run build:schema/
+  );
+});
+
 test("staging teardown hosted verifier rejects a stale producer digest", async () => {
   const hosted = await script(
     "staging-teardown-hosted-capture-lib.mjs"
@@ -422,8 +477,23 @@ test("staging teardown hosted verifier rejects a stale producer digest", async (
       hosted.verifyStagingTeardownHostedSafeDirectory(directory).ok,
       true
     );
+    assert.equal(manifest.targetManifestSha256, TARGET_MANIFEST_SHA256);
+    assert.equal(manifest.schemaVersion, 2);
+    assert.equal(Object.hasOwn(manifest, "targetManifest"), false);
 
     manifest.producerClosure.files[0].sha256 = "0".repeat(64);
+    writeFileSync(
+      path.join(directory, "sanitized-provider-manifest.json"),
+      common.serializeCanonicalEvidence(manifest)
+    );
+    assert.throws(
+      () => hosted.verifyStagingTeardownHostedSafeDirectory(directory),
+      /does not canonically rederive/
+    );
+
+    manifest.producerClosure.files[0].sha256 =
+      closure.files[0].sha256;
+    manifest.targetManifestSha256 = "0".repeat(64);
     writeFileSync(
       path.join(directory, "sanitized-provider-manifest.json"),
       common.serializeCanonicalEvidence(manifest)
@@ -467,6 +537,12 @@ test("staging teardown archive rejects missing, extra, and stale closure members
     {
       mutate(manifest: Record<string, any>) {
         manifest.producerClosure.files[0].sha256 = "0".repeat(64);
+      },
+      message: /not rederived by the authenticated/
+    },
+    {
+      mutate(manifest: Record<string, any>) {
+        manifest.targetManifestSha256 = "0".repeat(64);
       },
       message: /not rederived by the authenticated/
     }

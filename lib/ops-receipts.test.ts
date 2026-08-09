@@ -282,6 +282,18 @@ test("runner identity and successful r2 run evidence are exact and cross-bound",
   ];
   rejects(mismatchedLabel, /labelRefs must include runnerLabelRef/);
 
+  const reusedRoleReference = structuredClone(validReceipt());
+  reusedRoleReference.provisioning.hostImageIdentityRef =
+    reusedRoleReference.runnerLabelRef;
+  rejects(reusedRoleReference, /pairwise distinct role references/);
+
+  const registrationReusesNat = structuredClone(validReceipt());
+  registrationReusesNat.provisioning.registration.labelRefs = [
+    registrationReusesNat.egress.natIdentityRef,
+    registrationReusesNat.runnerLabelRef
+  ].sort();
+  rejects(registrationReusesNat, /must not reuse the host-image or NAT/);
+
   const rawIdentityLeak = structuredClone(validReceipt()) as unknown as {
     runnerLabel?: string;
     runnerLabelRef?: string;
@@ -445,15 +457,61 @@ test("a verified receipt set requires distinct UTC collection dates", async () =
 test("runner receipt sets bind a compatible environment, candidate, epoch, and freshness window", async () => {
   const {
     runnerDestructionEnvironmentDigest,
+    runnerDestructionEnvironmentTuple,
+    runnerDestructionExpectedEnvironmentDigest,
+    runnerDestructionExpectedEnvironmentIssues,
     runnerDestructionReceiptSetIssues,
     verifyRunnerDestructionReceiptSet
   } = await script("runner-receipt-lib.mjs");
   const first = validReceipt();
   const later = validLaterReceipt();
+  const expectedEnvironment = runnerDestructionEnvironmentTuple(first);
+  assert.deepEqual(
+    runnerDestructionExpectedEnvironmentIssues(expectedEnvironment),
+    []
+  );
+  assert.equal(
+    runnerDestructionExpectedEnvironmentDigest(expectedEnvironment),
+    runnerDestructionEnvironmentDigest(first),
+    "the candidate-owned tuple and independently derived receipt tuple use one canonical digest"
+  );
+  assert.match(
+    runnerDestructionExpectedEnvironmentIssues({
+      ...expectedEnvironment,
+      registrationLabelRefs: []
+    }).join(" "),
+    /registrationLabelRefs/
+  );
+  assert.throws(
+    () =>
+      runnerDestructionExpectedEnvironmentDigest({
+        ...expectedEnvironment,
+        natIdentityRef: "not-a-private-reference"
+      }),
+    /natIdentityRef/
+  );
+  assert.match(
+    runnerDestructionExpectedEnvironmentIssues({
+      ...expectedEnvironment,
+      hostImageIdentityRef: expectedEnvironment.runnerLabelRef
+    }).join(" "),
+    /pairwise distinct/
+  );
+  assert.match(
+    runnerDestructionExpectedEnvironmentIssues({
+      ...expectedEnvironment,
+      registrationLabelRefs: [
+        expectedEnvironment.natIdentityRef,
+        expectedEnvironment.runnerLabelRef
+      ].sort()
+    }).join(" "),
+    /must not reuse hostImageIdentityRef or natIdentityRef/
+  );
   const now = Date.parse("2026-08-11T00:00:00.000Z");
   const options = {
     expectedCandidateCommit: "a".repeat(40),
-    expectedEnvironmentDigest: runnerDestructionEnvironmentDigest(first),
+    expectedEnvironmentDigest:
+      runnerDestructionExpectedEnvironmentDigest(expectedEnvironment),
     epochStartedAt: "2026-08-01T00:00:00.000Z",
     now,
     maxAgeDays: 30

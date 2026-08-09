@@ -695,8 +695,10 @@ test("capture code requires an online labeled runner, a zero-open set, then re-r
   assert.match(capture, /signal: AbortSignal\.timeout\(30_000\)/);
   assert.match(
     capture,
-    /boundedApiResponseBytes\(response, path, 1024 \* 1024\)/
+    /readBoundedMeasurementFreezeResponseBytes/
   );
+  assert.match(capture, /from "\.\/measurement-freeze-artifact-lib\.mjs"/);
+  assert.doesNotMatch(capture, /\bchunks\.push\(|\bconst chunks\s*=\s*\[\]/);
   assert.match(capture, /TextDecoder\("utf-8", \{ fatal: true \}\)/);
   assert.doesNotMatch(capture, /response\.json\(\)/);
   assert.doesNotMatch(capture, /check-runs/);

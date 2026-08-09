@@ -43,7 +43,12 @@ jobs:
       github.repository == 'iAnonymous3000/site-behavior-lab' &&
       github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # At most three independent sources run concurrently. Each source admits
+    # no more than 26 sequential one-minute request slots; the collector adds a
+    # four-minute processing margin and enforces a 30-minute global deadline.
+    # The source-bound 45-minute envelope reserves 15 more minutes for setup,
+    # compilation, attestation, and upload.
+    timeout-minutes: 45
     permissions:
       contents: read
       actions: read
@@ -82,13 +87,13 @@ jobs:
           test "$(node --version)" = "v24.14.1"
           test "$(npm --version)" = "11.11.0"
 
-      - name: Install the WAF subject verifier dependency graph
-        if: inputs.profile == 'waf-ceilings'
+      - name: Install the compiled subject verifier dependency graph
+        if: inputs.profile == 'waf-ceilings' || inputs.profile == 'staging-teardown'
         run: npm ci --ignore-scripts
 
-      - name: Compile the WAF subject's canonical evidence serializer
-        if: inputs.profile == 'waf-ceilings'
-        run: node node_modules/typescript/bin/tsc -p tsconfig.schema.json
+      - name: Compile the subject's canonical evidence serializer
+        if: inputs.profile == 'waf-ceilings' || inputs.profile == 'staging-teardown'
+        run: npm run build:schema
 
       - name: Materialize only the declared candidate subject and source plan
         env:
@@ -119,6 +124,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          HOSTED_PROFILE: ${{ inputs.profile }}
           SUBJECT_COMMIT: ${{ inputs.subject_commit }}
           SUBJECT_PATH: ${{ inputs.subject_path }}
         run: |
@@ -126,7 +132,7 @@ jobs:
           install -d -m 700 "$RUNNER_TEMP/hosted-output"
           node scripts/archive-hosted-evidence.mjs \
             --collect \
-            --profile "${{ inputs.profile }}" \
+            --profile "$HOSTED_PROFILE" \
             --subject-file "$RUNNER_TEMP/hosted-subject.json" \
             --subject-path "$SUBJECT_PATH" \
             --subject-commit "$SUBJECT_COMMIT" \
@@ -196,6 +202,14 @@ jobs:
           test "$(node --version)" = "v24.14.1"
           test "$(npm --version)" = "11.11.0"
 
+      - name: Install the proposal verifier dependency graph
+        if: inputs.profile == 'waf-ceilings' || inputs.profile == 'staging-teardown'
+        run: npm ci --ignore-scripts
+
+      - name: Compile the proposal verifier's canonical evidence serializer
+        if: inputs.profile == 'waf-ceilings' || inputs.profile == 'staging-teardown'
+        run: npm run build:schema
+
       - name: Download only the exact attested handoff
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -244,6 +258,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELATIVE_PATH: ${{ needs.attest.outputs.relative_path }}
+          HOSTED_PROFILE: ${{ inputs.profile }}
+          SUBJECT_PATH: ${{ inputs.subject_path }}
+          SUBJECT_COMMIT: ${{ inputs.subject_commit }}
+          CONTEXT_SHA256: ${{ needs.attest.outputs.context_sha256 }}
         run: |
           set -euo pipefail
           unexpected=$(git status --porcelain=v1 --untracked-files=all \
@@ -258,15 +276,15 @@ jobs:
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
           git add -- "$RELATIVE_PATH"
           git diff --cached --check
-          git commit -m "Archive authenticated ${{ inputs.profile }} evidence"
+          git commit -m "Archive authenticated ${HOSTED_PROFILE} evidence"
           git push origin "HEAD:refs/heads/$PROPOSAL_BRANCH"
           body="$RUNNER_TEMP/hosted-evidence-pr.md"
           printf '%s\n' \
             '## Authenticated hosted evidence' \
             '' \
-            "- Profile: \`${{ inputs.profile }}\`" \
-            "- Subject: \`${{ inputs.subject_path }}\` at \`${{ inputs.subject_commit }}\`" \
-            "- Context: \`${{ needs.attest.outputs.context_sha256 }}\`" \
+            "- Profile: \`${HOSTED_PROFILE}\`" \
+            "- Subject: \`${SUBJECT_PATH}\` at \`${SUBJECT_COMMIT}\`" \
+            "- Context: \`${CONTEXT_SHA256}\`" \
             '- The archive retains exact Actions run/job/artifact metadata, public artifact bytes, required members, and the Sigstore bundle for offline recomputation.' \
             "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
             "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
@@ -275,7 +293,7 @@ jobs:
           gh pr create \
             --base main \
             --head "$PROPOSAL_BRANCH" \
-            --title "Archive authenticated ${{ inputs.profile }} evidence" \
+            --title "Archive authenticated ${HOSTED_PROFILE} evidence" \
             --body-file "$body"
 
       - name: Dispatch proposal CI

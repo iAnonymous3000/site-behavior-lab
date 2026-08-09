@@ -60,55 +60,83 @@ export async function readBoundedResponseBody(
   response,
   maximumBytes = GITHUB_CLI_ARCHIVE_MAX_BYTES
 ) {
-  if (!Number.isSafeInteger(maximumBytes) || maximumBytes <= 0) {
+  if (
+    !Number.isSafeInteger(maximumBytes) ||
+    maximumBytes <= 0 ||
+    maximumBytes > GITHUB_CLI_ARCHIVE_MAX_BYTES
+  ) {
     throw new Error("GitHub CLI response byte ceiling is invalid");
   }
   const rawLength = response.headers?.get?.("content-length");
+  const contentEncoding = response.headers?.get?.("content-encoding");
+  // Undici decodes encoded Fetch bodies while retaining their wire length.
+  // Treat Content-Length as the exact body length only for identity encoding;
+  // the fixed decoded-byte ceiling still applies to every response.
+  const declaredLengthDescribesBody =
+    contentEncoding === null ||
+    contentEncoding === undefined ||
+    String(contentEncoding).trim().toLowerCase() === "identity";
   let declaredLength = null;
-  if (rawLength !== null && rawLength !== undefined) {
+  if (
+    declaredLengthDescribesBody &&
+    rawLength !== null &&
+    rawLength !== undefined
+  ) {
     if (!/^(?:0|[1-9][0-9]*)$/.test(rawLength)) {
-      await response.body?.cancel?.().catch(() => {});
+      cancelResponseBodyDetached(response);
       throw new Error("GitHub CLI bootstrap Content-Length is invalid");
     }
-    declaredLength = Number(rawLength);
+    const parsedLength = Number(rawLength);
     if (
-      !Number.isSafeInteger(declaredLength) ||
-      declaredLength > maximumBytes
+      !Number.isSafeInteger(parsedLength) ||
+      parsedLength > maximumBytes
     ) {
-      await response.body?.cancel?.().catch(() => {});
+      cancelResponseBodyDetached(response);
       throw new Error("GitHub CLI bootstrap archive exceeds the byte ceiling");
     }
+    declaredLength = parsedLength;
   }
   if (!response.body || typeof response.body.getReader !== "function") {
     throw new Error("GitHub CLI bootstrap response has no readable body");
   }
   const reader = response.body.getReader();
-  const chunks = [];
+  // Retain one fixed buffer. The byte ceiling alone does not bound an array of
+  // chunk objects when a peer emits arbitrarily many empty or tiny chunks.
+  const capacity =
+    declaredLength === null ? maximumBytes : declaredLength;
+  const bytes = Buffer.allocUnsafe(capacity);
   let total = 0;
-  let completed = false;
   try {
     while (true) {
       const { done, value } = await reader.read();
-      if (done) {
-        completed = true;
-        break;
-      }
+      if (done) break;
       if (!(value instanceof Uint8Array)) {
         throw new Error("GitHub CLI bootstrap response yielded a non-byte chunk");
       }
       if (value.byteLength === 0) continue;
       if (value.byteLength > maximumBytes - total) {
-        await reader.cancel("GitHub CLI bootstrap archive exceeds the byte ceiling");
         throw new Error("GitHub CLI bootstrap archive exceeds the byte ceiling");
       }
-      chunks.push(Buffer.from(value));
+      if (value.byteLength > capacity - total) {
+        throw new Error(
+          "GitHub CLI bootstrap body length does not match Content-Length"
+        );
+      }
+      bytes.set(value, total);
       total += value.byteLength;
     }
+  } catch (error) {
+    cancelReaderDetached(
+      reader,
+      "GitHub CLI bootstrap response was refused"
+    );
+    throw error;
   } finally {
-    if (!completed) {
-      await reader.cancel().catch(() => {});
+    try {
+      reader.releaseLock();
+    } catch {
+      // Broken cleanup must not mask the authoritative size/shape verdict.
     }
-    reader.releaseLock();
   }
   if (total === 0) {
     throw new Error("GitHub CLI bootstrap archive is empty");
@@ -116,7 +144,27 @@ export async function readBoundedResponseBody(
   if (declaredLength !== null && total !== declaredLength) {
     throw new Error("GitHub CLI bootstrap body length does not match Content-Length");
   }
-  return Buffer.concat(chunks, total);
+  return Buffer.from(bytes.subarray(0, total));
+}
+
+function observeDetached(value) {
+  void Promise.resolve(value).catch(() => undefined);
+}
+
+function cancelResponseBodyDetached(response) {
+  try {
+    observeDetached(response.body?.cancel?.());
+  } catch {
+    // Header refusal remains authoritative if cleanup is hostile.
+  }
+}
+
+function cancelReaderDetached(reader, reason) {
+  try {
+    observeDetached(reader.cancel(reason));
+  } catch {
+    // Stream refusal remains authoritative if cleanup is hostile.
+  }
 }
 
 export function extractGithubCliBinary(

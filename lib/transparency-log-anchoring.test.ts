@@ -18,7 +18,8 @@ import {
   buildDetachedOtsProof,
   digestHexToBytes,
   inspectOtsProof,
-  proofMentionsCalendar
+  proofMentionsCalendar,
+  readBoundedCalendarResponse
 } from "./transparency-log-anchoring";
 
 const PENDING_TAG = Uint8Array.from([0x83, 0xdf, 0xe3, 0x0d, 0x2e, 0xf9, 0x0c, 0x8e]);
@@ -116,6 +117,71 @@ test("size ceilings hold on both sides of the base64 boundary", () => {
   );
 });
 
+test("calendar response retention is fixed across empty and one-byte chunks", async () => {
+  const expected = fakeCalendarTimestamp();
+  const emptyChunkCount = 50_000;
+  let reads = 0;
+  let released = false;
+  const reader = {
+    async read() {
+      if (reads < emptyChunkCount) {
+        reads += 1;
+        return { done: false, value: new Uint8Array() };
+      }
+      const offset = reads - emptyChunkCount;
+      reads += 1;
+      if (offset < expected.byteLength) {
+        return { done: false, value: expected.slice(offset, offset + 1) };
+      }
+      return { done: true, value: undefined };
+    },
+    cancel() {
+      throw new Error("successful reads must not cancel");
+    },
+    releaseLock() {
+      released = true;
+    }
+  };
+  const response = {
+    body: { getReader: () => reader }
+  } as unknown as Response;
+
+  assert.deepEqual(
+    await readBoundedCalendarResponse(response, expected.byteLength),
+    expected
+  );
+  assert.equal(reads, emptyChunkCount + expected.byteLength + 1);
+  assert.equal(released, true);
+});
+
+test("calendar overflow ignores non-settling cancellation and release errors", async () => {
+  let canceled = false;
+  const reader = {
+    async read() {
+      return {
+        done: false,
+        value: new Uint8Array(MAX_CALENDAR_RESPONSE_BYTES + 1)
+      };
+    },
+    cancel() {
+      canceled = true;
+      return new Promise<void>(() => undefined);
+    },
+    releaseLock() {
+      throw new Error("hostile releaseLock");
+    }
+  };
+  const response = {
+    body: { getReader: () => reader }
+  } as unknown as Response;
+
+  await assert.rejects(
+    settleWithin(readBoundedCalendarResponse(response)),
+    /timestamp size ceiling/
+  );
+  assert.equal(canceled, true);
+});
+
 test("an anchor minted from a calendar reply survives the log's own validator", () => {
   const entries = chainedEntries(3);
   const head = entries[entries.length - 1].entryDigest;
@@ -170,6 +236,25 @@ async function cliWorkspace(): Promise<string> {
 
 function runCli(cwd: string, args: readonly string[]) {
   return spawnSync(process.execPath, [CLI, ...args], { cwd, encoding: "utf8" });
+}
+
+function settleWithin<T>(operation: Promise<T>, timeoutMs = 250): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error("The bounded calendar reader did not settle promptly.")),
+      timeoutMs
+    );
+    operation.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
 }
 
 /**

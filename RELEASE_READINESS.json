@@ -81,8 +81,11 @@
     "release-tag-governance": {
       "kind": "release-tag-governance",
       "title": "Dedicated release and promotion Apps are identity-bound under pinned tag governance",
-      "artifact": "research/ops-receipts/release-tag-governance.json",
-      "sha256": null,
+      "artifactDirectory": "research/ops-receipts/release-tag-governance",
+      "digestBinding": {
+        "kind": "github-actions-prepare-snapshot",
+        "name": "RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"
+      },
       "maxAgeDays": 1,
       "promotionWorkflows": [
         ".github/workflows/ci.yml",
@@ -107,6 +110,7 @@
         "lifecycle-receipt",
         "operator-evidence",
         "operator-attestation",
+        "release-tag-governance-receipt",
         "release-policy-finalization",
         "citation-finalization",
         "changelog-finalization"
@@ -163,7 +167,7 @@
       "title": "At least two controlled-runner cycles carry verifying destruction receipts",
       "directory": "research/runner-receipts",
       "minimumReceipts": 2,
-      "expectedEnvironmentDigest": null,
+      "expectedEnvironment": null,
       "maxAgeDays": 45
     },
     "controlled-publications": {

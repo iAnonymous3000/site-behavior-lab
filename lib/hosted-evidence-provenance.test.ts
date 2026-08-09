@@ -14,7 +14,7 @@ import os from "node:os";
 import path from "node:path";
 import test, { before } from "node:test";
 import { pathToFileURL } from "node:url";
-import { deflateRawSync } from "node:zlib";
+import { deflateRawSync, gzipSync } from "node:zlib";
 
 let hosted: any;
 let collector: any;
@@ -1168,6 +1168,371 @@ test("collector strips authorization on allowed artifact redirects and rejects o
   );
 });
 
+test("collector request-slot and deadline budgets cover every hosted profile", () => {
+  const expected = new Map([
+    ["controlled-publication", [1, 26, 26]],
+    ["runner-destruction", [2, 52, 26]],
+    ["durable-transition", [3, 73, 26]],
+    ["durable-soak", [3, 78, 26]],
+    ["lifecycle", [2, 52, 26]],
+    ["staging-teardown", [1, 26, 26]],
+    ["waf-ceilings", [1, 26, 26]]
+  ]);
+  for (const [profile, values] of expected) {
+    assert.deepEqual(
+      collector.hostedEvidenceCollectionBudget(
+        hosted.hostedEvidenceCollectionContract(profile)
+      ),
+      {
+        sourceCount: values[0],
+        requestSlotCap: values[1],
+        elapsedRequestTimeoutSlotCap: values[2]
+      },
+      profile
+    );
+  }
+  assert.equal(collector.HOSTED_EVIDENCE_MAX_PROFILE_REQUEST_SLOT_CAP, 78);
+  assert.equal(collector.HOSTED_EVIDENCE_COLLECTION_DEADLINE_MS, 30 * 60_000);
+  assert.equal(
+    collector.HOSTED_EVIDENCE_COLLECTION_DEADLINE_MS,
+    (collector.HOSTED_EVIDENCE_ARTIFACT_SOURCE_REQUEST_SLOT_CAP *
+      collector.HOSTED_EVIDENCE_REQUEST_TIMEOUT_MS) +
+      collector.HOSTED_EVIDENCE_COLLECTION_PROCESSING_RESERVE_MS
+  );
+});
+
+test("collector runs at most three independent sources concurrently and preserves order", async () => {
+  const control = collector.createHostedEvidenceCollectionControl(10_000);
+  const started: number[] = [];
+  const releases = new Map<number, (value: string) => void>();
+  const resultPromise = collector.collectHostedEvidenceSources(
+    [0, 1, 2].map((index) => async () => {
+      started.push(index);
+      return new Promise<string>((resolve) => releases.set(index, resolve));
+    }),
+    control
+  );
+  while (releases.size !== 3) {
+    await new Promise((resolve) => setImmediate(resolve));
+  }
+  assert.deepEqual(started, [0, 1, 2]);
+  releases.get(2)?.("third");
+  releases.get(0)?.("first");
+  releases.get(1)?.("second");
+  assert.deepEqual(await resultPromise, ["first", "second", "third"]);
+
+  await assert.rejects(
+    () =>
+      collector.collectHostedEvidenceSources(
+        [() => 1, () => 2, () => 3, () => 4],
+        control
+      ),
+    /requires 1\.\.3 task factories/
+  );
+});
+
+test("collector cancels and settles sibling sources after one source fails", async () => {
+  const control = collector.createHostedEvidenceCollectionControl(10_000);
+  let siblingAborted = false;
+  await assert.rejects(
+    () =>
+      collector.collectHostedEvidenceSources(
+        [
+          async () => {
+            await Promise.resolve();
+            throw new Error("fixture source failure");
+          },
+          async (signal: AbortSignal) =>
+            new Promise((_resolve, reject) => {
+              const abort = () => {
+                siblingAborted = true;
+                reject(signal.reason);
+              };
+              if (signal.aborted) abort();
+              else signal.addEventListener("abort", abort, { once: true });
+            })
+        ],
+        control
+      ),
+    /fixture source failure/
+  );
+  assert.equal(siblingAborted, true);
+  assert.equal(control.signal.aborted, true);
+});
+
+test("collector refuses zero budgets and stops before a request-slot overrun", async () => {
+  assert.throws(
+    () => collector.createHostedEvidenceRequestLedger(0),
+    /request-slot cap must be 1/
+  );
+  assert.throws(
+    () => collector.createHostedEvidenceCollectionControl(0),
+    /collection deadline must be 1/
+  );
+
+  const ledger = collector.createHostedEvidenceRequestLedger(1);
+  let calls = 0;
+  await assert.rejects(
+    () =>
+      collector.githubApi(
+        "/repos/x/actions/artifacts/1/zip",
+        "secret-token",
+        100,
+        "application/octet-stream",
+        async () => {
+          calls += 1;
+          return new Response(null, {
+            status: 302,
+            headers: {
+              location:
+                "https://pipelines.actions.githubusercontent.com/safe/archive"
+            }
+          });
+        },
+        { requestLedger: ledger }
+      ),
+    /exceeded its 1-request slot cap/
+  );
+  assert.equal(calls, 1);
+  assert.deepEqual(ledger.snapshot(), { used: 1, maximum: 1 });
+});
+
+test("collector global deadline aborts a hostile pending request", async () => {
+  const control = collector.createHostedEvidenceCollectionControl(1);
+  if (!control.signal.aborted) {
+    await new Promise<void>((resolve) =>
+      control.signal.addEventListener("abort", () => resolve(), { once: true })
+    );
+  }
+  await assert.rejects(
+    () =>
+      collector.githubApi(
+        "/repos/x/actions/runs/1",
+        "secret-token",
+        100,
+        "application/vnd.github+json",
+        async (_url: unknown, init: RequestInit) => {
+          assert.equal(init.signal?.aborted, true);
+          throw init.signal?.reason;
+        },
+        { overallSignal: control.signal }
+      ),
+    /timeout/i
+  );
+});
+
+test("collector deadline uses its fixed clock even before the timeout event is delivered", async () => {
+  let now = 1_000;
+  const dormantDeadline = new AbortController();
+  const control = collector.createHostedEvidenceCollectionControl(10, {
+    now: () => now,
+    deadlineSignal: dormantDeadline.signal
+  });
+  assert.equal(control.signal.aborted, false);
+  await assert.rejects(
+    collector.collectHostedEvidenceSources(
+      [async () => {
+        now = 1_010;
+        return "late";
+      }],
+      control
+    ),
+    /deadline expired before source collection completion/
+  );
+  assert.equal(dormantDeadline.signal.aborted, false);
+
+  now = 2_000;
+  const requestControl = collector.createHostedEvidenceCollectionControl(10, {
+    now: () => now,
+    deadlineSignal: new AbortController().signal
+  });
+  now = 2_010;
+  let fetches = 0;
+  await assert.rejects(
+    collector.githubApi(
+      "/repos/x/actions/runs/1",
+      "secret-token",
+      100,
+      "application/vnd.github+json",
+      async () => {
+        fetches += 1;
+        return new Response("{}");
+      },
+      {
+        overallSignal: requestControl.signal,
+        assertActive: (phase: string) => requestControl.assertActive(phase)
+      }
+    ),
+    /deadline expired before provider request/
+  );
+  assert.equal(fetches, 0);
+});
+
+test("collector policy bounds redirect hops and honors the overall collection signal", async () => {
+  let redirectCalls = 0;
+  await assert.rejects(
+    () =>
+      collector.githubApi(
+        "/repos/x/actions/artifacts/1/zip",
+        "secret-token",
+        100,
+        "application/octet-stream",
+        async () => {
+          redirectCalls += 1;
+          return new Response(null, {
+            status: 302,
+            headers: {
+              location:
+                "https://pipelines.actions.githubusercontent.com/safe/archive"
+            }
+          });
+        },
+        { maximumArtifactRedirects: 1 }
+      ),
+    /exceeded redirect bound/
+  );
+  assert.equal(redirectCalls, 2);
+
+  const cancelled = new AbortController();
+  cancelled.abort(new Error("fixture collection deadline"));
+  await assert.rejects(
+    () =>
+      collector.githubApi(
+        "/repos/x/actions/runs/1",
+        "secret-token",
+        100,
+        "application/vnd.github+json",
+        async (_url: unknown, init: RequestInit) => {
+          assert.equal(init.signal?.aborted, true);
+          throw init.signal?.reason;
+        },
+        { overallSignal: cancelled.signal }
+      ),
+    /fixture collection deadline/
+  );
+});
+
+test("collector body retention stays bounded across many empty and one-byte chunks", async () => {
+  const emptyChunkCount = 50_000;
+  const expectedBytes = 256;
+  let pulls = 0;
+  const body = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        if (pulls < emptyChunkCount) {
+          pulls += 1;
+          controller.enqueue(new Uint8Array());
+          return;
+        }
+        if (pulls < emptyChunkCount + expectedBytes) {
+          pulls += 1;
+          controller.enqueue(Uint8Array.of(120));
+          return;
+        }
+        controller.close();
+      }
+    },
+    { highWaterMark: 0 }
+  );
+
+  const bytes = await collector.githubApi(
+    "/repos/x/actions/runs/1",
+    "secret-token",
+    expectedBytes,
+    "application/octet-stream",
+    async () => new Response(body)
+  );
+  assert.equal(bytes.toString("utf8"), "x".repeat(expectedBytes));
+  assert.equal(pulls, emptyChunkCount + expectedBytes);
+});
+
+test("collector bounds decoded encoded bodies without trusting wire Content-Length", async () => {
+  const decoded = Buffer.from("x".repeat(1024));
+  const wire = gzipSync(decoded);
+  assert.notEqual(wire.byteLength, decoded.byteLength);
+  const bytes = await collector.githubApi(
+    "/repos/x/actions/artifacts/1/zip",
+    "secret-token",
+    decoded.byteLength,
+    "application/octet-stream",
+    async () =>
+      new Response(decoded, {
+        headers: {
+          "content-encoding": "gzip",
+          "content-length": String(wire.byteLength)
+        }
+      })
+  );
+  assert.deepEqual(bytes, decoded);
+
+  await assert.rejects(
+    () =>
+      collector.githubApi(
+        "/repos/x/actions/artifacts/2/zip",
+        "secret-token",
+        decoded.byteLength - 1,
+        "application/octet-stream",
+        async () =>
+          new Response(decoded, {
+            headers: {
+              "content-encoding": "br",
+              "content-length": "1"
+            }
+          })
+      ),
+    /exceeds its byte bound/
+  );
+});
+
+test("collector cleanup cannot hold open or mask a body-size refusal", async () => {
+  for (const fixture of [
+    {
+      maximumBytes: 1,
+      headers: new Headers(),
+      expected: /exceeds its byte bound/
+    },
+    {
+      maximumBytes: 3,
+      headers: new Headers({ "content-length": "1" }),
+      expected: /body length changed in transit/
+    }
+  ]) {
+    let cancelled = false;
+    const reader = {
+      async read() {
+        return { done: false, value: Uint8Array.of(120, 121) };
+      },
+      cancel() {
+        cancelled = true;
+        return new Promise<void>(() => undefined);
+      },
+      releaseLock() {
+        throw new Error("fixture releaseLock failure");
+      }
+    };
+    const response = {
+      status: 200,
+      ok: true,
+      headers: fixture.headers,
+      body: { getReader: () => reader }
+    };
+
+    await assert.rejects(
+      settleWithin(
+        collector.githubApi(
+          "/repos/x/actions/runs/1",
+          "secret-token",
+          fixture.maximumBytes,
+          "application/octet-stream",
+          async () => response as any
+        )
+      ),
+      fixture.expected
+    );
+    assert.equal(cancelled, true);
+  }
+});
+
 test("collector bounded reader refuses final symlinks", () => {
   const root = mkdtempSync(path.join(os.tmpdir(), "sbl-hosted-read-"));
   const target = path.join(root, "target.json");
@@ -1179,6 +1544,23 @@ test("collector bounded reader refuses final symlinks", () => {
     /ELOOP|symbolic|bounded regular file/
   );
 });
+
+async function settleWithin<T>(promise: Promise<T>): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_resolve, reject) => {
+        timer = setTimeout(
+          () => reject(new Error("collector body refusal did not settle")),
+          1_000
+        );
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 test("durable soak monitor CLI rejects hostile dispatch values before collection", () => {
   const base = [
@@ -1223,6 +1605,44 @@ test("trusted workflow scaffolds preserve exact privacy and provenance boundarie
   assert.match(archiveWorkflow, /context\.sigstore\.json/);
   assert.match(archiveWorkflow, /67108864/);
   assert.match(archiveWorkflow, /automation\/hosted-evidence-.*run_id/);
+  const archiveTimeoutMinutes = Number(
+    archiveWorkflow.match(/timeout-minutes:\s*(\d+)/)?.[1]
+  );
+  assert.equal(
+    archiveTimeoutMinutes,
+    collector.HOSTED_EVIDENCE_WORKFLOW_TIMEOUT_MINUTES
+  );
+  assert.ok(
+    archiveTimeoutMinutes * 60_000 >=
+      collector.HOSTED_EVIDENCE_COLLECTION_DEADLINE_MS +
+        collector.HOSTED_EVIDENCE_WORKFLOW_NON_COLLECTION_RESERVE_MS,
+    "archive job timeout must cover the global collector deadline plus non-collection reserve"
+  );
+  const runBlockText: string[] = [];
+  const workflowLines = archiveWorkflow.split(/\r?\n/);
+  let runIndent: number | null = null;
+  for (const line of workflowLines) {
+    const indentation = line.match(/^\s*/)?.[0].length ?? 0;
+    if (
+      runIndent !== null &&
+      line.trim().length > 0 &&
+      indentation <= runIndent
+    ) {
+      runIndent = null;
+    }
+    const runStart = line.match(/^(\s*)run:\s*(?:\||>-|.+)$/);
+    if (runStart) runIndent = runStart[1].length;
+    if (runIndent !== null) runBlockText.push(line);
+  }
+  assert.doesNotMatch(
+    runBlockText.join("\n"),
+    /\$\{\{\s*inputs\.(?:profile|subject_(?:path|commit))\s*\}\}/,
+    "dispatch inputs must enter shell steps only through quoted environment variables"
+  );
+  assert.match(
+    archiveWorkflow,
+    /HOSTED_PROFILE: \$\{\{ inputs\.profile \}\}[\s\S]*SUBJECT_PATH: \$\{\{ inputs\.subject_path \}\}[\s\S]*SUBJECT_COMMIT: \$\{\{ inputs\.subject_commit \}\}/
+  );
 
   const stagingWorkflow = readFileSync(
     path.join(

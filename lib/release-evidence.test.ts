@@ -69,6 +69,15 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   assert.match(citation, new RegExp(`^version: "${policy.version}"$`, "m"));
   // Ongoing work always has a home, in either state.
   assert.equal((changelog.match(/^## Unreleased$/gm) ?? []).length, 1);
+  assert.match(releaseGuide, /RELEASE_MEASUREMENT_BINDING_SHA256/);
+  assert.match(
+    releaseGuide,
+    /authorized maintainer may set or\s+rotate it \*\*only after\*\* independently verifying/
+  );
+  assert.match(
+    releaseGuide,
+    /digest printed by candidate CI[\s\S]*is not sufficient authority/
+  );
   const datedForVersion = new RegExp(`^## \\[?${policy.version.replace(/\./g, "\\.")}\\]?\\s+-\\s*(\\d{4}-\\d{2}-\\d{2})$`, "m");
   if (policy.status === "released") {
     assert.match(citation, new RegExp(`^date-released: "${policy.releaseDate}"$`, "m"));
@@ -248,6 +257,39 @@ test("static evidence is deterministic and changes on artifact tampering", { ski
   const wrongClock = runEvidence(fixture.root, ["--static-dir", "out"]);
   assert.notEqual(wrongClock.status, 0);
   assert.match(wrongClock.stderr, /must be the committer date of that exact commit/);
+});
+
+test("release evidence explicitly binds one selected governance receipt", { skip: hostToolchainSkip }, async (t) => {
+  const fixture = await makeFixture(t);
+  const governanceDigest = "a".repeat(64);
+  const result = runEvidence(fixture.root, [
+    "--static-dir",
+    "out",
+    "--release-tag-governance-receipt-sha256",
+    governanceDigest
+  ]);
+  assert.equal(result.status, 0, result.stderr);
+  const receipt = JSON.parse(result.stdout);
+  assert.equal(receipt.schemaVersion, 2);
+  assert.equal(receipt.releaseTagGovernanceReceiptSha256, governanceDigest);
+  assert.deepEqual(Object.keys(receipt).sort(), [
+    "artifacts",
+    "evidenceKind",
+    "inputs",
+    "release",
+    "releaseTagGovernanceReceiptSha256",
+    "schemaVersion",
+    "source"
+  ]);
+
+  const malformed = runEvidence(fixture.root, [
+    "--static-dir",
+    "out",
+    "--release-tag-governance-receipt-sha256",
+    "A".repeat(64)
+  ]);
+  assert.notEqual(malformed.status, 0);
+  assert.match(malformed.stderr, /must be one lowercase sha256/);
 });
 
 test("evidence refuses dirty source and inconsistent release metadata", { skip: hostToolchainSkip }, async (t) => {
@@ -779,6 +821,65 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   );
   assert.match(
     prepare,
+    /governance_receipt_sha256: \$\{\{ steps\.governance_selector\.outputs\.receipt_sha256 \}\}/
+  );
+  assert.match(
+    prepare,
+    /measurement_binding_required: \$\{\{ steps\.measurement_binding_policy\.outputs\.binding_required \}\}/
+  );
+  assert.match(
+    prepare,
+    /measurement_binding_sha256: \$\{\{ steps\.measurement_binding_policy\.outputs\.binding_sha256 \}\}/
+  );
+  const governanceSnapshot = prepare.slice(
+    prepare.indexOf("- name: Snapshot external release trust roots"),
+    prepare.indexOf("- name: Checkout full history without persisted credentials")
+  );
+  assert.ok(
+    prepare.indexOf("- name: Snapshot external release trust roots") <
+      prepare.indexOf("- name: Checkout full history without persisted credentials"),
+    "external trust roots must be snapshotted before checkout or package execution"
+  );
+  assert.match(
+    governanceSnapshot,
+    /SELECTED_GOVERNANCE_RECEIPT_SHA256: \$\{\{ vars\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 \}\}/
+  );
+  assert.match(
+    governanceSnapshot,
+    /SELECTED_MEASUREMENT_BINDING_SHA256: \$\{\{ vars\.RELEASE_MEASUREMENT_BINDING_SHA256 \}\}/
+  );
+  assert.match(governanceSnapshot, /\^\[0-9a-f\]\{64\}\$/);
+  assert.match(
+    governanceSnapshot,
+    /printf 'receipt_sha256=%s\\n' "\$SELECTED_GOVERNANCE_RECEIPT_SHA256" >> "\$GITHUB_OUTPUT"/
+  );
+  assert.doesNotMatch(governanceSnapshot, /GH_TOKEN|gh api|actions\/variables/);
+  assert.equal(
+    (workflow.match(/\$\{\{ vars\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 \}\}/g) ?? []).length,
+    1,
+    "the governance selector must be evaluated exactly once"
+  );
+  assert.equal(
+    (workflow.match(/\$\{\{ vars\.RELEASE_MEASUREMENT_BINDING_SHA256 \}\}/g) ?? []).length,
+    1,
+    "the external whole-binding pin must be evaluated exactly once"
+  );
+  assert.doesNotMatch(
+    prepare.slice(0, prepare.indexOf("steps:")),
+    /\benvironment:/,
+    "prepare must not enter an environment before snapshotting external trust roots"
+  );
+  const bindingPolicy = prepare.slice(
+    prepare.indexOf("- name: Classify the release measurement-binding requirement"),
+    prepare.indexOf("- name: Verify the release policy names exactly this version")
+  );
+  assert.match(bindingPolicy, /binding_required=true/);
+  assert.match(bindingPolicy, /binding_required=false/);
+  assert.match(bindingPolicy, /binding_sha256=not-required/);
+  assert.match(bindingPolicy, /SNAPSHOTTED_MEASUREMENT_BINDING_SHA256/);
+  assert.doesNotMatch(bindingPolicy, /vars\.RELEASE_MEASUREMENT_BINDING_SHA256/);
+  assert.match(
+    prepare,
     /SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT=\$\{context\}" >> "\$GITHUB_ENV"/
   );
   assert.match(
@@ -822,6 +923,10 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
     "the release job must install Chromium before launching the static smoke browser"
   );
   assert.match(prepare, /npm run release:evidence --/);
+  assert.match(
+    prepare,
+    /--release-tag-governance-receipt-sha256 "\$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"/
+  );
   assert.match(prepare, /archive: false/);
   assert.match(prepare, /receipt_artifact_id: \$\{\{ steps\.receipt_artifact\.outputs\.artifact-id \}\}/);
   // The attestation job refuses a handoff whose artifact metadata does not
@@ -860,6 +965,16 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(attest, /artifact\?\.workflow_run\?\.head_sha !== process\.env\.GITHUB_SHA/);
   assert.match(attest, /receipt\.source\?\.commit !== process\.env\.RELEASE_SHA/);
   assert.match(attest, /receipt\.release\?\.status !== "released"/);
+  assert.match(
+    attest,
+    /RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: \$\{\{ needs\.prepare\.outputs\.governance_receipt_sha256 \}\}/
+  );
+  assert.doesNotMatch(attest, /actions\/variables\/RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/);
+  assert.match(attest, /receipt\.schemaVersion !== 2/);
+  assert.match(
+    attest,
+    /receipt\.releaseTagGovernanceReceiptSha256 !==\s*process\.env\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/
+  );
 
   // A receipt that only agrees with itself proves nothing about what was built,
   // because the job that built it also wrote it. The privileged job must take
@@ -911,6 +1026,40 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.doesNotMatch(tag, /actions:|id-token:|attestations:|artifact-metadata:/);
   assert.doesNotMatch(tag, /actions\/checkout|actions\/setup-node|npm (?:ci|run)|node_modules|uses: \.\//);
   assert.doesNotMatch(tag, /git fetch|git checkout|git tag|git push|--method PATCH|force\s*[:=]\s*true/);
+  assert.doesNotMatch(tag, /actions\/variables\/RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/);
+  assert.doesNotMatch(tag, /\$\{\{ vars\.RELEASE_MEASUREMENT_BINDING_SHA256 \}\}/);
+  const measurementTrustRoot = tag.slice(
+    tag.indexOf("- name: Verify external measurement-binding trust root before release authority"),
+    tag.indexOf("- name: Require dedicated release App configuration")
+  );
+  assert.match(
+    measurementTrustRoot,
+    /GH_TOKEN: \$\{\{ github\.token \}\}/
+  );
+  assert.match(
+    measurementTrustRoot,
+    /RELEASE_MEASUREMENT_BINDING_REQUIRED: \$\{\{ needs\.prepare\.outputs\.measurement_binding_required \}\}/
+  );
+  assert.match(
+    measurementTrustRoot,
+    /RELEASE_MEASUREMENT_BINDING_SHA256: \$\{\{ needs\.prepare\.outputs\.measurement_binding_sha256 \}\}/
+  );
+  assert.match(
+    measurementTrustRoot,
+    /contents\/research\/measurement-candidate-binding\.json\?ref=\$\{RELEASE_SHA\}/
+  );
+  assert.match(measurementTrustRoot, /createHash\("sha256"\)\.update\(raw\)/);
+  assert.match(measurementTrustRoot, /JSON\.stringify\(binding, null, 2\)/);
+  assert.match(measurementTrustRoot, /topLevelKeys/);
+  assert.match(measurementTrustRoot, /governanceRows\.length !== 1/);
+  assert.match(measurementTrustRoot, /candidate-commit\.json/);
+  assert.match(measurementTrustRoot, /candidate-to-release\.json/);
+  assert.doesNotMatch(measurementTrustRoot, /secrets\.|release_app_token|npm (?:ci|run)|actions\/checkout/);
+  assert.ok(
+    tag.indexOf("Verify external measurement-binding trust root before release authority") <
+      tag.indexOf("Mint dedicated release App token"),
+    "raw binding authentication must finish before release authority is minted"
+  );
   assert.match(tag, /name: Require dedicated release App configuration/);
   const releaseAppConfiguration = tag.slice(
     tag.indexOf("- name: Require dedicated release App configuration"),
@@ -930,6 +1079,10 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   );
   assert.match(
     releaseAppConfiguration,
+    /RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: \$\{\{ needs\.prepare\.outputs\.governance_receipt_sha256 \}\}/
+  );
+  assert.doesNotMatch(
+    tag,
     /RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: \$\{\{ vars\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 \}\}/
   );
   assert.match(tag, /RELEASE_APP_PRIVATE_KEY: \$\{\{ secrets\.RELEASE_APP_PRIVATE_KEY \}\}/);
@@ -985,16 +1138,19 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(governanceReadback, /apps\/\$\{RELEASE_APP_SLUG\}/);
   assert.match(
     governanceReadback,
-    /contents\/research\/ops-receipts\/release-tag-governance\.json\?ref=\$\{RELEASE_SHA\}/
+    /contents\/research\/ops-receipts\/release-tag-governance\/\$\{RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256\}\.json\?ref=\$\{RELEASE_SHA\}/
   );
   assert.match(
     governanceReadback,
     /contents\/RELEASE_READINESS\.json\?ref=\$\{RELEASE_SHA\}/
   );
-  assert.match(
-    governanceReadback,
-    /governanceGate\.sha256 !==\s*process\.env\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/
-  );
+  assert.doesNotMatch(governanceReadback, /contents\/research\/measurement-candidate-binding\.json/);
+  assert.match(governanceReadback, /release-measurement-binding/);
+  assert.match(governanceReadback, /bindingDigest !==/);
+  assert.match(governanceReadback, /github-actions-prepare-snapshot/);
+  assert.match(governanceReadback, /release-tag-governance-receipt/);
+  assert.match(governanceReadback, /selectedBindingEntries\.length !== 1/);
+  assert.doesNotMatch(governanceReadback, /governanceGate\?\.sha256/);
   assert.match(
     governanceReadback,
     /receiptDigest !==\s*process\.env\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/
@@ -1030,6 +1186,18 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(tagCreation, /response\.message === "Reference already exists"/);
   assert.match(tagCreation, /only exact HTTP 422 Reference already exists may enter reconciliation/);
   assert.match(tagCreation, /Release workflow run: https:\/\/github\.com\/\$\{process\.env\.GITHUB_REPOSITORY\}\/actions\/runs\/\$\{process\.env\.GITHUB_RUN_ID\}/);
+  assert.match(
+    tagCreation,
+    /Release governance receipt sha256: \$\{process\.env\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256\}/
+  );
+  assert.match(
+    tagCreation,
+    /Release measurement binding required: \$\{process\.env\.RELEASE_MEASUREMENT_BINDING_REQUIRED\}/
+  );
+  assert.match(
+    tagCreation,
+    /Release measurement binding sha256: \$\{process\.env\.RELEASE_MEASUREMENT_BINDING_SHA256\}/
+  );
   assert.match(tagCreation, /repos\/\$\{GITHUB_REPOSITORY\}\/git\/ref\/tags\/\$\{RELEASE_TAG\}/);
   assert.match(tagCreation, /ref\?\.object\?\.type !== "tag"/);
   assert.match(tagCreation, /actual\?\.object\?\.type !== expected\.type/);
@@ -1269,7 +1437,13 @@ async function attestContext(t: TestContext): Promise<AttestContext> {
     citation: RELEASED_CITATION,
     changelog: RELEASED_CHANGELOG
   });
-  const produced = runEvidence(fixture.root, ["--static-dir", "out"]);
+  const governanceReceiptSha256 = "a".repeat(64);
+  const produced = runEvidence(fixture.root, [
+    "--static-dir",
+    "out",
+    "--release-tag-governance-receipt-sha256",
+    governanceReceiptSha256
+  ]);
   assert.equal(produced.status, 0, produced.stderr);
   const receipt = JSON.parse(produced.stdout);
 
@@ -1374,7 +1548,8 @@ async function attestContext(t: TestContext): Promise<AttestContext> {
       RELEASE_SHA: fixture.commit,
       REQUESTED_SHA: fixture.commit,
       RELEASE_VERSION: "0.1.0",
-      RELEASE_TAG: "v0.1.0"
+      RELEASE_TAG: "v0.1.0",
+      RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: governanceReceiptSha256
     }
   };
 }
@@ -1688,6 +1863,260 @@ test("the tag publisher refuses every mismatched existing ref or tag object", as
   }
 });
 
+function releaseWorkflowShellStep(
+  workflow: string,
+  name: string,
+  nextName: string
+): string {
+  const startMarker = `- name: ${name}`;
+  const endMarker = `- name: ${nextName}`;
+  assert.equal(
+    workflow.split(startMarker).length - 1,
+    1,
+    `${name} must exist exactly once`
+  );
+  const step = workflow.slice(workflow.indexOf(startMarker));
+  const end = step.indexOf(endMarker);
+  assert.notEqual(end, -1, `${name} must precede ${nextName}`);
+  const bounded = step.slice(0, end);
+  const run = bounded.indexOf("run: |");
+  assert.notEqual(run, -1, `${name} must use a literal shell block`);
+  return bounded
+    .slice(run + "run: |".length)
+    .split("\n")
+    .map((line) => (line.startsWith(" ".repeat(10)) ? line.slice(10) : line))
+    .join("\n");
+}
+
+test("release trust-root snapshot and version classifier fail closed", async (t) => {
+  const workflow = await source(".github/workflows/release.yml");
+  const snapshot = releaseWorkflowShellStep(
+    workflow,
+    "Snapshot external release trust roots",
+    "Checkout full history without persisted credentials"
+  );
+  const classify = releaseWorkflowShellStep(
+    workflow,
+    "Classify the release measurement-binding requirement",
+    "Verify the release policy names exactly this version"
+  );
+  const root = await mkdtemp(path.join(os.tmpdir(), "site-behavior-release-trust-roots-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const governance = "a".repeat(64);
+  const binding = "b".repeat(64);
+  const runSnapshot = async (measurement: string) => {
+    const output = path.join(root, `snapshot-${measurement || "empty"}-${Date.now()}`);
+    const result = spawnSync("bash", ["-c", snapshot], {
+      encoding: "utf8",
+      env: {
+        PATH: process.env.PATH,
+        GITHUB_OUTPUT: output,
+        SELECTED_GOVERNANCE_RECEIPT_SHA256: governance,
+        SELECTED_MEASUREMENT_BINDING_SHA256: measurement
+      }
+    });
+    return {
+      result,
+      output: result.status === 0 ? await readFile(output, "utf8") : ""
+    };
+  };
+
+  const empty = await runSnapshot("");
+  assert.equal(empty.result.status, 0, empty.result.stderr);
+  assert.match(empty.output, /^receipt_sha256=[0-9a-f]{64}$/m);
+  assert.match(empty.output, /^raw_measurement_binding_sha256=$/m);
+  const pinned = await runSnapshot(binding);
+  assert.equal(pinned.result.status, 0, pinned.result.stderr);
+  assert.match(pinned.output, new RegExp(`^raw_measurement_binding_sha256=${binding}$`, "m"));
+  assert.equal((await runSnapshot("B".repeat(64))).result.status, 1);
+
+  const runClassify = (version: string, resolved: string, digest: string) => {
+    const output = path.join(root, `classify-${Math.random()}`);
+    const result = spawnSync("bash", ["-c", classify], {
+      encoding: "utf8",
+      env: {
+        PATH: process.env.PATH,
+        GITHUB_OUTPUT: output,
+        REQUESTED_VERSION: version,
+        RESOLVED_RELEASE_VERSION: resolved,
+        SNAPSHOTTED_MEASUREMENT_BINDING_SHA256: digest
+      }
+    });
+    return {
+      result,
+      output: result.status === 0 ? readFile(output, "utf8") : Promise.resolve("")
+    };
+  };
+
+  const zero = runClassify("0.4.0", "0.4.0", "");
+  assert.equal(zero.result.status, 0, zero.result.stderr);
+  assert.match(await zero.output, /^binding_required=false$/m);
+  assert.match(await zero.output, /^binding_sha256=not-required$/m);
+  assert.equal(runClassify("1.0.0", "1.0.0", "").result.status, 1);
+  const one = runClassify("1.0.0-rc.1", "1.0.0-rc.1", binding);
+  assert.equal(one.result.status, 0, one.result.stderr);
+  assert.match(await one.output, /^binding_required=true$/m);
+  assert.match(await one.output, new RegExp(`^binding_sha256=${binding}$`, "m"));
+  assert.equal(runClassify("1.0.0", "1.0.0-rc.1", binding).result.status, 1);
+  assert.equal(runClassify("1.0.1", "1.0.1", binding).result.status, 1);
+});
+
+test("pre-authority measurement trust root rejects skeletons and skips all 0.x fetches", async (t) => {
+  const workflow = await source(".github/workflows/release.yml");
+  const controller = releaseWorkflowShellStep(
+    workflow,
+    "Verify external measurement-binding trust root before release authority",
+    "Require dedicated release App configuration"
+  );
+  const root = await mkdtemp(path.join(os.tmpdir(), "site-behavior-binding-authority-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const bin = path.join(root, "bin");
+  await mkdir(bin);
+  const gh = path.join(bin, "gh");
+  await writeFile(
+    gh,
+    `#!/bin/sh\nset -eu\nprintf '%s\\n' "$*" >> "$GH_CALL_LOG"\ncase "$*" in\n  *contents/research/measurement-candidate-binding.json*) /bin/cat "$BINDING_FIXTURE" ;;\n  *git/commits/*) /bin/cat "$COMMIT_FIXTURE" ;;\n  *compare/*) /bin/cat "$COMPARE_FIXTURE" ;;\n  *) exit 97 ;;\nesac\n`
+  );
+  await chmod(gh, 0o755);
+
+  const candidate = "c".repeat(40);
+  const candidateTree = "d".repeat(40);
+  const release = "e".repeat(40);
+  const governance = "a".repeat(64);
+  const fullBinding = {
+    schemaVersion: 1,
+    artifactKind: "site-behavior-measurement-candidate-binding",
+    repository: "iAnonymous3000/site-behavior-lab",
+    targetRelease: "1.0.0",
+    candidateCommit: candidate,
+    candidateTree,
+    measurementInputs: {},
+    measurementIdentity: {},
+    calibrationPolicy: {},
+    durablePrerequisite: {},
+    sourceEvidence: {},
+    attestationPolicy: {},
+    evidence: [
+      {
+        category: "release-tag-governance-receipt",
+        path: `research/ops-receipts/release-tag-governance/${governance}.json`,
+        change: "added",
+        sha256: governance
+      }
+    ],
+    calibrationStudies: []
+  };
+  const canonical = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
+  const run = async (
+    version: string,
+    required: string,
+    bindingBytes: string,
+    selectedDigest: string,
+    githubCandidateTree: string = candidateTree
+  ) => {
+    const runnerTemp = await mkdtemp(path.join(root, "run-"));
+    const bindingFixture = path.join(runnerTemp, "binding.json");
+    const commitFixture = path.join(runnerTemp, "commit.json");
+    const compareFixture = path.join(runnerTemp, "compare.json");
+    const callLog = path.join(runnerTemp, "gh-calls.log");
+    await writeFile(bindingFixture, bindingBytes);
+    await writeFile(
+      commitFixture,
+      JSON.stringify({ sha: candidate, tree: { sha: githubCandidateTree } })
+    );
+    await writeFile(
+      compareFixture,
+      JSON.stringify({
+        base_commit: { sha: candidate },
+        head_commit: { sha: release },
+        merge_base_commit: { sha: candidate },
+        status: "ahead",
+        behind_by: 0
+      })
+    );
+    const result = spawnSync("bash", ["-c", controller], {
+      encoding: "utf8",
+      env: {
+        PATH: `${bin}:${process.env.PATH}`,
+        RUNNER_TEMP: runnerTemp,
+        GITHUB_REPOSITORY: "iAnonymous3000/site-behavior-lab",
+        GH_CALL_LOG: callLog,
+        BINDING_FIXTURE: bindingFixture,
+        COMMIT_FIXTURE: commitFixture,
+        COMPARE_FIXTURE: compareFixture,
+        RELEASE_SHA: release,
+        RELEASE_VERSION: version,
+        RELEASE_MEASUREMENT_BINDING_REQUIRED: required,
+        RELEASE_MEASUREMENT_BINDING_SHA256: selectedDigest,
+        RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: governance
+      }
+    });
+    let calls = "";
+    try {
+      calls = await readFile(callLog, "utf8");
+    } catch {
+      // An empty call log proves the controller exited before invoking gh.
+    }
+    return { result, calls };
+  };
+
+  const zero = await run("0.4.0", "false", "", "not-required");
+  assert.equal(zero.result.status, 0, zero.result.stderr);
+  assert.equal(zero.calls, "", "0.x must not fetch a measurement binding");
+
+  const missingPin = await run("1.0.0", "true", canonical(fullBinding), "");
+  assert.equal(missingPin.result.status, 1);
+  assert.equal(missingPin.calls, "", "missing v1 pins must fail before fetching");
+
+  const fullBytes = canonical(fullBinding);
+  const mismatch = await run("1.0.0", "true", fullBytes, "f".repeat(64));
+  assert.equal(mismatch.result.status, 1);
+  assert.match(mismatch.result.stderr, /do not match the external maintainer pin/);
+
+  const skeletonBytes = canonical({ evidence: fullBinding.evidence });
+  const skeleton = await run(
+    "1.0.0",
+    "true",
+    skeletonBytes,
+    createHash("sha256").update(skeletonBytes).digest("hex")
+  );
+  assert.equal(skeleton.result.status, 1);
+  assert.match(skeleton.result.stderr, /wrong schema, identity, or top-level shape/);
+
+  const wrongRepositoryBytes = canonical({
+    ...fullBinding,
+    repository: "attacker/example"
+  });
+  const wrongRepository = await run(
+    "1.0.0",
+    "true",
+    wrongRepositoryBytes,
+    createHash("sha256").update(wrongRepositoryBytes).digest("hex")
+  );
+  assert.equal(wrongRepository.result.status, 1);
+  assert.match(wrongRepository.result.stderr, /wrong schema, identity, or top-level shape/);
+
+  const wrongTree = await run(
+    "1.0.0",
+    "true",
+    fullBytes,
+    createHash("sha256").update(fullBytes).digest("hex"),
+    "f".repeat(40)
+  );
+  assert.equal(wrongTree.result.status, 1);
+  assert.match(wrongTree.result.stderr, /candidate commit\/tree identity is not an ancestor/);
+
+  const accepted = await run(
+    "1.0.0-rc.1",
+    "true",
+    fullBytes,
+    createHash("sha256").update(fullBytes).digest("hex")
+  );
+  assert.equal(accepted.result.status, 0, `${accepted.result.stderr}${accepted.result.stdout}`);
+  assert.match(accepted.result.stdout, /Verified external measurement-binding sha256:/);
+  assert.equal(accepted.calls.trim().split("\n").length, 3);
+});
+
 test("the dedicated-release-App configuration executes as a real separation gate", async () => {
   const workflow = await source(".github/workflows/release.yml");
   const step = workflow.slice(workflow.indexOf("- name: Require dedicated release App configuration"));
@@ -1807,4 +2236,3 @@ test("the approved-release-actor step executes as a real shell gate", { skip: ho
   assert.equal(run("alice", "mallory", "mallory").status, 1);
   assert.equal(run("", "alice", "alice").status, 1);
 });
-

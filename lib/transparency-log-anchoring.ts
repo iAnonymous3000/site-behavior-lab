@@ -47,6 +47,50 @@ export interface OtsProofInspection {
   readonly bitcoinAttestations: number;
 }
 
+/**
+ * Read one calendar reply without retaining peer-chosen chunk objects. The
+ * byte ceiling is also the entire retained-body allocation: empty chunks are
+ * ignored, bytes are copied directly into that buffer, and cleanup can never
+ * turn an authoritative refusal into an unbounded wait.
+ */
+export async function readBoundedCalendarResponse(
+  response: Response,
+  maxBytes = MAX_CALENDAR_RESPONSE_BYTES
+): Promise<Uint8Array> {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes <= 0) {
+    throw new Error("The calendar response byte ceiling must be a positive integer.");
+  }
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("calendar reply had no body");
+  const bytes = new Uint8Array(maxBytes);
+  let total = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array)) {
+        throw new Error("calendar reply yielded a non-byte body chunk");
+      }
+      if (value.byteLength === 0) continue;
+      if (value.byteLength > maxBytes - total) {
+        throw new Error("calendar reply exceeded the timestamp size ceiling");
+      }
+      bytes.set(value, total);
+      total += value.byteLength;
+    }
+  } catch (error) {
+    cancelReaderDetached(reader, "calendar reply was refused");
+    throw error;
+  } finally {
+    try {
+      reader.releaseLock();
+    } catch {
+      // Broken transport cleanup must not mask the calendar verdict.
+    }
+  }
+  return bytes.slice(0, total);
+}
+
 export function digestHexToBytes(headHex: string): Uint8Array {
   if (!SHA256_HEX_PATTERN.test(headHex)) throw new Error("The chain head must be 64 lowercase hex characters.");
   const bytes = new Uint8Array(32);
@@ -143,4 +187,15 @@ function countOccurrences(haystack: Uint8Array, needle: Uint8Array): number {
     count += 1;
   }
   return count;
+}
+
+function cancelReaderDetached(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  reason: string
+): void {
+  try {
+    void reader.cancel(reason).catch(() => undefined);
+  } catch {
+    // The size/shape refusal remains authoritative if cleanup is hostile.
+  }
 }

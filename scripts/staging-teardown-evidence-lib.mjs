@@ -11,7 +11,7 @@ import {
 
 export const STAGING_TEARDOWN_EVIDENCE_KIND =
   "site-behavior-staging-teardown-session-receipt";
-export const STAGING_TEARDOWN_EVIDENCE_SCHEMA_VERSION = 1;
+export const STAGING_TEARDOWN_EVIDENCE_SCHEMA_VERSION = 2;
 export const STAGING_TEARDOWN_EVIDENCE_PATH =
   "research/ops-evidence/staging-teardown.json";
 export const STAGING_TEARDOWN_TRANSCRIPT_MAX_BYTES = 8 * 1024 * 1024;
@@ -83,6 +83,7 @@ const RECEIPT_KEYS = [
   "schemaVersion",
   "artifactKind",
   "stagingSourceCommit",
+  "targetManifestSha256",
   "recordedAt",
   "session",
   "inventory",
@@ -91,6 +92,7 @@ const RECEIPT_KEYS = [
 ];
 const TRANSCRIPT_KEYS = [
   "stagingSourceCommit",
+  "targetManifestSha256",
   "recordedAt",
   "session",
   "inventory"
@@ -340,6 +342,7 @@ export function validateStagingTeardownEvidence(value) {
       problems,
       bindings: null,
       stagingSourceCommit: null,
+      targetManifestSha256: null,
       recordedAt: null,
       teardownInventoryDigest: null,
       receiptDigest: null
@@ -352,6 +355,11 @@ export function validateStagingTeardownEvidence(value) {
     problems.push(`artifactKind must be exactly ${STAGING_TEARDOWN_EVIDENCE_KIND}`);
   }
   requireCommit(value.stagingSourceCommit, "stagingSourceCommit", problems);
+  requireSha256(
+    value.targetManifestSha256,
+    "targetManifestSha256",
+    problems
+  );
   const recordedAt = requireCanonicalInstant(value.recordedAt, "recordedAt", problems);
   if (exactKeys(value.session, SESSION_KEYS, "session", problems)) {
     if (
@@ -454,6 +462,7 @@ export function validateStagingTeardownEvidence(value) {
     bindings: ok
       ? {
           stagingSourceCommit: value.stagingSourceCommit,
+          targetManifestSha256: value.targetManifestSha256,
           teardownInventoryDigest: expectedInventoryDigest,
           sourceArtifactDigest: value.sourceArtifact.digest.slice(
             "sha256:".length
@@ -462,6 +471,7 @@ export function validateStagingTeardownEvidence(value) {
         }
       : null,
     stagingSourceCommit: ok ? value.stagingSourceCommit : null,
+    targetManifestSha256: ok ? value.targetManifestSha256 : null,
     recordedAt: ok ? value.recordedAt : null,
     teardownInventoryDigest: ok ? expectedInventoryDigest : null,
     receiptDigest: ok ? canonicalEvidenceDigest(value) : null
@@ -730,6 +740,7 @@ export function buildStagingTeardownEvidence({ sourceBytes }) {
     schemaVersion: STAGING_TEARDOWN_EVIDENCE_SCHEMA_VERSION,
     artifactKind: STAGING_TEARDOWN_EVIDENCE_KIND,
     stagingSourceCommit: transcript.stagingSourceCommit,
+    targetManifestSha256: transcript.targetManifestSha256,
     recordedAt: transcript.recordedAt,
     session,
     inventory,

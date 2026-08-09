@@ -21,6 +21,9 @@ import {
   verifyMeasurementFreezeActivationReceipt
 } from "./measurement-freeze-activation-lib.mjs";
 import {
+  readBoundedMeasurementFreezeResponseBytes
+} from "./measurement-freeze-artifact-lib.mjs";
+import {
   canonicalFeaturedReadjudicationText,
   extractFeaturedReadjudicationArtifactZip,
   FEATURED_READJUDICATION_ARTIFACT_FILE,
@@ -160,20 +163,30 @@ async function api(path, authToken = token) {
     redirect: "error",
     signal: AbortSignal.timeout(30_000)
   });
-  if (!response.ok) {
-    if (
-      path === `/repos/${MEASUREMENT_FREEZE_REPOSITORY}/actions/runners` ||
+  let bytes;
+  try {
+    bytes = await readBoundedMeasurementFreezeResponseBytes(
+      response,
+      `GitHub API ${path}`,
+      1024 * 1024
+    );
+  } catch (error) {
+    const runnerInventory =
+      path ===
+        `/repos/${MEASUREMENT_FREEZE_REPOSITORY}/actions/runners` ||
       path.startsWith(
         `/repos/${MEASUREMENT_FREEZE_REPOSITORY}/actions/runners?`
-      )
+      );
+    if (
+      !response.ok &&
+      runnerInventory
     ) {
       throw new Error(
         `GitHub API ${path} failed with HTTP ${response.status}; runner inventory is mandatory. Install a repository-scoped App with Administration:read and configure RUNNER_READ_APP_CLIENT_ID/RUNNER_READ_APP_PRIVATE_KEY if GITHUB_TOKEN cannot read this endpoint.`
       );
     }
-    throw new Error(`GitHub API ${path} failed with HTTP ${response.status}`);
+    throw error;
   }
-  const bytes = await boundedApiResponseBytes(response, path, 1024 * 1024);
   let text;
   try {
     text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
@@ -187,36 +200,6 @@ async function api(path, authToken = token) {
   }
 }
 
-async function boundedApiResponseBytes(response, path, maximumBytes) {
-  const contentLength = response.headers.get("content-length");
-  if (contentLength !== null) {
-    const declaredLength = Number(contentLength);
-    if (
-      !Number.isSafeInteger(declaredLength) ||
-      declaredLength <= 0 ||
-      declaredLength > maximumBytes
-    ) {
-      throw new Error(`GitHub API ${path} returned an out-of-bounds body`);
-    }
-  }
-  if (!response.body) throw new Error(`GitHub API ${path} returned no body`);
-  const chunks = [];
-  let total = 0;
-  const reader = response.body.getReader();
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > maximumBytes) {
-      await reader.cancel();
-      throw new Error(`GitHub API ${path} exceeded its ${maximumBytes}-byte bound`);
-    }
-    chunks.push(Buffer.from(value));
-  }
-  if (total === 0) throw new Error(`GitHub API ${path} returned an empty body`);
-  return Buffer.concat(chunks, total);
-}
-
 async function apiBytes(path, maximumBytes) {
   const response = await fetch(`https://api.github.com${path}`, {
     headers: {
@@ -228,10 +211,11 @@ async function apiBytes(path, maximumBytes) {
     redirect: "follow",
     signal: AbortSignal.timeout(30_000)
   });
-  if (!response.ok) {
-    throw new Error(`GitHub API ${path} failed with HTTP ${response.status}`);
-  }
-  return boundedApiResponseBytes(response, path, maximumBytes);
+  return readBoundedMeasurementFreezeResponseBytes(
+    response,
+    `GitHub API ${path}`,
+    maximumBytes
+  );
 }
 
 async function paged(path, field) {

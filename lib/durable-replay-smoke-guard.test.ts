@@ -136,7 +136,9 @@ test("durable replay runbook binds coordinator and secrets to staging", async ()
   );
   assert.match(source, /staging-only key and internal token/i);
   assert.match(source, /production Durable Object namespace[\s\S]*R2 bucket/);
-  assert.match(source, /DURABLE_REPLAY_RECEIPT_PATH="\$LEASE_EXPIRY_RECEIPT"/);
+  assert.match(source, /DURABLE_REPLAY_RECEIPT_PATH="\$receipt_path"/);
+  assert.match(source, /run_durable_replay lease-expiry "\$LEASE_EXPIRY_RECEIPT"/);
+  assert.match(source, /run_durable_replay lost-resolve "\$LOST_RESOLVE_RECEIPT"/);
   assert.match(source, /validate-durable-replay-receipts\.mjs/);
   assert.match(source, /same full deployment[\s\S]*same labeled origin digest/);
 });

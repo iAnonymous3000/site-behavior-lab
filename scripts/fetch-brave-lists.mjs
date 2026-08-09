@@ -126,13 +126,13 @@ export async function fetchTextWithRetry(
     }
 
     if (response.status >= 300 && response.status <= 399) {
-      await discardResponse(response);
+      discardResponse(response);
       throw new PermanentFetchError(`HTTP redirect ${response.status} is forbidden for ${requestedUrl}`);
     }
 
     if (!response.ok) {
       const status = response.status;
-      await discardResponse(response);
+      discardResponse(response);
       if (!isTransientHttpStatus(status) || attempt >= transientRetries) {
         throw new Error(`HTTP ${status}`);
       }
@@ -287,38 +287,76 @@ function hasExplicitPort(value) {
 }
 
 async function readBoundedUtf8(response, maxBytes) {
-  const contentLength = response.headers?.get?.("content-length");
-  if (contentLength && /^\d+$/.test(contentLength) && Number(contentLength) > maxBytes) {
-    await discardResponse(response);
+  // Undici exposes decoded bytes while retaining a gzip/br wire length. Only
+  // absent/identity encoding makes Content-Length comparable to this stream.
+  const contentEncoding = response.headers?.get?.("content-encoding");
+  const identityEncoded =
+    contentEncoding === null ||
+    contentEncoding === undefined ||
+    contentEncoding.trim().toLowerCase() === "identity";
+  const contentLength = identityEncoded
+    ? response.headers?.get?.("content-length")
+    : null;
+  const declaredLength =
+    typeof contentLength === "string" && /^\d+$/.test(contentLength)
+      ? Number(contentLength)
+      : null;
+  if (
+    Number.isSafeInteger(declaredLength) &&
+    declaredLength > maxBytes
+  ) {
+    discardResponse(response);
     throw new PermanentFetchError(`Remote response exceeds the ${maxBytes}-byte limit.`);
   }
 
   if (!response.body || typeof response.body.getReader !== "function") {
-    const text = await response.text();
-    if (Buffer.byteLength(text, "utf8") > maxBytes) {
-      throw new PermanentFetchError(`Remote response exceeds the ${maxBytes}-byte limit.`);
-    }
-    return text;
+    throw new Error("Remote response has no bounded readable body stream.");
   }
 
   const reader = response.body.getReader();
-  const chunks = [];
+  // Keep one fixed allocation. The decompressed byte limit must also bound
+  // retained metadata when a remote server fragments its body into empty or
+  // one-byte chunks.
+  const bytes = Buffer.allocUnsafe(maxBytes);
   let total = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (!(value instanceof Uint8Array)) throw new PermanentFetchError("Remote response yielded a non-byte body chunk.");
-    total += value.byteLength;
-    if (total > maxBytes) {
-      await reader.cancel().catch(() => undefined);
-      throw new PermanentFetchError(`Remote response exceeds the ${maxBytes}-byte limit.`);
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array)) {
+        throw new PermanentFetchError("Remote response yielded a non-byte body chunk.");
+      }
+      if (value.byteLength === 0) continue;
+      if (value.byteLength > maxBytes - total) {
+        throw new PermanentFetchError(`Remote response exceeds the ${maxBytes}-byte limit.`);
+      }
+      bytes.set(value, total);
+      total += value.byteLength;
     }
-    chunks.push(value);
+  } catch (error) {
+    cancelReaderDetached(reader, "Remote response was refused.");
+    throw error;
+  } finally {
+    try {
+      reader.releaseLock();
+    } catch {
+      // Broken cleanup must not mask the authoritative response verdict.
+    }
   }
 
-  const bytes = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk)), total);
+  if (
+    Number.isSafeInteger(declaredLength) &&
+    total !== declaredLength
+  ) {
+    throw new PermanentFetchError(
+      "Remote response length does not match Content-Length."
+    );
+  }
+
   try {
-    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return new TextDecoder("utf-8", { fatal: true }).decode(
+      bytes.subarray(0, total)
+    );
   } catch {
     throw new PermanentFetchError("Remote response is not valid UTF-8 text.");
   }
@@ -328,11 +366,23 @@ function exponentialRetryDelayMs(retryNumber) {
   return Math.min(1_000 * 2 ** (retryNumber - 1), MAX_RETRY_DELAY_MS);
 }
 
-async function discardResponse(response) {
+function observeDetached(value) {
+  void Promise.resolve(value).catch(() => undefined);
+}
+
+function discardResponse(response) {
   try {
-    await response.body?.cancel();
+    observeDetached(response.body?.cancel?.());
   } catch {
     // A failed body cancellation does not make a permanent status retryable.
+  }
+}
+
+function cancelReaderDetached(reader, reason) {
+  try {
+    observeDetached(reader.cancel(reason));
+  } catch {
+    // The body refusal remains authoritative if cleanup is hostile.
   }
 }
 

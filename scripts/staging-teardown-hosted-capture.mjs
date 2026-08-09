@@ -1,61 +1,172 @@
 #!/usr/bin/env node
 
-// Private staging-provider responses must never enter a public Actions
-// artifact or evidence PR. Capture remains closed until one reviewed provider
-// adapter can fetch, normalize, and destroy those bytes inside this hosted job.
-
-import path from "node:path";
+import { randomUUID } from "node:crypto";
 import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  realpathSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
+import path from "node:path";
+import { serializeCanonicalEvidence } from "./operator-evidence-common.mjs";
+import { serializeStagingTeardownEvidence } from "./staging-teardown-evidence-lib.mjs";
+import {
+  captureHostedStagingTeardownEvidence,
+  requiredHostedStagingTeardownEnvironment,
   verifyStagingTeardownHostedSafeDirectory
 } from "./staging-teardown-hosted-capture-lib.mjs";
+
+const RAW_NAME = /^[a-z0-9][a-z0-9.-]{0,99}\.json$/;
 
 function usage() {
   return [
     "Usage:",
-    "  node scripts/staging-teardown-hosted-capture.mjs --capture --output-dir <new-directory>",
+    "  node scripts/staging-teardown-hosted-capture.mjs --capture --candidate-commit <sha> --output-dir <new-directory> --private-dir <new-directory>",
     "  node scripts/staging-teardown-hosted-capture.mjs --verify --directory <directory>"
   ].join("\n");
 }
 
-function required(name) {
-  const value = process.env[name]?.trim() ?? "";
-  if (!value) throw new Error(`${name} is required`);
-  return value;
+function requireValue(condition, message) {
+  if (!condition) throw new Error(message);
 }
 
-function captureRefusal() {
-  required("STAGING_TEARDOWN_PROVIDER_KIND");
-  required("STAGING_TEARDOWN_PROVIDER_API_TOKEN");
-  throw new Error(
-    "no reviewed multi-provider staging teardown capture adapter is committed; refusing caller-authored transcripts and digests"
-  );
-}
-
-function verifyDirectory(directory) {
-  const verified = verifyStagingTeardownHostedSafeDirectory(directory);
-  process.stdout.write(
-    `${JSON.stringify(verified)}\n`
-  );
-}
-
-const args = process.argv.slice(2);
-try {
-  if (
-    args.length === 3 &&
-    args[0] === "--verify" &&
-    args[1] === "--directory"
-  ) {
-    verifyDirectory(path.resolve(args[2]));
-  } else if (
-    args.length === 3 &&
-    args[0] === "--capture" &&
-    args[1] === "--output-dir"
-  ) {
-    captureRefusal();
-  } else {
-    throw new Error(usage());
+function parsePairs(args, allowed) {
+  requireValue(args.length % 2 === 0, usage());
+  const options = {};
+  for (let index = 0; index < args.length; index += 2) {
+    const flag = args[index];
+    const value = args[index + 1];
+    requireValue(allowed.has(flag), `unknown argument ${String(flag)}`);
+    requireValue(
+      typeof value === "string" && value.length > 0 && !value.startsWith("--"),
+      `${flag} requires one value`
+    );
+    requireValue(!Object.hasOwn(options, flag), `${flag} may only be supplied once`);
+    options[flag] = value;
   }
-} catch (error) {
+  for (const flag of allowed) requireValue(Object.hasOwn(options, flag), `${flag} is required`);
+  return options;
+}
+
+function trustedNewChild(target, trustedRoot, label) {
+  requireValue(
+    typeof trustedRoot === "string" && path.isAbsolute(trustedRoot),
+    `${label} trusted root must be absolute`
+  );
+  const rootReal = realpathSync(trustedRoot);
+  requireValue(rootReal === path.resolve(trustedRoot), `${label} trusted root must not be reached through a symbolic link`);
+  const requested = path.resolve(target);
+  const parent = path.dirname(requested);
+  const parentReal = realpathSync(parent);
+  requireValue(parentReal === parent, `${label} parent must not be reached through a symbolic link`);
+  const resolved = path.join(parentReal, path.basename(requested));
+  const relative = path.relative(rootReal, resolved);
+  requireValue(
+    relative !== "" && relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative),
+    `${label} must be a child of RUNNER_TEMP`
+  );
+  requireValue(!existsSync(resolved), `${label} must not already exist as a file, directory, or symbolic link`);
+  return resolved;
+}
+
+function createPrivateSink(privateDirectory) {
+  mkdirSync(privateDirectory, { recursive: false, mode: 0o700 });
+  return async (name, bytes) => {
+    requireValue(RAW_NAME.test(name), "private provider response name is invalid");
+    requireValue(Buffer.isBuffer(bytes) || bytes instanceof Uint8Array, "private provider response must be exact bytes");
+    writeFileSync(path.join(privateDirectory, name), bytes, { flag: "wx", mode: 0o600 });
+  };
+}
+
+function destroyPrivateDirectory(privateDirectory) {
+  requireValue(
+    existsSync(privateDirectory) && lstatSync(privateDirectory).isDirectory(),
+    "private provider response directory disappeared before destruction"
+  );
+  rmSync(privateDirectory, { recursive: true, force: false });
+  requireValue(!existsSync(privateDirectory), "private provider response bytes were not destroyed");
+}
+
+function writeSafeDirectory(outputDirectory, captured) {
+  mkdirSync(outputDirectory, { recursive: false, mode: 0o700 });
+  try {
+    writeFileSync(
+      path.join(outputDirectory, "receipt.json"),
+      serializeStagingTeardownEvidence(captured.receipt),
+      { flag: "wx", mode: 0o600 }
+    );
+    writeFileSync(
+      path.join(outputDirectory, "sanitized-provider-manifest.json"),
+      serializeCanonicalEvidence(captured.manifest),
+      { flag: "wx", mode: 0o600 }
+    );
+    return verifyStagingTeardownHostedSafeDirectory(outputDirectory);
+  } catch (error) {
+    rmSync(outputDirectory, { recursive: true, force: true });
+    throw error;
+  }
+}
+
+async function capture(options) {
+  const environment = requiredHostedStagingTeardownEnvironment(process.env);
+  requireValue(
+    options["--candidate-commit"] === environment.githubSha,
+    "--candidate-commit must equal the exact trusted workflow GITHUB_SHA"
+  );
+  const runnerTemp = process.env.RUNNER_TEMP;
+  requireValue(typeof runnerTemp === "string" && runnerTemp.length > 0, "RUNNER_TEMP is required");
+  const outputDirectory = trustedNewChild(options["--output-dir"], runnerTemp, "--output-dir");
+  const privateDirectory = trustedNewChild(options["--private-dir"], runnerTemp, "--private-dir");
+  requireValue(outputDirectory !== privateDirectory, "--output-dir and --private-dir must be distinct");
+
+  const persistRaw = createPrivateSink(privateDirectory);
+  let captured;
+  let captureError;
+  try {
+    captured = await captureHostedStagingTeardownEvidence({
+      environment,
+      persistRaw,
+      randomUUID
+    });
+  } catch (error) {
+    captureError = error;
+  }
+  let cleanupError;
+  try {
+    destroyPrivateDirectory(privateDirectory);
+  } catch (error) {
+    cleanupError = error;
+  }
+  if (cleanupError) {
+    throw new Error(
+      `private provider response destruction failed: ${cleanupError instanceof Error ? cleanupError.message : String(cleanupError)}`
+    );
+  }
+  if (captureError) throw captureError;
+  const result = writeSafeDirectory(outputDirectory, captured);
+  process.stdout.write(`${JSON.stringify(result)}\n`);
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  const mode = args.shift();
+  if (mode === "--capture") {
+    const options = parsePairs(args, new Set(["--candidate-commit", "--output-dir", "--private-dir"]));
+    await capture(options);
+    return;
+  }
+  if (mode === "--verify") {
+    const options = parsePairs(args, new Set(["--directory"]));
+    const result = verifyStagingTeardownHostedSafeDirectory(path.resolve(options["--directory"]));
+    process.stdout.write(`${JSON.stringify(result)}\n`);
+    return;
+  }
+  throw new Error(usage());
+}
+
+main().catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
-}
+});

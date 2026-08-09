@@ -56,11 +56,37 @@ jobs:
       release_commits_after_declaration: ${{ steps.release.outputs.release_commits_after_declaration }}
       release_version: ${{ steps.release.outputs.release_version }}
       release_tag: ${{ steps.release.outputs.release_tag }}
+      governance_receipt_sha256: ${{ steps.governance_selector.outputs.receipt_sha256 }}
+      measurement_binding_required: ${{ steps.measurement_binding_policy.outputs.binding_required }}
+      measurement_binding_sha256: ${{ steps.measurement_binding_policy.outputs.binding_sha256 }}
       receipt_artifact_id: ${{ steps.receipt_artifact.outputs.artifact-id }}
       receipt_artifact_digest: ${{ steps.receipt_artifact.outputs.artifact-digest }}
       static_artifact_id: ${{ steps.static_artifact.outputs.artifact-id }}
       static_artifact_digest: ${{ steps.static_artifact.outputs.artifact-digest }}
     steps:
+      # Snapshot the two external maintainer trust roots before checkout or any
+      # package execution. The measurement selector may be empty for 0.x; its
+      # release-specific requirement is independently classified only after the
+      # requested release revision and version have been resolved below.
+      - name: Snapshot external release trust roots
+        id: governance_selector
+        env:
+          SELECTED_GOVERNANCE_RECEIPT_SHA256: ${{ vars.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 }}
+          SELECTED_MEASUREMENT_BINDING_SHA256: ${{ vars.RELEASE_MEASUREMENT_BINDING_SHA256 }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$SELECTED_GOVERNANCE_RECEIPT_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error title=Release refused::RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 must resolve to one lowercase sha256 before checkout or any release environment is entered."
+            exit 1
+          fi
+          if [[ -n "$SELECTED_MEASUREMENT_BINDING_SHA256" &&
+                ! "$SELECTED_MEASUREMENT_BINDING_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error title=Release refused::RELEASE_MEASUREMENT_BINDING_SHA256 must be empty or one lowercase sha256 before checkout or any release environment is entered."
+            exit 1
+          fi
+          printf 'receipt_sha256=%s\n' "$SELECTED_GOVERNANCE_RECEIPT_SHA256" >> "$GITHUB_OUTPUT"
+          printf 'raw_measurement_binding_sha256=%s\n' "$SELECTED_MEASUREMENT_BINDING_SHA256" >> "$GITHUB_OUTPUT"
+
       - name: Checkout full history without persisted credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -142,6 +168,39 @@ jobs:
             echo "release_tag=v${requested_version}"
           } >> "$GITHUB_OUTPUT"
           echo "Release revision ${release_sha} (declared at ${declaring}, ${ahead} commit(s) later)."
+
+      # Classify the supported line from the dispatch input and compare it with
+      # the independently resolved version. Candidate files or verifier output
+      # cannot supply the v1 trust root: only the pre-checkout selector can.
+      - name: Classify the release measurement-binding requirement
+        id: measurement_binding_policy
+        env:
+          REQUESTED_VERSION: ${{ github.event.inputs.version }}
+          RESOLVED_RELEASE_VERSION: ${{ steps.release.outputs.release_version }}
+          SNAPSHOTTED_MEASUREMENT_BINDING_SHA256: ${{ steps.governance_selector.outputs.raw_measurement_binding_sha256 }}
+        run: |
+          set -euo pipefail
+          requested_version="${REQUESTED_VERSION//[[:space:]]/}"
+          if [[ "$requested_version" != "$RESOLVED_RELEASE_VERSION" ]]; then
+            echo "::error title=Release refused::The independently classified dispatch version does not match the resolved release version."
+            exit 1
+          fi
+          if [[ "$requested_version" =~ ^1\.0\.0(-rc\.[1-9][0-9]*)?$ ]]; then
+            if [[ ! "$SNAPSHOTTED_MEASUREMENT_BINDING_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+              echo "::error title=Release refused::Exact 1.0 releases require RELEASE_MEASUREMENT_BINDING_SHA256 to be one lowercase sha256 pinned after independent offline verification."
+              exit 1
+            fi
+            binding_required=true
+            binding_sha256="$SNAPSHOTTED_MEASUREMENT_BINDING_SHA256"
+          elif [[ "$requested_version" =~ ^0\.[0-9]+\.[0-9]+(-[-0-9A-Za-z.]+)?$ ]]; then
+            binding_required=false
+            binding_sha256=not-required
+          else
+            echo "::error title=Release refused::The dispatch version is not one supported 0.x or exact 1.0 semantic version."
+            exit 1
+          fi
+          printf 'binding_required=%s\n' "$binding_required" >> "$GITHUB_OUTPUT"
+          printf 'binding_sha256=%s\n' "$binding_sha256" >> "$GITHUB_OUTPUT"
 
       - name: Verify the release policy names exactly this version
         run: |
@@ -474,6 +533,7 @@ jobs:
       - name: Require every governed release 1.0 readiness gate
         env:
           SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256: ${{ steps.freeze_context.outputs.context_sha256 }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ steps.governance_selector.outputs.receipt_sha256 }}
         run: |
           set -euo pipefail
           if [[ "$RELEASE_VERSION" =~ ^1\.0\.0(-rc\.[1-9][0-9]*)?$ ]]; then
@@ -494,9 +554,12 @@ jobs:
           npm run test:smoke:static
 
       - name: Generate the exact-source release receipt
+        env:
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ steps.governance_selector.outputs.receipt_sha256 }}
         run: >-
           npm run release:evidence --
           --static-dir out
+          --release-tag-governance-receipt-sha256 "$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"
           --output "$RUNNER_TEMP/site-behavior-lab-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
 
       # The immutable artifact ID, not a mutable name, is the authority handoff.
@@ -642,6 +705,7 @@ jobs:
           REQUESTED_SHA: ${{ github.event.inputs.commit }}
           RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
           RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ needs.prepare.outputs.governance_receipt_sha256 }}
         run: |
           set -euo pipefail
           node <<'NODE'
@@ -684,7 +748,6 @@ jobs:
           }
           if (process.env.RELEASE_TAG !== `v${process.env.RELEASE_VERSION}`) fail("The release tag is inconsistent.");
           if (!/^\d+$/.test(process.env.ARTIFACT_ID)) fail("The receipt artifact ID is malformed.");
-
           const receiptDir = path.join(process.env.RUNNER_TEMP, "release-receipt");
           const entries = fs.readdirSync(receiptDir, { withFileTypes: true });
           const expectedName = `site-behavior-lab-release-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}.json`;
@@ -747,12 +810,31 @@ jobs:
             fail("The immutable static-artifact metadata does not identify this workflow handoff.");
           }
 
-          exactKeys(receipt, ["schemaVersion", "evidenceKind", "release", "source", "inputs", "artifacts"], "receipt");
+          exactKeys(
+            receipt,
+            [
+              "schemaVersion",
+              "evidenceKind",
+              "releaseTagGovernanceReceiptSha256",
+              "release",
+              "source",
+              "inputs",
+              "artifacts"
+            ],
+            "receipt"
+          );
           if (
-            receipt.schemaVersion !== 1 ||
-            receipt.evidenceKind !== "exact-source-and-tested-artifact-manifest"
+            receipt.schemaVersion !== 2 ||
+            receipt.evidenceKind !== "exact-source-and-tested-artifact-manifest" ||
+            !/^[0-9a-f]{64}$/.test(
+              process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 ?? ""
+            ) ||
+            receipt.releaseTagGovernanceReceiptSha256 !==
+              process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256
           ) {
-            fail("The receipt schema or evidence kind is unsupported.");
+            fail(
+              "The receipt schema, evidence kind, or snapshotted release-governance binding is invalid."
+            );
           }
           const expectedRepository = `https://github.com/${process.env.GITHUB_REPOSITORY}`;
           if (
@@ -1090,6 +1172,206 @@ jobs:
           }
           NODE
 
+      # A release 1.0 tag is authorized only by a whole-file digest an
+      # authorized maintainer pinned after independent offline verification.
+      # Fetch and authenticate those exact candidate bytes with the native
+      # read-only token before the release App secret or write token is used.
+      # A 0.x release carries an explicit not-required sentinel and performs no
+      # measurement-binding fetch at all.
+      - name: Verify external measurement-binding trust root before release authority
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
+          RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
+          RELEASE_MEASUREMENT_BINDING_REQUIRED: ${{ needs.prepare.outputs.measurement_binding_required }}
+          RELEASE_MEASUREMENT_BINDING_SHA256: ${{ needs.prepare.outputs.measurement_binding_sha256 }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ needs.prepare.outputs.governance_receipt_sha256 }}
+        run: |
+          set -euo pipefail
+          if [[ "$RELEASE_VERSION" =~ ^0\.[0-9]+\.[0-9]+(-[-0-9A-Za-z.]+)?$ ]]; then
+            if [[ "$RELEASE_MEASUREMENT_BINDING_REQUIRED" != "false" ||
+                  "$RELEASE_MEASUREMENT_BINDING_SHA256" != "not-required" ]]; then
+              echo "::error title=Release refused::A 0.x release must carry bindingRequired=false and the not-required measurement-binding sentinel."
+              exit 1
+            fi
+            echo "0.x release: measurement binding is not required and was not fetched."
+            exit 0
+          fi
+          if [[ ! "$RELEASE_VERSION" =~ ^1\.0\.0(-rc\.[1-9][0-9]*)?$ ||
+                "$RELEASE_MEASUREMENT_BINDING_REQUIRED" != "true" ||
+                ! "$RELEASE_MEASUREMENT_BINDING_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error title=Release refused::Exact 1.0 releases require bindingRequired=true and the pre-checkout maintainer-pinned measurement-binding sha256."
+            exit 1
+          fi
+
+          context="$RUNNER_TEMP/release-measurement-binding"
+          install -d -m 0700 "$context"
+          binding_path="$context/measurement-candidate-binding.json"
+          gh api \
+            -H "Accept: application/vnd.github.raw+json" \
+            "repos/${GITHUB_REPOSITORY}/contents/research/measurement-candidate-binding.json?ref=${RELEASE_SHA}" \
+            > "$binding_path"
+          chmod 0400 "$binding_path"
+          read -r candidate_commit candidate_tree < <(
+            BINDING_PATH="$binding_path" node <<'NODE'
+          const crypto = require("node:crypto");
+          const fs = require("node:fs");
+          const fail = (message) => {
+            console.error(`::error title=Release refused::${message}`);
+            process.exit(1);
+          };
+          const isRecord = (value) =>
+            value !== null && typeof value === "object" && !Array.isArray(value);
+          const exactKeys = (value, expected) =>
+            isRecord(value) &&
+            JSON.stringify(Object.keys(value).sort()) ===
+              JSON.stringify([...expected].sort());
+          const info = fs.lstatSync(process.env.BINDING_PATH);
+          if (
+            !info.isFile() ||
+            info.isSymbolicLink() ||
+            info.size < 1 ||
+            info.size > 8 * 1024 * 1024
+          ) {
+            fail("The release measurement binding must be one non-empty regular file no larger than 8 MiB.");
+          }
+          const raw = fs.readFileSync(process.env.BINDING_PATH);
+          const digest = crypto.createHash("sha256").update(raw).digest("hex");
+          if (digest !== process.env.RELEASE_MEASUREMENT_BINDING_SHA256) {
+            fail("The raw measurement-binding bytes do not match the external maintainer pin.");
+          }
+          let text;
+          try {
+            text = new TextDecoder("utf-8", { fatal: true }).decode(raw);
+          } catch {
+            fail("The release measurement binding is not valid UTF-8.");
+          }
+          let binding;
+          try {
+            binding = JSON.parse(text);
+          } catch {
+            fail("The release measurement binding is not valid JSON.");
+          }
+          if (`${JSON.stringify(binding, null, 2)}\n` !== text) {
+            fail("The release measurement binding is not canonical JSON.");
+          }
+          const topLevelKeys = [
+            "schemaVersion",
+            "artifactKind",
+            "repository",
+            "targetRelease",
+            "candidateCommit",
+            "candidateTree",
+            "measurementInputs",
+            "measurementIdentity",
+            "calibrationPolicy",
+            "durablePrerequisite",
+            "sourceEvidence",
+            "attestationPolicy",
+            "evidence",
+            "calibrationStudies"
+          ];
+          if (
+            !exactKeys(binding, topLevelKeys) ||
+            binding.schemaVersion !== 1 ||
+            binding.artifactKind !==
+              "site-behavior-measurement-candidate-binding" ||
+            binding.repository !== process.env.GITHUB_REPOSITORY ||
+            binding.targetRelease !== "1.0.0" ||
+            !/^[0-9a-f]{40}$/.test(binding.candidateCommit ?? "") ||
+            !/^[0-9a-f]{40}$/.test(binding.candidateTree ?? "") ||
+            !isRecord(binding.measurementInputs) ||
+            !isRecord(binding.measurementIdentity) ||
+            !isRecord(binding.calibrationPolicy) ||
+            !isRecord(binding.durablePrerequisite) ||
+            !isRecord(binding.sourceEvidence) ||
+            !isRecord(binding.attestationPolicy) ||
+            !Array.isArray(binding.calibrationStudies) ||
+            !Array.isArray(binding.evidence) ||
+            binding.evidence.length < 1 ||
+            binding.evidence.length > 10000
+          ) {
+            fail("The maintainer-pinned measurement binding has the wrong schema, identity, or top-level shape.");
+          }
+          const evidencePaths = new Set();
+          for (const entry of binding.evidence) {
+            if (
+              !exactKeys(entry, ["category", "path", "change", "sha256"]) ||
+              typeof entry.category !== "string" ||
+              entry.category.length < 1 ||
+              entry.category.length > 100 ||
+              typeof entry.path !== "string" ||
+              entry.path.length < 1 ||
+              entry.path.length > 512 ||
+              entry.path.startsWith("/") ||
+              entry.path.includes("\\") ||
+              entry.path.split("/").some((segment) => !segment || segment === "." || segment === "..") ||
+              typeof entry.change !== "string" ||
+              !/^[a-z][a-z-]{0,63}$/.test(entry.change) ||
+              !/^[0-9a-f]{64}$/.test(entry.sha256 ?? "") ||
+              evidencePaths.has(entry.path)
+            ) {
+              fail("The maintainer-pinned measurement binding has malformed or duplicate evidence entries.");
+            }
+            evidencePaths.add(entry.path);
+          }
+          const governancePath =
+            `research/ops-receipts/release-tag-governance/${process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256}.json`;
+          const governanceRows = binding.evidence.filter(
+            (entry) =>
+              entry.category === "release-tag-governance-receipt" &&
+              entry.path === governancePath &&
+              entry.change === "added" &&
+              entry.sha256 === process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256
+          );
+          if (governanceRows.length !== 1) {
+            fail("The authenticated whole binding must carry exactly one add-only row for the snapshotted governance receipt.");
+          }
+          process.stdout.write(`${binding.candidateCommit} ${binding.candidateTree}\n`);
+          NODE
+          )
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/git/commits/${candidate_commit}" \
+            > "$context/candidate-commit.json"
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/compare/${candidate_commit}...${RELEASE_SHA}?per_page=1" \
+            > "$context/candidate-to-release.json"
+          CANDIDATE_COMMIT="$candidate_commit" \
+          CANDIDATE_TREE="$candidate_tree" \
+          CONTEXT="$context" \
+            node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const fail = (message) => {
+            console.error(`::error title=Release refused::${message}`);
+            process.exit(1);
+          };
+          const boundedJson = (name) => {
+            const file = path.join(process.env.CONTEXT, name);
+            const info = fs.lstatSync(file);
+            if (!info.isFile() || info.isSymbolicLink() || info.size < 1 || info.size > 4 * 1024 * 1024) {
+              fail(`${name} is not one bounded regular GitHub response.`);
+            }
+            return JSON.parse(fs.readFileSync(file, "utf8"));
+          };
+          const commit = boundedJson("candidate-commit.json");
+          const comparison = boundedJson("candidate-to-release.json");
+          if (
+            commit?.sha !== process.env.CANDIDATE_COMMIT ||
+            commit?.tree?.sha !== process.env.CANDIDATE_TREE ||
+            comparison?.base_commit?.sha !== process.env.CANDIDATE_COMMIT ||
+            comparison?.head_commit?.sha !== process.env.RELEASE_SHA ||
+            comparison?.merge_base_commit?.sha !== process.env.CANDIDATE_COMMIT ||
+            !["ahead", "identical"].includes(comparison?.status) ||
+            comparison?.behind_by !== 0
+          ) {
+            fail("The pinned candidate commit/tree identity is not an ancestor of the exact release revision.");
+          }
+          console.log(
+            `Verified external measurement-binding sha256:${process.env.RELEASE_MEASUREMENT_BINDING_SHA256} before release authority.`
+          );
+          NODE
+
       # The repository's native GITHUB_TOKEN was observed returning
       # `Resource not accessible by integration` when the first live
       # 0.4.0-rc.1 ceremony attempted POST /git/tags, despite the job declaring
@@ -1100,7 +1382,7 @@ jobs:
           RELEASE_APP_CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
           RELEASE_APP_INTEGRATION_ID: ${{ vars.RELEASE_APP_INTEGRATION_ID }}
           RELEASE_TAG_CREATION_RULESET_ID: ${{ vars.RELEASE_TAG_CREATION_RULESET_ID }}
-          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ vars.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ needs.prepare.outputs.governance_receipt_sha256 }}
           RELEASE_APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
           PROMOTION_APP_CLIENT_ID: ${{ vars.PROMOTION_APP_CLIENT_ID }}
           PROMOTION_APP_INTEGRATION_ID: ${{ vars.PROMOTION_APP_INTEGRATION_ID }}
@@ -1147,7 +1429,9 @@ jobs:
           RELEASE_APP_CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
           RELEASE_APP_INTEGRATION_ID: ${{ vars.RELEASE_APP_INTEGRATION_ID }}
           RELEASE_TAG_CREATION_RULESET_ID: ${{ vars.RELEASE_TAG_CREATION_RULESET_ID }}
-          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ vars.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ needs.prepare.outputs.governance_receipt_sha256 }}
+          RELEASE_MEASUREMENT_BINDING_REQUIRED: ${{ needs.prepare.outputs.measurement_binding_required }}
+          RELEASE_MEASUREMENT_BINDING_SHA256: ${{ needs.prepare.outputs.measurement_binding_sha256 }}
           PROMOTION_APP_CLIENT_ID: ${{ vars.PROMOTION_APP_CLIENT_ID }}
           PROMOTION_APP_INTEGRATION_ID: ${{ vars.PROMOTION_APP_INTEGRATION_ID }}
           PROMOTION_APP_SLUG: ${{ vars.PROMOTION_APP_SLUG }}
@@ -1157,7 +1441,7 @@ jobs:
           install -d -m 0700 "$context"
           gh api \
             -H "Accept: application/vnd.github.raw+json" \
-            "repos/${GITHUB_REPOSITORY}/contents/research/ops-receipts/release-tag-governance.json?ref=${RELEASE_SHA}" \
+            "repos/${GITHUB_REPOSITORY}/contents/research/ops-receipts/release-tag-governance/${RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256}.json?ref=${RELEASE_SHA}" \
             > "$context/receipt.json"
           gh api \
             -H "Accept: application/vnd.github.raw+json" \
@@ -1251,17 +1535,79 @@ jobs:
           const readiness = read("readiness.json");
           const governanceGate =
             readiness?.gates?.["release-tag-governance"];
+          const governancePath =
+            `research/ops-receipts/release-tag-governance/${receiptDigest}.json`;
           if (
             governanceGate?.kind !== "release-tag-governance" ||
-            governanceGate?.artifact !==
-              "research/ops-receipts/release-tag-governance.json" ||
+            governanceGate?.artifactDirectory !==
+              "research/ops-receipts/release-tag-governance" ||
+            !exactKeys(governanceGate?.digestBinding, ["kind", "name"]) ||
+            governanceGate.digestBinding.kind !==
+              "github-actions-prepare-snapshot" ||
+            governanceGate.digestBinding.name !==
+              "RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256" ||
             governanceGate?.maxAgeDays !== 1 ||
-            governanceGate?.sha256 !== receiptDigest ||
-            governanceGate.sha256 !==
+            receiptDigest !==
               process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256
           ) {
             fail(
-              "RELEASE_READINESS.json, the committed receipt, and the repository governance digest variable must bind the same bytes."
+              "RELEASE_READINESS.json must declare the static add-only receipt directory and prepare-snapshotted GitHub Actions selector."
+            );
+          }
+          const bindingRequired =
+            process.env.RELEASE_MEASUREMENT_BINDING_REQUIRED === "true"
+              ? true
+              : process.env.RELEASE_MEASUREMENT_BINDING_REQUIRED === "false"
+                ? false
+                : null;
+          if (bindingRequired === null) {
+            fail("The prepare-snapshotted measurement binding policy is malformed.");
+          }
+          if (bindingRequired) {
+            const bindingBytes = fs.readFileSync(
+              path.join(
+                process.env.RUNNER_TEMP,
+                "release-measurement-binding",
+                "measurement-candidate-binding.json"
+              )
+            );
+            const bindingDigest = crypto
+              .createHash("sha256")
+              .update(bindingBytes)
+              .digest("hex");
+            if (
+              !/^[0-9a-f]{64}$/.test(
+                process.env.RELEASE_MEASUREMENT_BINDING_SHA256 ?? ""
+              ) ||
+              bindingDigest !==
+                process.env.RELEASE_MEASUREMENT_BINDING_SHA256
+            ) {
+              fail(
+                "The pre-authority measurement-binding bytes no longer match the immutable maintainer pin."
+              );
+            }
+            const binding = JSON.parse(bindingBytes.toString("utf8"));
+            const selectedBindingEntries = Array.isArray(binding?.evidence)
+              ? binding.evidence.filter(
+                  (entry) =>
+                    entry?.category === "release-tag-governance-receipt" &&
+                    entry?.path === governancePath
+                )
+              : [];
+            if (
+              selectedBindingEntries.length !== 1 ||
+              selectedBindingEntries[0]?.change !== "added" ||
+              selectedBindingEntries[0]?.sha256 !== receiptDigest
+            ) {
+              fail(
+                "The prepare-snapshotted governance receipt must be add-only digest-enumerated evidence in the authenticated whole measurement-candidate binding."
+              );
+            }
+          } else if (
+            process.env.RELEASE_MEASUREMENT_BINDING_SHA256 !== "not-required"
+          ) {
+            fail(
+              "A non-binding release must carry the immutable not-required sentinel."
             );
           }
           const app = read("release-app.json");
@@ -1697,6 +2043,9 @@ jobs:
           RELEASE_TAG: ${{ needs.prepare.outputs.release_tag }}
           ATTESTATION_URL: ${{ needs.attest.outputs.attestation_url }}
           RECEIPT_SHA256: ${{ needs.attest.outputs.receipt_sha256 }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ needs.prepare.outputs.governance_receipt_sha256 }}
+          RELEASE_MEASUREMENT_BINDING_REQUIRED: ${{ needs.prepare.outputs.measurement_binding_required }}
+          RELEASE_MEASUREMENT_BINDING_SHA256: ${{ needs.prepare.outputs.measurement_binding_sha256 }}
         run: |
           set -euo pipefail
           set +e
@@ -1735,6 +2084,28 @@ jobs:
             fail("Release tag is malformed.");
           }
           if (!/^[0-9a-f]{64}$/.test(process.env.RECEIPT_SHA256)) fail("Receipt digest is malformed.");
+          if (!/^[0-9a-f]{64}$/.test(process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256)) {
+            fail("Release governance receipt digest is malformed.");
+          }
+          const exactOneBindingRequired =
+            /^v1\.0\.0(?:-rc\.[1-9]\d*)?$/.test(process.env.RELEASE_TAG);
+          const snapshottedBindingRequired =
+            process.env.RELEASE_MEASUREMENT_BINDING_REQUIRED === "true"
+              ? true
+              : process.env.RELEASE_MEASUREMENT_BINDING_REQUIRED === "false"
+                ? false
+                : null;
+          if (
+            snapshottedBindingRequired !== exactOneBindingRequired ||
+            (exactOneBindingRequired
+              ? !/^[0-9a-f]{64}$/.test(
+                  process.env.RELEASE_MEASUREMENT_BINDING_SHA256 ?? ""
+                )
+              : process.env.RELEASE_MEASUREMENT_BINDING_SHA256 !==
+                "not-required")
+          ) {
+            fail("Release measurement-binding trust-root output is malformed.");
+          }
           if (!/^[1-9][0-9]*$/.test(process.env.GITHUB_RUN_ID ?? "")) {
             fail("Workflow run id is malformed.");
           }
@@ -1751,6 +2122,9 @@ jobs:
             "Curated release. No blanket stable public API and no npm publication.",
             `Attested exact-source release receipt: ${process.env.ATTESTATION_URL}`,
             `Release receipt sha256: ${process.env.RECEIPT_SHA256}`,
+            `Release governance receipt sha256: ${process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256}`,
+            `Release measurement binding required: ${process.env.RELEASE_MEASUREMENT_BINDING_REQUIRED}`,
+            `Release measurement binding sha256: ${process.env.RELEASE_MEASUREMENT_BINDING_SHA256}`,
             `Release workflow run: https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
           ].join("\n");
           fs.writeFileSync(
@@ -1903,6 +2277,9 @@ jobs:
           RELEASE_COMMITS_AFTER_DECLARATION: ${{ needs.prepare.outputs.release_commits_after_declaration }}
           ATTESTATION_URL: ${{ needs.attest.outputs.attestation_url }}
           RECEIPT_SHA256: ${{ needs.attest.outputs.receipt_sha256 }}
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ needs.prepare.outputs.governance_receipt_sha256 }}
+          RELEASE_MEASUREMENT_BINDING_REQUIRED: ${{ needs.prepare.outputs.measurement_binding_required }}
+          RELEASE_MEASUREMENT_BINDING_SHA256: ${{ needs.prepare.outputs.measurement_binding_sha256 }}
         run: |
           {
             echo "- Tag: \`${RELEASE_TAG}\` at \`${RELEASE_SHA}\`"
@@ -1910,5 +2287,8 @@ jobs:
             echo "- Promoted to production and CI-green before tagging"
             echo "- Attested release receipt: ${ATTESTATION_URL}"
             echo "- Release receipt sha256: \`${RECEIPT_SHA256}\`"
+            echo "- Release governance receipt sha256: \`${RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256}\`"
+            echo "- Release measurement binding required: \`${RELEASE_MEASUREMENT_BINDING_REQUIRED}\`"
+            echo "- Release measurement binding sha256: \`${RELEASE_MEASUREMENT_BINDING_SHA256}\`"
             echo "- Claims: governed compatibility surfaces only; no blanket stable public API, no npm publication"
           } >> "$GITHUB_STEP_SUMMARY"

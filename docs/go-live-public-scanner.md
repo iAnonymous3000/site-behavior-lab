@@ -44,10 +44,21 @@ The front Worker chooses one of three postures from its config:
 
 1. Confirm the gated scanner is healthy and reachable:
 
+   Inject the access token from a secret manager, or enter it silently in a
+   disposable subshell so it never reaches command arguments or shell history:
+
    ```bash
-   SCAN_BASE_URL=https://<scanner-domain> \
-   SMOKE_SCAN_ACCESS_TOKEN=<token> \
-   npm run test:smoke:scanner
+   (
+   set -euo pipefail
+   cleanup_scanner_smoke_token() {
+     unset SMOKE_SCAN_ACCESS_TOKEN
+   }
+   trap cleanup_scanner_smoke_token EXIT
+   printf 'Gated scanner access token: ' >&2
+   IFS= read -r -s SMOKE_SCAN_ACCESS_TOKEN; printf '\n' >&2
+   export SMOKE_SCAN_ACCESS_TOKEN
+   SCAN_BASE_URL='https://<scanner-domain>' npm run test:smoke:scanner
+   )
    ```
 
 2. Confirm `GET /api/health` returns `ok: true` and advertises the Shields
@@ -318,7 +329,31 @@ For the lease-expiry canary, arm the staging hook so the first claimed worker is
 abandoned before resolution. Set `DURABLE_REPLAY_NO_POLL_MS` at or above the
 deployment-advertised lease-expiry plus scheduled-replay margin:
 
+Inject the two staging credentials from a secret manager, or enter them
+silently once inside this disposable subshell. The `EXIT` trap unsets both on
+success, refusal, or interruption. The block runs both required modes against
+the same already-exported `DURABLE_REPLAY_EXPECTED_SHA` without placing either
+credential in an argument, inline assignment, or shell history:
+
 ```bash
+(
+set -euo pipefail
+: "${DURABLE_REPLAY_EXPECTED_SHA:?export the preflight-approved parent SHA first}"
+[[ "$DURABLE_REPLAY_EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]] || {
+  echo "DURABLE_REPLAY_EXPECTED_SHA must be the full lowercase preflight-approved parent SHA." >&2
+  exit 1
+}
+cleanup_durable_replay_credentials() {
+  unset DURABLE_REPLAY_ACCESS_TOKEN DURABLE_REPLAY_FAULT_TOKEN
+}
+trap cleanup_durable_replay_credentials EXIT
+
+printf 'Gated staging scanner access token: ' >&2
+IFS= read -r -s DURABLE_REPLAY_ACCESS_TOKEN; printf '\n' >&2
+printf 'Staging replay fault token: ' >&2
+IFS= read -r -s DURABLE_REPLAY_FAULT_TOKEN; printf '\n' >&2
+export DURABLE_REPLAY_ACCESS_TOKEN DURABLE_REPLAY_FAULT_TOKEN
+
 DURABLE_REPLAY_RECEIPT_DIR=research/ops-receipts/durable-replay
 mkdir -p "$DURABLE_REPLAY_RECEIPT_DIR"
 LEASE_EXPIRY_RECEIPT="$DURABLE_REPLAY_RECEIPT_DIR/${DURABLE_REPLAY_EXPECTED_SHA}-lease-expiry.json"
@@ -326,24 +361,32 @@ LOST_RESOLVE_RECEIPT="$DURABLE_REPLAY_RECEIPT_DIR/${DURABLE_REPLAY_EXPECTED_SHA}
 test ! -e "$LEASE_EXPIRY_RECEIPT"
 test ! -e "$LOST_RESOLVE_RECEIPT"
 
-DURABLE_REPLAY_BASE_URL=https://<gated-staging-scanner> \
-DURABLE_REPLAY_ACCESS_TOKEN=<staging-access-token> \
-DURABLE_REPLAY_TARGET_URL=https://example.com/ \
-DURABLE_REPLAY_FAULT_TOKEN=<staging-fault-token> \
-DURABLE_REPLAY_FAULT_MODE=lease-expiry \
-DURABLE_REPLAY_NO_POLL_MS=600000 \
-DURABLE_REPLAY_EXPECTED_SHA="$DURABLE_REPLAY_EXPECTED_SHA" \
-DURABLE_REPLAY_ORIGIN_LABEL=durable-replay-staging \
-DURABLE_REPLAY_RECEIPT_PATH="$LEASE_EXPIRY_RECEIPT" \
-DURABLE_REPLAY_CONFIRM=I_ACKNOWLEDGE_THIS_SUBMITS_A_LIVE_SCAN \
-DURABLE_REPLAY_STAGING_CONFIRM=I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT \
-npm run test:smoke:durable-job-replay
+run_durable_replay() {
+  local replay_mode="$1"
+  local receipt_path="$2"
+  DURABLE_REPLAY_BASE_URL='https://<gated-staging-scanner>' \
+  DURABLE_REPLAY_TARGET_URL=https://example.com/ \
+  DURABLE_REPLAY_FAULT_MODE="$replay_mode" \
+  DURABLE_REPLAY_NO_POLL_MS=600000 \
+  DURABLE_REPLAY_EXPECTED_SHA="$DURABLE_REPLAY_EXPECTED_SHA" \
+  DURABLE_REPLAY_ORIGIN_LABEL=durable-replay-staging \
+  DURABLE_REPLAY_RECEIPT_PATH="$receipt_path" \
+  DURABLE_REPLAY_CONFIRM=I_ACKNOWLEDGE_THIS_SUBMITS_A_LIVE_SCAN \
+  DURABLE_REPLAY_STAGING_CONFIRM=I_ACKNOWLEDGE_THIS_IS_A_GATED_STAGING_DEPLOYMENT \
+  npm run test:smoke:durable-job-replay
+}
+
+run_durable_replay lease-expiry "$LEASE_EXPIRY_RECEIPT"
+run_durable_replay lost-resolve "$LOST_RESOLVE_RECEIPT"
+
+node scripts/validate-durable-replay-receipts.mjs \
+  "$DURABLE_REPLAY_EXPECTED_SHA" \
+  "$LEASE_EXPIRY_RECEIPT" \
+  "$LOST_RESOLVE_RECEIPT"
+)
 ```
 
-Then run the same command with `DURABLE_REPLAY_FAULT_MODE=lost-resolve`, keeping
-the same `DURABLE_REPLAY_EXPECTED_SHA` and
-`DURABLE_REPLAY_ORIGIN_LABEL`, but set
-`DURABLE_REPLAY_RECEIPT_PATH="$LOST_RESOLVE_RECEIPT"`. The hook drops every successful callback
+For `lost-resolve`, the hook drops every successful callback
 from the exact first-generation owner after the report is committed, so a retry
 cannot bypass scheduled reconciliation. The script deliberately sends no
 status, report, or health request during the wait. Its first post-window status
@@ -363,15 +406,10 @@ the exact mode/build, a bounded operator origin label plus SHA-256 of the
 staging origin, pre/post health identities and digests, timestamps, the job and
 report ids, attempt count, pre-status completion fact, and exact evidence
 references. It contains neither staging credentials nor the scanned target URL.
-Before teardown or any production secret/change, require both receipts to
-validate as one ordered pair on the exact reviewed SHA:
-
-```bash
-node scripts/validate-durable-replay-receipts.mjs \
-  "$DURABLE_REPLAY_EXPECTED_SHA" \
-  "$LEASE_EXPIRY_RECEIPT" \
-  "$LOST_RESOLVE_RECEIPT"
-```
+Before teardown or any production secret/change, the same guarded block above
+requires both receipts to validate as one ordered pair on the exact reviewed
+SHA. A validation refusal exits the subshell, clears both credentials, and
+blocks teardown.
 
 The validator requires exactly one `lease-expiry` receipt followed by exactly
 one `lost-resolve` receipt, distinct job/report ids, the same full deployment
@@ -397,207 +435,139 @@ Before changing the production flag to `1`, record evidence that:
 - the privacy disclosure and 75-minute report-survival setting match the shipped
   behavior.
 
-### Abort teardown after a partial staging attempt
+### Tear down complete or partial staging through the hosted adapter
 
 Any failure after the first staging mutation—bucket/token creation, a secret
-put, deployment, or either canary—starts teardown immediately. Keep the
-production durable-jobs flag at `0`; do not retry provisioning on top of the
-partial attempt. This abort path accepts zero, one, or two known report IDs and
-does not assume that the Worker, container app, or bucket reached creation.
+put, deployment, runner registration, or either canary—starts teardown
+immediately. Keep the production durable-jobs flag at `0`; do not retry
+provisioning on top of the partial attempt.
 
-First close ingress. If the exact staging Worker exists, delete it
-noninteractively; otherwise accept only Cloudflare's exact absent-script code.
-Then require the same code on a fresh readback:
+Do not use Wrangler or dashboard clicks as the release teardown. Wrangler's
+container JSON path does not prove complete cursor pagination, manual R2
+commands cannot bind a complete object-key allowlist to the same session, and
+a custom-domain detach may legitimately cascade its DNS record. Those paths
+cannot produce the canonical twelve-resource receipt.
 
-```bash
-set -euo pipefail
-ABORT_DIR="$(mktemp -d)"
-export ABORT_DIR
+Use the `cloudflare-github-exact-v1` hosted adapter described in
+`docs/operator-evidence-capture.md`:
 
-if npx wrangler deployments list --name site-behavior-lab-scanner-staging \
-  --json -c wrangler.container.staging.jsonc \
-  > "$ABORT_DIR/worker-before.json" 2> "$ABORT_DIR/worker-before.err"; then
-  npx wrangler delete site-behavior-lab-scanner-staging --force \
-    -c wrangler.container.staging.jsonc
-else
-  grep -q '10007' "$ABORT_DIR/worker-before.err"
-fi
+1. Validate the accepted replay receipts and obtain an authenticated staging
+   ledger readback proving both replay jobs completed with no queued, running,
+   publishing, retryable, or restart-scheduled work. Stop all staging
+   scheduling and canary activity, wait through the 15-minute container sleep
+   interval, and require the provider instance inventory to show zero live
+   placements. Stop the exact staging self-hosted runner service and prove
+   GitHub reports `status=offline` and `busy=false`; online-idle is not a drain.
+2. Run the GET-only `npm run staging:teardown-targets -- --capture` ceremony
+   from `docs/operator-evidence-capture.md` for the exact protected-main replay
+   source commit. Use its six separately scoped read credentials and mode-0700
+   private directory; require that the indexed raw response directory is
+   destroyed before the mode-0600 captured manifest exists, then seal and
+   verify without hand editing.
+3. For a partial attempt, leave every never-created or wholly removed logical
+   resource explicitly `expectedPresent:false`; do not omit it. DNS is a
+   compound logical resource: independently retain any exact surviving custom
+   domain, DNS-record set, or dedicated certificate pack, and set its aggregate
+   `expectedPresent` to that component union. A surviving container retains its
+   independently pinned application and Durable Object namespace identity even
+   after its Worker is gone. At least one resource must still be observed
+   present and removed in the successful ceremony. An all-absent rerun is
+   intentionally not teardown evidence.
+4. Set the sealed file and its canonical SHA in the protected
+   `release-evidence` environment, obtain the required reviewer approval, and
+   dispatch `Staging Teardown Evidence` at that exact `main` SHA.
+5. Archive only `receipt.json` and
+   `sanitized-provider-manifest.json`. Never download, copy, or publish the
+   private provider-response directory; the job must destroy it before
+   creating the safe output.
+6. While production is still on the reviewed flag-`0` revision, dispatch the
+   governed health lane:
 
-if npx wrangler deployments list --name site-behavior-lab-scanner-staging \
-  --json -c wrangler.container.staging.jsonc \
-  > /dev/null 2> "$ABORT_DIR/worker-after.err"; then
-  echo "Staging Worker still exists after abort deletion." >&2
-  exit 1
-fi
-grep -q '10007' "$ABORT_DIR/worker-after.err"
-```
+   ```bash
+   gh workflow run production-health.yml --ref main
+   ```
 
-Next refresh the complete account-wide Containers dashboard/API list. If the
-exact staging app exists, record and validate its exact ID/name pair, delete
-only that ID with `CI=1 npx wrangler containers delete <exact-id> -c
-wrangler.container.staging.jsonc`, then refresh the complete list and require
-both ID and name to be absent. If it never existed or Worker deletion already
-removed it, record that full-list absence instead.
+   Record the exact successful run id and attempt from GitHub Actions, plus the
+   immutable artifact id for
+   `site-behavior-production-health-evidence-<run-id>-<attempt>`, in the
+   operator's private ceremony log.
+7. Read back that exact artifact and require `production-health.json` to name
+   the committed production SHA and to omit
+   `checks.durableJobs.faultInjection`. Do not create `F` until this separate
+   production check is green.
 
-Put only report IDs actually printed by an accepted canary into the array
-below; an empty array is valid. If the dedicated bucket exists, delete both
-possible bundle members for every recorded ID, then delete the bucket. R2
-object deletion is safe when a partially published bundle member is absent.
-Bucket deletion must fail closed on any unrecorded object. If that happens,
-enumerate the complete contents of this exact, preflight-created staging-only
-bucket in the R2 dashboard/API, record the unexpected keys in the abort receipt,
-delete only those keys, and retry the bucket deletion—never substitute a
-production bucket name or credential.
+The target file always covers both staging halves and every exact fact required
+by the canonical target contract in `docs/operator-evidence-capture.md`:
+privacy-safe Worker code/settings/version/deployment/secret projections, the
+complete stopped Worker Builds history, the complete same-script Durable Object namespace set, full stable custom-domain,
+certificate, and DNS-record state, Worker-mapped container image/application/
+deployment/rollout/inactive-instance projections with `jobs: false` and zero
+live placement,
+full R2 bucket/object metadata and the exact
+one-day configuration, both staging-only credential policies, the replay fault
+hook, and only the exact offline staging runner registration. Do not reduce
+that contract to display names, id/content tuples, or object-key sets.
+If custom-domain deletion cascades a pinned DNS record, the adapter records
+that exact absence and does not issue a blind second DELETE. If the record
+remains, its complete sealed stable-state projection must still match before
+deletion.
 
-```bash
-KNOWN_ABORT_REPORT_IDS=(
-  # <optional-exact-reportId>
-)
+Worker deletion is non-force. The adapter rebinds the immutable Worker id to
+the exact script name, then requires the exact Worker attachment graph to show
+no custom domain, queue consumer, Worker service binding, dispatch outbound,
+Tail Worker consumer, or external Durable Object reference. It independently
+requires no incoming service or Pages binding, no Tail-Worker producer, no
+account custom domain whose service names the Worker, no classic route, cron
+schedule, Email Routing action, Worker Builds trigger/deploy hook, or
+Worker-build Event Subscription, and workers.dev/preview ingress disabled. It
+refuses any unreviewed provider-resource binding; it then
+proves the exact own Durable Object namespace absent. Advanced-certificate deletion rechecks the
+custom-domain certificate linkage and converges only on 404 or the exact same
+pack in terminal `deleted` status. Explicit container deletion converges only
+when the exact application id returns 404.
 
-if (( ${#KNOWN_ABORT_REPORT_IDS[@]} > 0 )); then
-  for report_id in "${KNOWN_ABORT_REPORT_IDS[@]}"; do
-    [[ "$report_id" =~ ^[0-9]{8}-[0-9a-f]{32}$ ]] || {
-      echo "Refusing abort cleanup with an invalid report ID." >&2
-      exit 1
-    }
-  done
-fi
+Worker plus its own namespace is the only atomic compound expectation. The
+Cloudflare API exposes no direct namespace DELETE: if the script is absent but
+its namespace survives, the hosted adapter fails closed and cannot finish that
+partial state. Do not invent an endpoint or let the ceremony deploy code. Re-cut
+and obtain separate approval for a manual deleted-export tombstone migration,
+then generate a new exact teardown target. DNS records/certificates and
+containers do not share this limitation and are independently resumable.
 
-if npx wrangler r2 bucket info site-behavior-lab-reports-staging --json \
-  -c wrangler.container.staging.jsonc \
-  > "$ABORT_DIR/bucket-before.json" 2> "$ABORT_DIR/bucket-before.err"; then
-  if (( ${#KNOWN_ABORT_REPORT_IDS[@]} > 0 )); then
-    for report_id in "${KNOWN_ABORT_REPORT_IDS[@]}"; do
-      npx wrangler r2 object delete \
-        "site-behavior-lab-reports-staging/reports/${report_id}.json" \
-        --remote --force -c wrangler.container.staging.jsonc
-      npx wrangler r2 object delete \
-        "site-behavior-lab-reports-staging/reports/${report_id}.json.provenance.json" \
-        --remote --force -c wrangler.container.staging.jsonc
-    done
-  fi
-  npx wrangler r2 bucket delete site-behavior-lab-reports-staging \
-    -c wrangler.container.staging.jsonc
-else
-  grep -q '10006' "$ABORT_DIR/bucket-before.err"
-fi
+The workflow refuses identity or policy drift, an unexpected R2 object, an
+online, busy, or extra-labelled runner, a shared certificate, an unreviewed account or
+zone, incomplete/repeated pagination, request-budget exhaustion, or any
+surviving resource. If a provider failure occurs after a mutation, do not
+resume the same run or broaden a token. Re-inventory, generate a new exact
+target file for only the remaining surface, and run the protected ceremony
+again. If nothing remains and the first run produced no valid receipt, the
+release has no canonical teardown evidence and must be re-cut; an all-absent
+transcript cannot be promoted into proof after the fact.
 
-if npx wrangler r2 bucket info site-behavior-lab-reports-staging --json \
-  -c wrangler.container.staging.jsonc \
-  > /dev/null 2> "$ABORT_DIR/bucket-after.err"; then
-  echo "Staging bucket still exists after abort deletion." >&2
-  exit 1
-fi
-grep -q '10006' "$ABORT_DIR/bucket-after.err"
-```
+The canonical teardown receipt proves only that its same-session after
+inventory found all twelve logical resources absent. The separately dispatched
+authenticated Production Health run is an additional operational prerequisite:
+it must report the committed production SHA healthy with
+`checks.durableJobs.faultInjection` absent before `F`, but its run and artifact
+identities are not fields in the teardown receipt. Deletion of the exact
+fault-enabled Worker is the reviewed hook-off transition; do not create an ad
+hoc dirty hook-disabled deployment.
 
-Finally revoke the recorded dedicated staging R2 API-token ID and remove only a
-certificate pack proven to contain exclusively
-`scan-staging.sitebehavior.org`. Require empty A, AAAA, and CNAME lookups, an
-unreachable staging health endpoint, and canonical production health still
-green with durable jobs disabled and no `faultInjection` block. Those same
-exact absence receipts complete a partial-attempt abort.
-
-After both canary receipts are captured, perform this name- and ID-pinned
-teardown. Substitute only the two exact `reportId` values printed by the
-canaries and recorded in the validated receipts. Each R2 runtime report is a two-object bundle; an unexpected third
-object makes bucket deletion fail closed:
-
-```bash
-set -euo pipefail
-export LEASE_EXPIRY_REPORT_ID="$(jq -er '.execution.reportId' "$LEASE_EXPIRY_RECEIPT")"
-export LOST_RESOLVE_REPORT_ID="$(jq -er '.execution.reportId' "$LOST_RESOLVE_RECEIPT")"
-export STAGING_CONTAINER_ID=<exact-ID-from-the-full-Cloudflare-Containers-dashboard>
-
-for report_id in "$LEASE_EXPIRY_REPORT_ID" "$LOST_RESOLVE_REPORT_ID"; do
-  [[ "$report_id" =~ ^[0-9]{8}-[0-9a-f]{32}$ ]] || {
-    echo "Refusing teardown with an invalid canary report ID." >&2
-    exit 1
-  }
-done
-[[ "$STAGING_CONTAINER_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
-
-npx wrangler delete site-behavior-lab-scanner-staging --force \
-  -c wrangler.container.staging.jsonc
-WORKER_ABSENCE_RECEIPT="$(mktemp)"
-if npx wrangler deployments list --name site-behavior-lab-scanner-staging \
-  --json -c wrangler.container.staging.jsonc \
-  > /dev/null 2> "$WORKER_ABSENCE_RECEIPT"; then
-  echo "Staging Worker still exists after deletion." >&2
-  exit 1
-fi
-grep -q '10007' "$WORKER_ABSENCE_RECEIPT"
-
-npx wrangler r2 object delete \
-  "site-behavior-lab-reports-staging/reports/${LEASE_EXPIRY_REPORT_ID}.json" \
-  --remote --force -c wrangler.container.staging.jsonc
-npx wrangler r2 object delete \
-  "site-behavior-lab-reports-staging/reports/${LEASE_EXPIRY_REPORT_ID}.json.provenance.json" \
-  --remote --force -c wrangler.container.staging.jsonc
-npx wrangler r2 object delete \
-  "site-behavior-lab-reports-staging/reports/${LOST_RESOLVE_REPORT_ID}.json" \
-  --remote --force -c wrangler.container.staging.jsonc
-npx wrangler r2 object delete \
-  "site-behavior-lab-reports-staging/reports/${LOST_RESOLVE_REPORT_ID}.json.provenance.json" \
-  --remote --force -c wrangler.container.staging.jsonc
-```
-
-Refresh the complete Containers dashboard/API list. Set
-`STAGING_CONTAINER_PRESENT=1` only if that exact recorded ID still has the exact
-name `site-behavior-lab-scanner-staging-container`; set it to `0` if the Worker
-deletion already removed it. Any other state is a stop. Delete only the pinned
-ID when present, using `CI=1` to make Wrangler noninteractive, then refresh the
-complete list and require both the ID and name to be absent. Finally delete the
-now-empty bucket and require exact-name `bucket info` to return code 10006:
-
-```bash
-export STAGING_CONTAINER_PRESENT=<0-or-1-from-the-full-list>
-if [[ "$STAGING_CONTAINER_PRESENT" == "1" ]]; then
-  CI=1 npx wrangler containers delete "$STAGING_CONTAINER_ID" \
-    -c wrangler.container.staging.jsonc
-elif [[ "$STAGING_CONTAINER_PRESENT" != "0" ]]; then
-  echo "Invalid staging container presence receipt." >&2
-  exit 1
-fi
-
-npx wrangler r2 bucket delete site-behavior-lab-reports-staging \
-  -c wrangler.container.staging.jsonc
-BUCKET_ABSENCE_RECEIPT="$(mktemp)"
-if npx wrangler r2 bucket info site-behavior-lab-reports-staging --json \
-  -c wrangler.container.staging.jsonc \
-  > /dev/null 2> "$BUCKET_ABSENCE_RECEIPT"; then
-  echo "Staging bucket still exists after deletion." >&2
-  exit 1
-fi
-grep -q '10006' "$BUCKET_ABSENCE_RECEIPT"
-```
-
-The bucket-delete command is the machine gate: it fails if any unexpected
-object remains. The exact-info absence receipt proves the named bucket is gone.
-
-In the Cloudflare dashboard, revoke the previously recorded staging R2 API-token
-ID and confirm it is absent. Remove only a dedicated Advanced Certificate pack
-whose recorded ID and hostname set belong exclusively to
-`scan-staging.sitebehavior.org`; never remove a shared or wildcard certificate.
-Deleting a Custom Domain does not itself remove that certificate pack.
-
-The teardown receipt is complete only when all of these readbacks pass:
-
-- `https://scan-staging.sitebehavior.org/api/health` is unreachable;
-- Worker `site-behavior-lab-scanner-staging`, its custom domain, and its Durable
-  Object namespace are absent;
-- the captured staging container ID/name pair is absent;
-- bucket `site-behavior-lab-reports-staging` and its one-day lifecycle are absent;
-- the recorded staging R2 API-token ID and any dedicated staging-only
-  certificate pack are absent;
-- DNS A, AAAA, and CNAME lookups for `scan-staging.sitebehavior.org` are empty;
-  and
-- canonical production health is still healthy on the committed production SHA
-  and `checks.durableJobs.faultInjection` is absent.
-
-Deletion is the reviewed hook-off transition. Do not create an ad hoc dirty
-hook-disabled deployment: the committed scaffold remains reproducible, while no
-fault-enabled staging surface remains reachable between activation exercises.
+The successful teardown artifact also starts a mandatory evidence-custody
+handoff. Record its exact run id, attempt, workflow head SHA, immutable artifact
+id, and artifact digest now, but do **not** merge a receipt carrier while `P` is
+waiting for its flag-only child `F` or while `F` is frozen for the durable soak.
+After that transition and soak complete, but before selecting candidate `C`,
+follow **Preserve the hosted receipt and archive it after `C`** in
+`docs/operator-evidence-capture.md`: authenticate and digest-verify the exact
+safe artifact, copy its `receipt.json` bytes unchanged to
+`research/ops-evidence/staging-teardown.json`, verify the copied digest, and
+commit that subject through normal review. Only after `C` is selected, dispatch
+`archive-hosted-evidence.yml` with profile `staging-teardown` and exactly one
+`provider-capture` source naming the original run and artifact. Merge only the
+generated append-only archive proposal, and digest-enumerate every archive byte
+in the measurement-candidate binding. The sanitized manifest stays inside the
+safe artifact/archive; private provider responses never enter either.
 
 Only after every item passes may a separate reviewed production change install
 new production-only values for `SITE_BEHAVIOR_LAB_DURABLE_JOBS_KEY` and
@@ -669,6 +639,32 @@ including the retained subject and every source byte. It also requires the
 monitor, restart, and exercise workflow plus every invoked
 producer/semantic-verifier source file to be byte-identical between the
 authenticated source commit and candidate `C`.
+
+The monitor still accepts the full 192-hour query ceiling. At that ceiling it
+admits at most 193 deep runs, 200 attempts, and 607 logical GitHub REST calls.
+Collection keeps workflow pagination serial, then captures attempt Jobs pages,
+per-run artifact pages, and artifact ZIPs in three separately bounded phases.
+Each phase permits at most 32 requests in flight; results are merged back in
+source order, every response byte is retained under its exact path, and any
+task failure aborts its whole phase before the output directory exists. An
+artifact download may follow exactly one API-to-blob redirect. With a
+60-second timeout per fetch, the maximum admitted schedule is 43 timeout slots;
+the collector also enforces a 45-minute overall collection deadline. The
+workflow has a 60-minute job limit, leaving 15 minutes for the clean-checkout
+dependency install, schema compile, ledger derivation, and bounded artifact
+upload. Do not raise any of the window, request, redirect, concurrency, or time
+ceilings independently: the single repository-only App installation token is
+minted only after bootstrap and the reviewed schedule intentionally stays
+inside its one-hour lifetime.
+
+Before the first artifact download, the monitor also adds every selected
+artifact's authenticated `size_in_bytes` to the already-retained API JSON and
+requires that lower bound to remain strictly below the 48 MiB aggregate cap.
+It rechecks actual ZIP plus copied health bytes as each bounded download
+finishes, and checks the final ledger, source manifest, and complete retained
+set again before creating the output directory. An oversized provider set
+therefore refuses before allocating its ZIP bodies rather than relying on a
+late hosted-runner out-of-memory failure.
 
 After candidate `C` exists, generate the non-passing approval scaffold from
 the verified soak evidence:
@@ -878,8 +874,17 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
    before Turnstile and bypasses it:
 
    ```bash
-   SCAN_BASE_URL=https://<scanner-origin> \
-   SMOKE_SCAN_ACCESS_TOKEN=<token> npm run test:smoke:scanner
+   (
+   set -euo pipefail
+   cleanup_scanner_smoke_token() {
+     unset SMOKE_SCAN_ACCESS_TOKEN
+   }
+   trap cleanup_scanner_smoke_token EXIT
+   printf 'Gated scanner access token: ' >&2
+   IFS= read -r -s SMOKE_SCAN_ACCESS_TOKEN; printf '\n' >&2
+   export SMOKE_SCAN_ACCESS_TOKEN
+   SCAN_BASE_URL='https://<scanner-origin>' npm run test:smoke:scanner
+   )
    ```
 
    For the open public origin, step 3's manual Turnstile scan remains the

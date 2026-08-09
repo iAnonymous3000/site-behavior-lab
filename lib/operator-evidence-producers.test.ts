@@ -44,6 +44,7 @@ const repositoryHeadSkip =
     ? "the build context has no .git, so the repository head is unavailable; host lanes run this test"
     : false;
 const STAGING_SESSION_ID = "123e4567-e89b-42d3-a456-426614174000";
+const STAGING_TARGET_MANIFEST_SHA256 = "e".repeat(64);
 const LOCAL_LEGAL_EVIDENCE_REF =
   "repo:LICENSE#sha256=0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0";
 
@@ -1164,6 +1165,7 @@ async function stagingTranscript() {
   );
   return {
     stagingSourceCommit: CANDIDATE,
+    targetManifestSha256: STAGING_TARGET_MANIFEST_SHA256,
     recordedAt: "2026-08-01T14:00:04.000Z",
     session: {
       id: STAGING_SESSION_ID,
@@ -1240,6 +1242,7 @@ test("a ceremony may legitimately scope out resources that were never deployed",
   });
   const verdict = validateStagingTeardownEvidence(receipt);
   assert.equal(verdict.ok, true, verdict.problems.join("; "));
+  assert.equal(receipt.schemaVersion, 2);
 });
 
 test("staging teardown hashes one sanitized same-session transcript without executing provider code", async () => {
@@ -1277,6 +1280,19 @@ test("staging teardown hashes one sanitized same-session transcript without exec
   const verdict = validateStagingTeardownEvidence(receipt);
   assert.equal(verdict.ok, true, verdict.problems.join("; "));
   assert.equal(Object.hasOwn(receipt, "candidateCommit"), false);
+  assert.equal(
+    receipt.targetManifestSha256,
+    STAGING_TARGET_MANIFEST_SHA256
+  );
+  assert.equal(
+    verdict.bindings.targetManifestSha256,
+    STAGING_TARGET_MANIFEST_SHA256
+  );
+  assert.equal(Object.hasOwn(receipt, "targetManifest"), false);
+  assert.doesNotMatch(
+    JSON.stringify(receipt),
+    /STAGING_TEARDOWN_TARGETS_JSON/
+  );
   assert.equal(verdict.recordedAt, receipt.recordedAt);
   assert.equal(verdict.teardownInventoryDigest, receipt.teardownInventoryDigest);
   assert.equal(
@@ -1310,6 +1326,27 @@ test("staging teardown hashes one sanitized same-session transcript without exec
   assert.match(
     validateStagingTeardownEvidence(randomDigest).problems.join(" "),
     /exact canonical session inventory bytes/
+  );
+
+  const missingTargetBinding = structuredClone(receipt);
+  delete missingTargetBinding.targetManifestSha256;
+  assert.match(
+    validateStagingTeardownEvidence(missingTargetBinding).problems.join(" "),
+    /targetManifestSha256/
+  );
+
+  const legacySchema = structuredClone(receipt);
+  legacySchema.schemaVersion = 1;
+  assert.match(
+    validateStagingTeardownEvidence(legacySchema).problems.join(" "),
+    /schemaVersion must be exactly 2/
+  );
+
+  const malformedTargetBinding = structuredClone(receipt);
+  malformedTargetBinding.targetManifestSha256 = "0".repeat(63);
+  assert.match(
+    validateStagingTeardownEvidence(malformedTargetBinding).problems.join(" "),
+    /targetManifestSha256/
   );
 
   const survivingBucket = structuredClone(receipt);

@@ -395,29 +395,39 @@ export async function readRequestBodyWithinLimit(
   try {
     throwIfRequestBodyAborted(controller.signal);
     const declared = Number(request.headers.get("content-length"));
-    if (Number.isFinite(declared) && declared > maxBytes) return null;
+    if (Number.isFinite(declared) && declared > maxBytes) {
+      cancelRequestBodyDetached(request.body);
+      return null;
+    }
     if (!request.body) return "";
 
     const reader = request.body.getReader();
-    const chunks: Uint8Array[] = [];
+    // A chunks array makes retained memory depend on chunk count instead of
+    // byte count: arbitrarily many empty or one-byte chunks can allocate
+    // unbounded array/object metadata while staying under the byte ceiling.
+    const bytes = new Uint8Array(maxBytes);
     let total = 0;
     try {
       for (;;) {
         throwIfRequestBodyAborted(controller.signal);
         const { done, value } = await Promise.race([reader.read(), abort.promise]);
         if (done) break;
-        total += value.byteLength;
-        if (total > maxBytes) {
+        if (value.byteLength === 0) continue;
+        if (value.byteLength > maxBytes - total) {
           // Cancellation is cleanup, not part of the body deadline. A broken
           // or adversarial stream may never settle its cancel promise.
-          void reader.cancel().catch(() => undefined);
+          cancelRequestReaderDetached(reader);
           return null;
         }
-        chunks.push(value);
+        bytes.set(value, total);
+        total += value.byteLength;
       }
     } finally {
       if (controller.signal.aborted) {
-        void reader.cancel(requestBodyAbortReason(controller.signal)).catch(() => undefined);
+        cancelRequestReaderDetached(
+          reader,
+          requestBodyAbortReason(controller.signal)
+        );
       }
       // Some stream doubles ignore cancellation and keep read() pending. Do
       // not let releaseLock's resulting TypeError mask the abort/timeout.
@@ -429,14 +439,10 @@ export async function readRequestBodyWithinLimit(
     }
 
     throwIfRequestBodyAborted(controller.signal);
-    const bytes = new Uint8Array(total);
-    let offset = 0;
-    for (const chunk of chunks) {
-      bytes.set(chunk, offset);
-      offset += chunk.byteLength;
-    }
     try {
-      return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      return new TextDecoder("utf-8", { fatal: true }).decode(
+        bytes.subarray(0, total)
+      );
     } catch {
       throw new RequestBodyInvalidUtf8Error();
     }
@@ -445,6 +451,33 @@ export async function readRequestBodyWithinLimit(
     abort.dispose();
     for (const remove of removeAbortListeners) remove();
   }
+}
+
+function cancelRequestBodyDetached(
+  body: ReadableStream<Uint8Array> | null
+): void {
+  try {
+    observeDetachedCancellation(body?.cancel());
+  } catch {
+    // The authoritative size refusal must survive synchronous cleanup errors.
+  }
+}
+
+function cancelRequestReaderDetached(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  reason?: unknown
+): void {
+  try {
+    observeDetachedCancellation(reader.cancel(reason));
+  } catch {
+    // The authoritative size/abort verdict must survive cleanup errors.
+  }
+}
+
+function observeDetachedCancellation(
+  cancellation: Promise<void> | undefined
+): void {
+  void cancellation?.catch(() => undefined);
 }
 
 function isAbortSignal(value: AbortSignal | undefined): value is AbortSignal {

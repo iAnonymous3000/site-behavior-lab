@@ -153,6 +153,168 @@ test("durable rollout docs require isolated staging teardown before production a
   assert.match(envExample, /Do not enable it[\s\S]*isolated,[\s\S]*token-gated staging topology/i);
 });
 
+test("staging teardown docs preserve the exact hosted subject and post-candidate archive chronology", () => {
+  const goLive = source("docs/go-live-public-scanner.md");
+  const operator = source("docs/operator-evidence-capture.md");
+
+  for (const document of [goLive, operator]) {
+    assert.match(document, /research\/ops-evidence\/staging-teardown\.json/);
+    assert.match(document, /before\s+(?:selecting\s+)?candidate `C`/i);
+    assert.match(document, /after `C`/i);
+    assert.match(document, /(?:profile `staging-teardown`|`staging-teardown` profile)/i);
+    assert.match(document, /exactly one[\s\S]{0,80}`provider-capture`/i);
+    assert.match(document, /private provider[- ]responses?[\s\S]{0,100}(?:must )?never/i);
+  }
+  assert.match(operator, /copy the hosted receipt byte-for-byte/i);
+  assert.match(operator, /TEARDOWN_ARTIFACT_DIGEST/);
+  assert.match(operator, /cmp -s[\s\S]{0,180}TEARDOWN_RECEIPT_SHA256/);
+  assert.match(operator, /hosted-evidence-archive[\s\S]{0,100}change:\"added\"/);
+  assert.match(goLive, /do \*\*not\*\* merge a receipt carrier[\s\S]{0,160}flag-only child `F`/i);
+});
+
+test("operator docs distinguish landed code from remaining configuration work", () => {
+  const hosted = source("docs/hosted-evidence-provenance.md");
+  const calibrationChecklist = source(
+    "docs/calibration-prereg-drafts/operator-checklist.md"
+  );
+  const frameConstruction = source(
+    "docs/calibration-prereg-drafts/frame-construction.md"
+  );
+  const release = source("RELEASE.md");
+
+  assert.match(
+    hosted,
+    /staging teardown adapter `cloudflare-github-exact-v1` is implemented and\s+source-closed/i
+  );
+  assert.doesNotMatch(hosted, /fails closed\s+until its exact provider adapter/i);
+  assert.match(calibrationChecklist, /\[x\] CODE: assemble custody wiring is implemented/i);
+  assert.doesNotMatch(calibrationChecklist, /refuses at line 35 today/i);
+  assert.match(frameConstruction, /assemble custody wiring is already implemented and tested/i);
+  assert.doesNotMatch(frameConstruction, /same PR as the assemble custody wiring/i);
+  assert.match(
+    release,
+    /RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256=<receipt-sha256>[\s\\]*npm run release:readiness/
+  );
+});
+
+test("sensitive release and teardown inputs never enter shell history or linger on disk", () => {
+  const release = source("RELEASE.md");
+  const operator = source("docs/operator-evidence-capture.md");
+  const goLive = source("docs/go-live-public-scanner.md");
+
+  assert.doesNotMatch(
+    release,
+    /^\s*(?:GH_TOKEN|RELEASE_APP_JWT|PROMOTION_APP_JWT)=<[^>]+>/m
+  );
+  assert.match(release, /cleanup_release_governance_credentials\(\)/);
+  assert.match(release, /trap cleanup_release_governance_credentials EXIT/);
+  for (const name of [
+    "GH_TOKEN",
+    "RELEASE_APP_JWT",
+    "PROMOTION_APP_JWT"
+  ]) {
+    assert.match(release, new RegExp(`IFS= read -r -s ${name}`));
+  }
+  assert.match(release, /export GH_TOKEN RELEASE_APP_JWT PROMOTION_APP_JWT/);
+
+  assert.match(operator, /TEARDOWN_TARGET_DIR="\$\(mktemp -d/);
+  assert.match(operator, /chmod 0700 "\$TEARDOWN_TARGET_DIR"/);
+  assert.match(operator, /trap cleanup_staging_teardown_target EXIT/);
+  assert.match(operator, /rm -rf -- "\$TEARDOWN_TARGET_DIR"/);
+  assert.match(
+    operator,
+    /staging:teardown-targets --[\s\\]*--capture[\s\S]{0,400}--private-dir "\$TEARDOWN_TARGET_DIR\/provider-responses"/
+  );
+  assert.match(operator, /test ! -e "\$TEARDOWN_TARGET_DIR\/provider-responses"/);
+  assert.doesNotMatch(operator, /staging:teardown-targets` CLI does not query Cloudflare or GitHub/i);
+  assert.doesNotMatch(operator, /command "\$TEARDOWN_EDITOR"/);
+  for (const name of [
+    "STAGING_TEARDOWN_CAPTURE_CF_COMPUTE_READ_TOKEN_FILE",
+    "STAGING_TEARDOWN_CAPTURE_CF_DNS_READ_TOKEN_FILE",
+    "STAGING_TEARDOWN_CAPTURE_CF_R2_READ_TOKEN_FILE",
+    "STAGING_TEARDOWN_CAPTURE_CF_TOKEN_READ_TOKEN_FILE",
+    "STAGING_TEARDOWN_CAPTURE_CF_OBSERVATION_READ_TOKEN_FILE",
+    "STAGING_TEARDOWN_CAPTURE_GITHUB_APP_READ_TOKEN_FILE"
+  ]) {
+    assert.match(operator, new RegExp(name));
+  }
+  assert.match(operator, /repository \*\*Administration read\*\*/);
+  assert.match(operator, /full dedicated Advanced Certificate pack[\s\S]{0,240}nested certificate's id/);
+  assert.match(
+    operator,
+    /explicitly lists `default`, `eu`, and `fedramp`[\s\S]{0,100}`cf-r2-jurisdiction`/
+  );
+  assert.match(operator, /same-name nondefault bucket blocks the\s+ceremony/);
+  assert.match(operator, /`jobs` must be absent or exactly `false`/);
+  assert.doesNotMatch(operator, /`jobs` must be absent,/);
+  assert.doesNotMatch(operator, /application must omit `jobs`/i);
+  assert.match(
+    operator,
+    /TEARDOWN_TARGET_SHA256="\$\([\s\S]{0,500}--verify[\s\S]{0,500}jq -er/
+  );
+  assert.match(
+    operator,
+    /gh secret set STAGING_TEARDOWN_TARGETS_JSON[\s\S]{0,120}--env release-evidence[\s\S]{0,160}< "\$TEARDOWN_TARGET_DIR\/staging-teardown-targets\.sealed\.json"/
+  );
+  assert.match(
+    operator,
+    /gh variable set STAGING_TEARDOWN_TARGETS_SHA256[\s\S]{0,120}--body "\$TEARDOWN_TARGET_SHA256"/
+  );
+  assert.doesNotMatch(operator, /STAGING_TEARDOWN_TARGETS_JSON=/);
+  assert.match(
+    operator,
+    /Do not automate credential retirement inside the hosted teardown job/i
+  );
+  assert.match(operator, /partial attempt needs the same narrowly scoped authorities/i);
+  for (const name of [
+    "STAGING_TEARDOWN_CF_COMPUTE_TOKEN",
+    "STAGING_TEARDOWN_CF_DNS_TOKEN",
+    "STAGING_TEARDOWN_CF_R2_TOKEN",
+    "STAGING_TEARDOWN_CF_TOKEN_ADMIN_TOKEN",
+    "STAGING_TEARDOWN_CF_OBSERVATION_TOKEN",
+    "STAGING_TEARDOWN_RUNNER_APP_PRIVATE_KEY"
+  ]) {
+    assert.match(operator, new RegExp(`\\n  ${name}\\n`));
+  }
+  assert.match(operator, /gh secret delete "\$name" --env release-evidence/);
+  assert.match(operator, /gh variable delete "\$name" --env release-evidence/);
+  assert.match(operator, /gh secret list --env release-evidence --json name/);
+  assert.match(operator, /gh variable list --env release-evidence --json name/);
+  assert.match(operator, /name-only\s+absence readback/i);
+  assert.match(operator, /uninstall or disable[\s\S]{0,100}repository-only App installation/i);
+
+  assert.doesNotMatch(
+    goLive,
+    /(?:SMOKE_SCAN_ACCESS_TOKEN|DURABLE_REPLAY_ACCESS_TOKEN|DURABLE_REPLAY_FAULT_TOKEN)=<[^>]+>/
+  );
+  assert.match(goLive, /trap cleanup_durable_replay_credentials EXIT/);
+  const replayShaGuard = goLive.indexOf(
+    '[[ "$DURABLE_REPLAY_EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]'
+  );
+  const firstReplayReceiptPath = goLive.indexOf(
+    'LEASE_EXPIRY_RECEIPT="$DURABLE_REPLAY_RECEIPT_DIR/${DURABLE_REPLAY_EXPECTED_SHA}-lease-expiry.json"'
+  );
+  assert.ok(replayShaGuard >= 0);
+  assert.ok(
+    firstReplayReceiptPath > replayShaGuard,
+    "the exact replay-parent SHA must be validated before it enters a receipt path"
+  );
+  assert.match(
+    goLive,
+    /IFS= read -r -s DURABLE_REPLAY_ACCESS_TOKEN[\s\S]{0,180}IFS= read -r -s DURABLE_REPLAY_FAULT_TOKEN/
+  );
+  assert.match(
+    goLive,
+    /export DURABLE_REPLAY_ACCESS_TOKEN DURABLE_REPLAY_FAULT_TOKEN/
+  );
+  assert.match(
+    goLive,
+    /run_durable_replay lease-expiry "\$LEASE_EXPIRY_RECEIPT"[\s\S]{0,120}run_durable_replay lost-resolve "\$LOST_RESOLVE_RECEIPT"/
+  );
+  assert.match(goLive, /trap cleanup_scanner_smoke_token EXIT/);
+  assert.match(goLive, /IFS= read -r -s SMOKE_SCAN_ACCESS_TOKEN/);
+});
+
 test("measurement-freeze policy distinguishes stale proposals from the controlled collection lane", () => {
   const release = source("RELEASE.md");
 

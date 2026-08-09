@@ -1,45 +1,42 @@
-// The contract a staging-teardown provider adapter must satisfy, and the
-// orchestration that turns one into a sanitized transcript.
-//
-// WHAT THIS IS NOT: a provider adapter. No adapter is registered here, and
-// resolveStagingTeardownProviderAdapter refuses every kind. The executable
-// capture in scripts/staging-teardown-hosted-capture.mjs continues to refuse
-// unconditionally. Nothing in this file performs a network call, holds a
-// credential, or deletes a resource, and its presence must not be read as
-// operational readiness: the destructive credential scopes and the runner
-// authority this ceremony needs are unapproved.
-//
-// WHAT THIS IS: the seam. Every existing reviewed adapter in this repository is
-// read-only (the WAF lane takes Zone WAF Read plus Account Analytics Read; the
-// restart lane forbids Edit and Write outright). Staging teardown is the first
-// destructive one, so its shape should be settled, reviewed, and exercised
-// against fixtures BEFORE anyone provisions a token that can delete a Worker.
-// An injected adapter also means the whole pipeline runs in CI with no
-// credential at all, which is the only way this code is testable.
-//
-// The orchestration is deliberately ignorant of any provider. It asks the
-// adapter to observe, to remove what it observed present, and to observe again,
-// and it records what happened. It never infers absence from a failed removal,
-// and it never treats "nothing was there" as a teardown: an all-already-absent
-// transcript is refused downstream by staging-teardown-evidence-lib.mjs.
+// Provider-independent orchestration for the destructive staging teardown.
+// Network authority lives only in the two exact provider clients imported
+// below; the orchestrator first inventories the complete fixed contract, then
+// removes in dependency order, and finally inventories the complete contract
+// again. No mutation can begin if even one before-observation is malformed.
 
-/** Every resource kind the teardown contract can name. */
+import {
+  createCompositeStagingTeardownProviderAdapter,
+  STAGING_TEARDOWN_COMPOSITE_ADAPTER_KIND
+} from "./staging-teardown-provider-adapters.mjs";
+import { STAGING_RESOURCE_CONTRACT } from "./staging-teardown-evidence-lib.mjs";
+
 export const STAGING_TEARDOWN_ADAPTER_CAPABILITIES = Object.freeze([
   "observe",
   "remove"
 ]);
 
-/**
- * Adapter shape.
- *
- * @typedef {object} StagingTeardownProviderAdapter
- * @property {string} kind Provider identifier, recorded but never trusted.
- * @property {(logicalName: string) => Promise<{state: "present"|"absent", externalIds: string[], evidence: object}>} observe
- * @property {(logicalName: string, externalIds: string[]) => Promise<{evidence: object}>} remove
- */
+const FULL_SHA = /^[0-9a-f]{40}$/;
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const OPAQUE = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,511}$/;
 
 function requireValue(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function canonicalInstant(now, label) {
+  const raw = now();
+  const value = raw instanceof Date ? raw : new Date(raw);
+  requireValue(Number.isFinite(value.getTime()), `${label} clock value is invalid`);
+  const instant = value.toISOString();
+  requireValue(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(instant),
+    `${label} must be a millisecond-precision UTC instant`
+  );
+  return instant;
+}
+
+function requireMonotonic(previous, next, label) {
+  requireValue(Date.parse(next) >= Date.parse(previous), `${label} clock moved backwards`);
 }
 
 /** Validate an adapter's shape before any resource is touched. */
@@ -58,10 +55,55 @@ export function validateStagingTeardownProviderAdapter(adapter) {
       `staging teardown provider adapter must implement ${capability}()`
     );
   }
+  if (adapter.removalOrder !== undefined) {
+    requireValue(
+      Array.isArray(adapter.removalOrder) &&
+        adapter.removalOrder.length === STAGING_RESOURCE_CONTRACT.length &&
+        new Set(adapter.removalOrder).size === STAGING_RESOURCE_CONTRACT.length &&
+        STAGING_RESOURCE_CONTRACT.every((resource) => adapter.removalOrder.includes(resource.logicalName)),
+      "staging teardown adapter removalOrder must be an exact permutation of the fixed resource contract"
+    );
+  }
   return adapter;
 }
 
-function requireObservation(value, logicalName, phase) {
+function validateResources(resources) {
+  requireValue(
+    Array.isArray(resources) && resources.length === STAGING_RESOURCE_CONTRACT.length,
+    `the teardown ceremony must declare exactly ${STAGING_RESOURCE_CONTRACT.length} canonical resources`
+  );
+  for (const [index, expected] of STAGING_RESOURCE_CONTRACT.entries()) {
+    const resource = resources[index];
+    requireValue(
+      resource !== null && typeof resource === "object" &&
+        resource.kind === expected.kind &&
+        resource.logicalName === expected.logicalName &&
+        resource.removalDisposition === expected.removalDisposition,
+      `teardown resource ${index} must be exactly ${expected.kind}:${expected.logicalName}:${expected.removalDisposition}`
+    );
+  }
+  return resources;
+}
+
+function requireEvidence(value, logicalName, expectedKind, sessionId) {
+  requireValue(
+    value !== null && typeof value === "object" &&
+      Object.keys(value).sort().join(",") === "bytes,kind,sessionId" &&
+      value.kind === expectedKind && value.sessionId === sessionId &&
+      (typeof value.bytes === "string" || value.bytes instanceof Uint8Array),
+    `${logicalName} must carry exact ${expectedKind} evidence for this session`
+  );
+  const byteLength = typeof value.bytes === "string"
+    ? Buffer.byteLength(value.bytes, "utf8")
+    : value.bytes.byteLength;
+  requireValue(
+    byteLength >= 1 && byteLength <= 1024 * 1024,
+    `${logicalName} provider evidence must contain 1 through 1048576 bytes`
+  );
+  return value;
+}
+
+function requireObservation(value, logicalName, phase, sessionId) {
   requireValue(
     value !== null && typeof value === "object",
     `adapter ${phase} observation for ${logicalName} must be an object`
@@ -71,33 +113,28 @@ function requireObservation(value, logicalName, phase) {
     `adapter ${phase} observation for ${logicalName} must report present or absent`
   );
   requireValue(
-    Array.isArray(value.externalIds) && value.externalIds.every((id) => typeof id === "string"),
-    `adapter ${phase} observation for ${logicalName} must report string external ids`
+    Array.isArray(value.externalIds),
+    `adapter ${phase} observation for ${logicalName} must report external ids`
+  );
+  const sorted = [...value.externalIds].sort();
+  requireValue(
+    value.externalIds.every(
+      (id, index) => typeof id === "string" && OPAQUE.test(id) && id === sorted[index]
+    ) && new Set(value.externalIds).size === value.externalIds.length,
+    `adapter ${phase} observation for ${logicalName} external ids must be unique, sorted, bounded opaque strings`
   );
   requireValue(
-    value.evidence !== null && typeof value.evidence === "object",
-    `adapter ${phase} observation for ${logicalName} must carry provider evidence`
+    value.state === "present" ? value.externalIds.length >= 1 : value.externalIds.length === 0,
+    `adapter ${phase} observation for ${logicalName} external ids do not match its state`
   );
-  requireValue(
-    value.state === "present" || value.externalIds.length === 0,
-    `adapter ${phase} observation for ${logicalName} reported absent with external ids`
-  );
+  requireEvidence(value.evidence, logicalName, "provider-inventory-response", sessionId);
   return value;
 }
 
 /**
- * Run a teardown against an adapter and return the sanitized transcript shape
- * that staging-teardown-evidence-lib.mjs consumes.
- *
- * `resources` must be the FULL contract, every resource inventoried. That is
- * not in tension with letting a never-provisioned half be scoped out: the
- * inventory is how absence is proven, so a resource that was never deployed is
- * recorded as observed-absent rather than omitted. The downstream validator
- * (staging-teardown-evidence-lib.mjs) requires exactly
- * STAGING_RESOURCE_CONTRACT.length entries and would refuse a subset, and it
- * separately requires at least one resource observed present and removed, so a
- * transcript can neither shrink its scope nor claim a teardown it did not
- * perform.
+ * Inventory all twelve exact resources, remove present resources in the
+ * adapter's dependency order, and prove all twelve absent. The returned action
+ * array remains in the fixed evidence-contract order.
  */
 export async function runStagingTeardown({
   adapter,
@@ -107,22 +144,29 @@ export async function runStagingTeardown({
   now
 }) {
   validateStagingTeardownProviderAdapter(adapter);
-  requireValue(
-    Array.isArray(resources) && resources.length > 0,
-    "the teardown ceremony must declare at least one resource in scope"
-  );
-  requireValue(
-    new Set(resources.map((resource) => resource.logicalName)).size === resources.length,
-    "the teardown ceremony must not name a resource twice"
-  );
+  const exactResources = validateResources(resources);
   requireValue(typeof now === "function", "runStagingTeardown requires an injected clock");
+  requireValue(
+    typeof stagingSourceCommit === "string" && FULL_SHA.test(stagingSourceCommit),
+    "runStagingTeardown requires the exact lowercase staging source commit"
+  );
+  requireValue(
+    session !== null && typeof session === "object" &&
+      typeof session.id === "string" && UUID_V4.test(session.id),
+    "runStagingTeardown requires a canonical lowercase UUIDv4 session id"
+  );
 
+  const startedAt = canonicalInstant(now, "session.startedAt");
   const before = [];
-  for (const resource of resources) {
+  for (const resource of exactResources) {
     const observation = requireObservation(
-      await adapter.observe(resource.logicalName),
+      await adapter.observe(resource.logicalName, {
+        phase: "before",
+        sessionId: session.id
+      }),
       resource.logicalName,
-      "before"
+      "before",
+      session.id
     );
     before.push({
       kind: resource.kind,
@@ -132,49 +176,73 @@ export async function runStagingTeardown({
       evidenceArtifact: observation.evidence
     });
   }
+  requireValue(
+    before.some((resource) => resource.state === "present"),
+    "the complete before-inventory is already absent; refusing to claim or perform a teardown"
+  );
+  const inventoryBeforeAt = canonicalInstant(now, "session.inventoryBeforeAt");
+  requireMonotonic(startedAt, inventoryBeforeAt, "before inventory");
 
-  const actions = [];
-  for (const [index, resource] of resources.entries()) {
-    const observed = before[index];
+  const resourceByName = new Map(exactResources.map((resource) => [resource.logicalName, resource]));
+  const beforeByName = new Map(before.map((resource) => [resource.logicalName, resource]));
+  const removalOrder = adapter.removalOrder ?? exactResources.map((resource) => resource.logicalName);
+  const actionsByName = new Map();
+  let previousActionAt = inventoryBeforeAt;
+  for (const logicalName of removalOrder) {
+    const resource = resourceByName.get(logicalName);
+    const observed = beforeByName.get(logicalName);
     if (observed.state !== "present") {
-      // Never call remove() on something we did not observe. A removal of an
-      // absent resource returns success on most providers, which would let a
-      // transcript claim a teardown that never happened.
-      actions.push({
+      const completedAt = canonicalInstant(now, `${logicalName} already-absent action`);
+      requireMonotonic(previousActionAt, completedAt, `${logicalName} action`);
+      previousActionAt = completedAt;
+      actionsByName.set(logicalName, {
         kind: resource.kind,
-        logicalName: resource.logicalName,
+        logicalName,
         externalIds: [],
         disposition: "already-absent",
-        completedAt: now(),
+        completedAt,
         evidenceArtifact: observed.evidenceArtifact
       });
       continue;
     }
-    const removal = await adapter.remove(resource.logicalName, observed.externalIds);
+    const removal = await adapter.remove(logicalName, observed.externalIds, {
+      sessionId: session.id
+    });
     requireValue(
-      removal !== null && typeof removal === "object" && removal.evidence !== null &&
-        typeof removal.evidence === "object",
-      `adapter remove() for ${resource.logicalName} must carry provider evidence`
+      removal !== null && typeof removal === "object",
+      `adapter remove() for ${logicalName} must return an object`
     );
-    actions.push({
+    requireEvidence(
+      removal.evidence,
+      logicalName,
+      "provider-removal-response",
+      session.id
+    );
+    const completedAt = canonicalInstant(now, `${logicalName} removal action`);
+    requireMonotonic(previousActionAt, completedAt, `${logicalName} action`);
+    previousActionAt = completedAt;
+    actionsByName.set(logicalName, {
       kind: resource.kind,
-      logicalName: resource.logicalName,
+      logicalName,
       externalIds: observed.externalIds,
       disposition: resource.removalDisposition,
-      completedAt: now(),
+      completedAt,
       evidenceArtifact: removal.evidence
     });
   }
+  const actions = exactResources.map((resource) => actionsByName.get(resource.logicalName));
 
   const after = [];
-  for (const resource of resources) {
+  for (const resource of exactResources) {
     const observation = requireObservation(
-      await adapter.observe(resource.logicalName),
+      await adapter.observe(resource.logicalName, {
+        phase: "after",
+        sessionId: session.id
+      }),
       resource.logicalName,
-      "after"
+      "after",
+      session.id
     );
-    // The whole point of the second inventory: a removal call that returned
-    // success proves an API accepted a request, not that the resource is gone.
     requireValue(
       observation.state === "absent",
       `${resource.logicalName} is still present after teardown; the ceremony did not complete`
@@ -187,26 +255,39 @@ export async function runStagingTeardown({
       evidenceArtifact: observation.evidence
     });
   }
+  const inventoryAfterAt = canonicalInstant(now, "session.inventoryAfterAt");
+  const latestActionAt = actions.reduce(
+    (latest, action) => Date.parse(action.completedAt) > Date.parse(latest) ? action.completedAt : latest,
+    inventoryBeforeAt
+  );
+  requireMonotonic(latestActionAt, inventoryAfterAt, "after inventory");
+  const completedAt = canonicalInstant(now, "session.completedAt");
+  requireMonotonic(inventoryAfterAt, completedAt, "session completion");
 
+  const exactSession = {
+    id: session.id,
+    startedAt,
+    inventoryBeforeAt,
+    inventoryAfterAt,
+    completedAt
+  };
   return {
     stagingSourceCommit,
-    recordedAt: now(),
-    session,
+    recordedAt: completedAt,
+    session: exactSession,
     inventory: { before, actions, after }
   };
 }
 
-/**
- * Resolve a provider adapter by kind.
- *
- * Refuses every kind, by design and not by omission. Registering one is a
- * reviewed change that must arrive together with the approved destructive
- * credential scopes and the runner authority; until then the seam exists and
- * the capability does not.
- */
-export function resolveStagingTeardownProviderAdapter(kind) {
-  throw new Error(
-    `no reviewed staging teardown provider adapter is registered for ${String(kind)}; ` +
-      "the destructive credential scopes and runner authority this ceremony needs are unapproved"
+/** Resolve only the reviewed exact Cloudflare/GitHub composite. */
+export function resolveStagingTeardownProviderAdapter(kind, options) {
+  requireValue(
+    kind === STAGING_TEARDOWN_COMPOSITE_ADAPTER_KIND,
+    `unsupported staging teardown provider adapter kind ${String(kind)}`
   );
+  requireValue(
+    options !== null && typeof options === "object",
+    "exact staging teardown adapter options are required"
+  );
+  return createCompositeStagingTeardownProviderAdapter(options);
 }

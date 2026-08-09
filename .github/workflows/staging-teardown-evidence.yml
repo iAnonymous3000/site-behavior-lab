@@ -18,7 +18,12 @@ jobs:
       github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: release-evidence
-    timeout-minutes: 20
+    # The adapter exports and tests its conservative request-count and
+    # worst-case duration proof. This six-hour envelope must cover that checked
+    # provider bound plus the exported 30-minute checkout, install, compile,
+    # verification, and upload reserve; copied request totals here are not a
+    # second source of truth.
+    timeout-minutes: 360
     steps:
       - name: Require an isolated GitHub-hosted runner
         env:
@@ -53,13 +58,28 @@ jobs:
 
       - name: Capture, sanitize, and destroy private provider responses
         env:
-          STAGING_TEARDOWN_PROVIDER_KIND: ${{ vars.STAGING_TEARDOWN_PROVIDER_KIND || '' }}
-          STAGING_TEARDOWN_PROVIDER_API_TOKEN: ${{ secrets.STAGING_TEARDOWN_PROVIDER_API_TOKEN }}
+          STAGING_TEARDOWN_PROVIDER_KIND: ${{ vars.STAGING_TEARDOWN_PROVIDER_KIND }}
+          STAGING_TEARDOWN_TARGETS_JSON: ${{ secrets.STAGING_TEARDOWN_TARGETS_JSON }}
+          STAGING_TEARDOWN_TARGETS_SHA256: ${{ vars.STAGING_TEARDOWN_TARGETS_SHA256 }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          STAGING_TEARDOWN_CF_ZONE_ID: ${{ vars.STAGING_TEARDOWN_CF_ZONE_ID }}
+          STAGING_TEARDOWN_CF_COMPUTE_TOKEN: ${{ secrets.STAGING_TEARDOWN_CF_COMPUTE_TOKEN }}
+          STAGING_TEARDOWN_CF_DNS_TOKEN: ${{ secrets.STAGING_TEARDOWN_CF_DNS_TOKEN }}
+          STAGING_TEARDOWN_CF_R2_TOKEN: ${{ secrets.STAGING_TEARDOWN_CF_R2_TOKEN }}
+          STAGING_TEARDOWN_CF_TOKEN_ADMIN_TOKEN: ${{ secrets.STAGING_TEARDOWN_CF_TOKEN_ADMIN_TOKEN }}
+          STAGING_TEARDOWN_CF_OBSERVATION_TOKEN: ${{ secrets.STAGING_TEARDOWN_CF_OBSERVATION_TOKEN }}
+          # The capture code signs a bounded App JWT and refreshes the exact
+          # repository-only Administration-write installation token before
+          # expiry, so this long-running ceremony never relies on one 1h token.
+          STAGING_TEARDOWN_RUNNER_APP_CLIENT_ID: ${{ vars.STAGING_TEARDOWN_RUNNER_APP_CLIENT_ID }}
+          STAGING_TEARDOWN_RUNNER_APP_PRIVATE_KEY: ${{ secrets.STAGING_TEARDOWN_RUNNER_APP_PRIVATE_KEY }}
         run: |
           set -euo pipefail
           node scripts/staging-teardown-hosted-capture.mjs \
             --capture \
-            --output-dir "$RUNNER_TEMP/staging-teardown-safe"
+            --candidate-commit "$GITHUB_SHA" \
+            --output-dir "$RUNNER_TEMP/staging-teardown-safe" \
+            --private-dir "$RUNNER_TEMP/staging-teardown-private"
           node scripts/staging-teardown-hosted-capture.mjs \
             --verify \
             --directory "$RUNNER_TEMP/staging-teardown-safe"

@@ -43,6 +43,7 @@ export async function buildReleaseEvidence({
   env = process.env,
   staticDir,
   containerImage,
+  releaseTagGovernanceReceiptSha256,
   dockerBin = env.DOCKER_BIN?.trim() || "docker"
 } = {}) {
   const root = realpathSync(path.resolve(cwd));
@@ -77,9 +78,22 @@ export async function buildReleaseEvidence({
       : null;
   release.tagExists = taggedCommit !== null;
   release.evidencesReleaseCommit = taggedCommit !== null && taggedCommit === commit;
+  if (
+    releaseTagGovernanceReceiptSha256 !== undefined &&
+    (typeof releaseTagGovernanceReceiptSha256 !== "string" ||
+      !SHA256.test(releaseTagGovernanceReceiptSha256))
+  ) {
+    throw new Error(
+      "--release-tag-governance-receipt-sha256 must be one lowercase sha256"
+    );
+  }
+  const governanceBound = releaseTagGovernanceReceiptSha256 !== undefined;
   const evidence = {
-    schemaVersion: 1,
+    schemaVersion: governanceBound ? 2 : 1,
     evidenceKind: "exact-source-and-tested-artifact-manifest",
+    ...(governanceBound
+      ? { releaseTagGovernanceReceiptSha256 }
+      : {}),
     release,
     source: {
       repository: release.repository,
@@ -572,7 +586,14 @@ function parseArgs(argv) {
   const options = {};
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
-    if (!["--static-dir", "--container-image", "--output"].includes(flag)) {
+    if (
+      ![
+        "--static-dir",
+        "--container-image",
+        "--release-tag-governance-receipt-sha256",
+        "--output"
+      ].includes(flag)
+    ) {
       throw new Error(`Unknown argument: ${flag}`);
     }
     if (options[flag]) throw new Error(`${flag} may only be provided once`);
@@ -584,13 +605,24 @@ function parseArgs(argv) {
   return {
     staticDir: options["--static-dir"],
     containerImage: options["--container-image"],
+    releaseTagGovernanceReceiptSha256:
+      options["--release-tag-governance-receipt-sha256"],
     output: options["--output"]
   };
 }
 
 async function runCli() {
-  const { staticDir, containerImage, output } = parseArgs(process.argv.slice(2));
-  const evidence = await buildReleaseEvidence({ staticDir, containerImage });
+  const {
+    staticDir,
+    containerImage,
+    releaseTagGovernanceReceiptSha256,
+    output
+  } = parseArgs(process.argv.slice(2));
+  const evidence = await buildReleaseEvidence({
+    staticDir,
+    containerImage,
+    releaseTagGovernanceReceiptSha256
+  });
   const serialized = `${JSON.stringify(evidence, null, 2)}\n`;
   const receiptSha256 = sha256(serialized);
   if (!output) {

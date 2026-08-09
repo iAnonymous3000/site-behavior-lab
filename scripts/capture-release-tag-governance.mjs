@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -8,6 +9,8 @@ import {
   IMMUTABLE_TAG_RULESET_ID,
   PRODUCTION_EVIDENCE_RULESET_ID,
   PRODUCTION_UPDATER_RULESET_ID,
+  RELEASE_TAG_GOVERNANCE_RECEIPT_DIRECTORY,
+  releaseTagGovernanceReceiptPath,
   releaseTagGovernanceReceiptSha256,
   serializeReleaseTagGovernanceReceipt
 } from "./release-tag-governance-receipt-lib.mjs";
@@ -24,8 +27,7 @@ function usage() {
     "  --promotion-app-client-id <client-id>",
     "  --promotion-app-integration-id <numeric-id>",
     "  --promotion-app-slug <slug>",
-    "  --creation-ruleset-id <numeric-id>",
-    "  --output <new-file>"
+    "  --creation-ruleset-id <numeric-id>"
   ].join(" ");
 }
 
@@ -38,8 +40,7 @@ function parseArgs(argv) {
     "--promotion-app-client-id",
     "--promotion-app-integration-id",
     "--promotion-app-slug",
-    "--creation-ruleset-id",
-    "--output"
+    "--creation-ruleset-id"
   ]);
   const values = {};
   for (let index = 0; index < argv.length; index += 2) {
@@ -345,11 +346,15 @@ async function main() {
     )
   });
   const bytes = serializeReleaseTagGovernanceReceipt(receipt);
-  await writeExclusive(options["--output"], bytes);
+  const digest = releaseTagGovernanceReceiptSha256(receipt);
+  const relativeOutput = releaseTagGovernanceReceiptPath(digest);
+  mkdirSync(path.join(rootDir, RELEASE_TAG_GOVERNANCE_RECEIPT_DIRECTORY), {
+    recursive: true,
+    mode: 0o700
+  });
+  await writeExclusive(relativeOutput, bytes, 0o600, rootDir);
   console.log(
-    `Captured full-bypass governance receipt; set RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256=${releaseTagGovernanceReceiptSha256(
-      receipt
-    )}`
+    `Captured ${relativeOutput}; set RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256=${digest}`
   );
 }
 

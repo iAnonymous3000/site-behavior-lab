@@ -485,6 +485,71 @@ test("readRequestBodyWithinLimit caps chunked bodies mid-stream and cancels the 
   assert.ok(chunksServed <= 3, `served ${chunksServed} chunks; the cap must stop the read early`);
 });
 
+test("readRequestBodyWithinLimit retains one fixed buffer across empty and tiny chunks", async () => {
+  const emptyChunks = 50_000;
+  const expectedBytes = 256;
+  let reads = 0;
+  const reader = {
+    async read() {
+      if (reads < emptyChunks) {
+        reads += 1;
+        return { done: false as const, value: new Uint8Array() };
+      }
+      if (reads < emptyChunks + expectedBytes) {
+        reads += 1;
+        return { done: false as const, value: Uint8Array.of(120) };
+      }
+      return { done: true as const, value: undefined };
+    },
+    cancel() {
+      return Promise.resolve();
+    },
+    releaseLock() {}
+  };
+  const requestLike = {
+    headers: new Headers(),
+    body: { getReader: () => reader }
+  } as unknown as Request;
+
+  assert.equal(
+    await readRequestBodyWithinLimit(requestLike, expectedBytes),
+    "x".repeat(expectedBytes)
+  );
+  assert.equal(reads, emptyChunks + expectedBytes);
+  const source = readFileSync(
+    path.join(process.cwd(), "lib", "edge-scan-gate.ts"),
+    "utf8"
+  );
+  assert.match(source, /const bytes = new Uint8Array\(maxBytes\)/);
+  assert.doesNotMatch(source, /const chunks: Uint8Array\[\]/);
+});
+
+test("readRequestBodyWithinLimit keeps over-cap refusal authoritative across hostile cleanup", async () => {
+  let cancelled = false;
+  const reader = {
+    async read() {
+      return { done: false as const, value: new Uint8Array(11) };
+    },
+    cancel() {
+      cancelled = true;
+      return new Promise<void>(() => undefined);
+    },
+    releaseLock() {
+      throw new Error("hostile releaseLock");
+    }
+  };
+  const requestLike = {
+    headers: new Headers(),
+    body: { getReader: () => reader }
+  } as unknown as Request;
+
+  assert.equal(
+    await settleWithin(readRequestBodyWithinLimit(requestLike, 10)),
+    null
+  );
+  assert.equal(cancelled, true);
+});
+
 test("readRequestBodyWithinLimit accepts a body at exactly the cap and treats no body as empty", async () => {
   const exact = "a".repeat(64);
   const request = new Request("https://scanner.example/api/scan", { method: "POST", body: exact });

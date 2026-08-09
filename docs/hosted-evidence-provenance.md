@@ -213,9 +213,18 @@ Keep the exact production account id in the environment variable
 or user permissions: this token lists the fixed application and its instances
 and cannot initiate the restart.
 
-The staging teardown workflow still fails closed
-until its exact provider adapter and scoped credential are reviewed. The
-controlled-runner destruction workflow likewise remains red until a runner VM
+The staging teardown adapter `cloudflare-github-exact-v1` is implemented and
+source-closed. Its workflow still fails closed unless the protected
+`release-evidence` environment supplies the reviewed exact target manifest,
+account and zone bindings, required reviewer approval, and the approved scoped
+Cloudflare and repository-only GitHub App credentials. That is an operational
+approval and configuration blocker, not a missing-adapter blocker. The
+schema-v2 safe receipt and sanitized manifest both retain only
+`targetManifestSha256`, the nonsecret binding to the canonical target bytes
+validated before the first provider request. The raw
+`STAGING_TEARDOWN_TARGETS_JSON` value is never copied into either safe
+artifact and is not archived. The controlled-runner destruction workflow
+likewise remains red until a runner VM
 provider is selected. A caller-supplied URL, transcript, or digest is not a
 substitute. These remaining red workflows are operational blockers, not
 permission to accept self-authored evidence.

@@ -13,7 +13,8 @@ import {
   anchorFromCalendarTimestamp,
   digestHexToBytes,
   inspectOtsProof,
-  proofMentionsCalendar
+  proofMentionsCalendar,
+  readBoundedCalendarResponse
 } from "./transparency-log-anchoring";
 import { acquireReportCorpusLock } from "./report-corpus-lock";
 import { TRANSPARENCY_LOG_JSON_MAX_BYTES } from "./report-resource-limits";
@@ -161,36 +162,18 @@ async function submitDigest(calendar: string, headHex: string): Promise<Uint8Arr
     redirect: "error"
   });
   if (!response.ok) {
-    await response.body?.cancel().catch(() => undefined);
+    cancelResponseBodyDetached(response);
     throw new Error(`calendar answered HTTP ${response.status}`);
   }
-  return readBounded(response, MAX_CALENDAR_RESPONSE_BYTES);
+  return readBoundedCalendarResponse(response, MAX_CALENDAR_RESPONSE_BYTES);
 }
 
-/** Byte-capped body read; a calendar reply is a few hundred bytes, never more. */
-async function readBounded(response: Response, maxBytes: number): Promise<Uint8Array> {
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error("calendar reply had no body");
-  const chunks: Uint8Array[] = [];
-  let total = 0;
+function cancelResponseBodyDetached(response: Response): void {
   try {
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      total += value.byteLength;
-      if (total > maxBytes) throw new Error("calendar reply exceeded the timestamp size ceiling");
-      chunks.push(value);
-    }
-  } finally {
-    await reader.cancel().catch(() => undefined);
+    void response.body?.cancel().catch(() => undefined);
+  } catch {
+    // The HTTP refusal remains authoritative if cleanup is hostile.
   }
-  const joined = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    joined.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return joined;
 }
 
 function reportStatus(log: ParsedTransparencyLog): void {

@@ -1,7 +1,13 @@
 // @ts-nocheck
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync
+} from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { before, test } from "node:test";
 import { pathToFileURL } from "node:url";
@@ -697,6 +703,175 @@ test("the reviewed eight-day REST projection leaves enforced App-token headroom"
       }),
     /deepRunCount must be/
   );
+
+  const timeoutSlots =
+    collector.projectedDurableSoakNetworkTimeoutSlots({
+      workflowPageCount: 10,
+      deepRunCount: 193,
+      deepAttemptCount: 200
+    });
+  assert.equal(timeoutSlots, 43);
+  assert.equal(
+    timeoutSlots,
+    collector.DURABLE_SOAK_MAXIMUM_NETWORK_TIMEOUT_SLOTS
+  );
+  assert.equal(collector.DURABLE_SOAK_MAX_CONCURRENT_REQUESTS, 32);
+  assert.equal(collector.DURABLE_SOAK_MAX_ARTIFACT_REDIRECTS, 1);
+  assert.equal(collector.DURABLE_SOAK_REQUEST_TIMEOUT_MS, 60_000);
+  assert.equal(
+    collector.DURABLE_SOAK_COLLECTION_DEADLINE_MINUTES,
+    45
+  );
+  assert.equal(collector.DURABLE_SOAK_WORKFLOW_TIMEOUT_MINUTES, 60);
+  assert.equal(
+    collector.DURABLE_SOAK_NON_COLLECTION_RESERVE_MINUTES,
+    15
+  );
+  assert.ok(
+    timeoutSlots * collector.DURABLE_SOAK_REQUEST_TIMEOUT_MS <
+      collector.DURABLE_SOAK_COLLECTION_DEADLINE_MINUTES * 60_000
+  );
+});
+
+test("bounded concurrent collection preserves order and cancels a failed phase", async () => {
+  let active = 0;
+  let maximumActive = 0;
+  const ordered = await collector.mapDurableSoakConcurrent(
+    Array.from({ length: 97 }, (_, index) => index),
+    async (value: number) => {
+      active += 1;
+      maximumActive = Math.max(maximumActive, active);
+      await new Promise((resolve) => setImmediate(resolve));
+      active -= 1;
+      return `result-${value}`;
+    }
+  );
+  assert.equal(maximumActive, 32);
+  assert.deepEqual(
+    ordered,
+    Array.from({ length: 97 }, (_, index) => `result-${index}`)
+  );
+
+  let cancelled = 0;
+  await assert.rejects(
+    () =>
+      collector.mapDurableSoakConcurrent(
+        ["waiting-a", "failure", "waiting-b"],
+        async (
+          value: string,
+          _index: number,
+          signal: AbortSignal
+        ) => {
+          if (value === "failure") {
+            await new Promise((resolve) => setImmediate(resolve));
+            throw new Error("fixture phase failure");
+          }
+          await new Promise((_resolve, reject) => {
+            signal.addEventListener(
+              "abort",
+              () => {
+                cancelled += 1;
+                reject(signal.reason);
+              },
+              { once: true }
+            );
+          });
+        },
+        3
+      ),
+    /fixture phase failure/
+  );
+  assert.equal(cancelled, 2);
+
+  let rejectedNull = false;
+  try {
+    await collector.mapDurableSoakConcurrent(["fixture"], async () => {
+      throw null;
+    });
+  } catch (error) {
+    rejectedNull = true;
+    assert.equal(error, null);
+  }
+  assert.equal(rejectedNull, true);
+});
+
+test("the authoritative post-fetch deadline refuses output before the timer callback runs", () => {
+  let nowMs = 1_000;
+  const dormantTimer = new AbortController();
+  const control = collector.createDurableSoakCollectionControl({
+    deadlineMs: 10,
+    now: () => nowMs,
+    // Model synchronous post-fetch CPU work: wall time reaches the fixed
+    // deadline before the event loop can deliver AbortSignal.timeout.
+    signal: dormantTimer.signal
+  });
+  assert.equal(control.signal.aborted, false);
+  control.assertActive("fixture post-fetch processing");
+
+  const deliveredTimer = new AbortController();
+  const deliveredControl = collector.createDurableSoakCollectionControl({
+    deadlineMs: 10,
+    now: () => nowMs,
+    signal: deliveredTimer.signal
+  });
+  deliveredTimer.abort(new Error("fixture timer fired"));
+  assert.throws(
+    () => deliveredControl.assertActive("fixture timer delivery"),
+    /collection deadline expired before fixture timer delivery/
+  );
+
+  const parent = mkdtempSync(
+    path.join(tmpdir(), "durable-soak-deadline-")
+  );
+  const output = path.join(parent, "ledger");
+  try {
+    nowMs = control.deadlineAtMs;
+    assert.equal(control.signal.aborted, false);
+    assert.throws(
+      () =>
+        collector.createDurableSoakOutputDirectoryWithinDeadline(
+          output,
+          control
+        ),
+      /collection deadline expired before output creation/
+    );
+    assert.equal(
+      existsSync(output),
+      false,
+      "an expired post-fetch collection must create no output directory"
+    );
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("declared artifact sizes refuse an impossible set before any download starts", async () => {
+  let downloadStarts = 0;
+  await assert.rejects(
+    () =>
+      collector.mapDurableSoakDownloads({
+        selections: [60, 40].map((sizeBytes, index) => ({
+          identity: { sizeBytes },
+          runId: 70000000 + index,
+          attempt: 1
+        })),
+        retainedBytes: 0,
+        maximumBytes: 100,
+        download: async () => {
+          downloadStarts += 1;
+          return {
+            archiveBytes: Buffer.alloc(1),
+            healthBytes: Buffer.alloc(1)
+          };
+        }
+      }),
+    /declared artifact ZIP bytes cannot fit/
+  );
+  assert.equal(downloadStarts, 0);
+  assert.equal(
+    collector.DURABLE_SOAK_OUTPUT_LIMIT_BYTES,
+    48 * 1024 * 1024
+  );
 });
 
 test("workflows pin exact lane names and an Actions-read App token with no native-token fallback", () => {
@@ -723,6 +898,42 @@ test("workflows pin exact lane names and an Actions-read App token with no nativ
     ),
     "utf8"
   );
+  const cleanCheckoutBootstrap = [
+    "- name: Checkout the exact protected-main monitor",
+    "- name: Use the exact Node toolchain",
+    "- name: Verify exact Node and npm runtime",
+    "- name: Install the lockfile dependency graph",
+    "- name: Compile the shared canonical evidence serializer",
+    "- name: Mint repository-only Actions read token",
+    "- name: Collect and rederive the bounded hourly ledger"
+  ].map((marker) => monitor.indexOf(marker));
+  assert.equal(
+    cleanCheckoutBootstrap.every((index) => index >= 0),
+    true,
+    "the monitor must bootstrap every clean-checkout prerequisite"
+  );
+  assert.deepEqual(
+    cleanCheckoutBootstrap,
+    [...cleanCheckoutBootstrap].sort((left, right) => left - right),
+    "the monitor must install and compile before minting a token or collecting evidence"
+  );
+  const bootstrap = monitor.slice(
+    cleanCheckoutBootstrap[0],
+    cleanCheckoutBootstrap.at(-2)
+  );
+  assert.match(bootstrap, /node-version: 24\.14\.1\n\s+cache: npm/);
+  assert.match(
+    bootstrap,
+    /test "\$\(node --version\)" = "v24\.14\.1"[\s\S]*test "\$\(npm --version\)" = "11\.11\.0"/
+  );
+  assert.match(
+    bootstrap,
+    /- name: Install the lockfile dependency graph\n\s+run: npm ci --ignore-scripts/
+  );
+  assert.match(
+    bootstrap,
+    /- name: Compile the shared canonical evidence serializer\n\s+run: npm run build:schema/
+  );
   assert.match(
     monitor,
     /actions\/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3\.2\.0/
@@ -743,6 +954,19 @@ test("workflows pin exact lane names and an Actions-read App token with no nativ
   );
   assert.doesNotMatch(monitor, /\$\{\{ github\.token \}\}/);
   assert.doesNotMatch(monitor, /GITHUB_TOKEN:/);
+  assert.match(monitor, /timeout-minutes: 60/);
+  assert.match(
+    monitor,
+    /45-minute global API deadline[\s\S]*15 minutes for bootstrap, derivation, and artifact upload/
+  );
+  assert.match(
+    monitor,
+    /NETWORK_TIMEOUT_SLOTS: \$\{\{ steps\.ledger\.outputs\.network_timeout_slots \}\}/
+  );
+  assert.match(
+    monitor,
+    /MAX_CONCURRENT_REQUESTS: \$\{\{ steps\.ledger\.outputs\.max_concurrent_requests \}\}/
+  );
 
   const collectorSource = readFileSync(
     path.join(
@@ -754,6 +978,22 @@ test("workflows pin exact lane names and an Actions-read App token with no nativ
   assert.match(
     collectorSource,
     /DURABLE_SOAK_REST_REQUEST_CAP = 750/
+  );
+  assert.match(
+    collectorSource,
+    /DURABLE_SOAK_MAX_CONCURRENT_REQUESTS = 32/
+  );
+  assert.match(
+    collectorSource,
+    /DURABLE_SOAK_COLLECTION_DEADLINE_MINUTES = 45/
+  );
+  assert.match(
+    collectorSource,
+    /const bytes = await githubApi\([\s\S]*collectionControl\.assertActive\("provider response processing"\)/
+  );
+  assert.match(
+    collectorSource,
+    /createDurableSoakOutputDirectoryWithinDeadline\(\s*options\.outputDirectory,\s*collectionControl\s*\)/
   );
   assert.doesNotMatch(
     collectorSource,
