@@ -49,6 +49,7 @@ import {
 import { PRIVACY_SAFE_OBSERVABILITY_PATH } from "../lib/privacy-safe-observability";
 import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay";
 import { forwardContainerResponseWithinDeadline } from "../lib/container-forward-response";
+import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
 import { toPublicError } from "../lib/public-errors";
 import { parsePublicReportReadPath } from "../lib/report-read-edge";
 import {
@@ -561,7 +562,7 @@ export class ScannerContainer extends Container<Env> {
   // container process. Reports go to R2 because container disk is ephemeral.
   override envVars = {
     SITE_BEHAVIOR_LAB_REPORT_STORE_BACKEND: "r2",
-    SITE_BEHAVIOR_LAB_R2_BUCKET: this.env.SITE_BEHAVIOR_LAB_R2_BUCKET ?? "site-behavior-lab-reports",
+    SITE_BEHAVIOR_LAB_R2_BUCKET: requireContainerR2Bucket(this.env.SITE_BEHAVIOR_LAB_R2_BUCKET),
     SITE_BEHAVIOR_LAB_R2_PREFIX: this.env.SITE_BEHAVIOR_LAB_R2_PREFIX ?? "reports/",
     SITE_BEHAVIOR_LAB_SCANNER_EGRESS: "cloudflare-containers",
     // This Worker is the only ingress and rewrites x-real-ip from the trusted

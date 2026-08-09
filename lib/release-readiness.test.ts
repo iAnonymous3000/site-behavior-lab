@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  unlinkSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -22,6 +29,153 @@ const nativeImport = new Function("specifier", "return import(specifier)") as (
 
 function script(name: string) {
   return nativeImport(pathToFileURL(path.join(process.cwd(), "scripts", name)).href);
+}
+
+const RELEASE_GOVERNANCE_REPOSITORY =
+  "iAnonymous3000/site-behavior-lab";
+
+async function releaseGovernanceFixture(
+  repository = RELEASE_GOVERNANCE_REPOSITORY
+) {
+  const governanceLib = await script(
+    "release-tag-governance-receipt-lib.mjs"
+  );
+  const owner = repository.split("/")[0];
+  const capturedAt = "2026-08-01T01:02:03.000Z";
+  const releaseApp = {
+    clientId: "Iv23releaseclient123",
+    integrationId: 111,
+    slug: "site-behavior-release",
+    permissions: { contents: "write", metadata: "read" },
+    events: [],
+    installation: {
+      id: 1111,
+      accountLogin: owner,
+      accountType: "User",
+      repositorySelection: "selected",
+      proofKind: "app-jwt-full-installation-repository-enumeration",
+      repositories: [repository]
+    }
+  };
+  const promotionApp = {
+    clientId: "Iv23promotionclient1",
+    integrationId: 222,
+    slug: "site-behavior-promotion",
+    permissions: { contents: "write", metadata: "read" },
+    events: [],
+    installation: {
+      id: 2222,
+      accountLogin: owner,
+      accountType: "User",
+      repositorySelection: "selected",
+      proofKind: "app-jwt-full-installation-repository-enumeration",
+      repositories: [repository]
+    }
+  };
+  const ruleset = (overrides: Record<string, unknown> = {}) => ({
+    id: 1,
+    name: "fixture",
+    target: "branch",
+    source_type: "Repository",
+    source: repository,
+    enforcement: "active",
+    conditions: {
+      ref_name: { exclude: [], include: ["refs/heads/production"] }
+    },
+    rules: [{ type: "non_fast_forward" }],
+    created_at: "2026-08-01T00:00:00Z",
+    updated_at: "2026-08-01T01:00:00Z",
+    bypass_actors: [],
+    ...overrides
+  });
+  const requiredJobs = JSON.parse(
+    readFileSync(
+      path.join(process.cwd(), ".github", "required-ci-jobs.json"),
+      "utf8"
+    )
+  ).jobs as string[];
+  const receipt = governanceLib.buildReleaseTagGovernanceReceipt({
+    repository,
+    capturedAt,
+    releaseApp,
+    promotionApp,
+    secretScope: {
+      name: "RELEASE_APP_PRIVATE_KEY",
+      observedAt: capturedAt,
+      scopeKind: "point-in-time-name-inventory",
+      environment: "release-tag",
+      environmentPresent: true,
+      repositoryPresent: false,
+      ownerLogin: owner,
+      ownerType: "User",
+      organizationPresent: null
+    },
+    immutableTags: ruleset({
+      id: 20050122,
+      name: "Protect immutable release tags",
+      target: "tag",
+      conditions: {
+        ref_name: { exclude: [], include: ["refs/tags/v*"] }
+      },
+      rules: [{ type: "deletion" }, { type: "update" }]
+    }),
+    tagCreation: ruleset({
+      id: 20060001,
+      name: "Restrict release tag creation",
+      target: "tag",
+      conditions: {
+        ref_name: { exclude: [], include: ["refs/tags/v*"] }
+      },
+      rules: [{ type: "creation" }],
+      bypass_actors: [
+        {
+          actor_id: releaseApp.integrationId,
+          actor_type: "Integration",
+          bypass_mode: "always"
+        }
+      ]
+    }),
+    productionEvidence: ruleset({
+      id: 20050303,
+      name: "Protect production evidence",
+      rules: [
+        { type: "deletion" },
+        { type: "non_fast_forward" },
+        { type: "required_linear_history" },
+        {
+          type: "required_status_checks",
+          parameters: {
+            do_not_enforce_on_create: false,
+            required_status_checks: requiredJobs.map((context) => ({
+              context,
+              integration_id: 15368
+            })),
+            strict_required_status_checks_policy: false
+          }
+        }
+      ]
+    }),
+    productionUpdater: ruleset({
+      id: 20050309,
+      name: "Restrict production updates to promoter App",
+      rules: [{ type: "update" }],
+      bypass_actors: [
+        {
+          actor_id: promotionApp.integrationId,
+          actor_type: "Integration",
+          bypass_mode: "always"
+        }
+      ]
+    })
+  });
+  const bytes = governanceLib.serializeReleaseTagGovernanceReceipt(receipt);
+  const digest = createHash("sha256").update(bytes).digest("hex");
+  return {
+    receipt,
+    bytes,
+    digest,
+    path: governanceLib.releaseTagGovernanceReceiptPath(digest)
+  };
 }
 
 function testGit(root: string, args: string[], env: Record<string, string> = {}) {
@@ -119,15 +273,15 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   };
   assert.equal(
     releaseGovernance.reasons.some((reason) =>
-      /release-tag-governance\.json does not exist/.test(reason)
+      /RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 must select/.test(reason)
     ),
     true
   );
   assert.equal(
     releaseGovernance.reasons.some((reason) =>
-      /deprecated promotion App-id fallback/.test(reason)
+      /does not preserve the exclusive promotion App client-id\/App-id migration path/.test(reason)
     ),
-    true
+    false
   );
 
   // Pin the governed decision set: deleting a decision must stay visible.
@@ -139,6 +293,15 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
     manifest.gates["release-tag-governance"].maxAgeDays,
     1,
     "release governance secret-scope capture must expire after one day"
+  );
+  assert.deepEqual(manifest.gates["release-tag-governance"].digestBinding, {
+    kind: "github-actions-prepare-snapshot",
+    name: "RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"
+  });
+  assert.equal(
+    manifest.gates["runner-cycles"].expectedEnvironment,
+    null,
+    "the candidate cannot invent the not-yet-reviewed controlled runner environment"
   );
   assert.deepEqual(Object.keys(manifest.decisions).sort(), [...EXPECTED_DECISIONS].sort());
   assert.deepEqual(
@@ -749,6 +912,33 @@ async function syntheticWorld(root: string) {
   // Build a real miniature source commit and annotated tag. The archive gate
   // must prove the committed receipt against Git history, not just recognize a
   // receipt-shaped JSON object.
+  const governance = await releaseGovernanceFixture();
+  const governanceAbsolute = path.join(
+    root,
+    ...governance.path.split("/")
+  );
+  mkdirSync(path.dirname(governanceAbsolute), { recursive: true });
+  writeFileSync(governanceAbsolute, governance.bytes);
+  const measurementBindingPath = path.join(
+    root,
+    "research",
+    "measurement-candidate-binding.json"
+  );
+  writeFileSync(
+    measurementBindingPath,
+    JSON.stringify({
+      repository: RELEASE_GOVERNANCE_REPOSITORY,
+      targetRelease: "1.0.0",
+      evidence: [
+        {
+          category: "release-tag-governance-receipt",
+          path: governance.path,
+          change: "added",
+          sha256: governance.digest
+        }
+      ]
+    })
+  );
   const sourceInputBytes = {
     packageLock: { path: "package-lock.json", bytes: "{\"lockfileVersion\":3}\n" },
     dockerfile: { path: "Dockerfile", bytes: "FROM scratch\n" },
@@ -761,7 +951,12 @@ async function syntheticWorld(root: string) {
   testGit(root, ["init", "-q"]);
   testGit(root, ["config", "user.name", "Synthetic Release"]);
   testGit(root, ["config", "user.email", "release@example.test"]);
-  testGit(root, ["add", ...Object.values(sourceInputBytes).map((input) => input.path)]);
+  testGit(root, [
+    "add",
+    ...Object.values(sourceInputBytes).map((input) => input.path),
+    governance.path,
+    "research/measurement-candidate-binding.json"
+  ]);
   const releaseGitEnv = {
     GIT_AUTHOR_DATE: "2026-08-01T00:00:00Z",
     GIT_COMMITTER_DATE: "2026-08-01T00:00:00Z"
@@ -904,7 +1099,11 @@ async function syntheticWorld(root: string) {
         kind: "runner-receipts",
         title: "runner",
         directory: "research/runner-receipts",
-        minimumReceipts: 2
+        minimumReceipts: 2,
+        expectedEnvironment:
+          runnerReceiptLib.runnerDestructionEnvironmentTuple(
+            runnerReceipt(1)
+          )
       },
       "r2-lifecycle": {
         kind: "lifecycle-receipt",
@@ -935,6 +1134,97 @@ test("a fully evidenced synthetic world is READY", async () => {
       ready.ready,
       true,
       JSON.stringify(ready.gates.filter((gate: { status: string }) => gate.status !== "pass"))
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("release readiness derives the runner environment pin and rejects drift end to end", async () => {
+  const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
+  const {
+    runnerDestructionEnvironmentTuple,
+    serializeRunnerDestructionReceipt
+  } = await script("runner-receipt-lib.mjs");
+  const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-runner-pin-"));
+  try {
+    const receiptDirectory = path.join(root, "research", "runner-receipts");
+    mkdirSync(receiptDirectory, { recursive: true });
+    for (const runId of [1, 2]) {
+      writeFileSync(
+        path.join(receiptDirectory, `${runId}.json`),
+        serializeRunnerDestructionReceipt(runnerReceipt(runId))
+      );
+    }
+    const expectedEnvironment =
+      runnerDestructionEnvironmentTuple(runnerReceipt(1));
+    const manifest = {
+      schemaVersion: 1,
+      artifactKind: "site-behavior-release-readiness-manifest",
+      targetRelease: "1.0.0",
+      gates: {
+        "runner-cycles": {
+          kind: "runner-receipts",
+          title: "runner",
+          directory: "research/runner-receipts",
+          minimumReceipts: 2,
+          expectedEnvironment,
+          maxAgeDays: 45
+        }
+      }
+    };
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    const matching = evaluateReleaseReadiness(root, NOW);
+    const matchingGate = matching.gates.find(
+      (gate: { id: string }) => gate.id === "runner-cycles"
+    );
+    assert.equal(matchingGate?.status, "pass", matchingGate?.reasons.join("; "));
+
+    const {
+      expectedEnvironment: omittedExpectedEnvironment,
+      ...runnerWithoutExpectedEnvironment
+    } = manifest.gates["runner-cycles"];
+    assert.deepEqual(omittedExpectedEnvironment, expectedEnvironment);
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify({
+        ...manifest,
+        gates: {
+          ...manifest.gates,
+          "runner-cycles": runnerWithoutExpectedEnvironment
+        }
+      })
+    );
+    const omitted = evaluateReleaseReadiness(root, NOW);
+    const omittedGate = omitted.gates.find(
+      (gate: { id: string }) => gate.id === "runner-cycles"
+    );
+    assert.equal(omittedGate?.status, "fail");
+    assert.match(
+      omittedGate?.reasons.join(" ") ?? "",
+      /gate config: expectedEnvironment must be an object/
+    );
+
+    manifest.gates["runner-cycles"].expectedEnvironment = {
+      ...expectedEnvironment,
+      natIdentityRef:
+        "sha256:5b59d1e92464c5fbc0a1bf9f8afc9c901a1ffe7d2283511894e767e5e933c0b9"
+    };
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    const drifted = evaluateReleaseReadiness(root, NOW);
+    const driftedGate = drifted.gates.find(
+      (gate: { id: string }) => gate.id === "runner-cycles"
+    );
+    assert.equal(driftedGate?.status, "fail");
+    assert.match(
+      driftedGate?.reasons.join(" ") ?? "",
+      /does not match the candidate-owned expectedEnvironment/
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -1228,6 +1518,120 @@ test("the hardened failure modes stay closed", async () => {
       testGit(root, ["rev-parse", "HEAD"])
     ]);
 
+    // Schema v2 adds the ceremony-selected governance receipt digest to the
+    // attested receipt. The selected content-addressed receipt and its add-only
+    // candidate binding both exist in source.commit; the annotated tag carries
+    // the same selection.
+    const sourceBinding = JSON.parse(
+      readFileSync(
+        path.join(
+          root,
+          "research",
+          "measurement-candidate-binding.json"
+        ),
+        "utf8"
+      )
+    );
+    const governanceDigest = sourceBinding.evidence[0].sha256 as string;
+    const governanceBoundArchive = {
+      ...JSON.parse(validArchiveBytes.toString("utf8")),
+      schemaVersion: 2,
+      releaseTagGovernanceReceiptSha256: governanceDigest
+    };
+    const governanceBoundBytes = Buffer.from(
+      JSON.stringify(governanceBoundArchive)
+    );
+    writeFileSync(archivePath, governanceBoundBytes);
+    const governanceBoundSha256 = createHash("sha256")
+      .update(governanceBoundBytes)
+      .digest("hex");
+    testGit(root, ["tag", "-d", "v0.3.0"]);
+    testGit(root, [
+      "-c",
+      "tag.gpgSign=false",
+      "tag",
+      "-a",
+      "v0.3.0",
+      "-m",
+      `Synthetic release\n\nRelease receipt sha256: ${governanceBoundSha256}\nRelease governance receipt sha256: ${governanceDigest}`,
+      testGit(root, ["rev-parse", "HEAD"])
+    ]);
+    const governanceBound = byId(
+      evaluateReleaseReadiness(root, NOW),
+      "release-receipt-archive"
+    );
+    assert.equal(governanceBound.status, "pass");
+
+    const missingGovernanceDigest = "a".repeat(64);
+    const missingGovernanceArchive = {
+      ...governanceBoundArchive,
+      releaseTagGovernanceReceiptSha256: missingGovernanceDigest
+    };
+    const missingGovernanceBytes = Buffer.from(
+      JSON.stringify(missingGovernanceArchive)
+    );
+    writeFileSync(archivePath, missingGovernanceBytes);
+    const missingGovernanceArchiveSha256 = createHash("sha256")
+      .update(missingGovernanceBytes)
+      .digest("hex");
+    testGit(root, ["tag", "-d", "v0.3.0"]);
+    testGit(root, [
+      "-c",
+      "tag.gpgSign=false",
+      "tag",
+      "-a",
+      "v0.3.0",
+      "-m",
+      `Synthetic release\n\nRelease receipt sha256: ${missingGovernanceArchiveSha256}\nRelease governance receipt sha256: ${missingGovernanceDigest}`,
+      testGit(root, ["rev-parse", "HEAD"])
+    ]);
+    const missingGovernanceBlob = byId(
+      evaluateReleaseReadiness(root, NOW),
+      "release-receipt-archive"
+    );
+    assert.equal(missingGovernanceBlob.status, "fail");
+    assert.match(
+      missingGovernanceBlob.reasons.join(" "),
+      /governance receipt .* is unavailable at source\.commit/
+    );
+
+    writeFileSync(archivePath, governanceBoundBytes);
+
+    testGit(root, ["tag", "-d", "v0.3.0"]);
+    testGit(root, [
+      "-c",
+      "tag.gpgSign=false",
+      "tag",
+      "-a",
+      "v0.3.0",
+      "-m",
+      `Synthetic release\n\nRelease receipt sha256: ${governanceBoundSha256}`,
+      testGit(root, ["rev-parse", "HEAD"])
+    ]);
+    const missingGovernanceTagBinding = byId(
+      evaluateReleaseReadiness(root, NOW),
+      "release-receipt-archive"
+    );
+    assert.equal(missingGovernanceTagBinding.status, "fail");
+    assert.match(
+      missingGovernanceTagBinding.reasons.join(" "),
+      /does not embed the selected release governance receipt sha256/
+    );
+
+    // Restore the historical v1 fixture for the remaining archive tests.
+    writeFileSync(archivePath, validArchiveBytes);
+    testGit(root, ["tag", "-d", "v0.3.0"]);
+    testGit(root, [
+      "-c",
+      "tag.gpgSign=false",
+      "tag",
+      "-a",
+      "v0.3.0",
+      "-m",
+      `Synthetic release\n\nRelease receipt sha256: ${validArchiveSha256}`,
+      testGit(root, ["rev-parse", "HEAD"])
+    ]);
+
     // One valid historical archive cannot mask a malformed sibling.
     const malformedArchiveDir = path.join(root, "docs", "release-receipts", "0.2.0");
     mkdirSync(malformedArchiveDir, { recursive: true });
@@ -1270,6 +1674,108 @@ test("the hardened failure modes stay closed", async () => {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("schema-v2 archived governance closure rejects tampered bytes and non-add-only binding", async (t) => {
+  const { archivedReleaseGovernanceProblems } = await script(
+    "release-readiness-lib.mjs"
+  );
+  const root = mkdtempSync(
+    path.join(tmpdir(), "sbl-archived-governance-closure-")
+  );
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  testGit(root, ["init", "-q"]);
+  testGit(root, ["config", "user.name", "Archived Governance Test"]);
+  testGit(root, [
+    "config",
+    "user.email",
+    "archived-governance@example.invalid"
+  ]);
+  const governance = await releaseGovernanceFixture();
+  const governanceAbsolute = path.join(
+    root,
+    ...governance.path.split("/")
+  );
+  const bindingRelative = "research/measurement-candidate-binding.json";
+  const bindingAbsolute = path.join(root, ...bindingRelative.split("/"));
+  mkdirSync(path.dirname(governanceAbsolute), { recursive: true });
+  const writeBinding = (change: string, digest = governance.digest) => {
+    mkdirSync(path.dirname(bindingAbsolute), { recursive: true });
+    writeFileSync(
+      bindingAbsolute,
+      JSON.stringify({
+        repository: RELEASE_GOVERNANCE_REPOSITORY,
+        targetRelease: "1.0.0",
+        evidence: [
+          {
+            category: "release-tag-governance-receipt",
+            path: governance.path,
+            change,
+            sha256: digest
+          }
+        ]
+      })
+    );
+  };
+  const commit = (message: string) => {
+    testGit(root, ["add", "-A"]);
+    testGit(root, [
+      "-c",
+      "commit.gpgsign=false",
+      "commit",
+      "-q",
+      "-m",
+      message
+    ]);
+    return testGit(root, ["rev-parse", "HEAD"]);
+  };
+
+  writeFileSync(governanceAbsolute, governance.bytes);
+  writeBinding("added");
+  const validCommit = commit("valid governance closure");
+  assert.deepEqual(
+    archivedReleaseGovernanceProblems(
+      root,
+      validCommit,
+      governance.digest
+    ),
+    []
+  );
+
+  writeFileSync(governanceAbsolute, "{}\n");
+  const tamperedCommit = commit("tamper governance bytes");
+  assert.match(
+    archivedReleaseGovernanceProblems(
+      root,
+      tamperedCommit,
+      governance.digest
+    ).join(" "),
+    /bytes do not match its content-addressed sha256/
+  );
+
+  writeFileSync(governanceAbsolute, governance.bytes);
+  writeBinding("refreshed");
+  const nonAddOnlyCommit = commit("weaken governance binding");
+  assert.match(
+    archivedReleaseGovernanceProblems(
+      root,
+      nonAddOnlyCommit,
+      governance.digest
+    ).join(" "),
+    /exactly once as add-only.*measurement-candidate binding/
+  );
+
+  writeBinding("added");
+  unlinkSync(governanceAbsolute);
+  const missingCommit = commit("remove governance receipt");
+  assert.match(
+    archivedReleaseGovernanceProblems(
+      root,
+      missingCommit,
+      governance.digest
+    ).join(" "),
+    /is unavailable at source\.commit/
+  );
 });
 
 test("the calibration gate fails closed without eligible studies and rejects registry drift", async () => {
@@ -2570,7 +3076,10 @@ test("a runner receipt that fails to parse cannot rename another receipt's carri
             title: "runner",
             directory: "research/runner-receipts",
             minimumReceipts: 2,
-            expectedEnvironmentDigest: "0".repeat(64),
+            expectedEnvironment:
+              runnerReceiptLib.runnerDestructionEnvironmentTuple(
+                runnerReceipt(1)
+              ),
             maxAgeDays: 30
           }
         }

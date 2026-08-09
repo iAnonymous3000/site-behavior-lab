@@ -180,7 +180,6 @@ test("script response limit returns even when stream cancellation never settles"
 test("first-party operator and smoke scripts contain no direct unbounded response readers", async () => {
   const scriptsDir = path.join(process.cwd(), "scripts");
   const excluded = new Set([
-    "fetch-brave-lists.mjs",
     "verify-adblock-engine.mjs",
     "release-evidence.mjs"
   ]);

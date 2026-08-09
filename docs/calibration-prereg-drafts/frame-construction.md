@@ -73,4 +73,5 @@ committed preregistration digest as seed, and emits: the drawn cases with
 their canonical selection and condition files, the three-digest plan rows,
 the labeler endpoint appendix frozen from the candidate catalog, and the
 sweep receipts. Deterministic, create-only, no network. This does not exist
-yet and should ride the same PR as the assemble custody wiring.
+yet. The assemble custody wiring is already implemented and tested, so this
+producer can land independently before the ceremony.

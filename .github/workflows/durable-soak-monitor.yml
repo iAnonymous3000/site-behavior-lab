@@ -39,7 +39,10 @@ jobs:
       github.repository == 'iAnonymous3000/site-behavior-lab' &&
       github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # The collector admits at most 43 one-minute network timeout slots under
+    # its 32-way phased schedule, enforces a 45-minute global API deadline,
+    # and leaves 15 minutes for bootstrap, derivation, and artifact upload.
+    timeout-minutes: 60
     permissions:
       contents: read
     steps:
@@ -61,6 +64,19 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install the lockfile dependency graph
+        run: npm ci --ignore-scripts
+
+      - name: Compile the shared canonical evidence serializer
+        run: npm run build:schema
 
       # The native workflow token shares a 1,000-request/hour repository
       # bucket. This bounded multi-day collection instead reuses the
@@ -89,8 +105,6 @@ jobs:
           RESTART_ARTIFACT_ID: ${{ inputs.restart_artifact_id }}
         run: |
           set -euo pipefail
-          test "$(node --version)" = "v24.14.1"
-          test "$(npm --version)" = "11.11.0"
           output="$RUNNER_TEMP/durable-soak-ledger"
           test ! -e "$output"
           node scripts/durable-soak-ledger.mjs \
@@ -121,6 +135,10 @@ jobs:
           LEDGER_SHA256: ${{ steps.ledger.outputs.ledger_sha256 }}
           REST_REQUEST_COUNT: ${{ steps.ledger.outputs.rest_request_count }}
           REST_REQUEST_CAP: ${{ steps.ledger.outputs.rest_request_cap }}
+          NETWORK_TIMEOUT_SLOTS: ${{ steps.ledger.outputs.network_timeout_slots }}
+          NETWORK_TIMEOUT_SLOT_CAP: ${{ steps.ledger.outputs.network_timeout_slot_cap }}
+          COLLECTION_DEADLINE_MINUTES: ${{ steps.ledger.outputs.collection_deadline_minutes }}
+          MAX_CONCURRENT_REQUESTS: ${{ steps.ledger.outputs.max_concurrent_requests }}
           ARTIFACT_ID: ${{ steps.evidence.outputs.artifact-id }}
           ARTIFACT_DIGEST: ${{ steps.evidence.outputs.artifact-digest }}
         run: |
@@ -134,6 +152,9 @@ jobs:
             echo "- Exact deployment: \`${DEPLOYMENT_COMMIT}\`"
             echo "- Canonical ledger SHA-256: \`${LEDGER_SHA256}\`"
             echo "- GitHub REST requests: **${REST_REQUEST_COUNT}/${REST_REQUEST_CAP}**"
+            echo "- Network timeout slots: **${NETWORK_TIMEOUT_SLOTS}/${NETWORK_TIMEOUT_SLOT_CAP}**"
+            echo "- Collection deadline: **${COLLECTION_DEADLINE_MINUTES} minutes**"
+            echo "- Maximum concurrent requests: **${MAX_CONCURRENT_REQUESTS}**"
             echo "- Aggregate artifact id: \`${ARTIFACT_ID}\`"
             echo "- Aggregate artifact digest: \`${ARTIFACT_DIGEST}\`"
             echo

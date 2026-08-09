@@ -25,6 +25,26 @@ function script(name: string) {
   );
 }
 
+function fixtureGit(
+  root: string,
+  args: string[],
+  committedAt?: string
+): string {
+  const result = spawnSync("git", args, {
+    cwd: root,
+    encoding: "utf8",
+    env: committedAt
+      ? {
+          ...process.env,
+          GIT_AUTHOR_DATE: committedAt,
+          GIT_COMMITTER_DATE: committedAt
+        }
+      : process.env
+  });
+  assert.equal(result.status, 0, `${result.stderr}${result.stdout}`);
+  return result.stdout.trim();
+}
+
 const repository = "iAnonymous3000/site-behavior-lab";
 const releaseApp = {
   clientId: "Iv23releaseclient123",
@@ -175,6 +195,23 @@ test("release governance capture binds full bypass lists and public updated_at",
     productionUpdater
   });
   assert.deepEqual(releaseTagGovernanceReceiptProblems(receipt), []);
+  const foreignRepository = "attacker/example";
+  const foreignReceipt = structuredClone(receipt);
+  foreignReceipt.repository = foreignRepository;
+  for (const app of [foreignReceipt.releaseApp, foreignReceipt.promotionApp]) {
+    app.installation.accountLogin = "attacker";
+    app.installation.repositories = [foreignRepository];
+  }
+  foreignReceipt.secretScope.ownerLogin = "attacker";
+  for (const ruleset of Object.values(foreignReceipt.rulesets) as Array<{
+    source: string;
+  }>) {
+    ruleset.source = foreignRepository;
+  }
+  assert.match(
+    releaseTagGovernanceReceiptProblems(foreignReceipt).join("; "),
+    /receipt\.repository must be iAnonymous3000\/site-behavior-lab/
+  );
   const bytes = serializeReleaseTagGovernanceReceipt(receipt);
   assert.deepEqual(JSON.parse(bytes), receipt);
   assert.equal(bytes.endsWith("\n"), true);
@@ -358,6 +395,68 @@ test("release governance capture binds full bypass lists and public updated_at",
   );
 });
 
+test("release governance chronology is candidate-to-introduction bounded", async (t) => {
+  const { releaseTagGovernanceEvidenceChronologyProblems } = await script(
+    "release-readiness-lib.mjs"
+  );
+  const root = mkdtempSync(
+    path.join(os.tmpdir(), "site-behavior-governance-chronology-")
+  );
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  fixtureGit(root, ["init", "-q"]);
+  fixtureGit(root, ["config", "user.name", "Governance Test"]);
+  fixtureGit(root, ["config", "user.email", "governance@example.invalid"]);
+  writeFileSync(path.join(root, "candidate.txt"), "candidate\n");
+  fixtureGit(root, ["add", "candidate.txt"]);
+  fixtureGit(
+    root,
+    ["commit", "-q", "--no-gpg-sign", "-m", "candidate"],
+    "2026-08-01T00:00:00Z"
+  );
+  const candidateCommit = fixtureGit(root, ["rev-parse", "HEAD"]);
+  const evidencePath =
+    `research/ops-receipts/release-tag-governance/${"a".repeat(64)}.json`;
+  const absolute = path.join(root, ...evidencePath.split("/"));
+  mkdirSync(path.dirname(absolute), { recursive: true });
+  writeFileSync(absolute, "{}\n");
+  fixtureGit(root, ["add", evidencePath]);
+  fixtureGit(
+    root,
+    ["commit", "-q", "--no-gpg-sign", "-m", "introduce receipt"],
+    "2026-08-01T01:00:00Z"
+  );
+  const carrierCommit = fixtureGit(root, ["rev-parse", "HEAD"]);
+  const context = { binding: { candidateCommit, carrierCommit } };
+
+  assert.deepEqual(
+    releaseTagGovernanceEvidenceChronologyProblems(
+      root,
+      context,
+      evidencePath,
+      "2026-08-01T00:30:00.000Z"
+    ),
+    []
+  );
+  assert.match(
+    releaseTagGovernanceEvidenceChronologyProblems(
+      root,
+      context,
+      evidencePath,
+      "2026-07-31T23:59:58.000Z"
+    ).join(" "),
+    /must not predate the commit that selected/
+  );
+  assert.match(
+    releaseTagGovernanceEvidenceChronologyProblems(
+      root,
+      context,
+      evidencePath,
+      "2026-08-01T01:00:02.001Z"
+    ).join(" "),
+    /must not follow the commit that finalized/
+  );
+});
+
 test("release governance producer is an explicit operator command", () => {
   const manifest = JSON.parse(
     readFileSync(path.join(process.cwd(), "package.json"), "utf8")
@@ -388,6 +487,8 @@ test("release governance producer is an explicit operator command", () => {
   assert.match(producer, /new TextDecoder\("utf-8", \{ fatal: true \}\)/);
   assert.match(producer, /process\.env\.RELEASE_APP_JWT/);
   assert.match(producer, /process\.env\.PROMOTION_APP_JWT/);
+  assert.match(producer, /releaseTagGovernanceReceiptPath\(digest\)/);
+  assert.doesNotMatch(producer, /options\["--output"\]/);
   assert.match(producer, /repos\/\$\{repository\}\/installation/);
   assert.match(
     producer,
@@ -402,6 +503,100 @@ test("release governance producer is an explicit operator command", () => {
   assert.match(producer, /repos\/\$\{repository\}\/actions\/secrets/);
   assert.match(producer, /orgs\/\$\{owner\.login\}\/actions\/secrets/);
   assert.doesNotMatch(producer, /execFileSync\(\s*["']gh["']/);
+  const readiness = readFileSync(
+    path.join(process.cwd(), "scripts", "release-readiness-lib.mjs"),
+    "utf8"
+  );
+  assert.match(
+    readiness,
+    /releaseTagGovernanceEvidenceChronologyProblems\([\s\S]*receipt\.capturedAt/
+  );
+});
+
+test("release workflow snapshots external selectors before checkout or environment", (t) => {
+  const workflow = readFileSync(
+    path.join(process.cwd(), ".github", "workflows", "release.yml"),
+    "utf8"
+  );
+  const prepareJob = workflow.slice(
+    workflow.indexOf("\n  prepare:"),
+    workflow.indexOf("\n  attest:")
+  );
+  assert.ok(prepareJob.length > 0, "prepare job must remain independently sliceable");
+  assert.doesNotMatch(
+    prepareJob,
+    /^    environment:/m,
+    "prepare must remain outside every GitHub environment so an environment-scoped selector cannot shadow the external value"
+  );
+  assert.equal(
+    (workflow.match(/\$\{\{ vars\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 \}\}/g) ?? [])
+      .length,
+    1,
+    "only the non-environment prepare snapshot may resolve the selector"
+  );
+  assert.equal(
+    (workflow.match(/\$\{\{ vars\.RELEASE_MEASUREMENT_BINDING_SHA256 \}\}/g) ?? [])
+      .length,
+    1,
+    "only the pre-checkout prepare snapshot may resolve the binding pin"
+  );
+  assert.match(
+    workflow,
+    /governance_receipt_sha256: \$\{\{ steps\.governance_selector\.outputs\.receipt_sha256 \}\}/
+  );
+  assert.match(
+    workflow,
+    /--release-tag-governance-receipt-sha256 "\$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"/
+  );
+
+  assert.doesNotMatch(workflow, /actions\/variables\/RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/);
+  const step = workflow.slice(
+    workflow.indexOf("- name: Snapshot external release trust roots"),
+    workflow.indexOf("- name: Checkout full history without persisted credentials")
+  );
+  assert.match(
+    step,
+    /SELECTED_GOVERNANCE_RECEIPT_SHA256: \$\{\{ vars\.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 \}\}/
+  );
+  const start = step.indexOf("run: |") + "run: |".length;
+  assert.ok(start > "run: |".length);
+  const shell = step
+    .slice(start)
+    .split("\n")
+    .map((line) => (line.startsWith(" ".repeat(10)) ? line.slice(10) : line))
+    .join("\n");
+  const runnerTemp = mkdtempSync(
+    path.join(os.tmpdir(), "site-behavior-governance-selector-")
+  );
+  t.after(() => rmSync(runnerTemp, { recursive: true, force: true }));
+  const digest = "a".repeat(64);
+  const run = (value: string) => {
+    const output = path.join(runnerTemp, `output-${Math.random()}`);
+    const result = spawnSync("bash", ["-c", shell], {
+      encoding: "utf8",
+      env: {
+        PATH: process.env.PATH,
+        GITHUB_OUTPUT: output,
+        SELECTED_GOVERNANCE_RECEIPT_SHA256: value,
+        SELECTED_MEASUREMENT_BINDING_SHA256: ""
+      }
+    });
+    return {
+      ...result,
+      output:
+        result.status === 0 ? readFileSync(output, "utf8") : ""
+    };
+  };
+  const accepted = run(digest);
+  assert.equal(accepted.status, 0, `${accepted.stderr}${accepted.stdout}`);
+  assert.equal(
+    accepted.output,
+    `receipt_sha256=${digest}\nraw_measurement_binding_sha256=\n`
+  );
+  const malformed = run("A".repeat(64));
+  assert.equal(malformed.status, 1);
+  assert.match(malformed.stdout, /must resolve to one lowercase sha256/);
+  assert.equal(run("").status, 1);
 });
 
 test("release workflow executes the pinned governance validator against exact live shapes", async (t) => {
@@ -469,6 +664,11 @@ test("release workflow executes the pinned governance validator against exact li
   t.after(() => rmSync(runnerTemp, { recursive: true, force: true }));
   const context = path.join(runnerTemp, "release-governance");
   mkdirSync(context);
+  const bindingContext = path.join(
+    runnerTemp,
+    "release-measurement-binding"
+  );
+  mkdirSync(bindingContext);
   const write = (name: string, value: unknown) =>
     writeFileSync(path.join(context, name), `${JSON.stringify(value)}\n`);
   writeFileSync(path.join(context, "receipt.json"), receiptBytes);
@@ -476,9 +676,12 @@ test("release workflow executes the pinned governance validator against exact li
     gates: {
       "release-tag-governance": {
         kind: "release-tag-governance",
-        artifact:
-          "research/ops-receipts/release-tag-governance.json",
-        sha256: createHash("sha256").update(receiptBytes).digest("hex"),
+        artifactDirectory:
+          "research/ops-receipts/release-tag-governance",
+        digestBinding: {
+          kind: "github-actions-prepare-snapshot",
+          name: "RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"
+        },
         maxAgeDays: 1
       }
     }
@@ -524,7 +727,15 @@ test("release workflow executes the pinned governance validator against exact li
     .split("\n")
     .map((line) => (line.startsWith(" ".repeat(10)) ? line.slice(10) : line))
     .join("\n");
-  const run = (candidateReceiptBytes = receiptBytes) => {
+  const run = (
+    candidateReceiptBytes = receiptBytes,
+    bindingDigest = createHash("sha256")
+      .update(candidateReceiptBytes)
+      .digest("hex")
+  ) => {
+    const candidateDigest = createHash("sha256")
+      .update(candidateReceiptBytes)
+      .digest("hex");
     writeFileSync(
       path.join(context, "receipt.json"),
       candidateReceiptBytes
@@ -533,15 +744,34 @@ test("release workflow executes the pinned governance validator against exact li
       gates: {
         "release-tag-governance": {
           kind: "release-tag-governance",
-          artifact:
-            "research/ops-receipts/release-tag-governance.json",
-          sha256: createHash("sha256")
-            .update(candidateReceiptBytes)
-            .digest("hex"),
+          artifactDirectory:
+            "research/ops-receipts/release-tag-governance",
+          digestBinding: {
+            kind: "github-actions-prepare-snapshot",
+            name: "RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"
+          },
           maxAgeDays: 1
         }
       }
     });
+    const bindingBytes = `${JSON.stringify({
+      evidence: [
+        {
+          category: "release-tag-governance-receipt",
+          path:
+            `research/ops-receipts/release-tag-governance/${bindingDigest}.json`,
+          change: "added",
+          sha256: bindingDigest
+        }
+      ]
+    })}\n`;
+    writeFileSync(
+      path.join(bindingContext, "measurement-candidate-binding.json"),
+      bindingBytes
+    );
+    const measurementBindingDigest = createHash("sha256")
+      .update(bindingBytes)
+      .digest("hex");
     return spawnSync(process.execPath, ["--input-type=commonjs", "-e", controller], {
       encoding: "utf8",
       env: {
@@ -552,9 +782,9 @@ test("release workflow executes the pinned governance validator against exact li
         RELEASE_APP_INTEGRATION_ID: String(releaseApp.integrationId),
         RELEASE_APP_SLUG: releaseApp.slug,
         RELEASE_TAG_CREATION_RULESET_ID: String(creation.id),
-        RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: createHash("sha256")
-          .update(candidateReceiptBytes)
-          .digest("hex"),
+        RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: candidateDigest,
+        RELEASE_MEASUREMENT_BINDING_REQUIRED: "true",
+        RELEASE_MEASUREMENT_BINDING_SHA256: measurementBindingDigest,
         PROMOTION_APP_CLIENT_ID: promotionApp.clientId,
         PROMOTION_APP_INTEGRATION_ID: String(promotionApp.integrationId),
         PROMOTION_APP_SLUG: promotionApp.slug
@@ -563,6 +793,10 @@ test("release workflow executes the pinned governance validator against exact li
   };
   const accepted = run();
   assert.equal(accepted.status, 0, `${accepted.stderr}${accepted.stdout}`);
+
+  const unbound = run(receiptBytes, "0".repeat(64));
+  assert.equal(unbound.status, 1);
+  assert.match(unbound.stderr, /add-only digest-enumerated evidence/);
 
   write("tag-creation.json", {
     ...creation,

@@ -3,6 +3,7 @@ import path from "node:path";
 import { readManagedReport } from "./managed-report-reader";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { sha256Hex } from "./sha256";
+import { readVerifyArtifactTextWithinLimit } from "./verify-published-report-fetch";
 
 /**
  * One command that checks a published report end to end, for a reader who
@@ -225,15 +226,7 @@ async function fetchText(url: string): Promise<string> {
   try {
     const response = await fetch(url, { signal: controller.signal, redirect: "error" });
     if (!response.ok) throw new Error(`${url} returned HTTP ${response.status}.`);
-    const declared = Number(response.headers.get("content-length") ?? "0");
-    if (Number.isFinite(declared) && declared > MAX_FETCH_BYTES) {
-      throw new Error(`${url} declares ${declared} bytes, above the ${MAX_FETCH_BYTES} ceiling.`);
-    }
-    const text = await response.text();
-    if (new TextEncoder().encode(text).byteLength > MAX_FETCH_BYTES) {
-      throw new Error(`${url} exceeded the ${MAX_FETCH_BYTES} byte ceiling.`);
-    }
-    return text;
+    return await readVerifyArtifactTextWithinLimit(response, url, MAX_FETCH_BYTES);
   } finally {
     clearTimeout(timer);
   }

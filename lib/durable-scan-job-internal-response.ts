@@ -28,19 +28,39 @@ export async function readDurableScanJobInternalResponseBytes(
   throwIfAborted(signal);
 
   const declaredLength = response.headers.get("content-length");
-  if (declaredLength !== null) {
+  const contentEncoding = response.headers.get("content-encoding");
+  // Fetch exposes decoded body bytes but may retain the compressed wire
+  // Content-Length. Only identity responses can use that header as an early
+  // decoded-size refusal; the streamed decoded cap remains authoritative.
+  const declaredLengthDescribesBody =
+    contentEncoding === null || contentEncoding.trim().toLowerCase() === "identity";
+  let expectedLength: number | null = null;
+  if (declaredLength !== null && declaredLengthDescribesBody) {
+    if (!/^[0-9]+$/.test(declaredLength)) {
+      cancelResponseBodyDetached(response.body);
+      throw new Error("The durable scan-job internal response returned an invalid Content-Length.");
+    }
     const parsed = Number(declaredLength);
-    if (Number.isSafeInteger(parsed) && parsed > maxBytes) {
+    if (!Number.isSafeInteger(parsed) || parsed > maxBytes) {
       // Never let a non-settling cancellation turn bounded rejection into an
       // unbounded wait. No stateful continuation depends on cleanup finishing.
-      void response.body?.cancel().catch(() => undefined);
+      cancelResponseBodyDetached(response.body);
       throw new DurableScanJobInternalResponseTooLargeError(maxBytes);
     }
+    expectedLength = parsed;
   }
-  if (!response.body) return new Uint8Array();
+  if (!response.body) {
+    if (expectedLength !== null && expectedLength !== 0) {
+      throw new Error("The durable scan-job internal response length did not match Content-Length.");
+    }
+    return new Uint8Array();
+  }
 
   const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
+  // Retain one geometrically grown buffer so empty and tiny chunks cannot
+  // create per-chunk metadata, while a small response does not eagerly reserve
+  // the caller's entire (up to report-sized) byte ceiling.
+  let bytes = new Uint8Array(Math.min(maxBytes, 64 * 1024));
   let totalBytes = 0;
   const abort = signal ? abortGate(signal) : null;
   try {
@@ -48,16 +68,23 @@ export async function readDurableScanJobInternalResponseBytes(
       throwIfAborted(signal);
       const next = await (abort ? Promise.race([reader.read(), abort.promise]) : reader.read());
       if (next.done) break;
-      totalBytes += next.value.byteLength;
-      if (totalBytes > maxBytes) {
-        void reader.cancel().catch(() => undefined);
+      if (next.value.byteLength === 0) continue;
+      if (next.value.byteLength > maxBytes - totalBytes) {
+        cancelResponseReaderDetached(reader);
         throw new DurableScanJobInternalResponseTooLargeError(maxBytes);
       }
-      chunks.push(next.value);
+      const requiredBytes = totalBytes + next.value.byteLength;
+      if (requiredBytes > bytes.byteLength) {
+        bytes = growResponseBuffer(bytes, requiredBytes, maxBytes);
+      }
+      bytes.set(next.value, totalBytes);
+      totalBytes += next.value.byteLength;
     }
   } finally {
     abort?.dispose();
-    if (signal?.aborted) void reader.cancel(abortReason(signal)).catch(() => undefined);
+    if (signal?.aborted) {
+      cancelResponseReaderDetached(reader, abortReason(signal));
+    }
     try {
       reader.releaseLock();
     } catch {
@@ -66,13 +93,51 @@ export async function readDurableScanJobInternalResponseBytes(
     }
   }
 
-  const bytes = new Uint8Array(totalBytes);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
+  if (expectedLength !== null && totalBytes !== expectedLength) {
+    throw new Error("The durable scan-job internal response length did not match Content-Length.");
   }
-  return bytes;
+  return bytes.slice(0, totalBytes);
+}
+
+function growResponseBuffer(
+  current: Uint8Array<ArrayBuffer>,
+  requiredBytes: number,
+  maxBytes: number
+): Uint8Array<ArrayBuffer> {
+  let nextCapacity = current.byteLength;
+  while (nextCapacity < requiredBytes) {
+    nextCapacity = Math.min(maxBytes, Math.max(requiredBytes, nextCapacity * 2));
+  }
+  const grown = new Uint8Array(nextCapacity);
+  grown.set(current);
+  return grown;
+}
+
+function cancelResponseBodyDetached(
+  body: ReadableStream<Uint8Array> | null
+): void {
+  try {
+    observeDetachedCancellation(body?.cancel());
+  } catch {
+    // The declared-size refusal remains authoritative if cleanup throws.
+  }
+}
+
+function cancelResponseReaderDetached(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  reason?: unknown
+): void {
+  try {
+    observeDetachedCancellation(reader.cancel(reason));
+  } catch {
+    // The size/abort verdict remains authoritative if cleanup throws.
+  }
+}
+
+function observeDetachedCancellation(
+  cancellation: Promise<void> | undefined
+): void {
+  void cancellation?.catch(() => undefined);
 }
 
 export async function readDurableScanJobInternalResponseJson(

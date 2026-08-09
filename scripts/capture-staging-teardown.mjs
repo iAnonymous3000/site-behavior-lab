@@ -59,7 +59,7 @@ async function main() {
     serializeStagingTeardownEvidence(receipt)
   );
   console.log(
-    `Staging teardown transcript recorded; inventory sha256:${receipt.teardownInventoryDigest}; source ${receipt.sourceArtifact.digest}`
+    `Staging teardown transcript recorded; target sha256:${receipt.targetManifestSha256}; inventory sha256:${receipt.teardownInventoryDigest}; source ${receipt.sourceArtifact.digest}`
   );
 }
 

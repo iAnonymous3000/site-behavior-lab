@@ -369,9 +369,10 @@ attestation.
 
 Release readiness must call the set validator with its own bindings:
 `expectedCandidateCommit` when every run is made from one immutable source SHA,
-`expectedEnvironmentDigest` to bind the internally compatible tuple to the
-reviewed runner/NAT configuration, `epochStartedAt` to exclude pre-freeze
-acquisition, and `now` plus `maxAgeDays` to reject future or stale evidence. If
+the validator-derived digest of the candidate-resident `expectedEnvironment`
+tuple to bind the internally compatible receipts to the reviewed runner/NAT
+configuration, `epochStartedAt` to exclude pre-freeze acquisition, and `now`
+plus `maxAgeDays` to reject future or stale evidence. If
 reviewed report-data commits are allowed to advance `HEAD` inside the freeze, do
 not misuse
 `expectedCandidateCommit`: first define and bind a separate digest for the
@@ -380,25 +381,98 @@ the permitted source commits. The exported set verdict also returns the
 controlled-environment digest, source commits, earliest collection time, and
 latest recording time for an exact readiness or attestation binding.
 
+Before declaring candidate `P`, review and record the exact privacy-safe tuple
+in `RELEASE_READINESS.json` at `gates.runner-cycles.expectedEnvironment`. Its
+shape is exactly:
+
+```json
+{
+  "runnerLabelRef": "sha256:<64 lowercase hex>",
+  "hostImageIdentityRef": "sha256:<64 lowercase hex>",
+  "registrationLabelRefs": ["sha256:<64 lowercase hex>"],
+  "declaredRegion": "us-west",
+  "natIdentityRef": "sha256:<64 lowercase hex>",
+  "blockedClasses": ["link-local", "metadata", "private"]
+}
+```
+
+Do not put the raw runner label, image identity, registration labels, or NAT
+identity in command arguments, shell history, or the repository. A secret
+manager may inject the six exact variables accepted by the helper. For manual
+entry, use silent shell reads; the commands themselves contain no raw value:
+
+```bash
+(
+set -euo pipefail
+cleanup_expected_runner_environment() {
+  unset SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_LABEL \
+    SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_HOST_IMAGE_IDENTITY \
+    SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_REGISTRATION_LABELS_JSON \
+    SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_DECLARED_REGION \
+    SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_NAT_IDENTITY \
+    SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_BLOCKED_CLASSES_JSON
+}
+trap cleanup_expected_runner_environment EXIT
+
+printf 'Runner label: ' >&2
+IFS= read -r -s SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_LABEL; printf '\n' >&2
+printf 'Host image identity: ' >&2
+IFS= read -r -s SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_HOST_IMAGE_IDENTITY; printf '\n' >&2
+printf 'Registration labels as a JSON string array: ' >&2
+IFS= read -r -s SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_REGISTRATION_LABELS_JSON; printf '\n' >&2
+printf 'Coarse declared region: ' >&2
+IFS= read -r -s SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_DECLARED_REGION; printf '\n' >&2
+printf 'Outbound NAT identity: ' >&2
+IFS= read -r -s SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_NAT_IDENTITY; printf '\n' >&2
+printf 'Blocked classes as a JSON string array: ' >&2
+IFS= read -r -s SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_BLOCKED_CLASSES_JSON; printf '\n' >&2
+
+export SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_LABEL \
+  SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_HOST_IMAGE_IDENTITY \
+  SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_REGISTRATION_LABELS_JSON \
+  SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_DECLARED_REGION \
+  SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_NAT_IDENTITY \
+  SITE_BEHAVIOR_LAB_EXPECTED_RUNNER_BLOCKED_CLASSES_JSON
+npm run --silent runner:expected-environment
+)
+```
+
+The command accepts no arguments and emits only an `expectedEnvironment`
+object with those six fields plus `expectedEnvironmentDigest`. Copy only the
+six-field object into the readiness manifest; use the digest as a review
+diagnostic. The helper rejects unrecognized variables in its dedicated prefix,
+hashes every private identity under its role-specific domain, sorts and
+deduplicates the resulting registration references, and validates the complete
+tuple without echoing a raw identity.
+
+The tuple also contains the coarse region and sorted blocked network classes.
+The three role references must be pairwise distinct, and registration labels
+may not reuse the host-image or NAT reference. It must match the controlled
+runner configuration that will be used for both cycles; do not derive it from a
+future receipt or invent values to make the gate green. The validator
+canonicalizes that candidate-owned tuple and derives its digest itself.
+
 After both cycle receipts exist, run the set verifier over the committed
-directory and copy the **exact** 64-character value printed after
-`environment sha256:` into
-`RELEASE_READINESS.json` at
-`gates.runner-cycles.expectedEnvironmentDigest`:
+directory and compare the printed digest as a diagnostic:
 
 ```bash
 node scripts/verify-runner-destruction-receipt.mjs \
   research/runner-receipts/
-# final line: environment sha256:<copy-this-exact-64-character-digest>
+# final line must equal the digest derived from the candidate-owned tuple
 
 npm run release:readiness
 ```
 
-Replace the manifest's initial `null`; do not hash a screenshot, reconstruct
-the tuple by hand, or copy an individual receipt digest. Review the manifest
-edit and the two receipts in the same protected PR. Readiness re-derives the
-set digest, so a typo, environment drift, missing receipt, or substituted cycle
-stays red.
+The tuple is a pre-P policy input: once `P` is declared, do not edit it. Each
+cycle is append-only evidence in a permitted carrier commit. Readiness derives
+both sides independently, so a typo, environment drift, missing receipt, or
+substituted cycle stays red without a post-freeze manifest finalization.
+Candidate verification also reads `RELEASE_READINESS.json` from `P` and every
+ancestry-path commit through candidate `C`, canonicalizes the tuple, and
+refuses any missing or changed value, including a transient change that was
+later reverted. If the reviewed environment must change after `P`, abandon
+that replay lineage and select a fresh parent before collecting either cycle;
+never edit the tuple to fit receipts already observed.
 
 ### Pre-freeze Aug 3/Aug 10 re-adjudication evidence
 

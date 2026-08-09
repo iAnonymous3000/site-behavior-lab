@@ -29,7 +29,7 @@ test("promotion fallback can repair a failed direct promotion but rechecks every
   assert.match(workflow, /node scripts\/verify-required-ci-jobs\.mjs "\$RUNNER_TEMP\/ci-jobs\.json"/);
 });
 
-test("both promotion paths reserve production writes for the dedicated App", () => {
+test("both promotion paths reserve production writes for one dedicated App through mutually exclusive client-ID or App-ID inputs", () => {
   const ci = readFileSync(path.join(root, ".github", "workflows", "ci.yml"), "utf8");
   const direct = ci.slice(ci.indexOf("\n  promote:"));
   const fallback = readFileSync(path.join(root, ".github", "workflows", "promote-production.yml"), "utf8");
@@ -44,15 +44,12 @@ test("both promotion paths reserve production writes for the dedicated App", () 
   const fallbackPush = fallback.slice(fallback.indexOf("- name: Fast-forward production to the tested SHA"));
 
   for (const workflow of [direct, fallback]) {
-    assert.match(
-      workflow,
-      /actions\/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1/
+    const tokenMints = workflow.match(
+      /actions\/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1/g
     );
-    assert.match(workflow, /app-id: \$\{\{ vars\.PROMOTION_APP_ID \}\}/);
-    // The deprecation migration: a client-id mint takes over when the
-    // operator stores the App client id, and the consumer coalesces so
-    // exactly one minted token is ever used.
+    assert.equal(tokenMints?.length, 2, "each promotion path must carry both exclusive App-token inputs");
     assert.match(workflow, /client-id: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
+    assert.match(workflow, /app-id: \$\{\{ vars\.PROMOTION_APP_ID \}\}/);
     assert.match(workflow, /if: \$\{\{ vars\.PROMOTION_APP_CLIENT_ID \}\}/);
     assert.match(workflow, /if: \$\{\{ !vars\.PROMOTION_APP_CLIENT_ID \}\}/);
     assert.match(workflow, /private-key: \$\{\{ secrets\.PROMOTION_APP_PRIVATE_KEY \}\}/);
@@ -108,6 +105,10 @@ test("Docker smoke preserves v1 and explicitly proves public v2/r2 bundles", () 
   assert.match(smoke, /savedReportRetainsScreenshot\(report\)/);
   assert.match(smoke, /missing its provenance sidecar/);
   assert.match(smoke, /startSmokeR2Server\(\{ bucket, host: await dockerR2BindHost\(\) \}\)/);
+  assert.match(smoke, /const expectedRequestRows = singleReportTotalRequests\(storedSingle\.report\)/);
+  assert.match(smoke, /const renderedRows = renderedRequestRowCount\(html\)/);
+  assert.match(smoke, /renderedRows !== expectedRequestRows/);
+  assert.doesNotMatch(smoke, /renderedRows < 2/);
 
   const r2SmokeServer = readFileSync(path.join(root, "scripts", "smoke-r2-server.mjs"), "utf8");
   assert.match(r2SmokeServer, /host = "127\.0\.0\.1"/);

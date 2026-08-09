@@ -200,8 +200,15 @@ const PROFILE_RULES = Object.freeze({
           ".github/workflows/durable-soak-monitor.yml"
         ]),
         trustedSourcePaths: Object.freeze([
+          "package-lock.json",
+          "package.json",
+          "tsconfig.json",
+          "tsconfig.schema.json",
+          "lib/canonical-json.ts",
+          "lib/sha256.ts",
           "lib/strict-json.ts",
           "scripts/archive-hosted-evidence.mjs",
+          "scripts/build-schema.mjs",
           "scripts/durable-soak-exercise-evidence-lib.mjs",
           "scripts/durable-soak-ledger-lib.mjs",
           "scripts/durable-soak-ledger.mjs",
@@ -209,7 +216,12 @@ const PROFILE_RULES = Object.freeze({
           "scripts/hosted-evidence-provenance-lib.mjs",
           "scripts/operator-evidence-common.mjs",
           "scripts/staging-teardown-evidence-lib.mjs",
+          "scripts/staging-teardown-github-app-token.mjs",
           "scripts/staging-teardown-hosted-capture-lib.mjs",
+          "scripts/staging-teardown-provider-adapter.mjs",
+          "scripts/staging-teardown-provider-adapters.mjs",
+          "scripts/staging-teardown-provider-http.mjs",
+          "scripts/staging-teardown-target-projections.mjs",
           "scripts/waf-ceiling-evidence-lib.mjs",
           "scripts/waf-hosted-capture-lib.mjs"
         ]),
@@ -1951,6 +1963,7 @@ function validateStagingTeardownSubject(
       "schemaVersion",
       "artifactKind",
       "stagingSourceCommit",
+      "targetManifestSha256",
       "recordedAt",
       "session",
       "inventory",
@@ -2002,10 +2015,10 @@ function validateStagingTeardownSubject(
   const expectedManifest =
     buildStagingTeardownHostedManifest(subject, producerClosure);
   requireValue(
-    manifest.schemaVersion === 1 &&
+    manifest.schemaVersion === 2 &&
       manifest.artifactKind ===
         "site-behavior-staging-teardown-sanitized-provider-manifest" &&
-      subject.schemaVersion === 1 &&
+      subject.schemaVersion === 2 &&
       subject.artifactKind ===
         "site-behavior-staging-teardown-session-receipt" &&
       FULL_SHA.test(subject.stagingSourceCommit) &&

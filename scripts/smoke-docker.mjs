@@ -10,7 +10,10 @@ import {
   readResponseTextWithinLimit,
   withHttpOperationDeadline
 } from "./http-response.mjs";
-import { savedReportRetainsScreenshot } from "./smoke-deployed-scanner-report.mjs";
+import {
+  savedReportRetainsScreenshot,
+  singleReportTotalRequests
+} from "./smoke-deployed-scanner-report.mjs";
 import { startSmokeR2Server } from "./smoke-r2-server.mjs";
 
 process.on("uncaughtException", (error) => {
@@ -216,11 +219,26 @@ async function printScannerLogs(containerId) {
  * and it exists on exactly one of them.
  */
 async function assertPrintableReportRoute(baseUrl, objects) {
-  const reportKey = objects
-    .map(({ key }) => key)
-    .find((key) => /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/.test(key));
-  if (!reportKey) throw new Error("Printable-route smoke found no persisted report to render.");
+  const storedReports = objects
+    .filter(({ key }) => /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/.test(key))
+    .map((object) => ({ ...object, report: JSON.parse(object.body) }));
+  const storedSingle = storedReports.find(
+    ({ report }) => singleReportTotalRequests(report) !== null
+  );
+  if (!storedSingle) {
+    throw new Error("Printable-route smoke found no persisted single report to render.");
+  }
+  const reportKey = storedSingle.key;
   const reportId = reportKey.slice("reports/".length, -".json".length);
+  const expectedRequestRows = singleReportTotalRequests(storedSingle.report);
+  if (
+    !Number.isSafeInteger(expectedRequestRows) ||
+    expectedRequestRows < 0
+  ) {
+    throw new Error(
+      `Printable-route smoke report records an invalid request count: ${String(expectedRequestRows)}.`
+    );
+  }
 
   // Bounded in time as well as bytes: a container that returns headers and
   // then stalls its body would otherwise hang CI rather than fail it. The
@@ -267,14 +285,34 @@ async function assertPrintableReportRoute(baseUrl, objects) {
     throw new Error("Printable report route is missing its noindex robots directive.");
   }
 
-  // The rendered row count is the property that separates this route from the
-  // interactive one; a summary-only regression would still satisfy the strings
-  // above. The interactive route renders none of these before a click.
-  const renderedRows = (html.match(/<tr\b/g) ?? []).length;
-  if (renderedRows < 2) {
-    throw new Error(`Printable report route rendered ${renderedRows} table rows; expected the evidence tables.`);
+  // Count the request-table body, not every table header on the page. The
+  // report's recorded request count is the completeness contract: a route that
+  // rendered two token rows would satisfy the old floor while silently losing
+  // almost all of its printable evidence.
+  const renderedRows = renderedRequestRowCount(html);
+  if (renderedRows !== expectedRequestRows) {
+    throw new Error(
+      `Printable report route rendered ${renderedRows} request rows; ` +
+        `the stored report records ${expectedRequestRows}.`
+    );
   }
-  console.log(`Printable report route rendered ${renderedRows} evidence rows for ${reportId}.`);
+  console.log(`Printable report route rendered all ${renderedRows} request rows for ${reportId}.`);
+}
+
+function renderedRequestRowCount(html) {
+  const requestTableStart = html.search(
+    /<div\b[^>]*class="[^"]*\brequest-table\b[^"]*"[^>]*>/i
+  );
+  if (requestTableStart < 0) {
+    throw new Error("Printable report route did not render the request table.");
+  }
+  const bodyStart = html.indexOf("<tbody", requestTableStart);
+  const bodyOpenEnd = bodyStart < 0 ? -1 : html.indexOf(">", bodyStart);
+  const bodyEnd = bodyOpenEnd < 0 ? -1 : html.indexOf("</tbody>", bodyOpenEnd + 1);
+  if (bodyStart < 0 || bodyOpenEnd < 0 || bodyEnd < 0) {
+    throw new Error("Printable report route rendered an incomplete request table body.");
+  }
+  return (html.slice(bodyOpenEnd + 1, bodyEnd).match(/<tr\b/gi) ?? []).length;
 }
 
 function assertSandboxEnabled(health) {

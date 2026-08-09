@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import test from "node:test";
 import {
   DurableScanJobInternalResponseInvalidUtf8Error,
@@ -51,7 +53,12 @@ test("declared oversized internal responses fail before body consumption", async
         return new Promise<void>(() => undefined);
       }
     }),
-    { headers: { "content-length": "1024" } }
+    {
+      headers: {
+        "content-encoding": "identity",
+        "content-length": "1024"
+      }
+    }
   );
 
   await assert.rejects(
@@ -60,6 +67,49 @@ test("declared oversized internal responses fail before body consumption", async
       error instanceof DurableScanJobInternalResponseTooLargeError && error.maxBytes === 32
   );
   assert.equal(cancelled, true);
+});
+
+test("encoded internal responses ignore wire Content-Length and cap decoded bytes", async () => {
+  const response = new Response(Uint8Array.of(1, 2, 3, 4), {
+    headers: {
+      "content-encoding": "gzip",
+      "content-length": "1024"
+    }
+  });
+  assert.deepEqual(
+    await readDurableScanJobInternalResponseBytes(response, undefined, 4),
+    Uint8Array.of(1, 2, 3, 4)
+  );
+});
+
+test("identity internal responses must finish at their exact declared length", async () => {
+  assert.deepEqual(
+    await readDurableScanJobInternalResponseBytes(
+      new Response(Uint8Array.of(1, 2, 3, 4), {
+        headers: {
+          "content-encoding": "identity",
+          "content-length": "4"
+        }
+      }),
+      undefined,
+      8
+    ),
+    Uint8Array.of(1, 2, 3, 4)
+  );
+
+  await assert.rejects(
+    readDurableScanJobInternalResponseBytes(
+      new Response(Uint8Array.of(1, 2, 3, 4), {
+        headers: {
+          "content-encoding": "identity",
+          "content-length": "3"
+        }
+      }),
+      undefined,
+      8
+    ),
+    /length did not match Content-Length/
+  );
 });
 
 test("streamed internal responses cannot cross the decompressed byte cap", async () => {
@@ -80,6 +130,106 @@ test("streamed internal responses cannot cross the decompressed byte cap", async
   await assert.rejects(
     settleWithin(readDurableScanJobInternalResponseBytes(response, undefined, 32)),
     (error: unknown) => error instanceof DurableScanJobInternalResponseTooLargeError
+  );
+  assert.equal(cancelled, true);
+});
+
+test("bounded internal responses retain one fixed buffer across empty and tiny chunks", async () => {
+  const emptyChunks = 50_000;
+  const expectedBytes = 256;
+  let reads = 0;
+  const reader = {
+    async read() {
+      if (reads < emptyChunks) {
+        reads += 1;
+        return { done: false as const, value: new Uint8Array() };
+      }
+      if (reads < emptyChunks + expectedBytes) {
+        reads += 1;
+        return { done: false as const, value: Uint8Array.of(120) };
+      }
+      return { done: true as const, value: undefined };
+    },
+    cancel() {
+      return Promise.resolve();
+    },
+    releaseLock() {}
+  };
+  const responseLike = {
+    headers: new Headers(),
+    body: { getReader: () => reader }
+  } as unknown as Response;
+
+  assert.deepEqual(
+    await readDurableScanJobInternalResponseBytes(
+      responseLike,
+      undefined,
+      expectedBytes
+    ),
+    new Uint8Array(expectedBytes).fill(120)
+  );
+  assert.equal(reads, emptyChunks + expectedBytes);
+  const source = readFileSync(
+    path.join(
+      process.cwd(),
+      "lib",
+      "durable-scan-job-internal-response.ts"
+    ),
+    "utf8"
+  );
+  assert.match(source, /new Uint8Array\(Math\.min\(maxBytes, 64 \* 1024\)\)/);
+  assert.doesNotMatch(source, /new Uint8Array\(maxBytes\)/);
+  assert.doesNotMatch(source, /const chunks: Uint8Array\[\]/);
+});
+
+test("bounded internal responses do not reserve a report-sized ceiling for a tiny body", async () => {
+  const maxBytes = 32 * 1024 * 1024;
+  assert.deepEqual(
+    await readDurableScanJobInternalResponseBytes(
+      new Response(Uint8Array.of(1, 2, 3)),
+      undefined,
+      maxBytes
+    ),
+    Uint8Array.of(1, 2, 3)
+  );
+
+  const source = readFileSync(
+    path.join(process.cwd(), "lib", "durable-scan-job-internal-response.ts"),
+    "utf8"
+  );
+  assert.doesNotMatch(source, /new Uint8Array\(maxBytes\)/);
+});
+
+test("bounded internal over-cap refusal survives hostile cancellation and lock release", async () => {
+  let cancelled = false;
+  const reader = {
+    async read() {
+      return { done: false as const, value: new Uint8Array(11) };
+    },
+    cancel() {
+      cancelled = true;
+      return new Promise<void>(() => undefined);
+    },
+    releaseLock() {
+      throw new Error("hostile releaseLock");
+    }
+  };
+  const responseLike = {
+    headers: new Headers(),
+    body: { getReader: () => reader }
+  } as unknown as Response;
+
+  await assert.rejects(
+    settleWithin(
+      readDurableScanJobInternalResponseBytes(
+        responseLike,
+        undefined,
+        10
+      )
+    ),
+    (error: unknown) =>
+      error instanceof DurableScanJobInternalResponseTooLargeError &&
+      error.maxBytes === 10
   );
   assert.equal(cancelled, true);
 });

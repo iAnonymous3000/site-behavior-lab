@@ -36,7 +36,12 @@ if (args.length > 0) {
 const result = evaluateReleaseReadiness(
   process.cwd(),
   Date.now(),
-  { liveArtifactContext, liveArtifactContextSha256 }
+  {
+    liveArtifactContext,
+    liveArtifactContextSha256,
+    releaseTagGovernanceReceiptSha256:
+      process.env.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256
+  }
 );
 for (const problem of result.manifestProblems) {
   console.log(`::error title=Release readiness::${problem}`);

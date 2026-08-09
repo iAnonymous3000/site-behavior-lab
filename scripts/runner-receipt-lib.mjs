@@ -104,6 +104,14 @@ const EGRESS_KEYS = [
   "independentPolicyEnforced",
   "blockedClasses"
 ];
+const EXPECTED_ENVIRONMENT_KEYS = [
+  "runnerLabelRef",
+  "hostImageIdentityRef",
+  "registrationLabelRefs",
+  "declaredRegion",
+  "natIdentityRef",
+  "blockedClasses"
+];
 const DESTRUCTION_KEYS = ["destroyedAt", "verifiedAbsentAt", "method", "verification"];
 const DESTRUCTION_EVIDENCE_KEYS = [
   "workflow",
@@ -235,6 +243,125 @@ export function runnerDestructionEnvironmentDigest(receipt) {
 }
 
 /**
+ * Validate the release-owned, candidate-resident environment contract. This
+ * is deliberately the same privacy-preserving tuple derived from a v3
+ * receipt, but it contains no run ids, timestamps, or operator-authored
+ * evidence. A manifest can therefore lock it before P and the verifier can
+ * derive the comparison digest instead of asking a future receipt to choose
+ * its own expected value.
+ */
+export function runnerDestructionExpectedEnvironmentIssues(environment) {
+  const issues = [];
+  if (!exactKeys(
+    environment,
+    EXPECTED_ENVIRONMENT_KEYS,
+    "expectedEnvironment",
+    issues
+  )) {
+    return issues;
+  }
+  for (const key of [
+    "runnerLabelRef",
+    "hostImageIdentityRef",
+    "natIdentityRef"
+  ]) {
+    if (
+      typeof environment[key] !== "string" ||
+      !CONTROLLED_RUNNER_IDENTITY_REF_PATTERN.test(environment[key])
+    ) {
+      issues.push(
+        `expectedEnvironment.${key} must be a lowercase sha256 reference produced by its role-specific identity derivation`
+      );
+    }
+  }
+  const labels = environment.registrationLabelRefs;
+  if (
+    !Array.isArray(labels) ||
+    labels.length === 0 ||
+    labels.length > 32 ||
+    labels.some(
+      (label) =>
+        typeof label !== "string" ||
+        !CONTROLLED_RUNNER_IDENTITY_REF_PATTERN.test(label)
+    ) ||
+    new Set(labels).size !== labels.length ||
+    labels.some(
+      (label, index) =>
+        index > 0 && label <= labels[index - 1]
+    )
+  ) {
+    issues.push(
+      "expectedEnvironment.registrationLabelRefs must list 1 through 32 unique sorted lowercase sha256 references produced by the runner-label identity derivation"
+    );
+  } else if (!labels.includes(environment.runnerLabelRef)) {
+    issues.push(
+      "expectedEnvironment.registrationLabelRefs must include runnerLabelRef exactly"
+    );
+  }
+  const roleRefs = [
+    environment.runnerLabelRef,
+    environment.hostImageIdentityRef,
+    environment.natIdentityRef
+  ];
+  if (
+    roleRefs.every(
+      (reference) =>
+        typeof reference === "string" &&
+        CONTROLLED_RUNNER_IDENTITY_REF_PATTERN.test(reference)
+    ) &&
+    new Set(roleRefs).size !== roleRefs.length
+  ) {
+    issues.push(
+      "expectedEnvironment runnerLabelRef, hostImageIdentityRef, and natIdentityRef must be pairwise distinct"
+    );
+  }
+  if (
+    Array.isArray(labels) &&
+    (labels.includes(environment.hostImageIdentityRef) ||
+      labels.includes(environment.natIdentityRef))
+  ) {
+    issues.push(
+      "expectedEnvironment.registrationLabelRefs must not reuse hostImageIdentityRef or natIdentityRef"
+    );
+  }
+  if (
+    !canonicalBoundedString(environment.declaredRegion, 32) ||
+    !PUBLIC_REGION.test(environment.declaredRegion)
+  ) {
+    issues.push(
+      "expectedEnvironment.declaredRegion must be a coarse public region label"
+    );
+  }
+  const blocked = environment.blockedClasses;
+  if (
+    !Array.isArray(blocked) ||
+    blocked.length > 32 ||
+    blocked.some((entry) => !canonicalBoundedString(entry, 100)) ||
+    new Set(blocked).size !== blocked.length ||
+    blocked.some(
+      (entry, index) =>
+        index > 0 && entry <= blocked[index - 1]
+    ) ||
+    !["private", "link-local", "metadata"].every((required) =>
+      blocked.includes(required)
+    )
+  ) {
+    issues.push(
+      "expectedEnvironment.blockedClasses must be sorted unique canonical values including private, link-local, and metadata"
+    );
+  }
+  return issues;
+}
+
+export function runnerDestructionExpectedEnvironmentDigest(environment) {
+  const issues = runnerDestructionExpectedEnvironmentIssues(environment);
+  if (issues.length > 0) {
+    throw new Error(issues.join("; "));
+  }
+  return sha256Hex(canonicalize(environment));
+}
+
+/**
  * Structural + consistency validation. Empty array = the receipt is complete.
  * Every boolean gate must be LITERALLY true: absence, null, or false all read
  * as "the evidence does not exist", never as a soft default.
@@ -277,7 +404,7 @@ export function runnerDestructionReceiptIssues(receipt) {
     typeof receipt.runnerLabelRef !== "string" ||
     !CONTROLLED_RUNNER_IDENTITY_REF_PATTERN.test(receipt.runnerLabelRef)
   ) {
-    push("runnerLabelRef must be a domain-separated sha256 reference");
+    push("runnerLabelRef must be a role-derived lowercase sha256 reference");
   }
   if (!isoTimestamp(receipt.recordedAt)) push("recordedAt must be an ISO 8601 timestamp");
 
@@ -303,7 +430,7 @@ export function runnerDestructionReceiptIssues(receipt) {
       )
     ) {
       push(
-        "provisioning.hostImageIdentityRef must be a domain-separated sha256 reference"
+        "provisioning.hostImageIdentityRef must be a role-derived lowercase sha256 reference"
       );
     }
     if (provisioning.singleUse !== true) push("provisioning.singleUse must be literally true");
@@ -341,7 +468,7 @@ export function runnerDestructionReceiptIssues(receipt) {
         push(
           legacy
             ? "registration.labels must list 1 through 32 unique canonical runner labels"
-            : "registration.labelRefs must list 1 through 32 unique sorted domain-separated sha256 references"
+            : "registration.labelRefs must list 1 through 32 unique sorted role-derived lowercase sha256 references"
         );
       } else if (
         legacy
@@ -488,7 +615,7 @@ export function runnerDestructionReceiptIssues(receipt) {
       typeof egress.natIdentityRef !== "string" ||
       !CONTROLLED_RUNNER_IDENTITY_REF_PATTERN.test(egress.natIdentityRef)
     ) {
-      push("egress.natIdentityRef must be a domain-separated sha256 reference");
+      push("egress.natIdentityRef must be a role-derived lowercase sha256 reference");
     }
     if (egress.independentPolicyEnforced !== true) {
       push("egress.independentPolicyEnforced must be literally true");
@@ -501,6 +628,36 @@ export function runnerDestructionReceiptIssues(receipt) {
       !["private", "link-local", "metadata"].every((required) => egress.blockedClasses.includes(required))
     ) {
       push("egress.blockedClasses must be unique canonical values including private, link-local, and metadata");
+    }
+  }
+  if (!legacy) {
+    const roleRefs = [
+      receipt.runnerLabelRef,
+      provisioning?.hostImageIdentityRef,
+      egress?.natIdentityRef
+    ];
+    if (
+      roleRefs.every(
+        (reference) =>
+          typeof reference === "string" &&
+          CONTROLLED_RUNNER_IDENTITY_REF_PATTERN.test(reference)
+      ) &&
+      new Set(roleRefs).size !== roleRefs.length
+    ) {
+      push(
+        "runnerLabelRef, provisioning.hostImageIdentityRef, and egress.natIdentityRef must be pairwise distinct role references"
+      );
+    }
+    const registrationLabelRefs =
+      provisioning?.registration?.labelRefs;
+    if (
+      Array.isArray(registrationLabelRefs) &&
+      (registrationLabelRefs.includes(provisioning?.hostImageIdentityRef) ||
+        registrationLabelRefs.includes(egress?.natIdentityRef))
+    ) {
+      push(
+        "provisioning.registration.labelRefs must not reuse the host-image or NAT identity references"
+      );
     }
   }
 

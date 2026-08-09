@@ -35,6 +35,23 @@ function verifierLib() {
   );
 }
 
+async function settleWithin<T>(promise: Promise<T>): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_resolve, reject) => {
+        timer = setTimeout(
+          () => reject(new Error("GitHub CLI body refusal did not settle")),
+          1_000
+        );
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 test("Node-only extraction ignores hostile tar and unzip commands", async (t) => {
   const { extractGithubCliBinary } = await verifierLib();
   const fixture = mkdtempSync(path.join(tmpdir(), "sbl-gh-extract-"));
@@ -285,7 +302,10 @@ test("chunked downloads are canceled as soon as the byte ceiling is crossed", as
   await assert.rejects(
     readBoundedResponseBody(
       {
-        headers: new Headers({ "content-length": "11" }),
+        headers: new Headers({
+          "content-encoding": "identity",
+          "content-length": "11"
+        }),
         body: new ReadableStream<Uint8Array>({
           start(controller) {
             controller.enqueue(Uint8Array.from([1]));
@@ -308,7 +328,10 @@ test("chunked downloads are canceled as soon as the byte ceiling is crossed", as
   assert.deepEqual(
     await readBoundedResponseBody(
       {
-        headers: new Headers({ "content-length": "4" }),
+        headers: new Headers({
+          "content-encoding": "identity",
+          "content-length": "4"
+        }),
         body: accepted
       },
       4
@@ -321,6 +344,113 @@ test("chunked downloads are canceled as soon as the byte ceiling is crossed", as
   );
   assert.doesNotMatch(verifierSource, /\.arrayBuffer\(/);
   assert.match(verifierSource, /readBoundedResponseBody/);
+});
+
+test("bootstrap body retention is fixed-capacity across empty and tiny chunks", async () => {
+  const { readBoundedResponseBody } = await verifierLib();
+  const emptyChunkCount = 50_000;
+  const expectedBytes = 256;
+  let pulls = 0;
+  const body = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        if (pulls < emptyChunkCount) {
+          pulls += 1;
+          controller.enqueue(new Uint8Array());
+          return;
+        }
+        if (pulls < emptyChunkCount + expectedBytes) {
+          pulls += 1;
+          controller.enqueue(Uint8Array.of(120));
+          return;
+        }
+        controller.close();
+      }
+    },
+    { highWaterMark: 0 }
+  );
+  assert.deepEqual(
+    await readBoundedResponseBody(
+      { headers: new Headers(), body },
+      expectedBytes
+    ),
+    Buffer.from("x".repeat(expectedBytes))
+  );
+  assert.equal(pulls, emptyChunkCount + expectedBytes);
+});
+
+test("bootstrap reader treats encoded Content-Length as wire bytes", async () => {
+  const { readBoundedResponseBody } = await verifierLib();
+  const decoded = Buffer.from("decoded bootstrap archive bytes", "utf8");
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(decoded);
+      controller.close();
+    }
+  });
+  assert.deepEqual(
+    await readBoundedResponseBody(
+      {
+        headers: new Headers({
+          "content-encoding": "gzip",
+          "content-length": String(decoded.byteLength + 100)
+        }),
+        body
+      },
+      decoded.byteLength
+    ),
+    decoded
+  );
+});
+
+test("bootstrap refusal ignores never-settling cancellation and release errors", async () => {
+  const { readBoundedResponseBody } = await verifierLib();
+  let readerCancelled = false;
+  const reader = {
+    async read() {
+      return { done: false, value: new Uint8Array(11) };
+    },
+    cancel() {
+      readerCancelled = true;
+      return new Promise<void>(() => undefined);
+    },
+    releaseLock() {
+      throw new Error("hostile releaseLock");
+    }
+  };
+  await assert.rejects(
+    settleWithin(
+      readBoundedResponseBody(
+        {
+          headers: new Headers(),
+          body: { getReader: () => reader }
+        },
+        10
+      )
+    ),
+    /exceeds the byte ceiling/
+  );
+  assert.equal(readerCancelled, true);
+
+  let bodyCancelled = false;
+  await assert.rejects(
+    settleWithin(
+      readBoundedResponseBody(
+        {
+          headers: new Headers({ "content-length": "11" }),
+          body: {
+            cancel() {
+              bodyCancelled = true;
+              return new Promise<void>(() => undefined);
+            }
+          }
+        },
+        10
+      )
+    ),
+    /exceeds the byte ceiling/
+  );
+  assert.equal(bodyCancelled, true);
 });
 
 function buildTarGz(name: string, contents: Buffer): Buffer {

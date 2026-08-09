@@ -86,7 +86,8 @@ when the ledger drifts from the inventory or a reviewed row is incomplete, so
 a new dependency cannot merge without at least an explicit unreviewed row.
 Review COMPLETENESS is reported per ecosystem but gated only at release
 readiness, not per commit. Note the runtime/development split the ledger
-carries from the inventory: 61 of the 148 npm packages ship at runtime.
+carries from the inventory: 61 of the 149 npm entries are not marked
+development-only in `package-lock.json`.
 
 ## Exact container OS-package inventory
 

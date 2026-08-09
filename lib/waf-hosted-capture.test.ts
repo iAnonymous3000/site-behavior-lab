@@ -27,6 +27,23 @@ function script(name: string) {
   );
 }
 
+async function settleWithin<T>(promise: Promise<T>): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_resolve, reject) => {
+        timer = setTimeout(
+          () => reject(new Error("WAF response refusal did not settle")),
+          1_000
+        );
+      })
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 const CANDIDATE = "a".repeat(40);
 const ZONE_ID = "b".repeat(32);
 const RULE_ID = "c".repeat(32);
@@ -44,6 +61,161 @@ function response(value: unknown, status = 200) {
     headers: { "content-type": "application/json" }
   });
 }
+
+test("WAF response retention is fixed-capacity across empty and tiny chunks", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  const emptyChunkCount = 50_000;
+  const expectedBytes = 256;
+  let pulls = 0;
+  const body = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        if (pulls < emptyChunkCount) {
+          pulls += 1;
+          controller.enqueue(new Uint8Array());
+          return;
+        }
+        if (pulls < emptyChunkCount + expectedBytes) {
+          pulls += 1;
+          controller.enqueue(Uint8Array.of(120));
+          return;
+        }
+        controller.close();
+      }
+    },
+    { highWaterMark: 0 }
+  );
+  assert.deepEqual(
+    await hosted.boundedWafResponseBytes(
+      { headers: new Headers(), body },
+      "WAF tiny-chunk fixture"
+    ),
+    Buffer.from("x".repeat(expectedBytes))
+  );
+  assert.equal(pulls, emptyChunkCount + expectedBytes);
+});
+
+test("WAF response refusal ignores never-settling cancellation and release errors", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  let readerCancelled = false;
+  const reader = {
+    async read() {
+      return {
+        done: false,
+        value: new Uint8Array(
+          hosted.WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES + 1
+        )
+      };
+    },
+    cancel() {
+      readerCancelled = true;
+      return new Promise<void>(() => undefined);
+    },
+    releaseLock() {
+      throw new Error("hostile releaseLock");
+    }
+  };
+  await assert.rejects(
+    settleWithin(
+      hosted.boundedWafResponseBytes(
+        {
+          headers: new Headers(),
+          body: { getReader: () => reader }
+        },
+        "WAF oversized fixture"
+      )
+    ),
+    /exceeds the 4194304-byte response limit/
+  );
+  assert.equal(readerCancelled, true);
+
+  let bodyCancelled = false;
+  await assert.rejects(
+    settleWithin(
+      hosted.boundedWafResponseBytes(
+        {
+          headers: new Headers({
+            "content-length": String(
+              hosted.WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES + 1
+            )
+          }),
+          body: {
+            cancel() {
+              bodyCancelled = true;
+              return new Promise<void>(() => undefined);
+            }
+          }
+        },
+        "WAF declared-size fixture"
+      )
+    ),
+    /exceeds the 4194304-byte response limit/
+  );
+  assert.equal(bodyCancelled, true);
+});
+
+test("WAF response reader enforces exact declared length", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(Uint8Array.of(120, 121));
+      controller.close();
+    }
+  });
+  await assert.rejects(
+    hosted.boundedWafResponseBytes(
+      {
+        headers: new Headers({
+          "content-encoding": "identity",
+          "content-length": "1"
+        }),
+        body
+      },
+      "WAF declared-length fixture"
+    ),
+    /body length changed in transit/
+  );
+
+  await assert.rejects(
+    hosted.boundedWafResponseBytes(
+      {
+        headers: new Headers({
+          "content-encoding": "identity",
+          "content-length": "1"
+        }),
+        body: null
+      },
+      "WAF missing-body fixture"
+    ),
+    /body length changed in transit/
+  );
+});
+
+test("WAF response reader treats encoded Content-Length as wire bytes", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  const decoded = Buffer.from('{"success":true}', "utf8");
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(decoded);
+      controller.close();
+    }
+  });
+  assert.deepEqual(
+    await hosted.boundedWafResponseBytes(
+      {
+        headers: new Headers({
+          "content-encoding": "gzip",
+          "content-length": String(
+            hosted.WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES + 1
+          )
+        }),
+        body
+      },
+      "WAF encoded fixture"
+    ),
+    decoded
+  );
+});
 
 function rulesetRule(overrides: Record<string, unknown> = {}) {
   return {
@@ -965,7 +1137,7 @@ test("hosted archive profile pins the WAF workflow and exact safe artifact membe
   assert.match(archiveWorkflow, /\n\s+- waf-ceilings\n/);
   assert.match(
     archiveWorkflow,
-    /if: inputs\.profile == 'waf-ceilings'[\s\S]*tsconfig\.schema\.json/
+    /if: inputs\.profile == 'waf-ceilings' \|\| inputs\.profile == 'staging-teardown'[\s\S]*npm run build:schema/
   );
 });
 

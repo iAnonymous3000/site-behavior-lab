@@ -109,12 +109,18 @@ export const MEASUREMENT_STAGING_TEARDOWN_SOURCE_CLOSURE_PATHS =
     MEASUREMENT_STAGING_TEARDOWN_CAPTURE_WORKFLOW_PATH,
     "lib/canonical-json.ts",
     "lib/sha256.ts",
+    "lib/strict-json.ts",
     "package-lock.json",
     "package.json",
     "scripts/operator-evidence-common.mjs",
     "scripts/staging-teardown-evidence-lib.mjs",
+    "scripts/staging-teardown-github-app-token.mjs",
     "scripts/staging-teardown-hosted-capture-lib.mjs",
     "scripts/staging-teardown-hosted-capture.mjs",
+    "scripts/staging-teardown-provider-adapter.mjs",
+    "scripts/staging-teardown-provider-adapters.mjs",
+    "scripts/staging-teardown-provider-http.mjs",
+    "scripts/staging-teardown-target-projections.mjs",
     "tsconfig.json",
     "tsconfig.schema.json"
   ]);
@@ -174,6 +180,7 @@ export type MeasurementEvidenceCategory =
   | "lifecycle-receipt"
   | "operator-evidence"
   | "operator-attestation"
+  | "release-tag-governance-receipt"
   | "hosted-evidence-archive"
   | "release-policy-finalization"
   | "citation-finalization"
@@ -332,6 +339,7 @@ export type DurableEnableTransition = {
   replayEvidenceCapturedAt: string;
   stagingTeardownEvidencePath: typeof MEASUREMENT_STAGING_TEARDOWN_EVIDENCE_PATH;
   stagingTeardownEvidenceSha256: string;
+  stagingTeardownTargetManifestSha256: string;
   stagingTeardownInventoryDigest: string;
   stagingTeardownRecordedAt: string;
   soakAttestationPath: typeof MEASUREMENT_DURABLE_SOAK_ATTESTATION_PATH;
@@ -787,6 +795,11 @@ const EVIDENCE_PATH_POLICIES: Readonly<
   "operator-evidence": {
     pattern:
       /^research\/ops-evidence\/(?:egress-backstop|waf-ceilings|log-retention|container-image-licensing)\.json$/,
+    allowedChange: "added"
+  },
+  "release-tag-governance-receipt": {
+    pattern:
+      /^research\/ops-receipts\/release-tag-governance\/[0-9a-f]{64}\.json$/,
     allowedChange: "added"
   },
   "hosted-evidence-archive": {
@@ -1866,6 +1879,13 @@ function parseBindingFiles(
       `${label}.change must be ${policy.allowedChange} for ${category}`
     );
     const digest = requiredPattern(entry.sha256, SHA256, `${label}.sha256`);
+    if (category === "release-tag-governance-receipt") {
+      requireValue(
+        evidencePath ===
+          `research/ops-receipts/release-tag-governance/${digest}.json`,
+        `${label}.path filename must equal its governance receipt sha256`
+      );
+    }
     const absolute = regularFileInside(rootDir, evidencePath, label);
     requireValue(sha256File(absolute) === digest, `${label} digest does not match`);
     if (category === "measurement-freeze-receipt") {
@@ -5629,6 +5649,58 @@ function requiredCalibrationArtifactRole(
   return value as MeasurementCalibrationArtifactRole;
 }
 
+function runnerExpectedEnvironmentAtCommit(
+  rootDir: string,
+  commit: string
+): JsonRecord {
+  const manifest = readJsonTextObject(
+    gitBlob(rootDir, commit, "RELEASE_READINESS.json"),
+    `release readiness manifest at ${commit}`
+  );
+  const gates = requiredRecord(
+    manifest.gates,
+    `release readiness gates at ${commit}`
+  );
+  const runnerGate = requiredRecord(
+    gates["runner-cycles"],
+    `runner-cycles gate at ${commit}`
+  );
+  return requiredRecord(
+    runnerGate.expectedEnvironment,
+    `runner-cycles.expectedEnvironment at ${commit}`
+  );
+}
+
+function verifyRunnerExpectedEnvironmentHistory(
+  rootDir: string,
+  replayParentCommit: string,
+  candidateCommit: string
+): void {
+  const descendants = git(rootDir, [
+    "rev-list",
+    "--ancestry-path",
+    "--reverse",
+    `${replayParentCommit}..${candidateCommit}`
+  ])
+    .trim()
+    .split(/\r?\n/)
+    .filter(Boolean);
+  requireValue(
+    descendants.at(-1) === candidateCommit,
+    "replay parent P and candidate C must share one verifiable ancestry path"
+  );
+  const expected = canonicalJson(
+    runnerExpectedEnvironmentAtCommit(rootDir, replayParentCommit)
+  );
+  for (const commit of descendants) {
+    requireValue(
+      canonicalJson(runnerExpectedEnvironmentAtCommit(rootDir, commit)) ===
+        expected,
+      "runner-cycles.expectedEnvironment must remain unchanged from replay parent P through candidate C"
+    );
+  }
+}
+
 function verifyDurablePrerequisite(
   rootDir: string,
   candidateCommit: string,
@@ -5844,7 +5916,7 @@ function verifyDurablePrerequisite(
   requireValue(
     stagingTeardown.artifactKind ===
       "site-behavior-staging-teardown-session-receipt" &&
-      stagingTeardown.schemaVersion === 1 &&
+      stagingTeardown.schemaVersion === 2 &&
       stagingTeardown.stagingSourceCommit === replayDeploymentCommit,
     "staging teardown evidence must bind the exact pre-enable replay deployment"
   );
@@ -5983,6 +6055,11 @@ function verifyDurablePrerequisite(
           `${candidateCommit}^`
         ]) === 0,
       "durable replay, exact 0→1 transition, soak archive, and candidate must form an ordered pre-candidate history"
+    );
+    verifyRunnerExpectedEnvironmentHistory(
+      rootDir,
+      fromCommit,
+      candidateCommit
     );
     const fromConfig = gitBlob(
       rootDir,
@@ -6338,6 +6415,8 @@ function verifyDurablePrerequisite(
     stagingTeardownEvidencePath:
       MEASUREMENT_STAGING_TEARDOWN_EVIDENCE_PATH,
     stagingTeardownEvidenceSha256,
+    stagingTeardownTargetManifestSha256:
+      stagingTeardownIdentity.targetManifestSha256,
     stagingTeardownInventoryDigest:
       stagingTeardownIdentity.teardownInventoryDigest,
     stagingTeardownRecordedAt: stagingTeardownIdentity.recordedAt,
@@ -7179,15 +7258,21 @@ function verifyStagingTeardownAttestation(
   evidence: JsonRecord,
   replayDeploymentCommit: string
 ): {
+  targetManifestSha256: string;
   teardownInventoryDigest: string;
   recordedAt: string;
 } {
   requireValue(
-    evidence.schemaVersion === 1 &&
+    evidence.schemaVersion === 2 &&
       evidence.artifactKind ===
         "site-behavior-staging-teardown-session-receipt" &&
       evidence.stagingSourceCommit === replayDeploymentCommit,
     "staging teardown evidence identity does not match the exact pre-enable deployment"
+  );
+  const targetManifestSha256 = requiredPattern(
+    evidence.targetManifestSha256,
+    SHA256,
+    "staging teardown evidence targetManifestSha256"
   );
   const teardownInventoryDigest = requiredPattern(
     evidence.teardownInventoryDigest,
@@ -7198,7 +7283,7 @@ function verifyStagingTeardownAttestation(
     evidence.recordedAt,
     "staging teardown evidence recordedAt"
   );
-  return { teardownInventoryDigest, recordedAt };
+  return { targetManifestSha256, teardownInventoryDigest, recordedAt };
 }
 
 function verifyDurableSoakAttestation(

@@ -17,12 +17,15 @@ those disagree, those win, and the draft is stale.
 
 In dependency order:
 
-1. **Assemble custody wiring** (code, unimplemented). The assemble CLI
-   currently refuses before revealing sealed labels:
-   `scripts/calibration-study-assemble.mjs` line 35. Roster custody
-   verification, reveal, and assembly must be finished and tested before any
-   live ceremony can conclude. This is the one remaining engineering
-   milestone of the program.
+1. **Build the frame producer** (code, unimplemented). Custody assembly is
+   implemented: `scripts/calibration-study-assemble.mjs` re-fetches and
+   cross-binds the roster authorization, roster-selection ledger, and complete
+   acquisition-attempt ledger before it reads the reveal key, with the refusal
+   paths covered by `scripts/calibration-assemble-custody-lib.test.mjs`. The
+   remaining engineering milestone is the deterministic `calibration:frame`
+   producer specified in `frame-construction.md`; the frame cannot freeze until
+   it emits the canonical case inputs, plan rows, labeler appendix, and sweep
+   receipts.
 2. **A controlled runner** (operator). The single authorized acquisition
    executes candidate C on the self-hosted runner named by
    `FEATURED_RUNNER_LABEL`, with attested egress.

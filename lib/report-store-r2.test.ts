@@ -218,7 +218,7 @@ test("R2 LIST and control bodies reject malformed UTF-8 without retrying", async
   assert.equal(failedControl.requests.length, 1);
 });
 
-test("R2 streamed byte caps trust actual bytes while declared length remains an early ceiling", async () => {
+test("R2 streamed byte caps enforce actual bytes and retry an identity length mismatch", async () => {
   const underdeclared = new Uint8Array(R2_SIDECAR_RESPONSE_MAX_BYTES + 1).fill(0x20);
   const actualOverflow = backendWith([
     new Response(underdeclared, { status: 200, headers: { "content-length": "1" } }),
@@ -231,13 +231,19 @@ test("R2 streamed byte caps trust actual bytes while declared length remains an 
   );
 
   const valid = "{}\n";
-  const overdeclaredWithinCap = backendWith([
+  const declaredMismatch = backendWith([
     new Response(valid, {
       status: 200,
       headers: { "content-length": String(R2_SIDECAR_RESPONSE_MAX_BYTES) }
+    }),
+    new Response(valid, {
+      status: 200,
+      headers: { "content-length": String(new TextEncoder().encode(valid).byteLength) }
     })
   ]);
-  assert.equal(await overdeclaredWithinCap.backend.readSidecar(VALID_ID), valid);
+  assert.equal(await declaredMismatch.backend.readSidecar(VALID_ID), valid);
+  assert.equal(declaredMismatch.requests.length, 2);
+  assert.deepEqual(declaredMismatch.sleeps, [250]);
 });
 
 test("R2 write declares the UTF-8 byte length rather than the JavaScript string length", async () => {

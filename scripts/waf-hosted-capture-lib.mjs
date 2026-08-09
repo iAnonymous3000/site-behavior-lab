@@ -237,40 +237,105 @@ function parseUtf8Json(bytes, label) {
   return value;
 }
 
-async function boundedResponseBytes(response, label) {
+function observeDetached(value) {
+  void Promise.resolve(value).catch(() => undefined);
+}
+
+function cancelResponseBodyDetached(response) {
+  try {
+    observeDetached(response.body?.cancel?.());
+  } catch {
+    // The authoritative response refusal must not depend on cleanup.
+  }
+}
+
+function cancelReaderDetached(reader, reason) {
+  try {
+    observeDetached(reader.cancel(reason));
+  } catch {
+    // The authoritative response refusal must not depend on cleanup.
+  }
+}
+
+export async function boundedWafResponseBytes(response, label) {
   const declaredLength = response.headers.get("content-length");
+  const contentEncoding = response.headers.get("content-encoding");
+  // Node's Fetch implementation transparently decodes encoded response
+  // bodies but preserves the wire Content-Length header. That header is an
+  // exact decoded-body contract only for an unencoded (or explicit identity)
+  // response; for gzip/br/etc. the decoded byte ceiling remains authoritative.
+  const declaredLengthDescribesBody =
+    contentEncoding === null || contentEncoding.trim().toLowerCase() === "identity";
+  let declaredBytes = null;
   if (
+    declaredLengthDescribesBody &&
     declaredLength !== null &&
     (!/^[0-9]+$/.test(declaredLength) ||
+      !Number.isSafeInteger(Number(declaredLength)) ||
       Number(declaredLength) > WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES)
   ) {
-    await response.body?.cancel().catch(() => undefined);
+    cancelResponseBodyDetached(response);
     throw new Error(
       `${label} exceeds the ${WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES}-byte response limit`
     );
   }
-  if (response.body === null) return Buffer.alloc(0);
+  if (declaredLength !== null && declaredLengthDescribesBody) {
+    declaredBytes = Number(declaredLength);
+  }
+  if (response.body === null) {
+    requireValue(
+      declaredBytes === null || declaredBytes === 0,
+      `${label} body length changed in transit`
+    );
+    throw new Error(`${label} returned an empty response`);
+  }
   const reader = response.body.getReader();
-  const chunks = [];
+  // Keep one fixed buffer. A byte ceiling does not bound an array of chunk
+  // objects when a peer emits arbitrarily many empty or one-byte chunks.
+  const capacity =
+    declaredBytes === null
+      ? WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES
+      : declaredBytes;
+  const bytes = Buffer.allocUnsafe(capacity);
   let total = 0;
   try {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      total += value.byteLength;
-      if (total > WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES) {
-        await reader.cancel().catch(() => undefined);
+      if (!(value instanceof Uint8Array)) {
+        throw new Error(`${label} returned a non-byte response chunk`);
+      }
+      if (value.byteLength === 0) continue;
+      if (
+        value.byteLength >
+        WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES - total
+      ) {
         throw new Error(
           `${label} exceeds the ${WAF_HOSTED_PROVIDER_RESPONSE_MAX_BYTES}-byte response limit`
         );
       }
-      chunks.push(Buffer.from(value));
+      if (value.byteLength > capacity - total) {
+        throw new Error(`${label} body length changed in transit`);
+      }
+      bytes.set(value, total);
+      total += value.byteLength;
     }
+  } catch (error) {
+    cancelReaderDetached(reader, "WAF hosted response was refused");
+    throw error;
   } finally {
-    reader.releaseLock();
+    try {
+      reader.releaseLock();
+    } catch {
+      // Broken transport cleanup must not mask the authoritative verdict.
+    }
   }
   requireValue(total > 0, `${label} returned an empty response`);
-  return Buffer.concat(chunks, total);
+  requireValue(
+    declaredBytes === null || total === declaredBytes,
+    `${label} body length changed in transit`
+  );
+  return Buffer.from(bytes.subarray(0, total));
 }
 
 async function providerRequest({
@@ -300,15 +365,15 @@ async function providerRequest({
     throw new Error(`${label} failed before an HTTP response`);
   }
   if (response.status !== 200) {
-    await response.body?.cancel().catch(() => undefined);
+    cancelResponseBodyDetached(response);
     throw new Error(`${label} returned HTTP ${response.status}`);
   }
   const contentType = response.headers.get("content-type") ?? "";
   if (!/^application\/json(?:;|$)/i.test(contentType)) {
-    await response.body?.cancel().catch(() => undefined);
+    cancelResponseBodyDetached(response);
     throw new Error(`${label} did not return application/json`);
   }
-  const bytes = await boundedResponseBytes(response, label);
+  const bytes = await boundedWafResponseBytes(response, label);
   await persistRaw(rawName, bytes);
   return bytes;
 }
@@ -641,10 +706,13 @@ async function readProductionHealth({ fetchImpl, candidateCommit }) {
     throw new Error("production health read failed before an HTTP response");
   }
   if (response.status !== 200) {
-    await response.body?.cancel().catch(() => undefined);
+    cancelResponseBodyDetached(response);
     throw new Error(`production health read returned HTTP ${response.status}`);
   }
-  const bytes = await boundedResponseBytes(response, "production health read");
+  const bytes = await boundedWafResponseBytes(
+    response,
+    "production health read"
+  );
   const health = parseUtf8Json(bytes, "production health response");
   requireValue(isRecord(health), "production health response must be an object");
   requireValue(
@@ -703,7 +771,7 @@ function privateRayCapturingFetch(fetchImpl, privateRayIds) {
       statusText: response.statusText,
       headers: response.headers
     });
-    await response.body?.cancel().catch(() => undefined);
+    cancelResponseBodyDetached(response);
     return safeResponse;
   };
 }

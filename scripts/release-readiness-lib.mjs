@@ -36,6 +36,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import {
   parseCanonicalRunnerDestructionReceiptBytes,
+  runnerDestructionEnvironmentDigest,
+  runnerDestructionExpectedEnvironmentDigest,
+  runnerDestructionExpectedEnvironmentIssues,
   verifyRunnerDestructionReceipt,
   verifyRunnerDestructionReceiptSet
 } from "./runner-receipt-lib.mjs";
@@ -87,8 +90,12 @@ import {
   calibrationPolicyDispositionSha256
 } from "./calibration-study-lib.mjs";
 import {
-  RELEASE_TAG_GOVERNANCE_RECEIPT_PATH,
+  RELEASE_TAG_GOVERNANCE_DIGEST_BINDING_KIND,
+  RELEASE_TAG_GOVERNANCE_DIGEST_VARIABLE,
+  RELEASE_TAG_GOVERNANCE_RECEIPT_DIRECTORY,
+  RELEASE_TAG_GOVERNANCE_REPOSITORY,
   RELEASE_TAG_GOVERNANCE_MAX_AGE_DAYS,
+  releaseTagGovernanceReceiptPath,
   releaseTagGovernanceReceiptFreshnessProblems,
   releaseTagGovernanceReceiptProblems,
   serializeReleaseTagGovernanceReceipt
@@ -152,6 +159,7 @@ const REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES = Object.freeze([
   "lifecycle-receipt",
   "operator-evidence",
   "operator-attestation",
+  "release-tag-governance-receipt",
   "release-policy-finalization",
   "citation-finalization",
   "changelog-finalization"
@@ -412,16 +420,34 @@ function evaluateDocumentDigest(id, gate, manifest, rootDir) {
   return gateResult(id, gate, reasons.length === 0 ? "pass" : "fail", reasons);
 }
 
-function evaluateReleaseTagGovernance(id, gate, rootDir, now) {
+function evaluateReleaseTagGovernance(
+  id,
+  gate,
+  rootDir,
+  now,
+  measurementContext,
+  selectedReceiptDigest
+) {
   const reasons = [];
   const promotionWorkflows = [
     ".github/workflows/ci.yml",
     ".github/workflows/promote-production.yml"
   ];
   const releaseWorkflow = ".github/workflows/release.yml";
-  if (gate.artifact !== RELEASE_TAG_GOVERNANCE_RECEIPT_PATH) {
+  if (gate.artifactDirectory !== RELEASE_TAG_GOVERNANCE_RECEIPT_DIRECTORY) {
     reasons.push(
-      `gate config: artifact must be ${RELEASE_TAG_GOVERNANCE_RECEIPT_PATH}`
+      `gate config: artifactDirectory must be ${RELEASE_TAG_GOVERNANCE_RECEIPT_DIRECTORY}`
+    );
+  }
+  if (
+    !isRecord(gate.digestBinding) ||
+    JSON.stringify(Object.keys(gate.digestBinding).sort()) !==
+      JSON.stringify(["kind", "name"]) ||
+    gate.digestBinding.kind !== RELEASE_TAG_GOVERNANCE_DIGEST_BINDING_KIND ||
+    gate.digestBinding.name !== RELEASE_TAG_GOVERNANCE_DIGEST_VARIABLE
+  ) {
+    reasons.push(
+      `gate config: digestBinding must name the ${RELEASE_TAG_GOVERNANCE_DIGEST_VARIABLE} GitHub Actions prepare-snapshotted external selector`
     );
   }
   if (
@@ -435,24 +461,42 @@ function evaluateReleaseTagGovernance(id, gate, rootDir, now) {
   if (gate.releaseWorkflow !== releaseWorkflow) {
     reasons.push(`gate config: releaseWorkflow must be ${releaseWorkflow}`);
   }
-  if (typeof gate.sha256 !== "string" || !SHA256.test(gate.sha256)) {
-    reasons.push(
-      "gate config: sha256 must pin the maintainer-reviewed governance receipt"
-    );
-  }
   if (gate.maxAgeDays !== RELEASE_TAG_GOVERNANCE_MAX_AGE_DAYS) {
     reasons.push(
       `gate config: maxAgeDays must be ${RELEASE_TAG_GOVERNANCE_MAX_AGE_DAYS}`
     );
   }
 
-  const receiptPath = path.join(
-    rootDir,
-    ...RELEASE_TAG_GOVERNANCE_RECEIPT_PATH.split("/")
-  );
-  if (!existsSync(receiptPath)) {
-    reasons.push(`${RELEASE_TAG_GOVERNANCE_RECEIPT_PATH} does not exist`);
+  let receiptRelative = null;
+  if (typeof selectedReceiptDigest !== "string" || !SHA256.test(selectedReceiptDigest)) {
+    reasons.push(
+      `${RELEASE_TAG_GOVERNANCE_DIGEST_VARIABLE} must select one maintainer-reviewed lowercase sha256 receipt`
+    );
   } else {
+    receiptRelative = releaseTagGovernanceReceiptPath(selectedReceiptDigest);
+  }
+  if (receiptRelative !== null && measurementContext?.configured) {
+    const selectedEntries = boundEvidence(
+      measurementContext,
+      "release-tag-governance-receipt"
+    ).filter((entry) => entry?.path === receiptRelative);
+    if (
+      selectedEntries.length !== 1 ||
+      selectedEntries[0]?.sha256 !== selectedReceiptDigest ||
+      selectedEntries[0]?.change !== "added"
+    ) {
+      reasons.push(
+        `${receiptRelative} must appear exactly once as add-only release-tag-governance-receipt evidence in the verified measurement-candidate binding`
+      );
+    }
+  }
+
+  const receiptPath = receiptRelative === null
+    ? null
+    : path.join(rootDir, ...receiptRelative.split("/"));
+  if (receiptPath !== null && !existsSync(receiptPath)) {
+    reasons.push(`${receiptRelative} does not exist`);
+  } else if (receiptPath !== null) {
     try {
       const bytes = readFileSync(receiptPath);
       const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
@@ -460,9 +504,9 @@ function evaluateReleaseTagGovernance(id, gate, rootDir, now) {
       if (serializeReleaseTagGovernanceReceipt(receipt) !== text) {
         reasons.push("release tag governance receipt is not canonical JSON");
       }
-      if (gate.sha256 !== sha256OfBytes(bytes)) {
+      if (selectedReceiptDigest !== sha256OfBytes(bytes)) {
         reasons.push(
-          "release tag governance receipt bytes do not match the manifest pin"
+          "release tag governance receipt bytes do not match the prepare-snapshotted external selector"
         );
       }
       reasons.push(...releaseTagGovernanceReceiptProblems(receipt));
@@ -471,6 +515,14 @@ function evaluateReleaseTagGovernance(id, gate, rootDir, now) {
           receipt,
           now,
           gate.maxAgeDays
+        )
+      );
+      reasons.push(
+        ...releaseTagGovernanceEvidenceChronologyProblems(
+          rootDir,
+          measurementContext,
+          receiptRelative,
+          receipt.capturedAt
         )
       );
     } catch (error) {
@@ -490,18 +542,13 @@ function evaluateReleaseTagGovernance(id, gate, rootDir, now) {
     if (
       !workflow.includes(
         "client-id: ${{ vars.PROMOTION_APP_CLIENT_ID }}"
-      )
-    ) {
-      reasons.push(`${relative} does not authenticate the promoter by client id`);
-    }
-    if (
-      workflow.includes("PROMOTION_APP_ID") ||
-      workflow.includes("app-id:") ||
-      workflow.includes("!vars.PROMOTION_APP_CLIENT_ID") ||
-      workflow.includes("promotion_app_token.outputs.token")
+      ) ||
+      !workflow.includes("app-id: ${{ vars.PROMOTION_APP_ID }}") ||
+      !workflow.includes("if: ${{ vars.PROMOTION_APP_CLIENT_ID }}") ||
+      !workflow.includes("if: ${{ !vars.PROMOTION_APP_CLIENT_ID }}")
     ) {
       reasons.push(
-        `${relative} still permits the deprecated promotion App-id fallback`
+        `${relative} does not preserve the exclusive promotion App client-id/App-id migration path`
       );
     }
   }
@@ -518,7 +565,7 @@ function evaluateReleaseTagGovernance(id, gate, rootDir, now) {
       "PROMOTION_APP_CLIENT_ID",
       "PROMOTION_APP_INTEGRATION_ID",
       "PROMOTION_APP_SLUG",
-      RELEASE_TAG_GOVERNANCE_RECEIPT_PATH
+      RELEASE_TAG_GOVERNANCE_RECEIPT_DIRECTORY
     ]) {
       if (!workflow.includes(required)) {
         reasons.push(`${releaseWorkflow} does not bind ${required}`);
@@ -539,7 +586,7 @@ function evaluateReleaseTagGovernance(id, gate, rootDir, now) {
     reasons.length === 0 ? "pass" : "fail",
     reasons.length === 0
       ? [
-          "canonical full-bypass receipt is pinned and both Apps use separated client-id identities"
+          "canonical add-only full-bypass receipt is externally selected, candidate-bound, and both Apps use separated client-id identities"
         ]
       : reasons
   );
@@ -1481,6 +1528,42 @@ function evidenceFinalizationProblems(
     ];
   }
   return [];
+}
+
+export function releaseTagGovernanceEvidenceChronologyProblems(
+  rootDir,
+  context,
+  evidencePath,
+  capturedAt
+) {
+  const reasons = evidenceFinalizationProblems(
+    rootDir,
+    context,
+    evidencePath,
+    "capturedAt",
+    capturedAt
+  );
+  if (!context?.binding) return reasons;
+  const capturedMillis = canonicalInstantMillis(capturedAt);
+  const candidateCommittedAt = gitRead(rootDir, [
+    "show",
+    "-s",
+    "--format=%cI",
+    context.binding.candidateCommit
+  ]);
+  const candidateMillis = Date.parse(
+    candidateCommittedAt?.toString("utf8").trim() ?? ""
+  );
+  if (
+    capturedMillis === null ||
+    !Number.isFinite(candidateMillis) ||
+    capturedMillis < candidateMillis - GIT_TIMESTAMP_PRECISION_SKEW_MS
+  ) {
+    reasons.push(
+      `${evidencePath} capturedAt must not predate the commit that selected the measurement candidate`
+    );
+  }
+  return reasons;
 }
 
 export function reportAcquisitionRuns(report) {
@@ -2668,15 +2751,25 @@ function acquireRunnerReceipts(
   options = {}
 ) {
   const configReasons = [];
+  let expectedEnvironmentDigest = null;
   if (!Number.isSafeInteger(gate.minimumReceipts) || gate.minimumReceipts < 1) {
     configReasons.push("gate config: minimumReceipts must be a positive integer");
   }
+  const environmentIssues = runnerDestructionExpectedEnvironmentIssues(
+    gate.expectedEnvironment
+  );
+  if (environmentIssues.length > 0) {
+    configReasons.push(
+      ...environmentIssues.map(
+        (issue) =>
+          `gate config: ${issue} (approve the exact privacy-safe runner environment before declaring P)`
+      )
+    );
+  } else {
+    expectedEnvironmentDigest =
+      runnerDestructionExpectedEnvironmentDigest(gate.expectedEnvironment);
+  }
   if (measurementContext.configured) {
-    if (typeof gate.expectedEnvironmentDigest !== "string" || !SHA256.test(gate.expectedEnvironmentDigest)) {
-      configReasons.push(
-        "gate config: expectedEnvironmentDigest must be a release-owned lowercase sha256 (it remains null until the environment is reviewed)"
-      );
-    }
     if (!Number.isSafeInteger(gate.maxAgeDays) || gate.maxAgeDays < 1 || gate.maxAgeDays > 365) {
       configReasons.push("gate config: maxAgeDays must be an integer from 1 through 365");
     }
@@ -2717,6 +2810,14 @@ function acquireRunnerReceipts(
       if (!individual.ok) {
         reasons.push(
           ...individual.issues.map((issue) => `${entry}: ${issue}`)
+        );
+      } else if (
+        expectedEnvironmentDigest !== null &&
+        runnerDestructionEnvironmentDigest(receipt) !==
+          expectedEnvironmentDigest
+      ) {
+        reasons.push(
+          `${entry}: controlled runner environment does not match the candidate-owned expectedEnvironment`
         );
       } else if (measurementContext.configured) {
         const hostedVerification = verifyHostedEvidenceSubject({
@@ -2845,16 +2946,21 @@ function acquireRunnerReceipts(
   }
   let verification = null;
   if (reasons.length === 0) {
+    const verificationOptions = {};
+    if (expectedEnvironmentDigest !== null) {
+      verificationOptions.expectedEnvironmentDigest =
+        expectedEnvironmentDigest;
+    }
+    if (measurementContext.configured) {
+      Object.assign(verificationOptions, {
+        epochStartedAt: freezeContext.receipt.activation.activatedAt,
+        now,
+        maxAgeDays: gate.maxAgeDays
+      });
+    }
     verification = verifyRunnerDestructionReceiptSet(
       receipts,
-      measurementContext.configured
-        ? {
-            expectedEnvironmentDigest: gate.expectedEnvironmentDigest,
-            epochStartedAt: freezeContext.receipt.activation.activatedAt,
-            now,
-            maxAgeDays: gate.maxAgeDays
-          }
-        : {}
+      verificationOptions
     );
     if (!verification.ok) reasons.push(...verification.issues);
   }
@@ -3294,11 +3400,41 @@ function archivedReleaseReceiptProblems(receipt, directoryVersion, { rootDir, re
   if (!isRecord(receipt)) return ["receipt must be an object"];
   const reasons = [];
   const repository = "https://github.com/iAnonymous3000/site-behavior-lab";
-  const topLevelKeys = ["schemaVersion", "evidenceKind", "release", "source", "inputs", "artifacts"];
+  const legacySchema = receipt.schemaVersion === 1;
+  const governanceBoundSchema = receipt.schemaVersion === 2;
+  const topLevelKeys = [
+    "schemaVersion",
+    "evidenceKind",
+    ...(governanceBoundSchema
+      ? ["releaseTagGovernanceReceiptSha256"]
+      : []),
+    "release",
+    "source",
+    "inputs",
+    "artifacts"
+  ];
   if (!hasExactKeys(receipt, topLevelKeys)) {
     reasons.push(`receipt must contain exactly ${topLevelKeys.join(", ")}`);
   }
-  if (receipt.schemaVersion !== 1) reasons.push("schemaVersion must be 1");
+  if (!legacySchema && !governanceBoundSchema) {
+    reasons.push("schemaVersion must be supported release receipt version 1 or 2");
+  }
+  if (
+    governanceBoundSchema &&
+    !SHA256.test(receipt.releaseTagGovernanceReceiptSha256 ?? "")
+  ) {
+    reasons.push(
+      "releaseTagGovernanceReceiptSha256 must be one lowercase sha256"
+    );
+  }
+  if (
+    legacySchema &&
+    /^1\.0\.0(?:-rc\.[1-9][0-9]*)?$/.test(directoryVersion)
+  ) {
+    reasons.push(
+      "release 1.0 archives require schemaVersion 2 with an explicit release governance receipt binding"
+    );
+  }
   if (receipt.evidenceKind !== "exact-source-and-tested-artifact-manifest") {
     reasons.push("evidenceKind must be exact-source-and-tested-artifact-manifest");
   }
@@ -3538,6 +3674,19 @@ function archivedReleaseGitProblems(receipt, directoryVersion, { rootDir, receip
     }
   }
 
+  if (
+    receipt.schemaVersion === 2 &&
+    SHA256.test(receipt.releaseTagGovernanceReceiptSha256 ?? "")
+  ) {
+    reasons.push(
+      ...archivedReleaseGovernanceProblems(
+        rootDir,
+        commit,
+        receipt.releaseTagGovernanceReceiptSha256
+      )
+    );
+  }
+
   const tag = `v${directoryVersion}`;
   const tagType = gitRead(rootDir, ["cat-file", "-t", `refs/tags/${tag}`]);
   if (tagType?.toString("utf8").trim() !== "tag") {
@@ -3559,6 +3708,118 @@ function archivedReleaseGitProblems(receipt, directoryVersion, { rootDir, receip
       .some((line) => line === digestLine)
   ) {
     reasons.push(`${tag} does not embed the archived receipt sha256`);
+  }
+  if (receipt.schemaVersion === 2) {
+    const governanceDigestLine =
+      `Release governance receipt sha256: ${receipt.releaseTagGovernanceReceiptSha256}`;
+    if (
+      tagContents === null ||
+      !tagContents
+        .toString("utf8")
+        .split(/\r?\n/)
+        .some((line) => line === governanceDigestLine)
+    ) {
+      reasons.push(
+        `${tag} does not embed the selected release governance receipt sha256`
+      );
+    }
+  }
+  return reasons;
+}
+
+export function archivedReleaseGovernanceProblems(
+  rootDir,
+  sourceCommit,
+  governanceDigest
+) {
+  if (!FULL_GIT_SHA.test(sourceCommit ?? "")) {
+    return ["archived release governance closure requires a full source commit"];
+  }
+  if (!SHA256.test(governanceDigest ?? "")) {
+    return [
+      "archived release governance closure requires one lowercase sha256"
+    ];
+  }
+  const reasons = [];
+  const governancePath = releaseTagGovernanceReceiptPath(governanceDigest);
+  const governanceBytes = gitRead(rootDir, [
+    "show",
+    `${sourceCommit}:${governancePath}`
+  ]);
+  if (governanceBytes === null) {
+    reasons.push(
+      `release governance receipt ${governancePath} is unavailable at source.commit`
+    );
+  } else if (sha256OfBytes(governanceBytes) !== governanceDigest) {
+    reasons.push(
+      `release governance receipt ${governancePath} bytes do not match its content-addressed sha256`
+    );
+  } else {
+    try {
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(
+        governanceBytes
+      );
+      const governanceReceipt = JSON.parse(text);
+      if (serializeReleaseTagGovernanceReceipt(governanceReceipt) !== text) {
+        reasons.push(
+          `release governance receipt ${governancePath} is not canonical JSON`
+        );
+      }
+      reasons.push(
+        ...releaseTagGovernanceReceiptProblems(governanceReceipt).map(
+          (problem) => `${governancePath}: ${problem}`
+        )
+      );
+    } catch (error) {
+      reasons.push(
+        `release governance receipt ${governancePath} is invalid: ${String(error).slice(0, 200)}`
+      );
+    }
+  }
+
+  const bindingBytes = gitRead(rootDir, [
+    "show",
+    `${sourceCommit}:${MEASUREMENT_CANDIDATE_BINDING_PATH}`
+  ]);
+  if (bindingBytes === null) {
+    reasons.push(
+      `${MEASUREMENT_CANDIDATE_BINDING_PATH} is unavailable at source.commit`
+    );
+    return reasons;
+  }
+  try {
+    const bindingText = new TextDecoder("utf-8", { fatal: true }).decode(
+      bindingBytes
+    );
+    const binding = JSON.parse(bindingText);
+    const selectedEntries = Array.isArray(binding?.evidence)
+      ? binding.evidence.filter(
+          (entry) =>
+            isRecord(entry) &&
+            entry.category === "release-tag-governance-receipt" &&
+            entry.path === governancePath
+        )
+      : [];
+    if (
+      binding?.repository !== RELEASE_TAG_GOVERNANCE_REPOSITORY ||
+      selectedEntries.length !== 1 ||
+      !hasExactKeys(selectedEntries[0], [
+        "category",
+        "path",
+        "change",
+        "sha256"
+      ]) ||
+      selectedEntries[0].change !== "added" ||
+      selectedEntries[0].sha256 !== governanceDigest
+    ) {
+      reasons.push(
+        `${governancePath} must appear exactly once as add-only evidence in the canonical measurement-candidate binding`
+      );
+    }
+  } catch (error) {
+    reasons.push(
+      `${MEASUREMENT_CANDIDATE_BINDING_PATH} is invalid at source.commit: ${String(error).slice(0, 200)}`
+    );
   }
   return reasons;
 }
@@ -5403,7 +5664,14 @@ export function evaluateReleaseReadiness(
           result = evaluateDocumentDigest(id, gate, manifest, rootDir);
           break;
         case "release-tag-governance":
-          result = evaluateReleaseTagGovernance(id, gate, rootDir, now);
+          result = evaluateReleaseTagGovernance(
+            id,
+            gate,
+            rootDir,
+            now,
+            measurementContext,
+            options.releaseTagGovernanceReceiptSha256
+          );
           break;
         case "errata":
           result = evaluateErrata(id, gate, manifest, rootDir, now);

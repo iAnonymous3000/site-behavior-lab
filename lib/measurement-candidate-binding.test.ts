@@ -16,6 +16,7 @@ import {
   unlinkSync,
   writeFileSync
 } from "node:fs";
+import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
@@ -75,6 +76,50 @@ import {
 import { committedCalibrationStudyAnalyses } from "./detector-calibration-source";
 import { NODE_PLAYWRIGHT_VERSION } from "./legacy-methodology";
 import { sha256Hex } from "./sha256";
+
+type DurableReplayReceipt = {
+  mode: "lease-expiry" | "lost-resolve";
+  [key: string]: unknown;
+};
+
+type DurableReplayReceiptProducer = {
+  buildDurableReplayReceipt: (
+    input: Record<string, unknown>
+  ) => DurableReplayReceipt;
+};
+
+type DurableTransitionReceiptProducer = {
+  buildDurableEnableTransitionReceipt: (
+    input: Record<string, unknown>
+  ) => Record<string, unknown>;
+  canonicalTransitionReceiptText: (
+    receipt: Record<string, unknown>
+  ) => string;
+  replaySetFacts: (
+    receipts: DurableReplayReceipt[],
+    expectedDeploymentSha: string
+  ) => {
+    receiptSetDigest: string;
+    evidenceStartedAt: string;
+    evidenceCapturedAt: string;
+  };
+  transitionReceiptSha256: (
+    receipt: Record<string, unknown>
+  ) => string;
+};
+
+// Node 24 can synchronously require ESM modules without top-level await. Keep
+// this fixture on the actual durable producers: a hand-written receipt and a
+// test-local replay-set digest once allowed a broken producer to look correct.
+const requireFromRepository = createRequire(
+  path.join(process.cwd(), "package.json")
+);
+const durableReplayReceiptProducer = requireFromRepository(
+  path.join(process.cwd(), "scripts", "durable-replay-receipt-lib.mjs")
+) as DurableReplayReceiptProducer;
+const durableTransitionReceiptProducer = requireFromRepository(
+  path.join(process.cwd(), "scripts", "durable-transition-receipt-lib.mjs")
+) as DurableTransitionReceiptProducer;
 
 type EvidenceJson = {
   category: MeasurementEvidenceCategory;
@@ -226,6 +271,15 @@ const CALIBRATION_LABEL_KEY_ID = createHash("sha256")
   )
   .digest("hex");
 
+const PRE_P_RUNNER_EXPECTED_ENVIRONMENT = {
+  runnerLabelRef: `sha256:${"1".repeat(64)}`,
+  hostImageIdentityRef: `sha256:${"2".repeat(64)}`,
+  registrationLabelRefs: [`sha256:${"3".repeat(64)}`],
+  declaredRegion: "us-west",
+  natIdentityRef: `sha256:${"4".repeat(64)}`,
+  blockedClasses: ["link-local", "metadata", "private"]
+};
+
 const PASS_ATTESTATION = (_request: MeasurementCandidateAttestationRequest): void => undefined;
 const PASS_FREEZE = (_request: MeasurementFreezeReceiptVerificationRequest): void => undefined;
 const PASS_DURABLE_REPLAY = (
@@ -264,6 +318,11 @@ test("one verified candidate covers the complete fixed post-freeze evidence carr
   assert.equal(inspected.carrierCommit, fixture.carrier);
   assert.notEqual(inspected.candidateCommit, inspected.carrierCommit);
   assert.equal(
+    inspected.durablePrerequisite
+      .stagingTeardownTargetManifestSha256,
+    digest("staging-teardown-target-manifest")
+  );
+  assert.equal(
     inspected.attestationVerifications.containerEvidence.status,
     "required-external-verification"
   );
@@ -296,6 +355,7 @@ test("one verified candidate covers the complete fixed post-freeze evidence carr
       "lifecycle-receipt",
       "operator-evidence",
       "operator-attestation",
+      "release-tag-governance-receipt",
       "release-policy-finalization",
       "citation-finalization",
       "changelog-finalization"
@@ -909,6 +969,21 @@ test("the candidate policy rejects descriptive and underpowered calibration anal
 });
 
 test("the pre-candidate durable prerequisite rejects widened transitions and short soaks", async (t) => {
+  for (const mode of ["persistent", "transient"] as const) {
+    await t.test(
+      `${mode} post-P runner-environment edits cannot be finalized by candidate C`,
+      (child) => {
+        const fixture = makeFixture(child, {
+          postReplayRunnerEnvironmentEdit: mode
+        });
+        assert.throws(
+          () => inspectFixture(fixture.root),
+          /runner-cycles\.expectedEnvironment must remain unchanged from replay parent P through candidate C/
+        );
+      }
+    );
+  }
+
   await t.test(
     "a local staging teardown receipt cannot substitute for hosted provider capture",
     (child) => {
@@ -921,6 +996,18 @@ test("the pre-candidate durable prerequisite rejects widened transitions and sho
             operatorEvidenceVerifier: PASS_OPERATOR_EVIDENCE
           }),
         /staging teardown requires dedicated GitHub-hosted provider-capture provenance; candidate is missing trusted workflow/
+      );
+    }
+  );
+  await t.test(
+    "the staging teardown receipt must retain its exact target-manifest binding",
+    (child) => {
+      const fixture = makeFixture(child, {
+        omitStagingTargetManifestBinding: true
+      });
+      assert.throws(
+        () => inspectFixture(fixture.root),
+        /staging teardown evidence targetManifestSha256/
       );
     }
   );
@@ -1473,6 +1560,52 @@ test("accepted producer commits are causal to each append-only evidence introduc
   );
 });
 
+test("governance receipts are content-addressed add-only binding evidence", async (t) => {
+  await t.test("filename must equal digest", (child) => {
+    const fixture = makeFixture(child);
+    const binding = readBinding(fixture.root);
+    const entry = binding.evidence.find(
+      (candidate) => candidate.category === "release-tag-governance-receipt"
+    );
+    assert.ok(entry);
+    entry.path =
+      `research/ops-receipts/release-tag-governance/${"0".repeat(64)}.json`;
+    writeBinding(fixture.root, binding);
+    commitAll(fixture.root, "misname governance receipt");
+    assert.throws(() => inspectFixture(fixture.root), /filename must equal/);
+  });
+
+  await t.test("change must remain added", (child) => {
+    const fixture = makeFixture(child);
+    const binding = readBinding(fixture.root);
+    const entry = binding.evidence.find(
+      (candidate) => candidate.category === "release-tag-governance-receipt"
+    );
+    assert.ok(entry);
+    entry.change = "refreshed";
+    writeBinding(fixture.root, binding);
+    commitAll(fixture.root, "try to refresh governance receipt");
+    assert.throws(
+      () => inspectFixture(fixture.root),
+      /change must be added for release-tag-governance-receipt/
+    );
+  });
+
+  await t.test("bytes cannot be rewritten", (child) => {
+    const fixture = makeFixture(child);
+    const binding = readBinding(fixture.root);
+    const entry = binding.evidence.find(
+      (candidate) => candidate.category === "release-tag-governance-receipt"
+    );
+    assert.ok(entry);
+    writeJson(path.join(fixture.root, ...entry.path.split("/")), {
+      rewritten: true
+    });
+    commitAll(fixture.root, "rewrite governance receipt bytes");
+    assert.throws(() => inspectFixture(fixture.root), /digest does not match/);
+  });
+});
+
 test("code, workflow, catalog, package, policy, unlisted, delete, and rename changes fail closed", async (t) => {
   const cases: Array<{
     name: string;
@@ -1504,6 +1637,30 @@ test("code, workflow, catalog, package, policy, unlisted, delete, and rename cha
       name: "policy",
       mutate: (fixture) => writeFileSync(path.join(fixture.root, "RELEASE.md"), "changed\n"),
       expected: /not enumerated evidence/
+    },
+    {
+      name: "post-receipt runner policy",
+      mutate: (fixture) => {
+        const readinessPath = path.join(
+          fixture.root,
+          "RELEASE_READINESS.json"
+        );
+        const readiness = JSON.parse(
+          readFileSync(readinessPath, "utf8")
+        ) as {
+          gates: {
+            "runner-cycles": {
+              expectedEnvironment: { natIdentityRef: string };
+            };
+          };
+        };
+        readiness.gates[
+          "runner-cycles"
+        ].expectedEnvironment.natIdentityRef = `sha256:${"6".repeat(64)}`;
+        writeJson(readinessPath, readiness);
+      },
+      expected:
+        /release readiness decision manifest must be byte-identical|not enumerated evidence/
     },
     {
       name: "unlisted evidence",
@@ -1949,6 +2106,8 @@ function makeFixture(
     includeAaStudy?: boolean;
     deferAaStudyGate?: boolean;
     omitLabelCoordinateEvidence?: boolean;
+    omitStagingTargetManifestBinding?: boolean;
+    postReplayRunnerEnvironmentEdit?: "persistent" | "transient";
   } = {}
 ): Fixture {
   const root = mkdtempSync(path.join(tmpdir(), "sbl-measurement-binding-"));
@@ -2215,7 +2374,12 @@ RUN test "$(node --version)" = "v24.18.0"
             : "2026-07-31T22:00:00.000Z"
       }
     },
-    gates: {},
+    gates: {
+      "runner-cycles": {
+        kind: "runner-receipts",
+        expectedEnvironment: PRE_P_RUNNER_EXPECTED_ENVIRONMENT
+      }
+    },
     ...(options.deferCalibrationGate || options.deferAaStudyGate
       ? {
           deferredGates: {
@@ -2351,7 +2515,42 @@ RUN test "$(node --version)" = "v24.18.0"
     transitionCommit,
     options.shortDurableSoak === true
   );
+  if (options.omitStagingTargetManifestBinding === true) {
+    const teardownPath = path.join(
+      root,
+      "research",
+      "ops-evidence",
+      "staging-teardown.json"
+    );
+    const teardown = JSON.parse(
+      readFileSync(teardownPath, "utf8")
+    ) as Record<string, unknown>;
+    delete teardown.targetManifestSha256;
+    writeJson(teardownPath, teardown);
+  }
   commitAll(root, "archive pre-candidate durable operations evidence");
+  if (options.postReplayRunnerEnvironmentEdit !== undefined) {
+    const readinessPath = path.join(root, "RELEASE_READINESS.json");
+    const readiness = JSON.parse(
+      readFileSync(readinessPath, "utf8")
+    ) as {
+      gates: {
+        "runner-cycles": {
+          expectedEnvironment: { natIdentityRef: string };
+        };
+      };
+    };
+    readiness.gates["runner-cycles"].expectedEnvironment.natIdentityRef =
+      `sha256:${"5".repeat(64)}`;
+    writeJson(readinessPath, readiness);
+    commitAll(root, "rewrite runner environment after replay parent");
+    if (options.postReplayRunnerEnvironmentEdit === "transient") {
+      readiness.gates["runner-cycles"].expectedEnvironment.natIdentityRef =
+        PRE_P_RUNNER_EXPECTED_ENVIRONMENT.natIdentityRef;
+      writeJson(readinessPath, readiness);
+      commitAll(root, "restore runner environment before candidate");
+    }
+  }
   writeFileSync(
     path.join(root, "README.md"),
     "candidate source\nmeasurement candidate selected after durable soak\n"
@@ -2720,32 +2919,108 @@ function createDurablePrerequisiteEvidence(
   shortSoak: boolean = false
 ): void {
   const replayRoot = "research/ops-receipts/durable-replay";
-  const origin = {
-    label: "durable-replay-staging",
-    sha256: digest("durable-replay-staging-origin")
+  const coordinatorOrigin =
+    "https://durable-replay-staging.example.invalid";
+  const replayHealth = {
+    deployment: replayDeploymentCommit,
+    status: "ok",
+    warnings: [],
+    authenticated: true,
+    openAccess: false,
+    scansAvailable: true,
+    checks: {
+      chromiumSandbox: "enabled",
+      publicR2Reports: { status: "enabled" },
+      reportStore: { kind: "r2" },
+      durableJobs: {
+        requested: true,
+        enabled: true,
+        readiness: "ready",
+        coordinatorOrigin,
+        faultInjection: {
+          environment: "staging",
+          enabled: true,
+          modes: ["lease-expiry", "lost-resolve"],
+          modeHeaderName: "x-staging-fault-mode",
+          tokenHeaderName: "x-staging-fault-token",
+          minimumNoPollMs: 60_000,
+          attemptEvidence: true,
+          completionBeforeStatusRequestEvidence: true,
+          wholeOriginAccessGate: true
+        }
+      }
+    }
   };
   const replayReceipts = [
-    {
-      kind: "site-behavior-durable-replay-receipt",
-      receiptVersion: 1,
+    durableReplayReceiptProducer.buildDurableReplayReceipt({
       recordedAt: "2026-07-28T01:00:00.000Z",
       mode: "lease-expiry",
       expectedDeploymentSha: replayDeploymentCommit,
-      origin,
-      timing: { startedAt: "2026-07-28T00:00:00.000Z" },
-      receiptDigest: digest("lease-expiry-receipt")
-    },
-    {
-      kind: "site-behavior-durable-replay-receipt",
-      receiptVersion: 1,
+      origin: coordinatorOrigin,
+      originLabel: "durable-replay-staging",
+      timing: {
+        startedAt: "2026-07-28T00:00:00.000Z",
+        submittedAt: "2026-07-28T00:00:10.000Z",
+        noPollMs: 60_000,
+        blindWindowEndedAt: "2026-07-28T00:01:10.000Z",
+        statusObservedAt: "2026-07-28T00:01:11.000Z",
+        reportReadbackAt: "2026-07-28T00:01:12.000Z",
+        completedAt: "2026-07-28T00:01:14.000Z"
+      },
+      preHealth: {
+        observedAt: "2026-07-28T00:00:05.000Z",
+        health: replayHealth
+      },
+      postHealth: {
+        observedAt: "2026-07-28T00:01:13.000Z",
+        health: replayHealth
+      },
+      execution: {
+        terminalStatus: "succeeded",
+        jobId: `20260728-${"1".repeat(32)}`,
+        reportId: `20260728-${"2".repeat(32)}`,
+        attempts: 2,
+        faultTriggered: true,
+        triggeredGeneration: 1,
+        finishedBeforeStatusRequest: true,
+        reportReadback: true
+      }
+    }),
+    durableReplayReceiptProducer.buildDurableReplayReceipt({
       recordedAt: "2026-07-28T03:00:00.000Z",
       mode: "lost-resolve",
       expectedDeploymentSha: replayDeploymentCommit,
-      origin,
-      timing: { startedAt: "2026-07-28T02:00:00.000Z" },
-      receiptDigest: digest("lost-resolve-receipt")
-    }
-  ] as const;
+      origin: coordinatorOrigin,
+      originLabel: "durable-replay-staging",
+      timing: {
+        startedAt: "2026-07-28T02:00:00.000Z",
+        submittedAt: "2026-07-28T02:00:10.000Z",
+        noPollMs: 60_000,
+        blindWindowEndedAt: "2026-07-28T02:01:10.000Z",
+        statusObservedAt: "2026-07-28T02:01:11.000Z",
+        reportReadbackAt: "2026-07-28T02:01:12.000Z",
+        completedAt: "2026-07-28T02:01:14.000Z"
+      },
+      preHealth: {
+        observedAt: "2026-07-28T02:00:05.000Z",
+        health: replayHealth
+      },
+      postHealth: {
+        observedAt: "2026-07-28T02:01:13.000Z",
+        health: replayHealth
+      },
+      execution: {
+        terminalStatus: "succeeded",
+        jobId: `20260728-${"3".repeat(32)}`,
+        reportId: `20260728-${"4".repeat(32)}`,
+        attempts: 1,
+        faultTriggered: true,
+        triggeredGeneration: 1,
+        finishedBeforeStatusRequest: true,
+        reportReadback: true
+      }
+    })
+  ];
   for (const receipt of replayReceipts) {
     writeJson(
       path.join(
@@ -2756,20 +3031,10 @@ function createDurablePrerequisiteEvidence(
       receipt
     );
   }
-  const replayReceiptSetDigest = createHash("sha256")
-    .update(
-      canonicalTestJson({
-        kind: "site-behavior-durable-replay-receipt-set",
-        receiptSetVersion: 1,
-        expectedDeploymentSha: replayDeploymentCommit,
-        origin,
-        receipts: replayReceipts.map((receipt) => ({
-          mode: receipt.mode,
-          receiptDigest: receipt.receiptDigest
-        }))
-      })
-    )
-    .digest("hex");
+  const replayFacts = durableTransitionReceiptProducer.replaySetFacts(
+    replayReceipts,
+    replayDeploymentCommit
+  );
   writeJson(
     path.join(
       root,
@@ -2778,9 +3043,10 @@ function createDurablePrerequisiteEvidence(
       "staging-teardown.json"
     ),
     {
-      schemaVersion: 1,
+      schemaVersion: 2,
       artifactKind: "site-behavior-staging-teardown-session-receipt",
       stagingSourceCommit: replayDeploymentCommit,
+      targetManifestSha256: digest("staging-teardown-target-manifest"),
       recordedAt: "2026-07-28T04:00:00.000Z",
       session: {},
       inventory: {},
@@ -2794,68 +3060,88 @@ function createDurablePrerequisiteEvidence(
     "ops-receipts",
     "durable-enable-transition.json"
   );
-  writeJson(transitionPath, {
-    schemaVersion: 1,
-    artifactKind: "site-behavior-durable-enable-transition",
-    transition: {
-      configPath: "wrangler.container.jsonc",
-      fromCommit: replayDeploymentCommit,
-      toCommit: transitionCommit
-    },
-    replay: {
-      deploymentCommit: replayDeploymentCommit,
-      receiptSetDigest: replayReceiptSetDigest,
-      evidenceStartedAt: "2026-07-28T00:00:00.000Z",
-      evidenceCapturedAt: "2026-07-28T03:00:00.000Z"
-    },
-    secrets: {
-      checkedAt: "2026-07-28T05:00:00.000Z",
-      durableJobsKeyPresent: true,
-      durableJobsInternalTokenPresent: true,
-      valuesRecorded: false
-    },
-    changeControl: {
-      pullRequestUrl:
-        "https://github.com/iAnonymous3000/site-behavior-lab/pull/100",
-      mergeCommit: transitionCommit,
-      mergedAt: "2026-07-28T06:00:00.000Z"
-    },
-    ci: {
-      workflow:
-        "iAnonymous3000/site-behavior-lab/.github/workflows/ci.yml@refs/heads/main",
-      runId: "30600000004",
-      runAttempt: 1,
-      headCommit: transitionCommit,
-      conclusion: "success",
-      completedAt: "2026-07-28T07:00:00.000Z"
-    },
-    promotion: {
-      workflow:
-        "iAnonymous3000/site-behavior-lab/.github/workflows/promote-production.yml@refs/heads/main",
-      runId: "30600000005",
-      runAttempt: 1,
-      productionCommit: transitionCommit,
-      deploymentDigest,
-      convergedAt: "2026-07-28T08:00:00.000Z"
-    },
-    productionHealth: {
-      workflow:
-        "iAnonymous3000/site-behavior-lab/.github/workflows/production-health.yml@refs/heads/main",
-      runId: "30600000006",
-      runAttempt: 1,
-      headCommit: transitionCommit,
-      status: "ok",
-      warningCount: 0,
-      durableJobs: {
-        requested: true,
-        enabled: true,
-        readiness: "ready"
-      },
-      observedAt: "2026-07-28T09:00:00.000Z"
-    },
-    recordedAt: "2026-07-28T10:00:00.000Z"
+  const githubRun = (
+    workflowPath: string,
+    runId: number,
+    completedAt: string
+  ) => ({
+    id: runId,
+    path: workflowPath,
+    head_branch: "main",
+    head_sha: transitionCommit,
+    status: "completed",
+    conclusion: "success",
+    run_attempt: 1,
+    updated_at: completedAt,
+    repository: { full_name: "iAnonymous3000/site-behavior-lab" }
   });
-  const transitionReceiptSha256 = sha256File(transitionPath);
+  const transitionReceipt =
+    durableTransitionReceiptProducer.buildDurableEnableTransitionReceipt({
+      fromCommit: replayDeploymentCommit,
+      toCommit: transitionCommit,
+      replay: {
+        deploymentCommit: replayDeploymentCommit,
+        ...replayFacts
+      },
+      stagingTeardownRecordedAt: "2026-07-28T04:00:00.000Z",
+      secrets: {
+        checkedAt: "2026-07-28T05:00:00.000Z",
+        durableJobsKeyPresent: true,
+        durableJobsInternalTokenPresent: true
+      },
+      changeControl: {
+        pullRequestUrl:
+          "https://github.com/iAnonymous3000/site-behavior-lab/pull/100",
+        mergeCommit: transitionCommit,
+        mergedAt: "2026-07-28T06:00:00.000Z"
+      },
+      ciRun: githubRun(
+        ".github/workflows/ci.yml",
+        30600000004,
+        "2026-07-28T07:00:00.000Z"
+      ),
+      promotionRun: {
+        ...githubRun(
+          ".github/workflows/promote-production.yml",
+          30600000005,
+          "2026-07-28T08:00:00.000Z"
+        ),
+        deploymentDigest
+      },
+      productionHealthRun: githubRun(
+        ".github/workflows/production-health.yml",
+        30600000006,
+        "2026-07-28T09:00:00.000Z"
+      ),
+      productionHealthPayload: {
+        status: "ok",
+        deployment: transitionCommit,
+        warnings: [],
+        checks: {
+          durableJobs: {
+            requested: true,
+            enabled: true,
+            readiness: "ready"
+          }
+        }
+      },
+      recordedAt: "2026-07-28T10:00:00.000Z"
+    });
+  writeFileSync(
+    transitionPath,
+    durableTransitionReceiptProducer.canonicalTransitionReceiptText(
+      transitionReceipt
+    )
+  );
+  const transitionReceiptSha256 =
+    durableTransitionReceiptProducer.transitionReceiptSha256(
+      transitionReceipt
+    );
+  assert.equal(
+    sha256File(transitionPath),
+    transitionReceiptSha256,
+    "the binding fixture must preserve the transition producer's exact bytes"
+  );
   writeJson(
     path.join(
       root,
@@ -2877,7 +3163,7 @@ function createDurablePrerequisiteEvidence(
           path.join(root, "wrangler.container.jsonc")
         ),
         durableEnableReceiptDigest: transitionReceiptSha256,
-        replayReceiptsDigest: replayReceiptSetDigest,
+        replayReceiptsDigest: replayFacts.receiptSetDigest,
         deploymentDigest,
         ledgerSha256: "9".repeat(64)
       },
@@ -3021,27 +3307,6 @@ function durablePrerequisiteBinding(
   };
 }
 
-function canonicalTestJson(value: unknown): string {
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "boolean" ||
-    typeof value === "number"
-  ) {
-    return JSON.stringify(value);
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map((entry) => canonicalTestJson(entry)).join(",")}]`;
-  }
-  const record = value as Record<string, unknown>;
-  return `{${Object.keys(record)
-    .sort()
-    .map(
-      (key) => `${JSON.stringify(key)}:${canonicalTestJson(record[key])}`
-    )
-    .join(",")}}`;
-}
-
 function calibrationLabelCoordinateManifest(
   studyId: string,
   candidateCommit: string
@@ -3081,6 +3346,14 @@ function createEvidence(
     status: "pass",
     evaluationDigest: digest("fixture-aa-evaluation")
   };
+  const governanceReceipt = {
+    schemaVersion: 1,
+    artifactKind: "site-behavior-release-tag-governance-setup",
+    capturedAt: "2026-08-01T00:06:00.000Z"
+  };
+  const governanceReceiptDigest = createHash("sha256")
+    .update(`${JSON.stringify(governanceReceipt, null, 2)}\n`)
+    .digest("hex");
   const aaPreregistrationPath = `${aaStudyRoot}/preregistration.json`;
   const aaTargetFramePath = `${aaStudyRoot}/target-frame.json`;
   const aaLedgerPath = `${aaStudyRoot}/attempt-ledger.json`;
@@ -3289,6 +3562,13 @@ function createEvidence(
       path: "research/ops-receipts/r2-lifecycle-readback.json",
       value: { candidateCommit: candidate },
       change: "refreshed"
+    },
+    {
+      category: "release-tag-governance-receipt",
+      path:
+        `research/ops-receipts/release-tag-governance/${governanceReceiptDigest}.json`,
+      value: governanceReceipt,
+      change: "added"
     },
     {
       category: "release-policy-finalization",

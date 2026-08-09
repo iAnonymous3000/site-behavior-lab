@@ -12,6 +12,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { gzipSync } from "node:zlib";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ScriptExports = Record<string, any>;
@@ -206,6 +207,159 @@ function response(value: unknown): Response {
     headers: { "content-length": String(bytes.byteLength) }
   });
 }
+
+function settleWithin<T>(operation: Promise<T>, timeoutMs = 250): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error("The measurement-freeze body reader did not settle promptly.")),
+      timeoutMs
+    );
+    operation.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+}
+
+test("measurement-freeze response retention ignores empty and tiny chunk metadata", async () => {
+  const module = await script("measurement-freeze-artifact-lib.mjs");
+  const expected = Buffer.from("fixed-capacity-response", "utf8");
+  const emptyChunkCount = 50_000;
+  let reads = 0;
+  let released = false;
+  const reader = {
+    async read() {
+      if (reads < emptyChunkCount) {
+        reads += 1;
+        return { done: false, value: new Uint8Array() };
+      }
+      const offset = reads - emptyChunkCount;
+      reads += 1;
+      if (offset < expected.byteLength) {
+        return {
+          done: false,
+          value: Uint8Array.from([expected[offset]])
+        };
+      }
+      return { done: true, value: undefined };
+    },
+    cancel() {
+      throw new Error("successful reads must not cancel");
+    },
+    releaseLock() {
+      released = true;
+    }
+  };
+  const fragmentedResponse = {
+    ok: true,
+    status: 200,
+    headers: new Headers(),
+    body: { getReader: () => reader }
+  } as unknown as Response;
+
+  assert.deepEqual(
+    await module.readBoundedMeasurementFreezeResponseBytes(
+      fragmentedResponse,
+      "fragmented GitHub response",
+      expected.byteLength
+    ),
+    expected
+  );
+  assert.equal(reads, emptyChunkCount + expected.byteLength + 1);
+  assert.equal(released, true);
+});
+
+test("measurement-freeze response refusal detaches cancellation and guards release", async () => {
+  const module = await script("measurement-freeze-artifact-lib.mjs");
+  let canceled = false;
+  const reader = {
+    async read() {
+      return { done: false, value: new Uint8Array(5) };
+    },
+    cancel() {
+      canceled = true;
+      return new Promise<void>(() => undefined);
+    },
+    releaseLock() {
+      throw new Error("hostile releaseLock");
+    }
+  };
+  const oversizedResponse = {
+    ok: true,
+    status: 200,
+    headers: new Headers(),
+    body: { getReader: () => reader }
+  } as unknown as Response;
+
+  await assert.rejects(
+    settleWithin(
+      module.readBoundedMeasurementFreezeResponseBytes(
+        oversizedResponse,
+        "oversized GitHub response",
+        4
+      )
+    ),
+    /exceeded its 4-byte bound/
+  );
+  assert.equal(canceled, true);
+});
+
+test("measurement-freeze length checks distinguish decoded gzip from identity bytes", async () => {
+  const module = await script("measurement-freeze-artifact-lib.mjs");
+  const expected = Buffer.from("decoded", "utf8");
+  const gzipWireLength = gzipSync(expected).byteLength;
+  assert.ok(gzipWireLength > expected.byteLength);
+
+  const decodedGzip = new Response(expected, {
+    headers: {
+      "content-encoding": "gzip",
+      "content-length": String(gzipWireLength)
+    }
+  });
+  assert.deepEqual(
+    await module.readBoundedMeasurementFreezeResponseBytes(
+      decodedGzip,
+      "decoded gzip GitHub response",
+      expected.byteLength
+    ),
+    expected
+  );
+
+  const exactIdentity = new Response(expected, {
+    headers: {
+      "content-encoding": "identity",
+      "content-length": String(expected.byteLength)
+    }
+  });
+  assert.deepEqual(
+    await module.readBoundedMeasurementFreezeResponseBytes(
+      exactIdentity,
+      "identity GitHub response",
+      expected.byteLength
+    ),
+    expected
+  );
+
+  const mismatchedIdentity = new Response(expected, {
+    headers: {
+      "content-length": String(expected.byteLength - 1)
+    }
+  });
+  await assert.rejects(
+    module.readBoundedMeasurementFreezeResponseBytes(
+      mismatchedIdentity,
+      "mismatched identity GitHub response",
+      expected.byteLength
+    ),
+    /does not match Content-Length/
+  );
+});
 
 test("trusted live fetch and bounded offline context verify the same immutable activation artifact", async (t) => {
   const module = await script("measurement-freeze-artifact-lib.mjs");

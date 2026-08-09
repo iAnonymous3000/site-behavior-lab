@@ -6,8 +6,14 @@ import {
 } from "./operator-evidence-common.mjs";
 import { requiredCiJobs } from "./verify-required-ci-jobs.mjs";
 
-export const RELEASE_TAG_GOVERNANCE_RECEIPT_PATH =
-  "research/ops-receipts/release-tag-governance.json";
+export const RELEASE_TAG_GOVERNANCE_RECEIPT_DIRECTORY =
+  "research/ops-receipts/release-tag-governance";
+export const RELEASE_TAG_GOVERNANCE_DIGEST_VARIABLE =
+  "RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256";
+export const RELEASE_TAG_GOVERNANCE_DIGEST_BINDING_KIND =
+  "github-actions-prepare-snapshot";
+export const RELEASE_TAG_GOVERNANCE_REPOSITORY =
+  "iAnonymous3000/site-behavior-lab";
 export const RELEASE_TAG_GOVERNANCE_RECEIPT_KIND =
   "site-behavior-release-tag-governance-setup";
 export const RELEASE_TAG_GOVERNANCE_RECEIPT_SCHEMA_VERSION = 1;
@@ -16,6 +22,14 @@ export const PRODUCTION_EVIDENCE_RULESET_ID = 20050303;
 export const PRODUCTION_UPDATER_RULESET_ID = 20050309;
 export const RELEASE_TAG_GOVERNANCE_MAX_AGE_DAYS = 1;
 const FUTURE_SKEW_MS = 10 * 60 * 1000;
+const SHA256 = /^[0-9a-f]{64}$/;
+
+export function releaseTagGovernanceReceiptPath(digest) {
+  if (typeof digest !== "string" || !SHA256.test(digest)) {
+    throw new Error("release tag governance receipt digest must be a lowercase sha256");
+  }
+  return `${RELEASE_TAG_GOVERNANCE_RECEIPT_DIRECTORY}/${digest}.json`;
+}
 
 const RECEIPT_KEYS = [
   "schemaVersion",
@@ -394,6 +408,10 @@ export function releaseTagGovernanceReceiptProblems(receipt) {
   }
   if (typeof receipt.repository !== "string" || !REPOSITORY.test(receipt.repository)) {
     problems.push("receipt.repository must be owner/name");
+  } else if (receipt.repository !== RELEASE_TAG_GOVERNANCE_REPOSITORY) {
+    problems.push(
+      `receipt.repository must be ${RELEASE_TAG_GOVERNANCE_REPOSITORY}`
+    );
   }
   if (!canonicalInstant(receipt.capturedAt)) {
     problems.push("receipt.capturedAt must be a canonical UTC instant");

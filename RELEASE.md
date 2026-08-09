@@ -110,8 +110,9 @@ created only after the revision it names is already promoted:
    two App identities overlap. Only the release credentials feed the token
    action, which mints a current-repository contents-write token from the
    dedicated release App. Missing or reused configuration refuses the release;
-   there is no deprecated App-ID fallback, no fallback to `GITHUB_TOKEN`, and
-   no fallback to the separately scoped production promotion App. The job then
+   for this release App there is no deprecated App-ID fallback, no fallback to
+   `GITHUB_TOKEN`, and no fallback to the separately scoped production
+   promotion App. The job then
    atomically creates the annotated tag through GitHub's Git database API, with
    no checkout, package-manager execution, OIDC, or attestation authority. The
    tag message records the receipt's sha256 so it stays identifiable after the
@@ -126,8 +127,10 @@ created only after the revision it names is already promoted:
    configure a legacy `RELEASE_APP_ID` fallback. Store its private key
    **only** as the `RELEASE_APP_PRIVATE_KEY` secret on the `release-tag`
    environment; no repository- or organization-scoped secret with that name
-   may exist. Complete the promotion App's client-ID migration and keep its
-   distinct nonsecret `PROMOTION_APP_CLIENT_ID`,
+   may exist. The promotion App remains separate and keeps its existing
+   `PROMOTION_APP_ID` path until its distinct nonsecret
+   `PROMOTION_APP_CLIENT_ID` is configured; the two mutually exclusive token
+   steps ensure exactly one identity input mints. Retain its
    `PROMOTION_APP_INTEGRATION_ID`, and `PROMOTION_APP_SLUG` populated for the
    equality and public-identity refusals. Do not reuse any `PROMOTION_APP_*`
    credential, give the release App
@@ -155,11 +158,27 @@ created only after the revision it names is already promoted:
    release workflow's current-repository-scoped token as proof of the
    underlying installation scope.
 
-   ```sh
-   GH_TOKEN=<maintainer-token> \
-   RELEASE_APP_JWT=<short-lived-release-app-jwt> \
-   PROMOTION_APP_JWT=<short-lived-promotion-app-jwt> \
-     npm run release:governance:capture -- \
+   Inject the three short-lived credentials from a secret manager, or enter
+   them silently in a disposable subshell. Never put their values in command
+   arguments, inline assignments, or shell history:
+
+   ```bash
+   (
+   set -euo pipefail
+   cleanup_release_governance_credentials() {
+     unset GH_TOKEN RELEASE_APP_JWT PROMOTION_APP_JWT
+   }
+   trap cleanup_release_governance_credentials EXIT
+
+   printf 'Maintainer GitHub token: ' >&2
+   IFS= read -r -s GH_TOKEN; printf '\n' >&2
+   printf 'Short-lived release App JWT: ' >&2
+   IFS= read -r -s RELEASE_APP_JWT; printf '\n' >&2
+   printf 'Short-lived promotion App JWT: ' >&2
+   IFS= read -r -s PROMOTION_APP_JWT; printf '\n' >&2
+   export GH_TOKEN RELEASE_APP_JWT PROMOTION_APP_JWT
+
+   npm run release:governance:capture -- \
      --repository iAnonymous3000/site-behavior-lab \
      --release-app-client-id <client-id> \
      --release-app-integration-id <numeric-id> \
@@ -167,15 +186,31 @@ created only after the revision it names is already promoted:
      --promotion-app-client-id <client-id> \
      --promotion-app-integration-id <numeric-id> \
      --promotion-app-slug <slug> \
-     --creation-ruleset-id <numeric-id> \
-     --output research/ops-receipts/release-tag-governance.json
+     --creation-ruleset-id <numeric-id>
+   )
    ```
 
-   Review the write-once canonical receipt, set the
-   `release-tag-governance.sha256` field in `RELEASE_READINESS.json` to the
-   digest printed by the command, and commit both together. Store that same
-   digest as `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256`. The
-   pinned receipt contains the complete bypass list for all four rulesets,
+   The capture writes the canonical receipt once at
+   `research/ops-receipts/release-tag-governance/<sha256>.json`; it will not
+   overwrite an existing path. Review that receipt, add it as category
+   `release-tag-governance-receipt` with change `added` and the same path and
+   digest in `research/measurement-candidate-binding.json`, and commit both
+   together. Configure the GitHub Actions `vars` selector
+   `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256` at repository or organization scope
+   with the printed digest. Do not configure it only on the `release-tag`
+   environment: `prepare` deliberately runs before any environment is entered.
+   Local readiness cannot read GitHub Actions variables. Reproduce the selected
+   gate locally by placing the same non-secret digest in the command's process
+   environment (and use the same prefix with `release:readiness:check`):
+
+   ```bash
+   RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256=<receipt-sha256> \
+     npm run release:readiness
+   ```
+
+   The static `RELEASE_READINESS.json` descriptor names that external selector
+   and add-only directory, so no ceremony-time manifest edit is permitted. The
+   selected receipt contains the complete bypass list for all four rulesets,
    each App's exact public permissions (`contents: write`, `metadata: read`)
    and empty event subscriptions, both selected-repository installation
    identities and full repository enumerations, and the exact promotion App
@@ -183,16 +218,28 @@ created only after the revision it names is already promoted:
    explicitly point-in-time secret-name inventory: at capture time
    `RELEASE_APP_PRIVATE_KEY` must exist on `release-tag`, be absent at
    repository scope, and be absent at organization scope when the owner is an
-   organization. That inventory does not claim continuous absence; recapture
-   it on the same UTC day immediately before **every** fresh release ceremony,
-   and again after any known secret-scope change. Both readiness and the
+   organization. That inventory does not claim continuous absence. Capture or
+   recapture it only after measurement candidate `C` is selected, on the same
+   UTC day immediately before **every** fresh release ceremony, and again after
+   any known secret-scope change. Never merge its evidence carrier during the
+   flag-only `P` to `F` freeze or before `C`. Both readiness and the
    post-environment-approval tag job enforce the same fixed 24-hour maximum
-   age using their trusted current time. If CI, promotion, or environment
-   review carries the receipt outside that window, recapture, commit the new
-   bytes and digest, let the new commit promote, and start a fresh dispatch;
-   never re-date an old inventory. At publication, the
-   restricted release token reads that exact committed receipt and readiness
-   manifest, checks both against the repository variable, resolves its own
+   age using their trusted current time. Readiness also requires `capturedAt`
+   to be no earlier than the candidate commit and no later than the add-only
+   carrier commit that introduced the retained bytes. If CI, promotion, or environment
+   review carries the receipt outside that window, recapture to a new
+   content-addressed path, add that path to the binding, commit it, rotate the
+   external Actions selector, let the carrier commit promote, and start a fresh
+   dispatch; never rewrite or re-date an old inventory. At publication,
+   `prepare` resolves `${{ vars.RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256 }}` exactly
+   once outside every environment, validates one lowercase sha256, and freezes
+   it as an immutable job output. Attestation and tag jobs consume only that
+   output and never evaluate an environment-shadowable `vars` value. Changing
+   the external selector after `prepare` therefore cannot change the active
+   dispatch. The selected digest is explicit in the schema-v2 attested release
+   receipt and annotated tag message. The restricted release token then reads
+   that exact committed
+   governance receipt and readiness manifest, resolves its own
    public App identity, and reads the public shape of all four rulesets. It
    requires every ruleset id
    and GitHub-controlled `updated_at` value, plus the complete public conditions
@@ -203,14 +250,45 @@ created only after the revision it names is already promoted:
    bare `{"type":"update"}` shape. A later bypass edit changes
    `updated_at`; any public shape change or candidate-authored receipt rewrite
    therefore refuses before the create request without granting the publisher
-   ruleset-write authority. Recapture, review, commit, and deliberately rotate
-   the pinned digest after any intentional governance change. The first fresh
+   ruleset-write authority. Recapture, review, commit add-only evidence, and
+   deliberately rotate the external digest selector after any intentional
+   governance change. The first fresh
    release is the write proof that the release App can create the intended
    immutable tag; do not create a disposable `v*` canary, because a correctly
    protected canary cannot be deleted. The proof set is therefore: the
    maintainer-pinned full-bypass capture, a live public-shape and `updated_at`
    match for all four rulesets under the restricted token, and the successful
    App-authenticated atomic tag creation.
+
+   Exact `1.0.0` and `1.0.0-rc.N` releases have one additional external trust
+   root: repository- or organization-scoped Actions variable
+   `RELEASE_MEASUREMENT_BINDING_SHA256`. An authorized maintainer may set or
+   rotate it **only after** independently verifying the complete raw
+   `research/measurement-candidate-binding.json` bytes offline from a clean,
+   full-history checkout with trusted controller tooling. That verification
+   must cover the binding's candidate/tree and carrier history, complete
+   evidence enumeration and byte digests, durable transition and soak
+   chronology, governance receipt row, and every required Sigstore bundle and
+   signer/source identity. A digest printed by candidate CI, a candidate build
+   proof, or candidate-owned verifier output is not sufficient authority to
+   set the variable. After the independent verification succeeds, compute the
+   pin over the exact raw canonical file bytes (for example,
+   `shasum -a 256 research/measurement-candidate-binding.json`) and retain the
+   reviewed verification record outside the candidate-controlled workflow.
+
+   `prepare` reads that Actions variable exactly once in its first step, before
+   checkout or package execution. After resolving the release version it
+   requires the snapshotted value to be one lowercase SHA-256 for exact 1.0,
+   while supported 0.x releases bind `bindingRequired=false` and the fixed
+   `not-required` sentinel. The fresh tag runner performs no binding fetch for
+   0.x. For exact 1.0 it fetches the raw file with its native read-only token,
+   hashes and structurally validates those bytes, confirms the candidate
+   commit/tree and ancestry plus the add-only governance row, and does all of
+   that before minting the release App token. The immutable annotated tag
+   records both `bindingRequired` and the selected digest or sentinel. Any
+   binding-byte change requires a new independent offline verification, pin
+   rotation, and fresh workflow dispatch; never accept a candidate-produced
+   replacement digest during a running ceremony.
 
    A workflow re-run retains the original event SHA and workflow definition.
    After any change to `.github/workflows/release.yml`, start a **fresh
