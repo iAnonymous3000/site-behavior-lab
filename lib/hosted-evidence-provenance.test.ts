@@ -1601,7 +1601,7 @@ test("trusted workflow scaffolds preserve exact privacy and provenance boundarie
     "utf8"
   );
   assert.match(archiveWorkflow, /runner\.environment/);
-  assert.match(archiveWorkflow, /actions\/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4\.2\.1/);
+  assert.match(archiveWorkflow, /actions\/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4\.2\.2/);
   assert.match(archiveWorkflow, /context\.sigstore\.json/);
   assert.match(archiveWorkflow, /67108864/);
   assert.match(archiveWorkflow, /automation\/hosted-evidence-.*run_id/);

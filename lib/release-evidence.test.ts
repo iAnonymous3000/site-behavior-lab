@@ -1015,7 +1015,7 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   assert.match(attest, /staticArtifact\.deployment\?\.deployment !== process\.env\.RELEASE_SHA/);
   // The exact reviewed action revision, not any 40-hex SHA: a shape-only pin
   // would bless a swapped, unreviewed attest action that kept the comment.
-  assert.match(attest, /uses: actions\/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4\.2\.1/);
+  assert.match(attest, /uses: actions\/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4\.2\.2/);
 
   // Tag authority is smaller still: the native workflow token stays read-only
   // and a separately configured release App mints the one contents-write token
