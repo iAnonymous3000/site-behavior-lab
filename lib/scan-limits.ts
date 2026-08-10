@@ -311,11 +311,13 @@ export function scanLimitStateForTests(): {
   queuedScans: number;
   trackedClients: number;
   trackedReportReadClients: number;
+  trackedReportPdfClients: number;
 } {
   return {
     activeScans,
     queuedScans: queue.length,
     trackedClients: scanTimestampsByClient.size,
-    trackedReportReadClients: reportReadTimestampsByClient.size
+    trackedReportReadClients: reportReadTimestampsByClient.size,
+    trackedReportPdfClients: reportPdfTimestampsByClient.size
   };
 }
