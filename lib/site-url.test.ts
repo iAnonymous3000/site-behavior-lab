@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   printableReportHref,
   publicLibraryUrl,
+  reportPdfHref,
   resolvePublicLibraryOrigin,
   resolveSiteOrigin,
   siteUrl
@@ -107,4 +108,23 @@ test("printableReportHref survives both report-URL forms", () => {
     "https://example.test/reports/x/print/"
   );
   assert.doesNotMatch(printableReportHref("https://example.test/reports/x"), /xprint/);
+});
+
+test("reportPdfHref roots the API route at the origin, never at the Pages base path", () => {
+  // The Pages base path prefixes the static library's pages. API routes are not
+  // pages and only exist on the container, so a base-path-prefixed PDF href
+  // would 404 on the one deployment that can serve it. The base path is set
+  // here precisely so a regression that used siteBaseUrl() would show up.
+  const previousOrigin = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL;
+  const previousBasePath = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH;
+  process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL = "https://scan.sitebehavior.org";
+  process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH = "/site-behavior-lab";
+  try {
+    const id = `20260101-${"a".repeat(32)}`;
+    assert.equal(reportPdfHref(id), `https://scan.sitebehavior.org/api/reports/${id}/pdf`);
+    assert.doesNotMatch(reportPdfHref(id), /site-behavior-lab\/api/);
+  } finally {
+    restore("NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL", previousOrigin);
+    restore("NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH", previousBasePath);
+  }
 });
