@@ -1,0 +1,2238 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://{label}.unicode.org/",
+  "scannedAt": "2026-08-10T09:02:05.222Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4747,
+      "firstPartyDomain": "{label}.unicode.org",
+      "totalRequests": 77,
+      "thirdPartyRequests": 6,
+      "knownTrackerRequests": 4,
+      "thirdPartyDomains": 3,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 4
+    },
+    "conditions": {
+      "requestedUrl": "https://{label}.unicode.org/",
+      "finalUrl": "https://{label}.unicode.org/",
+      "scannedAt": "2026-08-10T09:02:00.468Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-04T00:19:10.559Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://{label}.unicode.org/",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 42
+      },
+      {
+        "id": 2,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 137
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 139
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 139
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 139
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 139
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 140
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 140
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 141
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 141
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 141
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 142
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 146
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 146
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 161
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 162
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 167
+      },
+      {
+        "id": 18,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 174
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 179
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 185
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 190
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 196
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 201
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 207
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 213
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 222
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 227
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 233
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 239
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 244
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 255
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 262
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 268
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 350
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 350
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 351
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 353
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 353
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 354
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 354
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 354
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 356
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 357
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 357
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 357
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 358
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 358
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 358
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 358
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 359
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 360
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 360
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 362
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 363
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 365
+      },
+      {
+        "id": 70,
+        "url": "https://www.google-analytics.com/{seg}",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 365
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 434
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 434
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 435
+      },
+      {
+        "id": 75,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&t=&cid=&tid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 572
+      },
+      {
+        "id": 76,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 598
+      },
+      {
+        "id": 77,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 787
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.unicode.org",
+        "requests": 71,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_ga",
+        "domain": ".unicode.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".unicode.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gat",
+        "domain": ".unicode.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".unicode.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4488,
+      "firstPartyDomain": "{label}.unicode.org",
+      "totalRequests": 73,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://{label}.unicode.org/",
+      "finalUrl": "https://{label}.unicode.org/",
+      "scannedAt": "2026-08-10T09:02:05.222Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-04T00:19:10.559Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://{label}.unicode.org/",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 48
+      },
+      {
+        "id": 2,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 162
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 164
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 164
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 164
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 165
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 166
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 166
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 170
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 170
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 203
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 203
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 234
+      },
+      {
+        "id": 18,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 234
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 235
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 235
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 236
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 236
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 236
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 237
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 237
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 237
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 238
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 241
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 241
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 242
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 242
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 242
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 242
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 243
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 243
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 243
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 243
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 243
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 243
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 244
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 244
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 244
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 244
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 245
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 245
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 246
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 247
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 248
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 331
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 331
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 333
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.unicode.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.unicode.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 335
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.unicode.org",
+        "requests": 71,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 77,
+      "after": 73,
+      "delta": -4
+    },
+    "thirdPartyRequests": {
+      "before": 6,
+      "after": 2,
+      "delta": -4
+    },
+    "knownTrackerRequests": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyDomains": {
+      "before": 3,
+      "after": 1,
+      "delta": -2
+    },
+    "cookies": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 4,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".unicode.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_gat",
+        "domain": ".unicode.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".unicode.org",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".unicode.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 4,
+      "after": 1,
+      "delta": -3
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts."
+  ],
+  "share": {
+    "id": "20260810-dda463a5ab21958c76f97c3ae3a66f28",
+    "path": "/reports/20260810-dda463a5ab21958c76f97c3ae3a66f28/",
+    "jsonPath": "/reports/20260810-dda463a5ab21958c76f97c3ae3a66f28.json"
+  }
+}
