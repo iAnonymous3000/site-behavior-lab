@@ -155,3 +155,15 @@ function parseIpv4(hostname: string): [number, number, number, number] | null {
 export function printableReportHref(reportUrl: string): string {
   return `${reportUrl.replace(/\/+$/, "")}/print/`;
 }
+
+/**
+ * The PDF rendering of a report.
+ *
+ * Rooted at `siteOrigin()` rather than `siteBaseUrl()` for the same reason the
+ * report JSON href is: API routes live at the origin, outside the Pages base
+ * path, and the container is the only deployment that serves them at all. Never
+ * call this on the static export; that build has no such route.
+ */
+export function reportPdfHref(id: string): string {
+  return `${siteOrigin()}/api/reports/${id}/pdf`;
+}

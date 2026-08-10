@@ -96,6 +96,7 @@ import {
   type PublicScanProxyDiagnostics,
   type ResolvePublicHost
 } from "./public-scan-proxy";
+import { browserProcessEnvironment } from "./browser-process-env";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
 import {
   aggregateByteBudgetWarning,
@@ -322,42 +323,11 @@ let browserLaunchPromise: Promise<Browser> | null = null;
  */
 export const SCAN_CHROMIUM_LAUNCH_ARGS = ["--force-webrtc-ip-handling-policy=disable_non_proxied_udp"] as const;
 
-// Chromium needs a small set of host-runtime variables for executable lookup,
-// locale, temporary files, fonts, and sandbox/runtime directories. It does not
-// need the Next process's application secrets. Supplying an explicit child env
-// prevents R2 credentials, Turnstile secrets, scan tokens, and unrelated cloud
-// credentials from being inherited by the attacker-facing renderer process.
-const BROWSER_PROCESS_ENV_ALLOWLIST = [
-  "CHROME_DEVEL_SANDBOX",
-  "FONTCONFIG_FILE",
-  "FONTCONFIG_PATH",
-  "FONTCONFIG_SYSROOT",
-  "HOME",
-  "LANG",
-  "LANGUAGE",
-  "LC_ALL",
-  "LC_CTYPE",
-  "LD_LIBRARY_PATH",
-  "PATH",
-  "PLAYWRIGHT_BROWSERS_PATH",
-  "TEMP",
-  "TMP",
-  "TMPDIR",
-  "TZ",
-  "XDG_CACHE_HOME",
-  "XDG_CONFIG_HOME",
-  "XDG_DATA_HOME",
-  "XDG_RUNTIME_DIR"
-] as const;
-
-export function browserProcessEnvironment(env: NodeJS.ProcessEnv = process.env): Record<string, string> {
-  return Object.fromEntries(
-    BROWSER_PROCESS_ENV_ALLOWLIST.flatMap((name) => {
-      const value = env[name];
-      return typeof value === "string" ? [[name, value] as const] : [];
-    })
-  );
-}
+// The child-environment allowlist that keeps R2 credentials, Turnstile secrets
+// and scan tokens out of the renderer moved to lib/browser-process-env.ts once
+// the PDF renderer needed the same guarantee. Re-exported here so the scanner's
+// existing callers and tests keep one import path.
+export { browserProcessEnvironment };
 
 export type ScanSiteOptions = {
   publicUrlAlreadyVerified?: boolean;

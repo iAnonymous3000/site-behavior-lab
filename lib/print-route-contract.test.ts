@@ -36,6 +36,21 @@ function appSourceFiles(dir = "app"): string[] {
   return found;
 }
 
+/** The text enclosed by the parenthesis that `opener` ends with, opener included. */
+function balancedParenthesis(source: string, opener: string): string {
+  const start = source.indexOf(opener);
+  assert.ok(start >= 0, `expected to find ${opener}`);
+  let depth = 0;
+  for (let index = start + opener.length - 1; index < source.length; index += 1) {
+    if (source[index] === "(") depth += 1;
+    else if (source[index] === ")") {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, index + 1);
+    }
+  }
+  assert.fail(`${opener} is never closed`);
+}
+
 /** Paths the build script rewrites from force-dynamic to force-static. */
 function rewrittenRoutes(): string[] {
   const block = buildScript.slice(
@@ -149,5 +164,47 @@ test("the link to the printable route is conditioned on the same signal the buil
     context,
     /href=\{printableReportHref\(reportUrl\)\}/,
     "the printable link must use the normalising helper, not string concatenation"
+  );
+});
+
+test("the PDF download is offered on the same deployment that can render it", () => {
+  // The PDF is produced by rendering the printable route in a container-side
+  // browser. The static export has neither the route nor a browser, so the
+  // link must be behind the same gate: an unconditional one would ship a dead
+  // download button on every committed report Pages serves.
+  const context = source("app/_components/report-page-context.tsx");
+  assert.match(context, /Download PDF/, "a reader needs a way to get the report as a file");
+  assert.match(
+    context,
+    /href=\{reportPdfHref\(id\)\}/,
+    "the PDF link must use the helper that roots the API route at the origin, not the Pages base path"
+  );
+
+  // The download must sit INSIDE the export gate, not merely somewhere in the
+  // same file. Take the block the gate opens and require the link within it.
+  // Scanning to the first ")}" does NOT work: `printableReportHref(reportUrl)}`
+  // is itself a ")}" and ends the slice one link early, so the first version of
+  // this assertion failed on correct source. Match the gate's parenthesis.
+  const gatedBlock = balancedParenthesis(context, "{!STATIC_EXPORT && (");
+  assert.match(gatedBlock, /reportPdfHref\(id\)/, "the PDF link must be inside the !STATIC_EXPORT block");
+  assert.match(gatedBlock, /printableReportHref\(reportUrl\)/, "the printable link must stay inside it too");
+});
+
+test("the PDF route is an API route, so the static export drops it with the rest of app/api", () => {
+  // If it ever moved out of app/api it would become a force-dynamic route the
+  // export build fails on, and it would fail inside a copied worktree in CI.
+  // The generic force-dynamic test above would catch that; this names why.
+  const route = "app/api/reports/[id]/pdf/route.ts";
+  assert.ok(
+    serverOnlyDirs().some((dir) => route.startsWith(`${dir}/`)),
+    "the PDF route must live under a directory the static export excludes"
+  );
+  const contents = source(route);
+  assert.match(contents, /export const runtime = "nodejs"/, "rendering needs the Node runtime, not the edge");
+  assert.match(contents, /assertReportReadRateLimit/, "rendering costs a browser tab and must be rate limited");
+  assert.match(
+    contents,
+    /x-robots-tag/,
+    "a generated rendering must not become an indexable surface competing with the report"
   );
 });

@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
 import { execFile, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import {
+  readResponseBytesWithinLimit,
   readResponseJsonWithinLimit,
   readResponseTextWithinLimit,
   withHttpOperationDeadline
@@ -14,6 +16,7 @@ import {
   savedReportRetainsScreenshot,
   singleReportTotalRequests
 } from "./smoke-deployed-scanner-report.mjs";
+import { pdfPageCount, pdfText, pdfTextIncludes } from "./pdf-text-lib.mjs";
 import { startSmokeR2Server } from "./smoke-r2-server.mjs";
 
 process.on("uncaughtException", (error) => {
@@ -39,6 +42,9 @@ const healthResponseMaxBytes = 256 * 1024;
 // file is still in its temporal dead zone at that point: the function
 // declaration hoists, the binding does not, and the smoke died on exactly that.
 const printableRouteMaxBytes = 8 * 1024 * 1024;
+// Matches REPORT_PDF_MAX_BYTES in lib/report-pdf.ts: the route refuses anything
+// larger, so a response above this is a contract violation, not a big report.
+const reportPdfMaxBytes = 24 * 1024 * 1024;
 // Playwright's version-pinned default Docker seccomp profile plus the user-
 // namespace syscalls Chromium's sandbox needs. Keep it in lockstep with the
 // Playwright image/package pin rather than removing syscall filtering or
@@ -297,6 +303,96 @@ async function assertPrintableReportRoute(baseUrl, objects) {
     );
   }
   console.log(`Printable report route rendered all ${renderedRows} request rows for ${reportId}.`);
+
+  await assertReportPdfRoute(baseUrl, reportId, storedSingle.body, expectedRequestRows);
+}
+
+/**
+ * The PDF export, rendered by the real container.
+ *
+ * "200, application/pdf, non-zero bytes" is satisfied by a two-page summary
+ * that dropped every request row, which is precisely the regression the
+ * printable route exists to prevent. So this reads the text back out of the
+ * document and checks the evidence is in it. It runs against the same report
+ * the printable check just validated, so a disagreement between the two is a
+ * disagreement about the SAME page rather than about which page was rendered.
+ */
+async function assertReportPdfRoute(baseUrl, reportId, wire, expectedRequestRows) {
+  const { bytes, disposition } = await withHttpOperationDeadline(
+    { timeoutMs: 120_000, label: "report PDF route" },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/api/reports/${reportId}/pdf`, {
+        headers: { accept: "application/pdf" },
+        redirect: "manual",
+        signal
+      });
+      if (response.status !== 200) {
+        throw new Error(`Report PDF route answered ${response.status}; expected 200.`);
+      }
+      const contentType = response.headers.get("content-type") ?? "";
+      if (!contentType.startsWith("application/pdf")) {
+        throw new Error(`Report PDF route served content-type ${contentType || "(none)"}.`);
+      }
+      return {
+        disposition: response.headers.get("content-disposition") ?? "",
+        bytes: await readResponseBytesWithinLimit(response, {
+          maxBytes: reportPdfMaxBytes,
+          label: "report PDF route"
+        })
+      };
+    }
+  );
+
+  // A reader who saves this must end up with a file named after the report, not
+  // "pdf" or the bare route segment.
+  if (!/^attachment;\s*filename="[^"]+\.pdf"$/.test(disposition)) {
+    throw new Error(`Report PDF route sent an unusable content-disposition: ${disposition || "(none)"}.`);
+  }
+  if (!disposition.includes(reportId)) {
+    throw new Error(`Report PDF filename does not name the report: ${disposition}.`);
+  }
+
+  const pages = pdfPageCount(bytes);
+  const text = pdfText(bytes);
+  const undecodable = (text.match(/�/g) ?? []).length;
+  if (undecodable > 0) {
+    throw new Error(`Report PDF contained ${undecodable} glyphs this reader could not decode.`);
+  }
+
+  // The printed exhibit must carry the digest of the exact bytes it was made
+  // from. Recomputed here from the stored wire rather than read off the page,
+  // so a report rendered from the wrong bytes cannot satisfy it.
+  const wireSha256 = createHash("sha256").update(wire).digest("hex");
+  if (!text.includes(wireSha256)) {
+    throw new Error(`Report PDF does not carry the wire digest ${wireSha256} of the report it renders.`);
+  }
+
+  for (const [phrase, why] of [
+    ["Approved use", "the approved use boundary"],
+    ["Exact evidence bytes", "the wire digest sentence"],
+    ["Verify independently", "the independent verification pointer"],
+    ["Evidence receipt", "the evidence receipt"]
+  ]) {
+    if (!pdfTextIncludes(text, phrase)) {
+      throw new Error(`Report PDF is missing ${why} ("${phrase}").`);
+    }
+  }
+
+  // The completeness contract, same one the HTML check uses: every recorded
+  // request renders its URL, so the document must carry at least that many.
+  // A summary-only regression collapses this to a handful.
+  const renderedUrls = (text.match(/https?:\/\//g) ?? []).length;
+  if (renderedUrls < expectedRequestRows) {
+    throw new Error(
+      `Report PDF rendered ${renderedUrls} request URLs across ${pages} pages; ` +
+        `the stored report records ${expectedRequestRows} requests.`
+    );
+  }
+
+  console.log(
+    `Report PDF route rendered ${pages} pages carrying ${renderedUrls} request URLs ` +
+      `and the wire digest for ${reportId}.`
+  );
 }
 
 function renderedRequestRowCount(html) {

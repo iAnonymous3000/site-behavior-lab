@@ -14,6 +14,14 @@ export const MAX_QUEUED_SCANS = MAX_CONCURRENT_SCANS * 4;
 // submit within their own allowance. Sized so the last admitted job still runs
 // before the 60-minute job expiry at two workers and two runs per comparison.
 export const MAX_QUEUED_JOBS = 32;
+// PDF rendering runs a SECOND Chromium in the same instance, so its cap is
+// derived from the scan cap rather than chosen: standard-2 is 6 GiB and the
+// scanner's browser already accounts for ~2 GB of it (wrangler.container.jsonc).
+// Scanning is the product; printing must never be able to claim as many
+// renderers as scanning, so this stays strictly below MAX_CONCURRENT_SCANS and
+// never rises above one. Raising the scan cap therefore cannot silently raise
+// this one past what the instance holds.
+export const MAX_CONCURRENT_REPORT_PDF_RENDERS = Math.min(1, MAX_CONCURRENT_SCANS - 1);
 export const QUEUE_TIMEOUT_MS = 15_000;
 export const RATE_LIMIT_WINDOW_MS = 60_000;
 export const RATE_LIMIT_MAX = AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE;
