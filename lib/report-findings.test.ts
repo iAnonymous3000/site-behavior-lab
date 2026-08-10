@@ -2394,8 +2394,20 @@ test("a fingerprint observer that never read a frame cannot publish a clean abse
   assert.match(card.detail, /covers only what was recorded before the cutoff/);
   const bottomLine = byId(buildFindings(view, null), "bottom-line");
   assert.doesNotMatch(bottomLine.title, /activity evidence was cut short/);
-  assert.match(bottomLine.lead, /detector evidence was incomplete/);
-  assert.match(bottomLine.lead, /completed request, cookie, and storage measurements keep their recorded exactness/);
+  // The defect this now also covers: an unfinished detector is not an
+  // observation. The bottom line used to answer "The scan observed signals a
+  // non-expert should not have to decode from raw request tables" over a board
+  // whose every substantive card read "No X observed", because the detector's
+  // forced "info" level was read as observed severity.
+  assert.doesNotMatch(
+    bottomLine.lead,
+    /The scan observed signals/,
+    "an incomplete detector must never be reported as an observed signal"
+  );
+  assert.doesNotMatch(bottomLine.title, /review-worthy signals/);
+  assert.match(bottomLine.title, /a detector did not finish/i);
+  assert.match(bottomLine.lead, /did not observe known third-party services/);
+  assert.match(bottomLine.lead, /absence is not established for its scope/);
   assert.doesNotMatch(bottomLine.lead, /activity counts are floors|request counts are retained lower bounds/);
   assert.doesNotMatch(bottomLine.evidence, /at least|retained/);
 
