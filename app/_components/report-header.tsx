@@ -3,7 +3,7 @@
 import { AlertCircle, CheckCircle2, Copy, Download, ExternalLink } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
-import { absoluteShareUrl, reportSharePath } from "./report-overview";
+import { absoluteShareUrl, reportPdfHref, reportSharePath } from "./report-overview";
 import type { RunFacts } from "@/lib/report-facts";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import {
@@ -36,6 +36,7 @@ export function ReportHeader({
 }) {
   const run = runFacts.run;
   const sharePath = reportSharePath(share, liveApiServesReportPages);
+  const pdfHref = reportPdfHref(share, liveApiServesReportPages);
   // Keep the rendered anchor origin-relative for static prerendering, but make
   // clipboard/native-share values absolute once the browser origin exists.
   const [shareUrl, setShareUrl] = useState<string | null>(null);
@@ -153,6 +154,32 @@ export function ReportHeader({
           <Download size={17} aria-hidden="true" />
           JSON
         </button>
+        {/* Rendered by the scanner, not in the browser, so it only appears when
+            an origin that can render one is reachable. CSV and JSON are built
+            from the wire already in memory and are always available; a PDF is
+            not, and offering a control that cannot answer would be worse than
+            offering none. A plain anchor rather than a fetch: the response
+            carries Content-Disposition, so the browser downloads it without
+            this component having to hold a multi-megabyte body in memory. */}
+        {pdfHref && (
+          <>
+            <a
+              aria-describedby="pdf-export-description"
+              className="secondary-button"
+              href={pdfHref}
+            >
+              <Download size={17} aria-hidden="true" />
+              PDF
+            </a>
+            {/* Inside the conditional with its button: a description left
+                behind when the button is absent is an orphan node that nothing
+                references. */}
+            <span className="visually-hidden" id="pdf-export-description">
+              Downloads the complete report as a PDF. The scanner renders it on request, which takes a few
+              seconds.
+            </span>
+          </>
+        )}
       </div>
     </section>
   );
