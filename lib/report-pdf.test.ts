@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import test from "node:test";
-import { REPORT_PDF_MAX_BYTES, ReportPdfUnavailableError, renderReportPdf, reportPdfFilename } from "./report-pdf";
+import { REPORT_PDF_MAX_BYTES as SHARED_CEILING } from "./report-pdf-limits";
+import {
+  REPORT_PDF_MAX_BYTES,
+  ReportPdfUnavailableError,
+  assertRenderedPdfWithinCeiling,
+  renderReportPdf,
+  reportPdfFilename
+} from "./report-pdf";
 import { MAX_CONCURRENT_REPORT_PDF_RENDERS, MAX_CONCURRENT_SCANS } from "./scan-limits";
 
 /**
@@ -53,12 +62,94 @@ test("printing can never claim as many renderers as scanning", () => {
   assert.ok(MAX_CONCURRENT_REPORT_PDF_RENDERS <= 1, "a second concurrent Chromium tab is not budgeted");
 });
 
-test("the byte ceiling is a refusal threshold, not a truncation point", () => {
-  // Documented here because the value alone does not say which it is, and a
-  // truncated evidence PDF is worse than no PDF.
-  assert.equal(REPORT_PDF_MAX_BYTES, 24 * 1024 * 1024);
-  const source = new ReportPdfUnavailableError("x", 413);
-  assert.equal(source.status, 413);
+test("the byte ceiling refuses rather than truncates, and an empty render is a fault", () => {
+  // This exercises the decision the renderer actually makes. The first version
+  // of this test only compared REPORT_PDF_MAX_BYTES against its own literal and
+  // constructed an error by hand, so replacing the refusal with a silent
+  // `pdf.subarray(0, REPORT_PDF_MAX_BYTES)` would have left it green: the exact
+  // truncation its own name forbids.
+  assert.doesNotThrow(() => assertRenderedPdfWithinCeiling(1));
+  assert.doesNotThrow(() => assertRenderedPdfWithinCeiling(REPORT_PDF_MAX_BYTES));
+
+  assert.throws(
+    () => assertRenderedPdfWithinCeiling(REPORT_PDF_MAX_BYTES + 1),
+    (error: unknown) => {
+      assert.ok(error instanceof ReportPdfUnavailableError);
+      assert.equal(error.status, 413, "an oversize render is a size refusal, not a server fault");
+      assert.match(error.message, /print the page from your browser/, "the reader needs a way forward");
+      return true;
+    }
+  );
+
+  assert.throws(
+    () => assertRenderedPdfWithinCeiling(0),
+    (error: unknown) => {
+      assert.ok(error instanceof ReportPdfUnavailableError);
+      assert.equal(error.status, 502, "an empty document is a renderer fault, not an empty report");
+      return true;
+    }
+  );
+});
+
+test("the ceiling has one definition, and the container smoke reads that one", () => {
+  // The smoke bounds the response it downloads with the same number. When it
+  // was a hand-copied literal, raising one and not the other would have made
+  // the smoke refuse a document the route was willing to serve.
+  assert.equal(REPORT_PDF_MAX_BYTES, SHARED_CEILING);
+  const smoke = readFileSync(path.join(process.cwd(), "scripts", "smoke-docker.mjs"), "utf8");
+  assert.match(
+    smoke,
+    /import \{ REPORT_PDF_MAX_BYTES \} from "\.\.\/lib\/report-pdf-limits\.ts"/,
+    "the smoke must import the ceiling, not restate it"
+  );
+  assert.doesNotMatch(smoke, /24 \* 1024 \* 1024/, "no second copy of the ceiling arithmetic");
+});
+
+test("every phrase the container smoke looks for still exists in the code that renders it", () => {
+  // The smoke reads text back out of a generated PDF, so its needles are copies
+  // of product copy living in a second file: reword the source and the smoke
+  // goes quiet instead of failing, which is this repository's most common
+  // defect shape. Each needle is pinned to the module that renders it.
+  const smoke = readFileSync(path.join(process.cwd(), "scripts", "smoke-docker.mjs"), "utf8");
+  const source = (file: string) => readFileSync(path.join(process.cwd(), file), "utf8");
+
+  const pinned: Array<[string, string]> = [
+    ["Approved use", "app/_components/print-evidence-footer.tsx"],
+    ["Exact evidence bytes", "app/_components/print-evidence-footer.tsx"],
+    ["This print is a rendering, not the evidence", "app/_components/print-evidence-footer.tsx"],
+    ["Verify independently", "app/_components/print-evidence-footer.tsx"],
+    ["This report is a time-limited share", "app/_components/print-evidence-footer.tsx"],
+    ["Evidence receipt", "app/_components/report-page-context.tsx"],
+    [
+      "severity reflects fixed reference thresholds, not measured population percentiles",
+      "lib/report-findings.ts"
+    ]
+  ];
+
+  for (const [phrase, file] of pinned) {
+    assert.ok(smoke.includes(phrase), `scripts/smoke-docker.mjs should still assert "${phrase}"`);
+    assert.ok(
+      source(file).includes(phrase),
+      `"${phrase}" is asserted by the container smoke but no longer appears in ${file}`
+    );
+  }
+
+  // The request-table header run, lowercased in the smoke because the uppercase
+  // is a CSS text-transform. The columns are separate <th> elements, so the
+  // source is checked column by column in the order the run requires.
+  const tables = source("app/_components/report-tables.tsx");
+  const columns = ["Status", "Type", "Domain", "Provenance", "URL"];
+  assert.ok(
+    smoke.includes(columns.join(" ").toLowerCase()),
+    "the smoke should assert the request-table header run"
+  );
+  let cursor = tables.indexOf("request-table");
+  assert.ok(cursor >= 0);
+  for (const column of columns) {
+    const next = tables.indexOf(`<th>${column}</th>`, cursor);
+    assert.ok(next > cursor, `the request table should still render a ${column} column after the previous one`);
+    cursor = next;
+  }
 });
 
 test("the filename carries the site and the report id, and cannot escape a directory", () => {
@@ -85,6 +176,89 @@ test("the filename carries the site and the report id, and cannot escape a direc
   // An entirely unusable domain still yields a usable filename.
   assert.equal(reportPdfFilename(id, "///"), `site-behavior-lab-report-${id}.pdf`);
   assert.equal(reportPdfFilename(id, ""), `site-behavior-lab-report-${id}.pdf`);
+});
+
+test("the render is bounded, and a render that never returns does not keep the slot", async () => {
+  // The defect this covers: Playwright issues page.pdf() with the protocol's
+  // no-timeout option, so page.setDefaultTimeout cannot reach it. Without a
+  // deadline, one wedged render never releases the single slot and every later
+  // request gets a 503 that says "retry shortly" and can never succeed.
+  //
+  // Driven through the real exported function with a stub browser, so it fails
+  // if the deadline is removed, if the slot is released only on success, or if
+  // the unbounded page.close() moves back onto the release path.
+  const id = `20260101-${"c".repeat(32)}`;
+  let closedPages = 0;
+  let closedBrowsers = 0;
+  const wedged = {
+    async newPage() {
+      return {
+        setDefaultTimeout() {},
+        async goto() {
+          return { ok: () => true, status: () => 200 };
+        },
+        // Never settles, exactly like a Chromium wedged on layout.
+        pdf: () => new Promise<never>(() => undefined),
+        close: async () => {
+          closedPages += 1;
+        }
+      };
+    },
+    close: async () => {
+      closedBrowsers += 1;
+    },
+    on() {},
+    isConnected: () => true
+  };
+
+  const started = Date.now();
+  await assert.rejects(
+    () => renderReportPdf(id, { browserForTests: wedged, renderTimeoutMsForTests: 60 }),
+    (error: unknown) => {
+      assert.ok(error instanceof ReportPdfUnavailableError, "a missed deadline is a typed refusal");
+      assert.equal(error.status, 504);
+      return true;
+    }
+  );
+  assert.ok(Date.now() - started < 5_000, "the render must not wait on an unbounded pdf()");
+  // The wedged renderer must not be handed to the next caller.
+  assert.equal(closedBrowsers, 1, "a renderer that missed its deadline is closed, not reused");
+  assert.equal(closedPages, 0, "closing a wedged page would hang for the same reason the render did");
+
+  // The slot is free: a second render is admitted rather than refused with 503.
+  await assert.rejects(
+    () => renderReportPdf(id, { browserForTests: wedged, renderTimeoutMsForTests: 60 }),
+    (error: unknown) => {
+      assert.ok(error instanceof ReportPdfUnavailableError);
+      assert.equal(error.status, 504, "the slot was still held, so this was refused as busy instead");
+      return true;
+    }
+  );
+});
+
+test("an abandoned request stops holding the only render slot", async () => {
+  const id = `20260101-${"d".repeat(32)}`;
+  const controller = new AbortController();
+  const wedged = {
+    async newPage() {
+      return {
+        setDefaultTimeout() {},
+        async goto() {
+          return { ok: () => true, status: () => 200 };
+        },
+        pdf: () => new Promise<never>(() => undefined),
+        close: async () => undefined
+      };
+    },
+    close: async () => undefined,
+    on() {},
+    isConnected: () => true
+  };
+
+  const pending = renderReportPdf(id, { browserForTests: wedged, renderTimeoutMsForTests: 30_000, signal: controller.signal });
+  const rejected = assert.rejects(() => pending);
+  controller.abort(new Error("the reader navigated away"));
+  await rejected;
 });
 
 test("a long domain is bounded so the filename stays usable", () => {

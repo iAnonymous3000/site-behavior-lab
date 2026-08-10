@@ -1,8 +1,10 @@
 import { chromium, type Browser } from "playwright";
 import { browserProcessEnvironment } from "./browser-process-env";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
+import { REPORT_PDF_MAX_BYTES } from "./report-pdf-limits";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { MAX_CONCURRENT_REPORT_PDF_RENDERS } from "./scan-limits";
+import { withScannerOperationDeadline } from "./scanner-resource-lifecycle";
 
 /**
  * Render one report's printable page to PDF, inside the container.
@@ -10,8 +12,11 @@ import { MAX_CONCURRENT_REPORT_PDF_RENDERS } from "./scan-limits";
  * The printable route already server-renders the complete evidence with the
  * evidence footer, the wire digest, the approved use boundary and the standing
  * caveat. This turns that exact page into a file, so the PDF and the printed
- * page are the same artefact and cannot drift: there is no second renderer and
- * no second set of copy.
+ * page carry the same content from the same stylesheet: there is no second
+ * renderer and no second set of copy. Not the same BYTES as a browser's own
+ * print output, though: Chromium's print dialog defaults to adding its own
+ * header and footer and to fitting the page, neither of which a programmatic
+ * render does.
  *
  * SSRF is the obvious hazard in "server fetches a URL and renders it", so no
  * URL is ever accepted. The only input is a report id, it must match
@@ -31,10 +36,50 @@ import { MAX_CONCURRENT_REPORT_PDF_RENDERS } from "./scan-limits";
  * credentials, Turnstile secrets or scan tokens either.
  */
 
-/** A complete evidence page is large, but not unbounded. */
-export const REPORT_PDF_MAX_BYTES = 24 * 1024 * 1024;
-const RENDER_TIMEOUT_MS = 30_000;
+// The ceiling lives in its own import-free module because the container smoke
+// bounds the response with the same number and cannot load this file without
+// loading Playwright. Re-exported so this module stays the one import path for
+// everything about rendering a report to PDF.
+export { REPORT_PDF_MAX_BYTES };
+
+/**
+ * Whole-render deadline: navigation, settle and PDF write.
+ *
+ * Measured against a production build, the largest committed report (a 1.00 MB
+ * wire) took 1,361ms to reach networkidle and 611ms to write, 1,972ms end to
+ * end. This sits an order of magnitude above that, because the container is
+ * slower and may be rendering while a scan holds its own Chromium, and because
+ * the bound exists to catch a WEDGED renderer rather than a slow one.
+ */
+const RENDER_TIMEOUT_MS = 45_000;
+const LAUNCH_TIMEOUT_MS = 30_000;
 const IDLE_SHUTDOWN_MS = 60_000;
+
+/**
+ * The only browser surface the render path uses.
+ *
+ * Playwright's own Browser and Page satisfy these structurally, so production
+ * passes the real thing. Naming the surface is what lets a test drive the real
+ * `renderReportPdf` against a stub whose `pdf()` never settles, which is the
+ * only way to assert that a wedged renderer releases its slot.
+ */
+type RenderPage = {
+  setDefaultTimeout(timeout: number): void;
+  goto(
+    url: string,
+    options: { waitUntil: "networkidle"; timeout: number }
+  ): Promise<{ ok(): boolean; status(): number } | null>;
+  pdf(options: {
+    format: string;
+    printBackground: boolean;
+    preferCSSPageSize: boolean;
+  }): Promise<Uint8Array>;
+  close(): Promise<void>;
+};
+type RenderBrowser = {
+  newPage(): Promise<RenderPage>;
+  close(): Promise<void>;
+};
 
 let launchPromise: Promise<Browser> | null = null;
 /** Identity of the browser the memoized promise settled to, for disconnect. */
@@ -70,18 +115,31 @@ function selfOrigin(): string {
  * requests both observe a null browser, and awaiting a launch each would orphan
  * one Chromium that nothing ever closes. Same shape the scanner uses for its
  * own shared browser. A failed launch clears the slot so one transient failure
- * does not poison every later request.
+ * does not poison every later request, and a launch that lands after its
+ * deadline is closed rather than leaked.
  */
-async function browserForRendering(): Promise<Browser> {
-  launchPromise ??= chromium
-    .launch({
-      headless: true,
-      chromiumSandbox: chromiumSandboxEnabled(),
-      // No scanner launch args: this renders our own trusted page, and the
-      // scanner's WebRTC flag is about measurement fidelity, not printing.
-      args: [],
-      env: browserProcessEnvironment()
-    })
+async function browserForRendering(signal?: AbortSignal): Promise<Browser> {
+  launchPromise ??= withScannerOperationDeadline<Browser>(
+    () =>
+      chromium.launch({
+        headless: true,
+        chromiumSandbox: chromiumSandboxEnabled(),
+        // No scanner launch args: this renders our own trusted page, and the
+        // scanner's WebRTC flag is about measurement fidelity, not printing.
+        args: [],
+        env: browserProcessEnvironment()
+      }),
+    {
+      label: "Report PDF browser launch",
+      timeoutMs: LAUNCH_TIMEOUT_MS,
+      createTimeoutError: () =>
+        new ReportPdfUnavailableError("The PDF renderer could not start in time.", 503),
+      // Playwright's launch takes no AbortSignal. If it materializes after
+      // losing the deadline race, close it immediately so a timed-out launch
+      // cannot leak a browser process.
+      onLateSuccess: (browser) => browser.close()
+    }
+  )
     .then((browser) => {
       browser.on("disconnected", () => {
         // Only the CURRENT browser may clear the slot. A late disconnect from a
@@ -98,7 +156,19 @@ async function browserForRendering(): Promise<Browser> {
       launchPromise = null;
       throw error;
     });
-  return launchPromise;
+
+  // One caller abandoning its request must not cancel a launch other callers
+  // are already awaiting, so the caller's signal is raced against the shared
+  // promise instead of being passed into it.
+  const pending = launchPromise;
+  if (!signal) return pending;
+  return Promise.race([
+    pending,
+    new Promise<never>((_, reject) => {
+      if (signal.aborted) reject(signal.reason);
+      else signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    })
+  ]);
 }
 
 /** Close the idle renderer so a container that never prints holds no browser. */
@@ -122,15 +192,46 @@ export function reportPdfFilename(id: string, domain: string): string {
 }
 
 /**
+ * The size decision, as its own function so it can be exercised directly.
+ *
+ * A render that exceeds the ceiling is REFUSED, never clipped: a silently
+ * truncated evidence PDF is worse than no PDF. An empty one is a renderer
+ * fault, not an empty report. The ceiling is roughly seventeen times the
+ * largest document the committed corpus produces (1.38 MB).
+ */
+export function assertRenderedPdfWithinCeiling(byteLength: number): void {
+  if (byteLength === 0) {
+    throw new ReportPdfUnavailableError("The renderer produced an empty document.", 502);
+  }
+  if (byteLength > REPORT_PDF_MAX_BYTES) {
+    throw new ReportPdfUnavailableError(
+      "This report renders larger than the export ceiling; print the page from your browser instead.",
+      413
+    );
+  }
+}
+
+/**
  * Render `/reports/<id>/print` to PDF bytes.
  *
- * Throws ReportPdfUnavailableError when the renderer is saturated or the page
- * does not answer; the caller maps that to a status. It never returns a partial
- * or truncated document: a render that exceeds the byte ceiling is refused
- * rather than clipped, because a silently truncated evidence PDF is worse than
- * no PDF.
+ * Throws ReportPdfUnavailableError when the renderer is saturated, the page
+ * does not answer, or the render misses its deadline; the caller maps that to a
+ * status.
  */
-export async function renderReportPdf(id: string): Promise<Uint8Array> {
+export async function renderReportPdf(
+  id: string,
+  {
+    signal,
+    browserForTests,
+    renderTimeoutMsForTests
+  }: {
+    signal?: AbortSignal;
+    /** Drives the render against a stub browser. Production never supplies this. */
+    browserForTests?: RenderBrowser;
+    /** Shortens only the render deadline, so a wedged render is testable. */
+    renderTimeoutMsForTests?: number;
+  } = {}
+): Promise<Uint8Array> {
   // `.test()` alone is not enough to make an id safe to paste into a path:
   // JavaScript's `$` also matches before a single trailing newline, so
   // "<id>\n" passes REPORT_ID_PATTERN. Requiring the match to consume the whole
@@ -152,48 +253,85 @@ export async function renderReportPdf(id: string): Promise<Uint8Array> {
     clearTimeout(idleTimer);
     idleTimer = null;
   }
-  let page: Awaited<ReturnType<Browser["newPage"]>> | null = null;
+  const renderTimeoutMs = renderTimeoutMsForTests ?? RENDER_TIMEOUT_MS;
+  let page: RenderPage | null = null;
   try {
-    const browser = await browserForRendering();
-    page = await browser.newPage();
-    page.setDefaultTimeout(RENDER_TIMEOUT_MS);
+    const browser = browserForTests ?? (await browserForRendering(signal));
+    // ONE deadline over the whole render. Playwright issues page.pdf() with the
+    // protocol's no-timeout option, so page.setDefaultTimeout cannot reach it:
+    // without this bound a renderer wedged on layout never returns, the slot is
+    // never released, and every later request gets a "retry shortly" that can
+    // never succeed. page.close() has the same property, which is why it is
+    // detached in the finally rather than awaited.
+    return await withScannerOperationDeadline<Uint8Array>(
+      async () => {
+        const opened = await browser.newPage();
+        page = opened;
+        opened.setDefaultTimeout(renderTimeoutMs);
 
-    const response = await page.goto(`${selfOrigin()}/reports/${id}/print`, {
-      waitUntil: "load",
-      timeout: RENDER_TIMEOUT_MS
+        const response = await opened.goto(`${selfOrigin()}/reports/${id}/print`, {
+          // NOT "load". The findings board resolves its severity basis from a
+          // client-side corpus fetch, and a document captured at `load` states
+          // "fixed reference thresholds, not measured population percentiles"
+          // where the settled page states the measured-percentile basis. A
+          // printed exhibit that qualifies its own conclusions differently from
+          // the page it claims to be is the failure this route exists to
+          // prevent, so the render waits for the page to go quiet.
+          waitUntil: "networkidle",
+          timeout: renderTimeoutMs
+        });
+        if (!response || !response.ok()) {
+          throw new ReportPdfUnavailableError(
+            `The printable page answered ${response?.status() ?? "no response"}.`,
+            response?.status() === 404 ? 404 : 502
+          );
+        }
+
+        // The page's own print stylesheet owns pagination, margins and what is
+        // hidden: app/globals.css declares `@page { size: letter; margin: 14mm 12mm }`
+        // and preferCSSPageSize makes that rule win. `format` is only the
+        // fallback if that rule is ever removed, and it names the same paper so
+        // the two cannot disagree.
+        const pdf = await opened.pdf({
+          format: "Letter",
+          printBackground: false,
+          preferCSSPageSize: true
+        });
+        assertRenderedPdfWithinCeiling(pdf.byteLength);
+        return pdf;
+      },
+      {
+        label: "Report PDF render",
+        timeoutMs: renderTimeoutMs,
+        signal,
+        createTimeoutError: () =>
+          new ReportPdfUnavailableError(
+            "This report took too long to render; print the page from your browser instead.",
+            504
+          )
+      }
+    ).catch((error: unknown) => {
+      // The render lost its deadline, or the caller went away, or Playwright
+      // itself failed. In all three the page may be wedged, and closing a wedged
+      // page hangs for the same reason the render did. Drop the page handle and
+      // close the BROWSER instead: that fires "disconnected", which clears the
+      // memoized launch so the next caller gets a fresh one. A refusal this
+      // module decided itself (404, 413, an empty document) leaves a healthy
+      // browser, so those keep it.
+      const decided =
+        error instanceof ReportPdfUnavailableError && (error.status === 404 || error.status === 413);
+      if (!decided) {
+        page = null;
+        void browser.close().catch(() => undefined);
+      }
+      throw error;
     });
-    if (!response || !response.ok()) {
-      throw new ReportPdfUnavailableError(
-        `The printable page answered ${response?.status() ?? "no response"}.`,
-        response?.status() === 404 ? 404 : 502
-      );
-    }
-
-    // The page's own print stylesheet owns pagination, margins and what is
-    // hidden: app/globals.css declares `@page { size: letter; margin: 14mm 12mm }`
-    // and preferCSSPageSize makes that rule win. `format` is only the fallback
-    // if that rule is ever removed, and it names the same paper so the two can
-    // never disagree. Asking Chromium for its own defaults instead would
-    // silently diverge from what a reader gets from Ctrl+P.
-    const pdf = await page.pdf({
-      format: "Letter",
-      printBackground: false,
-      preferCSSPageSize: true
-    });
-
-    if (pdf.byteLength === 0) {
-      throw new ReportPdfUnavailableError("The renderer produced an empty document.", 502);
-    }
-    if (pdf.byteLength > REPORT_PDF_MAX_BYTES) {
-      throw new ReportPdfUnavailableError(
-        "This report renders larger than the export ceiling; print the page from your browser instead.",
-        413
-      );
-    }
-    return pdf;
   } finally {
-    await page?.close().catch(() => undefined);
+    // Release the slot FIRST and unconditionally. page.close() is unbounded in
+    // Playwright, so awaiting it here would put an unbounded operation on the
+    // path that frees the only render slot.
     active -= 1;
     if (active === 0) scheduleIdleShutdown();
+    void (page as RenderPage | null)?.close().catch(() => undefined);
   }
 }

@@ -22,6 +22,12 @@ export const MAX_QUEUED_JOBS = 32;
 // never rises above one. Raising the scan cap therefore cannot silently raise
 // this one past what the instance holds.
 export const MAX_CONCURRENT_REPORT_PDF_RENDERS = Math.min(1, MAX_CONCURRENT_SCANS - 1);
+// A render is a browser navigation plus a PDF write, not a byte read, so it
+// cannot share the report-read allowance: one client spending its 120 reads a
+// minute on renders would hold the single render slot continuously and no other
+// reader would ever get a PDF. Sized so a reader can retry a few times and
+// download several reports in a sitting, and no more.
+export const REPORT_PDF_RATE_LIMIT_MAX = 10;
 export const QUEUE_TIMEOUT_MS = 15_000;
 export const RATE_LIMIT_WINDOW_MS = 60_000;
 export const RATE_LIMIT_MAX = AUTHENTICATED_SCAN_RATE_LIMIT_PER_MINUTE;
@@ -41,10 +47,12 @@ type Waiter = {
 
 const scanTimestampsByClient = new Map<string, number[]>();
 const reportReadTimestampsByClient = new Map<string, number[]>();
+const reportPdfTimestampsByClient = new Map<string, number[]>();
 const queue: Waiter[] = [];
 let activeScans = 0;
 let lastRateLimitSweepMs = 0;
 let lastReportReadLimitSweepMs = 0;
+let lastReportPdfLimitSweepMs = 0;
 
 export function assertRequestBodySize(request: Request): void {
   const contentLength = Number(request.headers.get("content-length") || "0");
@@ -86,6 +94,34 @@ export function assertReportReadRateLimit(clientKey: string, now = Date.now()): 
 
   if (reportReadTimestampsByClient.size > MAX_RATE_LIMIT_CLIENTS) {
     pruneOldestRateLimitKeys(reportReadTimestampsByClient);
+  }
+}
+
+/**
+ * Charged on top of the report-read limit, in its own bucket.
+ *
+ * A PDF costs a browser navigation and a PDF write against a single render
+ * slot, so it must not be admitted at the rate of a byte read. Deliberately a
+ * separate map: exhausting the render allowance must not also lock a reader out
+ * of the JSON their PDF request was never going to compete with.
+ */
+export function assertReportPdfRateLimit(clientKey: string, now = Date.now()): void {
+  sweepRateLimitState(reportPdfTimestampsByClient, now, REPORT_READ_RATE_LIMIT_WINDOW_MS, lastReportPdfLimitSweepMs, (value) => {
+    lastReportPdfLimitSweepMs = value;
+  });
+
+  chargeRateLimit(
+    reportPdfTimestampsByClient,
+    clientKey,
+    now,
+    REPORT_READ_RATE_LIMIT_WINDOW_MS,
+    REPORT_PDF_RATE_LIMIT_MAX,
+    1,
+    "Too many PDF requests. Print the page from your browser, or try again shortly."
+  );
+
+  if (reportPdfTimestampsByClient.size > MAX_RATE_LIMIT_CLIENTS) {
+    pruneOldestRateLimitKeys(reportPdfTimestampsByClient);
   }
 }
 
@@ -252,6 +288,7 @@ function trustProxyHeaders(): boolean {
 export function resetScanLimitStateForTests(): void {
   scanTimestampsByClient.clear();
   reportReadTimestampsByClient.clear();
+  reportPdfTimestampsByClient.clear();
   for (const waiter of queue.splice(0, queue.length)) {
     clearTimeout(waiter.timer);
     waiter.signal?.removeEventListener("abort", waiter.onAbort!);

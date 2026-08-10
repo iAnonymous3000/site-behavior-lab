@@ -7,7 +7,11 @@ import {
   reportPdfFilename
 } from "@/lib/report-pdf";
 import { REPORT_ID_PATTERN } from "@/lib/report-validation";
-import { assertReportReadRateLimit, clientKeyFromRequest } from "@/lib/scan-limits";
+import {
+  assertReportPdfRateLimit,
+  assertReportReadRateLimit,
+  clientKeyFromRequest
+} from "@/lib/scan-limits";
 import { toReportView } from "@/lib/scan-report-views";
 import { corsPreflight, withScanCors } from "../../../cors";
 
@@ -15,10 +19,10 @@ import { corsPreflight, withScanCors } from "../../../cors";
  * A report as a PDF file.
  *
  * This renders the container's own printable page, so the file a reader
- * downloads is byte-for-byte the page they would get from Ctrl+P, including the
- * evidence footer, the wire digest, the approved use boundary and the standing
- * scope caveat. The PDF is a rendering, not the evidence; the JSON wire remains
- * canonical, and the footer inside the document says so.
+ * downloads carries what that page carries: the evidence footer, the wire
+ * digest, the approved use boundary and the standing scope caveat. The PDF is a
+ * rendering, not the evidence; the JSON wire remains canonical, and the footer
+ * inside the document says so.
  *
  * Container-only, like the printable page it renders: the static export carries
  * neither, because a Pages deployment has no browser to render with.
@@ -40,9 +44,13 @@ async function handleReportPdf(
   context: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
-    // Rendering costs a browser tab, so it is rate limited on the same client
-    // key as report reads before any work begins.
-    assertReportReadRateLimit(clientKeyFromRequest(request));
+    // Two buckets, both charged. The read limit covers the report lookup this
+    // shares with every other representation; the render limit covers the
+    // browser navigation and PDF write, which a byte read does not pay for.
+    const clientKey = clientKeyFromRequest(request);
+    assertReportReadRateLimit(clientKey);
+    assertReportPdfRateLimit(clientKey);
+
     const { id } = await context.params;
     if (!REPORT_ID_PATTERN.test(id)) {
       return NextResponse.json({ ok: false, error: "Report not found." }, { status: 404 });
@@ -62,7 +70,9 @@ async function handleReportPdf(
       return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
 
-    const pdf = await renderReportPdf(id);
+    // A reader who navigates away should not keep the single render slot busy
+    // producing a document nobody will receive.
+    const pdf = await renderReportPdf(id, { signal: request.signal });
     const filename = reportPdfFilename(id, toReportView(result.stored).domain);
 
     return new NextResponse(Buffer.from(pdf), {
@@ -72,8 +82,10 @@ async function handleReportPdf(
         "content-disposition": `attachment; filename="${filename}"`,
         // A generated rendering is not a citable surface; the interactive
         // report is. Keep it out of indexes even if a link leaks.
-        "x-robots-tag": "noindex, nofollow",
-        "cache-control": "private, no-store"
+        // No cache-control here: next.config.mjs already applies `no-store` to
+        // every /api path, and a second copy of that decision would be a rule
+        // stated twice with the config half silently winning.
+        "x-robots-tag": "noindex, nofollow"
       }
     });
   } catch (error) {

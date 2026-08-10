@@ -117,8 +117,14 @@ export function ReportPageContext({
                 </a>
                 {/* Renders that same printable page server-side. The PDF is a
                     rendering of the evidence, not the evidence: the JSON wire
-                    stays canonical, and the footer inside the document says so. */}
-                <a className="secondary-button" href={reportPdfHref(id)} download>
+                    stays canonical, and the footer inside the document says so.
+
+                    Deliberately no `download` attribute. The response already
+                    carries Content-Disposition: attachment, so a success still
+                    downloads with the right filename, and a refusal (the
+                    renderer is busy, the report is too large) stays visible
+                    instead of becoming a failed download with no reason. */}
+                <a className="secondary-button" href={reportPdfHref(id)}>
                   Download PDF
                 </a>
               </>
