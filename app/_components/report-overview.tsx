@@ -43,7 +43,12 @@ import {
   type EvidenceArm
 } from "@/lib/report-evidence-navigation";
 import { gpcRunMeasurement } from "@/lib/report-insights";
-import { committedReportLocation, locateReport, type ReportRuntime } from "@/lib/report-locator";
+import {
+  committedReportLocation,
+  locateReport,
+  reportPdfLocation,
+  type ReportRuntime
+} from "@/lib/report-locator";
 import { buildRequestComposition } from "@/lib/request-composition";
 import { buildRequestTimelineModel } from "@/lib/request-timeline";
 import type { ReportView } from "@/lib/scan-report-views";
@@ -75,6 +80,25 @@ export function reportSharePath(share: ReportShare | null | undefined, liveApiSe
     return locateReport(share.id, runtime).pagePath;
   }
   return committedReportLocation(share.id, runtime).pagePath;
+}
+
+/**
+ * The PDF download URL for this report, or null when no reachable origin can
+ * render one.
+ *
+ * Same shape as `reportSharePath` and for the same reason: a freshly scanned
+ * report lives only behind the scan API, so its PDF is rendered there, while a
+ * committed report on the static export has no renderer to reach at all. The
+ * `apiBacked` test is what separates the two, exactly as it does above.
+ */
+export function reportPdfHref(
+  share: ReportShare | null | undefined,
+  liveApiServesReportPages: boolean
+): string | null {
+  if (!share?.id) return null;
+  const runtime: ReportRuntime = { ...clientReportRuntime(), liveApiServesReportPages };
+  if (runtime.staticExport && !share.jsonPath.startsWith("/api/")) return null;
+  return reportPdfLocation(share.id, runtime);
 }
 
 /**

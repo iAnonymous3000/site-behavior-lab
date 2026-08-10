@@ -6,6 +6,8 @@ import {
   committedReportLocation,
   isCanonicalReportShare,
   locateReport,
+  reportPdfApiPath,
+  reportPdfLocation,
   withoutReportShare
 } from "./report-locator";
 
@@ -124,4 +126,84 @@ test("committedReportLocation always resolves a servable page for committed arti
     pagePath: `/site-behavior-lab/reports/${VALID_ID}/`,
     dataUrl: `/site-behavior-lab/reports/${VALID_ID}.json`
   });
+});
+
+
+test("a PDF is offered only by an origin that can render one", () => {
+  // The app served by the Node app or container: it renders its own PDFs.
+  assert.equal(
+    reportPdfLocation(VALID_ID, { staticExport: false, liveApiBacked: false, basePath: "" }),
+    `/api/reports/${VALID_ID}/pdf`
+  );
+
+  // A static export fronting a scan API that serves report pages: that origin
+  // runs the full app, so it can render, and the URL is absolute onto it.
+  assert.equal(
+    reportPdfLocation(VALID_ID, {
+      staticExport: true,
+      liveApiBacked: true,
+      basePath: "",
+      scanApiBase: "https://scan.example.org",
+      liveApiServesReportPages: true
+    }),
+    `https://scan.example.org/api/reports/${VALID_ID}/pdf`
+  );
+
+  // A trailing slash on the configured origin must not produce a double slash.
+  assert.equal(
+    reportPdfLocation(VALID_ID, {
+      staticExport: true,
+      liveApiBacked: true,
+      basePath: "",
+      scanApiBase: "https://scan.example.org/",
+      liveApiServesReportPages: true
+    }),
+    `https://scan.example.org/api/reports/${VALID_ID}/pdf`
+  );
+});
+
+test("no PDF is offered where nothing can render one", () => {
+  const cases: Array<[string, Parameters<typeof reportPdfLocation>[1]]> = [
+    [
+      "a plain static export has no renderer at all",
+      { staticExport: true, liveApiBacked: false, basePath: "" }
+    ],
+    [
+      "an API-only producer has no report pages, so it has no print page to render",
+      {
+        staticExport: true,
+        liveApiBacked: true,
+        basePath: "",
+        scanApiBase: "https://api.example.workers.dev",
+        liveApiServesReportPages: false
+      }
+    ],
+    [
+      "a live-API build with no configured origin has nowhere to send the request",
+      { staticExport: true, liveApiBacked: true, basePath: "", liveApiServesReportPages: true }
+    ]
+  ];
+
+  for (const [why, runtime] of cases) {
+    assert.equal(reportPdfLocation(VALID_ID, runtime), null, why);
+  }
+});
+
+test("the PDF path is built from a validated id, never an arbitrary string", () => {
+  // This URL is handed to the browser and answered by a renderer, so the id
+  // must not be a place to inject a path.
+  for (const hostile of [
+    "../../etc/passwd",
+    `${VALID_ID}/../../admin`,
+    `${VALID_ID}?x=1`,
+    "",
+    "not-an-id"
+  ]) {
+    assert.equal(
+      reportPdfLocation(hostile, { staticExport: false, liveApiBacked: false, basePath: "" }),
+      null,
+      `${hostile} must not produce a PDF URL`
+    );
+  }
+  assert.equal(reportPdfApiPath(VALID_ID), `/api/reports/${VALID_ID}/pdf`);
 });
