@@ -79,11 +79,13 @@ type RenderPage = {
 type RenderBrowser = {
   newPage(): Promise<RenderPage>;
   close(): Promise<void>;
+  /** Playwright's Browser satisfies this; a test stub supplies a no-op. */
+  on?(event: "disconnected", handler: () => void): void;
 };
 
-let launchPromise: Promise<Browser> | null = null;
+let launchPromise: Promise<RenderBrowser> | null = null;
 /** Identity of the browser the memoized promise settled to, for disconnect. */
-let launchedBrowser: Browser | null = null;
+let launchedBrowser: RenderBrowser | null = null;
 let idleTimer: NodeJS.Timeout | null = null;
 let active = 0;
 
@@ -94,6 +96,23 @@ export class ReportPdfUnavailableError extends Error {
     this.name = "ReportPdfUnavailableError";
     this.status = status;
   }
+}
+
+/**
+ * Seed and read the memoized renderer, for tests only.
+ *
+ * `browserForTests` deliberately bypasses `browserForRendering`, so it can
+ * never observe what happens to the MEMO when a render fails. That is exactly
+ * where the eviction bug lived, so these give a test the one thing that seam
+ * cannot: a render that goes through the memoized browser.
+ */
+export function seedRenderBrowserForTests(browser: RenderBrowser | null): void {
+  launchPromise = browser ? Promise.resolve(browser) : null;
+  launchedBrowser = browser;
+}
+
+export function memoizedRenderBrowserForTests(): RenderBrowser | null {
+  return launchedBrowser;
 }
 
 /** The app's own loopback origin. Never a caller-supplied value. */
@@ -118,7 +137,7 @@ function selfOrigin(): string {
  * does not poison every later request, and a launch that lands after its
  * deadline is closed rather than leaked.
  */
-async function browserForRendering(signal?: AbortSignal): Promise<Browser> {
+async function browserForRendering(signal?: AbortSignal): Promise<RenderBrowser> {
   launchPromise ??= withScannerOperationDeadline<Browser>(
     () =>
       chromium.launch({
@@ -315,13 +334,32 @@ export async function renderReportPdf(
       // itself failed. In all three the page may be wedged, and closing a wedged
       // page hangs for the same reason the render did. Drop the page handle and
       // close the BROWSER instead: that fires "disconnected", which clears the
-      // memoized launch so the next caller gets a fresh one. A refusal this
-      // module decided itself (404, 413, an empty document) leaves a healthy
-      // browser, so those keep it.
+      // memoized launch so the next caller gets a fresh one. Only a refusal
+      // that PROVES the browser is still healthy keeps it: a 404 (the print
+      // page answered) and a 413 (a complete document, merely too large). An
+      // empty document is decided here too but is deliberately NOT in that set,
+      // because zero bytes back from page.pdf() is evidence the renderer itself
+      // is wrong. This comment previously listed an empty document among the
+      // refusals that keep the browser, which is the opposite of what the code
+      // below does; the code was right.
       const decided =
         error instanceof ReportPdfUnavailableError && (error.status === 404 || error.status === 413);
       if (!decided) {
         page = null;
+        // Evict the memo BEFORE closing, exactly as scheduleIdleShutdown does.
+        // `disconnected` clears it too, but that lands an event-loop turn or
+        // more later (measured at 4-8ms), while the finally below frees the
+        // only render slot in this same tick. A caller admitted in between was
+        // handed this browser mid-shutdown and failed newPage() with an
+        // untyped TargetClosedError, which the route could only report as 500.
+        //
+        // An isConnected() check on reuse does NOT close this window: it stays
+        // true after close() is called and flips only when `disconnected`
+        // fires, which is when the memo already clears itself.
+        if (launchedBrowser === browser) {
+          launchPromise = null;
+          launchedBrowser = null;
+        }
         void browser.close().catch(() => undefined);
       }
       throw error;

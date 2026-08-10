@@ -296,6 +296,11 @@ export function resetScanLimitStateForTests(): void {
   activeScans = 0;
   lastRateLimitSweepMs = 0;
   lastReportReadLimitSweepMs = 0;
+  // The PDF bucket's cursor was left behind when its map was added here. Every
+  // limiter takes `now` from its caller, so a suite that charges at t=1000
+  // after one that swept at a much later timestamp would skip the sweep and
+  // inherit the previous test's entries.
+  lastReportPdfLimitSweepMs = 0;
 }
 
 function throwIfAborted(signal?: AbortSignal): void {

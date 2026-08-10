@@ -5055,6 +5055,12 @@ function fixtureProvider(target, { cascadeDns = false, certificatePollsBeforeDel
     }
     if (method === "DELETE" && dnsRecordRoute) {
       const id = decodeURIComponent(dnsRecordRoute[1]);
+      // 404 an id this fixture never held, like the sibling GET above and like
+      // the domain, token, worker and container routes. A fixture that reports
+      // success for a delete it never performed cannot catch the one thing
+      // this suite exists to catch: a teardown reaching a resource that is not
+      // in its manifest.
+      if (!state.dnsRecords.has(id)) return cf(null, undefined, 404);
       state.dnsRecords.delete(id);
       return cf({ id });
     }

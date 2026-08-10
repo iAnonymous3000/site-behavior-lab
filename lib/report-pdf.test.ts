@@ -7,8 +7,10 @@ import {
   REPORT_PDF_MAX_BYTES,
   ReportPdfUnavailableError,
   assertRenderedPdfWithinCeiling,
+  memoizedRenderBrowserForTests,
   renderReportPdf,
-  reportPdfFilename
+  reportPdfFilename,
+  seedRenderBrowserForTests
 } from "./report-pdf";
 import { MAX_CONCURRENT_REPORT_PDF_RENDERS, MAX_CONCURRENT_SCANS } from "./scan-limits";
 
@@ -266,4 +268,86 @@ test("a long domain is bounded so the filename stays usable", () => {
   const filename = reportPdfFilename(id, `${"x".repeat(300)}.example`);
   assert.ok(filename.length < 140, `filename was ${filename.length} characters`);
   assert.ok(filename.endsWith(`${id}.pdf`));
+});
+
+test("a failed render evicts the memoized browser before the slot is freed", async () => {
+  // The defect: the failure path closed the browser but left it memoized, and
+  // `disconnected` only clears the memo when the close actually lands (measured
+  // at 4-8ms). The finally frees the single slot in the SAME tick, so a caller
+  // admitted in that gap was handed a browser mid-shutdown, failed newPage(),
+  // and got an untyped error the route could only report as 500.
+  //
+  // Driven through the memo rather than `browserForTests`, because that seam
+  // bypasses the module state this is about.
+  const id = `20260101-${"e".repeat(32)}`;
+  let closedBrowsers = 0;
+  const wedged = {
+    async newPage() {
+      return {
+        setDefaultTimeout() {},
+        async goto() {
+          return { ok: () => true, status: () => 200 };
+        },
+        pdf: () => new Promise<never>(() => undefined),
+        close: async () => undefined
+      };
+    },
+    // Never fires "disconnected", which is the point: eviction must not depend
+    // on it. A close that takes any time at all leaves the same window.
+    close: async () => {
+      closedBrowsers += 1;
+    },
+    on() {},
+    isConnected: () => true
+  };
+
+  seedRenderBrowserForTests(wedged);
+  assert.equal(memoizedRenderBrowserForTests(), wedged, "the memo should start populated");
+
+  await assert.rejects(
+    () => renderReportPdf(id, { renderTimeoutMsForTests: 60 }),
+    (error: unknown) => error instanceof ReportPdfUnavailableError && error.status === 504
+  );
+
+  assert.equal(closedBrowsers, 1, "a renderer that missed its deadline is closed");
+  assert.equal(
+    memoizedRenderBrowserForTests(),
+    null,
+    "the closing browser must not still be memoized once the slot is free"
+  );
+  seedRenderBrowserForTests(null);
+});
+
+test("a refusal that proves the browser is healthy keeps it memoized", async () => {
+  // The other half: 404 and 413 are decided from a browser that answered, so
+  // recycling Chromium for them would throw away a working renderer on input
+  // the renderer handled correctly.
+  const id = `20260101-${"f".repeat(32)}`;
+  let closedBrowsers = 0;
+  const healthy = {
+    async newPage() {
+      return {
+        setDefaultTimeout() {},
+        async goto() {
+          return { ok: () => false, status: () => 404 };
+        },
+        pdf: async () => Buffer.alloc(0),
+        close: async () => undefined
+      };
+    },
+    close: async () => {
+      closedBrowsers += 1;
+    },
+    on() {},
+    isConnected: () => true
+  };
+
+  seedRenderBrowserForTests(healthy);
+  await assert.rejects(
+    () => renderReportPdf(id, {}),
+    (error: unknown) => error instanceof ReportPdfUnavailableError && error.status === 404
+  );
+  assert.equal(closedBrowsers, 0, "a 404 from the print page does not condemn the browser");
+  assert.equal(memoizedRenderBrowserForTests(), healthy, "the healthy browser stays available");
+  seedRenderBrowserForTests(null);
 });

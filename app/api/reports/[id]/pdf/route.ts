@@ -44,12 +44,13 @@ async function handleReportPdf(
   context: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
-    // Two buckets, both charged. The read limit covers the report lookup this
-    // shares with every other representation; the render limit covers the
-    // browser navigation and PDF write, which a byte read does not pay for.
+    // The read limit covers the report lookup this shares with every other
+    // representation, so it is charged up front like any read. The RENDER limit
+    // is charged later, once a render is actually going to happen: charging it
+    // here spent a reader's ten-per-minute browser budget on requests that
+    // never start Chromium, so ten 404s locked them out of a report that exists.
     const clientKey = clientKeyFromRequest(request);
     assertReportReadRateLimit(clientKey);
-    assertReportPdfRateLimit(clientKey);
 
     const { id } = await context.params;
     if (!REPORT_ID_PATTERN.test(id)) {
@@ -69,6 +70,10 @@ async function handleReportPdf(
           : "The stored report exists but is unreadable.";
       return NextResponse.json({ ok: false, error: message }, { status: 500 });
     }
+
+    // Charged here, not with the read limit: this is the point past which a
+    // browser navigation and a PDF write are actually going to happen.
+    assertReportPdfRateLimit(clientKey);
 
     // A reader who navigates away should not keep the single render slot busy
     // producing a document nobody will receive.
@@ -91,6 +96,15 @@ async function handleReportPdf(
   } catch (error) {
     if (error instanceof ReportPdfUnavailableError) {
       return NextResponse.json({ ok: false, error: error.message }, { status: error.status });
+    }
+    // A reader who navigated away is not a server fault. Ask the request, not
+    // the error: the rejection is whatever `signal.reason` happened to be, and
+    // matching on its shape would miss a runtime that aborts with something
+    // else. Without this the expected case logged an exception and answered
+    // 500, which is a lie about what went wrong and buries real 500s in noise.
+    // 499 is the code the edge worker already uses for the same situation.
+    if (request.signal.aborted) {
+      return NextResponse.json({ ok: false, error: "The request ended before the PDF finished." }, { status: 499 });
     }
     const publicError = toPublicError(error);
     return NextResponse.json({ ok: false, error: publicError.message }, { status: publicError.status });
