@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "3d068333d4c531bcaa2fd18f614e033f8e55bf683cee839a0beeca14ce2994c7"
+      "sha256": "60cc25d794d6ba7d3d0d03ecdaa9e3f7e2d41d559b894dc7beb2bb28a7de24b5"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -28,8 +28,8 @@
   },
   "summary": {
     "npm": {
-      "total": 149,
-      "declared": 149,
+      "total": 155,
+      "declared": 155,
       "unknown": 0
     },
     "cargo": {
@@ -111,6 +111,18 @@
       "optional": true
     },
     {
+      "name": "@cloudflare/workerd-darwin-64",
+      "version": "1.20260801.1",
+      "lockPath": "node_modules/wrangler/node_modules/@cloudflare/workerd-darwin-64",
+      "license": "Apache-2.0",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-64/-/workerd-darwin-64-1.20260801.1.tgz",
+      "integrity": "sha512-wuJWbXpKvncJi1P0GKS+iYpN5tHdb7JPJJ/+6ZQe8zzovHHVMkLJPNBsgWpqeUhpM3g9qTwEKd2rglNKejuh5A==",
+      "developmentOnly": true,
+      "optional": true
+    },
+    {
       "name": "@cloudflare/workerd-darwin-arm64",
       "version": "1.20260730.1",
       "lockPath": "node_modules/@cloudflare/workerd-darwin-arm64",
@@ -119,6 +131,18 @@
       "licenseEvidence": "package-lock.json",
       "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20260730.1.tgz",
       "integrity": "sha512-SBHKntPkKvNPgaCrTe99xC1CAl8ygJDzlYfK0LbuJ1muKadIw35WnhO0wu894fKBtllsVQdNzDLee+cm0ppLSQ==",
+      "developmentOnly": true,
+      "optional": true
+    },
+    {
+      "name": "@cloudflare/workerd-darwin-arm64",
+      "version": "1.20260801.1",
+      "lockPath": "node_modules/wrangler/node_modules/@cloudflare/workerd-darwin-arm64",
+      "license": "Apache-2.0",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20260801.1.tgz",
+      "integrity": "sha512-kwoZiTpnhNrF3+APx84Q/oAqvJ3sU9yefGagwm/ASaH/2W19x0vghkW/r4qCoHCK0WW7EPugZ+aXjgPMRtlq1Q==",
       "developmentOnly": true,
       "optional": true
     },
@@ -135,6 +159,18 @@
       "optional": true
     },
     {
+      "name": "@cloudflare/workerd-linux-64",
+      "version": "1.20260801.1",
+      "lockPath": "node_modules/wrangler/node_modules/@cloudflare/workerd-linux-64",
+      "license": "Apache-2.0",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-linux-64/-/workerd-linux-64-1.20260801.1.tgz",
+      "integrity": "sha512-r0vAxCZH+Jih9Unm1yoyiByPNWNgawcKciOHDm5Q37ZVGOkKLsT9AtLe3yLSaul76WrKqtf+JP2n0WW32VBLJg==",
+      "developmentOnly": true,
+      "optional": true
+    },
+    {
       "name": "@cloudflare/workerd-linux-arm64",
       "version": "1.20260730.1",
       "lockPath": "node_modules/@cloudflare/workerd-linux-arm64",
@@ -143,6 +179,18 @@
       "licenseEvidence": "package-lock.json",
       "resolved": "https://registry.npmjs.org/@cloudflare/workerd-linux-arm64/-/workerd-linux-arm64-1.20260730.1.tgz",
       "integrity": "sha512-YQ+Mi78U3TPdgBPtwq+Sm6rJU+Ihl2y0pjYtuuKkdmUbYzL7oLR6Xqq9wljhasnuCFICssDJaqhMep5WizYoEQ==",
+      "developmentOnly": true,
+      "optional": true
+    },
+    {
+      "name": "@cloudflare/workerd-linux-arm64",
+      "version": "1.20260801.1",
+      "lockPath": "node_modules/wrangler/node_modules/@cloudflare/workerd-linux-arm64",
+      "license": "Apache-2.0",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-linux-arm64/-/workerd-linux-arm64-1.20260801.1.tgz",
+      "integrity": "sha512-zWgpdZtSozvIgzQNmQiDSF8yEOQJUkRAWNsDXXzAAoy+fCn8YUoSibj3mpFSbZRvbUldeBEaW6SCdC2VEMkhNQ==",
       "developmentOnly": true,
       "optional": true
     },
@@ -159,14 +207,26 @@
       "optional": true
     },
     {
+      "name": "@cloudflare/workerd-windows-64",
+      "version": "1.20260801.1",
+      "lockPath": "node_modules/wrangler/node_modules/@cloudflare/workerd-windows-64",
+      "license": "Apache-2.0",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-windows-64/-/workerd-windows-64-1.20260801.1.tgz",
+      "integrity": "sha512-2oQz+Ksu4ji6e/+ZoYX+tWQEcxAii2p7l+iR8kx48W1llMalaufAsmVxTlk+3/vrM7D3/2c0iK448e0UQTcIMg==",
+      "developmentOnly": true,
+      "optional": true
+    },
+    {
       "name": "@cloudflare/workers-types",
-      "version": "5.20260801.1",
+      "version": "5.20260804.1",
       "lockPath": "node_modules/@cloudflare/workers-types",
       "license": "MIT OR Apache-2.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20260801.1.tgz",
-      "integrity": "sha512-XCv5xWi47WQOK0LpLa6997Mrpz8Ct+nZmp/M5Xp8Z4BFsarf7nYjkznGOcOoYK5m1GfbMFEEuQ2OIZnbIWoe9A==",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20260804.1.tgz",
+      "integrity": "sha512-B1dwxpN6e5RZXZkE5zpZj+ooNeNZ1mwavLIyHDYe10ojhlGTwDfe8sAl7R1mMXc1cyIsbr+jKVdvmMEyVcdTdg==",
       "developmentOnly": true,
       "optional": false
     },
@@ -868,109 +928,109 @@
     },
     {
       "name": "@next/env",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/env",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/env/-/env-16.2.12.tgz",
-      "integrity": "sha512-d0Z5Bc13Fa4nR8pFAKx2jay2yhJM16vlfHbTzYnUQAxlNb6B6lmn4hjt69lYNt4kRtyYP6gEM49lPRHNbIyneg==",
+      "resolved": "https://registry.npmjs.org/@next/env/-/env-16.3.0.tgz",
+      "integrity": "sha512-o9r1S0BNiNreHP9Vs+Qnqd9kviDkJh8xIACY7UFZSmiGbbQRzPBBosvHzAU4TULHOIuOj/18RSsyz2qrREmIFw==",
       "developmentOnly": false,
       "optional": false
     },
     {
       "name": "@next/swc-darwin-arm64",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/swc-darwin-arm64",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-16.2.12.tgz",
-      "integrity": "sha512-0W1R0teHWJrqKX0FH20IzzIWAOuGtBxPGuObrxy1lE8hQvCFj49KE8a3WUg0D7sq6rn6zkM4c7YGUnhudBS6oA==",
+      "resolved": "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-16.3.0.tgz",
+      "integrity": "sha512-55hpqq18bEVAlxedlTt3tFqZmKg2nUXT1kn1G/BGEy0R13h3LwtwHPVzzjG6P4LLeOHE32PFDQUVaJEWvBEZBw==",
       "developmentOnly": false,
       "optional": true
     },
     {
       "name": "@next/swc-darwin-x64",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/swc-darwin-x64",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-16.2.12.tgz",
-      "integrity": "sha512-Hy5Ls099+aFUmOLmIgPfLqNi6iCwhL3uQCssz5rWk+5Nkc6TUKCE83DY5BbNylfm3+mfwcSFnLRfrZDJhVxdtw==",
+      "resolved": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-16.3.0.tgz",
+      "integrity": "sha512-SOi96kSaF5T+0wW4koiM1bWzSPwjzTesC1p3df+FjdOi5LIQkBK/blxh7HdoKnNuI4PURF1OO7TZqtfnbWDSgw==",
       "developmentOnly": false,
       "optional": true
     },
     {
       "name": "@next/swc-linux-arm64-gnu",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/swc-linux-arm64-gnu",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-16.2.12.tgz",
-      "integrity": "sha512-+YqU2h1cQkHsGfvjAsrSmst8UIFBibBGm5x3Xgel8NLMiDQtNOM4sM2GOEMvG5YiOBNeN/Ykk8cQC2S0Xrqljg==",
+      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-16.3.0.tgz",
+      "integrity": "sha512-P0gZAoPMF4dyTRzhmkV4PrqVzSOB6t4mC1oI3c4dqijJ+OVEVx5clIXAKR4/uQpsqw2KKM/0D5tVumcR2r5blg==",
       "developmentOnly": false,
       "optional": true
     },
     {
       "name": "@next/swc-linux-arm64-musl",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/swc-linux-arm64-musl",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-16.2.12.tgz",
-      "integrity": "sha512-0qjhiYBaKAqF63LA1ZWAAnKTzFUguAaZiRa5etMLGGPj/B6uEVjtIZldIzFEp3wHlB0koK6aTzqPtSdplTCjoA==",
+      "resolved": "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-16.3.0.tgz",
+      "integrity": "sha512-tXXGKJw0m37O0eKJARVTX/TheKPhz0QFVtVVZXmOig+9YKLQOSP6hvf2pxv5DO7CLEJyTHx3Pg043CDQkv1G4Q==",
       "developmentOnly": false,
       "optional": true
     },
     {
       "name": "@next/swc-linux-x64-gnu",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/swc-linux-x64-gnu",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.2.12.tgz",
-      "integrity": "sha512-7A3q26W+h7gnA15uqBToNuDqBEFZZcqh0mW2mn4AJh/G5pdg2RVE3n4slzLEliASZFG3NmsbEzng/x2Sh09mBg==",
+      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-16.3.0.tgz",
+      "integrity": "sha512-pjGxK5EY7yWml78ALejFkWmgHsU7wbFQrISiugpH6FbUJhgEvw3xFZ/EBAtLl7QtL0WdQKiG9eWJ3mOKGTukHw==",
       "developmentOnly": false,
       "optional": true
     },
     {
       "name": "@next/swc-linux-x64-musl",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/swc-linux-x64-musl",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.2.12.tgz",
-      "integrity": "sha512-qSjL/uppm+cbh21s72Ss8gkiOhQ4dExWHNGOWy6eZV7STj5WsKehgxT61beSsOj+YYQuTplL376lOCdMQU5T8w==",
+      "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-16.3.0.tgz",
+      "integrity": "sha512-sjo++Xx+lomlPs3HRsHWhVDyGG6ms1kGW5EtHLERdII8AyG1i+f6aq68xHREO6AEMlhjTNEWBSmfJfqm9orf7g==",
       "developmentOnly": false,
       "optional": true
     },
     {
       "name": "@next/swc-win32-arm64-msvc",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/swc-win32-arm64-msvc",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-16.2.12.tgz",
-      "integrity": "sha512-X6hzsOUJac/e7AWSbn9gQ9nzHld1xWP5iyjHpYWvud8pufB679O1xg4JDyKr8Xd69Jvd+kM2Der6uftiZCmjYA==",
+      "resolved": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-16.3.0.tgz",
+      "integrity": "sha512-C5JSgiO54wURdaxdEUIXqkz04uMqC9UmPX1gtDrV/5Tf1UowdWYI8uA5hfFbPolTlp0q4KZ60xlHePNibf0VIw==",
       "developmentOnly": false,
       "optional": true
     },
     {
       "name": "@next/swc-win32-x64-msvc",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/@next/swc-win32-x64-msvc",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-16.2.12.tgz",
-      "integrity": "sha512-F6fakeHuFTLOPt0bslQJdf+xtT+WIP9DVn/m4y1w1mRnVPyh3D/cNvzlRkxM444xfm+IvvYNSOrKiA2CDJ0Uxw==",
+      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-16.3.0.tgz",
+      "integrity": "sha512-fDOggsweNb5SSw0ZKVk6U+gxSyGFFlIBY/LBc1r8GUj4u/6t6oArL+Pmkg0MBnsgR+KkdsURilVH4F3GXUGepA==",
       "developmentOnly": false,
       "optional": true
     },
@@ -1384,13 +1444,13 @@
     },
     {
       "name": "lucide-react",
-      "version": "1.28.0",
+      "version": "1.30.0",
       "lockPath": "node_modules/lucide-react",
       "license": "ISC",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/lucide-react/-/lucide-react-1.28.0.tgz",
-      "integrity": "sha512-fARAFJULsGuDDydjp6+6blekG/sBIM29TerzLjc9bQUKAcEfrSc4ZQKb25KRz4OMKd87cZTb5dgq0w/T6KufVg==",
+      "resolved": "https://registry.npmjs.org/lucide-react/-/lucide-react-1.30.0.tgz",
+      "integrity": "sha512-tUIr2jXLbWpCkdtH8XP7P7YppM9ueWgTky99lpWDY6z5REs6B+O6ZQ3U5tHkUUY59ANyOv/PBcs8E4Fe3KO3eA==",
       "developmentOnly": false,
       "optional": false
     },
@@ -1408,13 +1468,13 @@
     },
     {
       "name": "miniflare",
-      "version": "5.20260730.0-alpha",
+      "version": "5.20260801.1-alpha",
       "lockPath": "node_modules/wrangler/node_modules/miniflare",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20260730.0-alpha.tgz",
-      "integrity": "sha512-8/dspSXDshP6nSkCpjKO7BYc2qZoYSXm7iM+QxY7qJyJpAB3onnQSaiu0cvKJlfuMGwULl55hG69FJCcCMXU1Q==",
+      "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20260801.1-alpha.tgz",
+      "integrity": "sha512-BHPVzIDA6mbx7LefxpvkXW7DHx9FKB9GorZatbnrrFTt3CVMU8zuUpbgyCuebwDKcTTOZos43ta8GQ0eMVEpxA==",
       "developmentOnly": true,
       "optional": false
     },
@@ -1456,13 +1516,13 @@
     },
     {
       "name": "next",
-      "version": "16.2.12",
+      "version": "16.3.0",
       "lockPath": "node_modules/next",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/next/-/next-16.2.12.tgz",
-      "integrity": "sha512-iD59eYQWmbFcEbX7v/acG5DRym9iw1DdaPoD0WTA920naWsE25wShzJW4+UvAs8MK9EC2kBfIH6vtto1H1PHGw==",
+      "resolved": "https://registry.npmjs.org/next/-/next-16.3.0.tgz",
+      "integrity": "sha512-NEdGOzH+08eTXMUp9UYkA99Nhi5N6Thrhc1jgFOQgfgnGK/dA2hRwBpXep+exdFQrnwlRf/3Wixyp8lLBUpE2A==",
       "developmentOnly": false,
       "optional": false
     },
@@ -1791,14 +1851,26 @@
       "optional": false
     },
     {
+      "name": "workerd",
+      "version": "1.20260801.1",
+      "lockPath": "node_modules/wrangler/node_modules/workerd",
+      "license": "Apache-2.0",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20260801.1.tgz",
+      "integrity": "sha512-/g9JGTyqnHtoIscpBHqKD8swE2V4StBs2i69PmLiOhH45OP95jCFICl4F1hKlgN57rqfni5LiCitttoX5OOkVA==",
+      "developmentOnly": true,
+      "optional": false
+    },
+    {
       "name": "wrangler",
-      "version": "4.118.0",
+      "version": "4.120.0",
       "lockPath": "node_modules/wrangler",
       "license": "MIT OR Apache-2.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.118.0.tgz",
-      "integrity": "sha512-9pkBw/b8zWqGx2S+oLhgHMR1M/4VOE8SynUFABnGWiSFGlcOQ4xiI/B71Xf66RYP2xzngU37IQFPtUruij3lYw==",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.120.0.tgz",
+      "integrity": "sha512-cBmu/MeaB/fPacC0JpATs4duTOCagBxrZo+vBzuTX06tLzwSyAHE1drlHUZ8rP0VqVz1fy3ReGYTiHdKkoHltg==",
       "developmentOnly": true,
       "optional": false
     },
