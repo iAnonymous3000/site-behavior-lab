@@ -765,19 +765,19 @@ jobs:
 
       - name: Attest static evidence manifest
         id: attest_static
-        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/static/site-behavior-lab-static-release-evidence.json
 
       - name: Attest container evidence manifest
         id: attest_container
-        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container/site-behavior-lab-container-release-evidence.json
 
       - name: Attest container OS-package inventory
         id: attest_container_packages
-        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: ${{ runner.temp }}/site-behavior-lab-attestation-subjects/container/site-behavior-lab-container-package-inventory.json
 

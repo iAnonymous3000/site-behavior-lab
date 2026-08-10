@@ -210,7 +210,7 @@ not receive OIDC or attestation authority.
 
 The job uses `actions/download-artifact` v8.0.1 at reviewed commit
 `3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c` and `actions/attest` v4.2.1 at
-reviewed commit `508db95dd578ae2727ebd6217d5ba78e4fbda05d`. It downloads the artifact
+reviewed commit `1e69f48acb82d1966a394da916b4c1698aa569d6`. It downloads the artifact
 names for the current `github.sha`, parses both receipts plus the normalized
 package inventory, and rejects any source mismatch. It independently
 recomputes the package-row and package-set digests and cross-checks the
