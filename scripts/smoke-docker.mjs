@@ -16,6 +16,7 @@ import {
   savedReportRetainsScreenshot,
   singleReportTotalRequests
 } from "./smoke-deployed-scanner-report.mjs";
+import { REPORT_PDF_MAX_BYTES } from "../lib/report-pdf-limits.ts";
 import { pdfPageCount, pdfText, pdfTextIncludes } from "./pdf-text-lib.mjs";
 import { startSmokeR2Server } from "./smoke-r2-server.mjs";
 
@@ -42,9 +43,18 @@ const healthResponseMaxBytes = 256 * 1024;
 // file is still in its temporal dead zone at that point: the function
 // declaration hoists, the binding does not, and the smoke died on exactly that.
 const printableRouteMaxBytes = 8 * 1024 * 1024;
-// Matches REPORT_PDF_MAX_BYTES in lib/report-pdf.ts: the route refuses anything
-// larger, so a response above this is a contract violation, not a big report.
-const reportPdfMaxBytes = 24 * 1024 * 1024;
+// The renderer's own ceiling, imported rather than restated: the route refuses
+// anything larger, so a response above it is a contract violation and not a big
+// report. lib/report-pdf-limits.ts exists so this file can have the number
+// without loading Playwright.
+const reportPdfMaxBytes = REPORT_PDF_MAX_BYTES;
+// The sentence the findings board prints when no corpus was available. Up here
+// with the other module constants for the same reason the ceiling above is: the
+// top-level await below reaches the function that reads it, and a const
+// declared further down is still in its temporal dead zone at that point. The
+// smoke has died on exactly that before, and `node --check` cannot see it.
+const CORPUS_UNAVAILABLE_SENTENCE =
+  "severity reflects fixed reference thresholds, not measured population percentiles";
 // Playwright's version-pinned default Docker seccomp profile plus the user-
 // namespace syscalls Chromium's sandbox needs. Keep it in lockstep with the
 // Playwright image/package pin rather than removing syscall filtering or
@@ -370,7 +380,7 @@ async function assertReportPdfRoute(baseUrl, reportId, wire, expectedRequestRows
   for (const [phrase, why] of [
     ["Approved use", "the approved use boundary"],
     ["Exact evidence bytes", "the wire digest sentence"],
-    ["Verify independently", "the independent verification pointer"],
+    ["This print is a rendering, not the evidence", "the standing rendering caveat"],
     ["Evidence receipt", "the evidence receipt"]
   ]) {
     if (!pdfTextIncludes(text, phrase)) {
@@ -378,21 +388,102 @@ async function assertReportPdfRoute(baseUrl, reportId, wire, expectedRequestRows
     }
   }
 
-  // The completeness contract, same one the HTML check uses: every recorded
-  // request renders its URL, so the document must carry at least that many.
-  // A summary-only regression collapses this to a handful.
-  const renderedUrls = (text.match(/https?:\/\//g) ?? []).length;
-  if (renderedUrls < expectedRequestRows) {
+  // The footer's provenance sentence is one of two, chosen on whether the
+  // report is in the committed corpus. The report this smoke renders is always
+  // a runtime share, because the smoke's R2 fixture starts empty and holds only
+  // what the scan just wrote, so requiring the committed sentence would fail
+  // every run. Requiring EITHER still catches a footer that renders neither,
+  // which is the regression that matters.
+  const committedPointer = pdfTextIncludes(text, "Verify independently");
+  const sharePointer = pdfTextIncludes(text, "This report is a time-limited share");
+  if (committedPointer === sharePointer) {
     throw new Error(
-      `Report PDF rendered ${renderedUrls} request URLs across ${pages} pages; ` +
-        `the stored report records ${expectedRequestRows} requests.`
+      committedPointer
+        ? "Report PDF carries both the committed and the time-limited provenance sentences."
+        : "Report PDF carries neither provenance sentence; the footer rendered no retention statement."
     );
   }
 
+  // The request table's own header row, as one contiguous run. This is what
+  // makes the check bite on a one-row report: a summary-only regression renders
+  // no request table at all, and the URL tally below cannot tell that apart
+  // from a small report. Asserted as a run rather than column by column because
+  // "URL" and "Type" also occur in prose.
+  //
+  // Starts at Status, not Time: report-tables.tsx renders an optional Phase
+  // column between them for phase-tagged evidence, which every v2 report has
+  // and the v1 corpus does not. Compared case-insensitively because the
+  // uppercase is a CSS text-transform, and a cosmetic style change must not
+  // fail a completeness check.
+  const requestTableHeader = "status type domain provenance url";
+  if (!pdfTextIncludes(text.toLowerCase(), requestTableHeader)) {
+    throw new Error(`Report PDF did not render the request table header (${requestTableHeader}).`);
+  }
+
+  // A LOWER BOUND, not the HTML check's exact row count. Every recorded request
+  // renders its URL, so the document must carry at least that many, but the
+  // tally is document-wide and the footer's own links match the same pattern.
+  // Exact counting would need the request table's page-space extent, which this
+  // reader does not model; the column headings above carry the sharp half.
+  const renderedUrls = (text.match(/https?:\/\//g) ?? []).length;
+  if (renderedUrls < expectedRequestRows) {
+    throw new Error(
+      `Report PDF rendered ${renderedUrls} URLs across ${pages} pages; ` +
+        `the stored report records ${expectedRequestRows} requests, so rows were dropped.`
+    );
+  }
+
+  await assertPdfCapturedTheSettledPage(baseUrl, text);
+
   console.log(
-    `Report PDF route rendered ${pages} pages carrying ${renderedUrls} request URLs ` +
+    `Report PDF route rendered ${pages} pages carrying ${renderedUrls} URLs, the request table ` +
       `and the wire digest for ${reportId}.`
   );
+}
+
+/**
+ * That the PDF is the SETTLED page, not the page at `load`.
+ *
+ * The findings board resolves its severity basis from a client-side fetch of
+ * /corpus-stats.json. A document captured at the `load` event states the
+ * corpus-unavailable basis; the page a reader prints, after that fetch has
+ * landed, states the measured one. A printed exhibit that qualifies its own
+ * conclusions differently from the page it claims to be is worse than no
+ * exhibit, so this proves the render waited.
+ *
+ * Conditioned on the container actually serving usable corpus stats: when it
+ * does not, the corpus-unavailable sentence is the CORRECT one and its presence
+ * proves nothing either way.
+ */
+async function assertPdfCapturedTheSettledPage(baseUrl, text) {
+  const corpusAvailable = await withHttpOperationDeadline(
+    { timeoutMs: 15_000, label: "container corpus stats" },
+    async (signal) => {
+      const response = await fetch(`${baseUrl}/corpus-stats.json`, { redirect: "manual", signal });
+      if (response.status !== 200) {
+        await response.body?.cancel().catch(() => undefined);
+        return false;
+      }
+      const stats = await readResponseJsonWithinLimit(response, {
+        maxBytes: 4 * 1024 * 1024,
+        label: "container corpus stats"
+      });
+      return Boolean(stats) && typeof stats === "object";
+    }
+  );
+
+  if (!corpusAvailable) {
+    console.log("Container serves no corpus stats; skipped the PDF settled-page check.");
+    return;
+  }
+
+  if (pdfTextIncludes(text, CORPUS_UNAVAILABLE_SENTENCE)) {
+    throw new Error(
+      "Report PDF states the corpus-unavailable severity basis while the container serves corpus " +
+        "stats: the render captured the page at load instead of waiting for it to settle, so the " +
+        "PDF and a browser print would qualify the same conclusions differently."
+    );
+  }
 }
 
 function renderedRequestRowCount(html) {
