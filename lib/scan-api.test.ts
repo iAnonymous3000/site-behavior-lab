@@ -96,7 +96,8 @@ test("runScanRequest rejects unauthorized scans before charging rate limits", as
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 });
 
@@ -132,7 +133,8 @@ test("prepareScanRequest returns a queue-ready payload without acquiring a scan 
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 });
 
@@ -227,13 +229,15 @@ test("executePreparedScan charges rate limits only after acquiring a scan slot",
     activeScans: 1,
     queuedScans: 0,
     trackedClients: 1,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
   assert.deepEqual(scanLimitStateForTests(), {
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 1,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 });
 
@@ -292,7 +296,8 @@ test("runScanRequest does not charge rate limit quota for blocked target URLs", 
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 
   const result = expectV1Report(
@@ -308,7 +313,8 @@ test("runScanRequest does not charge rate limit quota for blocked target URLs", 
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 1,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 });
 
@@ -606,7 +612,8 @@ test("public r2 preflights default persistence before scan quota or Chromium", a
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 
   const injected = await executePreparedScan(
@@ -775,7 +782,8 @@ test("executePreparedScan does not charge rate limits when the scan slot queue t
     activeScans: 2,
     queuedScans: 0,
     trackedClients: 1,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 });
 

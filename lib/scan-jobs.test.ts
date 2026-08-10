@@ -209,7 +209,8 @@ test("an async public-r2 job refuses broken default persistence before admission
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 });
 
