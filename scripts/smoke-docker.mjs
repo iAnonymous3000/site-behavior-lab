@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execFile, spawn } from "node:child_process";
+import { readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import net from "node:net";
 import path from "node:path";
@@ -433,7 +434,7 @@ async function assertReportPdfRoute(baseUrl, reportId, wire, expectedRequestRows
     );
   }
 
-  await assertPdfCapturedTheSettledPage(baseUrl, text);
+  await assertPdfCapturedTheSettledPage(baseUrl);
 
   console.log(
     `Report PDF route rendered ${pages} pages carrying ${renderedUrls} URLs, the request table ` +
@@ -447,43 +448,81 @@ async function assertReportPdfRoute(baseUrl, reportId, wire, expectedRequestRows
  * The findings board resolves its severity basis from a client-side fetch of
  * /corpus-stats.json. A document captured at the `load` event states the
  * corpus-unavailable basis; the page a reader prints, after that fetch has
- * landed, states the measured one. A printed exhibit that qualifies its own
- * conclusions differently from the page it claims to be is worse than no
- * exhibit, so this proves the render waited.
+ * landed and the corpus can rank the report, states the measured one. A printed
+ * exhibit that qualifies its own conclusions differently from the page it claims
+ * to be is worse than no exhibit, so this proves the render waited.
  *
- * Conditioned on the container actually serving usable corpus stats: when it
- * does not, the corpus-unavailable sentence is the CORRECT one and its presence
- * proves nothing either way.
+ * Deliberately NOT run against the report the rest of this check uses. That one
+ * is a share the smoke's own scan just wrote, and its cohort is not in the
+ * committed corpus, so the corpus-unavailable sentence is the CORRECT sentence
+ * for it and its presence proves nothing. An earlier version asserted on it
+ * anyway, reading "the container serves corpus stats" as "this report can be
+ * ranked", and failed the whole smoke against a render that was already
+ * correct. Committed reports carry cohorts the committed stats cover, and the
+ * image ships them, so the witness has to be one of those.
+ *
+ * Candidates rather than a pinned id: which committed report the corpus can
+ * rank is data that moves. A regression to `load` makes EVERY candidate carry
+ * the corpus-unavailable sentence, so exhausting the list is the failure.
  */
-async function assertPdfCapturedTheSettledPage(baseUrl, text) {
-  const corpusAvailable = await withHttpOperationDeadline(
-    { timeoutMs: 15_000, label: "container corpus stats" },
-    async (signal) => {
-      const response = await fetch(`${baseUrl}/corpus-stats.json`, { redirect: "manual", signal });
-      if (response.status !== 200) {
-        await response.body?.cancel().catch(() => undefined);
-        return false;
-      }
-      const stats = await readResponseJsonWithinLimit(response, {
-        maxBytes: 4 * 1024 * 1024,
-        label: "container corpus stats"
-      });
-      return Boolean(stats) && typeof stats === "object";
-    }
-  );
-
-  if (!corpusAvailable) {
-    console.log("Container serves no corpus stats; skipped the PDF settled-page check.");
+async function assertPdfCapturedTheSettledPage(baseUrl) {
+  const candidates = committedReportIdCandidates();
+  if (candidates.length === 0) {
+    console.log("No committed reports in the image; skipped the PDF settled-page check.");
     return;
   }
 
-  if (pdfTextIncludes(text, CORPUS_UNAVAILABLE_SENTENCE)) {
-    throw new Error(
-      "Report PDF states the corpus-unavailable severity basis while the container serves corpus " +
-        "stats: the render captured the page at load instead of waiting for it to settle, so the " +
-        "PDF and a browser print would qualify the same conclusions differently."
+  const examined = [];
+  for (const id of candidates) {
+    const bytes = await withHttpOperationDeadline(
+      { timeoutMs: 120_000, label: `committed report PDF ${id}` },
+      async (signal) => {
+        const response = await fetch(`${baseUrl}/api/reports/${id}/pdf`, {
+          headers: { accept: "application/pdf" },
+          redirect: "manual",
+          signal
+        });
+        if (response.status !== 200) {
+          await response.body?.cancel().catch(() => undefined);
+          throw new Error(`Committed report ${id} answered ${response.status} for its PDF.`);
+        }
+        return readResponseBytesWithinLimit(response, {
+          maxBytes: reportPdfMaxBytes,
+          label: `committed report PDF ${id}`
+        });
+      }
     );
+
+    if (!pdfTextIncludes(pdfText(bytes), CORPUS_UNAVAILABLE_SENTENCE)) {
+      console.log(`Report PDF for committed ${id} carries the settled severity basis.`);
+      return;
+    }
+    examined.push(id);
   }
+
+  throw new Error(
+    `Every committed report PDF examined (${examined.join(", ")}) states the corpus-unavailable ` +
+      "severity basis. Either the render captured the page at load instead of waiting for it to " +
+      "settle, so the PDF and a browser print would qualify the same conclusions differently, or " +
+      "the committed corpus can no longer rank any of these reports."
+  );
+}
+
+/**
+ * Committed report ids to try as the settled-page witness, newest first.
+ *
+ * Read from the worktree the image was built from, which is the same public/
+ * the Dockerfile copied. Newest first because the newest reports carry the
+ * current cohort key, which is the one the committed corpus stats describe.
+ */
+function committedReportIdCandidates() {
+  const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "public", "reports");
+  const ids = readdirSync(dir)
+    .filter((name) => /^[0-9]{8}-[0-9a-f]{32}\.json$/.test(name))
+    .map((name) => name.slice(0, -".json".length))
+    .sort()
+    .reverse();
+  return ids.slice(0, 3);
 }
 
 function renderedRequestRowCount(html) {
