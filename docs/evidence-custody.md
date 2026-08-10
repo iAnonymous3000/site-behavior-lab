@@ -45,6 +45,22 @@ only against a copy you kept.
 
 If the matter is adversarial, prefer a committed corpus report, or request one.
 
+## A PDF is a rendering, and it does not replace step 1
+
+The scanner offers each report as a PDF, from the "Download PDF" link on the
+report page or from `/api/reports/<id>/pdf`. It is the same page a browser print
+produces, made by the scanner rendering that page itself, and it carries the
+footer with the wire digest.
+
+It is not the evidence, and saving it is not saving the report. The digest in
+its footer is a digest of the JSON, not of the PDF: it lets you authenticate
+bytes you kept, and there is nothing to check it against if you kept only the
+PDF. Save the four things above regardless of how many copies you print.
+
+The PDF exists only on the scanner, which is the only deployment that has a
+browser to render it with. Committed reports served from the static site link to
+neither the PDF nor the printable page; use your own browser's print there.
+
 ## Committed reports have a chain, and it has edges
 
 A committed report's bytes hash into a per-commit evidence manifest that a
