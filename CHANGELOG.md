@@ -16,6 +16,15 @@ Work landing after the 0.4.0 milestone. Nothing here is released.
   `--from` forms, and a statement that the print is a rendering rather than the
   evidence. Committed reports name the transparency log; time-limited shares are
   told instead to save the bytes now, because no external anchor covers them.
+- A report can be downloaded as a PDF from the scanner, at
+  `/api/reports/<id>/pdf` and from the report page. The scanner renders its own
+  printable page, so the file carries the same complete evidence, the same
+  evidence footer and the same wire digest a browser print does, from one
+  renderer and one set of copy. The render waits for the page to settle, because
+  a document captured earlier states a different severity basis than the page a
+  reader prints. It is a rendering and not the evidence, which the footer inside
+  it says and `docs/evidence-custody.md` explains. Container-only, like the
+  printable page it renders: a static deployment has no browser.
 - The approved use boundary from `RELEASE_READINESS.json` is now shown to
   readers, on paper, in the report evidence receipt, and on the methodology
   page. It was an approved decision that no reader had ever been shown.
