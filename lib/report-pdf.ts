@@ -53,6 +53,13 @@ export { REPORT_PDF_MAX_BYTES };
  */
 const RENDER_TIMEOUT_MS = 45_000;
 const LAUNCH_TIMEOUT_MS = 30_000;
+/**
+ * How long a failed render's page gets to close before the browser is condemned.
+ *
+ * Short on purpose: this only distinguishes "the page is reclaimable" from "the
+ * page is stuck", and it runs detached so it never delays the render slot.
+ */
+const PAGE_CLOSE_TIMEOUT_MS = 2_000;
 const IDLE_SHUTDOWN_MS = 60_000;
 
 /**
@@ -242,13 +249,16 @@ export async function renderReportPdf(
   {
     signal,
     browserForTests,
-    renderTimeoutMsForTests
+    renderTimeoutMsForTests,
+    pageCloseTimeoutMsForTests
   }: {
     signal?: AbortSignal;
     /** Drives the render against a stub browser. Production never supplies this. */
     browserForTests?: RenderBrowser;
     /** Shortens only the render deadline, so a wedged render is testable. */
     renderTimeoutMsForTests?: number;
+    /** Shortens only the page-reclaim deadline; production uses the constant. */
+    pageCloseTimeoutMsForTests?: number;
   } = {}
 ): Promise<Uint8Array> {
   // `.test()` alone is not enough to make an id safe to paste into a path:
@@ -331,36 +341,56 @@ export async function renderReportPdf(
       }
     ).catch((error: unknown) => {
       // The render lost its deadline, or the caller went away, or Playwright
-      // itself failed. In all three the page may be wedged, and closing a wedged
-      // page hangs for the same reason the render did. Drop the page handle and
-      // close the BROWSER instead: that fires "disconnected", which clears the
-      // memoized launch so the next caller gets a fresh one. Only a refusal
-      // that PROVES the browser is still healthy keeps it: a 404 (the print
-      // page answered) and a 413 (a complete document, merely too large). An
-      // empty document is decided here too but is deliberately NOT in that set,
-      // because zero bytes back from page.pdf() is evidence the renderer itself
-      // is wrong. This comment previously listed an empty document among the
-      // refusals that keep the browser, which is the opposite of what the code
-      // below does; the code was right.
+      // itself failed. Only a refusal that PROVES the browser is still healthy
+      // keeps it outright: a 404 (the print page answered) and a 413 (a
+      // complete document, merely too large). An empty document is decided here
+      // too but is deliberately NOT in that set, because zero bytes back from
+      // page.pdf() is evidence the renderer itself is wrong.
       const decided =
         error instanceof ReportPdfUnavailableError && (error.status === 404 || error.status === 413);
       if (!decided) {
-        page = null;
-        // Evict the memo BEFORE closing, exactly as scheduleIdleShutdown does.
-        // `disconnected` clears it too, but that lands an event-loop turn or
-        // more later (measured at 4-8ms), while the finally below frees the
-        // only render slot in this same tick. A caller admitted in between was
-        // handed this browser mid-shutdown and failed newPage() with an
-        // untyped TargetClosedError, which the route could only report as 500.
+        // Everything else USED to destroy the shared browser. That was wrong for
+        // the most common case by far: a reader navigating away aborts the
+        // request, which is expected (the route answers 499 for it), and it was
+        // being treated as a wedged renderer. One reader pressing Escape threw
+        // away a healthy Chromium, and repeating it kept the shared renderer
+        // permanently cold at no cost to the abandoner.
         //
-        // An isConnected() check on reuse does NOT close this window: it stays
-        // true after close() is called and flips only when `disconnected`
-        // fires, which is when the memo already clears itself.
-        if (launchedBrowser === browser) {
-          launchPromise = null;
-          launchedBrowser = null;
-        }
-        void browser.close().catch(() => undefined);
+        // The real constraint is narrower: page.close() is unbounded in
+        // Playwright, so a WEDGED page cannot be reclaimed by closing it. So
+        // try the page on a deadline, detached, and escalate to destroying the
+        // browser only when that close actually misses. An abort or a plain
+        // Playwright error closes its page and leaves the browser to the next
+        // reader; only a genuinely stuck page costs a relaunch.
+        const abandoned = page;
+        page = null;
+        void (async () => {
+          const reclaimed = await withScannerOperationDeadline<void>(
+            () => abandoned?.close() ?? Promise.resolve(),
+            {
+              label: "Report PDF page close",
+              timeoutMs: pageCloseTimeoutMsForTests ?? PAGE_CLOSE_TIMEOUT_MS,
+              createTimeoutError: () =>
+                new ReportPdfUnavailableError("The render page did not close in time.", 503)
+            }
+          ).then(
+            () => true,
+            () => false
+          );
+          if (reclaimed) return;
+
+          // The page is stuck. Evict the memo BEFORE closing, exactly as
+          // scheduleIdleShutdown does: `disconnected` clears it too, but lands
+          // an event-loop turn or more later (measured 4-8ms), and a caller
+          // admitted in between gets a browser mid-shutdown and fails newPage()
+          // with an untyped TargetClosedError. An isConnected() check on reuse
+          // does not close that window; it stays true until `disconnected`.
+          if (launchedBrowser === browser) {
+            launchPromise = null;
+            launchedBrowser = null;
+          }
+          void browser.close().catch(() => undefined);
+        })();
       }
       throw error;
     });

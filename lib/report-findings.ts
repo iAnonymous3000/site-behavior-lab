@@ -107,6 +107,17 @@ export type Finding = {
    * summarizes observed signals, so these never flip it to "review-worthy".
    */
   methodology?: true;
+  /**
+   * True on a card whose level is elevated ONLY because its detector did not
+   * finish, with nothing actually observed. The bottom line summarizes observed
+   * behavior, so an unfinished measurement must not make it say the scan
+   * "observed signals" over a board where every card reads "No X observed".
+   *
+   * Distinct from `methodology`: that marks a card about this report's own
+   * eligibility, which is never about the site at all. This marks a card that
+   * WOULD be about the site if its measurement had completed.
+   */
+  incompleteOnly?: true;
   /** Structured meaning for fact-to-render consistency checks. */
   claim?: {
     id: ReportClaimId;
@@ -1214,6 +1225,15 @@ export function buildFindings(
   findings.push({
     id: "fingerprint-apis",
     icon: "fingerprint",
+    // Elevated to "info" with nothing observed means the detector did not
+    // finish, not that the site did something. Mark it so the bottom line can
+    // tell those apart; see the `incompleteOnly` docblock on Finding.
+    ...(!detectorUnsupported &&
+    detectorCensored &&
+    highEntropyDetections.length === 0 &&
+    run.counts.fingerprintEvents === 0
+      ? { incompleteOnly: true as const }
+      : {}),
     level:
       detectorUnsupported
         ? "info"
@@ -1729,14 +1749,34 @@ export function buildFindings(
   // observe ... third-party cookies" over a card saying they were present.
   // corpus-stats.test.ts pins the invariant so it cannot drift back.
   const quietEnough = overallLevel === "ok" || overallLevel === "quiet";
+  // The severity the SITE actually earned, ignoring cards that are elevated
+  // only because their measurement did not finish. Without this, one detector
+  // failing to complete on an otherwise silent visit published "The scan
+  // observed signals" over a board whose every card read "No X observed" --
+  // the same class the comment above describes for `quiet`, re-entered through
+  // `info`. A detector loss is not covered by `censoredQuiet`, whose families
+  // are requests, cookies and storage only.
+  const observedLevel = strongestLevel(
+    findings
+      .filter((finding) => finding.methodology !== true && finding.incompleteOnly !== true)
+      .map((finding) => finding.level)
+  );
+  const detectorQuiet =
+    !censoredQuiet &&
+    !unsupportedQuiet &&
+    !quietEnough &&
+    findings.some((finding) => finding.incompleteOnly === true) &&
+    (observedLevel === "ok" || observedLevel === "quiet");
   findings.unshift({
     id: "bottom-line",
     icon: quietEnough && !censoredQuiet && !unsupportedQuiet ? "check" : "alert",
-    level: censoredQuiet || unsupportedQuiet ? "info" : overallLevel,
+    level: censoredQuiet || unsupportedQuiet || detectorQuiet ? "info" : overallLevel,
     title: censoredQuiet
       ? "Bottom line: activity evidence was cut short, so few signals is not a verdict"
       : unsupportedQuiet
         ? "Bottom line: this PageGraph report covers requests; other evidence was not captured"
+      : detectorQuiet
+        ? "Bottom line: no listed activity observed, but a detector did not finish"
       : quietEnough
         ? "Bottom line: few review signals in this visit"
         : "Bottom line: this visit has review-worthy signals",
@@ -1750,6 +1790,10 @@ export function buildFindings(
         }`
       : unsupportedQuiet
         ? `Request evidence was recorded, but ${humanList(unsupportedFamilies)} evidence is unsupported by this producer. Those zero-valued fields are unavailable measurements, not observed absences.`
+      : detectorQuiet
+        ? `The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls. A detector did not finish, so that absence is not established for its scope; its own card states what was retained.${
+            censorshipNotes.length > 0 ? ` Recorded cause: ${humanList(censorshipNotes, 2)}.` : ""
+          }`
       : quietEnough
         ? "The automated visit did not observe known third-party services, third-party cookies, or instrumented fingerprint-like calls."
         : `The scan observed signals a non-expert should not have to decode from raw request tables.${

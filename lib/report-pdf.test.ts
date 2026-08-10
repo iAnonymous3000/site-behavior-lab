@@ -223,9 +223,15 @@ test("the render is bounded, and a render that never returns does not keep the s
     }
   );
   assert.ok(Date.now() - started < 5_000, "the render must not wait on an unbounded pdf()");
-  // The wedged renderer must not be handed to the next caller.
-  assert.equal(closedBrowsers, 1, "a renderer that missed its deadline is closed, not reused");
-  assert.equal(closedPages, 0, "closing a wedged page would hang for the same reason the render did");
+  // Cleanup is bounded but no longer destructive by default. The page this
+  // stub hands out closes cleanly, so the page is reclaimed and the browser
+  // survives; only a page that will NOT close costs the browser, which the
+  // stuck-page test below covers. This assertion previously required the
+  // browser to be closed on every deadline miss, which is what made a reader
+  // navigating away destroy the shared renderer.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(closedPages, 1, "the wedged render's page is reclaimed on a deadline");
+  assert.equal(closedBrowsers, 0, "a reclaimable page must not cost the shared browser");
 
   // The slot is free: a second render is admitted rather than refused with 503.
   await assert.rejects(
@@ -309,11 +315,17 @@ test("a failed render evicts the memoized browser before the slot is freed", asy
     (error: unknown) => error instanceof ReportPdfUnavailableError && error.status === 504
   );
 
-  assert.equal(closedBrowsers, 1, "a renderer that missed its deadline is closed");
+  // The page this stub hands out closes cleanly, so the browser is reclaimed
+  // rather than condemned. The eviction contract still holds where it matters
+  // and is asserted by the stuck-page test: when the page cannot be closed, the
+  // memo is cleared BEFORE the detached close, so no caller is handed a browser
+  // mid-shutdown.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(closedBrowsers, 0, "a reclaimable page leaves the shared browser alone");
   assert.equal(
     memoizedRenderBrowserForTests(),
-    null,
-    "the closing browser must not still be memoized once the slot is free"
+    wedged,
+    "a healthy browser stays memoized for the next reader"
   );
   seedRenderBrowserForTests(null);
 });
@@ -349,5 +361,94 @@ test("a refusal that proves the browser is healthy keeps it memoized", async () 
   );
   assert.equal(closedBrowsers, 0, "a 404 from the print page does not condemn the browser");
   assert.equal(memoizedRenderBrowserForTests(), healthy, "the healthy browser stays available");
+  seedRenderBrowserForTests(null);
+});
+
+test("a reader navigating away closes its page but keeps the shared renderer", async () => {
+  // The defect: abort took the same branch as a wedged renderer, so one reader
+  // pressing Escape destroyed a healthy Chromium and cleared the memo. Abort is
+  // the EXPECTED case — the route answers 499 for it — and repeating it kept
+  // the shared renderer permanently cold at no cost to the abandoner.
+  const id = `20260101-${"a".repeat(31)}1`;
+  const controller = new AbortController();
+  let closedBrowsers = 0;
+  let closedPages = 0;
+  const healthy = {
+    async newPage() {
+      return {
+        setDefaultTimeout() {},
+        async goto() {
+          return { ok: () => true, status: () => 200 };
+        },
+        pdf: () => new Promise<never>(() => undefined),
+        close: async () => {
+          closedPages += 1;
+        }
+      };
+    },
+    close: async () => {
+      closedBrowsers += 1;
+    },
+    on() {},
+    isConnected: () => true
+  };
+
+  seedRenderBrowserForTests(healthy);
+  const pending = renderReportPdf(id, { renderTimeoutMsForTests: 30_000, signal: controller.signal });
+  const rejected = assert.rejects(() => pending);
+  // Let the render actually open its page first. Aborting synchronously rejects
+  // back in browserForRendering, before newPage() has resolved, so there is no
+  // page to reclaim and the assertion below would pass while testing nothing.
+  await new Promise((resolve) => setTimeout(resolve, 25));
+  controller.abort(new Error("the reader navigated away"));
+  await rejected;
+
+  // The detached page close is scheduled on the microtask queue; let it run.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  assert.equal(closedPages, 1, "the abandoned page is reclaimed");
+  assert.equal(closedBrowsers, 0, "a reader navigating away must not destroy the shared renderer");
+  assert.equal(
+    memoizedRenderBrowserForTests(),
+    healthy,
+    "the healthy browser stays memoized for the next reader"
+  );
+  seedRenderBrowserForTests(null);
+});
+
+test("a page that will not close still condemns the browser", async () => {
+  // The other half: the escalation must survive. page.close() is unbounded in
+  // Playwright, so a genuinely stuck page can only be reclaimed by destroying
+  // the browser, and keeping it would leak a running pdf() onto the next render.
+  const id = `20260101-${"b".repeat(31)}2`;
+  let closedBrowsers = 0;
+  const stuck = {
+    async newPage() {
+      return {
+        setDefaultTimeout() {},
+        async goto() {
+          return { ok: () => true, status: () => 200 };
+        },
+        pdf: () => new Promise<never>(() => undefined),
+        // Never settles, exactly like a page wedged on layout.
+        close: () => new Promise<void>(() => undefined)
+      };
+    },
+    close: async () => {
+      closedBrowsers += 1;
+    },
+    on() {},
+    isConnected: () => true
+  };
+
+  seedRenderBrowserForTests(stuck);
+  await assert.rejects(
+    () => renderReportPdf(id, { renderTimeoutMsForTests: 60, pageCloseTimeoutMsForTests: 60 }),
+    (error: unknown) => error instanceof ReportPdfUnavailableError && error.status === 504
+  );
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  assert.equal(closedBrowsers, 1, "a page that cannot be closed must cost the browser");
+  assert.equal(memoizedRenderBrowserForTests(), null, "and the memo must be evicted with it");
   seedRenderBrowserForTests(null);
 });

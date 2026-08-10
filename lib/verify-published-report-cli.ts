@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { readManagedReport } from "./managed-report-reader";
+import { parseTransparencyLog, verifyTransparencyLogChain } from "./publication-transparency-log";
 import { REPORT_ID_PATTERN } from "./report-validation";
 import { sha256Hex } from "./sha256";
 import { readVerifyArtifactTextWithinLimit } from "./verify-published-report-fetch";
@@ -64,17 +65,33 @@ async function main(): Promise<void> {
   // a mismatch worth surfacing.
   const wireDigest = sha256Hex(reportWire);
   const manifestDigest = await publishedWireDigest(options.source, options.reportId);
-  if (manifestDigest === null) {
+  if (manifestDigest.kind === "absent" && options.source.kind === "directory") {
+    // docs/evidence-custody.md tells a reader to save the report and its
+    // sidecar and re-verify them later with --from. It never tells them to save
+    // reports/index.json, and the printed footer does not either, so failing
+    // here made the documented custody workflow report NOT VERIFIED on an
+    // untampered pair. Absent is "not checked"; a manifest that IS present and
+    // disagrees still fails below.
+    checks.push({
+      ok: true,
+      label: "wire digest vs published index",
+      detail: "not checked: no reports/index.json in this directory"
+    });
+  } else if (manifestDigest.kind === "absent" || manifestDigest.digest === null) {
+    // Either the origin served no manifest, or a manifest that exists does not
+    // list this report. Both are reportable: an id missing from a manifest that
+    // IS present stays a failure even in directory mode.
     checks.push({
       ok: false,
       label: "wire digest vs published index",
       detail: "this report id is not listed in reports/index.json"
     });
   } else {
+    const listed = manifestDigest.digest;
     checks.push({
-      ok: manifestDigest === wireDigest,
+      ok: listed === wireDigest,
       label: "wire digest vs published index",
-      detail: manifestDigest === wireDigest ? wireDigest : `index says ${manifestDigest}, these bytes are ${wireDigest}`
+      detail: listed === wireDigest ? wireDigest : `index says ${listed}, these bytes are ${wireDigest}`
     });
   }
 
@@ -105,11 +122,79 @@ async function main(): Promise<void> {
     });
   }
 
-  report(options, checks);
+  // The four checks above all read from ONE origin. A reader who does not trust
+  // the operator gains nothing from them alone: the sidecar's publicDigest and
+  // the manifest's reportWireSha256 are both derived from whatever bytes that
+  // origin chose to serve, so they are trivially made mutually consistent.
+  //
+  // The append-only transparency log committed in this clone is the independent
+  // statement. It is a plain local file read: no network, and the reader is
+  // already running this from a checkout of the repository.
+  const chained = await transparencyChainCheck(options.reportId, wireDigest);
+  checks.push(chained.check);
+
+  report(options, checks, chained.independent);
   if (checks.some((check) => !check.ok)) process.exitCode = 1;
 }
 
-function report(options: Options, checks: readonly Check[]): void {
+/**
+ * Cross-check the computed wire digest against the committed transparency log.
+ *
+ * Three outcomes, and the middle one matters most: an id the chain never
+ * recorded is NOT a failure (a share-store report or one newer than this
+ * clone), but it does mean provenance is unproven, so the verdict must stop
+ * claiming it.
+ */
+async function transparencyChainCheck(
+  reportId: string,
+  wireDigest: string
+): Promise<{ check: Check; independent: boolean }> {
+  const label = "wire digest vs transparency log";
+  let raw: string;
+  try {
+    raw = await readFile(path.join(process.cwd(), "public", "transparency-log.json"), "utf8");
+  } catch {
+    return {
+      check: { ok: true, label, detail: "not checked: no public/transparency-log.json in this working directory" },
+      independent: false
+    };
+  }
+
+  let log: ReturnType<typeof parseTransparencyLog>;
+  try {
+    log = parseTransparencyLog(JSON.parse(raw));
+    verifyTransparencyLogChain(log);
+  } catch (error) {
+    return {
+      check: { ok: false, label, detail: `the committed log is unusable: ${(error as Error).message}` },
+      independent: false
+    };
+  }
+
+  const entry = log.entries.find((candidate) => candidate.reportId === reportId);
+  if (!entry) {
+    return {
+      check: { ok: true, label, detail: "not checked: this id is not in the committed chain" },
+      independent: false
+    };
+  }
+  if (entry.reportWireSha256 !== wireDigest) {
+    return {
+      check: {
+        ok: false,
+        label,
+        detail: `the chain recorded ${entry.reportWireSha256}, these bytes are ${wireDigest}`
+      },
+      independent: false
+    };
+  }
+  return {
+    check: { ok: true, label, detail: `entry ${entry.sequence} of ${log.entries.length}` },
+    independent: true
+  };
+}
+
+function report(options: Options, checks: readonly Check[], independent: boolean): void {
   const where = options.source.kind === "origin" ? options.source.origin : options.source.dir;
   console.log(`\nVerifying ${options.reportId} from ${where}\n`);
   for (const check of checks) {
@@ -117,10 +202,21 @@ function report(options: Options, checks: readonly Check[]): void {
   }
 
   const failed = checks.filter((check) => !check.ok);
-  if (failed.length === 0) {
+  if (failed.length === 0 && independent) {
     console.log(
       "\nVerified: these bytes are exactly what this project published for this report,\n" +
-        "and they are internally consistent with their own provenance sidecar.\n"
+        "they are internally consistent with their own provenance sidecar, and the\n" +
+        "append-only transparency log in this clone records the same digest.\n"
+    );
+  } else if (failed.length === 0) {
+    // Every check passed, but all of them read from the same origin. Saying
+    // "exactly what this project published" here would assert provenance from
+    // self-consistency, which is precisely what a reader who does not trust the
+    // operator cannot rely on.
+    console.log(
+      `\nConsistent: these bytes agree with the provenance sidecar and manifest served by\n` +
+        `${options.source.kind === "origin" ? options.source.origin : options.source.dir}. ` +
+        `Provenance is NOT established: see the boundary below.\n`
     );
   } else {
     console.log(`\nNOT VERIFIED: ${failed.length} check${failed.length === 1 ? "" : "s"} failed.\n`);
@@ -134,6 +230,11 @@ function report(options: Options, checks: readonly Check[]): void {
   console.log("    That is a methodology question: https://sitebehavior.org/methodology/");
   console.log("  - Sigstore attestation over the CI evidence manifest.");
   console.log("    That needs the gh CLI; see docs/verify-a-report.md step 3.");
+  if (!independent) {
+    console.log("  - that the origin serving these bytes is the one that published them.");
+    console.log("    Nothing above cross-checked an independent record; run this from a");
+    console.log("    clone whose public/transparency-log.json contains this report id.");
+  }
   console.log("  - anything about behavior this scanner does not measure.");
   console.log("    The published boundary: https://sitebehavior.org/catalog/#coverage-boundary\n");
 }
@@ -195,7 +296,16 @@ async function readArtifact(source: Source, filename: string): Promise<string> {
   return fetchText(`${source.origin}/reports/${filename}`);
 }
 
-async function publishedWireDigest(source: Source, reportId: string): Promise<string | null> {
+/**
+ * `absent` means no manifest was readable at all; `null` inside `present` means
+ * a manifest exists and does not list this id. Collapsing those two into one
+ * value made a saved-evidence directory with NO index indistinguishable from a
+ * manifest that omits the report, so treating the first as "not checked" would
+ * have silently accepted the second.
+ */
+type ManifestLookup = { readonly kind: "absent" } | { readonly kind: "present"; readonly digest: string | null };
+
+async function publishedWireDigest(source: Source, reportId: string): Promise<ManifestLookup> {
   let wire: string;
   try {
     wire =
@@ -203,21 +313,24 @@ async function publishedWireDigest(source: Source, reportId: string): Promise<st
         ? await readFile(path.join(source.dir, "index.json"), "utf8")
         : await fetchText(`${source.origin}/reports/index.json`);
   } catch {
-    return null;
+    return { kind: "absent" };
   }
   let manifest: unknown;
   try {
     manifest = JSON.parse(wire) as unknown;
   } catch {
-    return null;
+    return { kind: "present", digest: null };
   }
   const reports = (manifest as { reports?: unknown }).reports;
-  if (!Array.isArray(reports)) return null;
+  if (!Array.isArray(reports)) return { kind: "present", digest: null };
   for (const entry of reports) {
     const row = entry as { id?: unknown; reportWireSha256?: unknown };
-    if (row.id === reportId && typeof row.reportWireSha256 === "string") return row.reportWireSha256;
+    if (row.id === reportId && typeof row.reportWireSha256 === "string") {
+      return { kind: "present", digest: row.reportWireSha256 };
+    }
   }
-  return null;
+  // A manifest that IS readable but does not list this id.
+  return { kind: "present", digest: null };
 }
 
 async function fetchText(url: string): Promise<string> {
