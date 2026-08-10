@@ -4,12 +4,14 @@ import { PublicScanError } from "./public-errors";
 import {
   acquireScanSlot,
   assertRateLimit,
+  assertReportPdfRateLimit,
   assertReportReadRateLimit,
   clientKeyFromRequest,
   MAX_CONCURRENT_SCANS,
   MAX_QUEUED_SCANS,
   RATE_LIMIT_MAX,
   RATE_LIMIT_WINDOW_MS,
+  REPORT_PDF_RATE_LIMIT_MAX,
   REPORT_READ_RATE_LIMIT_MAX,
   REPORT_READ_RATE_LIMIT_WINDOW_MS,
   resetScanLimitStateForTests,
@@ -86,11 +88,42 @@ test("assertReportReadRateLimit throttles report reads separately from scans", (
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 1
+    trackedReportReadClients: 1,
+    trackedReportPdfClients: 0
   });
 
   assertRateLimit("client-a", 2_001);
   assertReportReadRateLimit("client-a", 1_000 + REPORT_READ_RATE_LIMIT_WINDOW_MS + 1);
+});
+
+test("assertReportPdfRateLimit meters renders far tighter than reads, in its own bucket", () => {
+  // A PDF is a browser navigation against a single render slot, not a byte
+  // read. If the two shared a bucket, one client's 120 reads a minute would be
+  // 120 renders a minute and nobody else would ever get one.
+  assert.ok(
+    REPORT_PDF_RATE_LIMIT_MAX < REPORT_READ_RATE_LIMIT_MAX,
+    "a render must not be admitted at the rate of a byte read"
+  );
+
+  for (let index = 0; index < REPORT_PDF_RATE_LIMIT_MAX; index += 1) {
+    assertReportPdfRateLimit("client-a", 1_000 + index);
+  }
+  assert.throws(() => assertReportPdfRateLimit("client-a", 2_000), isStatus(429));
+
+  // Separate maps: spending the render allowance must not lock this client out
+  // of the JSON, and must not touch anybody else.
+  assertReportReadRateLimit("client-a", 2_001);
+  assertReportPdfRateLimit("client-b", 2_002);
+  assert.deepEqual(scanLimitStateForTests(), {
+    activeScans: 0,
+    queuedScans: 0,
+    trackedClients: 0,
+    trackedReportReadClients: 1,
+    trackedReportPdfClients: 2
+  });
+
+  // And it is a window, not a permanent ban.
+  assertReportPdfRateLimit("client-a", 1_000 + REPORT_READ_RATE_LIMIT_WINDOW_MS + 1);
 });
 
 test("acquireScanSlot queues past the concurrency cap and transfers a released slot", async () => {
@@ -105,7 +138,8 @@ test("acquireScanSlot queues past the concurrency cap and transfers a released s
     activeScans: MAX_CONCURRENT_SCANS,
     queuedScans: 1,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 
   releases[0]();
@@ -114,7 +148,8 @@ test("acquireScanSlot queues past the concurrency cap and transfers a released s
     activeScans: MAX_CONCURRENT_SCANS,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 
   queuedRelease();
@@ -123,7 +158,8 @@ test("acquireScanSlot queues past the concurrency cap and transfers a released s
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 });
 
@@ -138,7 +174,8 @@ test("acquireScanSlot rejects and removes timed-out waiters", async () => {
     activeScans: MAX_CONCURRENT_SCANS,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 
   releases.forEach((release) => release());
@@ -195,7 +232,8 @@ test("acquireScanSlot rejects bursts beyond the bounded queue depth", async () =
     activeScans: 0,
     queuedScans: 0,
     trackedClients: 0,
-    trackedReportReadClients: 0
+    trackedReportReadClients: 0,
+    trackedReportPdfClients: 0
   });
 });
 
