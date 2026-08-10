@@ -3132,16 +3132,24 @@ test("a 0.x release does not demand a measurement binding it was never asked to 
 
   // Only the BINDING half is scoped. The governance receipt is still resolved
   // for both, which is what a hardened case asserts against a synthetic v0.3.0.
-  const head = runFixtureGit(process.cwd(), ["rev-parse", "HEAD"]).trim();
+  //
+  // Deliberately a synthetic commit AND a rootDir that is not a repository.
+  // gitRead returns null for anything it cannot resolve, so both artefacts
+  // report "unavailable at source.commit" either way, and the assertions below
+  // hold identically with or without git. Using process.cwd() and the real HEAD
+  // made this test require a checkout; the container build excludes .git, so it
+  // passed locally and failed inside the image.
+  const head = "d".repeat(40);
   const digest = "a".repeat(64);
+  const nonRepository = mkdtempSync(path.join(tmpdir(), "sbl-no-git-"));
 
-  const required = archivedReleaseGovernanceProblems(process.cwd(), head, digest);
+  const required = archivedReleaseGovernanceProblems(nonRepository, head, digest);
   assert.ok(
     required.some((problem: string) => /measurement-candidate-binding\.json is unavailable/.test(problem)),
     `a binding-requiring release must still report the binding gap, got: ${required.join("; ")}`
   );
 
-  const notRequired = archivedReleaseGovernanceProblems(process.cwd(), head, digest, {
+  const notRequired = archivedReleaseGovernanceProblems(nonRepository, head, digest, {
     requiresMeasurementBinding: false
   });
   assert.ok(
@@ -3155,6 +3163,7 @@ test("a 0.x release does not demand a measurement binding it was never asked to 
       "the governance receipt must be resolved regardless of binding policy"
     );
   }
+  rmSync(nonRepository, { recursive: true, force: true });
 });
 
 test("the binding-required rule matches the release workflow that owns it", async () => {
