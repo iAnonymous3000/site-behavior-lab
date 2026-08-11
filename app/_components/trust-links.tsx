@@ -13,6 +13,7 @@ export function TrustLinks() {
   return (
     <div className="trust-links-row">
       <nav className="trust-links" aria-label="Project trust and transparency">
+        <Link href="/about/">About</Link>
         <Link href="/glossary/">Glossary</Link>
         <Link href="/status/">Status</Link>
         <Link href="/catalog/">Catalog</Link>
