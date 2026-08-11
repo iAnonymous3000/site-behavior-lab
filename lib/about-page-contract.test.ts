@@ -76,6 +76,24 @@ test("the About page makes no claim the project has refused elsewhere", () => {
   }
 });
 
+test("the About page keeps universal capture and retention claims inside the documented boundary", () => {
+  for (const forbidden of [
+    /Every report records/i,
+    /the way your browser would/i,
+    /records what actually happens/i,
+    /loads the site the way yours would/i,
+    /Everything it does is recorded/i,
+    /Every network request/i,
+    /permanent link/i
+  ]) {
+    assert.doesNotMatch(about, forbidden, `the About page must not make the universal claim ${forbidden}`);
+  }
+
+  assert.match(about, /Older reports may not contain[\s\S]*every version field/);
+  assert.match(about, /counts are lower bounds rather than[\s\S]*complete transcripts/);
+  assert.match(about, /Runtime share links can expire under the ordinary[\s\S]*retention policy/);
+});
+
 test("the About page is reachable, and is not excluded from the static export", () => {
   const trustLinks = readFileSync(path.join(root, "app", "_components", "trust-links.tsx"), "utf8");
   assert.match(trustLinks, /href="\/about\/"/, "a page nobody can navigate to is not an About page");

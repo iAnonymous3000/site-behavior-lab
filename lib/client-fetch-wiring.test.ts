@@ -134,6 +134,16 @@ test("a Turnstile failure cannot tear down a scan that is still running", () => 
   assert.match(app, /onUploadError=\{surfaceReportOperationError\}/);
 });
 
+test("Turnstile follows its measured container across the 300px responsive boundary", () => {
+  const controls = source("app/_components/scan-controls.tsx");
+
+  assert.match(controls, /new ResizeObserver/);
+  assert.match(controls, /selectTurnstileWidgetSize\(width\)/);
+  assert.match(controls, /size: widgetSize/);
+  assert.match(controls, /\[siteKey, attempt, widgetSize\]/);
+  assert.match(source("app/globals.css"), /\.turnstile-widget \{[\s\S]*?inline-size: 100%;[\s\S]*?min-inline-size: 0;/);
+});
+
 test("resuming status checks explains a lost lease instead of doing nothing", () => {
   const hook = source("app/_hooks/use-scan-runtime.ts");
   const resume = hook.slice(

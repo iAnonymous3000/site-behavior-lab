@@ -24,6 +24,7 @@ import {
   createTurnstileScriptLoader,
   type TurnstileScriptDocument
 } from "@/lib/turnstile-script-loader";
+import { selectTurnstileWidgetSize, type TurnstileWidgetSize } from "@/lib/turnstile-widget-size";
 import type { HomepageKnownSite } from "@/lib/homepage-discovery";
 import { committedReportLocation } from "@/lib/report-locator";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
@@ -472,6 +473,25 @@ function TurnstileWidget({
   // a blocked challenge script does not do. This makes that retry reachable in place.
   const [attempt, setAttempt] = useState(0);
   const [loadFailed, setLoadFailed] = useState(false);
+  // Cloudflare's flexible widget has a 300px minimum. Measure the space the
+  // widget actually receives instead of guessing from the viewport: at 320px,
+  // shell and panel padding leave less than that minimum.
+  const [widgetSize, setWidgetSize] = useState<TurnstileWidgetSize>("compact");
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateSize = (width: number) => setWidgetSize(selectTurnstileWidgetSize(width));
+    updateSize(container.getBoundingClientRect().width);
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries.find((candidate) => candidate.target === container);
+      updateSize(entry?.contentRect.width ?? container.getBoundingClientRect().width);
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -481,6 +501,7 @@ function TurnstileWidget({
         if (cancelled || widgetIdRef.current || !containerRef.current || !window.turnstile) return;
         widgetIdRef.current = window.turnstile.render(containerRef.current, {
           sitekey: siteKey,
+          size: widgetSize,
           callback: (token) => onTokenRef.current(token),
           "error-callback": () => {
             onTokenRef.current("");
@@ -512,9 +533,10 @@ function TurnstileWidget({
           /* widget already gone */
         }
         widgetIdRef.current = null;
+        onTokenRef.current("");
       }
     };
-  }, [siteKey, attempt]);
+  }, [siteKey, attempt, widgetSize]);
 
   useEffect(() => {
     if (resetNonce === 0) return;
