@@ -224,4 +224,18 @@ test("the PDF route is an API route, so the static export drops it with the rest
     /"content-disposition": `inline; filename="\$\{filename\}"`/,
     "the PDF must render in the browser's viewer rather than downloading unseen"
   );
+
+  // The same rule is asserted again in scripts/smoke-docker.mjs, against a
+  // real running container. That copy is the one CI runs, and it is the reason
+  // switching this header passed every local gate and still failed the Docker
+  // smoke: the contract lived in two files and only the far one was exercised.
+  // Pin them to each other so a local run catches the divergence.
+  const smoke = source("scripts/smoke-docker.mjs");
+  const smokeRule = smoke.match(/if \(!\/\^(\w+);\\s\*filename=/);
+  assert.ok(smokeRule, "the Docker smoke must still assert a content-disposition shape");
+  assert.equal(
+    smokeRule![1],
+    "inline",
+    "smoke-docker.mjs expects a different disposition than the route emits; they are one contract"
+  );
 });

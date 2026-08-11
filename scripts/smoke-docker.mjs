@@ -354,9 +354,12 @@ async function assertReportPdfRoute(baseUrl, reportId, wire, expectedRequestRows
     }
   );
 
-  // A reader who saves this must end up with a file named after the report, not
-  // "pdf" or the bare route segment.
-  if (!/^attachment;\s*filename="[^"]+\.pdf"$/.test(disposition)) {
+  // `inline`, so the tab the control opens shows the document in the browser's
+  // PDF viewer rather than going blank while a file lands in a downloads
+  // folder. The naming requirement below is unchanged and still matters: a
+  // reader who saves from that viewer must end up with a file named after the
+  // report, not "pdf" or the bare route segment.
+  if (!/^inline;\s*filename="[^"]+\.pdf"$/.test(disposition)) {
     throw new Error(`Report PDF route sent an unusable content-disposition: ${disposition || "(none)"}.`);
   }
   if (!disposition.includes(reportId)) {
