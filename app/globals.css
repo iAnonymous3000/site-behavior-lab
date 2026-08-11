@@ -1901,6 +1901,15 @@ a {
   margin: 12px 0 0;
 }
 
+/* The two sentences that qualify every number on the page. Separated from the
+   collapsed provenance details by a rule so they read as standing context
+   rather than as a continuation of the receipt's facts. */
+.evidence-receipt-boundaries {
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  padding-top: 4px;
+}
+
 .report-header h2 {
   font-size: clamp(20px, 3vw, 26px);
   letter-spacing: -0.01em;

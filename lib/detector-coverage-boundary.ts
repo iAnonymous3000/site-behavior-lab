@@ -50,10 +50,35 @@ export type CoverageBoundaryEntry = {
   readonly absentIdentifiers?: readonly string[];
 };
 
+/**
+ * Every module that can put instrumentation into the page, because the guard
+ * is only as complete as the surface it reads. Two files used to be listed
+ * here while five modules could inject page-context code, so a hook landing in
+ * any of the other three would not have tripped a single claim below.
+ *
+ * The rule for adding to this list: if the module can run code inside the
+ * visited page, it belongs here. A module that only shapes the record after
+ * capture does not.
+ */
 export const COVERAGE_BOUNDARY_SOURCES: readonly string[] = [
+  "lib/bounded-page-collector.ts",
+  "lib/consent-interaction.ts",
+  "lib/consent-verification.ts",
   "lib/fingerprint-observer.ts",
+  "lib/gpc-injection.ts",
+  "lib/keystroke-exfiltration.ts",
+  "lib/scan-runtime.ts",
   "lib/scanner.ts"
 ];
+
+/**
+ * Modules matching this shape can run code inside the visited page, so they
+ * must all appear in COVERAGE_BOUNDARY_SOURCES. The accompanying test derives
+ * the set from disk rather than trusting the list, because the failure this
+ * guards against is a new injecting module landing and silently sitting
+ * outside every claim above. That is exactly how the list went stale before.
+ */
+export const PAGE_INJECTION_PATTERN = /addInitScript|page\.evaluate|frame\.evaluate|\.evaluate\(/;
 
 export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
   {
@@ -61,8 +86,15 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
     label: "Device motion, orientation, and ambient sensors",
     reason: "not-instrumented",
     explanation:
-      "Accelerometer, gyroscope, and ambient-light readings can carry device entropy. The scanner does not hook these APIs, so a report is silent about them whether or not a page used them.",
-    absentIdentifiers: ["DeviceOrientation", "DeviceMotion", "Accelerometer", "AmbientLight"]
+      "Accelerometer, gyroscope, magnetometer, and ambient-light readings can carry device entropy. The scanner does not hook these APIs, so a report is silent about them whether or not a page used them.",
+    absentIdentifiers: [
+      "DeviceOrientation",
+      "DeviceMotion",
+      "Accelerometer",
+      "Gyroscope",
+      "Magnetometer",
+      "AmbientLight"
+    ]
   },
   {
     id: "battery-status",
@@ -101,7 +133,7 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
     label: "High-entropy client hints",
     reason: "not-instrumented",
     explanation:
-      "Sites can request detailed platform and architecture hints. The scanner records request headers it captures, but does not instrument the in-page high-entropy hint API.",
+      "Sites can request detailed platform and architecture hints, over request headers or the in-page hint API. No report field holds request headers at all, and the in-page API is not instrumented, so neither route is visible in a report.",
     absentIdentifiers: ["userAgentData"]
   },
   {
@@ -111,6 +143,30 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
     explanation:
       "Effective connection type and downlink estimates are observable entropy. The scanner does not hook the Network Information API.",
     absentIdentifiers: ["navigator.connection"]
+  },
+  {
+    id: "timing-side-channels",
+    label: "Timing side channels",
+    reason: "not-instrumented",
+    explanation:
+      "High-resolution timers can be used to infer cached resources, hardware characteristics, and cross-site state without any request the scanner would log. The scanner does not observe timer construction or clock probing, so a report saying nothing about timing means the surface was never watched, not that it was unused. The enforced part of this claim is the distinctive high-resolution constructs; a page reading the ordinary coarse clock is not distinguishable from any other script.",
+    absentIdentifiers: ["SharedArrayBuffer", "Atomics", "timeOrigin"]
+  },
+  {
+    id: "geolocation",
+    label: "Geolocation requests",
+    reason: "not-instrumented",
+    explanation:
+      "A page can ask for precise location through the Geolocation API. The scanner neither hooks that API nor grants the permission, so a report does not record that a site asked, and its silence is not evidence that no request was made.",
+    absentIdentifiers: ["geolocation", "getCurrentPosition", "watchPosition"]
+  },
+  {
+    id: "permissions-api",
+    label: "Permission state queries",
+    reason: "not-instrumented",
+    explanation:
+      "Querying the state of camera, microphone, notification, or location permissions is itself an entropy source, and it happens without any user prompt. The scanner does not instrument the Permissions API, so these silent queries are absent from every report.",
+    absentIdentifiers: ["navigator.permissions", "permissions.query"]
   },
   {
     id: "script-integrity-drift",
@@ -171,6 +227,72 @@ export const coverageBoundaryMetadata = {
     (entry) => entry.absentIdentifiers !== undefined && entry.absentIdentifiers.length > 0
   ).length
 };
+
+/**
+ * Where the full boundary is published. A report artifact summarizes; this is
+ * the link that makes the summary checkable.
+ */
+export const COVERAGE_BOUNDARY_PATH = "/catalog/#coverage-boundary";
+
+/**
+ * Absolute form, for print and PDF. Paper has no base path to resolve against
+ * and no link to follow, so it needs the whole address. On screen use
+ * COVERAGE_BOUNDARY_PATH through next/link instead, so a deployment under a
+ * base path does not ship a broken anchor.
+ */
+export const COVERAGE_BOUNDARY_URL = `https://sitebehavior.org${COVERAGE_BOUNDARY_PATH}`;
+
+/**
+ * The boundary reduced to what a report artifact can carry.
+ *
+ * A forwarded report used to carry none of this: the enumeration lived only on
+ * the catalog page, so the one artifact a reader sends to a third party was
+ * silent about what the instrument never looked at. A reader cannot be
+ * expected to know that silence means "unwatched" rather than "absent".
+ *
+ * Derived from the entries rather than written out, because a hand-written
+ * summary is exactly the second copy that drifts from the list it summarizes.
+ */
+export function coverageBoundarySummary(
+  entries: readonly CoverageBoundaryEntry[] = COVERAGE_BOUNDARY_ENTRIES
+): Readonly<Record<CoverageBoundaryReason, readonly string[]>> {
+  const group = (reason: CoverageBoundaryReason) =>
+    entries.filter((entry) => entry.reason === reason).map((entry) => entry.label);
+  return {
+    "not-instrumented": group("not-instrumented"),
+    declined: group("declined"),
+    unobservable: group("unobservable")
+  };
+}
+
+/**
+ * One sentence naming what a clean report does NOT rule out, for surfaces with
+ * no room to list all of it. Says "not measured" and never "not present",
+ * which is the distinction the whole boundary exists to protect.
+ */
+export function coverageBoundarySentence(
+  entries: readonly CoverageBoundaryEntry[] = COVERAGE_BOUNDARY_ENTRIES
+): string {
+  const summary = coverageBoundarySummary(entries);
+  const surfaces = summary["not-instrumented"];
+  const declined = summary.declined.length;
+  const unobservable = summary.unobservable.length;
+  // Entry labels contain their own commas ("Device motion, orientation, and
+  // ambient sensors"), so a comma-joined list reads as one run-on enumeration
+  // and a reader cannot tell where one surface ends and the next begins.
+  const listed = surfaces.slice(0, 3).join("; ");
+  const rest = surfaces.length - 3;
+  const plural = (count: number, one: string, many: string) =>
+    `${count} ${count === 1 ? one : many}`;
+  return (
+    `This report covers what the scanner measures, not everything a site can do. ` +
+    `${plural(surfaces.length, "browser surface is", "browser surfaces are")} not instrumented at all ` +
+    `(${listed}${rest > 0 ? `; and ${plural(rest, "other", "others")}` : ""}), ` +
+    `${plural(declined, "capability is", "capabilities are")} declined by policy, and ` +
+    `${plural(unobservable, "is", "are")} outside what any single visit can see. ` +
+    `Their absence from this report is not evidence that they did not occur.`
+  );
+}
 
 export const COVERAGE_BOUNDARY_REASON_COPY: Readonly<
   Record<CoverageBoundaryReason, { readonly label: string; readonly meaning: string }>

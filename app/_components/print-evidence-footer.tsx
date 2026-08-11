@@ -1,4 +1,5 @@
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
+import { COVERAGE_BOUNDARY_URL, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 
 /**
  * Print-only evidence footer for a saved report.
@@ -48,6 +49,13 @@ export function PrintEvidenceFooter({
           the only way to authenticate a retained copy.
         </p>
       )}
+      {/* Paper is the surface where a reader is most likely to treat silence as
+          absence, because there is nothing to click and no boundary page in
+          sight. The sentence is derived from the same entries the catalog page
+          lists, so the paper and the site cannot drift apart. */}
+      <p>
+        {coverageBoundarySentence()} The full list is published at {COVERAGE_BOUNDARY_URL}.
+      </p>
       {CLAIM_BOUNDARY && <p>Approved use: {claimBoundaryParagraph(CLAIM_BOUNDARY)}</p>}
     </footer>
   );

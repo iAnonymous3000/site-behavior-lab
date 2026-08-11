@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
 import type { ReportCorrections } from "@/lib/corrections-ledger";
+import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
 import {
   runQualitySummary,
@@ -155,14 +156,25 @@ export function ReportPageContext({
             versioned report JSON contains the retained public evidence; see the <Link href="/methodology/">methodology</Link> for
             interpretation and retention limits.
           </p>
+        </details>
+
+        {/* Deliberately OUTSIDE the details above. These two sentences qualify
+            every number on the page, and a reader who forwards this report is
+            the one most likely to need them. Behind a collapsed summary they
+            reached nobody who had not already gone looking. */}
+        <div className="evidence-receipt-boundaries">
+          <p className="evidence-receipt-note">
+            {coverageBoundarySentence()}{" "}
+            <Link href={COVERAGE_BOUNDARY_PATH}>Read the published coverage boundary</Link>.
+          </p>
           {CLAIM_BOUNDARY && (
             <p className="evidence-receipt-note">
-              Approved use boundary: {claimBoundaryParagraph(CLAIM_BOUNDARY)} Recorded in this
-              project&apos;s release manifest on{" "}
+              Approved use boundary: {claimBoundaryParagraph(CLAIM_BOUNDARY)}{" "}
+              Recorded in this project&apos;s release manifest on{" "}
               <time dateTime={CLAIM_BOUNDARY.decidedAt}>{CLAIM_BOUNDARY.decidedAt.slice(0, 10)}</time>.
             </p>
           )}
-        </details>
+        </div>
       </section>
     </div>
   );
