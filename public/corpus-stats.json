@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "generatedAt": "2026-08-10T07:24:14.829Z",
+  "generatedAt": "2026-08-11T04:34:46.292Z",
   "metricContractVersion": "metric-contract-v1",
   "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "sampleSize": 93,
@@ -241,56 +241,56 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
-      "sampleSize": 35,
+      "sampleSize": 30,
       "latestRunAt": "2026-08-03T11:05:35.312Z",
       "metrics": {
         "thirdPartyRequests": {
-          "count": 35,
+          "count": 30,
           "min": 0,
           "max": 166,
           "p50": 0,
-          "p75": 10,
+          "p75": 8,
           "p90": 21,
-          "p95": 50
+          "p95": 88
         },
         "thirdPartyDomains": {
-          "count": 35,
+          "count": 30,
           "min": 0,
           "max": 16,
           "p50": 0,
           "p75": 3,
-          "p90": 8,
+          "p90": 7,
           "p95": 12
         },
         "cataloguedServiceRequests": {
-          "count": 35,
+          "count": 30,
           "min": 0,
           "max": 11,
           "p50": 0,
-          "p75": 4,
-          "p90": 7,
-          "p95": 11
+          "p75": 2,
+          "p90": 5,
+          "p95": 10
         },
         "trackingServiceRequests": {
-          "count": 35,
+          "count": 30,
           "min": 0,
           "max": 11,
           "p50": 0,
-          "p75": 4,
-          "p90": 7,
+          "p75": 2,
+          "p90": 5,
           "p95": 10
         },
         "thirdPartyCookies": {
-          "count": 35,
+          "count": 30,
           "min": 0,
-          "max": 3,
+          "max": 5,
           "p50": 0,
           "p75": 0,
           "p90": 1,
-          "p95": 2
+          "p95": 3
         },
         "fingerprintEvents": {
-          "count": 35,
+          "count": 30,
           "min": 0,
           "max": 116,
           "p50": 0,
@@ -388,7 +388,7 @@
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 93,
-      "latestRunAt": "2026-08-10T07:13:19.647Z",
+      "latestRunAt": "2026-08-11T04:24:14.032Z",
       "metrics": {
         "thirdPartyRequests": {
           "count": 93,
