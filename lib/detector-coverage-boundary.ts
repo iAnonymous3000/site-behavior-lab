@@ -51,14 +51,21 @@ export type CoverageBoundaryEntry = {
 };
 
 /**
- * Every module that can put instrumentation into the page, because the guard
- * is only as complete as the surface it reads. Two files used to be listed
- * here while five modules could inject page-context code, so a hook landing in
- * any of the other three would not have tripped a single claim below.
+ * The source text every claim below is checked against, because the guard is
+ * only as complete as the surface it reads. Two files used to be listed here
+ * while more modules could reach the page, so a hook landing in any of the
+ * others would not have tripped a single claim.
  *
- * The rule for adding to this list: if the module can run code inside the
- * visited page, it belongs here. A module that only shapes the record after
- * capture does not.
+ * A DELIBERATE SUPERSET, and worth stating plainly rather than implying the
+ * list is exactly the injecting set. Six of these either call Playwright's
+ * injection API or have a function handed to it. `keystroke-exfiltration` and
+ * `scan-runtime` do neither: they are scanner-adjacent modules read anyway,
+ * because scanning extra text can only make an absence claim stricter, never
+ * weaker. Nothing is lost by over-including and a real hook is caught sooner.
+ *
+ * The rule for adding: if a surface could plausibly be instrumented from the
+ * module, read it. The two derivations below then check that nothing which
+ * DOES reach the page is missing from this list.
  */
 export const COVERAGE_BOUNDARY_SOURCES: readonly string[] = [
   "lib/bounded-page-collector.ts",
@@ -72,13 +79,61 @@ export const COVERAGE_BOUNDARY_SOURCES: readonly string[] = [
 ];
 
 /**
- * Modules matching this shape can run code inside the visited page, so they
- * must all appear in COVERAGE_BOUNDARY_SOURCES. The accompanying test derives
- * the set from disk rather than trusting the list, because the failure this
- * guards against is a new injecting module landing and silently sitting
- * outside every claim above. That is exactly how the list went stale before.
+ * Modules that call Playwright's injection API themselves.
+ *
+ * SAYS LESS THAN IT LOOKS. This is a host-side call-text match, and it is
+ * blind to the dominant idiom in this scanner: a module exports a plain
+ * page-context function and `lib/scanner.ts` hands it to `addInitScript`. A
+ * module of that shape contains none of these tokens. Three of the eight
+ * sources declared above (`gpc-injection`, `keystroke-exfiltration`,
+ * `scan-runtime`) match this pattern zero times, which is the proof.
+ *
+ * So this is one of two signals, not the mechanism. `injectedModuleSpecifiers`
+ * below covers the shape this misses, by following what is actually handed to
+ * the injection call. Neither alone keeps the list complete.
  */
 export const PAGE_INJECTION_PATTERN = /addInitScript|page\.evaluate|frame\.evaluate|\.evaluate\(/;
+
+/** Injection call whose first argument is a bare identifier, not an inline function. */
+const INJECTION_CALL = /(?:addInitScript|evaluateHandle|evaluate)\(\s*([A-Za-z_$][\w$]*)\s*[,)]/g;
+/** Named import block, possibly spanning lines, with optional `type` and `as`. */
+const NAMED_IMPORT = /import\s+(?:type\s+)?\{([\s\S]*?)\}\s*from\s*["']([^"']+)["']/g;
+
+/**
+ * Repo-relative modules whose exported function this source injects into the
+ * page, resolved through the source's own imports.
+ *
+ * This is the signal that catches the shape PAGE_INJECTION_PATTERN cannot see:
+ * whatever reaches the page must be passed to an injection call somewhere in a
+ * file the boundary already reads, so following that argument back to its
+ * defining module finds the injecting module even though that module contains
+ * no Playwright call of its own.
+ *
+ * Arguments that are inline functions or locally defined resolve to nothing
+ * and are skipped, so an unresolvable call neither throws nor false-flags.
+ * Separated from the test, like the other checks here, so the check itself can
+ * be shown to fail.
+ */
+export function injectedModuleSpecifiers(source: string): string[] {
+  const imported = new Map<string, string>();
+  for (const block of source.matchAll(NAMED_IMPORT)) {
+    for (const raw of block[1].split(",")) {
+      const part = raw.trim().replace(/^type\s+/, "");
+      if (!part) continue;
+      const aliased = part.match(/^(\S+)\s+as\s+(\S+)$/);
+      imported.set(aliased ? aliased[2] : part, block[2]);
+    }
+  }
+
+  const found = new Set<string>();
+  for (const call of source.matchAll(INJECTION_CALL)) {
+    const specifier = imported.get(call[1]);
+    if (!specifier) continue;
+    if (specifier.startsWith("./")) found.add(`lib/${specifier.slice(2)}.ts`);
+    else if (specifier.startsWith("@/lib/")) found.add(`${specifier.slice(2)}.ts`);
+  }
+  return [...found].sort();
+}
 
 export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
   {
@@ -133,7 +188,7 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
     label: "High-entropy client hints",
     reason: "not-instrumented",
     explanation:
-      "Sites can request detailed platform and architecture hints, over request headers or the in-page hint API. No report field holds request headers at all, and the in-page API is not instrumented, so neither route is visible in a report.",
+      "Sites can request detailed platform and architecture hints, over request headers or the in-page hint API. No report field holds client-hint headers, and the in-page API is not instrumented, so neither route is visible in a report. The claim is scoped to client hints on purpose: a report does carry one request-header observation, the scanner's own GPC signal readback.",
     absentIdentifiers: ["userAgentData"]
   },
   {

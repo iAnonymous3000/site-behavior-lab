@@ -93,7 +93,8 @@ export default function MethodologyPage() {
         <p>
           Counts are lower bounds. Requests made by a dedicated Web Worker are recorded, but Service Workers are
           blocked before the page loads, so none runs; a SharedWorker&apos;s own traffic beyond the script that
-          starts it is not recorded, and neither are WebSocket messages. Storage keys are read from the top frame
+          starts it is not recorded, and no WebSocket activity is recorded at all, neither the connection nor its
+          messages. Storage keys are read from the top frame
           only, and trackers that load only after interaction or consent are not seen by a passive visit.
         </p>
       </section>

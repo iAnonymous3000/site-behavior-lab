@@ -12,6 +12,7 @@ import {
   coverageBoundaryMetadata,
   coverageBoundarySentence,
   coverageBoundarySummary,
+  injectedModuleSpecifiers,
   PAGE_INJECTION_PATTERN,
   validateCoverageBoundary,
   type CoverageBoundaryEntry
@@ -139,6 +140,86 @@ test("every module that can inject page code is a source the boundary reads", ()
     unread,
     [],
     `These modules can run code in the page but the coverage boundary never reads them, so instrumentation added there would not fail a single claim:\n${unread.join("\n")}`
+  );
+});
+
+/**
+ * The shape scan above is blind to this repo's dominant injection idiom: a
+ * module exports a page-context function and scanner.ts hands it to
+ * addInitScript. Three of the declared sources are exactly that shape and
+ * match the pattern zero times. This follows the injected argument back to its
+ * defining module, which is what actually keeps the list complete.
+ */
+test("every module whose function is injected into the page is a source the boundary reads", () => {
+  const declared = new Set(COVERAGE_BOUNDARY_SOURCES);
+  const resolved = new Set<string>();
+  for (const relative of COVERAGE_BOUNDARY_SOURCES) {
+    for (const injected of injectedModuleSpecifiers(
+      readFileSync(path.join(root, relative), "utf8")
+    )) {
+      resolved.add(injected);
+    }
+  }
+
+  assert.ok(
+    resolved.size > 0,
+    "the resolver found no injected module, so it is asserting nothing"
+  );
+  // The module the shape pattern cannot see. If this stops resolving, the
+  // resolver has regressed to the blindness it was written to cover.
+  assert.ok(
+    resolved.has("lib/gpc-injection.ts"),
+    `resolver missed the known page-context module it exists to catch; found ${[...resolved].join(", ")}`
+  );
+
+  const unread = [...resolved].filter((relative) => !declared.has(relative)).sort();
+  assert.deepEqual(
+    unread,
+    [],
+    `These modules have a function injected into the page but the boundary never reads them:\n${unread.join("\n")}`
+  );
+});
+
+test("the injection resolver follows real call shapes and refuses to guess", () => {
+  // Multi-line import block and multi-line call, which is how scanner.ts is written.
+  const realistic = `
+import {
+  installMotionObserver,
+  type MotionKey
+} from "./motion-observer";
+import { helper as aliased } from "@/lib/aliased-module";
+
+await withScanTimeout(
+  context.addInitScript(
+    installMotionObserver,
+    key
+  ),
+  started
+);
+await page.evaluate(aliased, args);
+`;
+  assert.deepEqual(injectedModuleSpecifiers(realistic), [
+    "lib/aliased-module.ts",
+    "lib/motion-observer.ts"
+  ]);
+
+  // Mutation coverage: the guard must FAIL for an undeclared module. This is
+  // the exact defect it exists to catch, so it is exercised rather than assumed.
+  const declared = new Set(COVERAGE_BOUNDARY_SOURCES);
+  assert.ok(!declared.has("lib/motion-observer.ts"));
+  assert.ok(injectedModuleSpecifiers(realistic).some((m) => !declared.has(m)));
+
+  // And it must not invent modules. Inline functions, locally defined
+  // functions, and non-lib specifiers resolve to nothing.
+  assert.deepEqual(
+    injectedModuleSpecifiers(`
+import { chromium } from "playwright";
+function localOnly() {}
+await page.addInitScript(localOnly);
+await page.addInitScript(() => { window.x = 1; });
+await page.evaluate(chromium, args);
+`),
+    []
   );
 });
 
