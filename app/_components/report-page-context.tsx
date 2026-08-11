@@ -134,13 +134,24 @@ export function ReportPageContext({
                     rendering of the evidence, not the evidence: the JSON wire
                     stays canonical, and the footer inside the document says so.
 
-                    Deliberately no `download` attribute. The response already
-                    carries Content-Disposition: attachment, so a success still
-                    downloads with the right filename, and a refusal (the
+                    Deliberately no `download` attribute. The response is
+                    Content-Disposition: inline, so this opens the browser's PDF
+                    viewer rather than dropping a file, and a refusal (the
                     renderer is busy, the report is too large) stays visible
-                    instead of becoming a failed download with no reason. */}
-                <a className="secondary-button" href={reportPdfHref(id)}>
-                  Download PDF
+                    instead of becoming a failed download with no reason.
+
+                    Opens beside the report, never over it, matching the control
+                    in report-header.tsx: a render can take tens of seconds on a
+                    large report, and replacing the reader's page with a blank
+                    tab that may still refuse is the worst of both. */}
+                <a
+                  className="secondary-button"
+                  href={reportPdfHref(id)}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Open PDF
+                  <span className="visually-hidden"> (opens in a new tab)</span>
                 </a>
               </>
             )}

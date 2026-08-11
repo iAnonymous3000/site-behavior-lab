@@ -84,7 +84,18 @@ async function handleReportPdf(
       headers: {
         "content-type": "application/pdf",
         "content-length": String(pdf.byteLength),
-        "content-disposition": `attachment; filename="${filename}"`,
+        // `inline`, so the browser's own PDF viewer renders it in the tab the
+        // control already opens instead of the tab flashing blank and a file
+        // appearing in a downloads folder. A reader gets to SEE the document
+        // before deciding to keep it, which matters more here than elsewhere:
+        // this is evidence someone may forward, and the first chance to notice
+        // a cut-short visit or the wrong report is looking at it.
+        //
+        // Saving is not lost. Every viewer offers a save control, `filename`
+        // is still honoured when they use it, and saving from the viewer spends
+        // no second render because the bytes are already fetched. So preview
+        // then keep costs exactly what blind download used to.
+        "content-disposition": `inline; filename="${filename}"`,
         // A generated rendering is not a citable surface; the interactive
         // report is. Keep it out of indexes even if a link leaks.
         // No cache-control here: next.config.mjs already applies `no-store` to

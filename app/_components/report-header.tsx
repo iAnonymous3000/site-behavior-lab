@@ -185,8 +185,8 @@ export function ReportHeader({
                 behind when the button is absent is an orphan node that nothing
                 references. */}
             <span className="visually-hidden" id="pdf-export-description">
-              Downloads the complete report as a PDF, in a new tab. The scanner renders it on request, which
-              takes a few seconds.
+              Opens the complete report as a PDF in a new tab, where you can read it before saving. The
+              scanner renders it on request, which takes a few seconds.
             </span>
           </>
         )}
