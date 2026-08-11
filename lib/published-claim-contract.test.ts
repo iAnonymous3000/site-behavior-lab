@@ -123,6 +123,36 @@ function existsInCorpus(file: string): boolean {
 }
 
 /**
+ * The generated file that breaks the static export when it is committed wrong.
+ *
+ * `next-env.d.ts` is tracked, and Next rewrites it differently depending on
+ * which command ran last: `next typegen` (inside `npm run typecheck`) writes
+ * the DEV routes path, `next build` writes the PRODUCTION one. CI runs
+ * typecheck, then build, then `build:pages` -- and static deployment
+ * provenance refuses to build from a dirty worktree, by design. So committing
+ * the dev-path version fails `build:pages` in CI while every local gate stays
+ * green, because locally the committed dev path is exactly what local typegen
+ * produces.
+ *
+ * This landed twice in one session, both times via `git add -A` after a
+ * typecheck. It is cheaper to assert the committed byte than to rediscover the
+ * failure from a CI log that names only a dirty file.
+ */
+test("the committed next-env.d.ts carries the production routes path", () => {
+  const contents = source("next-env.d.ts");
+  assert.match(
+    contents,
+    /import "\.\/\.next\/types\/routes\.d\.ts";/,
+    "next-env.d.ts must carry the production routes path that `next build` writes"
+  );
+  assert.doesNotMatch(
+    contents,
+    /\.next\/dev\/types\/routes\.d\.ts/,
+    "this is the dev-typegen form; `next build` rewrites it, leaving the worktree dirty and failing build:pages"
+  );
+});
+
+/**
  * Unqualified universals about the report schema.
  *
  * A boundary entry is allowed to say a surface is not instrumented, which is a
