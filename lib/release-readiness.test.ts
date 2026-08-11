@@ -741,7 +741,11 @@ async function aaLedger() {
         run: {
           runOutcome: "complete",
           requestOutcome: "complete",
-          counts: { totalRequests: 40, thirdPartyRequests: 20, knownTrackerRequests: 5, thirdPartyDomains: 8 },
+          // The count and the derived set state the same quantity, so they must
+          // agree. This said 8 against a 2-element set; nothing compared them
+          // until the A/A study started excluding arms whose two statements of
+          // the domain count disagree.
+          counts: { totalRequests: 40, thirdPartyRequests: 20, knownTrackerRequests: 5, thirdPartyDomains: 2 },
           thirdPartyDomains: ["a.example", "b.example"],
           producerRuntime: runtime
         }

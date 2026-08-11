@@ -211,13 +211,16 @@ function collectedLedger(
   });
 }
 
+const DOMAINS = ["a.example", "b.example", "c.example"];
 const STABLE_COUNTS = {
   totalRequests: 40,
   thirdPartyRequests: 20,
   knownTrackerRequests: 5,
-  thirdPartyDomains: 8
+  // Derived, not a literal. This said 8 while DOMAINS listed 3, and nothing
+  // noticed: the ledger states this quantity twice and no check compared them,
+  // so a fixture that contradicted itself exercised the study happily.
+  thirdPartyDomains: DOMAINS.length
 };
-const DOMAINS = ["a.example", "b.example", "c.example"];
 
 function stableAttempts() {
   const attempts = [];

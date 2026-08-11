@@ -131,16 +131,37 @@ function countsOf(wire, run) {
   return wire?.schemaVersion === 2 ? run?.summary?.counts : run?.summary;
 }
 
+/**
+ * The request array, versioned in the seam like runsOf/countsOf.
+ *
+ * Returns null when the run has no usable request evidence. This used to be an
+ * inline version check with `Array.isArray(requests) ? requests : []`, which is
+ * the same shape the header above describes for counts: a missing v2 block
+ * became an empty set instead of a failure. An empty set is worse here than a
+ * zero was there, because jaccard() of two empty sets is 1 -- PERFECT
+ * agreement. An A/A study whose evidence never loaded scored as its best
+ * possible result.
+ */
+function requestsOf(wire, run) {
+  const requests = wire?.schemaVersion === 2 ? run?.evidence?.requests : run?.requests;
+  return Array.isArray(requests) ? requests : null;
+}
+
 function armObservation(wire, run) {
   const counts = countsOf(wire, run);
-  const requests = wire?.schemaVersion === 2 ? run?.evidence?.requests : run?.requests;
-  const thirdPartyDomains = [
-    ...new Set(
-      (Array.isArray(requests) ? requests : [])
-        .filter((request) => request?.thirdParty === true && typeof request.domain === "string")
-        .map((request) => request.domain)
-    )
-  ].sort();
+  const requests = requestsOf(wire, run);
+  // null, never []. classifyObservation refuses a non-array set, so an arm with
+  // unusable request evidence is excluded rather than scored.
+  const thirdPartyDomains =
+    requests === null
+      ? null
+      : [
+          ...new Set(
+            requests
+              .filter((request) => request?.thirdParty === true && typeof request.domain === "string")
+              .map((request) => request.domain)
+          )
+        ].sort();
   return {
     schemaVersion: wire?.schemaVersion ?? null,
     reportType: wire?.reportType ?? null,

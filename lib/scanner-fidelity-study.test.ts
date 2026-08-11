@@ -693,3 +693,46 @@ function wireRun(thirdPartyRequests: number, domain: string) {
     conditions: identity.runtime
   };
 }
+
+test("an arm whose request evidence never loaded is excluded, not scored as perfect agreement", async () => {
+  const { summarizeRepeatability } = await helpers;
+
+  // The defect: the third-party-domain set was derived by an inline read that
+  // coerced anything non-array to []. jaccard() of two empty sets is 1, so a
+  // run whose request evidence never loaded contributed the BEST possible
+  // agreement to an A/A study. The module header states the rule that was
+  // broken: version-dependent field access lives in one seam, and a missing v2
+  // block is a failure, never a silent empty value.
+  const blind = singleObservation(10, ["a.example", "b.example"]);
+  (blind.arms.run as { thirdPartyDomains: unknown }).thirdPartyDomains = null;
+
+  const attempts: Attempt[] = [
+    attempt(1, singleObservation(10, ["a.example", "b.example"])),
+    attempt(2, singleObservation(11, ["a.example", "b.example"])),
+    attempt(3, blind)
+  ];
+
+  const summary = summarizeRepeatability(attempts);
+  assert.equal(summary.targets[0].excludedRuns, 1, "an arm with no request evidence must be excluded");
+  assert.equal(summary.targets[0].eligibleRuns, 2);
+});
+
+test("a domain set that contradicts its own count is excluded rather than averaged", async () => {
+  const { summarizeRepeatability } = await helpers;
+
+  // The ledger states this quantity twice: a count the producer wrote, and a
+  // set derived from the request array. Nothing compared them, so a fixture
+  // that contradicted itself scored happily -- and one did.
+  const contradictory = singleObservation(10, ["a.example", "b.example"]);
+  contradictory.arms.run.counts.thirdPartyDomains = 7;
+
+  const attempts: Attempt[] = [
+    attempt(1, singleObservation(10, ["a.example", "b.example"])),
+    attempt(2, singleObservation(11, ["a.example", "b.example"])),
+    attempt(3, contradictory)
+  ];
+
+  const summary = summarizeRepeatability(attempts);
+  assert.equal(summary.targets[0].excludedRuns, 1);
+  assert.equal(summary.targets[0].eligibleRuns, 2);
+});
