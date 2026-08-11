@@ -35,9 +35,9 @@ export default function AboutPage() {
           <p className="eyebrow">About</p>
           <h1>See what a site does, not just what it says.</h1>
           <p>
-          Site Behavior Lab visits a website the way your browser would, records what actually happens, and
-          publishes that record. Not a rating. Not a grade. The observations themselves, with enough detail
-          that you can check them.
+          Site Behavior Lab uses a controlled browser to visit a public website, records bounded evidence from
+          that visit, and publishes the record. Not a rating. Not a grade. The observations themselves, with
+          enough detail that you can check them.
           </p>
           <p className="legal-back">
           <Link href="/">&larr; Back to Site Behavior Lab</Link>
@@ -88,9 +88,9 @@ export default function AboutPage() {
           the site interprets those facts, it says so and shows the facts underneath.
           </li>
           <li>
-          <strong>State the conditions.</strong> Every report records the browser version, viewport,
-          timezone, locale, privacy signals sent, tracker catalog version and scanner version used. A
-          result you cannot reproduce is an anecdote.
+          <strong>State the conditions.</strong> Current Node reports record the browser and scanner versions,
+          viewport, timezone, locale, privacy signals and tracker catalog used. Older reports may not contain
+          every version field; the viewer labels those fields as not recorded instead of filling them in later.
           </li>
           <li>
           <strong>Say what was missed.</strong> If part of a visit failed, or a limit was hit, or a
@@ -151,12 +151,14 @@ export default function AboutPage() {
           <ol>
           <li>
           <strong>A real browser opens the page.</strong> Not a simulation and not a source-code reader: a
-          genuine Chromium browser on our server loads the site the way yours would, and waits for it to
-          settle.
+          controlled Chromium browser on our server loads the public page under the conditions recorded in
+          the report, and waits for it to settle.
           </li>
           <li>
-          <strong>Everything it does is recorded.</strong> Every network request, every cookie, every
-          storage key, and calls to browser features commonly used to identify a device.
+          <strong>Bounded evidence is recorded.</strong> The scanner retains captured HTTP requests, cookies,
+          top-frame storage keys and selected browser-feature calls within published limits. Reports disclose
+          caps, unsupported surfaces and collection failures, so their counts are lower bounds rather than
+          complete transcripts.
           </li>
           <li>
           <strong>Requests are matched against public catalogs.</strong> That turns a raw domain name into
@@ -168,9 +170,9 @@ export default function AboutPage() {
           defensible than reporting one visit and guessing.
           </li>
           <li>
-          <strong>The result is written down and fingerprinted.</strong> Each report gets a permanent
-          link, a machine-readable copy, and a cryptographic digest, so a report can be checked later
-          against what was actually published.
+          <strong>The result is written down and fingerprinted.</strong> Each saved report gets a link, a
+          machine-readable copy and a cryptographic digest. Runtime share links can expire under the ordinary
+          retention policy; selected reports committed to the research corpus are retained separately.
           </li>
           </ol>
           <p>

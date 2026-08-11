@@ -426,7 +426,6 @@ const INTENTIONALLY_UNSTYLED_CLASS_NAMES = new Set([
   "domain-request-deltas",
   "provenance-change-list",
   "report-title-block",
-  "turnstile-widget",
   "visit-phase-evidence"
 ]);
 
