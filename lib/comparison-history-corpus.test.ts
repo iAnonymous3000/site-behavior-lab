@@ -6,6 +6,7 @@ import { legacyComparisonDecision } from "./comparison-decision";
 import { createTemporalComparisonReport, orderTemporalPair } from "./compare-reports";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { redactScanReportV1 } from "./redact-scan-report-v1";
+import { safeNavigableHttpUrl } from "./report-url";
 import { readStoredScanReport } from "./scan-report-reader";
 import { displayRunView, toReportView } from "./scan-report-view";
 import { comparisonHistoryPairingKey } from "./temporal-deltas";
@@ -24,9 +25,16 @@ type CorpusVisit = {
   kind: string;
   device: "desktop" | "mobile";
   scannedAt: string;
+  requestedUrl: string;
   run: ScanResult;
   comparisonHistoryKey: string | null;
 };
+
+test("independent passive-history eligibility requires an exact requested URL", () => {
+  assert.equal(independentHistorySubjectEligible({ requestedUrl: "https://example.com/research" }), true);
+  assert.equal(independentHistorySubjectEligible({ requestedUrl: "https://{label}.example.com/" }), false);
+  assert.equal(independentHistorySubjectEligible({ requestedUrl: "https://example.com/{seg}" }), false);
+});
 
 test("every committed passive-history cohort exposes a safe loaded pair", () => {
   let files: string[];
@@ -79,6 +87,7 @@ test("every committed passive-history cohort exposes a safe loaded pair", () => 
       kind: `${view.reportType}:${comparisonType ?? ""}`,
       device: lead.conditions.viewport.isMobile ? "mobile" : "desktop",
       scannedAt: view.scannedAt ?? "",
+      requestedUrl: lead.conditions.requestedUrl,
       run,
       comparisonHistoryKey
     });
@@ -90,7 +99,11 @@ test("every committed passive-history cohort exposes a safe loaded pair", () => 
   // failed, capped, or otherwise incompatible pairs. Comparing exact member
   // IDs (not just a non-zero count) means a regression that nulls or splits
   // nearly every production cohort cannot leave this test green.
-  const candidates = groupBy(visits, independentCandidateKey);
+  // Privacy-generalized requested URLs do not prove that two visits observed
+  // the same exact route. Keep that public-subject safety boundary independent
+  // from the production history key, then continue deriving compatibility
+  // without consulting the key itself.
+  const candidates = groupBy(visits.filter(independentHistorySubjectEligible), independentCandidateKey);
   const expectedEligibleCohorts: string[][] = [];
   for (const group of candidates.values()) {
     for (const cohort of independentCompatibilityCohorts(group)) {
@@ -144,6 +157,10 @@ test("every committed passive-history cohort exposes a safe loaded pair", () => 
 
 function independentCandidateKey(visit: CorpusVisit): string {
   return `${visit.domain.toLowerCase()}|${visit.kind}|${visit.device}`;
+}
+
+function independentHistorySubjectEligible(visit: Pick<CorpusVisit, "requestedUrl">): boolean {
+  return safeNavigableHttpUrl(visit.requestedUrl) !== null;
 }
 
 function newestFirst(visits: CorpusVisit[]): CorpusVisit[] {
