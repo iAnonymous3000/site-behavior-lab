@@ -292,6 +292,12 @@ export function resetScanLimitStateForTests(): void {
   for (const waiter of queue.splice(0, queue.length)) {
     clearTimeout(waiter.timer);
     waiter.signal?.removeEventListener("abort", waiter.onAbort!);
+    // Settle it. Draining the queue without rejecting left every parked
+    // acquireScanSlot caller awaiting a promise nothing could ever resolve:
+    // its timer is cleared and its abort listener removed, so no other path
+    // remains. A test that reset between cases hung on the previous case's
+    // waiter instead of failing, which is the worst way for this to surface.
+    waiter.reject(new PublicScanError("Scanner is busy. Try again shortly.", 503));
   }
   activeScans = 0;
   lastRateLimitSweepMs = 0;

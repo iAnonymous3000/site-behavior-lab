@@ -225,16 +225,19 @@ export function buildReportHeadline(
     // change away from silently keeping the secondary claim.
     const subheadPrimaryClaim =
       extraNote.length > 0 && subhead.endsWith(extraNote) ? subhead.slice(0, -extraNote.length) : subhead;
+    // One value, used by both the rendered caveat and the share text, so a
+    // prefilled post can never carry a different qualification from the page.
+    const reportCaveat = view.reportType === "comparison" ? COMPARISON_CAVEAT : SINGLE_VISIT_CAVEAT;
     return {
       tone,
       kicker: KICKER,
       headline,
       subhead,
       subheadPrimaryClaim,
-      caveat: view.reportType === "comparison" ? COMPARISON_CAVEAT : SINGLE_VISIT_CAVEAT,
+      caveat: reportCaveat,
       stats: resolvedStats,
       domain,
-      shareText: buildShareText(headline, resolvedStats),
+      shareText: buildShareText(headline, resolvedStats, reportCaveat),
       semantic: {
         story: "observed-activity",
         reassuring: tone === "calm",
@@ -1071,12 +1074,23 @@ function buildStats(facts: RunFacts, trackingCount: number): ReportHeadlineStat[
   return stats.slice(0, 4);
 }
 
-function buildShareText(headline: string, stats: ReportHeadlineStat[]): string {
+/**
+ * The share text carries the caveat, not just the claim.
+ *
+ * The headline is deliberately the punchiest sentence on the page, and the
+ * page always renders it next to `caveat` ("Observed in one automated visit:
+ * evidence to check, not a verdict."). A prefilled post is the one surface
+ * where the claim travels ALONE, to readers who never see the report, and it
+ * was shipping the punch without the qualification. That is the overclaim this
+ * project exists to avoid, on the surface with the widest reach.
+ */
+function buildShareText(headline: string, stats: ReportHeadlineStat[], caveat: string): string {
   const top = stats
     .slice(0, 2)
     .map((stat) => `${stat.value} ${stat.label}`)
     .join(" · ");
-  return top ? `${headline} ${top}. ${SHARE_TAGLINE}` : `${headline} ${SHARE_TAGLINE}`;
+  const claim = top ? `${headline} ${top}.` : headline;
+  return `${claim} ${caveat} ${SHARE_TAGLINE}`;
 }
 
 function friendlyDomain(run: RunView): string {

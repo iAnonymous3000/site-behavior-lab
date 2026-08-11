@@ -167,16 +167,26 @@ export function ReportHeader({
               aria-describedby="pdf-export-description"
               className="secondary-button"
               href={pdfHref}
+              // Opens beside the report, never over it. This control also
+              // renders on the live scan result, where the report exists only
+              // in React state and has no permalink to come back to: a refusal
+              // (renderer busy, report too large) navigating the tab away would
+              // replace the reader's scan with an error document and lose it.
+              // Deliberately still no `download` attribute; see the rationale
+              // on the permalink control in report-page-context.tsx.
+              target="_blank"
+              rel="noopener"
             >
               <Download size={17} aria-hidden="true" />
               PDF
+              <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
             {/* Inside the conditional with its button: a description left
                 behind when the button is absent is an orphan node that nothing
                 references. */}
             <span className="visually-hidden" id="pdf-export-description">
-              Downloads the complete report as a PDF. The scanner renders it on request, which takes a few
-              seconds.
+              Downloads the complete report as a PDF, in a new tab. The scanner renders it on request, which
+              takes a few seconds.
             </span>
           </>
         )}

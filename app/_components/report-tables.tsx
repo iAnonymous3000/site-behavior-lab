@@ -146,8 +146,12 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
         {filtered.length > 0 && !facts.subject.describesSubject && (
           <p className="muted">These domains describe the returned document, not a verified normal page load.</p>
         )}
+        {/* The count, not a literal. On a printComplete render this cap is
+            PRINT_ROW_CAPS.domains (200), so the hardcoded 100 told a reader of
+            the printed exhibit that half the rows in front of them were not
+            there. The request table one section down already does this. */}
         {filtered.length > shown.length && (
-          <p className="row-more">Showing first 100 of {filtered.length} matching domains. Export JSON for the full list.</p>
+          <p className="row-more">Showing first {shown.length} of {filtered.length} matching domains. Export JSON for the full list.</p>
         )}
       </div>
     </details>
