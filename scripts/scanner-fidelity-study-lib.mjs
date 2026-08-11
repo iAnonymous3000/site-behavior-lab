@@ -125,6 +125,9 @@ function median(values) {
 
 function jaccard(left, right) {
   const union = new Set([...left, ...right]);
+  // Two genuinely empty observed sets DO agree, and classifyObservation now
+  // guarantees the inputs are real derived sets rather than a fallback for
+  // evidence that never loaded, which is what made this 1 dangerous.
   if (union.size === 0) return 1;
   let intersection = 0;
   for (const value of left) if (right.has(value)) intersection += 1;
@@ -173,6 +176,13 @@ function classifyObservation(attempt) {
     }
     if (!Array.isArray(arm.thirdPartyDomains) || arm.thirdPartyDomains.some((entry) => typeof entry !== "string")) {
       return { ok: false, reason: `${armName}-domains-incomplete` };
+    }
+    // The ledger states this quantity twice: as a count the producer wrote, and
+    // as a set derived from the request array. If those disagree, one of them is
+    // wrong and neither can be scored, so the arm is excluded rather than
+    // silently averaged into an agreement statistic.
+    if (arm.thirdPartyDomains.length !== arm.counts.thirdPartyDomains) {
+      return { ok: false, reason: `${armName}-domain-count-disagrees` };
     }
     if (!validProducerRuntime(arm.producerRuntime)) {
       return { ok: false, reason: `${armName}-producer-runtime-unbound` };
