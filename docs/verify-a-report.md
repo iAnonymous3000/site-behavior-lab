@@ -19,15 +19,24 @@ canonical digest and compares it with the sidecar, and runs the same managed
 reader the site itself uses. It exits non-zero if any check fails, and prints
 what it did not prove.
 
+Those checks all read from one origin, so on their own they prove consistency
+rather than provenance. The command therefore adds one check that does not:
+it cross-checks the report's wire digest against the append-only transparency
+log committed in your clone, recomputing that chain from the log file alone.
+When the chain cannot vouch for an id, the verdict downgrades from `Verified`
+to `Consistent` and says provenance is not established, rather than passing
+quietly.
+
 Pass a full report URL instead of an id if that is what you have. Add
 `--from <dir>` to verify local files, or `--origin <url>` to verify another
 deployment.
 
-That command covers steps 1 and 4 below and adds the schema and redaction
-checks. Step 3, the Sigstore attestation, still needs the `gh` CLI and is not
-automated here, because it verifies a different thing: not that the bytes are
-what we published, but that a specific CI run at a specific commit produced
-them.
+That command covers step 1 below, plus the transparency-log cross-check, and
+adds the schema and redaction checks. It does **not** cover steps 2 to 4: it
+never downloads or reads the CI evidence manifest, and it says so in its own
+closing output. Those steps need the `gh` CLI and verify a different thing:
+not that the bytes are self-consistent, but that a specific CI run at a
+specific commit produced them.
 
 ## What is covered
 
@@ -86,11 +95,16 @@ python3 - <<'EOF'
 import json
 m = json.load(open("site-behavior-lab-static-release-evidence.json"))
 want = "reports/<id>.json"
-for f in m["files"]:
-    if f["path"].endswith(want):
-        print(f["path"], f["sha256"])
+for artifact in m["artifacts"]:
+    for f in artifact["files"]:
+        if f["path"].endswith(want):
+            print(artifact["name"], f["path"], f["sha256"])
 EOF
 ```
+
+The manifest holds one entry per built artifact, each with its own `files`
+list, so the lookup iterates `artifacts` rather than reading a top-level
+`files` key. Confirm the printed `sha256` equals the digest from step 1.
 
 If the digest from step 1 matches step 4 and step 3 verified, the report bytes
 are exactly what a green CI run at that public git SHA built, and the git
@@ -136,12 +150,19 @@ state them for you.
   their digest yourself the moment you rely on them.
 - **A log entry outlives the report it names.** The transparency log is
   append-only and report bundles are pruned on the corpus retention policy, so
-  the log currently holds three ids whose bundles are no longer published
-  (`20260727-aa2994f2...`, `20260727-de27d845...`, `20260727-ea52109861...`,
-  removed by the ordinary pruner in `0e3fbfb`). A logged id that returns 404 was
-  pruned, not withdrawn; a withdrawal appears in `public/corrections.json`
-  instead. Log membership is evidence that a report was published, never that it
-  still is.
+  the log always holds some ids whose bundles are no longer published (eleven
+  of 676 entries as of 2026-08-11, from the ordinary pruner). That count moves
+  with every prune, so re-derive it rather than trusting this sentence:
+
+```bash
+jq -r '.entries[].reportId' public/transparency-log.json | while read -r id; do
+  [ -f "public/reports/$id.json" ] || echo "$id"
+done
+```
+
+  A logged id that returns 404 was pruned, not withdrawn; a withdrawal appears
+  in `public/corrections.json` instead. Log membership is evidence that a
+  report was published, never that it still is.
 - **Anchors cover a prefix of the log, not all of it.** An OpenTimestamps anchor
   bounds only the entries beneath the head it names. Entries published after the
   newest anchor have no external time bound until the next weekly anchoring run

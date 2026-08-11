@@ -91,9 +91,11 @@ export default function MethodologyPage() {
           <li>A privacy-policy cross-check: the site&apos;s own policy text compared against the observed evidence.</li>
         </ul>
         <p>
-          Counts are lower bounds. Activity inside Web or Service Workers and WebSocket traffic is not observed,
-          storage keys are read from the top frame only, and trackers that load only after interaction or consent
-          are not seen by a passive visit.
+          Counts are lower bounds. Requests made by a dedicated Web Worker are recorded, but Service Workers are
+          blocked before the page loads, so none runs; a SharedWorker&apos;s own traffic beyond the script that
+          starts it is not recorded, and no WebSocket activity is recorded at all, neither the connection nor its
+          messages. Storage keys are read from the top frame
+          only, and trackers that load only after interaction or consent are not seen by a passive visit.
         </p>
       </section>
 
