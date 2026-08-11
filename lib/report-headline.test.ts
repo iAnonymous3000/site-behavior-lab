@@ -509,6 +509,13 @@ test("share text combines the headline, top stats, and the reproducibility tagli
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.match(headline.shareText, /contacted 1 distinct catalogued tracking-related service/);
   assert.match(headline.shareText, /Open-source and reproducible:/);
+  // A prefilled post is the one surface where the headline travels ALONE, to
+  // readers who never open the report. It shipped the claim without the
+  // qualification the page always renders beside it.
+  assert.ok(
+    headline.shareText.includes(headline.caveat),
+    `share text must carry its caveat; got: ${headline.shareText}`
+  );
 });
 
 test("a hashed keystroke leak leads the headline with alarm", () => {

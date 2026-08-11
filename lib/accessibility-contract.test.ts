@@ -82,7 +82,10 @@ test("links that retarget the tab say so in their accessible name", () => {
     announced += (contents.match(/className="visually-hidden">[^<]*opens in a new tab/g) ?? []).length;
   }
 
-  assert.equal(retargeted, 7, "the set of tab-retargeting links changed; announce the new one too");
+  // 8 since the scan-result PDF control joined them. It opens a new tab so a
+  // refusal cannot replace a live scan result that exists only in React state
+  // and has no permalink to return to.
+  assert.equal(retargeted, 8, "the set of tab-retargeting links changed; announce the new one too");
   assert.equal(announced, retargeted, "every target=\"_blank\" link needs a new-tab announcement");
 });
 

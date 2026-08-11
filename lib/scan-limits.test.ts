@@ -249,3 +249,26 @@ test("scan slot release handles are idempotent", async () => {
 function isStatus(status: number): (error: unknown) => boolean {
   return (error: unknown) => error instanceof PublicScanError && error.status === status;
 }
+
+test("resetScanLimitStateForTests settles parked waiters instead of stranding them", async () => {
+  // Draining the queue without rejecting left a parked acquireScanSlot caller
+  // awaiting a promise nothing could resolve: the reset clears its timer and
+  // removes its abort listener, so no other settlement path remains. A suite
+  // that reset between cases hung on the previous case's waiter.
+  const releases: Array<() => void> = [];
+  for (let index = 0; index < MAX_CONCURRENT_SCANS; index += 1) {
+    releases.push(await acquireScanSlot());
+  }
+
+  const parked = acquireScanSlot(60_000);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(scanLimitStateForTests().queuedScans, 1);
+
+  resetScanLimitStateForTests();
+
+  // Must settle promptly. Before the fix this awaited the 60s queue timeout
+  // that the reset had already cleared, i.e. forever.
+  await assert.rejects(() => parked, isStatus(503));
+  assert.equal(scanLimitStateForTests().queuedScans, 0);
+  releases.forEach((release) => release());
+});
