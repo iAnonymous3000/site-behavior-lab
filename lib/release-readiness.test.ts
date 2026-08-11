@@ -787,6 +787,14 @@ async function syntheticWorld(root: string) {
     "# Published errata\n\n**E1 (published erratum)**: first corrected statement.\n\n" +
     "**E2 (published erratum)**: second corrected statement.\n";
   writeFileSync(path.join(root, "errata.md"), errataDoc);
+  // The gate also requires the surface the frozen schemas point readers at, so
+  // a READY world must have published its errata there, not only specified them
+  // in the RFC. The evaluator reads app/methodology/page.tsx.
+  mkdirSync(path.join(root, "app", "methodology"), { recursive: true });
+  writeFileSync(
+    path.join(root, "app", "methodology", "page.tsx"),
+    "export default function Methodology() { return <section id=\"schema-errata\">E1 E2</section>; }\n"
+  );
   const errataDigest = createHash("sha256").update(errataDoc).digest("hex");
   const errataGate = {
     kind: "errata",
@@ -3186,5 +3194,36 @@ test("the binding-required rule matches the release workflow that owns it", asyn
   assert.match(workflow, /binding_sha256=not-required/, "0.x must still record not-required");
   for (const version of ["1.0.0", "1.0.0-rc.7"]) {
     assert.equal(releaseRequiresMeasurementBinding(version), true, version);
+  }
+});
+
+test("the errata gate verifies the page the frozen schemas actually point at", () => {
+  // The gate title claims a "published" disposition but checked only the RFC,
+  // which is where an erratum is SPECIFIED, not where readers are sent. An
+  // erratum could be approved, digest-pinned and green while never reaching the
+  // page every consumer of the immutable schema bytes is directed to.
+  const headers = readFileSync(path.join(process.cwd(), "public", "_headers"), "utf8");
+  assert.match(
+    headers,
+    /Link: <\/methodology\/#schema-errata>; rel="describedby"/,
+    "the frozen schemas must still point at the methodology page"
+  );
+
+  // The evaluator's surface constant and that Link header must name the same
+  // page, or the gate verifies a page nobody is sent to.
+  const evaluator = readFileSync(path.join(process.cwd(), "scripts", "release-readiness-lib.mjs"), "utf8");
+  assert.match(
+    evaluator,
+    /const ERRATA_PUBLISHED_SURFACE = "app\/methodology\/page\.tsx";/,
+    "the errata gate must name the methodology page as its published surface"
+  );
+
+  // And that page must actually carry every required erratum id.
+  const readiness = JSON.parse(readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8"));
+  const required: string[] = readiness.gates["errata-resolution"].requiredErrata;
+  assert.ok(required.length > 0, "the gate should require at least one erratum");
+  const page = readFileSync(path.join(process.cwd(), "app", "methodology", "page.tsx"), "utf8");
+  for (const erratum of required) {
+    assert.ok(page.includes(erratum), `the methodology page must publish ${erratum}`);
   }
 });

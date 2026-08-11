@@ -592,6 +592,15 @@ function evaluateReleaseTagGovernance(
   );
 }
 
+/**
+ * The surface the frozen schemas name as their errata location.
+ *
+ * Kept in step with public/_headers by release-readiness.test.ts: the schemas'
+ * `describedby` Link header and this path must agree, or the gate would verify
+ * a page nobody is sent to.
+ */
+const ERRATA_PUBLISHED_SURFACE = "app/methodology/page.tsx";
+
 function evaluateErrata(id, gate, manifest, rootDir, now) {
   const reasons = [];
   if (
@@ -643,6 +652,28 @@ function evaluateErrata(id, gate, manifest, rootDir, now) {
     for (const erratum of gate.requiredErrata) {
       if (!bytes.includes(`**${erratum} (`)) {
         reasons.push(`${gate.document} does not publish required erratum ${erratum}`);
+      }
+    }
+  }
+
+  // The RFC is where an erratum is SPECIFIED. It is not where readers are sent.
+  // docs/compatibility-promise.md says corrections "travel as errata on
+  // /methodology/", and public/_headers attaches
+  // `Link: </methodology/#schema-errata>; rel="describedby"` to all three frozen
+  // schema URLs, so every consumer of the immutable schema bytes is pointed
+  // there. The gate title claims each erratum has a "published" disposition
+  // while checking only the RFC, so an erratum could be approved and pinned and
+  // never reach the page the schemas name.
+  const publishedSurfacePath = path.join(rootDir, ERRATA_PUBLISHED_SURFACE);
+  if (!existsSync(publishedSurfacePath)) {
+    reasons.push(`${ERRATA_PUBLISHED_SURFACE} does not exist`);
+  } else {
+    const published = readFileSync(publishedSurfacePath, "utf8");
+    for (const erratum of gate.requiredErrata) {
+      if (!published.includes(erratum)) {
+        reasons.push(
+          `${ERRATA_PUBLISHED_SURFACE} does not publish required erratum ${erratum}; the frozen schemas point every consumer at that page`
+        );
       }
     }
   }
