@@ -17,6 +17,7 @@ import { readStoredScanReport } from "./scan-report-reader";
 import {
   comparisonArmViews,
   comparisonDiffView,
+  degradedRunNotice,
   displayRunView,
   familyCensoredOnRun,
   publicWireForExportOrPersistence,
@@ -698,6 +699,38 @@ test("schema provenance and run quality read as honest human labels", () => {
 
   const r2 = viewFromV2(makeGpcInterventionReportV2R2(), 2);
   assert.equal(schemaProvenanceLabel(r2), "v2 schema (r2)");
+});
+
+/**
+ * The incomplete-evidence notice. No committed report has a degraded run, so
+ * the corpus can never exercise this: it has to be driven from fixtures or it
+ * is untested on every surface that renders it.
+ */
+test("an incomplete visit is announced above the numbers it qualifies, and a clean one is not", () => {
+  const clean = readStoredScanReport(makeScanReportV1());
+  assert.equal(clean.ok, true);
+  if (clean.ok) {
+    // The common case must stay silent, or the notice becomes furniture.
+    assert.equal(degradedRunNotice(toReportView(clean.stored)), null);
+  }
+
+  const failed = makeScanReportV1() as ScanResult;
+  failed.summary.status = 403;
+  const failedNotice = degradedRunNotice(viewFromV1Report(failed));
+  assert.ok(failedNotice, "a visit that did not complete must be announced");
+  assert.match(failedNotice!, /^Incomplete evidence: /);
+  assert.match(failedNotice!, /did not complete/);
+  // The reason a reader needs: silence in an unfinished visit proves less.
+  assert.match(failedNotice!, /absence here is especially weak evidence/);
+
+  const capped = makeScanReportV1() as ScanResult;
+  capped.summary.totalRequests = 1200;
+  const cappedNotice = degradedRunNotice(viewFromV1Report(capped));
+  assert.ok(cappedNotice, "a cut-short visit must be announced");
+  assert.match(cappedNotice!, /cut short before completion/);
+  assert.match(cappedNotice!, /request-recording cap/);
+  // It must not claim the visit failed when it merely lost evidence.
+  assert.doesNotMatch(cappedNotice!, /did not complete/);
 });
 
 test("run views carry the full evidence surface and honest quality for both generations", () => {

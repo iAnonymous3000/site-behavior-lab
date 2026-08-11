@@ -8,6 +8,13 @@
 :root {
   color-scheme: light;
 
+  /* Running-footer identity for printed pages, overridden per report by the
+     style PrintEvidenceFooter emits. Declared here with an empty default so
+     the @page margin box degrades to page numbers alone rather than reading an
+     undeclared property, which is the silent-fallback failure the
+     custom-property guard in accessibility-contract.test.ts exists to catch. */
+  --print-report-id: "";
+
   --bg: #f5f7f4;
   --bg-grid: rgba(17, 94, 89, 0.04);
   --surface: #ffffff;
@@ -1899,6 +1906,31 @@ a {
   font-size: 12px;
   line-height: 1.5;
   margin: 12px 0 0;
+}
+
+/* Incomplete-evidence notice. Uses the warning ramp rather than the error one:
+   a cut-short visit is a real qualification on every number below it, but it
+   is not a correction or a withdrawal, and borrowing the corrections styling
+   would overstate it. */
+.report-incomplete-notice {
+  background: var(--sig-warn-soft);
+  border: 1px solid color-mix(in srgb, var(--sig-warn) 34%, var(--border));
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  margin: 0 0 18px;
+  padding: 18px;
+}
+
+.report-incomplete-notice h2 {
+  font-size: 16px;
+  margin: 2px 0 6px;
+}
+
+.report-incomplete-notice p:last-child {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* The two sentences that qualify every number on the page. Separated from the
@@ -4901,7 +4933,16 @@ details[open] > summary .disclosure-chevron {
     overflow-wrap: anywhere;
   }
 
-  /* Repeat column headers on every page and keep rows whole. */
+  /* Repeat column headers on every page and keep rows whole.
+
+     A trailing "TIME STATUS TYPE DOMAIN ..." at the end of extracted PDF text
+     is NOT an orphaned header and needs no fix here. Chromium emits the
+     repeated header groups late in the content stream, so a text extractor
+     serializes them after the footer even though every one of them paints on
+     a page that has rows. Measured on the largest committed report: the
+     request header appears 50 times across the 50 pages that table spans, and
+     the domain header 9 times across its 9. Counting occurrences against
+     pages spanned is how to re-check this rather than reading the text tail. */
   thead {
     display: table-header-group;
   }
@@ -4967,9 +5008,33 @@ details[open] > summary .disclosure-chevron {
 
   /* Paper needs margins and a size; the browser default is locale-dependent
      and leaves table rows running into the trim edge. */
+  /* A multi-page evidence document with no page numbers cannot be cited in a
+     filing, and a removed or reordered page leaves no trace. The running
+     footer gives every page its own binding to the document: which report it
+     belongs to, and where it sits in a known total.
+
+     Chromium supports @page margin boxes with counter(page)/counter(pages)
+     and var(), verified against the exact Chromium this scanner ships. It does
+     NOT support string()/string-set, so the report id arrives as a custom
+     property published by PrintEvidenceFooter rather than pulled from the DOM.
+     Doing it in CSS rather than the PDF renderer's own footerTemplate is
+     deliberate: this way a browser print and the generated PDF get the same
+     footer from one source, instead of only the PDF carrying it. */
   @page {
     size: letter;
-    margin: 14mm 12mm;
+    margin: 16mm 12mm;
+
+    @bottom-left {
+      content: var(--print-report-id, "");
+      font-size: 7pt;
+      color: #444;
+    }
+
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 7pt;
+      color: #444;
+    }
   }
 
   p,

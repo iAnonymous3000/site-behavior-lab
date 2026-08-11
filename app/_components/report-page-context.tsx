@@ -5,6 +5,7 @@ import type { ReportCorrections } from "@/lib/corrections-ledger";
 import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
 import {
+  degradedRunNotice,
   runQualitySummary,
   schemaProvenanceLabel,
   type ReportView,
@@ -39,6 +40,7 @@ export function ReportPageContext({
   view: ReportView;
 }) {
   const activation = reportActivation({ id, reportUrl, siteHistoryAvailable: permanent, view });
+  const degradedNotice = degradedRunNotice(view);
   const profileHref = activation.profilePath
     ? `${sitePagesBasePath()}${activation.profilePath}/`
     : null;
@@ -63,6 +65,18 @@ export function ReportPageContext({
 
       {(corrections.currentSubjectEvent || corrections.replacementEvents.length > 0) && (
         <ReportCorrectionNotice corrections={corrections} />
+      )}
+
+      {/* Above the fold and above the numbers it qualifies. The evidence
+          receipt already carries per-visit run quality, but it sits several
+          facts down inside a section a reader scrolling to the tables never
+          reads, and on paper the tables look complete for pages. */}
+      {degradedNotice && (
+        <section className="report-incomplete-notice" role="status" aria-labelledby="report-incomplete-title">
+          <p className="eyebrow">Evidence quality</p>
+          <h2 id="report-incomplete-title">This report is built on an incomplete visit</h2>
+          <p>{degradedNotice}</p>
+        </section>
       )}
 
       <div className="report-activation">
