@@ -129,7 +129,7 @@ export function featuredScanRetryReason(diagnostic) {
   if (/scan job status remained temporarily unavailable/i.test(message)) {
     return "scan status transport";
   }
-  if (/\bfetch failed\b|\bECONN(?:RESET|REFUSED|ABORTED)\b|\bEAI_AGAIN\b|\bUND_ERR_[A-Z_]+\b|socket hang up/i.test(message)) {
+  if (/\bfetch failed\b|\bECONN(?:RESET|REFUSED|ABORTED)\b|\bEAI_AGAIN\b|\bUND_ERR_[A-Z_]+\b|\b(?:net::)?ERR_HTTP2_PROTOCOL_ERROR\b|socket hang up/i.test(message)) {
     return "transport failure";
   }
   return null;
