@@ -60,9 +60,15 @@ function input(overrides = {}) {
       durableJobsInternalTokenPresent: true
     },
     changeControl: {
-      pullRequestUrl: `https://github.com/${REPO}/pull/101`,
-      mergeCommit: TO,
-      mergedAt: "2026-08-09T03:00:00.000Z"
+      // The authenticated API response, not an assertion about it. Every field
+      // the receipt carries about the governed PR is derived from here.
+      pullRequestResponse: {
+        merged: true,
+        html_url: `https://github.com/${REPO}/pull/101`,
+        merge_commit_sha: TO,
+        merged_at: "2026-08-09T03:00:00Z",
+        base: { ref: "main", repo: { full_name: REPO } }
+      }
     },
     ciRun: run("ci", { updated_at: "2026-08-09T04:00:00.000Z" }),
     promotionRun: {
@@ -277,19 +283,45 @@ test("secret values are never recordable, and absence is refused", () => {
 });
 
 test("change control must be a governed pull request that produced the transition commit", () => {
+  const pr = (overrides) => ({
+    changeControl: { pullRequestResponse: { ...input().changeControl.pullRequestResponse, ...overrides } }
+  });
+
   assert.throws(
-    () =>
-      buildDurableEnableTransitionReceipt(
-        input({ changeControl: { ...input().changeControl, pullRequestUrl: "https://example.test/pull/1" } })
-      ),
+    () => buildDurableEnableTransitionReceipt(input(pr({ html_url: "https://example.test/pull/1" }))),
     /governed pull request/
+  );
+  assert.throws(
+    () => buildDurableEnableTransitionReceipt(input(pr({ merge_commit_sha: "9".repeat(40) }))),
+    /not the transition commit/
+  );
+  // The three the caller could previously author outright.
+  assert.throws(() => buildDurableEnableTransitionReceipt(input(pr({ merged: false }))), /not merged/);
+  assert.throws(
+    () => buildDurableEnableTransitionReceipt(input(pr({ base: { ref: "release", repo: { full_name: REPO } } }))),
+    /not main/
   );
   assert.throws(
     () =>
       buildDurableEnableTransitionReceipt(
-        input({ changeControl: { ...input().changeControl, mergeCommit: "9".repeat(40) } })
+        input(pr({ base: { ref: "main", repo: { full_name: "someone/else" } } }))
       ),
-    /must be the transition commit/
+    new RegExp(`not ${REPO}`)
+  );
+  // And the shape the producer must now refuse outright: an assertion with no
+  // authenticated response behind it.
+  assert.throws(
+    () =>
+      buildDurableEnableTransitionReceipt(
+        input({
+          changeControl: {
+            pullRequestUrl: `https://github.com/${REPO}/pull/101`,
+            mergeCommit: TO,
+            mergedAt: "2026-08-09T03:00:00.000Z"
+          }
+        })
+      ),
+    /must be derived from its authenticated API response/
   );
 });
 

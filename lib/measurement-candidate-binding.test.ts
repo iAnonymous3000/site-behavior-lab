@@ -3090,10 +3090,16 @@ function createDurablePrerequisiteEvidence(
         durableJobsInternalTokenPresent: true
       },
       changeControl: {
-        pullRequestUrl:
-          "https://github.com/iAnonymous3000/site-behavior-lab/pull/100",
-        mergeCommit: transitionCommit,
-        mergedAt: "2026-07-28T06:00:00.000Z"
+        // The authenticated pull-request response. The producer derives the
+        // receipt's pullRequestUrl/mergeCommit/mergedAt from this rather than
+        // accepting them, so the enforced chronology cannot be caller-authored.
+        pullRequestResponse: {
+          merged: true,
+          html_url: "https://github.com/iAnonymous3000/site-behavior-lab/pull/100",
+          merge_commit_sha: transitionCommit,
+          merged_at: "2026-07-28T06:00:00Z",
+          base: { ref: "main", repo: { full_name: "iAnonymous3000/site-behavior-lab" } }
+        }
       },
       ciRun: githubRun(
         ".github/workflows/ci.yml",
