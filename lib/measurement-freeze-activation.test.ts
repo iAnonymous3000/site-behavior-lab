@@ -436,8 +436,18 @@ test("the validator CLI accepts only canonical receipts", async () => {
   try {
     const canonicalPath = path.join(directory, "canonical.json");
     const compactPath = path.join(directory, "compact.json");
-    const featuredSitesBytes = readFileSync(
-      path.join(process.cwd(), "public/featured-sites.json")
+    const featuredSitesFixture = JSON.parse(
+      readFileSync(
+        path.join(process.cwd(), "public/featured-sites.json"),
+        "utf8"
+      )
+    );
+    for (const site of featuredSitesFixture.sites) {
+      delete site.scanAvailability;
+    }
+    const featuredSitesBytes = Buffer.from(
+      `${JSON.stringify(featuredSitesFixture, null, 2)}\n`,
+      "utf8"
     );
     const scanResults = FEATURED_READJUDICATION_DOMAINS.map(
       (domain: string, index: number) => ({

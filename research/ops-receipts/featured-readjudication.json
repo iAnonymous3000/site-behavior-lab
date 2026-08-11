@@ -1,0 +1,377 @@
+{
+  "artifactKind": "site-behavior-featured-readjudication-receipt",
+  "cycles": [
+    {
+      "actionsRun": {
+        "attempt": 1,
+        "event": "schedule",
+        "headSha": "0a95ff74668236b2247178ce8169692160f66360",
+        "id": 30798490888,
+        "schedule": "23 5 * * 1"
+      },
+      "artifact": {
+        "id": 8850618261,
+        "name": "featured-readjudication-outcomes-30798490888-1",
+        "sha256": "d75fb8eb1c2fe540986f7e000f8ffd9931352e4547036b39968d7b5b5764788e"
+      },
+      "catalog": {
+        "path": "public/featured-sites.json",
+        "sha256": "583d3ecd9810b9cc72874037a7d99dab68dafddbceff2ac2928346165649900f",
+        "targetsSha256": "c2d834817ff77d3d6cb4022f9f42660099a86aacd1b1327706d89085cebe0e15",
+        "version": 2
+      },
+      "complete": true,
+      "date": "2026-08-03",
+      "outcomes": [
+        {
+          "domain": "cnn.com",
+          "reason": "navigation-incomplete",
+          "status": "unavailable"
+        },
+        {
+          "domain": "coinbase.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "drugs.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "etsy.com",
+          "reason": "access-denied",
+          "status": "unavailable"
+        },
+        {
+          "domain": "goodrx.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "macys.com",
+          "reason": "access-denied",
+          "status": "unavailable"
+        },
+        {
+          "domain": "match.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "mayoclinic.org",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "okcupid.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "reddit.com",
+          "reason": "access-denied",
+          "status": "unavailable"
+        },
+        {
+          "domain": "reuters.com",
+          "reason": "authentication-required",
+          "status": "unavailable"
+        },
+        {
+          "domain": "wayfair.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "zocdoc.com",
+          "reason": "access-denied",
+          "status": "unavailable"
+        }
+      ]
+    },
+    {
+      "actionsRun": {
+        "attempt": 1,
+        "event": "schedule",
+        "headSha": "5943b379c305bfdcf6e0dea2c4ea6ba55d3122dd",
+        "id": 31363160441,
+        "schedule": "23 5 * * 1"
+      },
+      "artifact": {
+        "id": 9053825166,
+        "name": "featured-readjudication-outcomes-31363160441-1",
+        "sha256": "7c8511d2ac6848a0419b00183c488a712b35f7cb0bf67cd1757d2ec9aa4615ca"
+      },
+      "catalog": {
+        "path": "public/featured-sites.json",
+        "sha256": "583d3ecd9810b9cc72874037a7d99dab68dafddbceff2ac2928346165649900f",
+        "targetsSha256": "c2d834817ff77d3d6cb4022f9f42660099a86aacd1b1327706d89085cebe0e15",
+        "version": 2
+      },
+      "complete": true,
+      "date": "2026-08-10",
+      "outcomes": [
+        {
+          "domain": "cnn.com",
+          "reason": "navigation-incomplete",
+          "status": "unavailable"
+        },
+        {
+          "domain": "coinbase.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "drugs.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "etsy.com",
+          "reason": "access-denied",
+          "status": "unavailable"
+        },
+        {
+          "domain": "goodrx.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "macys.com",
+          "reason": "access-denied",
+          "status": "unavailable"
+        },
+        {
+          "domain": "match.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "mayoclinic.org",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "okcupid.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "reddit.com",
+          "reason": "access-denied",
+          "status": "unavailable"
+        },
+        {
+          "domain": "reuters.com",
+          "reason": "authentication-required",
+          "status": "unavailable"
+        },
+        {
+          "domain": "wayfair.com",
+          "reason": "automation-blocked",
+          "status": "unavailable"
+        },
+        {
+          "domain": "zocdoc.com",
+          "reason": "access-denied",
+          "status": "unavailable"
+        }
+      ]
+    }
+  ],
+  "dispositions": [
+    {
+      "domain": "cnn.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "navigation-incomplete",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "coinbase.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "automation-blocked",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "drugs.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "automation-blocked",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "etsy.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "access-denied",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "goodrx.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "automation-blocked",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "macys.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "access-denied",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "match.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "automation-blocked",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "mayoclinic.org",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "automation-blocked",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "okcupid.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "automation-blocked",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "reddit.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "access-denied",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "reuters.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "authentication-required",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "wayfair.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "automation-blocked",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    },
+    {
+      "domain": "zocdoc.com",
+      "scanAvailability": {
+        "observedAt": "2026-08-10",
+        "reason": "access-denied",
+        "reviewAfter": "2026-09-07",
+        "status": "temporarily-unavailable",
+        "workflowRunIds": [
+          "30798490888",
+          "31363160441"
+        ]
+      },
+      "status": "deferred"
+    }
+  ],
+  "finalFeaturedSites": {
+    "path": "public/featured-sites.json",
+    "sha256": "13b35f4695b57fab5039046ce0d9cef56185acaa74d7d4442d10e461335cb2bc",
+    "targetsSha256": "c2d834817ff77d3d6cb4022f9f42660099a86aacd1b1327706d89085cebe0e15",
+    "version": 2
+  },
+  "repository": "iAnonymous3000/site-behavior-lab",
+  "schedule": "23 5 * * 1",
+  "schemaVersion": 1,
+  "workflow": ".github/workflows/scan-featured.yml"
+}
