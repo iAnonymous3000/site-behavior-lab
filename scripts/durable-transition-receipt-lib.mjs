@@ -160,6 +160,60 @@ function runFacts(kind, response, { expectedHeadCommit }) {
   };
 }
 
+/**
+ * Derive the governed enable PR's facts from its authenticated API response.
+ *
+ * The other three evidence blocks (ci, promotion, productionHealth) are derived
+ * from captured GitHub responses by `runFacts`, so a caller cannot assert a
+ * conclusion the API did not report. changeControl was the exception: it took
+ * `pullRequestUrl`, `mergeCommit` and `mergedAt` straight from the caller and
+ * only shape-checked them. `mergedAt` is a load-bearing link in the enforced
+ * chronology, so a caller could author the ordering the receipt exists to prove.
+ *
+ * Now it comes from the response, on the same terms: the PR must actually be
+ * merged, into main, on this repository, at the transition commit.
+ */
+function changeControlFacts(changeControl, expectedMergeCommit) {
+  if (!changeControl || typeof changeControl !== "object") {
+    throw new Error("changeControl evidence is missing");
+  }
+  const response = changeControl.pullRequestResponse;
+  if (!response || typeof response !== "object") {
+    throw new Error(
+      "changeControl.pullRequestResponse is missing; the governed pull request must be derived from its authenticated API response, not asserted"
+    );
+  }
+  if (response.merged !== true) {
+    throw new Error("changeControl pull request is not merged");
+  }
+  if (response.base?.ref !== "main") {
+    throw new Error(`changeControl pull request targets ${String(response.base?.ref)}, not main`);
+  }
+  if (response.base?.repo?.full_name !== REPOSITORY) {
+    throw new Error(
+      `changeControl pull request belongs to ${String(response.base?.repo?.full_name)}, not ${REPOSITORY}`
+    );
+  }
+  const mergeCommit = requireSha(response.merge_commit_sha, "changeControl merge_commit_sha");
+  if (mergeCommit !== expectedMergeCommit) {
+    throw new Error(
+      `changeControl pull request merged ${mergeCommit}, not the transition commit ${expectedMergeCommit}`
+    );
+  }
+  const htmlUrl = response.html_url;
+  if (
+    typeof htmlUrl !== "string" ||
+    !new RegExp(`^https://github\\.com/${REPOSITORY}/pull/[1-9][0-9]*$`).test(htmlUrl)
+  ) {
+    throw new Error("changeControl pull request html_url is not a governed pull request on this repository");
+  }
+  return {
+    pullRequestUrl: htmlUrl,
+    mergeCommit,
+    mergedAt: actionsInstant(response.merged_at, "changeControl merged_at")
+  };
+}
+
 /** Derive production health from the run AND its captured health payload. */
 function productionHealthFacts(response, healthPayload, expectedHeadCommit) {
   const run = runFacts("productionHealth", response, { expectedHeadCommit });
@@ -295,20 +349,9 @@ export function buildDurableEnableTransitionReceipt({
     throw new Error("both durable secrets must be observed present before the transition");
   }
 
-  if (!changeControl || typeof changeControl !== "object") {
-    throw new Error("changeControl evidence is missing");
-  }
-  const pullRequestUrl = changeControl.pullRequestUrl;
-  if (
-    typeof pullRequestUrl !== "string" ||
-    !new RegExp(`^https://github\\.com/${REPOSITORY}/pull/[1-9][0-9]*$`).test(pullRequestUrl)
-  ) {
-    throw new Error("changeControl.pullRequestUrl must be a governed pull request on this repository");
-  }
-  if (changeControl.mergeCommit !== to) {
-    throw new Error("changeControl.mergeCommit must be the transition commit");
-  }
-  const mergedAt = canonicalInstant(changeControl.mergedAt, "changeControl.mergedAt");
+  // mergeCommit is re-derived inside and checked against `to`, so the receipt
+  // takes `to` itself rather than carrying a second copy of the same value.
+  const { pullRequestUrl, mergedAt } = changeControlFacts(changeControl, to);
 
   const ci = runFacts("ci", ciRun, { expectedHeadCommit: to });
 
