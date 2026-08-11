@@ -33,6 +33,7 @@ import {
   HISTORICAL_PAGEGRAPH_R2_DETECTOR_VERSION,
   HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS,
   HISTORICAL_PAGEGRAPH_R2_METHODOLOGY_VERSION,
+  HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY,
   NODE_R2_PRODUCER_TUPLES,
   PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
   PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
@@ -133,7 +134,8 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-ec26-no-adblock",
       "node-v4-6c78-tldts749-lists-2026-07-25",
       "node-v4-6c78-tldts749-no-adblock",
-      "node-v4-6c78-tldts7410-active-lists-2026-08-04",
+      "node-v4-6c78-tldts7410-lists-2026-08-04",
+      "node-v4-6c78-tldts7410-active-lists-2026-08-11",
       "node-v4-6c78-tldts7410-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
@@ -187,6 +189,13 @@ test("Node producer rows are complete, immutable, and individually replayable", 
   assert.deepEqual(
     historicalWithLists?.adblockIdentity,
     HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_ADBLOCK_IDENTITY
+  );
+  const historicalAugustLists = NODE_R2_PRODUCER_TUPLES.find(
+    (tuple) => tuple.id === "node-v4-6c78-tldts7410-lists-2026-08-04"
+  );
+  assert.deepEqual(
+    historicalAugustLists?.adblockIdentity,
+    HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY
   );
   assert.deepEqual(
     historicalAccountability?.publicLimits,
@@ -424,7 +433,7 @@ test("one-field Node substitutions cannot synthesize an unreviewed producer", ()
     ["adblock lists", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.lists += 1; }],
     // One millisecond off the active snapshot: a near-miss list identity is not
     // a reviewed producer row.
-    ["adblock fetchedAt", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.fetchedAt = "2026-08-04T00:19:10.560Z"; }],
+    ["adblock fetchedAt", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.fetchedAt = "2026-08-11T18:35:37.417Z"; }],
     ["adblock digest", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.manifestDigest = "0".repeat(64); }],
     ["adblock engine", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.engineVersion += "-mixed"; }],
     ["source artifact", (run) => { run.provenance.sourceArtifactDigest = "0".repeat(64); }],

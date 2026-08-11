@@ -240,6 +240,23 @@ export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_SERVICE_ROLE_TAXONOMY = Object.f
   digest: "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
 });
 
+/**
+ * Exact Node producer identity that published the 2026-08-04 Brave snapshot.
+ * The normalization did not move during the list refresh, but this row is now
+ * closed and therefore pins literal methodology and normalization values.
+ */
+export const HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION =
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
+export const HISTORICAL_NODE_R2_2026_08_04_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
+export const HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-08-04T00:19:10.559Z",
+  manifestDigest: "b2cf156c01921a699eda150d61b356364e7916b3cad30031732f36ea34632140",
+  engineVersion: "adblock-rust-0.13.2"
+} satisfies NonNullable<Toolchain["adblock"]>);
+
 const NODE_V3_NORMALIZATION =
   "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1";
 const NODE_V3_MIGRATED_NORMALIZATION = `${NODE_V3_NORMALIZATION}+v3-to-v4-ip-port-title@1`;
@@ -352,8 +369,8 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-08-04T00:19:10.559Z",
-  manifestDigest: "b2cf156c01921a699eda150d61b356364e7916b3cad30031732f36ea34632140",
+  fetchedAt: "2026-08-11T18:35:37.416Z",
+  manifestDigest: "c16dadd4e9966e3c72e2dc6d29c6d2975f212a850563358043d57fcddd082a6e",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -644,7 +661,7 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v4-6c78-tldts7410-active-lists-2026-08-04",
+        "node-v4-6c78-tldts7410-active-lists-2026-08-11",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -855,6 +872,13 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION,
     HISTORICAL_SERVICE_ROLE_V1_FIELDS,
     null
+  ),
+  nodeTuple(
+    "node-v4-6c78-tldts7410-lists-2026-08-04",
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_NODE_R2_2026_08_04_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY
   ),
   ...ACTIVE_NODE_TUPLES
 ]);
