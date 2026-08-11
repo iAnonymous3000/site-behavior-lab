@@ -125,6 +125,10 @@ test("featured transient retries stay bounded and classify only explicit transie
   );
   assert.equal(featuredScanRetryReason("Skipping scan target: primary arm returned HTTP 429."), "HTTP 429");
   assert.equal(featuredScanRetryReason("fetch failed: UND_ERR_SOCKET"), "transport failure");
+  assert.equal(
+    featuredScanRetryReason("page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://example.com/"),
+    "transport failure"
+  );
   assert.equal(featuredScanRetryReason("Scanner queue is full. Try again shortly."), "scanner capacity");
 
   assert.equal(featuredScanRetryReason("Skipping scan target: landing page title matches a bot-block/challenge page."), null);
