@@ -8,8 +8,8 @@ abstract: "Evidence-first web transparency tooling for reproducible, privacy-red
 repository-code: "https://github.com/iAnonymous3000/site-behavior-lab"
 url: "https://sitebehavior.org"
 license: "AGPL-3.0-or-later"
-version: "0.4.0"
-date-released: "2026-08-01"
+version: "0.5.0"
+date-released: "2026-08-11"
 keywords:
   - web transparency
   - privacy
