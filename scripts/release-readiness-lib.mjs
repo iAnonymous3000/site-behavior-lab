@@ -22,10 +22,8 @@
 // skips. A crash in one evidence source is that gate's failure, never the
 // evaluator's.
 import {
-  copyFileSync,
   existsSync,
   mkdtempSync,
-  mkdirSync,
   readdirSync,
   readFileSync,
   rmSync
@@ -1269,11 +1267,6 @@ process.once("exit", () => {
     if (entry?.output) rmSync(entry.output, { recursive: true, force: true });
   }
 });
-
-function freshCompiledOutput(rootDir) {
-  freshCompiledSchemaModules(rootDir);
-  return freshCompiledCache.get(rootDir)?.output ?? null;
-}
 
 function loadCompiled(name, rootDir = process.cwd()) {
   const fresh = freshCompiledSchemaModules(rootDir);

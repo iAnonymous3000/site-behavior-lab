@@ -23,7 +23,6 @@ const [target, ...forwarded] = process.argv.slice(2);
 const TARGETS = {
   "aggregate-v2-shadow": ["dist", "schema", "lib", "aggregate-v2-shadow-cli.js"],
   "calibration-acquire": ["scripts", "calibration-study-acquire.mjs"],
-  "calibration-archive": ["scripts", "calibration-study-archive.mjs"],
   "calibration-assemble": ["scripts", "calibration-study-assemble.mjs"],
   "calibration-finalize": ["scripts", "calibration-study-finalize.mjs"],
   "calibration-preflight": ["scripts", "calibration-study-preflight.mjs"],

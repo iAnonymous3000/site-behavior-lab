@@ -114,18 +114,6 @@ function positiveInteger(value, label, maximum = Number.MAX_SAFE_INTEGER) {
   return parsed;
 }
 
-function text(value, label, maximum = 1000) {
-  requireValue(
-    typeof value === "string" &&
-      value.length > 0 &&
-      value.length <= maximum &&
-      value.trim() === value &&
-      !/[\u0000-\u001f\u007f-\u009f]/.test(value),
-    `${label} must be canonical bounded text`
-  );
-  return value;
-}
-
 function strictJson(buffer, label) {
   let decoded;
   try {

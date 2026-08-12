@@ -6,7 +6,6 @@ import {
   DURABLE_SCAN_JOB_READ_GLOBAL_RATE_LIMIT_PER_MINUTE,
   PUBLIC_SCAN_GLOBAL_RATE_LIMIT_PER_MINUTE,
   PUBLIC_SCAN_RATE_LIMIT_CLEANUP_MAX_ROWS,
-  SCAN_ADMISSION_RECOVERY_CLEANUP_MAX_ROWS,
   SCAN_ADMISSION_RECOVERY_GLOBAL_RATE_LIMIT_PER_MINUTE,
   assertPublicScanRateLimitCharge,
   chargePublicScanRateLimit,
@@ -246,7 +245,7 @@ test("admission-recovery cleanup performs bounded work per request", () => {
     const insert = database.prepare(
       "INSERT INTO public_scan_rate_limits (bucket, used, expires_at) VALUES (?, 1, 60000)"
     );
-    const expiredRows = SCAN_ADMISSION_RECOVERY_CLEANUP_MAX_ROWS + 17;
+    const expiredRows = PUBLIC_SCAN_RATE_LIMIT_CLEANUP_MAX_ROWS + 17;
     for (let index = 0; index < expiredRows; index += 1) insert.run(`expired/${index}`);
 
     assert.deepEqual(chargeScanAdmissionRecoveryRateLimit(sql, CLIENT_HASH, 60_001), {
@@ -257,7 +256,7 @@ test("admission-recovery cleanup performs bounded work per request", () => {
         `EXPLAIN QUERY PLAN SELECT bucket FROM public_scan_rate_limits
          WHERE expires_at <= ?
          ORDER BY expires_at ASC, bucket ASC
-         LIMIT ${SCAN_ADMISSION_RECOVERY_CLEANUP_MAX_ROWS}`
+         LIMIT ${PUBLIC_SCAN_RATE_LIMIT_CLEANUP_MAX_ROWS}`
       )
       .all(60_001)
       .map((row) => String(row.detail));
@@ -270,7 +269,7 @@ test("admission-recovery cleanup performs bounded work per request", () => {
       database
         .prepare("SELECT COUNT(*) AS count FROM public_scan_rate_limits WHERE expires_at <= ?")
         .get(60_001)?.count,
-      expiredRows - SCAN_ADMISSION_RECOVERY_CLEANUP_MAX_ROWS
+      expiredRows - PUBLIC_SCAN_RATE_LIMIT_CLEANUP_MAX_ROWS
     );
   });
 });

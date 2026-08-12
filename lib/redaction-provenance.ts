@@ -47,11 +47,6 @@ export function committedSidecarFilename(reportId: string): string {
   return `${reportId}.provenance.json`;
 }
 
-/** Sidecar key beside an R2 report object key. */
-export function r2SidecarKey(reportKey: string): string {
-  return `${reportKey}.provenance.json`;
-}
-
 export function buildProvenanceEntry(input: {
   reportId: string;
   publicReport: unknown;

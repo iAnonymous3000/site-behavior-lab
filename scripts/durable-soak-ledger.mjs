@@ -117,18 +117,6 @@ function canonicalInstant(value, label) {
   return value;
 }
 
-function actionsInstant(value, label) {
-  requireValue(
-    typeof value === "string" &&
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(
-        value
-      ) &&
-      Number.isFinite(Date.parse(value)),
-    `${label} must be an Actions UTC instant`
-  );
-  return new Date(value).toISOString();
-}
-
 function digest(value, label) {
   const normalized =
     typeof value === "string"

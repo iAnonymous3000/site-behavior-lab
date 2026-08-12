@@ -15,7 +15,6 @@ import {
 } from "./report-resource-limits";
 import type { ReadStoredScanReportError, StoredScanReport } from "./scan-report-reader";
 import { parseStrictJson } from "./strict-json";
-import { acquireReportCorpusLock } from "./report-corpus-lock";
 
 const STATIC_REPORT_FILE_PATTERN = /^([0-9]{8}-[0-9a-f]{32})\.json$/;
 const STATIC_SIDECAR_FILE_PATTERN = /^([0-9]{8}-[0-9a-f]{32})\.provenance\.json$/;
@@ -168,17 +167,6 @@ export async function readStaticReportBundle(
     wire: managed.wire,
     provenance: managed.provenance
   };
-}
-
-/** Sidecar first, report second; both absences are verified before success. */
-export async function removeStaticReportBundle(reportsDir: string, id: string): Promise<void> {
-  if (!REPORT_ID_PATTERN.test(id)) throw new Error(`Invalid static report id: ${id}`);
-  const lock = await acquireReportCorpusLock(reportsDir, `remove-${id}`);
-  try {
-    await removeStaticReportBundleUnderLock(reportsDir, id);
-  } finally {
-    await lock.release();
-  }
 }
 
 /**
