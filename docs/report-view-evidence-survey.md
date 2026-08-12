@@ -726,9 +726,10 @@ bounded seven-day Workers Observability dashboard query returned 80 visible
 `/api/health` matches spanning dashboard timestamps `2026-07-22 18:23` through
 `2026-07-29 11:25`; a separate `/reports/` query returned eight visible matches
 spanning `2026-07-22 13:04` through `2026-07-29 11:42`, all with report
-identifiers redacted. These point-in-time receipts close the WAF and historical
-log-query follow-ups for this release; capture fresh receipts for later
-releases. The independently authenticated fixed-prefix R2 delete canary is
+identifiers redacted. These point-in-time receipts are not committed as
+canonical evidence, so the `waf-ceilings` and `log-retention` release gates
+both still report open; re-capture them for any release that needs those gates
+closed. The independently authenticated fixed-prefix R2 delete canary is
 active and required for this deployment: its direct smoke and required
 Production Health run 30483261603 both created, read, deleted, and proved
 absence for one isolated health object. A platform-compatible independent

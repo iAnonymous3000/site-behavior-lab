@@ -99,6 +99,25 @@ byte-immutable.
 
 ### Fixed
 
+- Consent probes no longer submit a scanned site's form when an accept/reject
+  control is also a submit control, and an interrupted post-click settle can no
+  longer be rewritten as "nothing was clicked." Credentialed scan URLs are
+  refused before leaving the browser, IPv6 protocol space now defaults closed
+  around its exact globally reachable exceptions, and durable preparation
+  releases are fenced to the reservation they actually hold.
+- Machine-readable report metadata now names the automation that produced the
+  report instead of hard-coding Chromium for PageGraph imports. The featured
+  catalog validator also enforces the full committed `scanAvailability`
+  contract rather than accepting malformed entries that fail later in CI.
+- Removed 1,541 lines across 13 verified-dead paths, including a superseded
+  calibration archive launcher and report-removal wrapper, while retaining the
+  duplicate-looking controls and helpers that still have real consumers.
+- Reader and operator documentation no longer describes open WAF/log gates as
+  closed, an anchored transparency-log prefix as total coverage, review-only
+  blind spots as test-enforced, or conditional input-probe disclosures as
+  universal. Source-derived guards now hold those claims, every accepted scan
+  token header, active methodology suffix, and referenced path/script to the
+  contracts they describe.
 - Printed reports dropped the standing scope caveat, the causal map's text
   equivalent, and the capped-evidence qualifiers, while printing search boxes
   and filter selects into the middle of the evidence. A printed comparison also

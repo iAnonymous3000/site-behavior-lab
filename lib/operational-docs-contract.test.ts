@@ -80,9 +80,16 @@ test("current operator docs record the fresh WAF and seven-day log receipts", ()
       document,
       /(?:write\/read\/delete\/absence|created,\s+read,\s+deleted,\s+and proved\s+absence)/i
     );
+    // The contract is that these receipts are described as point-in-time AND
+    // that the reader is told to re-capture them. It is deliberately NOT a
+    // pin on the surrounding sentence: this assertion previously matched
+    // wording which claimed the follow-ups were closed, so correcting that
+    // false claim broke the guard rather than the guard catching it.
+    assert.match(document, /point-in-time receipts/i);
     assert.match(
       document,
-      /point-in-time receipts[\s\S]{0,180}(?:capture fresh receipts|re-capture them)/i
+      /(?:capture fresh receipts|re-capture them)/i,
+      "operator docs must tell the reader these receipts need re-capturing"
     );
     assert.match(document, /independent\s+egress backstop/i);
     assert.doesNotMatch(document, /fresh historical seven-day[\s\S]{0,60}(?:required|pending)/i);
