@@ -13,7 +13,7 @@ import {
   Radar,
   Shield
 } from "lucide-react";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { Fragment, lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   PageGraphR2UploadButton,
   ReportUploadButton,
@@ -39,6 +39,7 @@ import { committedReportLocation } from "@/lib/report-locator";
 import { HEADLINE_PLATFORMS } from "@/lib/report-insights";
 import { humanList } from "@/lib/text-format";
 import { scanJobProgressCopy } from "@/lib/scan-job-progress";
+import { SITE_TRUST_LINKS } from "@/lib/site-navigation";
 import {
   LatestClientOperation,
   MAX_DIRECTORY_JSON_BYTES,
@@ -476,35 +477,20 @@ export function SiteBehaviorApp({
         </main>
 
         <footer className="app-footer">
+          {/* Rendered from the shared list, not a second hand-written copy.
+              The copy this replaced had drifted: it omitted /about/, so the
+              page explaining what this project is was reachable from every
+              other page and not from the front door. */}
           <span>
             Site Behavior Lab: open-source web transparency tooling.{" "}
-            <a className="footer-link" href={staticAssetPath("/glossary/")}>
-              Glossary
-            </a>
-            {" · "}
-            <a className="footer-link" href={staticAssetPath("/methodology/")}>
-              Methodology
-            </a>
-            {" · "}
-            <a className="footer-link" href={staticAssetPath("/privacy/")}>
-              Privacy
-            </a>
-            {" · "}
-            <a className="footer-link" href={staticAssetPath("/catalog/")}>
-              Catalog
-            </a>
-            {" · "}
-            <a className="footer-link" href={staticAssetPath("/status/")}>
-              Status
-            </a>
-            {" · "}
-            <a className="footer-link" href={staticAssetPath("/security/")}>
-              Security
-            </a>
-            {" · "}
-            <a className="footer-link" href={staticAssetPath("/corrections/")}>
-              Corrections
-            </a>
+            {SITE_TRUST_LINKS.map((link, index) => (
+              <Fragment key={link.href}>
+                {index > 0 ? " · " : null}
+                <a className="footer-link" href={staticAssetPath(link.href)}>
+                  {link.label}
+                </a>
+              </Fragment>
+            ))}
           </span>
           <span>
             Reports use one completed automated visit per condition. On restart-safe deployments, an interrupted visit
