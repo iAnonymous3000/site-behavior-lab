@@ -356,6 +356,9 @@ async function main() {
   console.log(
     `Captured ${relativeOutput}; set RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256=${digest}`
   );
+  console.log(
+    "Next: review and commit this receipt; wait for that carrier commit to reach both main and production; set the repository selector to the printed digest; then dispatch the carrier commit, not the earlier version-declaration commit."
+  );
 }
 
 main().catch((error) => {

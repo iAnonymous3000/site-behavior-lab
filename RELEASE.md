@@ -19,6 +19,9 @@ machine-readable source of the current status is
 The current release is `v0.4.0`, tagged 2026-08-02, with its receipt durably
 archived at
 [`docs/release-receipts/0.4.0/release-receipt.json`](docs/release-receipts/0.4.0/release-receipt.json).
+The source policy currently declares `v0.5.0`, but that version is not a
+release until the governed tag ceremony succeeds. Do not describe the policy
+declaration by itself as a published release.
 
 One historical failure is worth keeping on the record because its recovery
 path is the template for any future tag-ceremony failure. The first
@@ -69,10 +72,18 @@ created only after the revision it names is already promoted:
    npm run supply-chain:third-party:check
    ```
 2. Let CI go green and let the promotion job advance `production`.
-3. Run the **Cut Release Tag** workflow with that version **and the exact
-   40-character SHA to tag**. Both inputs are required: a dispatch runs at
-   whatever the branch tip happens to be, and inferring the revision from the
-   tip or from the version declaration would both guess at something you know.
+3. Complete the governance-carrier sequence described below before dispatch:
+   configure the distinct release App and creation-only ruleset; install
+   `RELEASE_APP_PRIVATE_KEY` only on `release-tag`; capture the fresh receipt;
+   commit its content-addressed file; and let that carrier commit pass CI and
+   reach both `main` and `production`. Then set
+   `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256` to that receipt's digest.
+4. Run the **Cut Release Tag** workflow with that version **and the exact
+   40-character governance-carrier SHA to tag**. The SHA is normally later than
+   the version-declaration commit because the selected receipt must exist in
+   the tree being tagged. Both inputs are required: a dispatch runs at whatever
+   the branch tip happens to be, and inferring the revision from the tip or
+   from the version declaration would both guess at something you know.
    The workflow then checks out that exact revision and, against it, re-verifies
    the policy, refuses to move an existing tag, requires the revision to contain
    the commit that declared the version (disclosing how many later commits the
@@ -158,6 +169,11 @@ created only after the revision it names is already promoted:
    release workflow's current-repository-scoped token as proof of the
    underlying installation scope.
 
+   Install the release App private key **before capture**, only as the
+   `RELEASE_APP_PRIVATE_KEY` secret on `release-tag`. The producer records a
+   point-in-time secret-name inventory and refuses if that name is missing from
+   the environment or exists at repository or applicable organization scope.
+
    Inject the three short-lived credentials from a secret manager, or enter
    them silently in a disposable subshell. Never put their values in command
    arguments, inline assignments, or shell history:
@@ -192,10 +208,15 @@ created only after the revision it names is already promoted:
 
    The capture writes the canonical receipt once at
    `research/ops-receipts/release-tag-governance/<sha256>.json`; it will not
-   overwrite an existing path. Review that receipt, add it as category
-   `release-tag-governance-receipt` with change `added` and the same path and
-   digest in `research/measurement-candidate-binding.json`, and commit both
-   together. Configure the GitHub Actions `vars` selector
+   overwrite an existing path. Review that receipt. For a governed `0.x`
+   release, commit the new receipt as an add-only evidence carrier; the
+   measurement-candidate binding is explicitly not required. For exact `1.0.0`
+   or `1.0.0-rc.N`, capture only after candidate `C` is selected, add the
+   receipt as category `release-tag-governance-receipt` with change `added`
+   and the same path and digest in
+   `research/measurement-candidate-binding.json`, and commit both together.
+   Let the resulting carrier commit pass every required CI job and reach both
+   `main` and `production`. Configure the GitHub Actions `vars` selector
    `RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256` at repository or organization scope
    with the printed digest. Do not configure it only on the `release-tag`
    environment: `prepare` deliberately runs before any environment is entered.
@@ -207,6 +228,20 @@ created only after the revision it names is already promoted:
    RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256=<receipt-sha256> \
      npm run release:readiness
    ```
+
+   Before opening the workflow UI, verify the exact carrier selection locally:
+
+   ```bash
+   npm run release:governance:verify-selection -- \
+     --commit <full-governance-carrier-sha> \
+     --receipt-sha256 <receipt-sha256>
+   ```
+
+   Dispatch that verified carrier SHA, not the earlier version-declaration
+   SHA. The workflow repeats this check in its read-only `prepare` job before
+   the protected environment can ask for approval; the privileged tag job then
+   repeats the authoritative live App, ruleset, secret-scope, and receipt
+   checks before creating the tag.
 
    The static `RELEASE_READINESS.json` descriptor names that external selector
    and add-only directory, so no ceremony-time manifest edit is permitted. The
