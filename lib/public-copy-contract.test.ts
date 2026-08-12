@@ -141,7 +141,7 @@ test("a rejected URL stays a field problem instead of erasing the homepage", () 
   // exists for is unchanged: the message lands in the FIELD error, so match the
   // text wherever in the call it sits instead of pinning the call's shape.
   assert.match(submit, /"Enter a valid public URL/);
-  assert.match(submit, /username or password[^"]*nothing was sent/);
+  assert.match(submit, /username and password from the URL; nothing was sent/);
   assert.doesNotMatch(submit, /setError\(/, "URL validation must not raise the scan-recovery banner");
 });
 

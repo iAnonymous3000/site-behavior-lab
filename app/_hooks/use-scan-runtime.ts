@@ -11,7 +11,11 @@ import {
   STATIC_LIVE_SCAN_ENABLED,
   scannerApiUrl
 } from "../client-runtime";
-import { hasUrlCredentials, normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
+import {
+  CREDENTIALED_URL_PATTERN,
+  normalizeScanUrl,
+  resolveScanPrefillNavigation
+} from "@/lib/scan-prefill";
 import {
   ACTIVE_SCAN_SESSION_MAX_AGE_MS,
   clearActiveScanSession,
@@ -780,8 +784,8 @@ export function useScanRuntime({
       // Someone who pasted a URL containing a password needs to know the
       // password was the problem, and that it was never sent.
       setUrlError(
-        hasUrlCredentials(trimmed)
-          ? "That URL contains a username or password. Remove them and scan the plain address; nothing was sent."
+        CREDENTIALED_URL_PATTERN.test(trimmed)
+          ? "Remove the username and password from the URL; nothing was sent."
           : "Enter a valid public URL, for example https://example.com."
       );
       window.requestAnimationFrame(() => document.getElementById("url")?.focus());

@@ -26,21 +26,16 @@ export function isScannableHostname(hostname: string): boolean {
 }
 
 /**
- * Whether a typed value carries userinfo, so the caller can say WHY it was
- * refused. Kept next to the normalizer that rejects it, and deliberately
- * tolerant: an unparsable value is not a credential claim.
+ * Userinfo in the authority, for telling a refused visitor WHY.
+ *
+ * A regex rather than a URL parse, and exported as a pattern rather than a
+ * function, because this reaches the homepage bundle and that bundle has an
+ * enforced gzip budget: the parsing version cost 112 bytes more than the
+ * budget allowed. The authoritative rejection is still the `username ||
+ * password` check inside normalizeScanUrl below, which parses properly; this
+ * only picks the message.
  */
-export function hasUrlCredentials(value: string): boolean {
-  const trimmed = value.trim();
-  if (!trimmed) return false;
-  const withScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//.test(trimmed) ? trimmed : `https://${trimmed}`;
-  try {
-    const parsed = new URL(withScheme);
-    return Boolean(parsed.username || parsed.password);
-  } catch {
-    return false;
-  }
-}
+export const CREDENTIALED_URL_PATTERN = /^(?:[a-zA-Z][\w+.-]*:\/\/)?[^/?#]*@/;
 
 export function normalizeScanUrl(value: string): string | null {
   const trimmed = value.trim();
