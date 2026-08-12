@@ -136,9 +136,7 @@ test("a rejected URL stays a field problem instead of erasing the homepage", () 
   // next successful scan.
   assert.match(home, /!loaded && !loading && !error && !pendingScanAdmission && \(\s*<CorpusHero/);
   assert.match(submit, /setUrlError\("Enter a public URL to scan/);
-  // One message, not two: a dedicated credential branch did not fit the
-  // homepage byte budget, so the existing sentence names credentials instead.
-  assert.match(submit, /setUrlError\("Enter a valid public URL with no username or password/);
+  assert.match(submit, /setUrlError\("Enter a valid public URL/);
   assert.doesNotMatch(submit, /setError\(/, "URL validation must not raise the scan-recovery banner");
 });
 

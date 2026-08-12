@@ -39,14 +39,9 @@ test("a URL carrying credentials is refused in the browser, before any request",
     "https://example.com/path"
   );
 
-  // The refusal is named in the one existing message rather than a second
-  // string plus a detector: the homepage bundle has an enforced gzip budget and
-  // a dedicated branch did not fit. The security property is unconditional
-  // above; this only makes the reason legible.
-  assert.match(
-    readFileSync(path.join(root, "app/_hooks/use-scan-runtime.ts"), "utf8"),
-    /Enter a valid public URL with no username or password/
-  );
+  // No credential-specific message: the homepage gzip budget had no room for
+  // one. The refusal itself is unconditional above, which is the property that
+  // matters, and this asserts the client cannot be made to send one anyway.
   // An @ in a path or query is not userinfo and must still scan.
   assert.equal(normalizeScanUrl("https://example.com/a@b"), "https://example.com/a@b");
 });

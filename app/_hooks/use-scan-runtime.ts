@@ -776,13 +776,16 @@ export function useScanRuntime({
     const normalized = normalizeScanUrl(trimmed);
     if (!normalized) {
       setUrlNotice("");
-      // Credentials are named in the ONE existing message rather than getting
-      // a second string plus a detector: this runs in the homepage bundle,
-      // which has an enforced gzip budget, and a branch cost more than the
-      // budget had. Rewording the existing sentence costs the length
-      // difference alone. The refusal itself is unconditional in
-      // normalizeScanUrl, so a password still never leaves the browser.
-      setUrlError("Enter a valid public URL with no username or password, for example https://example.com.");
+      // Deliberately the SAME sentence a malformed URL gets, and deliberately
+      // no credential-specific branch. This runs in the homepage bundle, whose
+      // enforced gzip budget had 0 bytes of headroom for one: naming the case
+      // cost more than the budget allowed, twice, measured on the runner.
+      //
+      // Nothing about the refusal depends on this text. normalizeScanUrl
+      // rejects any URL carrying userinfo unconditionally, so the password
+      // never leaves the browser either way; only the reason shown is generic.
+      // Worth revisiting the moment the homepage bundle has room.
+      setUrlError("Enter a valid public URL, for example https://example.com.");
       window.requestAnimationFrame(() => document.getElementById("url")?.focus());
       return;
     }
