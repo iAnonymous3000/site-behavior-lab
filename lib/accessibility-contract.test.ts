@@ -556,10 +556,18 @@ test("the homepage checklist describes the checks the report actually runs", () 
   );
   assert.match(home, /humanList\(\s*HEADLINE_PLATFORMS,\s*HEADLINE_PLATFORMS\.length\s*\)/);
 
-  // And the constant it derives from is the one the report reads.
-  const insights = source("lib/report-insights.ts");
-  const declared = insights.match(/export const HEADLINE_PLATFORMS = \[([^\]]*)\]/);
+  // And the constant it derives from is the one the report reads. It lives in
+  // its own module so importing it does not pull the whole report-insights
+  // graph into the homepage bundle; report-insights re-exports it, so every
+  // other consumer is unchanged.
+  const declaration = source("lib/headline-platforms.ts");
+  const declared = declaration.match(/export const HEADLINE_PLATFORMS = \[([^\]]*)\]/);
   assert.ok(declared, "HEADLINE_PLATFORMS must stay a literal this test can read");
+  assert.match(
+    source("lib/report-insights.ts"),
+    /export \{ HEADLINE_PLATFORMS \} from "\.\/headline-platforms";/,
+    "report-insights must keep re-exporting it for its existing consumers"
+  );
   const platforms = declared[1].split(",").map((name) => name.trim().replace(/^"|"$/g, "")).filter(Boolean);
   assert.ok(platforms.length >= 4, "expected the shared platform list to be non-trivial");
   const findings = source("lib/report-findings.ts");

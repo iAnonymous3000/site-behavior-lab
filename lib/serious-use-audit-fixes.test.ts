@@ -252,3 +252,45 @@ test("the degraded-run notice scopes its lower-bound claim to what was censored"
     "a run whose other families completed must not be told every count is a floor"
   );
 });
+
+/**
+ * A multi-page evidence document with no bookmarks is navigated by scrolling,
+ * which is how a reader misses the interpretation limits sitting between the
+ * summary and the tables. An untagged PDF also gives a screen reader no
+ * reading order or table structure, which contradicts the accessibility this
+ * project already enforces on screen.
+ *
+ * Both are single Playwright options that were simply never enabled. Verified
+ * in a real render: the output gained /Outlines with 35 entries plus
+ * /StructTreeRoot and /MarkInfo.
+ */
+test("the exported PDF is navigable and tagged", () => {
+  const pdf = source("lib/report-pdf.ts");
+  // Bound the slice FROM the call site: assertRenderedPdfWithinCeiling is also
+  // defined earlier in the file, so an unanchored indexOf returns a position
+  // before the call and yields an empty slice that matches nothing.
+  const start = pdf.indexOf("await opened.pdf({");
+  const call = pdf.slice(start, pdf.indexOf("});", start));
+  assert.ok(call.length > 0, "the pdf() call must still be findable");
+  assert.match(call, /outline: true/, "bookmarks come from the document's own headings");
+  assert.match(call, /tagged: true/, "a screen reader needs the structure tree");
+  // The structural type must admit them, or production silently drops both.
+  assert.match(pdf, /outline: boolean;/);
+  assert.match(pdf, /tagged: boolean;/);
+});
+
+/**
+ * `overflow-wrap: anywhere` is correct for a long URL and wrong for a value
+ * with a unit: it split "1,234ms" between the number and "ms". And with
+ * table-layout: fixed and no width hints, seven columns divided the page
+ * evenly, so URLs shattered across many lines.
+ */
+test("the printed request log keeps units whole and gives the URL column room", () => {
+  const css = source("app/globals.css");
+  const print = css.slice(css.indexOf("@media print"));
+  assert.match(print, /\.request-table td\.time-cell[\s\S]{0,200}white-space: nowrap/);
+  assert.match(print, /\.request-table td\.time-cell[\s\S]{0,200}overflow-wrap: normal/);
+  assert.match(print, /\.request-table td\.url-cell[\s\S]{0,80}width: 4\d%/);
+  // The class the rule targets must exist on the cell it means to reach.
+  assert.match(source("app/_components/report-tables.tsx"), /className="mono time-cell"/);
+});

@@ -319,7 +319,7 @@ function RequestTable({
                 request id can legitimately appear in several phases. */}
             {shown.map((request, index) => (
               <tr key={`${request.id}:${index}`}>
-                <td className="mono" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
+                <td className="mono time-cell" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
                 {hasPhases && (
                   <td data-label="Phase">
                     {requestPhaseLabel(request, phaseLabels)}
