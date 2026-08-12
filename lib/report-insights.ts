@@ -37,7 +37,7 @@ import type {
  */
 
 /** Recognizable platforms that make the strongest plain-language headline. */
-export const HEADLINE_PLATFORMS = ["Google", "Meta", "TikTok", "X", "Microsoft", "LinkedIn", "Pinterest"];
+export { HEADLINE_PLATFORMS } from "./headline-platforms";
 
 const HIGH_ENTROPY_FINGERPRINT_KINDS = new Set<FingerprintDetectionSummary["kind"]>([
   "canvas-fingerprinting",
