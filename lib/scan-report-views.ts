@@ -1391,7 +1391,17 @@ export function degradedRunNotice(view: ReportView): string | null {
       `evidence was cut short before completion (${reasons.slice(0, 2).join("; ")}${reasons.length > 2 ? `; and ${reasons.length - 2} more` : ""})`
     );
   }
-  return `Incomplete evidence: ${parts.join(", and ")}. Counts below are lower bounds for a visit that did not finish, so an absence here is especially weak evidence. The evidence receipt states the exact per-visit quality.`;
+  // "Counts below are lower bounds" is only true of the families that were
+  // actually censored. Saying it unconditionally told readers of a run whose
+  // requests, cookies, storage and fingerprinting all COMPLETED that every
+  // number was a floor, because one detector did not finish. That is the same
+  // overgeneralisation this project keeps fixing elsewhere: a real per-family
+  // fact widened into a claim the evidence does not support.
+  const lowerBoundClause =
+    failed.length > 0
+      ? "Counts below are lower bounds for a visit that did not finish, so an absence here is especially weak evidence."
+      : `Counts for the affected evidence are lower bounds, so an absence there is especially weak evidence; families that completed carry only their ordinary coverage limits.`;
+  return `Incomplete evidence: ${parts.join(", and ")}. ${lowerBoundClause} The evidence receipt states the exact per-visit quality.`;
 }
 
 export function runQualitySummary(run: RunView): string {

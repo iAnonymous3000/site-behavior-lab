@@ -136,7 +136,11 @@ test("Shields display facts follow engine readback instead of configured mode", 
   assert.deepEqual(shieldsRunMeasurement(run), {
     kind: "filter-matches",
     count: 3,
-    origin: "recorded"
+    origin: "recorded",
+    // The evaluated denominator travels with the count. Pairing the count with
+    // the retained request total instead described a ratio over requests the
+    // engine never evaluated.
+    evaluated: 12
   });
   assert.equal(
     shieldsRunMeasurement({
@@ -153,7 +157,7 @@ test("Shields display facts follow engine readback instead of configured mode", 
       conditions: { adblockActive: true, shieldsMode: "classification" },
       verificationFacts: null
     }),
-    { kind: "filter-matches", count: 3, origin: "legacy-derived" }
+    { kind: "filter-matches", count: 3, origin: "legacy-derived", evaluated: null }
   );
   assert.deepEqual(
     shieldsRunMeasurement({
@@ -161,7 +165,7 @@ test("Shields display facts follow engine readback instead of configured mode", 
       conditions: { adblockActive: true, shieldsMode: "block-simulation" },
       verificationFacts: null
     }),
-    { kind: "engine-blocked", count: 7, origin: "legacy-derived" }
+    { kind: "engine-blocked", count: 7, origin: "legacy-derived", evaluated: null }
   );
 });
 

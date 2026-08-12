@@ -225,7 +225,7 @@ test("a v2 run that pinned no filter lists never reads as an active engine", () 
   assert.notEqual(loaded.run.toolchain.adblock, null);
   const loadedRun = viewFromV2(loaded, 1).runs[0];
   assert.equal(loadedRun.conditions.adblockActive, true);
-  assert.deepEqual(shieldsRunMeasurement(loadedRun), { kind: "filter-matches", count: 0, origin: "legacy-derived" });
+  assert.deepEqual(shieldsRunMeasurement(loadedRun), { kind: "filter-matches", count: 0, origin: "legacy-derived", evaluated: null });
 
   // Same wire, same requested condition, engine never loaded.
   const neverLoaded = makePublicSingleReportV2();

@@ -344,6 +344,18 @@ export type ShieldsRunMeasurement = {
    * verification facts are precisely what is missing.
    */
   origin: "recorded" | "legacy-derived";
+  /**
+   * How many requests the engine actually EVALUATED, when the run recorded it.
+   *
+   * This is the only honest denominator for `count`. The retained request total
+   * is a different population: evaluation happens at the passive-load boundary,
+   * while later "straggler" rows are retained but deliberately not folded into
+   * the frozen counter. Pairing the matched count with the retained total
+   * therefore reads as a ratio over requests that were never evaluated.
+   *
+   * Null on a legacy-derived measurement, which carries no evaluation record.
+   */
+  evaluated: number | null;
 };
 
 /**
@@ -369,15 +381,26 @@ export function shieldsRunMeasurement(run: {
   if (facts) {
     if (!facts.engineLoaded || facts.requestsEvaluated === 0) return null;
     return facts.applied
-      ? { kind: "engine-blocked", count: facts.requestsActuallyBlocked, origin: "recorded" }
-      : { kind: "filter-matches", count: facts.requestsMatched, origin: "recorded" };
+      ? {
+          kind: "engine-blocked",
+          count: facts.requestsActuallyBlocked,
+          origin: "recorded",
+          evaluated: facts.requestsEvaluated
+        }
+      : {
+          kind: "filter-matches",
+          count: facts.requestsMatched,
+          origin: "recorded",
+          evaluated: facts.requestsEvaluated
+        };
   }
   const count = run.counts.shieldsBlockedRequests;
   if (typeof count !== "number" || run.conditions.adblockActive !== true) return null;
   return {
     kind: run.conditions.shieldsMode === "block-simulation" ? "engine-blocked" : "filter-matches",
     count,
-    origin: "legacy-derived"
+    origin: "legacy-derived",
+    evaluated: null
   };
 }
 

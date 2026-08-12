@@ -196,3 +196,53 @@ test("a browser that cannot open a context is dropped from the cache, not closed
   assert.doesNotMatch(block, /browser\.close\(\)/, "closing would break an in-flight sibling scan");
   assert.match(block, /if \(sharedBrowser === browser\)/, "only drop the instance that actually failed");
 });
+
+/**
+ * The Shields stat paired a numerator measured at the passive-load boundary
+ * with the RETAINED request total. Those are different populations: later
+ * straggler rows are retained and deliberately excluded from the frozen
+ * counter, so "240 ... of 390 requests" described a ratio over requests the
+ * engine never evaluated.
+ */
+test("the Shields stat is denominated by requests the engine actually evaluated", () => {
+  const overview = source("app/_components/report-overview.tsx");
+  const shields = overview.slice(
+    overview.indexOf('label: "Matched Shields lists"'),
+    overview.indexOf("icon: shieldsMeasurement.origin", overview.indexOf('label: "Matched Shields lists"'))
+  );
+  assert.ok(shields.length > 0, "the Shields stat block must still be findable");
+  assert.match(
+    shields,
+    /shieldsMeasurement\.evaluated/,
+    "the recorded branch must use the evaluated count as its denominator"
+  );
+  assert.doesNotMatch(
+    shields,
+    /verified classification of \$\{retainedCountLabel\(\s*run\.counts\.totalRequests/,
+    "the retained request total is the wrong population for a verified classification"
+  );
+  // The measurement must actually carry it, or the UI has nothing honest to use.
+  const insights = source("lib/report-insights.ts");
+  assert.match(insights, /evaluated: facts\.requestsEvaluated/);
+  assert.match(insights, /evaluated: null/, "a legacy-derived measurement records no evaluation");
+});
+
+/**
+ * A censored detector family does not make every count a lower bound. The
+ * notice said it did, on runs whose requests, cookies, storage and
+ * fingerprinting all completed.
+ */
+test("the degraded-run notice scopes its lower-bound claim to what was censored", () => {
+  const views = source("lib/scan-report-views.ts");
+  const notice = views.slice(
+    views.indexOf("export function degradedRunNotice"),
+    views.indexOf("export function runQualitySummary")
+  );
+  assert.ok(notice.length > 0);
+  assert.match(notice, /failed\.length > 0/, "a failed visit and a censored family must read differently");
+  assert.match(
+    notice,
+    /families that completed carry only their ordinary coverage limits/,
+    "a run whose other families completed must not be told every count is a floor"
+  );
+});
