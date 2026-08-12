@@ -408,12 +408,15 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
                   shieldsMeasurement.count,
                   facts.evidence.requests.state
                 ),
+                // The denominator is what the engine EVALUATED, not the
+                // retained request total. Those are different populations:
+                // evaluation happens at the passive-load boundary, while later
+                // straggler rows are retained and deliberately excluded from
+                // the frozen counter. Pairing the two read as a ratio over
+                // requests the engine never saw.
                 detail:
                   shieldsMeasurement.origin === "recorded"
-                    ? `verified classification of ${retainedCountLabel(
-                        run.counts.totalRequests,
-                        facts.evidence.requests.state
-                      )}${facts.evidence.requests.state === "censored" ? " retained" : ""} requests`
+                    ? `verified over ${shieldsMeasurement.evaluated} requests the engine evaluated`
                     : `classification reported over ${retainedCountLabel(
                         run.counts.totalRequests,
                         facts.evidence.requests.state

@@ -37,7 +37,7 @@ import type {
  */
 
 /** Recognizable platforms that make the strongest plain-language headline. */
-export const HEADLINE_PLATFORMS = ["Google", "Meta", "TikTok", "X", "Microsoft", "LinkedIn", "Pinterest"];
+export { HEADLINE_PLATFORMS } from "./headline-platforms";
 
 const HIGH_ENTROPY_FINGERPRINT_KINDS = new Set<FingerprintDetectionSummary["kind"]>([
   "canvas-fingerprinting",
@@ -343,8 +343,24 @@ export type ShieldsRunMeasurement = {
    * not describe a derived count as verified: on a legacy report the
    * verification facts are precisely what is missing.
    */
-  origin: "recorded" | "legacy-derived";
-};
+  /**
+   * How many requests the engine actually EVALUATED, when the run recorded it.
+   *
+   * This is the only honest denominator for `count`. The retained request total
+   * is a different population: evaluation happens at the passive-load boundary,
+   * while later "straggler" rows are retained but deliberately not folded into
+   * the frozen counter. Pairing the matched count with the retained total
+   * therefore reads as a ratio over requests that were never evaluated.
+   *
+   * Paired with `origin` as a discriminated union: a recorded measurement
+   * always has the number, a legacy-derived one never does. That removes the
+   * unreachable "recorded but unknown denominator" branch a reader would
+   * otherwise have to be given wording for.
+   */
+} & (
+  | { origin: "recorded"; evaluated: number }
+  | { origin: "legacy-derived"; evaluated: null }
+);
 
 /**
  * The Shields engine measurement a run carries, or null when the engine was
@@ -369,15 +385,26 @@ export function shieldsRunMeasurement(run: {
   if (facts) {
     if (!facts.engineLoaded || facts.requestsEvaluated === 0) return null;
     return facts.applied
-      ? { kind: "engine-blocked", count: facts.requestsActuallyBlocked, origin: "recorded" }
-      : { kind: "filter-matches", count: facts.requestsMatched, origin: "recorded" };
+      ? {
+          kind: "engine-blocked",
+          count: facts.requestsActuallyBlocked,
+          origin: "recorded",
+          evaluated: facts.requestsEvaluated
+        }
+      : {
+          kind: "filter-matches",
+          count: facts.requestsMatched,
+          origin: "recorded",
+          evaluated: facts.requestsEvaluated
+        };
   }
   const count = run.counts.shieldsBlockedRequests;
   if (typeof count !== "number" || run.conditions.adblockActive !== true) return null;
   return {
     kind: run.conditions.shieldsMode === "block-simulation" ? "engine-blocked" : "filter-matches",
     count,
-    origin: "legacy-derived"
+    origin: "legacy-derived",
+    evaluated: null
   };
 }
 

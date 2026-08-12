@@ -4933,6 +4933,27 @@ details[open] > summary .disclosure-chevron {
     overflow-wrap: anywhere;
   }
 
+  /* `overflow-wrap: anywhere` is right for a 200-character URL and wrong for
+     "1,234ms", which it splits between the number and its unit. Exempt the
+     cells whose content is a single short token.
+
+     The width hints matter more than they look. With table-layout: fixed and
+     no widths, seven columns divide a Letter page evenly, so the URL column
+     gets about a seventh of the width and every URL shatters across many
+     lines. Giving the long column most of the row is what makes the printed
+     request log readable. Percentages, not pixels, so a landscape or A4 page
+     redistributes rather than overflowing. */
+  .request-table td.time-cell,
+  .request-table th:first-child {
+    overflow-wrap: normal;
+    white-space: nowrap;
+    width: 8%;
+  }
+
+  .request-table td.url-cell {
+    width: 46%;
+  }
+
   /* Repeat column headers on every page and keep rows whole.
 
      A trailing "TIME STATUS TYPE DOMAIN ..." at the end of extracted PDF text

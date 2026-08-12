@@ -36,7 +36,7 @@ import {
   type CorpusCohortIdentity
 } from "@/lib/corpus-cohort";
 import { committedReportLocation } from "@/lib/report-locator";
-import { HEADLINE_PLATFORMS } from "@/lib/report-insights";
+import { HEADLINE_PLATFORMS } from "@/lib/headline-platforms";
 import { humanList } from "@/lib/text-format";
 import { scanJobProgressCopy } from "@/lib/scan-job-progress";
 import { SITE_TRUST_LINKS } from "@/lib/site-navigation";

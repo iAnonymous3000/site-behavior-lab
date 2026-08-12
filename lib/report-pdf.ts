@@ -80,6 +80,10 @@ type RenderPage = {
     format: string;
     printBackground: boolean;
     preferCSSPageSize: boolean;
+    /** Chromium builds bookmarks from the document's heading structure. */
+    outline: boolean;
+    /** Emits the structure tree a screen reader needs. */
+    tagged: boolean;
   }): Promise<Uint8Array>;
   close(): Promise<void>;
 };
@@ -324,7 +328,18 @@ export async function renderReportPdf(
         const pdf = await opened.pdf({
           format: "Letter",
           printBackground: false,
-          preferCSSPageSize: true
+          preferCSSPageSize: true,
+          // A 34-page evidence document with no bookmarks is navigated by
+          // scrolling, which is how a reader misses the interpretation limits
+          // that sit between the summary and the tables. Chromium builds the
+          // outline from the document's own heading structure, so the sections
+          // the print route already emits become jump targets.
+          outline: true,
+          // Tagged output carries the reading order and table structure a
+          // screen reader needs. An untagged PDF of an accessibility-conscious
+          // report is a contradiction, and this project treats WCAG contrast
+          // and focus as product requirements on screen already.
+          tagged: true
         });
         assertRenderedPdfWithinCeiling(pdf.byteLength);
         return pdf;

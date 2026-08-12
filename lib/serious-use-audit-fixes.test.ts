@@ -196,3 +196,101 @@ test("a browser that cannot open a context is dropped from the cache, not closed
   assert.doesNotMatch(block, /browser\.close\(\)/, "closing would break an in-flight sibling scan");
   assert.match(block, /if \(sharedBrowser === browser\)/, "only drop the instance that actually failed");
 });
+
+/**
+ * The Shields stat paired a numerator measured at the passive-load boundary
+ * with the RETAINED request total. Those are different populations: later
+ * straggler rows are retained and deliberately excluded from the frozen
+ * counter, so "240 ... of 390 requests" described a ratio over requests the
+ * engine never evaluated.
+ */
+test("the Shields stat is denominated by requests the engine actually evaluated", () => {
+  const overview = source("app/_components/report-overview.tsx");
+  const shields = overview.slice(
+    overview.indexOf('label: "Matched Shields lists"'),
+    overview.indexOf("icon: shieldsMeasurement.origin", overview.indexOf('label: "Matched Shields lists"'))
+  );
+  assert.ok(shields.length > 0, "the Shields stat block must still be findable");
+  assert.match(
+    shields,
+    /shieldsMeasurement\.evaluated/,
+    "the recorded branch must use the evaluated count as its denominator"
+  );
+  // Discriminated on origin, so there is no unreachable "recorded but unknown
+  // denominator" branch to write copy for.
+  assert.match(source("lib/report-insights.ts"), /\{ origin: "recorded"; evaluated: number \}/);
+  assert.doesNotMatch(
+    shields,
+    /verified classification of \$\{retainedCountLabel\(\s*run\.counts\.totalRequests/,
+    "the retained request total is the wrong population for a verified classification"
+  );
+  // The measurement must actually carry it, or the UI has nothing honest to use.
+  const insights = source("lib/report-insights.ts");
+  assert.match(insights, /evaluated: facts\.requestsEvaluated/);
+  assert.match(insights, /evaluated: null/, "a legacy-derived measurement records no evaluation");
+});
+
+/**
+ * A censored detector family does not make every count a lower bound. The
+ * notice said it did, on runs whose requests, cookies, storage and
+ * fingerprinting all completed.
+ */
+test("the degraded-run notice scopes its lower-bound claim to what was censored", () => {
+  const views = source("lib/scan-report-views.ts");
+  const notice = views.slice(
+    views.indexOf("export function degradedRunNotice"),
+    views.indexOf("export function runQualitySummary")
+  );
+  assert.ok(notice.length > 0);
+  assert.match(notice, /failed\.length > 0/, "a failed visit and a censored family must read differently");
+  // Matches the contract, not the sentence: the censored branch must say the
+  // completed families are NOT lower bounds. Pinning the exact wording is how
+  // guards in this repo have repeatedly broken on correct edits.
+  assert.match(
+    notice,
+    /families that completed/,
+    "a run whose other families completed must not be told every count is a floor"
+  );
+});
+
+/**
+ * A multi-page evidence document with no bookmarks is navigated by scrolling,
+ * which is how a reader misses the interpretation limits sitting between the
+ * summary and the tables. An untagged PDF also gives a screen reader no
+ * reading order or table structure, which contradicts the accessibility this
+ * project already enforces on screen.
+ *
+ * Both are single Playwright options that were simply never enabled. Verified
+ * in a real render: the output gained /Outlines with 35 entries plus
+ * /StructTreeRoot and /MarkInfo.
+ */
+test("the exported PDF is navigable and tagged", () => {
+  const pdf = source("lib/report-pdf.ts");
+  // Bound the slice FROM the call site: assertRenderedPdfWithinCeiling is also
+  // defined earlier in the file, so an unanchored indexOf returns a position
+  // before the call and yields an empty slice that matches nothing.
+  const start = pdf.indexOf("await opened.pdf({");
+  const call = pdf.slice(start, pdf.indexOf("});", start));
+  assert.ok(call.length > 0, "the pdf() call must still be findable");
+  assert.match(call, /outline: true/, "bookmarks come from the document's own headings");
+  assert.match(call, /tagged: true/, "a screen reader needs the structure tree");
+  // The structural type must admit them, or production silently drops both.
+  assert.match(pdf, /outline: boolean;/);
+  assert.match(pdf, /tagged: boolean;/);
+});
+
+/**
+ * `overflow-wrap: anywhere` is correct for a long URL and wrong for a value
+ * with a unit: it split "1,234ms" between the number and "ms". And with
+ * table-layout: fixed and no width hints, seven columns divided the page
+ * evenly, so URLs shattered across many lines.
+ */
+test("the printed request log keeps units whole and gives the URL column room", () => {
+  const css = source("app/globals.css");
+  const print = css.slice(css.indexOf("@media print"));
+  assert.match(print, /\.request-table td\.time-cell[\s\S]{0,200}white-space: nowrap/);
+  assert.match(print, /\.request-table td\.time-cell[\s\S]{0,200}overflow-wrap: normal/);
+  assert.match(print, /\.request-table td\.url-cell[\s\S]{0,80}width: 4\d%/);
+  // The class the rule targets must exist on the cell it means to reach.
+  assert.match(source("app/_components/report-tables.tsx"), /className="mono time-cell"/);
+});
