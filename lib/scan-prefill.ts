@@ -25,18 +25,6 @@ export function isScannableHostname(hostname: string): boolean {
   return labels.length >= 2 && labels.every((label) => label.length > 0);
 }
 
-/**
- * Userinfo in the authority, for telling a refused visitor WHY.
- *
- * A regex rather than a URL parse, and exported as a pattern rather than a
- * function, because this reaches the homepage bundle and that bundle has an
- * enforced gzip budget: the parsing version cost 112 bytes more than the
- * budget allowed. The authoritative rejection is still the `username ||
- * password` check inside normalizeScanUrl below, which parses properly; this
- * only picks the message.
- */
-export const CREDENTIALED_URL_PATTERN = /^(?:[a-zA-Z][\w+.-]*:\/\/)?[^/?#]*@/;
-
 export function normalizeScanUrl(value: string): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;

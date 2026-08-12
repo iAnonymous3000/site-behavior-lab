@@ -136,12 +136,9 @@ test("a rejected URL stays a field problem instead of erasing the homepage", () 
   // next successful scan.
   assert.match(home, /!loaded && !loading && !error && !pendingScanAdmission && \(\s*<CorpusHero/);
   assert.match(submit, /setUrlError\("Enter a public URL to scan/);
-  // The invalid-URL branch is a ternary now, because a URL carrying a password
-  // gets its own refusal rather than the generic one. The contract this test
-  // exists for is unchanged: the message lands in the FIELD error, so match the
-  // text wherever in the call it sits instead of pinning the call's shape.
-  assert.match(submit, /"Enter a valid public URL/);
-  assert.match(submit, /username and password from the URL; nothing was sent/);
+  // One message, not two: a dedicated credential branch did not fit the
+  // homepage byte budget, so the existing sentence names credentials instead.
+  assert.match(submit, /setUrlError\("Enter a valid public URL with no username or password/);
   assert.doesNotMatch(submit, /setError\(/, "URL validation must not raise the scan-recovery banner");
 });
 

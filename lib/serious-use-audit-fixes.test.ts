@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { isPublicIpAddress } from "./ip-safety";
-import { CREDENTIALED_URL_PATTERN, normalizeScanUrl } from "./scan-prefill";
+import { normalizeScanUrl } from "./scan-prefill";
 
 /**
  * Regression guards for the 12 Aug serious-use audit.
@@ -30,11 +30,6 @@ test("a URL carrying credentials is refused in the browser, before any request",
     "https://:pass@example.com/"
   ]) {
     assert.equal(normalizeScanUrl(value), null, `${value} must not normalize into a scannable URL`);
-    assert.equal(
-      CREDENTIALED_URL_PATTERN.test(value),
-      true,
-      `${value} must be reportable as a credential refusal`
-    );
   }
 
   // The stripping this boundary already did must still work, and a plain URL
@@ -43,11 +38,17 @@ test("a URL carrying credentials is refused in the browser, before any request",
     normalizeScanUrl("https://example.com/path?token=secret#frag"),
     "https://example.com/path"
   );
-  assert.equal(CREDENTIALED_URL_PATTERN.test("https://example.com/path"), false);
-  assert.equal(CREDENTIALED_URL_PATTERN.test("not a url"), false);
-  // A path or query containing @ is not userinfo; the pattern stops at the authority.
-  assert.equal(CREDENTIALED_URL_PATTERN.test("https://example.com/a@b"), false);
-  assert.equal(CREDENTIALED_URL_PATTERN.test("https://example.com/?to=a@b"), false);
+
+  // The refusal is named in the one existing message rather than a second
+  // string plus a detector: the homepage bundle has an enforced gzip budget and
+  // a dedicated branch did not fit. The security property is unconditional
+  // above; this only makes the reason legible.
+  assert.match(
+    readFileSync(path.join(root, "app/_hooks/use-scan-runtime.ts"), "utf8"),
+    /Enter a valid public URL with no username or password/
+  );
+  // An @ in a path or query is not userinfo and must still scan.
+  assert.equal(normalizeScanUrl("https://example.com/a@b"), "https://example.com/a@b");
 });
 
 /**

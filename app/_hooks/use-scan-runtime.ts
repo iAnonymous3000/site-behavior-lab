@@ -11,11 +11,7 @@ import {
   STATIC_LIVE_SCAN_ENABLED,
   scannerApiUrl
 } from "../client-runtime";
-import {
-  CREDENTIALED_URL_PATTERN,
-  normalizeScanUrl,
-  resolveScanPrefillNavigation
-} from "@/lib/scan-prefill";
+import { normalizeScanUrl, resolveScanPrefillNavigation } from "@/lib/scan-prefill";
 import {
   ACTIVE_SCAN_SESSION_MAX_AGE_MS,
   clearActiveScanSession,
@@ -780,14 +776,13 @@ export function useScanRuntime({
     const normalized = normalizeScanUrl(trimmed);
     if (!normalized) {
       setUrlNotice("");
-      // Name the credential case rather than folding it into "not a valid URL".
-      // Someone who pasted a URL containing a password needs to know the
-      // password was the problem, and that it was never sent.
-      setUrlError(
-        CREDENTIALED_URL_PATTERN.test(trimmed)
-          ? "Remove the username and password from the URL; nothing was sent."
-          : "Enter a valid public URL, for example https://example.com."
-      );
+      // Credentials are named in the ONE existing message rather than getting
+      // a second string plus a detector: this runs in the homepage bundle,
+      // which has an enforced gzip budget, and a branch cost more than the
+      // budget had. Rewording the existing sentence costs the length
+      // difference alone. The refusal itself is unconditional in
+      // normalizeScanUrl, so a password still never leaves the browser.
+      setUrlError("Enter a valid public URL with no username or password, for example https://example.com.");
       window.requestAnimationFrame(() => document.getElementById("url")?.focus());
       return;
     }
