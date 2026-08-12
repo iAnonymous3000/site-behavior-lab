@@ -11,6 +11,7 @@ build/
 
 # Test and coverage output
 .unit-test-dist/
+.native-shields-dist/
 coverage/
 test-results/
 playwright-report/

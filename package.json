@@ -41,7 +41,7 @@
     "cf:typecheck": "tsc -p tsconfig.cloudflare.json --noEmit",
     "lists:brave": "node scripts/fetch-brave-lists.mjs",
     "lists:verify": "node scripts/verify-adblock-engine.mjs",
-    "shields:native-diff": "tsc -p tsconfig.test.json && node .unit-test-dist/lib/native-shields-differential-cli.js",
+    "shields:native-diff": "tsc -p tsconfig.native-shields.json && node .native-shields-dist/lib/native-shields-differential-cli.js",
     "supply-chain:third-party:check": "node scripts/third-party-inventory.mjs --check",
     "supply-chain:reviews:sync": "node scripts/third-party-reviews.mjs --sync",
     "supply-chain:reviews:check": "node scripts/third-party-reviews.mjs --check",

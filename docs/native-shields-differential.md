@@ -95,7 +95,11 @@ The authoritative validator and builder are in
 
 Each native event records:
 
-- a digest of the CDP request id and whether an ordinary request correlated;
+- a per-capture salted digest of the CDP request id, which groups events within
+  one receipt and is deliberately not comparable across receipts, and whether an
+  ordinary request correlated. A record correlates only when it carries the same
+  URL the native engine checked, because CDP reuses one request id across every
+  redirect hop;
 - redacted request, checked, and optional rewritten URLs;
 - redacted source host, resource type, method, and whether the native engine
   checked a different hostname;
@@ -112,18 +116,28 @@ comparison may use the native event's source host and resource type as a
 labeled `native-source-host` fallback, while the missing request-level join
 still makes the overall receipt `partial`.
 
-Coverage counters disclose dropped records, uncorrelated native events, proxy
-blocks/resource caps, and ordinary request records for which no native event
-was seen. That last count is only coverage: it is never an allowed-request
-count.
+Coverage counters disclose uncorrelated native events, proxy blocks/resource
+caps, and ordinary request records for which no native event was seen. That last
+count is only coverage: it is never an allowed-request count. Discards are
+counted in two separate families, because they are different evidence:
+`droppedNetworkRequestRecords`/`droppedNativeEvents` mean a retention ceiling was
+reached and the capture can be re-run with a higher bound, while
+`unparsableNetworkRecords`/`unparsableNativeEvents` mean this parser refused a
+payload, which is possible schema drift worth investigating.
 
-Receipt `status` is:
+Receipt `status` is derived by one exported function that both the builder and
+the receipt validator call, so the two cannot word the rule differently:
 
 - `complete` when at least one event was captured, the local engine was
   available, and no declared capture loss occurred;
 - `partial` when events exist but navigation, proxy, capture, or local-engine
   evidence is incomplete; or
 - `inconclusive` when no native event was observed.
+
+Capture loss includes any event Brave itself flagged as mock data, and any event
+whose resource type this project's vocabulary did not recognise. Both would
+otherwise let a receipt claim `complete` while resting on synthetic data or on a
+request type that was guessed.
 
 ## Interpretation limits
 
@@ -138,7 +152,11 @@ exception. Therefore:
 - a fresh profile's component readiness is not attested, so the first run can
   be inconclusive even when a later run captures native events; and
 - the Site Behavior Lab side remains a boolean `would block` answer, so a
-  local non-block cannot distinguish a list miss from an exception.
+  local non-block cannot distinguish a list miss from an exception; and
+- `checkedHostDiffers` is named for what is observed, a checked URL on a
+  different host, and not for a cause. That is consistent with CNAME uncloaking
+  but also with URL rewriting and redirect canonicalisation, and this receipt
+  cannot separate them.
 
 The mandatory safety proxy is also methodologically important. Brave's native
 CNAME-uncloaking implementation may skip its separate DNS resolution when a

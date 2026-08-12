@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import {
   createReadStream,
@@ -149,6 +149,8 @@ export async function captureNativeShieldsDifferential(
   let sequence = 0;
   let droppedNetworkRequestRecords = 0;
   let droppedNativeEvents = 0;
+  let unparsableNetworkRecords = 0;
+  let unparsableNativeEvents = 0;
   let rootFrameId: string | null = null;
   let context: BrowserContext | null = null;
   let proxy: PublicScanProxy | null = null;
@@ -194,16 +196,24 @@ export async function captureNativeShieldsDifferential(
     const session = await context.newCDPSession(page);
     session.on("event", ({ method, params }) => {
       sequence += 1;
+      // A refused payload and a reached ceiling are different evidence stories:
+      // one is possible schema drift silently eroding the differential, the
+      // other is a bound to raise and re-run. Counted apart so a reader can
+      // tell which happened.
       if (method === "Network.requestWillBeSent") {
         const request = parseCdpNetworkRequest(params, sequence);
-        if (!request || networkRequests.length >= MAX_NATIVE_NETWORK_RECORDS) {
+        if (!request) {
+          unparsableNetworkRecords += 1;
+        } else if (networkRequests.length >= MAX_NATIVE_NETWORK_RECORDS) {
           droppedNetworkRequestRecords += 1;
         } else {
           networkRequests.push(request);
         }
       } else if (method === "Network.requestAdblockInfoReceived") {
         const event = parseNativeAdblockEvent(params, sequence);
-        if (!event || nativeEvents.length >= MAX_NATIVE_SHIELDS_EVENTS) {
+        if (!event) {
+          unparsableNativeEvents += 1;
+        } else if (nativeEvents.length >= MAX_NATIVE_SHIELDS_EVENTS) {
           droppedNativeEvents += 1;
         } else {
           nativeEvents.push(event);
@@ -239,10 +249,15 @@ export async function captureNativeShieldsDifferential(
   } finally {
     const diagnostics = proxy?.getDiagnostics();
     proxyBlockedTargets = proxy?.blockedTargets.length ?? 0;
+    // Explicitly against a resolved object. `diagnostics?.x.captureLoss !== null`
+    // short-circuits the whole chain to undefined when there are no
+    // diagnostics, and `undefined !== null` is true, so absent evidence read as
+    // an observed resource-limit hit.
     proxyResourceLimitHit =
-      diagnostics?.trafficBudget.captureLoss !== null ||
-      diagnostics?.responseByteBudget.captureLoss !== null ||
-      diagnostics?.uploadByteBudget.captureLoss !== null;
+      diagnostics !== undefined &&
+      (diagnostics.trafficBudget.captureLoss !== null ||
+        diagnostics.responseByteBudget.captureLoss !== null ||
+        diagnostics.uploadByteBudget.captureLoss !== null);
     await context?.close().catch(() => undefined);
     await proxy?.close().catch(() => undefined);
     if (profileDirectory !== null && removeProfileDirectory) {
@@ -252,9 +267,11 @@ export async function captureNativeShieldsDifferential(
 
   const finishedAt = new Date().toISOString();
   return buildNativeShieldsDifferentialReceipt({
-    generatedAt: finishedAt,
     startedAt,
     finishedAt,
+    // Fresh per capture and never written down, so a published digest is not a
+    // hash of an enumerable request id.
+    requestIdSalt: randomBytes(32).toString("hex"),
     buildCommit: currentBuildCommit(),
     requestedUrl: target.toString(),
     observedUrl,
@@ -279,6 +296,8 @@ export async function captureNativeShieldsDifferential(
     nativeEvents,
     droppedNetworkRequestRecords,
     droppedNativeEvents,
+    unparsableNetworkRecords,
+    unparsableNativeEvents,
     proxyBlockedTargets,
     proxyResourceLimitHit
   });

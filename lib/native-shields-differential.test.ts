@@ -13,11 +13,13 @@ import {
   buildNativeShieldsDifferentialReceipt,
   nativeShieldsDifferentialReceiptIssues,
   nativeShieldsDifferentialReceiptText,
+  nativeShieldsDifferentialStatus,
   parseCdpNetworkRequest,
   parseNativeAdblockEvent,
   type BuildNativeShieldsDifferentialInput,
   type RawNativeAdblockEvent
 } from "./native-shields-differential";
+import { sha256Hex } from "./sha256";
 
 const NOW = "2026-08-11T12:00:00.000Z";
 const SHA = "a".repeat(64);
@@ -114,11 +116,11 @@ test("receipt redacts raw URLs, correlates by request id, and isolates a native 
   assert.equal(event.correlated, true);
   assert.equal(event.requestIdDigest.length, 64);
   assert.notEqual(event.requestIdDigest, "123.4");
-  assert.equal(event.cnameRecheckObserved, true);
+  assert.equal(event.checkedHostDiffers, true);
   assert.equal(event.local.requestUrlDecision, "would-not-block");
   assert.equal(event.local.checkedUrlDecision, "would-block");
   assert.equal(event.agreement, "native-block-local-canonical-match");
-  assert.equal(receipt.coverage.cnameRechecksObserved, 1);
+  assert.equal(receipt.coverage.checkedHostDifferences, 1);
   assert.equal(receipt.coverage.localEvaluations, 2);
   const wire = nativeShieldsDifferentialReceiptText(receipt);
   assert.doesNotMatch(wire, /alice|secret|email|123\.4/);
@@ -185,6 +187,157 @@ test("an early native block without requestWillBeSent uses the labeled native-ho
   assert.equal(receipt.events[0].agreement, "agrees-block");
 });
 
+test("a redirect hop sharing a request id never counts as a correlated match", () => {
+  // CDP reuses one requestId across every hop, so the id alone cannot say the
+  // record is the request Brave checked. The old fallback took an arbitrary
+  // hop, marked the event correlated, and compared adblock-rust's verdict on
+  // hop B with Brave's on hop A while reporting status "complete".
+  const base = fixture();
+  const nativeUrl = base.nativeEvents[0].requestUrl;
+  const receipt = buildNativeShieldsDifferentialReceipt(
+    fixture({
+      networkRequests: [
+        { ...base.networkRequests[0], sequence: 1, url: "https://tenant.example.net/redirect-hop" },
+        { ...base.networkRequests[0], sequence: 2, url: "https://tenant.example.net/second-hop" }
+      ],
+      // Would block the decoy hops but not the URL Brave actually checked, so
+      // borrowing a hop's URL would invent an "agrees-block".
+      engine: { checkWithMethod: (url) => url.includes("hop") }
+    })
+  );
+  assert.equal(receipt.events[0].correlated, false);
+  assert.equal(receipt.coverage.uncorrelatedNativeEvents, 1);
+  assert.equal(receipt.status, "partial");
+  assert.notEqual(receipt.events[0].agreement, "agrees-block");
+  assert.ok(nativeUrl.includes("/collect/"));
+});
+
+test("data Brave flagged as mock can never be reported complete", () => {
+  const base = fixture();
+  const receipt = buildNativeShieldsDifferentialReceipt(
+    fixture({ nativeEvents: [{ ...base.nativeEvents[0], hasMockData: true }] })
+  );
+  assert.equal(receipt.events[0].native.hasMockData, true);
+  assert.equal(receipt.coverage.nativeMockDataEvents, 1);
+  assert.equal(receipt.status, "partial");
+});
+
+test("an unmapped native resource type declines to evaluate instead of guessing", () => {
+  const base = fixture();
+  const receipt = buildNativeShieldsDifferentialReceipt(
+    fixture({
+      networkRequests: [],
+      // Not a CDP Network.ResourceType spelling. Mapping it would collapse to
+      // "other" and manufacture a disagreement against type-scoped rules.
+      nativeEvents: [{ ...base.nativeEvents[0], resourceType: "sub_frame" }],
+      engine: { checkWithMethod: () => false }
+    })
+  );
+  assert.equal(receipt.events[0].local.requestTypeMapped, false);
+  assert.equal(receipt.events[0].local.requestUrlDecision, "not-evaluated");
+  assert.equal(receipt.coverage.unmappedNativeResourceTypes, 1);
+  assert.equal(receipt.status, "partial");
+
+  const mapped = buildNativeShieldsDifferentialReceipt(fixture());
+  assert.equal(mapped.events[0].local.requestTypeMapped, true);
+  assert.equal(mapped.coverage.unmappedNativeResourceTypes, 0);
+});
+
+test("a rule match without a block is distinguishable from silence", () => {
+  const base = fixture();
+  const ruleMatch = buildNativeShieldsDifferentialReceipt(
+    fixture({
+      nativeEvents: [
+        { ...base.nativeEvents[0], blocked: false, didMatchException: false, didMatchRule: true }
+      ]
+    })
+  );
+  assert.equal(ruleMatch.events[0].agreement, "native-rule-match-no-block");
+
+  const silent = buildNativeShieldsDifferentialReceipt(
+    fixture({
+      nativeEvents: [
+        {
+          ...base.nativeEvents[0],
+          blocked: false,
+          didMatchException: false,
+          didMatchRule: false,
+          didMatchImportantRule: false
+        }
+      ]
+    })
+  );
+  assert.equal(silent.events[0].agreement, "native-event-unclassified");
+});
+
+test("the status rule is one function, so builder and validator cannot disagree", () => {
+  // The builder validates its own output, so a divergence here would throw
+  // away a completed capture rather than fail a test.
+  assert.equal(
+    nativeShieldsDifferentialStatus({
+      nativeEvents: 3,
+      uncorrelatedNativeEvents: 0,
+      nativeMockDataEvents: 0,
+      unmappedNativeResourceTypes: 0,
+      droppedNetworkRequestRecords: 0,
+      droppedNativeEvents: 0,
+      unparsableNetworkRecords: 0,
+      unparsableNativeEvents: 0,
+      proxyBlockedTargets: 0,
+      proxyResourceLimitHit: false,
+      navigationCompleted: true,
+      engineLoaded: true
+    }),
+    "complete"
+  );
+  for (const loss of [
+    { uncorrelatedNativeEvents: 1 },
+    { nativeMockDataEvents: 1 },
+    { unmappedNativeResourceTypes: 1 },
+    { unparsableNetworkRecords: 1 },
+    { unparsableNativeEvents: 1 },
+    { droppedNativeEvents: 1 },
+    { proxyResourceLimitHit: true },
+    { navigationCompleted: false },
+    { engineLoaded: false }
+  ]) {
+    assert.equal(
+      nativeShieldsDifferentialStatus({
+        nativeEvents: 3,
+        uncorrelatedNativeEvents: 0,
+        nativeMockDataEvents: 0,
+        unmappedNativeResourceTypes: 0,
+        droppedNetworkRequestRecords: 0,
+        droppedNativeEvents: 0,
+        unparsableNetworkRecords: 0,
+        unparsableNativeEvents: 0,
+        proxyBlockedTargets: 0,
+        proxyResourceLimitHit: false,
+        navigationCompleted: true,
+        engineLoaded: true,
+        ...loss
+      }),
+      "partial",
+      `${JSON.stringify(loss)} must forbid a complete receipt`
+    );
+  }
+});
+
+test("an unparsable payload is not reported as a capacity drop", () => {
+  const receipt = buildNativeShieldsDifferentialReceipt(fixture({ unparsableNativeEvents: 4 }));
+  assert.equal(receipt.coverage.unparsableNativeEvents, 4);
+  assert.equal(receipt.coverage.droppedNativeEvents, 0);
+  assert.equal(receipt.status, "partial");
+});
+
+test("request id digests are salted per capture and not a hash of the bare id", () => {
+  const receipt = buildNativeShieldsDifferentialReceipt(fixture());
+  const other = buildNativeShieldsDifferentialReceipt(fixture({ requestIdSalt: "f".repeat(64) }));
+  assert.notEqual(receipt.events[0].requestIdDigest, other.events[0].requestIdDigest);
+  assert.notEqual(receipt.events[0].requestIdDigest, sha256Hex("123.4"));
+  assert.throws(() => buildNativeShieldsDifferentialReceipt(fixture({ requestIdSalt: "short" })), /requestIdSalt/);
+});
+
 test("receipt validator rejects query-bearing URL regression", () => {
   const receipt = buildNativeShieldsDifferentialReceipt(fixture());
   const mutated = structuredClone(receipt) as unknown as {
@@ -246,9 +399,9 @@ test("dedicated profile guard marks new state and refuses existing personal or u
 function fixture(overrides: Partial<BuildNativeShieldsDifferentialInput> = {}): BuildNativeShieldsDifferentialInput {
   const requestUrl = "https://tenant.example.net/collect/alice?email=secret@example.com";
   return {
-    generatedAt: NOW,
     startedAt: NOW,
     finishedAt: NOW,
+    requestIdSalt: "e".repeat(64),
     buildCommit: COMMIT,
     requestedUrl: "https://shop.example.com/account/alice?token=secret",
     observedUrl: "https://shop.example.com/account/alice?token=secret",
@@ -295,6 +448,8 @@ function fixture(overrides: Partial<BuildNativeShieldsDifferentialInput> = {}): 
     ],
     droppedNetworkRequestRecords: 0,
     droppedNativeEvents: 0,
+    unparsableNetworkRecords: 0,
+    unparsableNativeEvents: 0,
     proxyBlockedTargets: 0,
     proxyResourceLimitHit: false,
     ...overrides

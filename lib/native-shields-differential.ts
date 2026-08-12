@@ -1,5 +1,5 @@
 import { FULL_GIT_SHA } from "./build-provenance";
-import { mapRequestType, type AdblockEngineStatus } from "./adblock-engine";
+import { REQUEST_TYPE_MAP, mapRequestType, type AdblockEngineStatus } from "./adblock-engine";
 import {
   REDACTION_VERSION,
   addRedactionCounters,
@@ -52,6 +52,7 @@ const AGREEMENTS = new Set<string>([
   "native-exception-local-would-block",
   "native-exception-local-nonblock",
   "native-exception-local-unresolved",
+  "native-rule-match-no-block",
   "native-event-unclassified"
 ]);
 const COVERAGE_KEYS = [
@@ -59,13 +60,17 @@ const COVERAGE_KEYS = [
   "nativeEvents",
   "nativeBlockedEvents",
   "nativeExceptionEvents",
+  "nativeMockDataEvents",
   "correlatedNativeEvents",
   "uncorrelatedNativeEvents",
   "networkRequestRecordsWithoutNativeEvent",
   "localEvaluations",
-  "cnameRechecksObserved",
+  "checkedHostDifferences",
+  "unmappedNativeResourceTypes",
   "droppedNetworkRequestRecords",
   "droppedNativeEvents",
+  "unparsableNetworkRecords",
+  "unparsableNativeEvents",
   "proxyBlockedTargets",
   "proxyResourceLimitHit"
 ] as const;
@@ -84,9 +89,11 @@ export const NATIVE_SHIELDS_DIFFERENTIAL_LIMITATIONS = Object.freeze([
   "no-native-event-is-not-an-allow-verdict",
   "brave-profile-shields-settings-are-not-read-back",
   "local-source-url-is-reconstructed-from-cdp-or-native-host-state",
+  "a-differing-checked-host-is-recorded-without-attributing-a-cause",
   "native-cname-uncloaking-may-be-disabled-by-the-safety-proxy",
   "fresh-profile-component-readiness-is-not-attested",
-  "raw-urls-and-request-ids-are-retained-in-memory-only"
+  "raw-urls-and-request-ids-are-retained-in-memory-only",
+  "request-id-digests-are-salted-per-capture-and-never-comparable-across-receipts"
 ] as const);
 
 export type RawNativeAdblockEvent = {
@@ -136,6 +143,8 @@ export type NativeShieldsAgreement =
   | "native-exception-local-would-block"
   | "native-exception-local-nonblock"
   | "native-exception-local-unresolved"
+  /** Brave matched a rule and still did not block: a real state, not silence. */
+  | "native-rule-match-no-block"
   | "native-event-unclassified";
 
 export type NativeShieldsDifferentialEvent = {
@@ -147,7 +156,14 @@ export type NativeShieldsDifferentialEvent = {
   sourceHost: string;
   resourceType: string;
   method: string;
-  cnameRecheckObserved: boolean;
+  /**
+   * Brave supplied a checkedUrl on a different host than the request URL.
+   *
+   * Named for the observation, not for a cause. A differing checked host is
+   * consistent with CNAME uncloaking, but also with URL rewriting and redirect
+   * canonicalisation, and this receipt cannot tell those apart.
+   */
+  checkedHostDiffers: boolean;
   native: {
     aggressive: boolean;
     blocked: boolean;
@@ -161,6 +177,13 @@ export type NativeShieldsDifferentialEvent = {
     requestUrlDecision: NativeShieldsLocalDecision;
     checkedUrlDecision: NativeShieldsLocalDecision | null;
     requestType: string;
+    /**
+     * False when the supplied resource type was not in the known vocabulary and
+     * would have collapsed to "other". adblock-rust rules are type-scoped, so
+     * evaluating a guessed type manufactures disagreements; an unmapped type
+     * declines to evaluate instead.
+     */
+    requestTypeMapped: boolean;
     sourceUrlBasis:
       | "parent-frame"
       | "frame"
@@ -215,13 +238,20 @@ export type NativeShieldsDifferentialReceipt = {
     nativeEvents: number;
     nativeBlockedEvents: number;
     nativeExceptionEvents: number;
+    /** Events Brave itself flagged as synthetic; any of these forbids "complete". */
+    nativeMockDataEvents: number;
     correlatedNativeEvents: number;
     uncorrelatedNativeEvents: number;
     networkRequestRecordsWithoutNativeEvent: number;
     localEvaluations: number;
-    cnameRechecksObserved: number;
+    checkedHostDifferences: number;
+    unmappedNativeResourceTypes: number;
+    /** Records discarded because a retention ceiling was reached. */
     droppedNetworkRequestRecords: number;
     droppedNativeEvents: number;
+    /** Payloads this parser refused. Schema drift, not a capacity bound. */
+    unparsableNetworkRecords: number;
+    unparsableNativeEvents: number;
     proxyBlockedTargets: number;
     proxyResourceLimitHit: boolean;
   };
@@ -238,9 +268,16 @@ type LocalAdblockEngine = {
 };
 
 export type BuildNativeShieldsDifferentialInput = {
-  generatedAt: string;
   startedAt: string;
+  /** Also becomes generatedAt: the receipt is generated when capture ends. */
   finishedAt: string;
+  /**
+   * Per-capture secret, never written to the receipt. A CDP request id lives in
+   * a keyspace small enough to enumerate, so an unsalted digest of one conceals
+   * nothing; salting makes the digest a within-receipt grouping key and not a
+   * privacy claim it cannot honour.
+   */
+  requestIdSalt: string;
   buildCommit: string | null;
   requestedUrl: string;
   observedUrl: string | null;
@@ -255,9 +292,48 @@ export type BuildNativeShieldsDifferentialInput = {
   nativeEvents: RawNativeAdblockEvent[];
   droppedNetworkRequestRecords: number;
   droppedNativeEvents: number;
+  unparsableNetworkRecords: number;
+  unparsableNativeEvents: number;
   proxyBlockedTargets: number;
   proxyResourceLimitHit: boolean;
 };
+
+/**
+ * The one status rule, so the builder and the validator cannot drift apart.
+ *
+ * The builder validates its own output, so two independently-worded copies of
+ * this rule would turn any future edit into a thrown capture discarded after
+ * the browser has already closed, rather than a failing test.
+ */
+export function nativeShieldsDifferentialStatus(facts: {
+  nativeEvents: number;
+  uncorrelatedNativeEvents: number;
+  nativeMockDataEvents: number;
+  unmappedNativeResourceTypes: number;
+  droppedNetworkRequestRecords: number;
+  droppedNativeEvents: number;
+  unparsableNetworkRecords: number;
+  unparsableNativeEvents: number;
+  proxyBlockedTargets: number;
+  proxyResourceLimitHit: boolean;
+  navigationCompleted: boolean;
+  engineLoaded: boolean;
+}): NativeShieldsDifferentialReceipt["status"] {
+  if (facts.nativeEvents === 0) return "inconclusive";
+  const captureLoss =
+    facts.uncorrelatedNativeEvents > 0 ||
+    facts.nativeMockDataEvents > 0 ||
+    facts.unmappedNativeResourceTypes > 0 ||
+    facts.droppedNetworkRequestRecords > 0 ||
+    facts.droppedNativeEvents > 0 ||
+    facts.unparsableNetworkRecords > 0 ||
+    facts.unparsableNativeEvents > 0 ||
+    facts.proxyBlockedTargets > 0 ||
+    facts.proxyResourceLimitHit ||
+    !facts.navigationCompleted ||
+    !facts.engineLoaded;
+  return captureLoss ? "partial" : "complete";
+}
 
 export function parseNativeAdblockEvent(params: unknown, sequence: number): RawNativeAdblockEvent | null {
   if (!isRecord(params) || !boundedString(params.requestId, MAX_REQUEST_ID_CHARS) || !isRecord(params.info)) {
@@ -341,9 +417,11 @@ export function parseCdpFrame(value: unknown): RawCdpFrame | null {
 export function buildNativeShieldsDifferentialReceipt(
   input: BuildNativeShieldsDifferentialInput
 ): NativeShieldsDifferentialReceipt {
-  requireTimestamp(input.generatedAt, "generatedAt");
   requireTimestamp(input.startedAt, "startedAt");
   requireTimestamp(input.finishedAt, "finishedAt");
+  if (!/^[0-9a-f]{32,128}$/.test(input.requestIdSalt)) {
+    throw new TypeError("requestIdSalt must be at least 128 bits of lowercase hex");
+  }
   if (input.buildCommit !== null && !FULL_GIT_SHA.test(input.buildCommit)) {
     throw new TypeError("buildCommit must be a full lowercase Git SHA or null");
   }
@@ -371,18 +449,24 @@ export function buildNativeShieldsDifferentialReceipt(
   let correlatedNativeEvents = 0;
   let nativeBlockedEvents = 0;
   let nativeExceptionEvents = 0;
+  let nativeMockDataEvents = 0;
   let localEvaluations = 0;
-  let cnameRechecksObserved = 0;
+  let checkedHostDifferences = 0;
+  let unmappedNativeResourceTypes = 0;
 
   const events = input.nativeEvents.map((event): NativeShieldsDifferentialEvent => {
     const request = correlateRequest(event, requestsById.get(event.requestId) ?? []);
     if (request) correlatedNativeEvents += 1;
     if (event.blocked) nativeBlockedEvents += 1;
     if (event.didMatchException) nativeExceptionEvents += 1;
+    if (event.hasMockData) nativeMockDataEvents += 1;
 
     const context = localContext(request, event, frames, input.rootFrameId, input.requestedUrl);
     const requestType = context.requestType;
+    if (!context.requestTypeMapped) unmappedNativeResourceTypes += 1;
     const method = safeMethod(request?.method);
+    // Only a URL-matched record can stand in for the URL Brave checked, so an
+    // uncorrelated event evaluates the native URL rather than a redirect hop.
     const requestUrlDecision = localDecision(
       input.engine,
       request?.url ?? event.requestUrl,
@@ -391,15 +475,15 @@ export function buildNativeShieldsDifferentialReceipt(
     );
     if (isEvaluation(requestUrlDecision)) localEvaluations += 1;
 
-    const cnameRecheckObserved = differentHttpHosts(event.requestUrl, event.checkedUrl);
-    if (cnameRecheckObserved) cnameRechecksObserved += 1;
-    const checkedUrlDecision = cnameRecheckObserved
+    const checkedHostDiffers = differentHttpHosts(event.requestUrl, event.checkedUrl);
+    if (checkedHostDiffers) checkedHostDifferences += 1;
+    const checkedUrlDecision = checkedHostDiffers
       ? localDecision(input.engine, event.checkedUrl, context, method)
       : null;
     if (checkedUrlDecision !== null && isEvaluation(checkedUrlDecision)) localEvaluations += 1;
 
     return {
-      requestIdDigest: sha256Hex(event.requestId),
+      requestIdDigest: sha256Hex(`${input.requestIdSalt}:${event.requestId}`),
       correlated: request !== null,
       requestUrl: redact(event.requestUrl),
       checkedUrl: redact(event.checkedUrl),
@@ -407,7 +491,7 @@ export function buildNativeShieldsDifferentialReceipt(
       sourceHost: redactSourceHost(event.sourceHost, redaction),
       resourceType: safeResourceType(event.resourceType ?? request?.resourceType),
       method,
-      cnameRecheckObserved,
+      checkedHostDiffers,
       native: {
         aggressive: event.aggressive,
         blocked: event.blocked,
@@ -421,28 +505,34 @@ export function buildNativeShieldsDifferentialReceipt(
         requestUrlDecision,
         checkedUrlDecision,
         requestType,
+        requestTypeMapped: context.requestTypeMapped,
         sourceUrlBasis: context.sourceUrlBasis
       },
       agreement: agreement(event, requestUrlDecision, checkedUrlDecision)
     };
   });
 
-  const hasCaptureLoss =
-    input.droppedNetworkRequestRecords > 0 ||
-    input.droppedNativeEvents > 0 ||
-    input.proxyBlockedTargets > 0 ||
-    input.proxyResourceLimitHit ||
-    input.navigation.outcome !== "completed" ||
-    input.engine === null ||
-    correlatedNativeEvents !== events.length;
-  const status: NativeShieldsDifferentialReceipt["status"] =
-    events.length === 0 ? "inconclusive" : hasCaptureLoss || !input.engineStatus.active ? "partial" : "complete";
   const meta = input.engineStatus;
+  const engineLoaded = meta.active && input.engine !== null;
+  const status = nativeShieldsDifferentialStatus({
+    nativeEvents: events.length,
+    uncorrelatedNativeEvents: events.length - correlatedNativeEvents,
+    nativeMockDataEvents,
+    unmappedNativeResourceTypes,
+    droppedNetworkRequestRecords: input.droppedNetworkRequestRecords,
+    droppedNativeEvents: input.droppedNativeEvents,
+    unparsableNetworkRecords: input.unparsableNetworkRecords,
+    unparsableNativeEvents: input.unparsableNativeEvents,
+    proxyBlockedTargets: input.proxyBlockedTargets,
+    proxyResourceLimitHit: input.proxyResourceLimitHit,
+    navigationCompleted: input.navigation.outcome === "completed",
+    engineLoaded
+  });
 
   const receipt: NativeShieldsDifferentialReceipt = {
     schemaVersion: NATIVE_SHIELDS_DIFFERENTIAL_SCHEMA_VERSION,
     artifactKind: NATIVE_SHIELDS_DIFFERENTIAL_ARTIFACT_KIND,
-    generatedAt: input.generatedAt,
+    generatedAt: input.finishedAt,
     status,
     siteBehaviorLabCommit: input.buildCommit,
     subject: { requestedUrl, observedUrl },
@@ -457,11 +547,13 @@ export function buildNativeShieldsDifferentialReceipt(
     },
     simulation: {
       semantics: "site-behavior-lab-boolean-would-block",
-      engineLoaded: meta.active && input.engine !== null,
+      engineLoaded,
       source: meta.source ?? null,
       lists: meta.lists ?? null,
       fetchedAt: meta.fetchedAt ?? null,
       manifestDigest: meta.manifestDigest ?? null,
+      // Inline rather than via `engineLoaded`: the discriminant must be tested
+      // here for TypeScript to narrow the status union to its active variant.
       engineVersion: meta.active && input.engine !== null ? meta.engineVersion : null
     },
     coverage: {
@@ -469,15 +561,19 @@ export function buildNativeShieldsDifferentialReceipt(
       nativeEvents: events.length,
       nativeBlockedEvents,
       nativeExceptionEvents,
+      nativeMockDataEvents,
       correlatedNativeEvents,
       uncorrelatedNativeEvents: events.length - correlatedNativeEvents,
       networkRequestRecordsWithoutNativeEvent: input.networkRequests.filter(
         (request) => !nativeRequestIds.has(request.requestId)
       ).length,
       localEvaluations,
-      cnameRechecksObserved,
+      checkedHostDifferences,
+      unmappedNativeResourceTypes,
       droppedNetworkRequestRecords: input.droppedNetworkRequestRecords,
       droppedNativeEvents: input.droppedNativeEvents,
+      unparsableNetworkRecords: input.unparsableNetworkRecords,
+      unparsableNativeEvents: input.unparsableNativeEvents,
       proxyBlockedTargets: input.proxyBlockedTargets,
       proxyResourceLimitHit: input.proxyResourceLimitHit
     },
@@ -613,17 +709,32 @@ export function nativeShieldsDifferentialReceiptIssues(value: unknown): string[]
     value.events.forEach((event, index) => validateReceiptEvent(event, index, issues));
   }
   if (isRecord(value.coverage) && Array.isArray(value.events)) {
-    const correlated = value.events.filter((event) => isRecord(event) && event.correlated === true).length;
-    const blocked = value.events.filter((event) => isRecord(event) && isRecord(event.native) && event.native.blocked === true).length;
-    const exceptions = value.events.filter((event) => isRecord(event) && isRecord(event.native) && event.native.didMatchException === true).length;
-    const cname = value.events.filter((event) => isRecord(event) && event.cnameRecheckObserved === true).length;
+    // One pass, not one per counter: this validator runs twice per capture and
+    // an at-ceiling receipt holds 5,000 events.
+    const tally = value.events.reduce(
+      (totals, event) => {
+        if (!isRecord(event)) return totals;
+        const native = isRecord(event.native) ? event.native : null;
+        const local = isRecord(event.local) ? event.local : null;
+        if (event.correlated === true) totals.correlated += 1;
+        if (native?.blocked === true) totals.blocked += 1;
+        if (native?.didMatchException === true) totals.exceptions += 1;
+        if (native?.hasMockData === true) totals.mock += 1;
+        if (event.checkedHostDiffers === true) totals.checkedHost += 1;
+        if (local?.requestTypeMapped === false) totals.unmappedTypes += 1;
+        return totals;
+      },
+      { correlated: 0, blocked: 0, exceptions: 0, mock: 0, checkedHost: 0, unmappedTypes: 0 }
+    );
     if (
       value.coverage.nativeEvents !== value.events.length ||
-      value.coverage.correlatedNativeEvents !== correlated ||
-      value.coverage.uncorrelatedNativeEvents !== value.events.length - correlated ||
-      value.coverage.nativeBlockedEvents !== blocked ||
-      value.coverage.nativeExceptionEvents !== exceptions ||
-      value.coverage.cnameRechecksObserved !== cname
+      value.coverage.correlatedNativeEvents !== tally.correlated ||
+      value.coverage.uncorrelatedNativeEvents !== value.events.length - tally.correlated ||
+      value.coverage.nativeBlockedEvents !== tally.blocked ||
+      value.coverage.nativeExceptionEvents !== tally.exceptions ||
+      value.coverage.nativeMockDataEvents !== tally.mock ||
+      value.coverage.checkedHostDifferences !== tally.checkedHost ||
+      value.coverage.unmappedNativeResourceTypes !== tally.unmappedTypes
     ) {
       issues.push("coverage counters do not derive from events");
     }
@@ -662,16 +773,23 @@ export function nativeShieldsDifferentialReceiptIssues(value: unknown): string[]
     }
   }
   if (isRecord(value.coverage) && isRecord(value.capture) && isRecord(value.simulation)) {
-    const nativeEvents = Number(value.coverage.nativeEvents);
-    const hasCaptureLoss =
-      Number(value.coverage.droppedNetworkRequestRecords) > 0 ||
-      Number(value.coverage.droppedNativeEvents) > 0 ||
-      Number(value.coverage.proxyBlockedTargets) > 0 ||
-      value.coverage.proxyResourceLimitHit === true ||
-      isRecord(value.capture.navigation) && value.capture.navigation.outcome !== "completed" ||
-      value.simulation.engineLoaded !== true ||
-      Number(value.coverage.uncorrelatedNativeEvents) > 0;
-    const expectedStatus = nativeEvents === 0 ? "inconclusive" : hasCaptureLoss ? "partial" : "complete";
+    // Same function the builder used, so the two can never word this rule
+    // differently and turn a future edit into a discarded capture.
+    const expectedStatus = nativeShieldsDifferentialStatus({
+      nativeEvents: Number(value.coverage.nativeEvents),
+      uncorrelatedNativeEvents: Number(value.coverage.uncorrelatedNativeEvents),
+      nativeMockDataEvents: Number(value.coverage.nativeMockDataEvents),
+      unmappedNativeResourceTypes: Number(value.coverage.unmappedNativeResourceTypes),
+      droppedNetworkRequestRecords: Number(value.coverage.droppedNetworkRequestRecords),
+      droppedNativeEvents: Number(value.coverage.droppedNativeEvents),
+      unparsableNetworkRecords: Number(value.coverage.unparsableNetworkRecords),
+      unparsableNativeEvents: Number(value.coverage.unparsableNativeEvents),
+      proxyBlockedTargets: Number(value.coverage.proxyBlockedTargets),
+      proxyResourceLimitHit: value.coverage.proxyResourceLimitHit === true,
+      navigationCompleted:
+        isRecord(value.capture.navigation) && value.capture.navigation.outcome === "completed",
+      engineLoaded: value.simulation.engineLoaded === true
+    });
     if (value.status !== expectedStatus) issues.push("status does not derive from capture coverage");
   }
   return issues;
@@ -690,13 +808,13 @@ function validateReceiptEvent(value: unknown, index: number, issues: string[]): 
     "sourceHost",
     "resourceType",
     "method",
-    "cnameRecheckObserved",
+    "checkedHostDiffers",
     "native",
     "local",
     "agreement"
   ], ["rewrittenUrl"])) issues.push(`event ${index} keys do not match the closed contract`);
   if (!SHA256.test(String(value.requestIdDigest ?? ""))) issues.push(`event ${index} requestIdDigest is invalid`);
-  if (typeof value.correlated !== "boolean" || typeof value.cnameRecheckObserved !== "boolean") {
+  if (typeof value.correlated !== "boolean" || typeof value.checkedHostDiffers !== "boolean") {
     issues.push(`event ${index} correlation flags are invalid`);
   }
   for (const key of ["requestUrl", "checkedUrl"] as const) {
@@ -741,10 +859,17 @@ function validateReceiptEvent(value: unknown, index: number, issues: string[]): 
   }
   if (
     !isRecord(value.local) ||
-    !exactKeys(value.local, ["requestUrlDecision", "checkedUrlDecision", "requestType", "sourceUrlBasis"]) ||
+    !exactKeys(value.local, [
+      "requestUrlDecision",
+      "checkedUrlDecision",
+      "requestType",
+      "requestTypeMapped",
+      "sourceUrlBasis"
+    ]) ||
     !LOCAL_DECISIONS.has(String(value.local.requestUrlDecision)) ||
     !(value.local.checkedUrlDecision === null || LOCAL_DECISIONS.has(String(value.local.checkedUrlDecision))) ||
     !boundedString(value.local.requestType, 32) ||
+    typeof value.local.requestTypeMapped !== "boolean" ||
     !SOURCE_URL_BASES.has(String(value.local.sourceUrlBasis))
   ) issues.push(`event ${index} local decision block is invalid`);
   if (!AGREEMENTS.has(String(value.agreement))) issues.push(`event ${index} agreement is invalid`);
@@ -760,15 +885,22 @@ function groupRequests(requests: RawCdpNetworkRequest[]): Map<string, RawCdpNetw
   return grouped;
 }
 
+/**
+ * A record correlates only when it is the SAME URL Brave checked.
+ *
+ * CDP reuses one requestId across every redirect hop, so "shares a request id"
+ * is not "is the request Brave evaluated". Returning an arbitrary hop used to
+ * mark the event correlated and then evaluate adblock-rust against that hop's
+ * URL, reporting a verdict on hop B against Brave's verdict on hop A as a real
+ * engine disagreement, and hiding the mismatch because everything looked
+ * correlated. An unmatched event is uncorrelated: it evaluates the native URL
+ * and its receipt is `partial`.
+ */
 function correlateRequest(event: RawNativeAdblockEvent, requests: RawCdpNetworkRequest[]): RawCdpNetworkRequest | null {
   if (requests.length === 0) return null;
   const prior = requests.filter((request) => request.sequence <= event.sequence);
   const pool = prior.length > 0 ? prior : requests;
-  return (
-    [...pool].reverse().find((request) => request.url === event.requestUrl) ??
-    [...pool].reverse()[0] ??
-    null
-  );
+  return [...pool].reverse().find((request) => request.url === event.requestUrl) ?? null;
 }
 
 function localContext(
@@ -782,16 +914,24 @@ function localContext(
   sourceUrl: string | null;
   sourceUrlBasis: NativeShieldsDifferentialEvent["local"]["sourceUrlBasis"];
   requestType: string;
+  requestTypeMapped: boolean;
 } {
   if (!request) {
+    // Brave's own resourceType, which is not documented to use CDP's
+    // vocabulary. An unrecognised spelling would silently become "other", and
+    // since adblock-rust rules are type-scoped that manufactures a
+    // disagreement in exactly the uncorrelated case this tool studies. So an
+    // unmapped type is recorded and declines to evaluate.
     const resourceType = (nativeEvent.resourceType ?? "other").toLowerCase();
+    const requestTypeMapped = isKnownResourceType(resourceType);
     const requestType = mapRequestType(cdpResourceTypeToPlaywright(resourceType));
     const sourceUrl = resourceType === "document" ? null : nativeSourceUrl(nativeEvent.sourceHost);
-    return sourceUrl
-      ? { eligible: true, sourceUrl, sourceUrlBasis: "native-source-host", requestType }
-      : { eligible: false, sourceUrl: null, sourceUrlBasis: "unavailable", requestType };
+    return sourceUrl && requestTypeMapped
+      ? { eligible: true, sourceUrl, sourceUrlBasis: "native-source-host", requestType, requestTypeMapped }
+      : { eligible: false, sourceUrl: null, sourceUrlBasis: "unavailable", requestType, requestTypeMapped };
   }
   const resourceType = request.resourceType.toLowerCase();
+  const requestTypeMapped = isKnownResourceType(resourceType);
   const frame = request.frameId ? frames.get(request.frameId) : undefined;
   const isSubFrameNavigation =
     resourceType === "document" &&
@@ -802,23 +942,38 @@ function localContext(
     subFrame: isSubFrameNavigation
   });
   if (resourceType === "document" && !isSubFrameNavigation) {
-    return { eligible: false, sourceUrl: null, sourceUrlBasis: "unavailable", requestType };
+    return { eligible: false, sourceUrl: null, sourceUrlBasis: "unavailable", requestType, requestTypeMapped };
   }
+  const resolved = (
+    sourceUrl: string,
+    sourceUrlBasis: NativeShieldsDifferentialEvent["local"]["sourceUrlBasis"]
+  ) =>
+    requestTypeMapped
+      ? { eligible: true, sourceUrl, sourceUrlBasis, requestType, requestTypeMapped }
+      : { eligible: false, sourceUrl: null, sourceUrlBasis, requestType, requestTypeMapped };
   if (isSubFrameNavigation && frame?.parentId) {
     const parentUrl = httpUrlFromFrameChain(frame.parentId, frames);
-    if (parentUrl) return { eligible: true, sourceUrl: parentUrl, sourceUrlBasis: "parent-frame", requestType };
+    if (parentUrl) return resolved(parentUrl, "parent-frame");
   }
   if (frame) {
     const frameUrl = httpUrlFromFrameChain(frame.id, frames);
-    if (frameUrl) return { eligible: true, sourceUrl: frameUrl, sourceUrlBasis: "frame", requestType };
+    if (frameUrl) return resolved(frameUrl, "frame");
   }
   if (isHttpUrl(request.documentUrl)) {
-    return { eligible: true, sourceUrl: request.documentUrl, sourceUrlBasis: "document-url", requestType };
+    return resolved(request.documentUrl, "document-url");
   }
   if (isHttpUrl(rootSubjectUrl)) {
-    return { eligible: true, sourceUrl: rootSubjectUrl, sourceUrlBasis: "root-subject", requestType };
+    return resolved(rootSubjectUrl, "root-subject");
   }
-  return { eligible: false, sourceUrl: null, sourceUrlBasis: "unavailable", requestType };
+  return { eligible: false, sourceUrl: null, sourceUrlBasis: "unavailable", requestType, requestTypeMapped };
+}
+
+/**
+ * Whether the vocabulary actually knows this spelling, as opposed to
+ * REQUEST_TYPE_MAP quietly answering "other" for anything it has never seen.
+ */
+function isKnownResourceType(resourceType: string): boolean {
+  return Object.hasOwn(REQUEST_TYPE_MAP, cdpResourceTypeToPlaywright(resourceType));
 }
 
 function nativeSourceUrl(sourceHost: string): string | null {
@@ -862,6 +1017,10 @@ function agreement(
     if (request === "would-not-block") return "native-exception-local-nonblock";
     return "native-exception-local-unresolved";
   }
+  // Brave matched a rule and still did not block. That is a distinct observed
+  // state, and folding it into "unclassified" made it indistinguishable from an
+  // event where nothing matched at all.
+  if (event.didMatchRule || event.didMatchImportantRule) return "native-rule-match-no-block";
   return "native-event-unclassified";
 }
 
