@@ -1,0 +1,7 @@
+{
+  "//": "A separate outDir on purpose. `npm run test:unit` begins by deleting .unit-test-dist, so compiling this long-running capture CLI there let a test run delete its entrypoint mid-capture, or let this build rewrite files a running suite was loading.",
+  "extends": "./tsconfig.test.json",
+  "compilerOptions": {
+    "outDir": ".native-shields-dist"
+  }
+}
