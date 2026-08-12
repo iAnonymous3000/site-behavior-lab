@@ -596,7 +596,15 @@ export function buildReportHeadline(
         `The visit with no blocking made ${plural(
           total,
           "request"
-        )}; the visit configured to apply Brave's ad-block engine and default Shields filter lists (a simulation in this scanner's browser, not a live Brave-browser visit) recorded ${plural(removed, "fewer third-party request")}.${engineNote}${extraNote}`
+        // No extraNote here, matching the GPC pair above and for the same
+        // reason the comment at 496 gives: `extras` is computed once from the
+        // BASELINE run's facts, before any branch runs, so appending it to a
+        // pair-framed sentence presents one visit's fingerprinting or
+        // input-monitoring signals as part of the blocking comparison. A
+        // reader cannot tell which visit produced them, and the share card
+        // carries the same conflation. Per-arm attribution is not available at
+        // this point; adding it would need a derivation that does not exist.
+        )}; the visit configured to apply Brave's ad-block engine and default Shields filter lists (a simulation in this scanner's browser, not a live Brave-browser visit) recorded ${plural(removed, "fewer third-party request")}.${engineNote}`
         ,
         undefined,
         undefined,

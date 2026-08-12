@@ -234,6 +234,11 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
   const nativeShadowRootHost = Object.getOwnPropertyDescriptor(ShadowRoot.prototype, "host")?.get;
   const nativeElementShadowRoot = Object.getOwnPropertyDescriptor(Element.prototype, "shadowRoot")?.get;
   const nativeInputValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.get;
+  const nativePreventDefault = Event.prototype.preventDefault;
+  const nativeButtonForm = Object.getOwnPropertyDescriptor(HTMLButtonElement.prototype, "form")?.get;
+  const nativeInputForm = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "form")?.get;
+  const nativeButtonType = Object.getOwnPropertyDescriptor(HTMLButtonElement.prototype, "type")?.get;
+  const nativeInputType = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "type")?.get;
   const nativeDocumentBody = Object.getOwnPropertyDescriptor(Document.prototype, "body")?.get;
   const nativeDocumentElement = Object.getOwnPropertyDescriptor(Document.prototype, "documentElement")?.get;
   const nativeClientWidth = Object.getOwnPropertyDescriptor(Element.prototype, "clientWidth")?.get;
@@ -487,6 +492,36 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
       return false;
     }
   };
+  /**
+   * Whether activating this element would submit a form.
+   *
+   * Read through native accessors so a page cannot hide its own form
+   * association from us: the whole point is to refuse a side effect on a
+   * hostile or merely ordinary site. A control outside a form is never a
+   * submit control, and an explicit type="button" or type="reset" is not one
+   * either, which is what keeps ordinary CMP buttons clickable.
+   */
+  const isFormSubmitControl = (element: Element): boolean => {
+    try {
+      const tag = element.tagName;
+      if (tag === "BUTTON") {
+        if (!nativeButtonForm || !nativeReflectApply(nativeButtonForm, element, [])) return false;
+        // Missing or invalid type attribute defaults to "submit".
+        const type = nativeButtonType ? nativeReflectApply(nativeButtonType, element, []) : "submit";
+        return type === "submit";
+      }
+      if (tag === "INPUT") {
+        if (!nativeInputForm || !nativeReflectApply(nativeInputForm, element, [])) return false;
+        const type = nativeInputType ? nativeReflectApply(nativeInputType, element, []) : "";
+        return type === "submit" || type === "image";
+      }
+      return false;
+    } catch {
+      // Unreadable form association: assume it could submit. Refusing a real
+      // consent measurement is a smaller harm than POSTing a stranger's form.
+      return true;
+    }
+  };
   const hasConsentContext = (
     element: Element,
     knownConsentHost: boolean,
@@ -577,6 +612,24 @@ export function installConsentShadowRootCapture(args: ConsentShadowRootCaptureAr
           composed: true,
           view: trustedWindow
         }]) as MouseEvent;
+        // A synthetic click on a form's submit control runs the form's
+        // activation behavior, so a consent control that is a bare <button> or
+        // an <input type="submit"> inside a <form> made this scanner POST that
+        // form to the site being measured. Reproduced against a real server:
+        // a signup form whose ancestor text merely mentions cookies submitted
+        // with the visitor's fields. This project observes sites; it must not
+        // change their state.
+        //
+        // Pre-cancelling only the submit case, rather than every dispatch: the
+        // page's own click handler still runs either way, which is what a real
+        // CMP control needs, but a blanket preventDefault would also suppress
+        // navigation for <a href> consent controls, which do legitimately
+        // register a choice that way. Requiring type="button" was rejected for
+        // the same reason: most real CMP accept buttons are bare <button>, and
+        // outside a <form> a bare button is harmless.
+        if (isFormSubmitControl(element)) {
+          nativeReflectApply(nativePreventDefault, event, []);
+        }
         nativeReflectApply(nativeDispatchEvent, element, [event]);
         return true;
       } catch {

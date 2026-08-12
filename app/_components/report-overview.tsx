@@ -227,7 +227,17 @@ function useCorpusStats(): CorpusStats | null {
           setCorpus(corpusStatsCache);
         },
         onError: () => {
-          corpusStatsCache = null;
+          // Deliberately does NOT write the cache. A transport or parse failure
+          // is transient, and caching it disabled percentile severity for the
+          // rest of the tab even after /corpus-stats.json recovered, so a later
+          // PDF render in a fresh realm could rank a report differently from
+          // the page still open in front of the reader. Leaving the cache
+          // unset lets the next mount retry.
+          //
+          // The success branch above still caches `null` for a payload that was
+          // served but failed the shape check: refetching a deployment's own
+          // malformed asset cannot produce a different answer, so that negative
+          // is durable and this one is not.
           setCorpus(null);
         }
       }
