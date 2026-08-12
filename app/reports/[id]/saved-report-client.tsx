@@ -1,7 +1,7 @@
 "use client";
 
 import { FlaskConical, Loader2 } from "lucide-react";
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { readLoadedReport } from "@/lib/client-report-reader";
 import {
   LatestClientOperation,
@@ -13,6 +13,7 @@ import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limi
 import type { LoadedReport } from "@/lib/scan-report-view";
 import { ThemeToggle } from "@/app/_components/theme-toggle";
 import { staticAssetPath } from "../../client-runtime";
+import { SITE_TRUST_LINKS } from "@/lib/site-navigation";
 
 const LazyReportRenderer = lazy(() =>
   import("../../_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
@@ -203,13 +204,17 @@ export function SavedReportClient({
         <footer className="app-footer">
           <span className="app-footer-links">
             Site Behavior Lab: open-source web transparency tooling. {" "}
-            <a className="footer-link" href={staticAssetPath("/glossary/")}>Glossary</a>{" · "}
-            <a className="footer-link" href={staticAssetPath("/methodology/")}>Methodology</a>{" · "}
-            <a className="footer-link" href={staticAssetPath("/privacy/")}>Privacy</a>{" · "}
-            <a className="footer-link" href={staticAssetPath("/catalog/")}>Catalog</a>{" · "}
-            <a className="footer-link" href={staticAssetPath("/status/")}>Status</a>{" · "}
-            <a className="footer-link" href={staticAssetPath("/security/")}>Security</a>{" · "}
-            <a className="footer-link" href={staticAssetPath("/corrections/")}>Corrections</a>
+            {/* The shared list, not a third hand-written copy. This footer had
+                the same seven routes as the home shell and the same omission of
+                /about/, on the surface readers forward most. */}
+            {SITE_TRUST_LINKS.map((link, index) => (
+              <Fragment key={link.href}>
+                {index > 0 ? " · " : null}
+                <a className="footer-link" href={staticAssetPath(link.href)}>
+                  {link.label}
+                </a>
+              </Fragment>
+            ))}
           </span>
           <span className="app-footer-caveat">
             Reports use one completed automated visit per condition. Reproducible for this configuration, not a

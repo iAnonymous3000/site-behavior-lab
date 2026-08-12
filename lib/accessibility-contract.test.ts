@@ -519,7 +519,10 @@ test("scan failures and evidence-load failures relocate keyboard focus", () => {
 test("every route reaches the trust surfaces and the theme control", () => {
   const trust = source("app/_components/trust-links.tsx");
   assert.match(trust, /<ThemeToggle \/>/);
-  assert.match(trust, /href="\/glossary\/"/);
+  // Renders the shared trust-link set rather than its own literal hrefs; the
+  // set's contents and every surface that must publish it are enforced in
+  // site-navigation.test.ts.
+  assert.match(trust, /SITE_TRUST_LINKS/);
 
   // The toggle used to exist on the home and report shells only, so a reader arriving
   // from search on any indexed library or policy page could not change theme.

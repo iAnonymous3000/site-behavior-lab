@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { loadCorpusOverview } from "./corpus-overview";
+import { SITE_TRUST_LINKS } from "./site-navigation";
 import { buildCategoryEvidencePages } from "./directory-view";
 
 const root = process.cwd();
@@ -36,13 +37,22 @@ test("catalog copy scopes official references to entity identity, not suffixes o
 });
 
 test("catalog and project trust surfaces are linked from both primary footers", () => {
-  const trustLinks = source("app/_components/trust-links.tsx");
-  const home = source("app/site-behavior-app.tsx");
-  const report = source("app/reports/[id]/saved-report-client.tsx");
-  for (const route of ["catalog", "status", "security", "corrections"]) {
-    assert.match(trustLinks, new RegExp(`href="/${route}/"`));
-    assert.match(home, new RegExp(`staticAssetPath\\("/${route}/"\\)`));
-    assert.match(report, new RegExp(`staticAssetPath\\("/${route}/"\\)`));
+  // Each surface renders the one shared list, so the routes are guaranteed by
+  // membership rather than by three copies of the same grep. Those greps were
+  // why /about/ could ship absent from two of these three footers: each one
+  // only ever asserted the routes it already had.
+  for (const route of ["/catalog/", "/status/", "/security/", "/corrections/"]) {
+    assert.ok(
+      SITE_TRUST_LINKS.some((link) => link.href === route),
+      `${route} must stay in the shared trust-link set`
+    );
+  }
+  for (const surface of [
+    "app/_components/trust-links.tsx",
+    "app/site-behavior-app.tsx",
+    "app/reports/[id]/saved-report-client.tsx"
+  ]) {
+    assert.match(source(surface), /SITE_TRUST_LINKS/, `${surface} must render the shared set`);
   }
 });
 

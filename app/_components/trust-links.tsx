@@ -1,7 +1,6 @@
 import Link from "next/link";
+import { SITE_TRUST_LINKS, SOURCE_REPOSITORY_URL } from "@/lib/site-navigation";
 import { ThemeToggle } from "./theme-toggle";
-
-const SOURCE_URL = "https://github.com/iAnonymous3000/site-behavior-lab";
 
 /**
  * Public trust surfaces kept together so policy pages do not drift, plus the theme
@@ -13,15 +12,12 @@ export function TrustLinks() {
   return (
     <div className="trust-links-row">
       <nav className="trust-links" aria-label="Project trust and transparency">
-        <Link href="/about/">About</Link>
-        <Link href="/glossary/">Glossary</Link>
-        <Link href="/status/">Status</Link>
-        <Link href="/catalog/">Catalog</Link>
-        <Link href="/methodology/">Methodology</Link>
-        <Link href="/privacy/">Privacy</Link>
-        <Link href="/security/">Security</Link>
-        <Link href="/corrections/">Corrections</Link>
-        <a href={SOURCE_URL}>Source</a>
+        {SITE_TRUST_LINKS.map((link) => (
+          <Link key={link.href} href={link.href}>
+            {link.label}
+          </Link>
+        ))}
+        <a href={SOURCE_REPOSITORY_URL}>Source</a>
       </nav>
       <ThemeToggle />
     </div>
