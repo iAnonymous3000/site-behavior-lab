@@ -931,10 +931,11 @@ watch), then remove it. See [encrypted-watches.md](encrypted-watches.md).
   `2026-07-29 11:25`; a separate `/reports/` query returned eight visible
   matches spanning `2026-07-22 13:04` through `2026-07-29 11:42`, all with
   report identifiers redacted, including `/reports/REDACTED`. These
-  point-in-time receipts close the WAF and historical log-query follow-ups for
-  this release; capture fresh receipts for later releases. This closes only the
-  WAF prerequisite for durable public admissions; the separate durable-
-  execution rollout gates above still apply. The independently authenticated
+  point-in-time receipts are not committed as canonical evidence, so the
+  `waf-ceilings` and `log-retention` release gates both still report open;
+  re-capture them for any release that needs those gates closed. The observed
+  WAF behavior closes only the prerequisite for durable public admissions; the
+  separate durable-execution rollout gates above still apply. The independently authenticated
   fixed-prefix R2 delete canary is now active and required: its direct smoke and
   Production Health run 30483261603 both passed the write/read/delete/absence
   contract. A platform-compatible independent egress backstop remains an

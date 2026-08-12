@@ -454,9 +454,11 @@ Observability dashboard query returned 80 visible `/api/health` matches spanning
 dashboard timestamps `2026-07-22 18:23` through `2026-07-29 11:25`; a separate
 `/reports/` query returned eight visible matches spanning `2026-07-22 13:04`
 through `2026-07-29 11:42`, all with report identifiers redacted. The required
-delete canary receipt is recorded below. These point-in-time receipts close the
-WAF and historical log-query follow-ups for this release; re-capture them for
-later releases. The independent egress backstop remains operator work.
+delete canary receipt is recorded below. These point-in-time receipts are not
+committed as canonical evidence, so the `waf-ceilings` and `log-retention`
+release gates both still report open; re-capture them for any release that
+needs those gates closed. The independent egress backstop remains operator
+work.
 
 ### Activate the dedicated R2 delete canary
 
