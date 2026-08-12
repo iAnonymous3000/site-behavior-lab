@@ -5,6 +5,7 @@ import type { ReportCorrections } from "@/lib/corrections-ledger";
 import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
 import {
+  degradedRunNotice,
   runQualitySummary,
   schemaProvenanceLabel,
   type ReportView,
@@ -39,6 +40,7 @@ export function ReportPageContext({
   view: ReportView;
 }) {
   const activation = reportActivation({ id, reportUrl, siteHistoryAvailable: permanent, view });
+  const degradedNotice = degradedRunNotice(view);
   const profileHref = activation.profilePath
     ? `${sitePagesBasePath()}${activation.profilePath}/`
     : null;
@@ -63,6 +65,18 @@ export function ReportPageContext({
 
       {(corrections.currentSubjectEvent || corrections.replacementEvents.length > 0) && (
         <ReportCorrectionNotice corrections={corrections} />
+      )}
+
+      {/* Above the fold and above the numbers it qualifies. The evidence
+          receipt already carries per-visit run quality, but it sits several
+          facts down inside a section a reader scrolling to the tables never
+          reads, and on paper the tables look complete for pages. */}
+      {degradedNotice && (
+        <section className="report-incomplete-notice" role="status" aria-labelledby="report-incomplete-title">
+          <p className="eyebrow">Evidence quality</p>
+          <h2 id="report-incomplete-title">This report is built on an incomplete visit</h2>
+          <p>{degradedNotice}</p>
+        </section>
       )}
 
       <div className="report-activation">
@@ -120,13 +134,24 @@ export function ReportPageContext({
                     rendering of the evidence, not the evidence: the JSON wire
                     stays canonical, and the footer inside the document says so.
 
-                    Deliberately no `download` attribute. The response already
-                    carries Content-Disposition: attachment, so a success still
-                    downloads with the right filename, and a refusal (the
+                    Deliberately no `download` attribute. The response is
+                    Content-Disposition: inline, so this opens the browser's PDF
+                    viewer rather than dropping a file, and a refusal (the
                     renderer is busy, the report is too large) stays visible
-                    instead of becoming a failed download with no reason. */}
-                <a className="secondary-button" href={reportPdfHref(id)}>
-                  Download PDF
+                    instead of becoming a failed download with no reason.
+
+                    Opens beside the report, never over it, matching the control
+                    in report-header.tsx: a render can take tens of seconds on a
+                    large report, and replacing the reader's page with a blank
+                    tab that may still refuse is the worst of both. */}
+                <a
+                  className="secondary-button"
+                  href={reportPdfHref(id)}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Open PDF
+                  <span className="visually-hidden"> (opens in a new tab)</span>
                 </a>
               </>
             )}

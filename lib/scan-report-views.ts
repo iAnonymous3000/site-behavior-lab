@@ -1358,6 +1358,42 @@ export function schemaProvenanceLabel(view: ReportView): string {
  * derived from status and warnings (v1), so a derived guess is never read as
  * recorded fact.
  */
+/**
+ * A reader-facing notice when this report's evidence is incomplete, or null.
+ *
+ * The run-quality string already says this, but only inside the evidence
+ * receipt, several facts down. A printed report is dozens of pages of tables
+ * that look complete, and a reader who never reaches the receipt has no way to
+ * know a phase was cut short. So the same fact gets a place a reader cannot
+ * miss, on paper and on screen.
+ *
+ * Deliberately NOT triggered by unsupported evidence families. A PageGraph
+ * import declaring cookies unsupported is the import working as designed, not
+ * a degraded run, and flagging it would make the notice routine enough to
+ * ignore.
+ */
+export function degradedRunNotice(view: ReportView): string | null {
+  const failed = view.runs.filter((run) => run.quality.outcome === "failed");
+  const cutShort = view.runs.filter(
+    (run) => run.quality.outcome !== "failed" && runCensorshipNotes(run).length > 0
+  );
+  if (failed.length === 0 && cutShort.length === 0) return null;
+
+  const parts: string[] = [];
+  if (failed.length > 0) {
+    parts.push(
+      `${failed.length === view.runs.length ? "The visit" : `${failed.length} of ${view.runs.length} visits`} did not complete`
+    );
+  }
+  if (cutShort.length > 0) {
+    const reasons = [...new Set(cutShort.flatMap((run) => runCensorshipNotes(run)))];
+    parts.push(
+      `evidence was cut short before completion (${reasons.slice(0, 2).join("; ")}${reasons.length > 2 ? `; and ${reasons.length - 2} more` : ""})`
+    );
+  }
+  return `Incomplete evidence: ${parts.join(", and ")}. Counts below are lower bounds for a visit that did not finish, so an absence here is especially weak evidence. The evidence receipt states the exact per-visit quality.`;
+}
+
 export function runQualitySummary(run: RunView): string {
   const basis =
     run.conditions.automation === "brave-pagegraph"

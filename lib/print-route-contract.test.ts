@@ -173,7 +173,15 @@ test("the PDF download is offered on the same deployment that can render it", ()
   // link must be behind the same gate: an unconditional one would ship a dead
   // download button on every committed report Pages serves.
   const context = source("app/_components/report-page-context.tsx");
-  assert.match(context, /Download PDF/, "a reader needs a way to get the report as a file");
+  assert.match(context, /Open PDF/, "a reader needs a way to get the report as a document");
+  // Opening beside the report rather than over it. A render can take tens of
+  // seconds and can still refuse, so navigating the tab away would cost the
+  // reader the page they were on for a document that may never arrive.
+  assert.match(
+    context,
+    /href=\{reportPdfHref\(id\)\}\s*\n\s*target="_blank"/,
+    "the PDF control must open in a new tab, like the one in report-header.tsx"
+  );
   assert.match(
     context,
     /href=\{reportPdfHref\(id\)\}/,
@@ -206,5 +214,28 @@ test("the PDF route is an API route, so the static export drops it with the rest
     contents,
     /x-robots-tag/,
     "a generated rendering must not become an indexable surface competing with the report"
+  );
+  // `inline`, so the tab the control opens SHOWS the document. With
+  // `attachment` that tab goes blank and a file lands in a downloads folder,
+  // which is how a reader ends up forwarding evidence they never looked at.
+  // Saving still works from the viewer, and still uses this filename.
+  assert.match(
+    contents,
+    /"content-disposition": `inline; filename="\$\{filename\}"`/,
+    "the PDF must render in the browser's viewer rather than downloading unseen"
+  );
+
+  // The same rule is asserted again in scripts/smoke-docker.mjs, against a
+  // real running container. That copy is the one CI runs, and it is the reason
+  // switching this header passed every local gate and still failed the Docker
+  // smoke: the contract lived in two files and only the far one was exercised.
+  // Pin them to each other so a local run catches the divergence.
+  const smoke = source("scripts/smoke-docker.mjs");
+  const smokeRule = smoke.match(/if \(!\/\^(\w+);\\s\*filename=/);
+  assert.ok(smokeRule, "the Docker smoke must still assert a content-disposition shape");
+  assert.equal(
+    smokeRule![1],
+    "inline",
+    "smoke-docker.mjs expects a different disposition than the route emits; they are one contract"
   );
 });

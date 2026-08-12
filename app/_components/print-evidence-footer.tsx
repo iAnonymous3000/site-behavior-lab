@@ -1,5 +1,6 @@
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
 import { COVERAGE_BOUNDARY_URL, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
+import { REPORT_ID_PATTERN } from "@/lib/report-validation";
 
 /**
  * Print-only evidence footer for a saved report.
@@ -28,8 +29,22 @@ export function PrintEvidenceFooter({
   /** SHA-256 of the exact stored wire bytes, not of this rendering. */
   wireSha256: string;
 }) {
+  // Feeds the @page running footer, which cannot reach React state and has no
+  // access to the DOM. A page-margin box can only read a custom property, so
+  // the id is published as one here rather than repeated per page.
+  //
+  // This is a string interpolated into a stylesheet, so it is validated rather
+  // than trusted: only the canonical report-id shape is emitted, and anything
+  // else omits the property entirely and leaves the footer showing page numbers
+  // alone. Ids are minted server-side, but a validator at the injection point
+  // is what makes that irrelevant.
+  const runningHead = REPORT_ID_PATTERN.test(id)
+    ? `:root{--print-report-id:"Report ${id}"}`
+    : null;
+
   return (
     <footer className="print-evidence-footer">
+      {runningHead && <style>{runningHead}</style>}
       <p>
         Printed copy of {reportUrl}. This print is a rendering, not the evidence; the JSON wire is
         canonical. Exact evidence bytes: SHA-256 <code>{wireSha256}</code>.

@@ -11,6 +11,24 @@ Work landing after the 0.4.0 milestone. Nothing here is released.
 
 ### Added
 
+- Every printed page carries "Page N of M" and the report id it belongs to. A
+  multi-page evidence document with no page numbers cannot be cited in a
+  filing, and a removed or reordered page left no trace. Done in CSS `@page`
+  margin boxes rather than the PDF renderer's own footer, so a browser print
+  and the generated PDF get the same running footer from one source.
+- A report built on an incomplete visit says so above the numbers it
+  qualifies, on screen and on paper, including why it matters: an absence
+  inside a visit that did not finish is especially weak evidence. Run quality
+  already recorded this, but only inside the evidence receipt, which a reader
+  scrolling to the tables never opens.
+- The exported PDF opens in the browser's viewer instead of downloading
+  unseen, so a reader can look at the document before keeping it. Saving still
+  works from the viewer, keeps the same filename, and costs no second render.
+- Guards on the sentences this project publishes about itself: the manifest
+  lookup in `docs/verify-a-report.md` is executed against a committed receipt
+  and its digest compared to the real file, and a boundary entry may no longer
+  assert a sweeping universal about what the report format contains. Both were
+  mutation-tested against defects that had actually shipped.
 - Printed report pages carry an evidence footer with the exact wire SHA-256 of
   the bytes they render, the verification command in both its live-site and
   `--from` forms, and a statement that the print is a rendering rather than the
