@@ -1400,7 +1400,7 @@ export function degradedRunNotice(view: ReportView): string | null {
   const lowerBoundClause =
     failed.length > 0
       ? "Counts below are lower bounds for a visit that did not finish, so an absence here is especially weak evidence."
-      : `Counts for the affected evidence are lower bounds, so an absence there is especially weak evidence; families that completed carry only their ordinary coverage limits.`;
+      : "Counts for the affected evidence are lower bounds; families that completed carry only their ordinary limits.";
   return `Incomplete evidence: ${parts.join(", and ")}. ${lowerBoundClause} The evidence receipt states the exact per-visit quality.`;
 }
 

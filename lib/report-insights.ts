@@ -343,7 +343,6 @@ export type ShieldsRunMeasurement = {
    * not describe a derived count as verified: on a legacy report the
    * verification facts are precisely what is missing.
    */
-  origin: "recorded" | "legacy-derived";
   /**
    * How many requests the engine actually EVALUATED, when the run recorded it.
    *
@@ -353,10 +352,15 @@ export type ShieldsRunMeasurement = {
    * the frozen counter. Pairing the matched count with the retained total
    * therefore reads as a ratio over requests that were never evaluated.
    *
-   * Null on a legacy-derived measurement, which carries no evaluation record.
+   * Paired with `origin` as a discriminated union: a recorded measurement
+   * always has the number, a legacy-derived one never does. That removes the
+   * unreachable "recorded but unknown denominator" branch a reader would
+   * otherwise have to be given wording for.
    */
-  evaluated: number | null;
-};
+} & (
+  | { origin: "recorded"; evaluated: number }
+  | { origin: "legacy-derived"; evaluated: null }
+);
 
 /**
  * The Shields engine measurement a run carries, or null when the engine was

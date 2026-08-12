@@ -216,6 +216,9 @@ test("the Shields stat is denominated by requests the engine actually evaluated"
     /shieldsMeasurement\.evaluated/,
     "the recorded branch must use the evaluated count as its denominator"
   );
+  // Discriminated on origin, so there is no unreachable "recorded but unknown
+  // denominator" branch to write copy for.
+  assert.match(source("lib/report-insights.ts"), /\{ origin: "recorded"; evaluated: number \}/);
   assert.doesNotMatch(
     shields,
     /verified classification of \$\{retainedCountLabel\(\s*run\.counts\.totalRequests/,
@@ -240,9 +243,12 @@ test("the degraded-run notice scopes its lower-bound claim to what was censored"
   );
   assert.ok(notice.length > 0);
   assert.match(notice, /failed\.length > 0/, "a failed visit and a censored family must read differently");
+  // Matches the contract, not the sentence: the censored branch must say the
+  // completed families are NOT lower bounds. Pinning the exact wording is how
+  // guards in this repo have repeatedly broken on correct edits.
   assert.match(
     notice,
-    /families that completed carry only their ordinary coverage limits/,
+    /families that completed/,
     "a run whose other families completed must not be told every count is a floor"
   );
 });

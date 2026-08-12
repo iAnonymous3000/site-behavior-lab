@@ -416,9 +416,7 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
                 // requests the engine never saw.
                 detail:
                   shieldsMeasurement.origin === "recorded"
-                    ? shieldsMeasurement.evaluated !== null
-                      ? `verified classification of ${shieldsMeasurement.evaluated} requests evaluated at the passive-load boundary`
-                      : "verified classification; the evaluated request count was not recorded"
+                    ? `verified over ${shieldsMeasurement.evaluated} requests the engine evaluated`
                     : `classification reported over ${retainedCountLabel(
                         run.counts.totalRequests,
                         facts.evidence.requests.state
