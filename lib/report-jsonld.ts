@@ -66,7 +66,12 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
     isAccessibleForFree: true,
     creator: { "@type": "Organization", name: "Site Behavior Lab" },
     dateCreated: scannedAt,
-    measurementTechnique: "Automated Chromium visit",
+    // Derived, never assumed. This was hard-coded to the Chromium string, so a
+    // Brave PageGraph import published machine-readable structured data
+    // describing an instrument that did not take the measurement. Structured
+    // data is consumed by aggregators that never read the page, which makes a
+    // wrong value here harder to notice and more durable than wrong prose.
+    measurementTechnique: measurementTechniqueFor(run.conditions.automation),
     keywords: ["web tracking", "third-party trackers", "cookies", "browser fingerprinting", headline.domain],
     // v2 route shapes deliberately contain privacy placeholders such as
     // `{seg}`. They describe the measured subject but are not navigable URLs,
@@ -92,6 +97,22 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
   }
 
   return dataset;
+}
+
+/**
+ * The instrument that actually produced the run, for schema.org consumers.
+ *
+ * A PageGraph import is a self-reported headful Brave Nightly capture adapted
+ * from outside this service, which is a different instrument with different
+ * evidence families, and the methodology page already says so in prose. The
+ * structured data said "Automated Chromium visit" regardless.
+ */
+function measurementTechniqueFor(automation: string): string {
+  if (automation === "brave-pagegraph") {
+    return "Imported Brave PageGraph capture, self-reported";
+  }
+  if (automation === "external") return "Imported external capture, self-reported";
+  return "Automated Chromium visit";
 }
 
 function urlMatchesSubjectDomain(url: string, domain: string): boolean {
