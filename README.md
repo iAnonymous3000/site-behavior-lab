@@ -45,6 +45,7 @@ The project is open source under the [AGPL-3.0-or-later](LICENSE) so anyone can 
 - Paired GraphML + sidecar [PageGraph r2 importer](docs/pagegraph-adapter.md) with strict request-only provenance, explicit unsupported-family availability, and a sanitized real Brave Nightly fixture; tolerant v1 adapter helpers remain legacy/internal compatibility utilities.
 - Browser evidence imports fail closed above 8 MiB for public report JSON, 16 MiB for GraphML, or 256 KiB for its metadata sidecar; the separate 32 MiB server/history ceiling remains available only to managed storage and remediation paths.
 - PageGraph corpus Phase 0 (`npm run corpus:pagegraph`): GraphML in, DuckDB-queryable fact tables out, with a filter-rule impact simulator that computes downstream removal as a transitive closure over the causal graph. See the [proposal](docs/pagegraph-corpus-db-proposal.md) and the [Phase 0 spike](docs/pagegraph-corpus-phase0.md).
+- Research-only native Brave Shields differential (`npm run shields:native-diff`): launches a pinned local Brave executable behind the same connect-time public-address proxy, correlates Brave's sparse `Network.requestAdblockInfoReceived` events by CDP request id, compares them with the vendored adblock-rust boolean decision, and writes a bounded redacted companion receipt. It does not produce or modify a public ScanReport. See [the native differential contract](docs/native-shields-differential.md).
 - Evidence report with:
   - plain-language findings board that translates the evidence into severity-ranked cards
   - summary metrics
