@@ -7,10 +7,40 @@ public API or a 1.0 release.
 
 ## Unreleased
 
-Work landing after the 0.4.0 milestone. Nothing here is released.
+Work landing after the 0.5.0 milestone. Nothing here is released.
+
+## [0.5.0] - 2026-08-11
+
+Evidence you can print, cite, and check. A report now leaves the browser as a
+document with page numbers and a running identity, says on its face when the
+visit behind it was incomplete, and carries the boundary of what this
+instrument does not measure onto the artifact itself rather than leaving it on
+a page the reader never visits. The disclosure surfaces were corrected against
+the code they describe, and two guards now hold them there.
+
+It does not declare a stable public API, enable npm publication, or claim any
+readiness gate its own evaluator reports as failing. The 1.0 readiness check
+does not run for a governed 0.x ceremony and no gate here is asserted as
+passed. ScanReport contracts are unchanged: v1 frozen, v2/r1 and v2/r2
+byte-immutable.
 
 ### Added
 
+- The published coverage boundary gained the three surfaces it was missing:
+  timing side channels, geolocation, and the Permissions API, all verifiably
+  uninstrumented and none of them previously listed for a reader consulting
+  what this scanner does not measure. Its guard also widened from reading two
+  scanner sources to eight, with two derivations that refuse any module able to
+  reach the page but absent from that list, because three such modules already
+  were.
+- A research-only native Brave Shields differential (`npm run
+  shields:native-diff`) that launches a pinned local Brave behind the same
+  connect-time public-address proxy every scan uses, correlates Brave's sparse
+  `Network.requestAdblockInfoReceived` events with CDP requests, and writes a
+  bounded redacted receipt. It is deliberately not a ScanReport producer: the
+  public wire is unchanged. Its receipt states that a native event is emitted
+  only for a block or a matched exception, so no event is not an allow verdict
+  and the stream is not a denominator for error rates.
 - Every printed page carries "Page N of M" and the report id it belongs to. A
   multi-page evidence document with no page numbers cannot be cited in a
   filing, and a removed or reordered page left no trace. Done in CSS `@page`
@@ -79,6 +109,21 @@ Work landing after the 0.4.0 milestone. Nothing here is released.
 - `SITE_BEHAVIOR_LAB_REPORT_MAX_AGE_DAYS` accepted any value, so a share could
   publish an expiry the storage bucket's own eight-day deletion rule destroyed
   first. The effective TTL is now clamped strictly below the bucket rule.
+- The reader-facing verification recipe did not run. `docs/verify-a-report.md`
+  told a skeptic to read a top-level `files` key that no real evidence manifest
+  has, so the published snippet raised `KeyError` on every receipt. Both
+  corrected commands were executed against a committed receipt before shipping.
+- A published boundary entry claimed no report field holds request headers at
+  all, which its own GPC readback falsifies. The claim is now scoped, and it had
+  shipped inside a card the catalog page labels as enforced by test.
+- The native Shields differential reported comparisons it had not made.
+  Correlation required only a shared CDP request id and fell back to an
+  arbitrary record, so an ordinary redirect (which reuses one id across hops)
+  made it compare one engine's verdict on one URL with the other's on a
+  different URL and report the difference as real. Brave's own synthetic-data
+  flag reached the wire but no decision, and an unrecognised resource type was
+  evaluated as a guessed one, manufacturing disagreements in exactly the cases
+  the tool exists to study.
 
 ## [0.4.0] - 2026-08-01
 
@@ -514,6 +559,7 @@ activation gate has passed or that the corresponding production control is live.
   authorizes enabling the currently off feature flags.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
+[0.5.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.5.0
 [0.4.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.4.0
 [0.4.0-rc.1]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.4.0-rc.1
 [0.3.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.3.0
