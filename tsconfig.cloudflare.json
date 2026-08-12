@@ -11,7 +11,6 @@
     "lib/durable-restart-control-auth.ts",
     "lib/durable-restart-control-store.ts",
     "lib/durable-restart-route-authorization.ts",
-    "lib/durable-restart-route-authorization.ts",
     "lib/fingerprint-observer.ts",
     "lib/report-url.ts",
     "lib/scan-runtime.ts",

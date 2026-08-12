@@ -39,22 +39,6 @@ export type EncryptedWatchPayload = EncryptedWatchPayloadV1;
 
 export type EncryptedWatchesFlagState = "disabled" | "enabled" | "misconfigured";
 
-export type EncryptedWatchReadinessState =
-  | "disabled"
-  | "misconfigured"
-  | "key-unavailable"
-  | "key-not-isolated"
-  | "durable-jobs-unavailable"
-  | "ready";
-
-export type EncryptedWatchReadinessInput = Readonly<{
-  flagValue: string | undefined;
-  encryptionKeyConfigured: boolean;
-  encryptionKeyIsolated: boolean;
-  durableJobsRequested: boolean;
-  durableJobsReady: boolean;
-}>;
-
 export type EncryptedWatchOperation = "create" | "claim-due" | "read-metadata" | "read-target" | "delete";
 
 /** Feature flags are exact wire contracts; whitespace and truthy aliases fail closed. */

@@ -7,8 +7,7 @@ import {
   committedSidecarFilename,
   isProvenanceEntry,
   matchProvenance,
-  matchProvenanceAtVersion,
-  r2SidecarKey
+  matchProvenanceAtVersion
 } from "./redaction-provenance";
 
 const REPORT = { schemaVersion: 1, reportType: "single", summary: { firstPartyDomain: "example.com" } };
@@ -27,7 +26,6 @@ function entryFor(report: unknown) {
 test("sidecar names live outside the report-id pattern", () => {
   const id = "20260711-" + "a".repeat(32);
   assert.equal(committedSidecarFilename(id), `${id}.provenance.json`);
-  assert.equal(r2SidecarKey(`reports/${id}.json`), `reports/${id}.json.provenance.json`);
   // The corpus file pattern must never match a sidecar.
   assert.equal(/^([0-9]{8}-[0-9a-f]{32})\.json$/.test(committedSidecarFilename(id)), false);
 });

@@ -5,8 +5,6 @@ import {
 } from "./privacy-safe-observability";
 import { readRequestBodyWithinLimit } from "./edge-scan-gate";
 
-export const AGGREGATE_METRICS_FLAG = "SITE_BEHAVIOR_LAB_AGGREGATE_METRICS" as const;
-export const AGGREGATE_METRICS_BINDING = "AGGREGATE_METRICS" as const;
 export const PRIVACY_SAFE_EVENT_MAX_BYTES = 320;
 
 export type AggregateMetricsDataPoint = {

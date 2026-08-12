@@ -10,7 +10,7 @@ import {
   listDanglingStaticSidecarIds,
   listStaticReportIds,
   readStaticReportBundle,
-  removeStaticReportBundle
+  removeStaticReportBundleUnderLock
 } from "./static-report-files";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 
@@ -166,7 +166,7 @@ test("bundle removal deletes and verifies both the sidecar and report", async ()
   const id = "20260701-" + "f".repeat(32);
   await writeManagedReport(id);
 
-  await removeStaticReportBundle(reportsDir, id);
+  await removeStaticReportBundleUnderLock(reportsDir, id);
   await assert.rejects(() => access(path.join(reportsDir, `${id}.json`)), /ENOENT/);
   await assert.rejects(() => access(path.join(reportsDir, committedSidecarFilename(id))), /ENOENT/);
   assert.deepEqual(await readStaticReportBundle(reportsDir, id), { outcome: "not-found" });
