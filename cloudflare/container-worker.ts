@@ -651,10 +651,23 @@ export class ScannerContainer extends Container<Env> {
     );
   }
 
-  /** Free the slot. Safe to call when this capability holds none. */
-  releaseDurablePreparationSlot(input: { capabilityHash: ArrayBuffer }): void {
+  /**
+   * Free the slot. Safe to call when this capability holds none.
+   *
+   * Fenced on the reservation's own expiry. Without it, a late release from a
+   * finished attempt deletes by capability hash alone and can remove a LATER
+   * reservation the same capability has already taken, letting two /prepare
+   * runs overlap, which is the exact overlap the slot exists to prevent. The
+   * store has accepted this fence since it was written; only the callers were
+   * still deleting unconditionally.
+   */
+  releaseDurablePreparationSlot(input: { capabilityHash: ArrayBuffer; reservedExpiresAt: number }): void {
     this.ctx.storage.transactionSync(() => {
-      releaseDurablePreparationInStore(this.ctx.storage.sql, input.capabilityHash);
+      releaseDurablePreparationInStore(
+        this.ctx.storage.sql,
+        input.capabilityHash,
+        input.reservedExpiresAt
+      );
     });
   }
 
@@ -2991,7 +3004,10 @@ export default {
             // also expires with the admission window it was taken under.
             try {
               await getContainer(env.SCANNER).releaseDurablePreparationSlot({
-                capabilityHash: scanAdmissionKey.capabilityHash
+                capabilityHash: scanAdmissionKey.capabilityHash,
+                // Fence on the reservation this attempt actually holds, so a
+                // late release cannot delete a successor's row.
+                reservedExpiresAt: reservation.expiresAt
               });
             } catch (error) {
               // The row expires on its own; never convert a cleanup failure

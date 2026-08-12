@@ -617,6 +617,13 @@ type ConsentChoiceProbeOutcome = {
    */
   budgetExhausted?: boolean;
   /**
+   * True when a click succeeded but its post-click settle wait was cut short,
+   * so traffic the choice triggered may be missing from the log. Recorded as
+   * capture loss rather than a probe failure: the click really happened, and
+   * the caller's failure path would publish it as `clicked: false`.
+   */
+  settleInterrupted?: boolean;
+  /**
    * Frames the probe asked to search and could not read to the end.
    *
    * The dominant cause is the thing this probe is FOR: a consent control that
@@ -754,12 +761,31 @@ export async function scanSiteWithMeasurement(
 
   try {
     throwIfScanAborted(options.signal);
-    context = await withScanTimeoutDisposing(
-      () => browser.newContext(createContextOptions(payload, scanProxy.server)),
-      started,
-      (created) => created.close(),
-      options.signal
-    );
+    try {
+      context = await withScanTimeoutDisposing(
+        () => browser.newContext(createContextOptions(payload, scanProxy.server)),
+        started,
+        (created) => created.close(),
+        options.signal
+      );
+    } catch (error) {
+      // Creating a context is cheap. A browser that cannot produce one inside a
+      // whole scan budget is wedged, and every later scan reusing this cached
+      // instance would inherit that. Drop the CACHE only, never close the
+      // browser: a sibling scan may still be using it, and the concurrency cap
+      // is 2. The next scan then launches a fresh one and this instance is
+      // collected when its last context goes.
+      //
+      // This is the honest signal, unlike a slow context.close(): a 2s cleanup
+      // timeout cannot tell "wedged" from "merely slow", so invalidating there
+      // would relaunch Chromium after any sluggish close and create the memory
+      // pressure it was meant to avoid.
+      if (sharedBrowser === browser) {
+        sharedBrowser = null;
+        browserLaunchPromise = null;
+      }
+      throw error;
+    }
     throwIfScanAborted(options.signal);
     await withScanTimeout(context.addInitScript(installBoundedPageCollector, boundedPageCollectorKey), started);
     if (payload.consentMode !== "observe" || verificationFlagOn) {
@@ -1419,6 +1445,14 @@ export async function scanSiteWithMeasurement(
     const consentInteraction = consentProbe?.summary;
     if (consentPhaseId !== null && !sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
       markConsentInteractionSubjectLoss(consentPhaseId);
+    }
+    // A click landed but its settle wait was cut short, so post-choice traffic
+    // may be under-recorded. That is capture loss, not a failed probe: the
+    // click is real and reporting it as un-clicked would be the worse error.
+    if (consentPhaseId !== null && consentProbe?.settleInterrupted === true) {
+      for (const family of ["requests", "cookies", "storage"] as const) {
+        measurementKernel.recordCaptureLoss({ family, phaseId: consentPhaseId, kind: "dropped", count: 1 });
+      }
     }
     if (consentPhaseId !== null && consentProbeState.failure === null && consentProbe?.readableFrames === 0) {
       // A probe that never started because the budget ran out is not an
@@ -3326,12 +3360,25 @@ async function applyConsentChoice(
     }
   }
 
+  let settleInterrupted = false;
   if (summary.clicked) {
     const settleMs = Math.min(CONSENT_SETTLE_WAIT_MS, MAX_SCAN_DURATION_MS - (Date.now() - started) - 1_000);
-    if (settleMs > 0) await page.waitForTimeout(settleMs);
     // Never throw after a successful click (the caller's failure fallback would
     // misreport it as un-clicked), so budget the idle wait locally instead of
     // via the throwing scanTimeout helper.
+    //
+    // The settle wait needs the same treatment and did not have it. A closing
+    // page or context rejects waitForTimeout, that rejection escaped to the
+    // caller, and the caller turned ANY rejection into `clicked: false`. The
+    // published report then said nothing was clicked while post-click cookies
+    // and requests sat in the log: a false statement about the visit, not a
+    // hedged unknown. This comment described the invariant the line below it
+    // broke.
+    if (settleMs > 0) {
+      await page.waitForTimeout(settleMs).catch(() => {
+        settleInterrupted = true;
+      });
+    }
     const idleBudgetMs = MAX_SCAN_DURATION_MS - (Date.now() - started) - 500;
     if (idleBudgetMs > 250) {
       await page
@@ -3340,7 +3387,18 @@ async function applyConsentChoice(
     }
   }
 
-  return { summary, readableFrames, unreadableFrames, dispatchedControls, mainFrameNavigations };
+  // Swallowing the settle failure keeps the click honest, but it must not
+  // promote the run to a complete post-choice observation: whatever the site
+  // did after the click may never have been recorded. The caller turns this
+  // into capture loss rather than a failure, because the click itself is real.
+  return {
+    summary,
+    readableFrames,
+    unreadableFrames,
+    dispatchedControls,
+    mainFrameNavigations,
+    settleInterrupted
+  };
   } finally {
     page.off("framenavigated", onFrameNavigated);
   }

@@ -34,6 +34,13 @@ export function normalizeScanUrl(value: string): string | null {
   try {
     const parsed = new URL(withScheme);
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    // Refuse credentials HERE, not at the scanner. The server rejects them too,
+    // but by then the password has already left the browser inside the scan
+    // POST body and can reach a WAF, an access log, or an error report. This
+    // boundary strips query and fragment for exactly that reason; userinfo is
+    // the same class of secret and was the one part it kept. Mirrors the guard
+    // in lib/scheduled-rescan-ui.ts so both entry points refuse identically.
+    if (parsed.username || parsed.password) return null;
     if (!isScannableHostname(parsed.hostname)) return null;
     parsed.search = "";
     parsed.hash = "";

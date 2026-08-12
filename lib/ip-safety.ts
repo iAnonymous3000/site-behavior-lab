@@ -75,7 +75,7 @@ function isPublicIpv6(address: string): boolean {
 
   if (address === "::" || address === "::1") return false;
 
-  const [first, second] = leadingIpv6Words(address);
+  const [first, second, third] = leadingIpv6Words(address);
   if (first === 0) return false;
   if (first >= 0xfc00 && first <= 0xfdff) return false;
   if (first >= 0xff00 && first <= 0xffff) return false;
@@ -85,7 +85,25 @@ function isPublicIpv6(address: string): boolean {
   if (first >= 0xfe80 && first <= 0xfeff) return false;
   if (first === 0x0100 && second === 0) return false;
   if (first === 0x0064 && second === 0xff9b) return false;
-  if (first === 0x2001 && (second === 0 || second === 0x0002 || second === 0x0db8)) return false;
+  // 2001::/23 is IANA's IETF Protocol Assignments block. Enumerating the few
+  // non-reachable prefixes inside it left the rest treated as public, so
+  // 2001:1::4, 2001:10::/28 (deprecated ORCHID), 2001:20::/28 (ORCHIDv2), and
+  // 2001:3::/32's unallocated neighbours all passed a guard whose whole job is
+  // refusing addresses that are not globally reachable. Default-deny the block
+  // and allow only what the registry marks Globally Reachable = True.
+  //
+  // Enumerating the exceptions rather than the exclusions is the safer shape:
+  // a new protocol assignment defaults to refused (a scan target we decline,
+  // which is visible and recoverable) instead of defaulting to allowed (a
+  // boundary hole, which is neither).
+  if (first === 0x2001 && second <= 0x01ff) {
+    return isGloballyReachableProtocolAssignment(address, second, third);
+  }
+  // 2001:db8::/32 is documentation and sits OUTSIDE 2001::/23 (0x0db8 is far
+  // above the 0x01ff ceiling above), so the block rule cannot cover it and it
+  // needs its own line. Folding it into that rule silently made the
+  // documentation prefix public.
+  if (first === 0x2001 && second === 0x0db8) return false;
   if (first === 0x2002) return false;
   // IANA marks both ranges non-globally-reachable. Keep these exact CIDR
   // boundaries in sync with the IPv6 Special-Purpose Address Space registry.
@@ -94,16 +112,49 @@ function isPublicIpv6(address: string): boolean {
   return true;
 }
 
-function leadingIpv6Words(address: string): [number, number] {
+/**
+ * The only prefixes inside 2001::/23 that IANA marks Globally Reachable = True.
+ *
+ * Kept as an explicit allow-list so the surrounding default-deny cannot be
+ * widened by accident. Refusing one of these would be a real regression: they
+ * are routable, and a scanner that declines them is declining honest targets.
+ */
+function isGloballyReachableProtocolAssignment(
+  address: string,
+  second: number,
+  third: number
+): boolean {
+  // 2001:1::1/128 (Port Control Protocol anycast), 2001:1::2/128 (Traversal
+  // Using Relays around NAT anycast), 2001:1::3/128 (DNS-SD service registration
+  // anycast, RFC 9665). Exact addresses, so compare the normalized form.
+  if (second === 0x0001) {
+    const normalized = address.toLowerCase();
+    return normalized === "2001:1::1" || normalized === "2001:1::2" || normalized === "2001:1::3";
+  }
+  // 2001:3::/32, Automatic Multicast Tunneling.
+  if (second === 0x0003) return true;
+  // 2001:4:112::/48, the AS112-v6 redirection service.
+  if (second === 0x0004) return third === 0x0112;
+  // 2001:20::/28, ORCHIDv2, is NOT globally reachable and is refused by the
+  // caller's default-deny, as are 2001::/32 (Teredo), 2001:2::/48 (BMWG
+  // benchmarking), 2001:10::/28 (deprecated ORCHID), and 2001:db8::/32 (docs).
+  return false;
+}
+
+/**
+ * Three words, not two: distinguishing 2001:4:112::/48 (globally reachable)
+ * from its unallocated neighbours needs the third group.
+ */
+function leadingIpv6Words(address: string): [number, number, number] {
   const left = address.split("::", 1)[0];
-  if (!left) return [0, 0];
+  if (!left) return [0, 0, 0];
 
   const words = left
     .split(":")
     .filter((part) => part && !part.includes("."))
     .map((part) => Number.parseInt(part, 16));
 
-  return [words[0] ?? 0, words[1] ?? 0];
+  return [words[0] ?? 0, words[1] ?? 0, words[2] ?? 0];
 }
 
 function mappedIpv4FromIpv6(address: string): string | null {

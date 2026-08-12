@@ -407,10 +407,15 @@ export function buildFindings(
       ? domainsBenchmark.level
       : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
     : "ok";
-  const thirdPartyLevel = strongestLevel([
-    levelForMetric("trackerEntities", trackingEntities.length),
-    domainsBenchmark ? domainsBenchmark.level : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains)
-  ]);
+  const entityLevel = levelForMetric("trackerEntities", trackingEntities.length);
+  const domainsLevel = domainsBenchmark
+    ? domainsBenchmark.level
+    : levelForMetric("thirdPartyDomains", run.counts.thirdPartyDomains);
+  const thirdPartyLevel = strongestLevel([entityLevel, domainsLevel]);
+  // True when entities are why this card is as severe as it is, so the badge
+  // has to say so rather than reporting the domains percentile alone.
+  const entityBenchmarkAlsoDrivesLevel =
+    trackingEntities.length > 0 && strongestLevel([entityLevel, domainsLevel]) === entityLevel;
   // The level tracks the badge at every volume; the TITLE only stops saying
   // "no known services matched" once the count itself is elevated, where an
   // absence title over a warn/loud card would actively mislead.
@@ -892,10 +897,18 @@ export function buildFindings(
             "third-party hosts",
             facts.evidence.requests.state
           )}.`,
+    // The LEVEL is the strongest of two metrics, so a badge naming only one of
+    // them can read "below the median for third-party domains" on a card that
+    // is warn because of tracking entities. Name every metric that actually
+    // contributed, so the reason a card is severe is the reason the badge
+    // gives. Deliberately NOT the converse fix of driving the level from the
+    // badge's metric: that would drop real severity a reader should see.
     benchmark: trackingCnameNames.length > 0 || !domainsBenchmarkAllowed
       ? undefined
       : domainsBenchmark
-        ? domainsBenchmark.label
+        ? entityBenchmarkAlsoDrivesLevel
+          ? `${domainsBenchmark.label} ${benchmarkLabel("trackerEntities", trackingEntities.length)}`
+          : domainsBenchmark.label
         : trackingEntities.length > 0
           ? benchmarkLabel("trackerEntities", trackingEntities.length)
           : benchmarkLabel("thirdPartyDomains", run.counts.thirdPartyDomains)
