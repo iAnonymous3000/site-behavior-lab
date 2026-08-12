@@ -62,6 +62,7 @@
     "durable:transition-receipt": "node scripts/durable-transition-receipt.mjs",
     "release:attestation-scaffold": "node scripts/release-attestation-scaffold.mjs",
     "release:governance:capture": "node scripts/run-schema-cli.mjs release-tag-governance-capture",
+    "release:governance:verify-selection": "node scripts/verify-release-governance-selection.mjs",
     "runner:destruction:evidence": "node scripts/run-schema-cli.mjs runner-destruction-evidence",
     "calibration:scaffold": "node scripts/run-schema-cli.mjs calibration-scaffold",
     "calibration:preflight": "node scripts/run-schema-cli.mjs calibration-preflight",

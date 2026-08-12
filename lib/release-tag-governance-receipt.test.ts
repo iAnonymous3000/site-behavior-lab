@@ -137,6 +137,57 @@ function productionEvidenceRules() {
   ];
 }
 
+async function validGovernanceReceipt(capturedAt: string) {
+  const { buildReleaseTagGovernanceReceipt } = await script(
+    "release-tag-governance-receipt-lib.mjs"
+  );
+  return buildReleaseTagGovernanceReceipt({
+    repository,
+    capturedAt,
+    releaseApp,
+    promotionApp,
+    secretScope: { ...secretScope, observedAt: capturedAt },
+    immutableTags: ruleset({
+      id: 20050122,
+      name: "Protect immutable release tags",
+      target: "tag",
+      conditions: { ref_name: { exclude: [], include: ["refs/tags/v*"] } },
+      rules: [{ type: "deletion" }, { type: "update" }]
+    }),
+    tagCreation: ruleset({
+      id: 20060001,
+      name: "Restrict release tag creation",
+      target: "tag",
+      conditions: { ref_name: { exclude: [], include: ["refs/tags/v*"] } },
+      rules: [{ type: "creation" }],
+      bypass_actors: [
+        {
+          actor_id: releaseApp.integrationId,
+          actor_type: "Integration",
+          bypass_mode: "always"
+        }
+      ]
+    }),
+    productionEvidence: ruleset({
+      id: 20050303,
+      name: "Protect production evidence",
+      rules: productionEvidenceRules()
+    }),
+    productionUpdater: ruleset({
+      id: 20050309,
+      name: "Restrict production updates to promoter App",
+      rules: [{ type: "update" }],
+      bypass_actors: [
+        {
+          actor_id: promotionApp.integrationId,
+          actor_type: "Integration",
+          bypass_mode: "always"
+        }
+      ]
+    })
+  });
+}
+
 test("release governance capture binds full bypass lists and public updated_at", async () => {
   const {
     buildReleaseTagGovernanceReceipt,
@@ -395,6 +446,86 @@ test("release governance capture binds full bypass lists and public updated_at",
   );
 });
 
+test("release governance selection verifies the committed carrier before approval", async (t) => {
+  const {
+    releaseTagGovernanceReceiptPath,
+    releaseTagGovernanceReceiptSha256,
+    serializeReleaseTagGovernanceReceipt
+  } = await script("release-tag-governance-receipt-lib.mjs");
+  const { verifyReleaseGovernanceSelection } = await script(
+    "release-governance-selection-lib.mjs"
+  );
+  const capturedAt = new Date().toISOString();
+  const receipt = await validGovernanceReceipt(capturedAt);
+  const digest = releaseTagGovernanceReceiptSha256(receipt);
+  const relativePath = releaseTagGovernanceReceiptPath(digest);
+  const bytes = serializeReleaseTagGovernanceReceipt(receipt);
+
+  const root = mkdtempSync(
+    path.join(os.tmpdir(), "site-behavior-governance-selection-")
+  );
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  fixtureGit(root, ["init", "-q"]);
+  fixtureGit(root, ["config", "user.name", "Governance Test"]);
+  fixtureGit(root, ["config", "user.email", "governance@example.invalid"]);
+  writeFileSync(path.join(root, "release-policy.json"), "{}\n");
+  fixtureGit(root, ["add", "release-policy.json"]);
+  fixtureGit(root, ["commit", "-q", "--no-gpg-sign", "-m", "declaration"]);
+  const declaration = fixtureGit(root, ["rev-parse", "HEAD"]);
+
+  const absolutePath = path.join(root, ...relativePath.split("/"));
+  mkdirSync(path.dirname(absolutePath), { recursive: true });
+  writeFileSync(absolutePath, bytes);
+  fixtureGit(root, ["add", relativePath]);
+  fixtureGit(root, ["commit", "-q", "--no-gpg-sign", "-m", "governance carrier"]);
+  const carrier = fixtureGit(root, ["rev-parse", "HEAD"]);
+  const now = Date.parse(capturedAt) + 1_000;
+
+  assert.deepEqual(
+    verifyReleaseGovernanceSelection({
+      rootDir: root,
+      commit: carrier,
+      receiptSha256: digest,
+      now
+    }),
+    { commit: carrier, receiptSha256: digest, relativePath, capturedAt }
+  );
+  assert.throws(
+    () =>
+      verifyReleaseGovernanceSelection({
+        rootDir: root,
+        commit: declaration,
+        receiptSha256: digest,
+        now
+      }),
+    /not committed in selected release revision.*commit the receipt.*dispatch that carrier SHA/
+  );
+  assert.throws(
+    () =>
+      verifyReleaseGovernanceSelection({
+        rootDir: root,
+        commit: carrier,
+        receiptSha256: digest,
+        now: Date.parse(capturedAt) + 86_400_001
+      }),
+    /not fresh.*older than 1 day/
+  );
+
+  fixtureGit(root, ["update-index", "--chmod=+x", relativePath]);
+  fixtureGit(root, ["commit", "-q", "--no-gpg-sign", "-m", "make receipt executable"]);
+  const executableCarrier = fixtureGit(root, ["rev-parse", "HEAD"]);
+  assert.throws(
+    () =>
+      verifyReleaseGovernanceSelection({
+        rootDir: root,
+        commit: executableCarrier,
+        receiptSha256: digest,
+        now
+      }),
+    /regular non-executable Git blob/
+  );
+});
+
 test("release governance chronology is candidate-to-introduction bounded", async (t) => {
   const { releaseTagGovernanceEvidenceChronologyProblems } = await script(
     "release-readiness-lib.mjs"
@@ -465,6 +596,10 @@ test("release governance producer is an explicit operator command", () => {
     manifest.scripts["release:governance:capture"],
     "node scripts/run-schema-cli.mjs release-tag-governance-capture"
   );
+  assert.equal(
+    manifest.scripts["release:governance:verify-selection"],
+    "node scripts/verify-release-governance-selection.mjs"
+  );
   const guide = readFileSync(
     path.join(process.cwd(), "RELEASE.md"),
     "utf8"
@@ -477,6 +612,15 @@ test("release governance producer is an explicit operator command", () => {
     guide,
     /current-repository-scoped token as proof of the\s+underlying installation scope/
   );
+  assert.match(
+    guide,
+    /Install the release App private key \*\*before capture\*\*/
+  );
+  assert.match(
+    guide,
+    /For a governed `0\.x`\s+release, commit the new receipt[\s\S]*measurement-candidate binding is explicitly not required/
+  );
+  assert.match(guide, /Dispatch that verified carrier SHA, not the earlier version-declaration/);
   const producer = readFileSync(
     path.join(process.cwd(), "scripts", "capture-release-tag-governance.mjs"),
     "utf8"
@@ -502,6 +646,7 @@ test("release governance producer is an explicit operator command", () => {
   );
   assert.match(producer, /repos\/\$\{repository\}\/actions\/secrets/);
   assert.match(producer, /orgs\/\$\{owner\.login\}\/actions\/secrets/);
+  assert.match(producer, /dispatch the carrier commit, not the earlier version-declaration commit/);
   assert.doesNotMatch(producer, /execFileSync\(\s*["']gh["']/);
   const readiness = readFileSync(
     path.join(process.cwd(), "scripts", "release-readiness-lib.mjs"),
@@ -547,6 +692,21 @@ test("release workflow snapshots external selectors before checkout or environme
   assert.match(
     workflow,
     /--release-tag-governance-receipt-sha256 "\$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"/
+  );
+  const selection = workflow.slice(
+    workflow.indexOf("- name: Verify the selected governance receipt is committed in the release revision"),
+    workflow.indexOf("- name: Classify the release measurement-binding requirement")
+  );
+  assert.match(
+    selection,
+    /node scripts\/verify-release-governance-selection\.mjs[\s\S]*--commit "\$RELEASE_SHA"[\s\S]*--receipt-sha256 "\$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"/
+  );
+  assert.ok(
+    prepareJob.indexOf("- name: Resolve the exact revision this release names") <
+      prepareJob.indexOf("- name: Verify the selected governance receipt is committed in the release revision") &&
+      prepareJob.indexOf("- name: Verify the selected governance receipt is committed in the release revision") <
+        prepareJob.indexOf("- name: Classify the release measurement-binding requirement"),
+    "the carrier receipt must be rejected after exact-SHA resolution and before expensive release preparation"
   );
 
   assert.doesNotMatch(workflow, /actions\/variables\/RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256/);

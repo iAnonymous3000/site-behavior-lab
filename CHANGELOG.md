@@ -124,6 +124,13 @@ byte-immutable.
   flag reached the wire but no decision, and an unrecognised resource type was
   evaluated as a guessed one, manufacturing disagreements in exactly the cases
   the tool exists to study.
+- The release runbook could send an operator to dispatch the version-declaration
+  commit even though the content-addressed governance receipt is necessarily
+  introduced by a later carrier. The workflow now refuses that stale selection
+  in its read-only preparation job, before environment approval, and the
+  capture handoff names the required commit, promotion, selector, and dispatch
+  order explicitly. The runbook also distinguishes the receipt-only 0.x path
+  from the measurement-bound exact-1.0 path.
 
 ## [0.4.0] - 2026-08-01
 

@@ -22,8 +22,9 @@ on:
       commit:
         description: >-
           Exact full 40-character commit SHA to tag. Required: a release names
-          one reviewed revision, and inferring it from the branch tip or from
-          the version declaration both guess at something the operator knows.
+          one reviewed revision, this revision must contain the governance
+          receipt selected by RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256, and
+          inferring it from the branch tip or version declaration would guess.
         required: true
         type: string
 
@@ -168,6 +169,19 @@ jobs:
             echo "release_tag=v${requested_version}"
           } >> "$GITHUB_OUTPUT"
           echo "Release revision ${release_sha} (declared at ${declaring}, ${ahead} commit(s) later)."
+
+      # This is an early, read-only usability refusal. It keeps a stale or
+      # declaration-only SHA from reaching the protected environment after the
+      # maintainer has already approved the ceremony. The tag job still
+      # re-fetches the bytes and independently validates live App/ruleset state
+      # before minting any release authority.
+      - name: Verify the selected governance receipt is committed in the release revision
+        env:
+          RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: ${{ steps.governance_selector.outputs.receipt_sha256 }}
+        run: >-
+          node scripts/verify-release-governance-selection.mjs
+          --commit "$RELEASE_SHA"
+          --receipt-sha256 "$RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256"
 
       # Classify the supported line from the dispatch input and compare it with
       # the independently resolved version. Candidate files or verifier output
