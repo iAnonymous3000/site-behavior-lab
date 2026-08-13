@@ -2,11 +2,17 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
 import type { ReportCorrections } from "@/lib/corrections-ledger";
+import {
+  detectorCalibrationReaderSentence,
+  withRunApplicability
+} from "@/lib/detector-calibration-reader";
+import { committedDetectorCalibrationReaderClaims } from "@/lib/detector-calibration-source";
 import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
 import {
   degradedRunNotice,
   displayRunView,
+  reportDetectorScope,
   runQualitySummary,
   schemaProvenanceLabel,
   type ReportView,
@@ -154,6 +160,7 @@ export function ReportEvidenceReceipt({
   reportUrl: string;
   view: ReportView;
 }) {
+  const detectorScope = reportDetectorScope(view);
   return (
     <section className="evidence-receipt" id="receipt" aria-labelledby="evidence-receipt-title">
         <p className="evidence-receipt-retention">
@@ -239,6 +246,21 @@ export function ReportEvidenceReceipt({
           <p className="evidence-receipt-note">
             {coverageBoundarySentence()}{" "}
             <Link href={COVERAGE_BOUNDARY_PATH}>Read the published coverage boundary</Link>.
+          </p>
+          {/* Derived here, at render, from the committed studies re-analyzed
+              against the CURRENT release identity -- never read from the report.
+              A study stops supporting its rate when any bound identity moves,
+              and one of those identities is the Brave list's `fetchedAt`, which
+              the weekly refresh changes. A stored sentence would go on
+              asserting a number the analyzer had already withdrawn. */}
+          <p className="evidence-receipt-note">
+            {detectorCalibrationReaderSentence(
+              withRunApplicability(
+                committedDetectorCalibrationReaderClaims(detectorScope.qualified),
+                new Set(detectorScope.rateApplicable)
+              )
+            )}{" "}
+            <Link href="/methodology/#detector-calibration">How detector accuracy is measured</Link>.
           </p>
           {CLAIM_BOUNDARY && (
             <p className="evidence-receipt-note">

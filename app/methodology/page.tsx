@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
+import { committedDetectorCalibrationReadiness } from "@/lib/detector-calibration-source";
+import {
+  MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH,
+  MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR
+} from "@/lib/measurement-candidate-binding";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { SiteChrome } from "../_components/site-chrome";
 
@@ -13,6 +18,11 @@ export const metadata = publicPageMetadata({
 });
 
 export default function MethodologyPage() {
+  // Re-derived on every build from the committed studies re-analyzed against
+  // the current release identity. Writing today's answer into the prose would
+  // make this page assert an accuracy status the analyzer had already changed
+  // its mind about.
+  const calibration = committedDetectorCalibrationReadiness();
   return (
     <SiteChrome activePath="/methodology/">
       <div className="legal-page">
@@ -267,6 +277,59 @@ export default function MethodologyPage() {
           implementation is bound by the commit-level attestation above, at the covering git SHA. Closing the
           per-scan binding gap and anchoring ephemeral reports is tracked release work, not a disclosed aspiration of
           the current system.
+        </p>
+      </section>
+
+      <section className="legal-section" id="detector-calibration">
+        <h2>How well the detectors work, and why no rate is published yet</h2>
+        <p>
+          A detector match is an observation, not a verdict. &ldquo;Behavioral fingerprinting heuristics
+          matched&rdquo; means the recorded evidence met a documented rule; it does not tell you how often
+          that rule is right. Answering that needs a calibration study: a set of sites labelled
+          independently of the detector, so its answers can be counted against reference answers and turned
+          into a precision and a recall.
+          {" "}
+          <strong>
+            {calibration.status === "eligible-studies-recorded"
+              ? "Eligible studies are recorded for this exact release."
+              : calibration.status === "committed-studies-ineligible"
+                ? "No detector in this release has a published precision or recall."
+                : "No detector in this release has a published precision or recall."}
+          </strong>{" "}
+          The repository holds {calibration.calibrationStudies} committed{" "}
+          {calibration.calibrationStudies === 1 ? "study" : "studies"}; the{" "}
+          <Link href="/catalog/">evidence register</Link> lists each one and the exact reason its
+          re-analysis withholds a rate.
+        </p>
+        <p>
+          The bar is deliberately high, because a number nobody can check is worse than no number. A study
+          must be <strong>declared before it collects</strong>: the plan, the frame, and the sealed
+          reference labels are all committed and timestamped before the first scan runs, so nobody can
+          choose a population or a label after seeing how the detector did. Labels come from independent
+          reviewers who never see the detector&apos;s answer, with a separate blind tiebreaker precommitted
+          for disagreements. Sampling must be simple-random with independent units. Every case that failed
+          to capture makes the whole study ineligible rather than quietly becoming a negative, because a
+          page that never loaded cannot test anything. Each of the four class denominators must reach{" "}
+          {MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR}, and every Wilson 95% interval must be no
+          wider than plus or minus{" "}
+          {Math.round(MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH * 100)} points.
+        </p>
+        <p>
+          Rates are also <strong>perishable</strong>, and that is intentional. A study binds the exact
+          build, detector implementation, registry, methodology, normalization, tracker catalog, Brave
+          lists, Node, Playwright, Chromium, operating system, architecture and egress it measured. When
+          any of those moves, the study stops applying and its rate is withdrawn automatically rather than
+          being carried forward onto code it never measured. Eligibility is recomputed on every build, so
+          this page and every report state the current answer, not a remembered one. A study also never
+          becomes a reason to adjust the detector it measured: findings open the next study.
+        </p>
+        <p>
+          Two things that would otherwise read as detector error are declared as limits instead.
+          Coverage boundaries name the surfaces never instrumented, so their absence is never evidence of
+          absence. And the operator ceremonies that make a study releasable, sealing labels under separate
+          authenticated identities, a protected reveal environment, a controlled single-use runner, and
+          isolated attestation, are human steps outside this codebase; until they run, a study can be
+          complete and still not publish.
         </p>
       </section>
 
