@@ -145,7 +145,14 @@
   display: flex;
   gap: 12px;
   justify-content: space-between;
+  min-height: 32px;
   padding: 7px 2px;
+}
+
+@media (max-width: 720px), (any-pointer: coarse) {
+  .searchMatches li {
+    min-height: 44px;
+  }
 }
 
 .searchMatches li:last-child {

@@ -58,15 +58,18 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
 
       <div className="table-wrap visit-phase-table" role="region" aria-label="Visit phase evidence table" tabIndex={0}>
         <table>
+          <caption className="visually-hidden">
+            Each recorded phase of the visit, with its span from run start and what it observed.
+          </caption>
           <thead>
             <tr>
-              <th>Phase</th>
-              <th>Span from run start</th>
-              <th>Recorded requests</th>
-              <th>Third-party</th>
-              <th>Catalog-matched requests</th>
-              <th>Cookie records</th>
-              <th>Storage records</th>
+              <th scope="col">Phase</th>
+              <th scope="col">Span from run start</th>
+              <th scope="col">Recorded requests</th>
+              <th scope="col">Third-party</th>
+              <th scope="col">Catalog-matched requests</th>
+              <th scope="col">Cookie records</th>
+              <th scope="col">Storage records</th>
             </tr>
           </thead>
           <tbody>

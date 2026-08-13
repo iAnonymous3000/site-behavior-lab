@@ -324,9 +324,18 @@
 }
 
 .cohortDetails summary {
+  align-items: center;
   color: var(--accent-strong);
   cursor: pointer;
+  display: flex;
   font-size: 12px;
+  min-height: 32px;
+}
+
+@media (max-width: 720px), (any-pointer: coarse) {
+  .cohortDetails summary {
+    min-height: 44px;
+  }
 }
 
 .cohortDetails p {

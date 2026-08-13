@@ -56,6 +56,25 @@ import type { FingerprintDetectionSummary } from "./types";
 
 export type ReportSeverity = "ok" | "quiet" | "info" | "warn" | "loud";
 
+/**
+ * The reader-facing name of each severity, so rank is not carried by colour
+ * alone (WCAG 1.4.1).
+ *
+ * The findings board rendered rank as a border hue and an icon tint, and the
+ * icon is chosen per finding rather than per level, so the five levels shared
+ * no shape, no text, and nothing in the prose that states which rank a card
+ * holds. These are descriptions of what the evidence is, not verdicts about the
+ * site: "review-worthy" says a person should look, which is the whole claim
+ * this project makes.
+ */
+export const REPORT_SEVERITY_LABELS: Record<ReportSeverity, string> = {
+  loud: "Review-worthy",
+  warn: "Worth checking",
+  info: "Context",
+  quiet: "Low signal",
+  ok: "Nothing observed"
+};
+
 export type EvidenceState = "complete" | "censored" | "unsupported";
 
 export type EvidenceFamilyFact = {

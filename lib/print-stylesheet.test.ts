@@ -32,6 +32,7 @@ const FIXTURE_BODY = `<body>
   <div class="app-shell report-page-shell">
     <header class="topbar">
       <nav class="topbar-nav" id="nav">nav</nav>
+      <nav class="report-section-nav" id="sectionnav">sections</nav>
       <div class="topbar-actions" id="topbaractions">
         <button class="icon-button" id="iconbutton" type="button">theme</button>
       </div>
@@ -104,6 +105,7 @@ const NOT_ON_A_REPORT_PAGE: ReadonlyMap<string, string> = new Map([
 
 const PROBED_IDS = [
   "nav",
+  "sectionnav",
   "topbaractions",
   "iconbutton",
   "skiplink",
@@ -198,6 +200,7 @@ test("evidence and its qualifications survive onto paper", () => {
 
 test("controls and screen-reader scaffolding stay off paper", () => {
   assert.equal(visible.nav, false, "site navigation is not evidence");
+  assert.equal(visible.sectionnav, false, "the in-page section nav is navigation, not evidence");
   assert.equal(visible.topbaractions, false, "topbar controls are not evidence");
   assert.equal(visible.iconbutton, false, "the theme toggle is not evidence");
   assert.equal(visible.skiplink, false, "the skip link is not evidence");
@@ -248,3 +251,77 @@ test("the fixture exercises every report-page class the print block hides", () =
   const stale = [...NOT_ON_A_REPORT_PAGE.keys()].filter((className) => !hidden.includes(className));
   assert.deepEqual(stale, [], `NOT_ON_A_REPORT_PAGE lists classes the print block no longer hides: ${stale.join(", ")}`);
 });
+
+/**
+ * The print block's palette must actually win, in every theme state.
+ *
+ * The existing setup above calls `emulateMedia({ media: "print" })` with no
+ * `colorScheme`, which defaults to light, so it structurally cannot see the
+ * defect this covers: the system-dark palette is declared under
+ * `:root:not([data-theme="light"])` (0,2,0), a media query adds no specificity,
+ * and the print override's matching selector for an element with no data-theme
+ * was a bare `:root` (0,1,0). It lost. A visitor whose OS is dark and who never
+ * touched the toggle printed the whole dark palette -- rgb(231,239,233) body
+ * text -- on white paper, and that is the DEFAULT path, since app/layout.tsx
+ * only stamps data-theme after an explicit choice.
+ *
+ * Reading resolved custom properties rather than asserting on the source, for
+ * the reason this file's header already gives: specificity between an @media
+ * block and a bare selector is not visible in the text.
+ */
+test("printing resolves the ink palette whatever theme the reader is in", async () => {
+  const page = await browser.newPage();
+  try {
+    for (const colorScheme of ["light", "dark"] as const) {
+      for (const dataTheme of [null, "dark", "light"] as const) {
+        await page.emulateMedia({ media: "print", colorScheme });
+        await page.setContent(FIXTURE, { waitUntil: "load" });
+        const resolved = await page.evaluate((theme) => {
+          if (theme) document.documentElement.dataset.theme = theme;
+          else delete document.documentElement.dataset.theme;
+          const style = getComputedStyle(document.documentElement);
+          const read = (name: string) => style.getPropertyValue(name).trim();
+          return {
+            text: read("--text"),
+            surface: read("--surface"),
+            accentStrong: read("--accent-strong"),
+            sigOk: read("--sig-ok"),
+            sigLoud: read("--sig-loud")
+          };
+        }, dataTheme);
+        const where = `colorScheme=${colorScheme} data-theme=${dataTheme ?? "unset"}`;
+
+        assert.equal(resolved.text, "#000000", `body text must print as ink (${where})`);
+        assert.equal(resolved.surface, "#ffffff", `surfaces must print as paper (${where})`);
+
+        // These four are the ones the print block used to omit entirely. They
+        // print as TEXT even though browsers drop backgrounds by default, so a
+        // screen value like #4ade80 landed on white at roughly 1.7:1.
+        for (const [name, value] of Object.entries({
+          "--accent-strong": resolved.accentStrong,
+          "--sig-ok": resolved.sigOk,
+          "--sig-loud": resolved.sigLoud
+        })) {
+          assert.ok(
+            contrastOnWhite(value) >= 4.5,
+            `${name} prints as ${value}, ${contrastOnWhite(value).toFixed(2)}:1 on paper (${where})`
+          );
+        }
+      }
+    }
+  } finally {
+    await page.close();
+  }
+});
+
+/** WCAG relative-contrast of a #rrggbb value against white. */
+function contrastOnWhite(hex: string): number {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex);
+  assert.ok(match, `expected a #rrggbb print token, got ${hex}`);
+  const channel = (offset: number) => {
+    const srgb = parseInt(match[1].slice(offset, offset + 2), 16) / 255;
+    return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance = 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+  return 1.05 / (luminance + 0.05);
+}

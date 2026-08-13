@@ -224,10 +224,21 @@
 }
 
 .validationCard summary {
+  align-items: center;
   color: var(--accent-strong);
   cursor: pointer;
+  display: flex;
   font-size: 13px;
   font-weight: 650;
+  /* This file declares no touch-target rules, so the sitewide coarse-pointer
+     floor in globals.css never reaches it. */
+  min-height: 32px;
+}
+
+@media (max-width: 720px), (any-pointer: coarse) {
+  .validationCard summary {
+    min-height: 44px;
+  }
 }
 
 .fixtureList {

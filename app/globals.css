@@ -479,7 +479,6 @@ a {
 }
 
 /* ---- Cards (shared) ---- */
-.card,
 .scan-panel,
 .method-card,
 .report-header,
@@ -1243,95 +1242,6 @@ a {
 
 .static-library-state > p {
   max-width: 620px;
-}
-
-.example-row {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin-top: 18px;
-}
-
-.example-row span {
-  color: var(--text-subtle);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.pagegraph-ingest {
-  align-items: center;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  justify-content: space-between;
-  margin-top: 22px;
-  padding-top: 18px;
-  text-align: left;
-}
-
-.pagegraph-ingest-text {
-  align-items: flex-start;
-  color: var(--text-muted);
-  display: flex;
-  flex: 1 1 280px;
-  font-size: 13px;
-  gap: 8px;
-  line-height: 1.5;
-}
-
-.pagegraph-ingest-text svg {
-  color: var(--accent);
-  flex: 0 0 auto;
-  margin-top: 2px;
-}
-
-.pagegraph-ingest-text code {
-  background: var(--surface-2);
-  border-radius: 4px;
-  font-size: 12px;
-  padding: 1px 5px;
-}
-
-.example-chip {
-  align-items: baseline;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--text);
-  display: inline-flex;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  gap: 6px;
-  padding: 6px 13px;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.example-chip:hover {
-  border-color: var(--accent);
-  color: var(--accent-strong);
-}
-
-.example-chip-hint {
-  color: var(--text-subtle);
-  font-family: var(--font-sans);
-  font-size: 11px;
-}
-
-.example-chip-hint::before {
-  color: var(--border-strong);
-  content: "·";
-  margin-right: 6px;
-}
-
-.static-tools {
-  display: grid;
-  gap: 18px;
-  margin-top: 18px;
-  width: min(900px, 100%);
 }
 
 .static-action-row {
@@ -2351,9 +2261,6 @@ a {
   color: var(--text-subtle);
   font-size: 12px;
 }
-
-.delta-up { border-left-color: var(--sig-warn); }
-.delta-down { border-left-color: var(--sig-ok); }
 .delta-flat { border-left-color: var(--sig-quiet); }
 
 .comparison-lists {
@@ -2420,30 +2327,26 @@ a {
   padding: 3px 8px;
 }
 
-.change-added b {
-  background: var(--sig-warn-soft);
-  color: var(--sig-warn);
-}
-
-.change-removed b {
-  background: var(--sig-ok-soft);
-  color: var(--sig-ok);
-}
-
 .change-tag {
   font-size: 10px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
+/* An 18px-tall block control fails even the 24x24 AA floor. Its other use is
+   inline inside a paragraph, where the inline-text exception applies, so the
+   padding is horizontal-free and the height comes from min-height. */
 .change-list-toggle {
+  align-items: center;
   background: none;
   border: 0;
   color: var(--text-subtle);
   cursor: pointer;
+  display: inline-flex;
   font: inherit;
   font-size: 12px;
   margin-top: 8px;
+  min-height: 24px;
   padding: 4px 0 0;
 }
 
@@ -2535,6 +2438,19 @@ a {
   width: 34px;
 }
 
+/* The rank, in words. Rendered above the title because it is what a reader
+   scanning the board is sorting on, and because rank had no channel but hue
+   before this. The chip's own colour is the same --tile-color the border uses,
+   so the two agree by construction. */
+.finding-level {
+  color: var(--tile-color, var(--text-muted));
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
 .finding-card h3 {
   font-size: 16px;
   margin: 0 0 5px;
@@ -2572,6 +2488,12 @@ a {
   min-width: 0;
   overflow-wrap: anywhere;
   padding: 4px 8px;
+}
+
+/* The tone's shape channel, so severity is not hue alone. */
+.tone-icon {
+  margin-right: 6px;
+  vertical-align: -2px;
 }
 
 /* ---- Finding severity colors (consumed by .finding-card) ---- */
@@ -2795,7 +2717,6 @@ a {
 .featured-card.tone-warn  { --tone-color: var(--sig-warn); }
 .featured-card.tone-info  { --tone-color: var(--sig-info); }
 .featured-card.tone-calm  { --tone-color: var(--sig-ok); }
-.featured-card.tone-loading { --tone-color: var(--sig-quiet); }
 
 .featured-card-top {
   align-items: center;
@@ -2808,20 +2729,37 @@ a {
   font-weight: 700;
 }
 
+/* The card's tone had two carriers and both were pure hue: a left border and
+   this dot. Giving each tone its own SHAPE is the non-colour channel WCAG 1.4.1
+   asks for, and it costs nothing at runtime -- an icon component here would land
+   in the homepage's CI-enforced first-load bundle for a 9px mark.
+   It stays aria-hidden: the card's headline sentence already carries the
+   finding in words. */
 .featured-card-dot {
   background: var(--tone-color, var(--sig-quiet));
-  border-radius: 999px;
-  height: 9px;
-  width: 9px;
+  border-radius: var(--pill);
+  flex: 0 0 auto;
+  height: 10px;
+  width: 10px;
 }
 
-.featured-card.tone-loading .featured-card-dot {
-  animation: featured-pulse 1.4s ease-in-out infinite;
+/* Square. */
+.featured-card.tone-alarm .featured-card-dot {
+  border-radius: 2px;
 }
 
-@keyframes featured-pulse {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 1; }
+/* Triangle. */
+.featured-card.tone-warn .featured-card-dot {
+  border-radius: 0;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  height: 11px;
+  width: 12px;
+}
+
+/* Hollow ring, the quietest mark for the quietest tone. */
+.featured-card.tone-calm .featured-card-dot {
+  background: transparent;
+  border: 2.5px solid var(--tone-color, var(--sig-quiet));
 }
 
 .featured-card-headline {
@@ -2845,9 +2783,6 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .featured-card.tone-loading .featured-card-dot {
-    animation: none;
-  }
   .featured-card:hover {
     transform: none;
   }
@@ -3404,173 +3339,6 @@ a {
   margin-top: 6px;
 }
 
-/* ---- Category rollups (directory) ---- */
-.category-rollups {
-  margin: 8px 0 36px;
-}
-
-.rollup-heading {
-  margin-bottom: 16px;
-}
-
-.rollup-heading h2 {
-  font-size: clamp(20px, 3vw, 26px);
-  letter-spacing: -0.01em;
-  margin: 2px 0 6px;
-}
-
-.rollup-heading p {
-  color: var(--text-muted);
-  margin: 0;
-  max-width: 70ch;
-}
-
-.rollup-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  margin-bottom: 20px;
-}
-
-.rollup-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px 16px;
-}
-
-.rollup-card-top {
-  align-items: baseline;
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-}
-
-.rollup-card-top h3 {
-  font-size: 14px;
-  margin: 0;
-}
-
-.rollup-count {
-  color: var(--text-subtle);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.rollup-bar-row {
-  align-items: center;
-  display: flex;
-  gap: 8px;
-}
-
-.rollup-bar-track {
-  background: var(--surface-3);
-  border-radius: 999px;
-  flex: 1;
-  height: 8px;
-  overflow: hidden;
-}
-
-.rollup-bar {
-  background: var(--sig-warn);
-  border-radius: 999px;
-  display: block;
-  height: 100%;
-}
-
-.rollup-bar-row strong {
-  font-size: 18px;
-  font-variant-numeric: tabular-nums;
-  min-width: 2.5ch;
-  text-align: right;
-}
-
-.rollup-bar-label {
-  color: var(--text-subtle);
-  font-size: 11px;
-}
-
-.rollup-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin: 6px 0 0;
-}
-
-.rollup-stats > div {
-  display: flex;
-  font-size: 12px;
-  gap: 5px;
-}
-
-.rollup-stats dt {
-  color: var(--text-subtle);
-}
-
-.rollup-stats dd {
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  margin: 0;
-}
-
-.rollup-leaderboard {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px 18px;
-}
-
-.rollup-leaderboard h3 {
-  color: var(--text-subtle);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  margin: 0 0 8px;
-  text-transform: uppercase;
-}
-
-.rollup-leaderboard ol {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 20px;
-}
-
-.rollup-leaderboard li {
-  align-items: baseline;
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-}
-
-.rollup-leaderboard a {
-  color: inherit;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-  text-decoration: none;
-}
-
-.rollup-leaderboard a:hover {
-  color: var(--accent-strong);
-}
-
-.rollup-leaderboard b {
-  color: var(--sig-loud);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.rollup-note {
-  color: var(--text-subtle);
-  font-size: 12px;
-  line-height: 1.45;
-  margin: 16px 0 0;
-  max-width: 78ch;
-}
-
 /* ---- Metric grid ---- */
 .metric-grid {
   display: grid;
@@ -3842,12 +3610,6 @@ a {
   scroll-margin-top: 112px;
 }
 
-/* Paper has no sticky chrome and no anchors to follow. */
-@media print {
-  .report-section-nav {
-    display: none;
-  }
-}
 
 /* ---- Data sections / tables ---- */
 .data-section {
@@ -5169,8 +4931,19 @@ details[open] > summary .disclosure-chevron {
    the theme is pinned light, because a dark-theme visitor would otherwise print a
    page of white text that mostly renders as blank paper. */
 @media print {
-  /* Ink-legible regardless of the visitor's theme. */
+  /* Ink-legible regardless of the visitor's theme.
+   *
+   * `:root:not([data-theme="light"])` is load-bearing, not redundant with the
+   * bare `:root` beside it. The system-dark palette is declared under exactly
+   * that selector (0,2,0); a media query adds no specificity, so a bare `:root`
+   * here (0,1,0) LOSES to it and never applies. The default path is the one
+   * that broke: `app/layout.tsx` only stamps `data-theme` after an explicit
+   * choice, so a visitor whose OS is dark and who never touched the toggle
+   * printed the entire dark palette, body text included, on white paper.
+   * Matching the declaring selector ties the specificity and lets source order
+   * decide, which is what this block was always assumed to do. */
   :root,
+  :root:not([data-theme="light"]),
   :root[data-theme="dark"],
   :root[data-theme="light"] {
     color-scheme: light;
@@ -5187,10 +4960,29 @@ details[open] > summary .disclosure-chevron {
     --shadow-sm: none;
     --shadow: none;
     --shadow-lg: none;
+
+    /* Accent and signal colours print as TEXT even though browsers drop
+       backgrounds by default, so leaving them at their screen values put
+       #5eead4 links and #4ade80 "ok" text on white at roughly 1.7:1. These are
+       the light-theme values, which are already tuned to clear AA on white. */
+    --accent: #0f766e;
+    --accent-strong: #0b5d56;
+    --accent-contrast: #ffffff;
+    --accent-soft: #ffffff;
+    --sig-quiet: #4a544c;
+    --sig-quiet-soft: #ffffff;
+    --sig-info: #1f5590;
+    --sig-info-soft: #ffffff;
+    --sig-warn: #8a4b00;
+    --sig-warn-soft: #ffffff;
+    --sig-loud: #8a0f31;
+    --sig-loud-soft: #ffffff;
+    --sig-ok: #10632e;
+    --sig-ok-soft: #ffffff;
   }
 
   body {
-    background: #ffffff;
+    background: var(--bg);
   }
 
   /* Controls, navigation, and progress affordances are not evidence.
@@ -5203,6 +4995,8 @@ details[open] > summary .disclosure-chevron {
   .skip-link,
   .topbar-actions,
   .topbar-nav,
+  /* Paper has no sticky chrome and no anchors to follow. */
+  .report-section-nav,
   .scan-workbench,
   .corpus-hero,
   .empty-state,

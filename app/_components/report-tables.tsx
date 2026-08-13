@@ -138,13 +138,20 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
       </div>
       <div className="table-wrap" role="region" aria-label="Domain evidence table" tabIndex={0}>
         <table>
+          {/* The wrapper's role="region" names the SCROLLPORT, not the table.
+              A table with no accessible name is announced as "table" with no
+              indication of what it holds, and `scope` is what lets a screen
+              reader read a cell back with its column. */}
+          <caption className="visually-hidden">
+            Every domain this visit recorded, with its role, request count and catalog match.
+          </caption>
           <thead>
             <tr>
-              <th>Domain</th>
-              <th>Role</th>
-              <th>Requests</th>
-              <th>Catalog match</th>
-              <th>Resource types</th>
+              <th scope="col">Domain</th>
+              <th scope="col">Role</th>
+              <th scope="col">Requests</th>
+              <th scope="col">Catalog match</th>
+              <th scope="col">Resource types</th>
             </tr>
           </thead>
           <tbody>
@@ -344,15 +351,19 @@ function RequestTable({
         tabIndex={0}
       >
         <table>
+          <caption className="visually-hidden">
+            Every request row this visit retained, with its time, status, resource type, domain and
+            recorded provenance.
+          </caption>
           <thead>
             <tr>
-              <th>Time</th>
-              {hasPhases && <th title="The recorded visit phase this request belongs to; the phase table above shows its span">Phase</th>}
-              <th>Status</th>
-              <th>Type</th>
-              <th>Domain</th>
-              <th>Provenance</th>
-              <th>URL</th>
+              <th scope="col">Time</th>
+              {hasPhases && <th scope="col" title="The recorded visit phase this request belongs to; the phase table above shows its span">Phase</th>}
+              <th scope="col">Status</th>
+              <th scope="col">Type</th>
+              <th scope="col">Domain</th>
+              <th scope="col">Provenance</th>
+              <th scope="col">URL</th>
             </tr>
           </thead>
           <tbody>
