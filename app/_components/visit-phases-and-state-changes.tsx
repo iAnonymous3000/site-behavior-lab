@@ -42,7 +42,7 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
   ].filter((family): family is string => family !== null);
 
   return (
-    <section className="data-section visit-phase-evidence" aria-labelledby="visit-phases-title">
+    <section className="data-section visit-phase-evidence" id="visit-phases" aria-labelledby="visit-phases-title">
       <div className="section-heading visit-phase-heading">
         <div>
           <p className="eyebrow">Recorded visit structure</p>

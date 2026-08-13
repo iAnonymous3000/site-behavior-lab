@@ -279,7 +279,7 @@ export function FindingsBoard({
   const findings = buildFindings(view, corpus, facts, evidenceArm);
 
   return (
-    <section className="findings-board">
+    <section className="findings-board" id="findings">
       <div className="findings-heading">
         <div>
           <p className="eyebrow">Plain-Language Findings</p>
@@ -515,7 +515,7 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
   ];
 
   return (
-    <section className="numbers-section">
+    <section className="numbers-section" id="numbers">
       <div className="numbers-heading">
         <p className="eyebrow">By the numbers</p>
         <span>Recorded counts and evidence availability from this one visit. The findings above interpret them.</span>
@@ -555,7 +555,7 @@ export function TrafficViz({ facts }: { facts: RunFacts }) {
   const pct = (n: number) => (total > 0 ? `${Math.round((n / total) * 10000) / 100}%` : "0%");
 
   return (
-    <section className="viz-card">
+    <section className="viz-card" id="traffic">
       <h2>{facts.evidence.requests.state === "censored" ? "Retained request composition & timeline" : "Request composition & timeline"}</h2>
       <div
         className="party-bar"

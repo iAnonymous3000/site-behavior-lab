@@ -4,12 +4,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
-import { displayEvidenceName, displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
+import { displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
 import { usePrintComplete } from "./print-mode";
 import { listOverflowCopy } from "@/lib/report-table-copy";
+import {
+  groupCookiesByDomain,
+  groupStorageByArea,
+  recordsCovered
+} from "@/lib/report-evidence-grouping";
 import {
   groupReportWarnings,
   reportWarningCount,
@@ -63,7 +68,7 @@ function Warnings({
   const total = reportWarningCount(groups);
 
   return (
-    <section className="warnings" aria-labelledby="measurement-limits-title">
+    <section className="warnings" id="measurement-limits" aria-labelledby="measurement-limits-title">
       <div className="warnings-heading">
         <AlertTriangle size={16} aria-hidden="true" />
         <h2 id="measurement-limits-title">Measurement limits</h2>
@@ -655,25 +660,40 @@ function CookieList({ cookies, facts }: { cookies: CookieRecord[]; facts: RunFac
     return <p className="muted">No cookies were visible to the scan context.</p>;
   }
 
-  const shown = Math.min(cookies.length, printComplete ? PRINT_ROW_CAPS.cookies : 12);
+  // Grouped by setting domain, because the field these rows used to LEAD with
+  // is the one redaction blanks. A real report spent the whole rail on twelve
+  // rows of "Cookie N · name hidden for privacy" and then disclosed that 259
+  // further records were not shown at all. The same twelve rows now cover every
+  // record on the busiest domains, and the reader can see which third parties
+  // set how many, and whether they persist.
+  const groups = groupCookiesByDomain(cookies);
+  const shownGroups = Math.min(groups.length, printComplete ? PRINT_ROW_CAPS.cookies : 12);
+  // The overflow disclosure counts records, not domains.
+  const shown = recordsCovered(groups, shownGroups);
   const hiddenNames = cookies.filter((cookie) => !isReviewedCookieName(cookie.name)).length;
   return (
-    <div className="compact-list">
-      {/* Redaction can generalize many names to the same marker, so content
-          alone is not a unique identity for these static rows. */}
-      {cookies.slice(0, printComplete ? PRINT_ROW_CAPS.cookies : 12).map((cookie, index) => (
-        <div key={`${index}:${cookie.domain}:${cookie.name}:${cookie.path}`}>
-          {cookie.thirdParty ? (
-            <AlertTriangle className="ico-third" size={14} aria-hidden="true" />
-          ) : (
-            <CheckCircle2 className="ico-first" size={14} aria-hidden="true" />
+    <div className="evidence-group-list">
+      {groups.slice(0, shownGroups).map((group) => (
+        <div className="evidence-group" key={group.domain}>
+          <div className="evidence-group-top">
+            {group.thirdParty ? (
+              <AlertTriangle className="ico-third" size={14} aria-hidden="true" />
+            ) : (
+              <CheckCircle2 className="ico-first" size={14} aria-hidden="true" />
+            )}
+            <span className="evidence-group-name">{displayHost(group.domain)}</span>
+            <span className="evidence-group-count">{group.count.toLocaleString("en-US")}</span>
+          </div>
+          <p className="evidence-group-facts">
+            {group.thirdParty ? "third-party" : "first-party"}
+            {group.persistent > 0 && ` · ${group.persistent.toLocaleString("en-US")} persistent`}
+            {group.session > 0 && ` · ${group.session.toLocaleString("en-US")} session`}
+          </p>
+          {/* A publishable name is stronger evidence than a count, so the names
+              redaction does allow are still shown rather than folded away. */}
+          {group.namedCookies.length > 0 && (
+            <p className="evidence-group-names">{group.namedCookies.join(", ")}</p>
           )}
-          <span>
-            {displayEvidenceName(cookie.name, "cookie", index + 1)}
-            <small>
-              {displayHost(cookie.domain)} · {cookie.session ? "session" : "persistent"} · {cookie.thirdParty ? "third-party" : "first-party"}
-            </small>
-          </span>
         </div>
       ))}
       {hiddenNames > 0 && (
@@ -706,19 +726,29 @@ function StorageList({ storage, facts }: { storage: StorageRecord[]; facts: RunF
     return <p className="muted">No local or session storage keys observed on the final page.</p>;
   }
 
-  const shown = Math.min(storage.length, printComplete ? PRINT_ROW_CAPS.storage : 12);
+  // Same reasoning as the cookie list: the key is the redacted field, so twelve
+  // rows of "Storage key N · name hidden for privacy" spent the rail on the one
+  // thing it could not say. The area, the count and the recorded size survive
+  // redaction, so those lead.
+  const groups = groupStorageByArea(storage);
+  const shownGroups = Math.min(groups.length, printComplete ? PRINT_ROW_CAPS.storage : 12);
+  const shown = recordsCovered(groups, shownGroups);
   const hiddenKeys = storage.filter((item) => !isReviewedStorageKey(item.key)).length;
   return (
-    <div className="compact-list">
-      {storage.slice(0, printComplete ? PRINT_ROW_CAPS.storage : 12).map((item, index) => (
-        <div key={`${index}:${item.area}:${item.key}`}>
-          <Database className="ico-neutral" size={14} aria-hidden="true" />
-          <span>
-            {displayEvidenceName(item.key, "storage", index + 1)}
-            <small>
-              {item.area} · {plural(item.valueBytes, "byte")}
-            </small>
-          </span>
+    <div className="evidence-group-list">
+      {groups.slice(0, shownGroups).map((group) => (
+        <div className="evidence-group" key={group.area}>
+          <div className="evidence-group-top">
+            <Database className="ico-neutral" size={14} aria-hidden="true" />
+            <span className="evidence-group-name">{group.area}</span>
+            <span className="evidence-group-count">{group.count.toLocaleString("en-US")}</span>
+          </div>
+          <p className="evidence-group-facts">
+            {plural(group.count, "key")} · {plural(group.valueBytes, "byte")} recorded
+          </p>
+          {group.namedKeys.length > 0 && (
+            <p className="evidence-group-names">{group.namedKeys.join(", ")}</p>
+          )}
         </div>
       ))}
       {hiddenKeys > 0 && (
