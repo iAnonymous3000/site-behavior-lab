@@ -4595,8 +4595,16 @@ details[open] > summary .disclosure-chevron {
 }
 
 @media (max-width: 720px) {
+  /* The gutter itself, not the padding. `.app-shell > .topbar` is full-bleed
+     via `margin-inline: calc(var(--gutter) * -1)`; overriding the padding with
+     a literal left the bar cancelling 24px of a 14px gutter and pushed the page
+     20px wider than a 390px viewport. */
+  :root {
+    --gutter: 14px;
+  }
+
   .app-shell {
-    padding: 16px 14px 48px;
+    padding-block: 16px 48px;
   }
 
   /* Touch-target sizing lives in the combined narrow-or-coarse block beside
@@ -4887,8 +4895,8 @@ details[open] > summary .disclosure-chevron {
 }
 
 @media (max-width: 360px) {
-  .app-shell {
-    padding-inline: 8px;
+  :root {
+    --gutter: 8px;
   }
 
   .empty-state,
