@@ -58,7 +58,10 @@ export async function generateMetadata({
   const { id } = await params;
   return {
     title: { absolute: `Printable report ${id} · Site Behavior Lab` },
-    description: "A complete printable rendering of one recorded visit.",
+    // States no visit count. This runs before the report is read, so it cannot
+    // tell a single scan from a two-visit comparison, and it used to assert
+    // "one recorded visit" over both.
+    description: "A complete printable rendering of the recorded evidence.",
     // The interactive report is the citable URL; this rendering must never
     // compete with it in an index or a share card.
     alternates: { canonical: `${siteBaseUrl()}/reports/${id}/` },

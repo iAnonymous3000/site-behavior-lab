@@ -10,10 +10,12 @@ import { committedDetectorCalibrationReaderClaims } from "@/lib/detector-calibra
 import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
 import {
+  completedVisitsPhrase,
   degradedRunNotice,
   displayRunView,
   reportDetectorScope,
   runQualitySummary,
+  runVisitLabel,
   schemaProvenanceLabel,
   type ReportView,
   type RunView
@@ -81,8 +83,11 @@ export function ReportPageContext({
 
       <header className="report-identity">
         <div className="report-identity-title">
+          {/* Names the arm below it, not the report. The domain, URL,
+              timestamp and run quality that follow all come from the display
+              run, so a pair count here would caption one visit with two. */}
           <p className="eyebrow">
-            Recorded visit <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
+            {runVisitLabel(run)} <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
           </p>
           <h1>{run.domain}</h1>
           <p className="report-url">{run.conditions.requestedUrl}</p>
@@ -166,7 +171,7 @@ export function ReportEvidenceReceipt({
         <p className="evidence-receipt-retention">
           {permanent
             ? "This versioned report is currently retained in the public corpus. Follow the currently retained site history, repeat the same public route when it is available, or request a transparent evidence correction."
-            : "This saved report records one controlled visit. Repeat the same public route when it is available, or report an evidence problem before the share expires."}
+            : `This saved report records ${completedVisitsPhrase(view, "controlled")}. Repeat the same public route when it is available, or report an evidence problem before the share expires.`}
         </p>
         <div className="evidence-receipt-heading">
           <div>
@@ -308,7 +313,7 @@ function ReportCorrectionNotice({ corrections }: { corrections: ReportCorrection
 function RunReceipt({ run }: { run: RunView }) {
   const provenance = run.provenance;
   const toolchain = run.toolchainIdentity;
-  const label = run.label === "baseline" ? "Baseline visit" : run.label === "variant" ? "Variant visit" : "Recorded visit";
+  const label = runVisitLabel(run);
 
   return (
     <section className="evidence-receipt-run" aria-label={label}>

@@ -5,10 +5,15 @@ import {
   validateReportPresentation,
   type ReportConsistencyRuleId
 } from "./report-consistency";
-import type { Finding } from "./report-findings";
+import { buildFindings, type Finding } from "./report-findings";
 import type { ReportHeadline } from "./report-headline";
-import { makeScanReportV1 } from "./scan-report-v2-fixtures";
-import { viewFromV1Report } from "./scan-report-views";
+import {
+  makeInterventionComparisonReportV2,
+  makeScanReportV1
+} from "./scan-report-v2-fixtures";
+import { buildComparisonDiffV2, evaluateComparability } from "./scan-report-v2-evaluators";
+import type { PublicComparisonReportV2 } from "./scan-report-v2";
+import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import type { ScanReport, ScanResult } from "./types";
 
 type Presentation = ReturnType<typeof validateReportPresentation>;
@@ -210,6 +215,98 @@ test("detects a categorical absence rendered while its fact gate is closed", () 
     "unsafe-categorical-title-under-incomplete-evidence",
     presentation.headline,
     findings
+  );
+});
+
+/**
+ * An intervention pair carrying one third-party cookie on exactly one arm.
+ * The display arm of an intervention comparison is the baseline, so putting
+ * the cookie on the variant separates "the arm the reader sees" from "the arm
+ * the gate reads".
+ */
+function comparisonWithThirdPartyCookieOn(
+  arm: "baseline" | "variant"
+): PublicComparisonReportV2 {
+  const report = makeInterventionComparisonReportV2();
+  const run = report[arm];
+  run.summary.counts.cookies = 1;
+  run.summary.counts.thirdPartyCookies = 1;
+  run.evidence.cookiesFinal = [
+    {
+      name: "visit",
+      domain: "metrics.example",
+      path: "/",
+      sameSite: "None",
+      secure: true,
+      httpOnly: true,
+      session: true,
+      thirdParty: true
+    }
+  ];
+  // Derived blocks are rebuilt by the shared evaluators, never hand-written,
+  // so the mutated pair stays internally consistent exactly as a correct
+  // producer would emit it.
+  report.comparability = evaluateComparability(
+    report.experiment,
+    report.baseline,
+    report.variant
+  );
+  report.diff = buildComparisonDiffV2(
+    report.baseline,
+    report.variant,
+    report.comparability.perMetric
+  );
+  return report;
+}
+
+test("a variant-focused board is not failed by the display arm's cookies", () => {
+  // The gate must read the arm the board was built from. Reading the display
+  // arm instead invents a violation no reader can see: the variant's own card
+  // correctly renders an absence, and the baseline's cookie is not its subject.
+  const view = viewFromV2(comparisonWithThirdPartyCookieOn("baseline"), 1);
+  const presentation = validateReportPresentation(view);
+  const headline: ReportHeadline = { ...presentation.headline, focusArm: "variant" };
+  const findings = buildFindings(view, null, presentation.facts, "variant");
+
+  const cookieClaim = findings.find(
+    (finding) => finding.claim?.id === "third-party-cookies"
+  )?.claim;
+  assert.ok(
+    cookieClaim?.mode === "categorical-absence" ||
+      cookieClaim?.mode === "qualified-absence",
+    "the variant board must render a cookie-absence claim for this test to mean anything"
+  );
+  assert.equal(presentation.facts.arms?.baseline.signals.cookies.thirdParty, 1);
+  assert.equal(presentation.facts.arms?.variant.signals.cookies.thirdParty, 0);
+
+  assert.deepEqual(
+    reportConsistencyViolations(presentation.facts, headline, findings),
+    []
+  );
+});
+
+test("a variant-focused board is still failed by the variant arm's own cookies", () => {
+  // The same seam hides real defects in the other direction: an absence
+  // rendered over the focused arm's own recorded cookie must still be caught
+  // when the display arm happens to be clean.
+  const view = viewFromV2(comparisonWithThirdPartyCookieOn("variant"), 1);
+  const presentation = validateReportPresentation(view);
+  const headline: ReportHeadline = { ...presentation.headline, focusArm: "variant" };
+  const findings = buildFindings(view, null, presentation.facts, "variant").map(
+    (finding) =>
+      finding.claim?.id === "third-party-cookies"
+        ? { ...finding, claim: { ...finding.claim, mode: "categorical-absence" as const } }
+        : finding
+  );
+
+  assert.equal(presentation.facts.display.signals.cookies.thirdParty, 0);
+  assert.equal(presentation.facts.arms?.variant.signals.cookies.thirdParty, 1);
+
+  assert.deepEqual(
+    reportConsistencyViolations(presentation.facts, headline, findings).map(
+      (violation) => violation.id
+    ),
+    ["cookie-absence-with-recorded-cookie"]
   );
 });
 

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   groupReportWarnings,
+  reSubjectForMultipleVisits,
   reportWarningCount,
   type ComparisonRunLabels
 } from "./report-warnings";
@@ -52,9 +53,54 @@ test("a sentence recorded by both visits is stated once, attributed to both", ()
   assert.ok(both, "expected a both-visits group");
   assert.equal(both.label, "Both visits");
   assert.deepEqual(both.warnings, [
-    "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction.",
+    "Each visit in this report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction.",
     "Counts are a lower bound: trackers that load only after interaction or consent are not observed."
   ]);
+});
+
+test("a two-visit report never tells the reader it is one visit", () => {
+  // The producer records this per run, where the subject is true. Rendered at
+  // report level on a comparison it contradicted the headline directly above
+  // it ("Observed in two automated visits"), on every committed comparison and
+  // in the PDF.
+  for (const group of groupReportWarnings(REAL_WARNINGS, SHIELDS)) {
+    for (const warning of group.warnings) {
+      assert.equal(
+        warning.includes("This report is one automated"),
+        false,
+        `a two-visit report rendered "${warning}"`
+      );
+    }
+  }
+});
+
+test("the correction reaches the flat fall back, prefix and all", () => {
+  // Ambiguous labels drop attribution and render the raw prefixed list, which
+  // is where the contradiction was loudest: no heading at all above it.
+  const ambiguous: ComparisonRunLabels = { baseline: "Visit", variant: "Visit" };
+  const groups = groupReportWarnings(REAL_WARNINGS, ambiguous);
+
+  assert.equal(groups.length, 1, "ambiguous labels must still fail back to flat");
+  assert.equal(groups[0].label, null);
+  assert.ok(
+    groups[0].warnings.includes(
+      "No blocking: Each visit in this report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction."
+    ),
+    "the visit-label prefix must survive the correction"
+  );
+});
+
+test("a single-run report keeps the producer's own subject", () => {
+  // One visit is exactly what "This report" means there, and rewriting it
+  // would put a plural reading over a single scan.
+  const sentence =
+    "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction.";
+  assert.deepEqual(groupReportWarnings([sentence], null)[0].warnings, [sentence]);
+});
+
+test("the correction does not touch a sentence that merely mentions the report", () => {
+  const unrelated = "This report is a rendering of the evidence, not the evidence.";
+  assert.deepEqual(groupReportWarnings([unrelated], SHIELDS)[0].warnings, [unrelated]);
 });
 
 test("arm-specific sentences stay attributed to the visit that recorded them", () => {
@@ -93,9 +139,11 @@ test("every distinct sentence survives regrouping exactly once", () => {
   assert.equal(reportWarningCount(groups), rendered.length);
 
   // Each original warning is still readable: either verbatim, or as a body that
-  // one of its arms' groups now carries under an attributed heading.
+  // one of its arms' groups now carries under an attributed heading. The only
+  // permitted edit is the documented multi-visit re-subjecting, read from the
+  // production rule rather than restated here.
   for (const original of REAL_WARNINGS) {
-    const body = original
+    const body = reSubjectForMultipleVisits(original)
       .replace(/^No blocking: /, "")
       .replace(/^Brave-list blocking: /, "");
     assert.ok(rendered.includes(body), `lost: ${original}`);

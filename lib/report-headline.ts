@@ -1,5 +1,6 @@
 import {
   comparisonArmViews,
+  completedVisitsPhrase,
   type ReportView,
   type RunView
 } from "./scan-report-views";
@@ -132,8 +133,6 @@ export type ReportHeadline = {
   };
 };
 
-const SINGLE_VISIT_CAVEAT = "Observed in one automated visit: evidence to check, not a verdict.";
-const COMPARISON_CAVEAT = "Observed in two automated visits: evidence to check, not a verdict.";
 const KICKER = "What this actually means";
 const SHARE_TAGLINE = "See what a site does, not what it says. Open-source and reproducible:";
 
@@ -227,7 +226,7 @@ export function buildReportHeadline(
       extraNote.length > 0 && subhead.endsWith(extraNote) ? subhead.slice(0, -extraNote.length) : subhead;
     // One value, used by both the rendered caveat and the share text, so a
     // prefilled post can never carry a different qualification from the page.
-    const reportCaveat = view.reportType === "comparison" ? COMPARISON_CAVEAT : SINGLE_VISIT_CAVEAT;
+    const reportCaveat = `Observed in ${completedVisitsPhrase(view, "automated")}: evidence to check, not a verdict.`;
     return {
       tone,
       kicker: KICKER,

@@ -48,6 +48,19 @@ export type ReportRemediationInventory = {
     emailLikeStrings: number;
     tokenLikePathSegments: number;
     unallowlistedSubdomainLabels: number;
+    /**
+     * Identifier-shaped material inside a quoted privacy-policy sentence.
+     *
+     * Counted separately because the surface is different: every other signal
+     * here comes from a URL or a name that the sanitizer already rewrites,
+     * while a policy quote is admitted page-derived text that passes through
+     * with only whitespace normalization and a length cap. That made the
+     * corpus-clean statement vacuous for the one field structurally able to
+     * carry an address, so the sweep now reaches it. Counting it is not a
+     * redaction decision: scrubbing quotes would narrow the admitted public
+     * string set, which is a remediation-class move, not a ledger entry.
+     */
+    policyQuoteIdentifiers: number;
   };
   /** Up to `maxExamples` before/after URL diffs, for operator review only. */
   examples: UrlFieldChange[];
@@ -58,6 +71,12 @@ export type ReportRemediationInventory = {
 // lookahead excludes an all-digit (optionally x/dpi-suffixed) domain start so
 // the risk count reflects address-shaped strings only.
 const EMAIL_LIKE = /[A-Za-z0-9._%+-]+(?:@|%40)(?![0-9]{1,3}(?:x|dpi)?\.)[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
+// Deliberately loose, and only ever used to COUNT a review signal in prose: a
+// policy sentence quoting a contact number is the shape at issue, and a false
+// positive costs an operator one read while a false negative hides the field
+// the sweep exists to cover. Requires a separator so ordinary figures in a
+// policy ("30 days", "2026") do not register.
+const PHONE_LIKE = /(?:\+\d{1,3}[\s.-]?)?(?:\(\d{2,4}\)[\s.-]?|\d{2,4}[\s.-])\d{2,4}[\s.-]\d{2,4}/;
 const TOKEN_MARKERS = new Set(["[redacted:uuid-like]", "[redacted:hex-like]", "[redacted:long-token]"]);
 
 export function inventoryV1Report(id: string, report: ScanReport, maxExamples = 5): ReportRemediationInventory {
@@ -70,7 +89,12 @@ export function inventoryV1Report(id: string, report: ScanReport, maxExamples = 
     changedUrlFields: 0,
     cookieNames: { total: 0, wouldRedact: 0 },
     storageKeys: { total: 0, wouldRedact: 0 },
-    riskSignals: { emailLikeStrings: 0, tokenLikePathSegments: 0, unallowlistedSubdomainLabels: 0 },
+    riskSignals: {
+      emailLikeStrings: 0,
+      tokenLikePathSegments: 0,
+      unallowlistedSubdomainLabels: 0,
+      policyQuoteIdentifiers: 0
+    },
     examples: []
   };
 
@@ -103,6 +127,14 @@ function inventoryRun(run: ScanResult, label: string, inventory: ReportRemediati
   url("conditions.finalUrl", run.conditions.finalUrl, false);
   url("consentInteraction.frameUrl", run.consentInteraction?.frameUrl, false);
   url("privacyPolicy.url", run.privacyPolicy?.url, false);
+  // The quote itself, not just its URL. Sanitization here is whitespace
+  // normalization and a length cap, so an address published in the site's own
+  // policy sentence reaches the stored report intact.
+  for (const claim of run.privacyPolicy?.claims ?? []) {
+    if (EMAIL_LIKE.test(claim.quote) || PHONE_LIKE.test(claim.quote)) {
+      inventory.riskSignals.policyQuoteIdentifiers += 1;
+    }
+  }
   for (const request of run.requests) {
     url("requests[].url", request.url, request.thirdParty);
     url("requests[].provenance.initiatorUrl", request.provenance?.initiatorUrl, false);
@@ -157,7 +189,12 @@ export function summarizeInventories(entries: ReportRemediationInventory[]): Inv
     counters: emptyRedactionCounters(),
     cookieNames: { total: 0, wouldRedact: 0 },
     storageKeys: { total: 0, wouldRedact: 0 },
-    riskSignals: { emailLikeStrings: 0, tokenLikePathSegments: 0, unallowlistedSubdomainLabels: 0 }
+    riskSignals: {
+      emailLikeStrings: 0,
+      tokenLikePathSegments: 0,
+      unallowlistedSubdomainLabels: 0,
+      policyQuoteIdentifiers: 0
+    }
   };
   for (const entry of entries) {
     if (entry.changedUrlFields > 0 || entry.cookieNames.wouldRedact > 0 || entry.storageKeys.wouldRedact > 0) {
@@ -173,6 +210,7 @@ export function summarizeInventories(entries: ReportRemediationInventory[]): Inv
     totals.riskSignals.emailLikeStrings += entry.riskSignals.emailLikeStrings;
     totals.riskSignals.tokenLikePathSegments += entry.riskSignals.tokenLikePathSegments;
     totals.riskSignals.unallowlistedSubdomainLabels += entry.riskSignals.unallowlistedSubdomainLabels;
+    totals.riskSignals.policyQuoteIdentifiers += entry.riskSignals.policyQuoteIdentifiers;
   }
   return totals;
 }

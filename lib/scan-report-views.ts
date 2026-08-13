@@ -1480,3 +1480,31 @@ export function displayRunView(view: ReportView): RunView {
   if (view.reportType !== "comparison" || view.runs.length === 0) return view.runs[0];
   return view.comparison?.temporalPair ? view.runs[view.runs.length - 1] : view.runs[0];
 }
+
+/**
+ * The completed visits a report is built from, as reader copy: one per
+ * condition, so a comparison is two.
+ *
+ * Every surface that states the count reads this. The headline caveat said
+ * "two automated visits" on the same page where the evidence receipt said the
+ * report "records one controlled visit", because each surface answered the
+ * question from its own literal. Only use this where the subject really is the
+ * whole report; a surface showing ONE arm's URL, timestamp or run quality must
+ * name that arm instead (see runVisitLabel), not the pair.
+ */
+export function completedVisitsPhrase(
+  view: ReportView,
+  adjective: "automated" | "controlled"
+): string {
+  return view.reportType === "comparison" ? `two ${adjective} visits` : `one ${adjective} visit`;
+}
+
+/**
+ * The heading for a single arm of a report: what THIS visit is, never how many
+ * the report holds.
+ */
+export function runVisitLabel(run: RunView): string {
+  if (run.label === "baseline") return "Baseline visit";
+  if (run.label === "variant") return "Variant visit";
+  return "Recorded visit";
+}

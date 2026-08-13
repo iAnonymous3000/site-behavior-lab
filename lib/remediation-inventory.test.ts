@@ -112,3 +112,50 @@ test("summarizeInventories aggregates and counts changed reports once", () => {
   assert.equal(totals.totalUrlFields, entries[0].totalUrlFields + entries[1].totalUrlFields);
   assert.equal(totals.riskSignals.emailLikeStrings, 1);
 });
+
+test("the sweep reaches the privacy-policy quote, the one field that keeps page text", () => {
+  // Every other risk signal comes from a URL or a name the sanitizer rewrites.
+  // A policy quote is admitted page-derived text that passes through with only
+  // whitespace normalization and a length cap, so the corpus-clean statement
+  // was being made on a sweep that could not see the only field at risk.
+  const report = makeScanReportV1() as ScanResult;
+  report.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [
+      {
+        kind: "no-selling-or-sharing",
+        quote:
+          "We do not sell or share your personal information; write to contact@example.com to object."
+      },
+      { kind: "no-cookies", quote: "We do not use cookies on this website." }
+    ],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 120
+  };
+
+  const inventory = inventoryV1Report("policy-quote", report);
+
+  assert.equal(inventory.riskSignals.policyQuoteIdentifiers, 1);
+  assert.equal(
+    inventory.riskSignals.emailLikeStrings,
+    0,
+    "the URL-derived signal must stay a URL-derived signal"
+  );
+});
+
+test("an ordinary policy quote raises no identifier signal", () => {
+  const report = makeScanReportV1() as ScanResult;
+  report.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [
+      // Bare figures must not register, or every policy would be flagged.
+      { kind: "honors-gpc", quote: "We honor Global Privacy Control signals and retain logs for 30 days." }
+    ],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 80
+  };
+
+  assert.equal(inventoryV1Report("clean-quote", report).riskSignals.policyQuoteIdentifiers, 0);
+});
