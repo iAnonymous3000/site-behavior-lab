@@ -62,6 +62,22 @@
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
     monospace;
 
+  /* Two weights, not nine.
+   *
+   * The stylesheet carried 600, 640, 650, 700, 720, 740, 750 and 760, which
+   * reads as a fine-grained scale and is not one: a system stack exposes about
+   * three weights, so every value above snapped to one of two renderings. The
+   * granularity existed only in the source, where it made two elements that
+   * look identical appear deliberately different.
+   *
+   * No webfont is vendored here on purpose. This repository gates every
+   * third-party artifact through THIRD_PARTY_INVENTORY.json and a review file,
+   * and a font binary is exactly such an artifact; adding one without that
+   * review would put an unreviewed dependency into a project whose entire claim
+   * is that its inputs are inspectable. */
+  --weight-medium: 600;
+  --weight-bold: 700;
+
   --maxw: 1320px;
   /* Two content widths, not five. Every page-level container used to pick its
      own (760 / 1040 / 1080 / 1180 / 1320px), so pages that look alike sat at
@@ -163,7 +179,12 @@
   box-sizing: border-box;
 }
 
+/* Lining, fixed-width digits wherever figures are meant to be COMPARED. Set at
+   the root because every number this product publishes is evidence a reader
+   scans down a column; proportional digits make 1,118 look narrower than 8,881.
+   Prose that happens to contain a number is unaffected in practice. */
 html {
+  font-variant-numeric: tabular-nums;
   background:
     radial-gradient(1100px 600px at 100% -5%, var(--bg-grid), transparent 60%),
     var(--bg);
@@ -259,7 +280,7 @@ a {
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
   padding: 10px 14px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 .skip-link:focus {
@@ -353,7 +374,7 @@ a {
 
 .brand-name {
   font-size: 15px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: -0.01em;
   line-height: 1.2;
   overflow: hidden;
@@ -373,7 +394,7 @@ a {
 .eyebrow {
   color: var(--accent-strong);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.16em;
   margin: 0;
   text-transform: uppercase;
@@ -405,7 +426,7 @@ a {
   color: var(--text-muted);
   display: inline-flex;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   min-height: 34px;
   align-items: center;
   padding: 0 10px;
@@ -434,7 +455,7 @@ a {
   color: var(--text-muted);
   display: inline-flex;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   gap: 8px;
   padding: 7px 12px;
   white-space: nowrap;
@@ -517,7 +538,7 @@ a {
 
 .workbench-lede h1 {
   font-size: clamp(28px, 4.6vw, 42px);
-  font-weight: 720;
+  font-weight: var(--weight-bold);
   letter-spacing: -0.03em;
   line-height: 1.06;
   margin: 0 0 10px;
@@ -575,7 +596,7 @@ a {
   color: var(--sig-warn);
   font-size: 30px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: 1;
 }
 
@@ -609,7 +630,7 @@ a {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 .corpus-counting-disclosure p {
@@ -652,7 +673,7 @@ a {
 .scan-examples > span {
   color: var(--text-subtle);
   font-size: 11px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -709,7 +730,7 @@ a {
 
 .known-evidence-actions a {
   color: var(--accent-strong);
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
@@ -856,7 +877,7 @@ a {
   color: var(--text-muted);
   display: block;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   margin: 0 0 9px;
   text-transform: uppercase;
@@ -951,7 +972,7 @@ a {
   border-radius: 9px;
   display: inline-flex;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   gap: 8px;
   justify-content: center;
   min-height: 40px;
@@ -1121,7 +1142,7 @@ a {
   border-radius: var(--radius-sm);
   display: flex;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   gap: 10px;
   min-height: 50px;
   padding: 0 14px;
@@ -1865,7 +1886,7 @@ a {
 .evidence-receipt-run dt {
   color: var(--text-subtle);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1900,7 +1921,7 @@ a {
   color: var(--accent-strong);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   max-width: 100%;
   min-height: 44px;
   overflow-wrap: anywhere;
@@ -2086,7 +2107,7 @@ a {
 .arm-switcher > span {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 
 .arm-option {
@@ -2096,7 +2117,7 @@ a {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   padding: 5px 12px;
 }
 
@@ -2180,7 +2201,7 @@ a {
   color: var(--sig-warn);
   display: inline-block;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   letter-spacing: 0.04em;
   margin-left: 8px;
   padding: 2px 8px;
@@ -2195,7 +2216,7 @@ a {
   color: var(--text-muted);
   display: inline-block;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   letter-spacing: 0.06em;
   margin-left: 8px;
   padding: 2px 8px;
@@ -2222,7 +2243,7 @@ a {
 .delta-tile span {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 .delta-tile strong {
@@ -2418,7 +2439,7 @@ a {
 .finding-level {
   color: var(--tile-color, var(--text-muted));
   font-size: 10.5px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   margin: 0 0 4px;
   text-transform: uppercase;
@@ -2441,7 +2462,7 @@ a {
 .finding-card .finding-lead {
   color: var(--text);
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   margin-bottom: 4px;
 }
 
@@ -2496,7 +2517,7 @@ a {
 .headline-kicker {
   color: var(--tone-color, var(--accent));
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.08em;
   margin: 0 0 8px;
   text-transform: uppercase;
@@ -2504,7 +2525,7 @@ a {
 
 .headline-title {
   font-size: clamp(22px, 3.4vw, 30px);
-  font-weight: 760;
+  font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
   line-height: 1.15;
   margin: 0;
@@ -2546,7 +2567,7 @@ a {
 .headline-stat-value {
   font-size: 22px;
   font-variant-numeric: tabular-nums;
-  font-weight: 740;
+  font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
 }
 
@@ -2585,7 +2606,7 @@ a {
   cursor: pointer;
   display: inline-flex;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   gap: 7px;
   padding: 8px 14px;
   text-decoration: none;
@@ -2655,7 +2676,7 @@ a {
 .featured-group h4 {
   color: var(--text-subtle);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   margin: 0;
   text-transform: uppercase;
@@ -2699,7 +2720,7 @@ a {
 
 .featured-card-site {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 /* The card's tone had two carriers and both were pure hue: a left border and
@@ -2737,7 +2758,7 @@ a {
 
 .featured-card-headline {
   font-size: 14.5px;
-  font-weight: 640;
+  font-weight: var(--weight-medium);
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
@@ -2773,7 +2794,7 @@ a {
   color: var(--accent);
   display: inline-flex;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   gap: 5px;
   text-decoration: none;
   white-space: nowrap;
@@ -2805,7 +2826,7 @@ a {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   margin-inline: auto;
   max-width: 100%;
   min-height: 44px;
@@ -2853,7 +2874,7 @@ a {
 
 .legal-back a {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
@@ -2892,7 +2913,7 @@ a {
 
 .legal-section strong {
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 
 .legal-section code {
@@ -2949,7 +2970,7 @@ a {
 .correction-event dt {
   color: var(--text-subtle);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -3018,7 +3039,7 @@ a {
   color: var(--text);
   font-size: 17px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   margin: 16px 0 8px;
 }
 
@@ -3033,7 +3054,7 @@ a {
   display: inline-flex;
   flex: 0 0 auto;
   font-size: 11px;
-  font-weight: 750;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   padding: 4px 9px;
   text-transform: uppercase;
@@ -3091,7 +3112,7 @@ a {
 .status-fact-grid dt {
   color: var(--text-subtle);
   font-size: 10px;
-  font-weight: 750;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -3099,7 +3120,7 @@ a {
 .status-fact-grid dd {
   color: var(--text);
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   margin: 5px 0 0;
   overflow-wrap: anywhere;
 }
@@ -3115,7 +3136,7 @@ a {
 .status-actions a:not(.primary-button),
 .trust-links a {
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 /* The border and spacing move to the row so the theme toggle sits on the same rule. */
@@ -3249,7 +3270,7 @@ a {
 .site-profile-metrics dd {
   font-size: 25px;
   font-variant-numeric: tabular-nums;
-  font-weight: 720;
+  font-weight: var(--weight-bold);
   margin: 6px 0 0;
 }
 
@@ -3333,12 +3354,12 @@ a {
 .metric-card .m-label {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 
 .metric-card .m-value {
   font-size: 26px;
-  font-weight: 720;
+  font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -3485,7 +3506,7 @@ a {
 .warnings-group-label {
   color: var(--sig-warn);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.08em;
   margin: 0 0 6px;
   text-transform: uppercase;
@@ -3557,7 +3578,7 @@ a {
   display: inline-flex;
   align-items: center;
   font-size: 12.5px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   min-height: 32px;
   padding: 0 10px;
   text-decoration: none;
@@ -3762,7 +3783,7 @@ a {
 
 .state-change-op {
   border-radius: 999px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   padding: 2px 8px;
 }
 
@@ -3985,7 +4006,7 @@ td {
 th {
   color: var(--text-subtle);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -4027,7 +4048,7 @@ td .mono {
   border-radius: 999px;
   display: inline-block;
   font-size: 11px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   padding: 2px 9px;
   white-space: nowrap;
 }
@@ -4236,7 +4257,7 @@ td .mono {
   flex: 0 0 auto;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   padding: 1px 7px;
 }
 
@@ -4295,7 +4316,7 @@ td .mono {
   flex: 0 0 auto;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   height: 26px;
   justify-content: center;
   min-width: 26px;
@@ -4468,7 +4489,7 @@ td .mono {
   color: var(--text-muted);
   display: flex;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   gap: 8px;
   width: max-content;
 }
@@ -4569,7 +4590,7 @@ details[open] > summary .disclosure-chevron {
   color: var(--text);
   display: block;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 .scan-checks-note {
@@ -4891,7 +4912,7 @@ details[open] > summary .disclosure-chevron {
     color: var(--text-subtle);
     content: attr(data-label);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: var(--weight-bold);
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }

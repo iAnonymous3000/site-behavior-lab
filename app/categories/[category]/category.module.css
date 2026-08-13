@@ -25,7 +25,7 @@
 .siteActions a,
 .siteHeading a {
   color: var(--accent);
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
@@ -111,7 +111,7 @@
 .metrics dd {
   font-size: clamp(23px, 3vw, 31px);
   font-variant-numeric: tabular-nums;
-  font-weight: 760;
+  font-weight: var(--weight-bold);
   margin: 7px 0 0;
   overflow-wrap: anywhere;
 }
@@ -230,7 +230,7 @@
 .siteList dd {
   font-size: 17px;
   font-variant-numeric: tabular-nums;
-  font-weight: 720;
+  font-weight: var(--weight-bold);
   margin: 5px 0 0;
 }
 

@@ -619,3 +619,37 @@ test("the homepage checklist describes the checks the report actually runs", () 
     `the findings absence copy must name exactly the shared platform list (${serialList})`
   );
 });
+
+/**
+ * The type scale is two weights, and stays two.
+ *
+ * The stylesheet carried 600, 640, 650, 700, 720, 740, 750 and 760. That reads
+ * as a fine-grained scale and is not one: a system stack exposes about three
+ * weights, so every value above snapped to one of two renderings and the
+ * granularity existed only in the source, where it made elements that look
+ * identical appear deliberately different. Pinned by grep because a raw literal
+ * is exactly how the drift returns, one component at a time.
+ */
+test("font weights come from the two shared tokens", () => {
+  const files = [
+    "app/globals.css",
+    "app/catalog/catalog.module.css",
+    "app/directory/directory.module.css",
+    "app/categories/[category]/category.module.css"
+  ];
+  const definitions = /--weight-(?:medium|bold): (?:600|700);/;
+  const allowed = new Set(["var(--weight-medium)", "var(--weight-bold)", "400", "inherit", "normal"]);
+
+  assert.match(source("app/globals.css"), definitions, "the weight tokens must be defined");
+  for (const file of files) {
+    const contents = source(file);
+    const raw = [...contents.matchAll(/font-weight: ([^;]+);/g)]
+      .map((match) => match[1].trim())
+      .filter((value) => !allowed.has(value));
+    assert.deepEqual(
+      raw,
+      [],
+      `${file} sets font-weight outside the shared tokens: ${raw.join(", ")}`
+    );
+  }
+});
