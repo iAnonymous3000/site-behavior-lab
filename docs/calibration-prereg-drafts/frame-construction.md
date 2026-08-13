@@ -66,12 +66,49 @@ canonical pretty JSON (two-space indent, trailing newline). The frame
 tooling must confirm against the acquisition-side digest check before
 freezing, and then serialize identically. Do not hand-author case files.
 
-## What the frame tooling still needs (build item)
+## The frame tooling (built)
 
-A small `calibration:frame` producer that takes the screened pool, the
-committed preregistration digest as seed, and emits: the drawn cases with
-their canonical selection and condition files, the three-digest plan rows,
-the labeler endpoint appendix frozen from the candidate catalog, and the
-sweep receipts. Deterministic, create-only, no network. This does not exist
-yet. The assemble custody wiring is already implemented and tested, so this
-producer can land independently before the ceremony.
+`npm run calibration:frame` takes the screened pool and the committed
+preregistration, seeds the draw with the SHA-256 of that preregistration's
+exact bytes, and emits every case's canonical `selection.json` and
+`condition.json` plus `frame-rows.json` carrying the per-case digests.
+Deterministic, create-only, no network.
+
+**The draw is a sort, not a shuffle.** Each candidate is keyed by
+`sha256(seed + "\n" + url)` and the lowest N keys win. That is an
+equal-probability draw without replacement which needs no agreement about a
+PRNG: anyone can recompute one hash per pool entry in any language, sort, and
+get the same frame. Pool order cannot influence the sample, and a duplicated
+URL is refused rather than given two chances.
+
+Two refusals are deliberate. A second run into the same directory is rejected
+rather than overwriting a frozen frame, so redrawing requires changing the
+preregistration the seed comes from. And a preregistration whose
+`measurementCondition` differs from the canonical detector arm - including its
+exact `interpretation` text - is rejected up front, because the acquisition
+validator compares that text per case and would otherwise refuse a whole
+emitted frame after the one-shot ceremony had already started.
+
+`referenceEvidenceDigest` is deliberately NOT produced here. Reference evidence
+is sealed independently by reviewers, and the hand that draws the frame must
+not also produce the labels it will be scored against.
+
+A guard test writes a drawn frame to disk and runs the real
+`validateCalibrationCaseInputs` over it, so the producer's serialization and
+the acquisition validator's digest recomputation are proven to agree rather
+than separately asserted.
+
+Still outstanding here: the labeler endpoint appendix frozen from the candidate
+catalog, and the sweep receipts.
+
+**Sizing note.** The 400-case figure above predates the arithmetic in
+[../calibration-cname-uncloaking-design.md](../calibration-cname-uncloaking-design.md).
+For a rare-positive detector a 400-case draw from a ~0.20 pool misses the
+100-positive floor about 99% of the time, and enlarging the frame makes
+zero-censoring survival worse, not better. Size from the pool's base rate.
+
+**Sweep hazard.** The reliability sweep as described runs full scans, which
+produce detector output. Preregistration is void if the frame is chosen after
+predictions are seen, so the sweep must be treated as a bare load check whose
+detector outputs are never read, and its receipts should record only load
+outcome. Nothing currently enforces that separation.
