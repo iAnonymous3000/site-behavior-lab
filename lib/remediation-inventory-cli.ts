@@ -3,7 +3,7 @@ import path from "node:path";
 import { publicReportDigest } from "./canonical-json";
 import {
   inventoryV1Report,
-  policyQuoteIdentifierCount,
+  policyQuoteIdentifiersInR2Report,
   summarizeInventories,
   type ReportRemediationInventory
 } from "./remediation-inventory";
@@ -62,11 +62,7 @@ async function main(): Promise<void> {
       // The v1 inventory below is unreachable for these rows, so the quote
       // sweep has to run here too. This is the format currently produced, and
       // a policy quote is the one public field that keeps page text verbatim.
-      const r2Report = read.stored.report;
-      const r2Runs = r2Report.reportType === "comparison" ? [r2Report.baseline, r2Report.variant] : [r2Report.run];
-      for (const run of r2Runs) {
-        r2.policyQuoteIdentifiers += policyQuoteIdentifierCount(run.evidence.privacyPolicy?.claims);
-      }
+      r2.policyQuoteIdentifiers += policyQuoteIdentifiersInR2Report(read.stored.report);
       try {
         const version = r2ReportRedactionVersion(read.stored.report);
         if (version === 3) r2.v3 += 1;

@@ -379,12 +379,32 @@ test("the causality boundary states what the scanner actually records", () => {
   // ever carried an initiator. A published boundary that overstates the
   // instrument is precisely the defect this surface exists to prevent, so the
   // wording and the wiring are pinned to each other in both directions.
-  const libDir = path.join(root, "lib");
-  const productionImporters = readdirSync(libDir).filter((file) => {
-    if (!file.endsWith(".ts") || file.endsWith(".test.ts")) return false;
-    if (file === "request-initiator.ts") return false;
-    return /from "\.\/request-initiator"/.test(readFileSync(path.join(libDir, file), "utf8"));
-  });
+  // Resolve importers across every directory that can reach the scanner, and
+  // match every spelling that would actually wire it: relative or "@/lib"
+  // alias, static `from` or dynamic `import()`, with or without an extension.
+  // Searching one directory for one literal is how a guard like this goes
+  // quietly false the moment the capture lands in cloudflare/ or app/.
+  const INITIATOR_IMPORT =
+    /(?:\bfrom\s*|\bimport\s*\(\s*|\brequire\s*\(\s*)["'](?:(?:\.{1,2}\/)+|@\/lib\/)(?:[\w.-]+\/)*request-initiator(?:\.[jt]sx?)?["']/;
+  const productionImporters: string[] = [];
+  const walk = (dir: string): void => {
+    if (!existsSync(dir)) return;
+    for (const item of readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, item.name);
+      if (item.isDirectory()) {
+        if (item.name === "node_modules" || item.name.startsWith(".")) continue;
+        walk(full);
+        continue;
+      }
+      if (!/\.(ts|tsx|mts|mjs|js)$/.test(item.name)) continue;
+      if (/\.test\.[a-z]+$/.test(item.name)) continue;
+      if (path.relative(root, full) === path.join("lib", "request-initiator.ts")) continue;
+      if (INITIATOR_IMPORT.test(readFileSync(full, "utf8"))) {
+        productionImporters.push(path.relative(root, full));
+      }
+    }
+  };
+  for (const dir of ["lib", "app", "cloudflare", "scripts"]) walk(path.join(root, dir));
 
   const entry = COVERAGE_BOUNDARY_ENTRIES.find(
     (candidate) => candidate.id === "script-to-request-causality"

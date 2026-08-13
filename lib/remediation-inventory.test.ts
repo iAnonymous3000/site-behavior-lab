@@ -1,10 +1,17 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
   inventoryV1Report,
   policyQuoteIdentifierCount,
+  policyQuoteIdentifiersInR2Report,
   summarizeInventories
 } from "./remediation-inventory";
+import {
+  makePublicSingleReportV2R2,
+  makeShieldsInterventionReportV2R2
+} from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -164,21 +171,7 @@ test("an ordinary policy quote raises no identifier signal", () => {
   assert.equal(inventoryV1Report("clean-quote", report).riskSignals.policyQuoteIdentifiers, 0);
 });
 
-test("the quote sweep is schema-independent, so r2 reports are not a blind spot again", () => {
-  // The v1 inventory is unreachable for schema-r2 rows: the CLI handles them on
-  // a separate branch and never calls it. The format currently produced IS
-  // r2, so a sweep that only ran on v1 would restate the old blind spot one
-  // schema along. The shared counter is what both branches call.
-  assert.equal(
-    policyQuoteIdentifierCount([
-      { quote: "We do not sell your data; write to privacy@example.com to object." }
-    ]),
-    1
-  );
-  assert.equal(
-    policyQuoteIdentifierCount([{ quote: "We do not sell your personal information." }]),
-    0
-  );
+test("the identifier matcher counts addresses and numbers, not ordinary figures", () => {
   assert.equal(policyQuoteIdentifierCount(undefined), 0);
   assert.equal(
     policyQuoteIdentifierCount([
@@ -187,5 +180,67 @@ test("the quote sweep is schema-independent, so r2 reports are not a blind spot 
       { quote: "We retain logs for 30 days." }
     ]),
     2
+  );
+});
+
+test("an r2 single report's policy quote is swept, the shape that actually leaked", () => {
+  // The v1 inventory is unreachable for schema-r2 rows: the CLI handles them on
+  // its own branch and returns first. Every report the scanner writes today is
+  // r2, and the report that leaked an address in the 1,320-site audit was an r2
+  // SINGLE report, so this traversal is the one that matters. Exercising only
+  // the string matcher would leave that path unverified, which is how the gap
+  // arose in the first place.
+  const report = makePublicSingleReportV2R2();
+  assert.equal(policyQuoteIdentifiersInR2Report(report), 0, "the fixture must start clean");
+
+  report.run.evidence.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [
+      {
+        kind: "no-selling-or-sharing",
+        quote: "Copyright 2007-2026 Example Bench contact@example.com Privacy Policy Licensing"
+      }
+    ],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 90
+  };
+
+  assert.equal(policyQuoteIdentifiersInR2Report(report), 1);
+});
+
+test("an r2 comparison is swept on both arms, not just the one the reader sees", () => {
+  const report = makeShieldsInterventionReportV2R2();
+  assert.equal(policyQuoteIdentifiersInR2Report(report), 0, "the fixture must start clean");
+
+  for (const run of [report.baseline, report.variant]) {
+    run.evidence.privacyPolicy = {
+      url: "https://example.com/privacy",
+      claims: [{ kind: "honors-gpc", quote: "Write to dpo@example.com to exercise your rights." }],
+      mentionedEntities: [],
+      unmentionedEntities: [],
+      policyTextLength: 60
+    };
+  }
+
+  assert.equal(
+    policyQuoteIdentifiersInR2Report(report),
+    2,
+    "a quote on the variant arm alone must not be able to hide"
+  );
+});
+
+test("the inventory CLI actually runs the r2 sweep on its r2 branch", () => {
+  // The defect this closes was a call that was never made, not a function that
+  // was wrong, so the guard has to be about the call site. Reading the source
+  // is the only way to assert it without executing a CLI whose module body
+  // runs main() on import.
+  const source = readFileSync(path.join(process.cwd(), "lib", "remediation-inventory-cli.ts"), "utf8");
+  const r2Branch = source.slice(source.indexOf("read.stored.schemaVersion === 2"));
+  assert.ok(r2Branch.length > 0, "the CLI must still have a schema-2 branch");
+  assert.match(
+    r2Branch.slice(0, r2Branch.indexOf("inventoryV1Report")),
+    /policyQuoteIdentifiersInR2Report\(/,
+    "the schema-2 branch must sweep policy quotes before it returns, or r2 reports go uninspected again"
   );
 });

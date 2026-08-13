@@ -7,6 +7,7 @@ import {
   tokenShapeMarker,
   type RedactionCounters
 } from "./redaction-v2";
+import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
 import type { ScanReport, ScanResult } from "./types";
 
 /**
@@ -93,6 +94,24 @@ export function policyQuoteIdentifierCount(
   let count = 0;
   for (const claim of claims ?? []) {
     if (EMAIL_LIKE.test(claim.quote) || PHONE_LIKE.test(claim.quote)) count += 1;
+  }
+  return count;
+}
+
+/**
+ * The same count over a schema-r2 report, across every run it carries.
+ *
+ * Lives here rather than inline in the CLI so the r2 traversal is testable
+ * against real fixtures. The report that actually leaked an address in the
+ * 1,320-site audit was schemaVersion 2 revision 2, so this is the path that
+ * matters, and a test that exercised only the string matcher would have shared
+ * the original blind spot.
+ */
+export function policyQuoteIdentifiersInR2Report(report: PublicScanReportV2R2): number {
+  const runs = report.reportType === "comparison" ? [report.baseline, report.variant] : [report.run];
+  let count = 0;
+  for (const run of runs) {
+    count += policyQuoteIdentifierCount(run.evidence.privacyPolicy?.claims);
   }
   return count;
 }
