@@ -40,6 +40,11 @@ import { DETECTOR_IDS, type DetectorId } from "./scan-report-v2";
 export type DetectorCalibrationReaderState =
   /** A study measured this detector and its rates are publishable right now. */
   | "rates-published"
+  /**
+   * A publishable rate exists, but THIS run's evidence for the detector is not
+   * the kind of evidence the rate was measured over.
+   */
+  | "rates-published-outside-this-run"
   /** A study names this detector but its re-analysis does not support a rate. */
   | "study-recorded-not-eligible"
   /** No committed study names this detector at all. */
@@ -142,6 +147,35 @@ export function detectorCalibrationReaderClaims(
 }
 
 /**
+ * Restrict published rates to the runs they can actually speak about.
+ *
+ * A calibration rate is measured over cases the study scored, and a study
+ * scores only cases whose detector ledger says `complete`; a `partial` ledger
+ * is censored as `eligibility-criteria-not-met`. So a rate says nothing about a
+ * run whose evidence for that detector was truncated, failed or skipped, even
+ * though the rate itself is perfectly valid.
+ *
+ * Without this the page would print "published accuracy is available for
+ * cname-uncloaking" beside cname evidence that came from a truncated lookup the
+ * study's own rules exclude: a real number standing in for an inference it does
+ * not support.
+ *
+ * Fails closed. A detector absent from `rateApplicable` can never be promoted,
+ * so a caller that cannot establish completeness (a v1 report has no ledger)
+ * quotes nothing.
+ */
+export function withRunApplicability(
+  claims: ReadonlyArray<DetectorCalibrationReaderClaim>,
+  rateApplicable: ReadonlySet<DetectorId>
+): DetectorCalibrationReaderClaim[] {
+  return claims.map((claim) =>
+    claim.state === "rates-published" && !rateApplicable.has(claim.detector)
+      ? { ...claim, state: "rates-published-outside-this-run" as const }
+      : claim
+  );
+}
+
+/**
  * Plain-language grouping of the analyzer's 20 ineligibility reasons.
  *
  * The raw tokens stay on the claim for anyone checking the analyzer; this is
@@ -194,13 +228,20 @@ export function detectorCalibrationReaderSentence(
 ): string {
   const published = claims.filter((claim) => claim.state === "rates-published");
   const recorded = claims.filter((claim) => claim.state === "study-recorded-not-eligible");
+  const outside = claims.filter((claim) => claim.state === "rates-published-outside-this-run");
+  const outsideNote =
+    outside.length === 0
+      ? ""
+      : ` A published rate exists for ${outside.map((claim) => claim.detector).join(", ")}, but it ` +
+        "does not describe this visit: that evidence was incomplete here, and the rate was measured " +
+        "only over complete cases.";
 
   if (published.length === 0) {
     const base =
       "Detector accuracy is unmeasured. No calibration study currently publishes a precision or " +
       "recall for the detectors on this page, so a detector match here is a recorded observation, " +
       "not a calibrated classification.";
-    if (recorded.length === 0) return base;
+    if (recorded.length === 0) return `${base}${outsideNote}`;
     // The per-reason detail stays on the claim and renders on the study
     // register. Spelled out here it ran to five clauses inside a sentence
     // whose job is to qualify the page, and buried the one fact a reader
@@ -208,12 +249,12 @@ export function detectorCalibrationReaderSentence(
     const names = recorded.map((claim) => claim.detector).join(", ");
     return (
       `${base} A study has been recorded for ${names} and does not support a published rate ` +
-      "under the current build."
+      `under the current build.${outsideNote}`
     );
   }
 
   const names = published.map((claim) => claim.detector).join(", ");
-  const remaining = claims.length - published.length;
+  const remaining = claims.length - published.length - outside.length;
   const rest =
     remaining > 0
       ? ` The other ${remaining === 1 ? "detector" : `${remaining} detectors`} on this page ` +
@@ -221,6 +262,6 @@ export function detectorCalibrationReaderSentence(
       : "";
   return (
     `Published detector accuracy is available for ${names}. ` +
-    `${published[0]?.conditionalRateClaim ?? ""}${rest}`.trim()
+    `${published[0]?.conditionalRateClaim ?? ""}${rest}${outsideNote}`.trim()
   );
 }

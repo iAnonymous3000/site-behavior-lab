@@ -867,24 +867,44 @@ function legacyClaims(report: Extract<ScanReport, { reportType: "comparison" }>)
 
 /** The newest parseable timestamp among the runs, for sorting and retention. */
 /**
- * The governed detectors this report actually ran.
+ * Detector scope for what this report may say about measured accuracy.
  *
- * Used to scope what the page may say about measured detector accuracy, so a
- * report never carries a statement about an instrument it did not run. v1
- * reports recorded no detector ledger at all; there the honest scope is every
- * governed detector, because the page could be showing any of their outputs
- * and an empty list would read as "nothing to qualify".
+ * Two different sets, because they answer two different questions and
+ * conflating them lets a page attach a rate to a run the study that produced
+ * that rate would have thrown away.
+ *
+ * `qualified` is every detector the page could be showing output for, and is
+ * what the "accuracy is unmeasured" sentence covers. Over-inclusion there is
+ * harmless: qualifying a detector that did not run states no falsehood. v1
+ * reports recorded no ledger at all, so their honest scope is all six.
+ *
+ * `rateApplicable` is narrower and fails closed: only detectors whose ledger
+ * on THIS run says `complete`. A `partial` detector is precisely the case a
+ * calibration study censors as `eligibility-criteria-not-met`
+ * (scripts/calibration-study-lib.mjs), so a published rate derived from
+ * complete cases says nothing about a run whose evidence was truncated. v1
+ * reports contribute nothing here, because a missing ledger cannot establish
+ * that any detector completed.
  */
-export function reportDetectorIds(view: ReportView): DetectorId[] {
+export function reportDetectorScope(view: ReportView): {
+  qualified: DetectorId[];
+  rateApplicable: DetectorId[];
+} {
+  const complete = new Set<string>();
   const ran = new Set<string>();
+  let ledgerRecorded = false;
   for (const run of view.runs) {
     if (!run.detectors) continue;
+    ledgerRecorded = true;
     for (const [id, entry] of Object.entries(run.detectors)) {
+      if (entry.status === "complete") complete.add(id);
       if (entry.status === "complete" || entry.status === "partial") ran.add(id);
     }
   }
-  if (ran.size === 0) return [...DETECTOR_IDS];
-  return DETECTOR_IDS.filter((id) => ran.has(id));
+  return {
+    qualified: ledgerRecorded ? DETECTOR_IDS.filter((id) => ran.has(id)) : [...DETECTOR_IDS],
+    rateApplicable: DETECTOR_IDS.filter((id) => complete.has(id))
+  };
 }
 
 function latestRunAt(runs: readonly { startedAt: string | null }[]): string | null {

@@ -9,7 +9,8 @@ import {
   calibrationIneligibilitySummary,
   calibrationRatesQuotable,
   detectorCalibrationReaderClaims,
-  detectorCalibrationReaderSentence
+  detectorCalibrationReaderSentence,
+  withRunApplicability
 } from "./detector-calibration-reader";
 import {
   MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH,
@@ -256,4 +257,43 @@ test("every analyzer ineligibility reason gets a non-empty reader phrasing", () 
     const summary = calibrationIneligibilitySummary([reason]);
     assert.ok(summary && summary.length > 0, `${reason} must have a reader phrasing`);
   }
+});
+
+test("a publishable rate is not claimed to cover a run whose evidence was incomplete", () => {
+  // A `partial` detector ledger is exactly what a study censors as
+  // eligibility-criteria-not-met, so a rate measured over complete cases says
+  // nothing about this run. Without this the page would print a real number
+  // beside evidence the study's own rules exclude.
+  const claims = withRunApplicability(
+    detectorCalibrationReaderClaims([publishableAnalysis()], ["cname-uncloaking"]),
+    new Set()
+  );
+  assert.equal(claims[0]!.state, "rates-published-outside-this-run");
+  const sentence = detectorCalibrationReaderSentence(claims);
+  assert.match(sentence, /Detector accuracy is unmeasured/);
+  assert.match(sentence, /does not describe this visit/);
+});
+
+test("a publishable rate survives applicability when this run completed the detector", () => {
+  const claims = withRunApplicability(
+    detectorCalibrationReaderClaims([publishableAnalysis()], ["cname-uncloaking"]),
+    new Set(["cname-uncloaking" as const])
+  );
+  assert.equal(claims[0]!.state, "rates-published");
+  assert.match(detectorCalibrationReaderSentence(claims), /Published detector accuracy is available/);
+});
+
+test("applicability fails closed: it can demote a rate but never promote one", () => {
+  const ineligible = publishableAnalysis({
+    status: "ineligible",
+    ineligibilityReasons: ["censored-cases-present"]
+  });
+  const claims = withRunApplicability(
+    detectorCalibrationReaderClaims([ineligible], ["cname-uncloaking"]),
+    // Even asserting the detector completed on this run must not manufacture a
+    // rate the analyzer never authorised.
+    new Set(["cname-uncloaking" as const])
+  );
+  assert.equal(claims[0]!.state, "study-recorded-not-eligible");
+  assert.equal(/\d/.test(detectorCalibrationReaderSentence(claims)), false);
 });

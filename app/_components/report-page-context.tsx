@@ -2,14 +2,17 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
 import type { ReportCorrections } from "@/lib/corrections-ledger";
-import { detectorCalibrationReaderSentence } from "@/lib/detector-calibration-reader";
+import {
+  detectorCalibrationReaderSentence,
+  withRunApplicability
+} from "@/lib/detector-calibration-reader";
 import { committedDetectorCalibrationReaderClaims } from "@/lib/detector-calibration-source";
 import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
 import {
   degradedRunNotice,
   displayRunView,
-  reportDetectorIds,
+  reportDetectorScope,
   runQualitySummary,
   schemaProvenanceLabel,
   type ReportView,
@@ -157,6 +160,7 @@ export function ReportEvidenceReceipt({
   reportUrl: string;
   view: ReportView;
 }) {
+  const detectorScope = reportDetectorScope(view);
   return (
     <section className="evidence-receipt" id="receipt" aria-labelledby="evidence-receipt-title">
         <p className="evidence-receipt-retention">
@@ -251,7 +255,10 @@ export function ReportEvidenceReceipt({
               asserting a number the analyzer had already withdrawn. */}
           <p className="evidence-receipt-note">
             {detectorCalibrationReaderSentence(
-              committedDetectorCalibrationReaderClaims(reportDetectorIds(view))
+              withRunApplicability(
+                committedDetectorCalibrationReaderClaims(detectorScope.qualified),
+                new Set(detectorScope.rateApplicable)
+              )
             )}{" "}
             <Link href="/methodology/#detector-calibration">How detector accuracy is measured</Link>.
           </p>

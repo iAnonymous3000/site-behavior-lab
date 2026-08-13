@@ -154,10 +154,25 @@ export async function resolveCnameChain(host, { resolverAddress, maxHops = 10, t
 export function parseTrackerSource(bytes) {
   const text = Buffer.from(bytes).toString("utf8");
   const suffixes = new Set();
-  for (const line of text.split(/\r?\n/)) {
+  for (const [index, line] of text.split(/\r?\n/).entries()) {
     const value = line.split("#")[0].trim().toLowerCase();
     if (!value) continue;
-    suffixes.add(value.replace(/^\.+/, "").replace(/\.$/, ""));
+    const suffix = value.replace(/^\.+/, "").replace(/\.$/, "");
+    if (!suffix) continue;
+    // Reject anything that is not a plain domain suffix instead of coercing it.
+    // Ad-block syntax reduced by a lenient parser is actively dangerous here: an
+    // exception rule (`@@||x.com^`) would become the positive entry `@@||x.com^`
+    // and never match, silently removing a vendor from the reference; a `!`
+    // comment would become an entry. A reference that quietly matches less than
+    // the reviewer believes produces false negatives that look like detector
+    // recall failures.
+    if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(suffix)) {
+      throw new Error(
+        `tracker source line ${index + 1} is not a plain domain suffix: ${JSON.stringify(line)}. ` +
+          "Convert filter-list syntax to bare domain suffixes deliberately; this parser will not guess."
+      );
+    }
+    suffixes.add(suffix);
   }
   if (suffixes.size === 0) throw new Error("tracker source contains no entries");
   return { suffixes, digest: sha256Hex(Buffer.from(bytes)) };

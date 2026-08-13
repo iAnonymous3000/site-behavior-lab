@@ -155,3 +155,23 @@ test("the reference instrument imports nothing this project uses to make the pre
     `the reference must import only node builtins, found: ${imports.join(", ")}`
   );
 });
+
+test("filter-list syntax is refused, not silently coerced into a dead entry", () => {
+  // A lenient parser turns `@@||adobe.com^` into the literal entry
+  // "@@||adobe.com^", which matches no host. The vendor silently drops out of
+  // the reference and every site using it becomes a detector false negative.
+  for (const line of ["@@||adobe.com^", "||omtrdc.net^", "!comment", "*.omtrdc.net", "/ads/"]) {
+    assert.throws(
+      () => parseTrackerSource(Buffer.from(`omtrdc.net\n${line}\n`)),
+      /not a plain domain suffix/,
+      `${line} must be refused`
+    );
+  }
+});
+
+test("plain suffix lists with comments and blank lines still parse", () => {
+  const { suffixes } = parseTrackerSource(
+    Buffer.from("# vendors\n\nomtrdc.net\n.online-metrix.net.\nat-o.net  # inline\n")
+  );
+  assert.deepEqual([...suffixes].sort(), ["at-o.net", "omtrdc.net", "online-metrix.net"]);
+});
