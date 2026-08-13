@@ -285,7 +285,7 @@ export async function prepareEncryptedWatchRun(
 
 function requireEncryptedWatchRunReadiness(): void {
   if (!durableScanJobsEnabled() || encryptedWatchesFlagState(process.env[ENCRYPTED_WATCHES_ENV]) !== "enabled") {
-    throw new PublicScanError("Encrypted scheduled rescans are not enabled and ready.", 503);
+    throw new PublicScanError("Encrypted scheduled rescans are not enabled and ready.", 503, "feature-unavailable");
   }
   requireDurableScanJobReadiness();
 }
@@ -359,7 +359,7 @@ export function enqueuePreparedScanJob(
   // that must never be silently dropped, so admission is refused up front
   // (before the client is charged) when the queue is full.
   if (queuedJobIds.length >= MAX_QUEUED_JOBS) {
-    throw new PublicScanError("Scanner queue is full. Try again shortly.", 503);
+    throw new PublicScanError("Scanner queue is full. Try again shortly.", 503, "scanner-busy");
   }
   // Charge the per-client rate limit when the job is accepted into the queue.
   // The submit gate only peeks, so without this a burst of submissions could
@@ -430,7 +430,7 @@ export async function activateDurableScanJob(
   }
   const reservesNewSlot = initialDisposition === "new";
   if (reservesNewSlot && activeJobWorkers + pendingDurableActivations >= MAX_CONCURRENT_SCANS) {
-    throw new PublicScanError("Scanner execution capacity is full. Try this durable lease again shortly.", 503);
+    throw new PublicScanError("Scanner execution capacity is full. Try this durable lease again shortly.", 503, "scanner-busy");
   }
   const coordinator =
     dependencies.coordinator ??
@@ -458,7 +458,7 @@ export async function activateDurableScanJob(
       !reservesNewSlot &&
       activeJobWorkers + pendingDurableActivations >= MAX_CONCURRENT_SCANS
     ) {
-      throw new PublicScanError("Scanner execution capacity is full. Try this durable lease again shortly.", 503);
+      throw new PublicScanError("Scanner execution capacity is full. Try this durable lease again shortly.", 503, "scanner-busy");
     }
     const existing = jobs.get(owner.jobId);
     if (disposition === "replace" && existing) supersedeDurableRecord(existing);

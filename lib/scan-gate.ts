@@ -177,18 +177,18 @@ async function readScanPayload(
   // same pre-buffer allocation bound as the Cloudflare edge gates.
   const body = await readRequestBodyWithinLimit(request, MAX_BODY_BYTES);
   if (body === null) {
-    throw new PublicScanError("Request body is too large.", 413);
+    throw new PublicScanError("Request body is too large.", 413, "request-rejected");
   }
 
   let payload: unknown;
   try {
     payload = JSON.parse(body);
   } catch {
-    throw new PublicScanError("Request body must be valid JSON.");
+    throw new PublicScanError("Request body must be valid JSON.", 400, "request-rejected");
   }
 
   if (!payload || typeof payload !== "object" || typeof (payload as { url?: unknown }).url !== "string") {
-    throw new PublicScanError("Enter a public URL to scan.");
+    throw new PublicScanError("Enter a public URL to scan.", 400, "invalid-url");
   }
 
   return payload as Partial<ScanRequestPayload> & { url: string; compareGpc?: boolean; compareShields?: boolean; compareConsent?: boolean };

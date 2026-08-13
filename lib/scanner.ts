@@ -693,7 +693,7 @@ export async function scanSiteWithMeasurement(
         timeoutMs: PUBLIC_URL_DNS_TIMEOUT_MS,
         signal: options.signal,
         createTimeoutError: () =>
-          new PublicScanError("Public host verification timed out. Try again shortly.", 503)
+          new PublicScanError("Public host verification timed out. Try again shortly.", 503, "target-unreachable")
       }
     );
   }
@@ -722,7 +722,7 @@ export async function scanSiteWithMeasurement(
     warnings.add("Brave Shields classification was unavailable for this scan; tracker labels use the curated catalog only.");
   }
   if (options.shieldsBlockingEnabled && !adblockEngine) {
-    throw new PublicScanError("Brave Shields block simulation is unavailable on this scanner.", 503);
+    throw new PublicScanError("Brave Shields block simulation is unavailable on this scanner.", 503, "feature-unavailable");
   }
   if (options.shieldsBlockingEnabled) {
     warnings.add("Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.");
@@ -997,10 +997,10 @@ export async function scanSiteWithMeasurement(
         // one: the proxy also records DNS failures, refused upstream connects,
         // and policy refusals, none of which prove a private-network target.
         if (scanProxy.blockedTargets.some((blocked) => blocked.reason === "non-public-address")) {
-          throw new PublicScanError("The page could not be loaded because it resolved to a local or private network address.");
+          throw new PublicScanError("The page could not be loaded because it resolved to a local or private network address.", 400, "private-target");
         }
         if (isTimeoutError(error)) {
-          throw new PublicScanError("The page did not load before the scan timeout.", 504);
+          throw new PublicScanError("The page did not load before the scan timeout.", 504, "page-load-timeout");
         }
         // Navigation failures (TLS/HTTP2 errors, connection resets, sites that
         // refuse automated browsers) would otherwise be scrubbed to the opaque
@@ -3193,7 +3193,7 @@ async function getSharedBrowser(): Promise<Browser> {
       label: "Chromium launch",
       timeoutMs: SCANNER_OPERATION_TIMEOUT_MS,
       createTimeoutError: () =>
-        new PublicScanError("The browser runtime could not start in time. Try again shortly.", 503),
+        new PublicScanError("The browser runtime could not start in time. Try again shortly.", 503, "scanner-busy"),
       // Playwright launch does not expose an AbortSignal. If it eventually
       // materializes after losing the deadline race, close it immediately so
       // a timed-out launch cannot leak a browser process.
@@ -3981,7 +3981,7 @@ async function withScanTimeoutDisposing<T>(
 }
 
 function scanTimeoutError(): PublicScanError {
-  return new PublicScanError("The scan exceeded the maximum scan duration.", 504);
+  return new PublicScanError("The scan exceeded the maximum scan duration.", 504, "page-load-timeout");
 }
 
 function scannerEgressDescription(): string {
