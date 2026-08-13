@@ -136,6 +136,30 @@ export function injectedModuleSpecifiers(source: string): string[] {
 }
 
 export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
+  // Ordered deliberately: the qualifying sentence names the first three, and
+  // what a reader most needs to know is which PAGE was looked at and that
+  // nothing below the fold ran -- not that ambient-light sensors are unhooked.
+  {
+    id: "single-page-depth",
+    label: "Every page except the one that was scanned",
+    reason: "not-instrumented",
+    explanation:
+      "A report covers one URL. Article templates, product and checkout pages, search results, and anything else on the same site frequently load tags the front page does not, and none of that is in this report. The one exception is the privacy policy, which is fetched separately to read its text and whose own traffic is deliberately not part of the request log. Scanning a specific page means submitting that page's URL."
+  },
+  {
+    id: "below-fold-and-lazy-loaded",
+    label: "Anything that only loads after scrolling or interaction",
+    reason: "not-instrumented",
+    explanation:
+      "The visit does not scroll, hover, or click, apart from the two disclosed bounded interactions. Tags that fire on scroll depth, lazy-loaded images and iframes, and pixels wired to engagement events therefore never run. Their absence from a report is a property of this instrument, not evidence that the site does not use them."
+  },
+  {
+    id: "script-to-request-causality",
+    label: "Why a request happened, as a causal chain",
+    reason: "not-instrumented",
+    explanation:
+      "Where Chromium named an initiator, the report records the URL that asked for a request. That is attribution, not causation: a script in an initiator position may itself have been told what to fetch by another script, and a parser-initiated request names the document rather than the markup that referenced it. Reports adapted from Brave PageGraph carry an instrumented causal graph and say so; a live scan does not. Requests whose initiator Chromium did not report, or whose URL was requested from more than one initiator in the same visit, are left unattributed rather than guessed."
+  },
   {
     id: "device-sensors",
     label: "Device motion, orientation, and ambient sensors",
