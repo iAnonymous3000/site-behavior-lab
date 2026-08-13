@@ -28,19 +28,30 @@ export class PublicScanError extends PublicFacingError {
   }
 }
 
+/**
+ * The public shape of a failed request.
+ *
+ * `cause` is present ONLY when the thrower declared one. Two reasons it is
+ * omitted rather than set to undefined: the existing contract tests compare
+ * this object with deepEqual to pin the exact public shape, and an unexplained
+ * failure should carry no cause at all so the client renders the message
+ * verbatim instead of attaching an instruction nobody derived.
+ *
+ * The unexpected-error branch deliberately declares no cause either. Its
+ * scrubbed message already carries its own advice, and classifying an error we
+ * could not identify would be the same guess this whole mechanism removed.
+ */
 export function toPublicError(error: unknown): {
   message: string;
   status: number;
   cause?: ScanFailureCause;
 } {
   if (error instanceof PublicFacingError) {
-    return { message: error.message, status: error.status, cause: error.failureCause };
+    return error.failureCause === undefined
+      ? { message: error.message, status: error.status }
+      : { message: error.message, status: error.status, cause: error.failureCause };
   }
 
   console.error(error);
-  return {
-    message: "The service could not complete this request. Try again later.",
-    status: 500,
-    cause: "service-error"
-  };
+  return { message: "The service could not complete this request. Try again later.", status: 500 };
 }

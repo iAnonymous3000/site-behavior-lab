@@ -101,13 +101,31 @@ test("an open scanner never sends the visitor looking for an access key", () => 
   assert.doesNotMatch(open.action ?? "", /add the scanner access key/i);
 });
 
-test("toPublicError carries the declared cause, and classifies unknown throws", () => {
+test("toPublicError carries a declared cause and omits the key entirely otherwise", () => {
   const declared = toPublicError(new PublicScanError("nope", 400, "invalid-url"));
-  assert.equal(declared.cause, "invalid-url");
-  const undeclared = toPublicError(new PublicScanError("nope", 400));
-  assert.equal(undeclared.cause, undefined);
-  const unknown = toPublicError(new Error("boom"));
-  assert.equal(unknown.cause, "service-error");
+  assert.deepEqual(declared, { message: "nope", status: 400, cause: "invalid-url" });
+
+  // Omitted, not set to undefined. The existing contract tests compare this
+  // object with deepEqual to pin the exact public shape, and an unexplained
+  // failure must reach the reader as the server's own words with nothing added.
+  assert.deepEqual(toPublicError(new PublicScanError("nope", 400)), {
+    message: "nope",
+    status: 400
+  });
+
+  const originalConsoleError = console.error;
+  console.error = () => undefined;
+  try {
+    // An error we could not identify gets no cause: classifying it would be the
+    // same guess this mechanism exists to remove. Its scrubbed message already
+    // carries its own advice.
+    assert.deepEqual(toPublicError(new Error("boom")), {
+      message: "The service could not complete this request. Try again later.",
+      status: 500
+    });
+  } finally {
+    console.error = originalConsoleError;
+  }
 });
 
 test("the client no longer infers a cause by matching the server's prose", () => {
