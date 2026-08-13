@@ -10,7 +10,7 @@ export function assertScanAccess(request: Request): void {
 
   const provided = scanTokenFromHeaders(request.headers);
   if (!provided || !constantTimeEqual(provided, expected)) {
-    throw new PublicScanError("Scanner access key is required for this deployment.", 401);
+    throw new PublicScanError("Scanner access key is required for this deployment.", 401, "access-key-required");
   }
 }
 

@@ -61,7 +61,11 @@ export type PublicUrlVerificationOptions = Readonly<{
 export function normalizeUrl(input: string): URL {
   const result = normalizeHttpUrlInput(input);
   if (!result.ok) {
-    throw new PublicScanError(result.message);
+    // Every failure `normalizeHttpUrlInput` can return is a problem with the
+    // address as typed -- empty, non-HTTP, unparseable, or carrying
+    // credentials -- so they share one cause. The message still varies and is
+    // still shown; the cause only decides what we tell the visitor to do.
+    throw new PublicScanError(result.message, 400, "invalid-url");
   }
   return result.url;
 }
@@ -108,14 +112,14 @@ export async function assertPublicHttpUrl(
     if (code === null || !AUTHORITATIVE_DNS_FAILURE_CODES.has(code)) {
       throw new PublicUrlDnsUnavailableError(code);
     }
-    throw new PublicScanError("The host could not be resolved to a public address.");
+    throw new PublicScanError("The host could not be resolved to a public address.", 400, "target-unreachable");
   } finally {
     clearTimeout(timer);
     abort.dispose();
   }
 
   if (!Array.isArray(addresses) || addresses.length === 0) {
-    throw new PublicScanError("The host could not be resolved to a public address.");
+    throw new PublicScanError("The host could not be resolved to a public address.", 400, "target-unreachable");
   }
 
   // A fan-out refusal, not a resolution failure: the host answered, with more
@@ -130,7 +134,7 @@ export async function assertPublicHttpUrl(
   const publicOnly = addresses.every(({ address }) => isPublicIpAddress(address));
 
   if (!publicOnly) {
-    throw new PublicScanError("Local and private network targets are blocked.");
+    throw new PublicScanError("Local and private network targets are blocked.", 400, "private-target");
   }
 }
 
@@ -171,11 +175,11 @@ export function assertPublicHttpUrlShape(url: URL): void {
     hostname.endsWith(".internal") ||
     hostname === "0.0.0.0"
   ) {
-    throw new PublicScanError("Local and private network targets are blocked.");
+    throw new PublicScanError("Local and private network targets are blocked.", 400, "private-target");
   }
 
   if (isIpAddress(hostname) && !isPublicIpAddress(hostname)) {
-    throw new PublicScanError("Local and private network targets are blocked.");
+    throw new PublicScanError("Local and private network targets are blocked.", 400, "private-target");
   }
 
   assertStandardHttpPort(url);
@@ -183,6 +187,6 @@ export function assertPublicHttpUrlShape(url: URL): void {
 
 function assertStandardHttpPort(url: URL): void {
   if (url.port) {
-    throw new PublicScanError("Only standard HTTP and HTTPS ports can be scanned.");
+    throw new PublicScanError("Only standard HTTP and HTTPS ports can be scanned.", 400, "invalid-url");
   }
 }

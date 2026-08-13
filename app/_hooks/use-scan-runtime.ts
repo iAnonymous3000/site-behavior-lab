@@ -236,7 +236,7 @@ export function useScanRuntime({
         if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession(operation);
         setError(
           scanError instanceof Error
-            ? friendlyScanError(scanError.message, OPEN_ACCESS_SCANNER)
+            ? friendlyScanError(scanError, OPEN_ACCESS_SCANNER)
             : "Scan status checks failed."
         );
       })
@@ -617,7 +617,7 @@ export function useScanRuntime({
       if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession(operation);
       setError(
         scanError instanceof Error
-          ? friendlyScanError(scanError.message, policy.openAccessScanner)
+          ? friendlyScanError(scanError, policy.openAccessScanner)
           : "Scan failed."
       );
     } finally {
@@ -666,7 +666,7 @@ export function useScanRuntime({
       if (shouldReleaseAcceptedScanJob(scanError)) releaseActiveScanSession(operation);
       setError(
         scanError instanceof Error
-          ? friendlyScanError(scanError.message, policy.openAccessScanner)
+          ? friendlyScanError(scanError, policy.openAccessScanner)
           : "Scan status checks failed."
       );
     } finally {
@@ -710,7 +710,7 @@ export function useScanRuntime({
       // retry cancellation or resume polling with the admission-time key.
       setCancelScanError(
         cancelError instanceof Error
-          ? friendlyScanError(cancelError.message, policy.openAccessScanner)
+          ? friendlyScanError(cancelError, policy.openAccessScanner)
           : "The scan could not be cancelled."
       );
     } finally {

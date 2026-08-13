@@ -17,12 +17,13 @@
  */
 
 import { PublicFacingError } from "./public-errors";
+import type { ScanFailureCause } from "./scan-failure-causes";
 import { scanTokenFromHeaders } from "./scan-token";
 import { fetchJsonResponseWithPolicy } from "./client-fetch-policy";
 
 export class EdgeScanGateError extends PublicFacingError {
-  constructor(message: string, status: number) {
-    super(message, status, "EdgeScanGateError");
+  constructor(message: string, status: number, failureCause?: ScanFailureCause) {
+    super(message, status, "EdgeScanGateError", failureCause);
   }
 }
 
@@ -211,7 +212,7 @@ export async function assertTurnstileToken(options: {
   maxResponseBytes?: number;
 }): Promise<void> {
   if (!options.token) {
-    throw new EdgeScanGateError("Turnstile verification is required.", 400);
+    throw new EdgeScanGateError("Turnstile verification is required.", 400, "challenge-required");
   }
 
   const body = new URLSearchParams();
@@ -243,12 +244,13 @@ export async function assertTurnstileToken(options: {
       error instanceof Error && error.message
         ? `Turnstile verification is unavailable: ${error.message}`
         : "Turnstile verification is unavailable.",
-      503
+      503,
+      "challenge-required"
     );
   }
 
   if (!result || typeof result !== "object" || Array.isArray(result) || (result as { success?: unknown }).success !== true) {
-    throw new EdgeScanGateError("Turnstile verification failed.", 403);
+    throw new EdgeScanGateError("Turnstile verification failed.", 403, "challenge-required");
   }
 }
 

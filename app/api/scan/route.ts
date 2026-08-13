@@ -24,7 +24,14 @@ async function handleScan(request: Request): Promise<Response> {
     if (durableScanJobsEnabled()) {
       // Durable admission is private and Worker/DO-authoritative. A public or
       // older-Worker request must fail before it can enqueue ghost Phase-1 work.
-      throw new PublicScanError("Durable scan admission must use the private coordinator.", 503);
+      // Declared `feature-unavailable`, NOT the visitor's URL. The old client
+      // matched "private" in this message and told them their public address
+      // was a private network host.
+      throw new PublicScanError(
+        "Durable scan admission must use the private coordinator.",
+        503,
+        "feature-unavailable"
+      );
     }
     if (asyncScanModeEnabled()) {
       const submission = await submitScanJobRequest(request);
@@ -35,6 +42,9 @@ async function handleScan(request: Request): Promise<Response> {
     return NextResponse.json(result);
   } catch (error) {
     const publicError = toPublicError(error);
-    return NextResponse.json({ ok: false, error: publicError.message }, { status: publicError.status });
+    return NextResponse.json(
+      { ok: false, error: publicError.message, cause: publicError.cause },
+      { status: publicError.status }
+    );
   }
 }
