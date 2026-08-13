@@ -4,14 +4,12 @@ import { loadCorpusOverview } from "@/lib/corpus-overview";
 import {
   buildCategoryEvidencePages,
   buildDirectorySites,
-  directoryPageCount,
-  type DirectorySite
+  directoryPageCount
 } from "@/lib/directory-view";
-import { reportPagePath } from "@/lib/report-locator";
 import { sitePagesBasePath } from "@/lib/site-url";
-import { reportKindLabel } from "@/lib/text-format";
+import { formatEvidenceDate, siteEvidenceRow } from "@/lib/site-evidence-row";
+import { SiteEvidenceTable } from "../_components/site-evidence-table";
 import { DirectoryControls } from "./directory-controls";
-import { DirectoryTable, type DirectoryTableRow } from "./directory-table";
 import styles from "./directory.module.css";
 import { SiteChrome } from "../_components/site-chrome";
 
@@ -91,7 +89,7 @@ export async function DirectoryIndex({ page }: { page: number }) {
                   Separate medians across included sites: <b>{category.rollup.medianThirdParty.toLocaleString()}</b> third-party and{" "}
                   <b>{category.rollup.medianTrackers.toLocaleString()}</b> third-party tracking-service requests
                 </span>
-                <small>Newest included visit: {formatDate(category.lastScannedAt)}</small>
+                <small>Newest included visit: {formatEvidenceDate(category.lastScannedAt)}</small>
               </Link>
             ))}
           </div>
@@ -108,7 +106,10 @@ export async function DirectoryIndex({ page }: { page: number }) {
           </div>
           <p>Sort any column, or filter by domain or category.</p>
         </div>
-        {sites.length > 0 && <DirectoryTable rows={sites.map((site) => tableRow(pagesBasePath, site))} />}
+        {sites.length > 0 && <SiteEvidenceTable
+            caption="One current profile per scanned site, sortable by request, tracking-service and cookie counts, and by the date of the latest retained visit."
+            rows={sites.map((site) => siteEvidenceRow(pagesBasePath, site))}
+          />}
       </section>
 
       <aside className={styles.caveat}>
@@ -122,44 +123,6 @@ export async function DirectoryIndex({ page }: { page: number }) {
   );
 }
 
-/**
- * One table row per site.
- *
- * Every href is prefixed explicitly rather than routed through next/link: the
- * table is a client component that renders raw anchors, so nothing prefixes the
- * Pages base path for it, and an unprefixed "/sites/x/" 404s on a base-path
- * deployment in a way that only reproduces in CI.
- */
-function tableRow(basePath: string, site: DirectorySite): DirectoryTableRow {
-  const report = site.latest;
-  return {
-    domain: site.domain,
-    profileHref: `${basePath}${site.profilePath}/`,
-    reportHref: `${basePath}${reportPagePath(report.id)}/`,
-    headline: report.headline,
-    tone: report.tone,
-    categoryLabel: report.categoryLabel,
-    reportCount: site.reportCount,
-    scannedAt: report.scannedAt,
-    scannedLabel: formatDate(report.scannedAt),
-    device: report.device,
-    kindLabel: reportKindLabel(report),
-    thirdPartyRequests: report.thirdPartyRequests,
-    trackerRequests: report.trackerRequests,
-    thirdPartyCookies: report.thirdPartyCookies,
-    requestEvidenceComplete: report.requestEvidenceComplete,
-    cookieEvidenceComplete: report.cookieEvidenceComplete,
-    capped: report.capped
-  };
-}
-
 export function directoryPath(page: number): string {
   return page <= 1 ? "/directory/" : `/directory/page/${page}/`;
-}
-
-function formatDate(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "date unavailable"
-    : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 }

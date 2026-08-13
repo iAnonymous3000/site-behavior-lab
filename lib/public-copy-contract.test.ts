@@ -17,7 +17,7 @@ test("public corpus copy describes current retention and correction-ledger pins"
     "README.md",
     "app/_components/report-page-context.tsx",
     "app/directory/directory-index.tsx",
-    "app/directory/directory-table.tsx",
+    "app/_components/site-evidence-table.tsx",
     "app/categories/[category]/page.tsx",
     "app/privacy/page.tsx",
     "app/methodology/page.tsx"
@@ -55,14 +55,48 @@ test("catalog and project trust surfaces are linked from the site footer", () =>
   );
 });
 
+/**
+ * The directory and the category pages publish the same facts, through one
+ * table and one row mapper.
+ *
+ * They were two independent card grids before, and they disagreed: /directory/
+ * withheld a cookie count it could not vouch for ("Not measured") while the
+ * category page published the bare number for the same report. That is this
+ * repository's most-filed defect shape -- one contract restated in two places,
+ * each internally consistent and disagreeing with the other -- so the shared
+ * path is pinned rather than left to convention.
+ */
+test("both site listings render the shared evidence table, not their own grid", () => {
+  const surfaces = ["app/directory/directory-index.tsx", "app/categories/[category]/page.tsx"];
+  for (const file of surfaces) {
+    const contents = source(file);
+    assert.match(contents, /<SiteEvidenceTable/, `${file} does not render the shared table`);
+    assert.match(contents, /siteEvidenceRow\(/, `${file} does not build rows through the shared mapper`);
+    // The cookie count is the field the two grids disagreed on. Neither surface
+    // may format it itself again.
+    assert.doesNotMatch(
+      contents,
+      /thirdPartyCookies\.toLocaleString\(\)/,
+      `${file} formats a cookie count outside the shared row mapper`
+    );
+  }
+  const mapper = source("lib/site-evidence-row.ts");
+  assert.match(mapper, /cookieEvidenceComplete: report\.cookieEvidenceComplete/);
+  assert.match(
+    source("app/_components/site-evidence-table.tsx"),
+    /row\.cookieEvidenceComplete \? \(\s*row\.thirdPartyCookies\.toLocaleString\(\)\s*\) : \(/,
+    "the one renderer must still withhold a cookie count it cannot vouch for"
+  );
+});
+
 test("public metric copy keeps request rows and distinct service entities separate", () => {
   const home = source("app/site-behavior-app.tsx");
-  // The directory's rows moved from a card grid in directory-index.tsx to the
-  // sortable table beside it. Both files are read as one surface so the
-  // vocabulary is pinned wherever the rows are rendered from.
-  const directory =
-    source("app/directory/directory-index.tsx") + source("app/directory/directory-table.tsx");
-  const category = source("app/categories/[category]/page.tsx");
+  // The rows moved from card grids in directory-index.tsx and the category page
+  // to ONE shared table. Both routes are read together with it, so the metric
+  // vocabulary is pinned wherever the rows are actually rendered from.
+  const evidenceTable = source("app/_components/site-evidence-table.tsx");
+  const directory = source("app/directory/directory-index.tsx") + evidenceTable;
+  const category = source("app/categories/[category]/page.tsx") + evidenceTable;
   const site = source("app/sites/[domain]/page.tsx");
   const siteFeed = source("app/sites/[domain]/feed.xml/route.ts");
   const glossary = source("app/glossary/page.tsx");
