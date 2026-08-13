@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
 import { publicPageMetadata } from "@/lib/seo-metadata";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 
 export const dynamic = "force-static";
 
@@ -14,7 +14,8 @@ export const metadata = publicPageMetadata({
 
 export default function MethodologyPage() {
   return (
-    <main className="legal-page">
+    <SiteChrome activePath="/methodology/">
+      <div className="legal-page">
       <header className="legal-header">
         <p className="eyebrow">Methodology</p>
         <h1>How a scan works</h1>
@@ -39,9 +40,6 @@ export default function MethodologyPage() {
           unsupported rather than shown as observed zeroes. The GraphML binds its schema, root URL, capture date, and
           duration, while browser, environment, tool, sanitizer, and quality declarations come from the sidecar and
           are not cryptographically attested.
-        </p>
-        <p className="legal-back">
-          <Link href="/">&larr; Back to Site Behavior Lab</Link>
         </p>
       </header>
 
@@ -287,7 +285,7 @@ export default function MethodologyPage() {
           .
         </p>
       </section>
-      <TrustLinks />
-    </main>
+    </div>
+    </SiteChrome>
   );
 }

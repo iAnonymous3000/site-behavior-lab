@@ -304,8 +304,13 @@ async function uiChecks() {
     pass("copy share link writes an absolute report URL");
 
     await page.goto(`${baseUrl}${shareHref}`, { waitUntil: "networkidle" });
-    await page.waitForSelector(".report-header", { timeout: 30_000 });
-    await expectText(page.locator(".report-header"), "https://example.com/");
+    // .report-identity, not .report-header: the permalink's own header used to
+    // restate the site and URL that the evidence explorer's header also carries,
+    // so opening the explorer swapped one copy of those facts for another. The
+    // identity block renders in both states; .report-header now belongs to the
+    // explorer alone, which is what lines 314-315 below still assert.
+    await page.waitForSelector(".report-identity", { timeout: 30_000 });
+    await expectText(page.locator(".report-identity"), "https://example.com/");
     if ((await page.locator(".report-grid").count()) !== 0) {
       fail("share permalink eagerly rendered the full evidence explorer");
     }

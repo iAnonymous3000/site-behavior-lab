@@ -4,7 +4,7 @@ import { siteBaseUrl } from "@/lib/site-url";
 import { siteProfilePath } from "@/lib/site-profile";
 import { loadCorpusOverview } from "@/lib/corpus-overview";
 import { newestSitemapDate, sitemapLastModified } from "@/lib/seo-metadata";
-import { buildCategoryEvidencePages, buildDirectorySites, directoryPageCount } from "@/lib/directory-view";
+import { buildCategoryEvidencePages } from "@/lib/directory-view";
 
 export const dynamic = "force-static";
 
@@ -47,15 +47,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/catalog/`, changeFrequency: "monthly", priority: 0.55 }
   ];
 
-  const directoryPages = directoryPageCount(buildDirectorySites(overview.entries).length);
-  for (let page = 2; page <= directoryPages; page += 1) {
-    entries.push({
-      url: `${base}/directory/page/${page}/`,
-      ...(corpusLastModified ? { lastModified: corpusLastModified } : {}),
-      changeFrequency: "weekly",
-      priority: 0.65
-    });
-  }
+  // The paginated directory routes are deliberately absent. /directory/ carries
+  // every scanned site in one sortable table, so /directory/page/N/ renders the
+  // same content and canonicalises to /directory/. They stay reachable, because
+  // links and indexes already point at them, but advertising four aliases of one
+  // page to a crawler is the duplicate-content claim the canonical exists to
+  // withdraw.
 
   for (const category of buildCategoryEvidencePages(overview.entries)) {
     const lastModified = sitemapLastModified(category.lastScannedAt, generatedAt);

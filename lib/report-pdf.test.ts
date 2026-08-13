@@ -148,7 +148,7 @@ test("every phrase the container smoke looks for still exists in the code that r
   let cursor = tables.indexOf("request-table");
   assert.ok(cursor >= 0);
   for (const column of columns) {
-    const next = tables.indexOf(`<th>${column}</th>`, cursor);
+    const next = tables.indexOf(`<th scope="col">${column}</th>`, cursor);
     assert.ok(next > cursor, `the request table should still render a ${column} column after the previous one`);
     cursor = next;
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AlertOctagon,
   AlertTriangle,
   AlertCircle,
   CheckCircle2,
@@ -28,8 +29,9 @@ import {
 } from "@/lib/client-fetch-policy";
 import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
 import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
-import type { ReportHeadline } from "@/lib/report-headline";
+import type { HeadlineTone, ReportHeadline } from "@/lib/report-headline";
 import {
+  REPORT_SEVERITY_LABELS,
   claimCountValue,
   retainedCountLabel,
   type ReportFacts,
@@ -160,7 +162,17 @@ export function HeadlineBanner({
 
   return (
     <section className={`headline-banner tone-${headline.tone}`} aria-label="Plain-language summary">
-      <p className="headline-kicker">{headline.kicker}</p>
+      {/* The banner's tone had one channel, a hue on its left border and its
+          kicker, and the kicker text is a single constant across all four
+          tones. The icon is the shape channel WCAG 1.4.1 asks for. It stays
+          aria-hidden deliberately: the headline sentence below already carries
+          the meaning in words, and inventing a second spoken rank here would
+          put a name on the tone that the findings board's own severity scale
+          does not have to agree with. */}
+      <p className="headline-kicker">
+        <ToneIcon tone={headline.tone} />
+        {headline.kicker}
+      </p>
       <h2 className="headline-title">{headline.headline}</h2>
       <p className="headline-subhead">{headline.subhead}</p>
 
@@ -279,7 +291,7 @@ export function FindingsBoard({
   const findings = buildFindings(view, corpus, facts, evidenceArm);
 
   return (
-    <section className="findings-board">
+    <section className="findings-board" id="findings">
       <div className="findings-heading">
         <div>
           <p className="eyebrow">Plain-Language Findings</p>
@@ -300,6 +312,13 @@ export function FindingsBoard({
                 <Icon size={18} aria-hidden="true" />
               </div>
               <div>
+                {/* The card's rank had exactly one channel: a hue on the left
+                    border and the icon tint. The icon itself is chosen per
+                    FINDING, not per level, so five levels shared no shape and no
+                    text, and the prose never states the rank. Naming it is the
+                    second channel WCAG 1.4.1 asks for, and it also lets a reader
+                    scan the board for what matters without decoding colour. */}
+                <p className="finding-level">{REPORT_SEVERITY_LABELS[finding.level]}</p>
                 <h3>{finding.title}</h3>
                 <p className="finding-lead">{finding.lead}</p>
                 <p>{finding.detail}</p>
@@ -323,6 +342,26 @@ export function FindingsBoard({
       </div>
     </section>
   );
+}
+
+/**
+ * The headline banner's tone as a shape, not only a hue.
+ *
+ * Decorative by design (`aria-hidden`): the headline sentence directly below
+ * states the finding in words, so this adds the non-colour channel sighted
+ * readers were missing without asserting a rank that the findings board's own
+ * severity scale never has to agree with.
+ */
+function ToneIcon({ tone }: { tone: HeadlineTone }) {
+  const Icon =
+    tone === "alarm"
+      ? AlertOctagon
+      : tone === "warn"
+        ? AlertTriangle
+        : tone === "info"
+          ? Radar
+          : CheckCircle2;
+  return <Icon className="tone-icon" size={14} aria-hidden="true" />;
 }
 
 export function MetricGrid({ facts }: { facts: RunFacts }) {
@@ -515,7 +554,7 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
   ];
 
   return (
-    <section className="numbers-section">
+    <section className="numbers-section" id="numbers">
       <div className="numbers-heading">
         <p className="eyebrow">By the numbers</p>
         <span>Recorded counts and evidence availability from this one visit. The findings above interpret them.</span>
@@ -555,7 +594,7 @@ export function TrafficViz({ facts }: { facts: RunFacts }) {
   const pct = (n: number) => (total > 0 ? `${Math.round((n / total) * 10000) / 100}%` : "0%");
 
   return (
-    <section className="viz-card">
+    <section className="viz-card" id="traffic">
       <h2>{facts.evidence.requests.state === "censored" ? "Retained request composition & timeline" : "Request composition & timeline"}</h2>
       <div
         className="party-bar"

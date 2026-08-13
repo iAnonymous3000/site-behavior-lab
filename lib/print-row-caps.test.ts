@@ -103,12 +103,36 @@ test("the caps are ceilings above the screen limits, not a second set of screen 
 test("the overflow note counts what print actually rendered, not the screen cap", () => {
   // The cookie and storage lists rendered up to the print cap while telling the
   // reader only twelve were shown, which is a false qualification on paper.
+  //
+  // Both lists group by domain / storage area now, so the cap bounds GROUPS
+  // while the note still counts RECORDS ("+259 more observations not shown in
+  // this list"). Those are different numbers, and reporting the group count
+  // there would understate what a reader is not seeing by two orders of
+  // magnitude, so the shown-count must come from recordsCovered over exactly
+  // the groups that were drawn. The paper-never-truncates guarantee above still
+  // holds a fortiori: there is never more than one group per record.
   const tables = readFileSync(path.join(process.cwd(), "app", "_components", "report-tables.tsx"), "utf8");
   for (const family of ["cookies", "storage"] as const) {
     assert.match(
       tables,
-      new RegExp(`Math\\.min\\(${family}\\.length, printComplete \\? PRINT_ROW_CAPS\\.${family} : 12\\)`),
-      `the ${family} shown-count must follow the cap actually applied`
+      new RegExp(
+        `const shownGroups = Math\\.min\\(groups\\.length, printComplete \\? PRINT_ROW_CAPS\\.${family} : 12\\);`
+      ),
+      `the ${family} cap must still distinguish print from screen`
+    );
+  }
+  // Only the two GROUPED lists: each derives `shown` from the `shownGroups` it
+  // just computed. The domain and request tables still slice rows directly and
+  // are covered by the cap assertions above.
+  const groupedCounts = [
+    ...tables.matchAll(/const shownGroups = [\s\S]{0,200}?const shown = ([^;]+);/g)
+  ].map((match) => match[1]);
+  assert.equal(groupedCounts.length, 2, "both grouped lists must derive a shown-count from their groups");
+  for (const expression of groupedCounts) {
+    assert.equal(
+      expression,
+      "recordsCovered(groups, shownGroups)",
+      "the shown-count must be in records over the drawn groups, not a group count or a literal"
     );
   }
   assert.doesNotMatch(

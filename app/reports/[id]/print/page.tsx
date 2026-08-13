@@ -10,7 +10,7 @@ import { loadedReportFromStored } from "@/lib/scan-report-view";
 import { toReportView } from "@/lib/scan-report-views";
 import { siteBaseUrl, siteOrigin } from "@/lib/site-url";
 import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
-import { ReportPageContext } from "@/app/_components/report-page-context";
+import { ReportEvidenceReceipt, ReportPageContext } from "@/app/_components/report-page-context";
 import { ReportRenderer } from "@/app/_components/report-renderer";
 
 /**
@@ -89,14 +89,14 @@ export default async function PrintableReportPage({ params }: { params: Promise<
 
   return (
     <div className="app-shell report-page-shell">
-      <main>
-        <h1>{reportPageTitle(headline)}</h1>
+      <main aria-label={reportPageTitle(headline)}>
+        {/* The context block carries this page's one <h1> (the site), matching
+            the interactive route. It used to render a second heading here with
+            the headline sentence, which the banner then repeated verbatim. */}
         <ReportPageContext
           id={id}
           corrections={correction}
-          jsonHref={jsonUrl}
           permanent={committed}
-          provenanceHref={committed ? `${siteBaseUrl()}/reports/${id}.provenance.json` : null}
           reportUrl={reportUrl}
           view={view}
         />
@@ -106,6 +106,16 @@ export default async function PrintableReportPage({ params }: { params: Promise<
           loaded={loadedReportFromStored(result.stored)}
           liveApiServesReportPages={false}
           printComplete
+        />
+        {/* Provenance follows the evidence it certifies, as on the interactive
+            route, so a printed report reads in the same order as the screen. */}
+        <ReportEvidenceReceipt
+          id={id}
+          jsonHref={jsonUrl}
+          permanent={committed}
+          provenanceHref={committed ? `${siteBaseUrl()}/reports/${id}.provenance.json` : null}
+          reportUrl={reportUrl}
+          view={view}
         />
         {/* This route renders no .app-footer, so the standing scope caveat the
             print stylesheet rescues there has to be stated here directly. */}

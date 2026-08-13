@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createServer } from "node:http";
+import { existsSync } from "node:fs";
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -619,10 +620,18 @@ async function main() {
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
     await loadStaticArchive(page);
     await page.locator(".static-report-card").first().click();
-    await page.waitForSelector(".report-header", { timeout: 10_000 });
-    await expectText(page.locator(".report-header"), "https://");
+    // .report-identity, not .report-header: the permalink's own header used to
+    // restate the site, URL and run facts that the evidence explorer's header
+    // also carries, so opening the explorer swapped one copy for another. It
+    // renders once now, in both states.
+    await page.waitForSelector(".report-identity", { timeout: 10_000 });
+    await expectText(page.locator(".report-identity"), "https://");
     if ((await page.locator(".scan-workbench").count()) !== 0) fail("saved report permalink must not put the scanner before evidence");
-    await expectText(page.locator("h1"), firstReport.headline);
+    // The <h1> is the SITE. The headline is the lead finding and leads the
+    // banner below; making it the heading too printed the same sentence three
+    // times on one page. Both must still be in the pre-hydration document.
+    await expectText(page.locator("h1"), firstReport.domain);
+    await expectText(page.locator(".headline-title"), firstReport.headline);
     await assertPrimaryLandmarks(page, "saved report permalink");
     await assertNoSeriousAxeViolations(page, "compact saved report permalink");
 
@@ -646,8 +655,9 @@ async function main() {
     const noScriptContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 1000 } });
     const noScriptPage = await noScriptContext.newPage();
     await noScriptPage.goto(`${baseUrl}/reports/${firstReport.id}/`, { waitUntil: "domcontentloaded" });
-    await expectText(noScriptPage.locator(".report-header"), "https://");
-    await expectText(noScriptPage.locator("h1"), firstReport.headline);
+    await expectText(noScriptPage.locator(".report-identity"), "https://");
+    await expectText(noScriptPage.locator("h1"), firstReport.domain);
+    await expectText(noScriptPage.locator(".headline-title"), firstReport.headline);
 
     const phaseReportHtmlPath = path.join(outDir, "reports", phaseReport.id, "index.html");
     const phaseReportHtml = await readFile(phaseReportHtmlPath, "utf8");
@@ -747,14 +757,29 @@ async function main() {
     const storageCard = page.locator(".report-sidebar .side-card", {
       has: page.getByRole("heading", { name: "Storage", exact: true })
     });
+    // Both lists group by the field redaction LEAVES INTACT -- the setting
+    // domain, the storage area -- because the field they used to lead with is
+    // the one it blanks. A real report spent the whole rail on twelve rows of
+    // "Cookie N · name hidden for privacy" and then disclosed underneath that
+    // hundreds more records were not shown at all.
+    //
+    // What must not change is the redaction boundary, so that is what is
+    // asserted: reviewed names still published, withheld ones still counted and
+    // never invented, and the grouped facts a reader can act on.
     await expectText(cookieCard, "_octo");
-    await expectText(cookieCard, "Cookie 2 · name hidden for privacy");
-    await expectText(cookieCard, "Cookie 3 · name hidden for privacy");
+    await expectText(cookieCard, ".analytics.brave.test");
+    await expectText(cookieCard, "third-party · 1 persistent");
+    await expectText(cookieCard, "third-party · 1 session");
     await expectText(cookieCard, "2 cookie names hidden");
+    if ((await cookieCard.innerText()).includes("name hidden for privacy")) {
+      fail("the cookie rail still leads rows with the one field redaction blanks");
+    }
     await expectText(storageCard, "soft-nav:marker");
-    await expectText(storageCard, "Storage key 2 · name hidden for privacy");
-    await expectText(storageCard, "Storage key 3 · name hidden for privacy");
+    await expectText(storageCard, "localStorage");
     await expectText(storageCard, "2 storage keys hidden");
+    if ((await storageCard.innerText()).includes("name hidden for privacy")) {
+      fail("the storage rail still leads rows with the one field redaction blanks");
+    }
     const privacyCardsHtml = `${await cookieCard.innerHTML()}${await storageCard.innerHTML()}`;
     if (privacyCardsHtml.includes("[redacted")) fail("report cards expose raw redaction markers");
     pass("static report explains privacy-filtered cookie and storage names without changing reviewed names");
@@ -1023,10 +1048,21 @@ async function assertStaticSeoContract(manifest, firstReport) {
   for (const route of ["status", "security", "corrections", "catalog"]) {
     sitemapUrlEntry(sitemapXml, `${publicBase}/${route}/`);
   }
-  const paginatedDirectoryMatch = sitemapXml.match(/<loc>([^<]*\/directory\/page\/2\/)<\/loc>/);
-  if (paginatedDirectoryMatch) {
-    const paginatedHtml = await readFile(path.join(outDir, "directory", "page", "2", "index.html"), "utf8");
-    assertCanonicalAndSocialUrl(paginatedHtml, paginatedDirectoryMatch[1], "paginated directory");
+  // The paginated directory routes still resolve, so nothing already linked or
+  // indexed 404s, but /directory/ now carries every scanned site in one sortable
+  // table and each paged route renders the same content. So they must NOT be in
+  // the sitemap, and each must canonicalise to /directory/. Asserted rather than
+  // skipped: this check used to run only if the sitemap listed the page, so
+  // dropping the entry would have made it disappear instead of fail.
+  if (/<loc>[^<]*\/directory\/page\//.test(sitemapXml)) {
+    fail("sitemap advertises a paginated directory alias of /directory/");
+  }
+  const paginatedIndex = path.join(outDir, "directory", "page", "2", "index.html");
+  if (existsSync(paginatedIndex)) {
+    const paginatedHtml = await readFile(paginatedIndex, "utf8");
+    if (!paginatedHtml.includes(`<link rel="canonical" href="${publicBase}/directory/"`)) {
+      fail("a paginated directory page must canonicalise to /directory/");
+    }
   }
   const categoryMatch = sitemapXml.match(/<loc>([^<]*\/categories\/[^<]+\/)<\/loc>/);
   if (!categoryMatch) fail("sitemap omits every quality-gated category page");

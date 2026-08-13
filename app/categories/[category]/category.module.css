@@ -1,8 +1,7 @@
 .page {
   margin: 0 auto;
-  max-width: 1080px;
-  min-height: 100vh;
-  padding: 34px 24px 80px;
+  max-width: var(--maxw-content);
+  padding: 8px 0 24px;
 }
 
 .breadcrumbs {
@@ -26,7 +25,7 @@
 .siteActions a,
 .siteHeading a {
   color: var(--accent);
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
@@ -112,7 +111,7 @@
 .metrics dd {
   font-size: clamp(23px, 3vw, 31px);
   font-variant-numeric: tabular-nums;
-  font-weight: 760;
+  font-weight: var(--weight-bold);
   margin: 7px 0 0;
   overflow-wrap: anywhere;
 }
@@ -231,7 +230,7 @@
 .siteList dd {
   font-size: 17px;
   font-variant-numeric: tabular-nums;
-  font-weight: 720;
+  font-weight: var(--weight-bold);
   margin: 5px 0 0;
 }
 
@@ -325,9 +324,18 @@
 }
 
 .cohortDetails summary {
+  align-items: center;
   color: var(--accent-strong);
   cursor: pointer;
+  display: flex;
   font-size: 12px;
+  min-height: 32px;
+}
+
+@media (max-width: 720px), (any-pointer: coarse) {
+  .cohortDetails summary {
+    min-height: 44px;
+  }
 }
 
 .cohortDetails p {

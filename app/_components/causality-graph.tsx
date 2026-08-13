@@ -139,7 +139,7 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
   const destIndex = new Map(dests.map((dest, index) => [dest, index]));
 
   return (
-    <section className="data-section causal-graph-card">
+    <section className="data-section causal-graph-card" id="causal-map">
       <div className="section-heading">
         <h2 id={headingId}>Causal map</h2>
         <span className="muted">

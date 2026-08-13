@@ -62,7 +62,37 @@
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
     monospace;
 
+  /* Two weights, not nine.
+   *
+   * The stylesheet carried 600, 640, 650, 700, 720, 740, 750 and 760, which
+   * reads as a fine-grained scale and is not one: a system stack exposes about
+   * three weights, so every value above snapped to one of two renderings. The
+   * granularity existed only in the source, where it made two elements that
+   * look identical appear deliberately different.
+   *
+   * No webfont is vendored here on purpose. This repository gates every
+   * third-party artifact through THIRD_PARTY_INVENTORY.json and a review file,
+   * and a font binary is exactly such an artifact; adding one without that
+   * review would put an unreviewed dependency into a project whose entire claim
+   * is that its inputs are inspectable. */
+  --weight-medium: 600;
+  --weight-bold: 700;
+
   --maxw: 1320px;
+  /* Two content widths, not five. Every page-level container used to pick its
+     own (760 / 1040 / 1080 / 1180 / 1320px), so pages that look alike sat at
+     different measures. Data-dense pages share one; prose pages share the other,
+     capped near 70 characters where a line stays comfortable to read. */
+  --maxw-content: 1120px;
+  --maxw-prose: 768px;
+  /* The shell owns the horizontal gutter so page containers only choose a
+     measure and a vertical rhythm. */
+  --gutter: 24px;
+  --pill: 999px;
+  /* The sticky top bar's height. The evidence explorer's section nav sticks
+     directly beneath it and anchor targets clear both, so all three read this
+     rather than restating a number that only one of them updates. */
+  --topbar-h: 60px;
 }
 
 /* ---- Tokens: dark ---- */
@@ -149,7 +179,12 @@
   box-sizing: border-box;
 }
 
+/* Lining, fixed-width digits wherever figures are meant to be COMPARED. Set at
+   the root because every number this product publishes is evidence a reader
+   scans down a column; proportional digits make 1,118 look narrower than 8,881.
+   Prose that happens to contain a number is unaffected in practice. */
 html {
+  font-variant-numeric: tabular-nums;
   background:
     radial-gradient(1100px 600px at 100% -5%, var(--bg-grid), transparent 60%),
     var(--bg);
@@ -245,7 +280,7 @@ a {
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
   padding: 10px 14px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 .skip-link:focus {
@@ -255,7 +290,7 @@ a {
 /* ---- Shell ---- */
 .app-shell {
   min-height: 100vh;
-  padding: 24px 24px 64px;
+  padding: 0 var(--gutter) 64px;
 }
 
 .app-shell > * {
@@ -265,22 +300,51 @@ a {
 
 .app-shell > main {
   min-width: 0;
+  padding-top: 28px;
 }
 
 /* ---- Top bar ---- */
+/* Full-bleed and sticky: it cancels the shell's inline padding so its rule and
+   its backdrop reach the viewport edges, then re-centres its own contents. The
+   evidence explorer is a single six-thousand-pixel scroll, so navigation that
+   scrolls away is navigation a reader has to hunt for. */
+.app-shell > .topbar {
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--border);
+  margin-inline: calc(var(--gutter) * -1);
+  max-width: none;
+  padding-inline: var(--gutter);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+/* Browsers without backdrop-filter would show the page scrolling through an
+   88%-opaque bar, so they get an opaque one instead. */
+@supports not (backdrop-filter: blur(1px)) {
+  .app-shell > .topbar {
+    background: var(--bg);
+  }
+}
+
 .topbar {
   align-items: center;
   display: flex;
   gap: 16px;
   justify-content: space-between;
-  padding: 8px 0 22px;
+  margin-inline: auto;
+  max-width: var(--maxw);
+  min-height: var(--topbar-h);
+  padding-block: 10px;
 }
 
 .brand {
   align-items: center;
   color: inherit;
   display: flex;
-  gap: 14px;
+  flex: 0 1 auto;
+  gap: 12px;
   min-width: 0;
   text-decoration: none;
 }
@@ -292,32 +356,48 @@ a {
 .brand-mark {
   align-items: center;
   background: linear-gradient(150deg, var(--accent), var(--accent-strong));
-  border-radius: 12px;
+  border-radius: 11px;
   box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   color: var(--accent-contrast);
   display: inline-flex;
   flex: 0 0 auto;
-  height: 44px;
+  height: 38px;
   justify-content: center;
-  width: 44px;
+  width: 38px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brand-tagline {
+  color: var(--text-subtle);
+  font-size: 12px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .eyebrow {
   color: var(--accent-strong);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.16em;
   margin: 0;
   text-transform: uppercase;
-}
-
-.brand h1 {
-  font-size: clamp(19px, 2.4vw, 26px);
-  font-weight: 720;
-  letter-spacing: -0.015em;
-  line-height: 1.12;
-  margin: 3px 0 0;
-  max-width: 30ch;
 }
 
 .topbar-actions {
@@ -333,23 +413,37 @@ a {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 2px;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
+/* Padded to a real target rather than a 19px line of text. The former rule set
+   no padding at all, and the 44px floor below was scoped to `.topbar-nav
+   .topbar-link`, which four call sites outside the nav never matched. */
 .topbar-link {
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
+  display: inline-flex;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
+  min-height: 34px;
+  align-items: center;
+  padding: 0 10px;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .topbar-link:hover {
-  color: var(--accent-strong);
+  background: var(--surface-2);
+  color: var(--text);
 }
 
-.report-page-shell .topbar {
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 18px;
+/* The current route is named, not just tinted: `aria-current` carries it for
+   assistive technology and the underline carries it for everyone else. */
+.topbar-link[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 .status-pill {
@@ -361,7 +455,7 @@ a {
   color: var(--text-muted);
   display: inline-flex;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   gap: 8px;
   padding: 7px 12px;
   white-space: nowrap;
@@ -415,7 +509,6 @@ a {
 }
 
 /* ---- Cards (shared) ---- */
-.card,
 .scan-panel,
 .method-card,
 .report-header,
@@ -435,6 +528,31 @@ a {
 }
 
 /* ---- Workbench ---- */
+/* The product's thesis and what a scan actually does, above the control that
+   does it. The thesis used to sit in the top bar as a wordmark subtitle, where
+   it had to compete with the navigation for the same line. */
+.workbench-lede {
+  grid-column: 1 / -1;
+  margin: 4px 0 4px;
+}
+
+.workbench-lede h1 {
+  font-size: clamp(28px, 4.6vw, 42px);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  margin: 0 0 10px;
+  max-width: 20ch;
+}
+
+.workbench-lede p {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 62ch;
+}
+
 .corpus-hero {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -478,7 +596,7 @@ a {
   color: var(--sig-warn);
   font-size: 30px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: 1;
 }
 
@@ -512,7 +630,7 @@ a {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 .corpus-counting-disclosure p {
@@ -555,7 +673,7 @@ a {
 .scan-examples > span {
   color: var(--text-subtle);
   font-size: 11px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -612,7 +730,7 @@ a {
 
 .known-evidence-actions a {
   color: var(--accent-strong);
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
@@ -759,7 +877,7 @@ a {
   color: var(--text-muted);
   display: block;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   margin: 0 0 9px;
   text-transform: uppercase;
@@ -854,7 +972,7 @@ a {
   border-radius: 9px;
   display: inline-flex;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   gap: 8px;
   justify-content: center;
   min-height: 40px;
@@ -1024,7 +1142,7 @@ a {
   border-radius: var(--radius-sm);
   display: flex;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   gap: 10px;
   min-height: 50px;
   padding: 0 14px;
@@ -1154,95 +1272,6 @@ a {
 
 .static-library-state > p {
   max-width: 620px;
-}
-
-.example-row {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin-top: 18px;
-}
-
-.example-row span {
-  color: var(--text-subtle);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.pagegraph-ingest {
-  align-items: center;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  justify-content: space-between;
-  margin-top: 22px;
-  padding-top: 18px;
-  text-align: left;
-}
-
-.pagegraph-ingest-text {
-  align-items: flex-start;
-  color: var(--text-muted);
-  display: flex;
-  flex: 1 1 280px;
-  font-size: 13px;
-  gap: 8px;
-  line-height: 1.5;
-}
-
-.pagegraph-ingest-text svg {
-  color: var(--accent);
-  flex: 0 0 auto;
-  margin-top: 2px;
-}
-
-.pagegraph-ingest-text code {
-  background: var(--surface-2);
-  border-radius: 4px;
-  font-size: 12px;
-  padding: 1px 5px;
-}
-
-.example-chip {
-  align-items: baseline;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--text);
-  display: inline-flex;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  gap: 6px;
-  padding: 6px 13px;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.example-chip:hover {
-  border-color: var(--accent);
-  color: var(--accent-strong);
-}
-
-.example-chip-hint {
-  color: var(--text-subtle);
-  font-family: var(--font-sans);
-  font-size: 11px;
-}
-
-.example-chip-hint::before {
-  color: var(--border-strong);
-  content: "·";
-  margin-right: 6px;
-}
-
-.static-tools {
-  display: grid;
-  gap: 18px;
-  margin-top: 18px;
-  width: min(900px, 100%);
 }
 
 .static-action-row {
@@ -1676,19 +1705,64 @@ a {
   margin-bottom: 14px;
 }
 
+/* The report's one <h1> and the facts that identify the visit. This block used
+   to be a card in the summary slot, which the evidence explorer unmounted, so
+   the site being reported on disappeared the moment a reader opened the
+   evidence. It renders in both states now. */
+.report-identity {
+  align-items: end;
+  border-bottom: 1px solid var(--border);
+  column-gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 4px 0 18px;
+  row-gap: 10px;
+}
+
+.report-identity-title {
+  min-width: 0;
+}
+
+.report-identity h1 {
+  font-size: clamp(26px, 4.4vw, 40px);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 6px 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.report-identity-when {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Full-width and left-aligned: run quality is a sentence, not a stat. Ranged
+   right against the URL it wrapped into a ragged column that read as a second
+   heading. */
+.report-identity-quality {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  grid-column: 1 / -1;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 92ch;
+}
+
+.report-identity-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  grid-column: 1 / -1;
+  margin-top: 2px;
+}
+
 .report-page-summary {
   display: grid;
   gap: 16px;
-}
-
-.report-summary-facts {
-  align-items: flex-end;
-  color: var(--text-muted);
-  display: flex;
-  flex-direction: column;
-  font-size: 12px;
-  gap: 5px;
-  text-align: right;
 }
 
 .report-evidence-loader {
@@ -1757,37 +1831,19 @@ a {
   text-underline-offset: 3px;
 }
 
-.report-activation,
+.evidence-receipt-retention {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 16px;
+  max-width: 82ch;
+}
+
 .evidence-receipt {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-}
-
-.report-activation {
-  align-items: center;
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-  padding: 14px 18px;
-}
-
-.report-activation p:not(.eyebrow) {
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.45;
-  margin: 5px 0 0;
-  max-width: 72ch;
-}
-
-.report-activation-actions {
-  align-items: center;
-  display: flex;
-  flex: 0 0 auto;
-  flex-wrap: wrap;
-  gap: 9px;
-  justify-content: flex-end;
 }
 
 .evidence-receipt {
@@ -1830,7 +1886,7 @@ a {
 .evidence-receipt-run dt {
   color: var(--text-subtle);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1865,7 +1921,7 @@ a {
   color: var(--accent-strong);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   max-width: 100%;
   min-height: 44px;
   overflow-wrap: anywhere;
@@ -2051,7 +2107,7 @@ a {
 .arm-switcher > span {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 
 .arm-option {
@@ -2061,7 +2117,7 @@ a {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   padding: 5px 12px;
 }
 
@@ -2145,7 +2201,7 @@ a {
   color: var(--sig-warn);
   display: inline-block;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   letter-spacing: 0.04em;
   margin-left: 8px;
   padding: 2px 8px;
@@ -2160,7 +2216,7 @@ a {
   color: var(--text-muted);
   display: inline-block;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   letter-spacing: 0.06em;
   margin-left: 8px;
   padding: 2px 8px;
@@ -2187,7 +2243,7 @@ a {
 .delta-tile span {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 .delta-tile strong {
@@ -2199,9 +2255,6 @@ a {
   color: var(--text-subtle);
   font-size: 12px;
 }
-
-.delta-up { border-left-color: var(--sig-warn); }
-.delta-down { border-left-color: var(--sig-ok); }
 .delta-flat { border-left-color: var(--sig-quiet); }
 
 .comparison-lists {
@@ -2268,30 +2321,26 @@ a {
   padding: 3px 8px;
 }
 
-.change-added b {
-  background: var(--sig-warn-soft);
-  color: var(--sig-warn);
-}
-
-.change-removed b {
-  background: var(--sig-ok-soft);
-  color: var(--sig-ok);
-}
-
 .change-tag {
   font-size: 10px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
+/* An 18px-tall block control fails even the 24x24 AA floor. Its other use is
+   inline inside a paragraph, where the inline-text exception applies, so the
+   padding is horizontal-free and the height comes from min-height. */
 .change-list-toggle {
+  align-items: center;
   background: none;
   border: 0;
   color: var(--text-subtle);
   cursor: pointer;
+  display: inline-flex;
   font: inherit;
   font-size: 12px;
   margin-top: 8px;
+  min-height: 24px;
   padding: 4px 0 0;
 }
 
@@ -2383,6 +2432,19 @@ a {
   width: 34px;
 }
 
+/* The rank, in words. Rendered above the title because it is what a reader
+   scanning the board is sorting on, and because rank had no channel but hue
+   before this. The chip's own colour is the same --tile-color the border uses,
+   so the two agree by construction. */
+.finding-level {
+  color: var(--tile-color, var(--text-muted));
+  font-size: 10.5px;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.1em;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
 .finding-card h3 {
   font-size: 16px;
   margin: 0 0 5px;
@@ -2400,7 +2462,7 @@ a {
 .finding-card .finding-lead {
   color: var(--text);
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   margin-bottom: 4px;
 }
 
@@ -2420,6 +2482,12 @@ a {
   min-width: 0;
   overflow-wrap: anywhere;
   padding: 4px 8px;
+}
+
+/* The tone's shape channel, so severity is not hue alone. */
+.tone-icon {
+  margin-right: 6px;
+  vertical-align: -2px;
 }
 
 /* ---- Finding severity colors (consumed by .finding-card) ---- */
@@ -2449,7 +2517,7 @@ a {
 .headline-kicker {
   color: var(--tone-color, var(--accent));
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.08em;
   margin: 0 0 8px;
   text-transform: uppercase;
@@ -2457,7 +2525,7 @@ a {
 
 .headline-title {
   font-size: clamp(22px, 3.4vw, 30px);
-  font-weight: 760;
+  font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
   line-height: 1.15;
   margin: 0;
@@ -2499,7 +2567,7 @@ a {
 .headline-stat-value {
   font-size: 22px;
   font-variant-numeric: tabular-nums;
-  font-weight: 740;
+  font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
 }
 
@@ -2538,7 +2606,7 @@ a {
   cursor: pointer;
   display: inline-flex;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   gap: 7px;
   padding: 8px 14px;
   text-decoration: none;
@@ -2608,7 +2676,7 @@ a {
 .featured-group h4 {
   color: var(--text-subtle);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   margin: 0;
   text-transform: uppercase;
@@ -2643,7 +2711,6 @@ a {
 .featured-card.tone-warn  { --tone-color: var(--sig-warn); }
 .featured-card.tone-info  { --tone-color: var(--sig-info); }
 .featured-card.tone-calm  { --tone-color: var(--sig-ok); }
-.featured-card.tone-loading { --tone-color: var(--sig-quiet); }
 
 .featured-card-top {
   align-items: center;
@@ -2653,28 +2720,45 @@ a {
 
 .featured-card-site {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
+/* The card's tone had two carriers and both were pure hue: a left border and
+   this dot. Giving each tone its own SHAPE is the non-colour channel WCAG 1.4.1
+   asks for, and it costs nothing at runtime -- an icon component here would land
+   in the homepage's CI-enforced first-load bundle for a 9px mark.
+   It stays aria-hidden: the card's headline sentence already carries the
+   finding in words. */
 .featured-card-dot {
   background: var(--tone-color, var(--sig-quiet));
-  border-radius: 999px;
-  height: 9px;
-  width: 9px;
+  border-radius: var(--pill);
+  flex: 0 0 auto;
+  height: 10px;
+  width: 10px;
 }
 
-.featured-card.tone-loading .featured-card-dot {
-  animation: featured-pulse 1.4s ease-in-out infinite;
+/* Square. */
+.featured-card.tone-alarm .featured-card-dot {
+  border-radius: 2px;
 }
 
-@keyframes featured-pulse {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 1; }
+/* Triangle. */
+.featured-card.tone-warn .featured-card-dot {
+  border-radius: 0;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  height: 11px;
+  width: 12px;
+}
+
+/* Hollow ring, the quietest mark for the quietest tone. */
+.featured-card.tone-calm .featured-card-dot {
+  background: transparent;
+  border: 2.5px solid var(--tone-color, var(--sig-quiet));
 }
 
 .featured-card-headline {
   font-size: 14.5px;
-  font-weight: 640;
+  font-weight: var(--weight-medium);
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
@@ -2693,9 +2777,6 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .featured-card.tone-loading .featured-card-dot {
-    animation: none;
-  }
   .featured-card:hover {
     transform: none;
   }
@@ -2713,7 +2794,7 @@ a {
   color: var(--accent);
   display: inline-flex;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   gap: 5px;
   text-decoration: none;
   white-space: nowrap;
@@ -2745,7 +2826,7 @@ a {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   margin-inline: auto;
   max-width: 100%;
   min-height: 44px;
@@ -2768,10 +2849,12 @@ a {
 }
 
 /* ---- Legal / prose pages (privacy) ---- */
+/* The shell supplies the horizontal gutter now, so a page container chooses a
+   measure and a vertical rhythm and nothing else. */
 .legal-page {
   margin: 0 auto;
-  max-width: 760px;
-  padding: 48px 24px 80px;
+  max-width: var(--maxw-prose);
+  padding: 16px 0 24px;
 }
 
 .legal-header {
@@ -2791,7 +2874,7 @@ a {
 
 .legal-back a {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
@@ -2830,7 +2913,7 @@ a {
 
 .legal-section strong {
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 
 .legal-section code {
@@ -2887,7 +2970,7 @@ a {
 .correction-event dt {
   color: var(--text-subtle);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -2911,7 +2994,7 @@ a {
 
 /* ---- Public status and trust surfaces ---- */
 .status-page {
-  max-width: 900px;
+  max-width: var(--maxw-content);
 }
 
 .status-live {
@@ -2956,7 +3039,7 @@ a {
   color: var(--text);
   font-size: 17px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   margin: 16px 0 8px;
 }
 
@@ -2971,7 +3054,7 @@ a {
   display: inline-flex;
   flex: 0 0 auto;
   font-size: 11px;
-  font-weight: 750;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   padding: 4px 9px;
   text-transform: uppercase;
@@ -3029,7 +3112,7 @@ a {
 .status-fact-grid dt {
   color: var(--text-subtle);
   font-size: 10px;
-  font-weight: 750;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -3037,7 +3120,7 @@ a {
 .status-fact-grid dd {
   color: var(--text);
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   margin: 5px 0 0;
   overflow-wrap: anywhere;
 }
@@ -3053,7 +3136,7 @@ a {
 .status-actions a:not(.primary-button),
 .trust-links a {
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 /* The border and spacing move to the row so the theme toggle sits on the same rule. */
@@ -3100,9 +3183,8 @@ a {
 /* ---- Site history profiles ---- */
 .site-profile-page {
   margin: 0 auto;
-  max-width: var(--maxw);
-  min-height: 100vh;
-  padding: 40px 24px 72px;
+  max-width: var(--maxw-content);
+  padding: 8px 0 24px;
 }
 
 .site-profile-header {
@@ -3188,7 +3270,7 @@ a {
 .site-profile-metrics dd {
   font-size: 25px;
   font-variant-numeric: tabular-nums;
-  font-weight: 720;
+  font-weight: var(--weight-bold);
   margin: 6px 0 0;
 }
 
@@ -3251,173 +3333,6 @@ a {
   margin-top: 6px;
 }
 
-/* ---- Category rollups (directory) ---- */
-.category-rollups {
-  margin: 8px 0 36px;
-}
-
-.rollup-heading {
-  margin-bottom: 16px;
-}
-
-.rollup-heading h2 {
-  font-size: clamp(20px, 3vw, 26px);
-  letter-spacing: -0.01em;
-  margin: 2px 0 6px;
-}
-
-.rollup-heading p {
-  color: var(--text-muted);
-  margin: 0;
-  max-width: 70ch;
-}
-
-.rollup-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  margin-bottom: 20px;
-}
-
-.rollup-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px 16px;
-}
-
-.rollup-card-top {
-  align-items: baseline;
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-}
-
-.rollup-card-top h3 {
-  font-size: 14px;
-  margin: 0;
-}
-
-.rollup-count {
-  color: var(--text-subtle);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.rollup-bar-row {
-  align-items: center;
-  display: flex;
-  gap: 8px;
-}
-
-.rollup-bar-track {
-  background: var(--surface-3);
-  border-radius: 999px;
-  flex: 1;
-  height: 8px;
-  overflow: hidden;
-}
-
-.rollup-bar {
-  background: var(--sig-warn);
-  border-radius: 999px;
-  display: block;
-  height: 100%;
-}
-
-.rollup-bar-row strong {
-  font-size: 18px;
-  font-variant-numeric: tabular-nums;
-  min-width: 2.5ch;
-  text-align: right;
-}
-
-.rollup-bar-label {
-  color: var(--text-subtle);
-  font-size: 11px;
-}
-
-.rollup-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin: 6px 0 0;
-}
-
-.rollup-stats > div {
-  display: flex;
-  font-size: 12px;
-  gap: 5px;
-}
-
-.rollup-stats dt {
-  color: var(--text-subtle);
-}
-
-.rollup-stats dd {
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  margin: 0;
-}
-
-.rollup-leaderboard {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 14px 18px;
-}
-
-.rollup-leaderboard h3 {
-  color: var(--text-subtle);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  margin: 0 0 8px;
-  text-transform: uppercase;
-}
-
-.rollup-leaderboard ol {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding-left: 20px;
-}
-
-.rollup-leaderboard li {
-  align-items: baseline;
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-}
-
-.rollup-leaderboard a {
-  color: inherit;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-  text-decoration: none;
-}
-
-.rollup-leaderboard a:hover {
-  color: var(--accent-strong);
-}
-
-.rollup-leaderboard b {
-  color: var(--sig-loud);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.rollup-note {
-  color: var(--text-subtle);
-  font-size: 12px;
-  line-height: 1.45;
-  margin: 16px 0 0;
-  max-width: 78ch;
-}
-
 /* ---- Metric grid ---- */
 .metric-grid {
   display: grid;
@@ -3439,12 +3354,12 @@ a {
 .metric-card .m-label {
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
 }
 
 .metric-card .m-value {
   font-size: 26px;
-  font-weight: 720;
+  font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
@@ -3541,34 +3456,154 @@ a {
 }
 
 /* ---- Warnings ---- */
+/* One panel, not sixteen alarms. Each caveat used to be its own full-width
+   amber banner; a Brave-list comparison stacked around sixteen of them, so the
+   block read as an emergency and got skipped. It is one bordered region with a
+   heading and grouped rows now. Every sentence is still on the page, visible
+   without interaction and present on paper: only the visual weight changed. */
 .warnings {
-  display: grid;
-  gap: 9px;
-}
-
-.warnings div {
-  align-items: flex-start;
   background: var(--sig-warn-soft);
   border: 1px solid color-mix(in srgb, var(--sig-warn) 28%, transparent);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
+  padding: 16px 18px 6px;
+}
+
+.warnings-heading {
+  align-items: center;
   color: var(--sig-warn);
   display: flex;
-  font-size: 13px;
-  gap: 10px;
-  line-height: 1.5;
-  min-width: 0;
-  padding: 12px 14px;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-bottom: 12px;
 }
 
-.warnings div span {
+.warnings-heading svg {
+  flex: 0 0 auto;
+}
+
+.warnings-heading h2 {
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.warnings-count {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.warnings-group {
+  border-top: 1px solid color-mix(in srgb, var(--sig-warn) 18%, transparent);
+  padding: 10px 0;
+}
+
+.warnings-group:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* The attribution a prefix used to carry on every single line. */
+.warnings-group-label {
+  color: var(--sig-warn);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.08em;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+.warnings-group ul {
+  color: var(--text-muted);
+  display: grid;
+  font-size: 13px;
+  gap: 7px;
+  line-height: 1.5;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.warnings-group li {
   min-width: 0;
   overflow-wrap: anywhere;
+  padding-left: 16px;
+  position: relative;
 }
 
-.warnings div svg {
-  flex: 0 0 auto;
-  margin-top: 1px;
+.warnings-group li::before {
+  color: var(--sig-warn);
+  content: "";
+  background: currentColor;
+  border-radius: var(--pill);
+  height: 4px;
+  left: 3px;
+  position: absolute;
+  top: 8px;
+  width: 4px;
 }
+
+/* ---- Evidence explorer wayfinding ---- */
+/* Sits directly under the sticky top bar, so its own `top` is that bar's
+   height. Both are measured from the same 60px min-height. */
+.report-section-nav {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--border);
+  margin: 0 calc(var(--gutter) * -1) 16px;
+  padding: 0 var(--gutter);
+  position: sticky;
+  top: var(--topbar-h);
+  z-index: 20;
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .report-section-nav {
+    background: var(--bg);
+  }
+}
+
+.report-section-nav ul {
+  display: flex;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  overflow-x: auto;
+  padding: 6px 0;
+  scrollbar-width: thin;
+}
+
+.report-section-nav a {
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: var(--weight-medium);
+  min-height: 32px;
+  padding: 0 10px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.report-section-nav a:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* Named for assistive technology by aria-current, and shown to everyone else by
+   the fill: severity is not the channel here, position is. */
+.report-section-nav a[aria-current="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* Anchor targets must clear both sticky strips, or following a link parks the
+   heading behind them. Applied at the shell so in-page links on every route
+   land the same way, not just inside the explorer grid. */
+.app-shell [id] {
+  scroll-margin-top: calc(var(--topbar-h) + 52px);
+}
+
 
 /* ---- Data sections / tables ---- */
 .data-section {
@@ -3748,7 +3783,7 @@ a {
 
 .state-change-op {
   border-radius: 999px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   padding: 2px 8px;
 }
 
@@ -3934,7 +3969,15 @@ a {
   }
 }
 
-table {
+/* Scoped to the report tables' own wrapper.
+ *
+ * Unqualified, this reached every <table> on the site including CSS-module ones
+ * whose wrapper the mobile reset below never matches. The catalog module already
+ * patched `min-width: 0` back with a comment about it; the directory's new site
+ * table had no such patch and inherited a 720px floor, which pushed a 320px
+ * viewport to a 743px scroll width. Scoping fixes the class of bug rather than
+ * adding a third patch. */
+.table-wrap table {
   border-collapse: collapse;
   font-size: 13px;
   min-width: 720px;
@@ -3963,7 +4006,7 @@ td {
 th {
   color: var(--text-subtle);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -4005,7 +4048,7 @@ td .mono {
   border-radius: 999px;
   display: inline-block;
   font-size: 11px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   padding: 2px 9px;
   white-space: nowrap;
 }
@@ -4172,6 +4215,68 @@ td .mono {
   margin-top: 12px;
 }
 
+/* Cookie and storage evidence, grouped by the field redaction leaves intact.
+   These rows used to lead with the record NAME, which is the one field that is
+   blanked, so the rail rendered twelve variations of "name hidden for privacy"
+   and disclosed underneath that hundreds more records existed. */
+.evidence-group-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.evidence-group {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-width: 0;
+  padding: 9px 12px;
+}
+
+.evidence-group-top {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.evidence-group-top svg {
+  flex: 0 0 auto;
+}
+
+.evidence-group-name {
+  flex: 1 1 auto;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.evidence-group-count {
+  background: var(--surface-3);
+  border-radius: var(--radius-sm);
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+  padding: 1px 7px;
+}
+
+.evidence-group-facts {
+  color: var(--text-subtle);
+  font-size: 11.5px;
+  margin: 3px 0 0;
+  padding-left: 22px;
+}
+
+.evidence-group-names {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+  padding-left: 22px;
+}
+
 .domain-chip {
   align-items: center;
   background: var(--surface-2);
@@ -4211,7 +4316,7 @@ td .mono {
   flex: 0 0 auto;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   height: 26px;
   justify-content: center;
   min-width: 26px;
@@ -4384,7 +4489,7 @@ td .mono {
   color: var(--text-muted);
   display: flex;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
   gap: 8px;
   width: max-content;
 }
@@ -4485,7 +4590,7 @@ details[open] > summary .disclosure-chevron {
   color: var(--text);
   display: block;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: var(--weight-medium);
 }
 
 .scan-checks-note {
@@ -4519,25 +4624,75 @@ details[open] > summary .disclosure-chevron {
 }
 
 @media (max-width: 720px) {
+  /* The gutter itself, not the padding. `.app-shell > .topbar` is full-bleed
+     via `margin-inline: calc(var(--gutter) * -1)`; overriding the padding with
+     a literal left the bar cancelling 24px of a 14px gutter and pushed the page
+     20px wider than a 390px viewport. */
+  :root {
+    --gutter: 14px;
+  }
+
   .app-shell {
-    padding: 16px 14px 48px;
+    padding-block: 16px 48px;
   }
 
   /* Touch-target sizing lives in the combined narrow-or-coarse block beside
      .arm-option (search: "Touch-target floor"); this block keeps only the
      narrow-LAYOUT changes a wide touchscreen must not inherit. */
 
+  /* Two rows, not a column. Stacked, the brand, a wrapping five-item nav and
+     the theme toggle made this STICKY bar 490px tall on an 844px phone: 58% of
+     the viewport, permanently. Brand and controls share row one; the nav gets
+     row two as a single scrolling strip that never wraps. */
   .topbar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
+    align-items: center;
+    display: grid;
+    gap: 4px 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-block: 8px;
   }
 
-  /* Stacked under the brand the actions are full width, so trailing alignment
-     strands the theme button alone on a second row. */
   .topbar-actions {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
+
+  .topbar-nav {
+    flex-wrap: nowrap;
+    grid-column: 1 / -1;
+    grid-row: 2;
     justify-content: flex-start;
-    width: 100%;
+    margin-inline: -4px;
+    margin-left: -4px;
+    overflow-x: auto;
+    padding-inline: 4px;
+    scrollbar-width: none;
+  }
+
+  .topbar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Two rows: the value the sticky section nav and every anchor target below
+     read to stay clear of it. */
+  :root {
+    --topbar-h: 96px;
+  }
+
+  /* The tagline is the page heading's job on the home route and dead weight
+     everywhere else once the bar has to fit a phone. */
+  .brand-tagline {
+    display: none;
+  }
+
+  /* One column: the two-column grid stranded the timestamp alone against the
+     right edge under a heading that had already wrapped. */
+  .report-identity {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-identity-when {
+    text-align: left;
   }
 
   .report-evidence-loader {
@@ -4546,11 +4701,6 @@ details[open] > summary .disclosure-chevron {
 
   .report-evidence-loader .primary-button {
     justify-self: start;
-  }
-
-  .report-summary-facts {
-    align-items: flex-start;
-    text-align: left;
   }
 
   .site-profile-page {
@@ -4642,7 +4792,6 @@ details[open] > summary .disclosure-chevron {
     flex-direction: column;
   }
 
-  .report-activation,
   .evidence-receipt-heading {
     align-items: stretch;
     flex-direction: column;
@@ -4653,14 +4802,14 @@ details[open] > summary .disclosure-chevron {
     flex-direction: column;
   }
 
-  .report-activation-actions {
+  .report-identity-actions {
     align-items: stretch;
     flex-direction: column;
     justify-content: flex-start;
   }
 
-  .report-activation-actions .primary-button,
-  .report-activation-actions .secondary-button,
+  .report-identity-actions .primary-button,
+  .report-identity-actions .secondary-button,
   .evidence-receipt-links .secondary-button {
     justify-content: center;
     text-align: center;
@@ -4763,7 +4912,7 @@ details[open] > summary .disclosure-chevron {
     color: var(--text-subtle);
     content: attr(data-label);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: var(--weight-bold);
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
@@ -4775,8 +4924,8 @@ details[open] > summary .disclosure-chevron {
 }
 
 @media (max-width: 360px) {
-  .app-shell {
-    padding-inline: 8px;
+  :root {
+    --gutter: 8px;
   }
 
   .empty-state,
@@ -4828,8 +4977,19 @@ details[open] > summary .disclosure-chevron {
    the theme is pinned light, because a dark-theme visitor would otherwise print a
    page of white text that mostly renders as blank paper. */
 @media print {
-  /* Ink-legible regardless of the visitor's theme. */
+  /* Ink-legible regardless of the visitor's theme.
+   *
+   * `:root:not([data-theme="light"])` is load-bearing, not redundant with the
+   * bare `:root` beside it. The system-dark palette is declared under exactly
+   * that selector (0,2,0); a media query adds no specificity, so a bare `:root`
+   * here (0,1,0) LOSES to it and never applies. The default path is the one
+   * that broke: `app/layout.tsx` only stamps `data-theme` after an explicit
+   * choice, so a visitor whose OS is dark and who never touched the toggle
+   * printed the entire dark palette, body text included, on white paper.
+   * Matching the declaring selector ties the specificity and lets source order
+   * decide, which is what this block was always assumed to do. */
   :root,
+  :root:not([data-theme="light"]),
   :root[data-theme="dark"],
   :root[data-theme="light"] {
     color-scheme: light;
@@ -4846,10 +5006,29 @@ details[open] > summary .disclosure-chevron {
     --shadow-sm: none;
     --shadow: none;
     --shadow-lg: none;
+
+    /* Accent and signal colours print as TEXT even though browsers drop
+       backgrounds by default, so leaving them at their screen values put
+       #5eead4 links and #4ade80 "ok" text on white at roughly 1.7:1. These are
+       the light-theme values, which are already tuned to clear AA on white. */
+    --accent: #0f766e;
+    --accent-strong: #0b5d56;
+    --accent-contrast: #ffffff;
+    --accent-soft: #ffffff;
+    --sig-quiet: #4a544c;
+    --sig-quiet-soft: #ffffff;
+    --sig-info: #1f5590;
+    --sig-info-soft: #ffffff;
+    --sig-warn: #8a4b00;
+    --sig-warn-soft: #ffffff;
+    --sig-loud: #8a0f31;
+    --sig-loud-soft: #ffffff;
+    --sig-ok: #10632e;
+    --sig-ok-soft: #ffffff;
   }
 
   body {
-    background: #ffffff;
+    background: var(--bg);
   }
 
   /* Controls, navigation, and progress affordances are not evidence.
@@ -4862,6 +5041,8 @@ details[open] > summary .disclosure-chevron {
   .skip-link,
   .topbar-actions,
   .topbar-nav,
+  /* Paper has no sticky chrome and no anchors to follow. */
+  .report-section-nav,
   .scan-workbench,
   .corpus-hero,
   .empty-state,
@@ -4869,7 +5050,7 @@ details[open] > summary .disclosure-chevron {
   .app-footer-links,
   .report-actions,
   .headline-actions,
-  .report-activation-actions,
+  .report-identity-actions,
   .homepage-discovery-actions,
   .homepage-tools-disclosure,
   .scan-checks,

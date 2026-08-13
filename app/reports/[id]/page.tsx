@@ -9,16 +9,10 @@ import { buildReportDataset } from "@/lib/report-jsonld";
 import { readStoredReportForId } from "@/lib/report-source";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
 import { conciseMetadataText, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
-import {
-  displayRunView,
-  runQualitySummary,
-  schemaProvenanceLabel,
-  toReportView,
-  type ReportView
-} from "@/lib/scan-report-views";
+import { toReportView } from "@/lib/scan-report-views";
 import { siteBaseUrl, siteOrigin, sitePagesBasePath } from "@/lib/site-url";
 import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
-import { ReportPageContext } from "@/app/_components/report-page-context";
+import { ReportEvidenceReceipt, ReportPageContext } from "@/app/_components/report-page-context";
 import { SavedReportClient } from "./saved-report-client";
 
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
@@ -141,6 +135,14 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
           <ReportPageContext
             id={id}
             corrections={correction}
+            permanent={result.origin === "committed"}
+            reportUrl={reportUrl}
+            view={view}
+          />
+        }
+        receipt={
+          <ReportEvidenceReceipt
+            id={id}
             jsonHref={jsonUrl}
             permanent={result.origin === "committed"}
             provenanceHref={
@@ -150,7 +152,7 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
             view={view}
           />
         }
-        summary={<ReportPageSummary headline={headline} view={view} />}
+        summary={<ReportPageSummary headline={headline} />}
       />
       <PrintEvidenceFooter
         committed={result.origin === "committed"}
@@ -162,23 +164,17 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   );
 }
 
-/** Compact, crawlable report content. Raw evidence arrays stay server-side. */
-function ReportPageSummary({ headline, view }: { headline: ReportHeadline; view: ReportView }) {
-  const run = displayRunView(view);
+/**
+ * Compact, crawlable report content. Raw evidence arrays stay server-side.
+ *
+ * The site, the requested URL, the run quality and the timestamp used to be
+ * restated here as a second header. They now live once, in the always-rendered
+ * `ReportPageContext` identity block, so opening the evidence explorer no
+ * longer swaps one copy of those facts for another.
+ */
+function ReportPageSummary({ headline }: { headline: ReportHeadline }) {
   return (
     <div className="report-page-summary">
-      <section className="report-header" aria-label="Report summary">
-        <div className="report-title-block">
-          <p className="eyebrow">Recorded visit <span className="report-provenance">{schemaProvenanceLabel(view)}</span></p>
-          <h2>{run.domain}</h2>
-          <p className="report-url">{run.conditions.requestedUrl}</p>
-        </div>
-        <div className="report-summary-facts" aria-label="Visit facts">
-          <span>{runQualitySummary(run)}</span>
-          <span>{formatReportTimestamp(run.startedAt ?? view.scannedAt)}</span>
-        </div>
-      </section>
-
       <section className={`headline-banner tone-${headline.tone}`} aria-label="Plain-language summary">
         <p className="headline-kicker">{headline.kicker}</p>
         <h2 className="headline-title">{headline.headline}</h2>
@@ -197,21 +193,6 @@ function ReportPageSummary({ headline, view }: { headline: ReportHeadline; view:
       </section>
     </div>
   );
-}
-
-function formatReportTimestamp(value: string | null): string {
-  if (!value) return "time not recorded";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "time not recorded";
-  return date.toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "UTC",
-    timeZoneName: "short"
-  });
 }
 
 function publicReportUrl(id: string): string {

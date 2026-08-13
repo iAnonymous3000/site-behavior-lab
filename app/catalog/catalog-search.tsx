@@ -59,6 +59,10 @@ export function CatalogSearch({ records }: Props) {
       {visible.length > 0 ? (
         <div className={styles.tableWrap} tabIndex={0} role="region" aria-label="Known-service catalog results">
           <table className={styles.table}>
+            <caption className="visually-hidden">
+              Catalogued service domains matching the current filter, with their named service,
+              functional label and review status.
+            </caption>
             <thead>
               <tr>
                 <th scope="col">Domain</th>

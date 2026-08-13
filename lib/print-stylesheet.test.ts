@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { chromium, type Browser } from "playwright";
@@ -32,6 +32,7 @@ const FIXTURE_BODY = `<body>
   <div class="app-shell report-page-shell">
     <header class="topbar">
       <nav class="topbar-nav" id="nav">nav</nav>
+      <nav class="report-section-nav" id="sectionnav">sections</nav>
       <div class="topbar-actions" id="topbaractions">
         <button class="icon-button" id="iconbutton" type="button">theme</button>
       </div>
@@ -39,7 +40,7 @@ const FIXTURE_BODY = `<body>
     <main>
       <div class="report-actions" id="reportactions"><button type="button">Download CSV</button></div>
       <div class="headline-actions" id="headlineactions"><button type="button">Share</button></div>
-      <div class="report-activation-actions" id="activationactions"><a href="#">Scan again</a></div>
+      <div class="report-identity-actions" id="activationactions"><a href="#">Scan again</a></div>
       <section class="report-evidence-loader" id="loader">
         <h2>Open the interactive evidence explorer</h2>
       </section>
@@ -104,6 +105,7 @@ const NOT_ON_A_REPORT_PAGE: ReadonlyMap<string, string> = new Map([
 
 const PROBED_IDS = [
   "nav",
+  "sectionnav",
   "topbaractions",
   "iconbutton",
   "skiplink",
@@ -198,6 +200,7 @@ test("evidence and its qualifications survive onto paper", () => {
 
 test("controls and screen-reader scaffolding stay off paper", () => {
   assert.equal(visible.nav, false, "site navigation is not evidence");
+  assert.equal(visible.sectionnav, false, "the in-page section nav is navigation, not evidence");
   assert.equal(visible.topbaractions, false, "topbar controls are not evidence");
   assert.equal(visible.iconbutton, false, "the theme toggle is not evidence");
   assert.equal(visible.skiplink, false, "the skip link is not evidence");
@@ -248,3 +251,125 @@ test("the fixture exercises every report-page class the print block hides", () =
   const stale = [...NOT_ON_A_REPORT_PAGE.keys()].filter((className) => !hidden.includes(className));
   assert.deepEqual(stale, [], `NOT_ON_A_REPORT_PAGE lists classes the print block no longer hides: ${stale.join(", ")}`);
 });
+
+/**
+ * The print block's palette must actually win, in every theme state.
+ *
+ * The existing setup above calls `emulateMedia({ media: "print" })` with no
+ * `colorScheme`, which defaults to light, so it structurally cannot see the
+ * defect this covers: the system-dark palette is declared under
+ * `:root:not([data-theme="light"])` (0,2,0), a media query adds no specificity,
+ * and the print override's matching selector for an element with no data-theme
+ * was a bare `:root` (0,1,0). It lost. A visitor whose OS is dark and who never
+ * touched the toggle printed the whole dark palette -- rgb(231,239,233) body
+ * text -- on white paper, and that is the DEFAULT path, since app/layout.tsx
+ * only stamps data-theme after an explicit choice.
+ *
+ * Reading resolved custom properties rather than asserting on the source, for
+ * the reason this file's header already gives: specificity between an @media
+ * block and a bare selector is not visible in the text.
+ */
+test("printing resolves the ink palette whatever theme the reader is in", async () => {
+  const page = await browser.newPage();
+  try {
+    for (const colorScheme of ["light", "dark"] as const) {
+      for (const dataTheme of [null, "dark", "light"] as const) {
+        await page.emulateMedia({ media: "print", colorScheme });
+        await page.setContent(FIXTURE, { waitUntil: "load" });
+        const resolved = await page.evaluate((theme) => {
+          if (theme) document.documentElement.dataset.theme = theme;
+          else delete document.documentElement.dataset.theme;
+          const style = getComputedStyle(document.documentElement);
+          const read = (name: string) => style.getPropertyValue(name).trim();
+          return {
+            text: read("--text"),
+            surface: read("--surface"),
+            accentStrong: read("--accent-strong"),
+            sigOk: read("--sig-ok"),
+            sigLoud: read("--sig-loud")
+          };
+        }, dataTheme);
+        const where = `colorScheme=${colorScheme} data-theme=${dataTheme ?? "unset"}`;
+
+        assert.equal(resolved.text, "#000000", `body text must print as ink (${where})`);
+        assert.equal(resolved.surface, "#ffffff", `surfaces must print as paper (${where})`);
+
+        // These four are the ones the print block used to omit entirely. They
+        // print as TEXT even though browsers drop backgrounds by default, so a
+        // screen value like #4ade80 landed on white at roughly 1.7:1.
+        for (const [name, value] of Object.entries({
+          "--accent-strong": resolved.accentStrong,
+          "--sig-ok": resolved.sigOk,
+          "--sig-loud": resolved.sigLoud
+        })) {
+          assert.ok(
+            contrastOnWhite(value) >= 4.5,
+            `${name} prints as ${value}, ${contrastOnWhite(value).toFixed(2)}:1 on paper (${where})`
+          );
+        }
+      }
+    }
+  } finally {
+    await page.close();
+  }
+});
+
+/** WCAG relative-contrast of a #rrggbb value against white. */
+function contrastOnWhite(hex: string): number {
+  const match = /^#([0-9a-f]{6})$/i.exec(hex);
+  assert.ok(match, `expected a #rrggbb print token, got ${hex}`);
+  const channel = (offset: number) => {
+    const srgb = parseInt(match[1].slice(offset, offset + 2), 16) / 255;
+    return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance = 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
+  return 1.05 / (luminance + 0.05);
+}
+
+/**
+ * Every class the print block hides must still be rendered by something.
+ *
+ * This is the direction the fixture-coverage test above cannot see. It asks
+ * whether each hidden class appears in the FIXTURE, and the fixture is a
+ * hand-written copy of the markup, so renaming a class in a component and
+ * updating neither leaves the hide rule pointing at nothing while the test goes
+ * on passing. That shipped: `.report-activation-actions` was renamed to
+ * `.report-identity-actions` when the three report actions moved under the
+ * title, and a printed report started showing "View site history" and "Scan
+ * this exact route again" as though they were evidence.
+ */
+test("the print block hides classes something actually renders", () => {
+  const globalsCss = readFileSync(path.join(process.cwd(), "app", "globals.css"), "utf8");
+  const printBlockStart = globalsCss.indexOf("@media print {");
+  const hideGroup = globalsCss.slice(
+    printBlockStart,
+    globalsCss.indexOf("display: none !important", printBlockStart)
+  );
+  const hidden = [
+    ...hideGroup.replace(/\/\*(?:[^*]|\*(?!\/))*\*\//g, "").matchAll(/\.([a-z][a-z0-9-]*)/g)
+  ].map((match) => match[1]);
+  assert.ok(hidden.length > 5, "the hide group should have been parsed");
+
+  const rendered = componentSources().join("\n");
+  const orphaned = hidden.filter((className) => !rendered.includes(className));
+  assert.deepEqual(
+    orphaned,
+    [],
+    `the print block hides classes no component renders: ${orphaned.join(", ")}. ` +
+      "Either the class was renamed and the control is now printing, or the rule is dead."
+  );
+});
+
+/** Every .tsx under app/, so a rename anywhere is visible to the check above. */
+function componentSources(): string[] {
+  const sources: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith(".tsx")) sources.push(readFileSync(full, "utf8"));
+    }
+  };
+  walk(path.join(process.cwd(), "app"));
+  return sources;
+}

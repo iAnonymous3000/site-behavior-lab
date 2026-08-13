@@ -5,6 +5,7 @@ import { CausalityGraph } from "./causality-graph";
 import { ComparisonPanel } from "./comparison-panel";
 import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz } from "./report-overview";
 import { ReportHeader } from "./report-header";
+import { ReportSectionNav, type ReportSection } from "./report-section-nav";
 import {
   CookieList,
   DomainTable,
@@ -141,6 +142,28 @@ export function ReportRenderer({
     );
   }
 
+  // Reading order, not render order: the rail cards sit beside the main column
+  // on a wide screen but a reader moves through them after it. ReportSectionNav
+  // drops any of these whose section this report did not render, so the list can
+  // stay declarative without shipping an anchor that scrolls nowhere.
+  const sections: ReportSection[] = [
+    { id: "findings", label: "Findings" },
+    { id: "comparison", label: "Comparison" },
+    { id: "causal-map", label: "Causal map" },
+    { id: "numbers", label: "Numbers" },
+    { id: "traffic", label: "Traffic" },
+    { id: "visit-phases", label: "Visit phases" },
+    { id: "third-parties", label: "Third parties" },
+    { id: "pixels", label: "Pixels" },
+    { id: "cookies", label: "Cookies" },
+    { id: "storage", label: "Storage" },
+    { id: "signals", label: "Signals" },
+    { id: "domain-evidence", label: "Domains" },
+    { id: "request-evidence", label: "Request log" },
+    { id: "measurement-limits", label: "Limits" },
+    { id: "conditions", label: "Conditions" }
+  ];
+
   return (
     <PrintCompleteProvider value={printComplete}>
       <p className="visually-hidden" role="status" aria-live="polite">
@@ -149,6 +172,7 @@ export function ReportRenderer({
           "recorded request row"
         )}.${reportFacts.display.subject.describesSubject ? "" : " The requested page was not established."}`}
       </p>
+      <ReportSectionNav sections={sections} />
       <section className="report-grid">
         <div className="report-main">
           <ReportHeader
@@ -202,7 +226,10 @@ export function ReportRenderer({
           <MetricGrid facts={displayedFacts} />
           <TrafficViz facts={displayedFacts} />
           <VisitPhasesAndStateChanges run={displayedRun} />
-          <Warnings warnings={reportView.warnings} />
+          {/* The labels the report-level warning list was prefixed with, so the
+              caveats can be grouped by the visit that recorded them instead of
+              restating the prefix on every line. */}
+          <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />
         </div>
 
         <aside className="report-sidebar" aria-label="Supporting report evidence">
@@ -237,19 +264,19 @@ export function ReportRenderer({
             </section>
           )}
 
-          <section className="side-card">
+          <section className="side-card" id="third-parties">
             <h2>Top Third Parties</h2>
             <TopThirdParties facts={displayedFacts} />
           </section>
 
           {displayedRun.evidence.pixelEvents.length > 0 && (
-            <section className="side-card">
+            <section className="side-card" id="pixels">
               <h2>Advertising Pixels</h2>
               <PixelEventsList pixels={displayedRun.evidence.pixelEvents} facts={displayedFacts} />
             </section>
           )}
 
-          <section className="side-card">
+          <section className="side-card" id="cookies">
             <h2>Cookies</h2>
             <CookieList
               cookies={displayedRun.evidence.cookies}
@@ -257,7 +284,7 @@ export function ReportRenderer({
             />
           </section>
 
-          <section className="side-card">
+          <section className="side-card" id="storage">
             <h2>Storage</h2>
             <StorageList
               storage={displayedRun.evidence.storage}
@@ -265,7 +292,7 @@ export function ReportRenderer({
             />
           </section>
 
-          <section className="side-card">
+          <section className="side-card" id="signals">
             <h2>Browser Behavior Signals</h2>
             <FingerprintList
               events={displayedRun.evidence.fingerprintEvents}
@@ -274,7 +301,7 @@ export function ReportRenderer({
             />
           </section>
 
-          <section className="side-card methodology">
+          <section className="side-card methodology" id="conditions">
             <h2>Methodology</h2>
             <dl>
               <div><dt>Schema</dt><dd>{schemaProvenanceLabel(reportView)}</dd></div>

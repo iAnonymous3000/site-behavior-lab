@@ -9,7 +9,7 @@ import { reportPagePath } from "@/lib/report-locator";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { siteBaseUrl, sitePagesBasePath } from "@/lib/site-url";
 import styles from "./category.module.css";
-import { TrustLinks } from "../../_components/trust-links";
+import { SiteChrome } from "../../_components/site-chrome";
 
 export const dynamic = "force-static";
 export const dynamicParams = false;
@@ -62,7 +62,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   };
 
   return (
-    <main className={styles.page}>
+    <SiteChrome activePath="/directory/">
+      <div className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }} />
       {/* Matches the /sites and /reports breadcrumbs: list semantics for the item count,
           aria-hidden separators so the slashes are not spoken, aria-current on the leaf. */}
@@ -183,8 +184,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           <a href={`${base}/corpus.json`}>Current versioned JSON export</a>
         </div>
       </section>
-      <TrustLinks />
-    </main>
+      </div>
+    </SiteChrome>
   );
 }
 

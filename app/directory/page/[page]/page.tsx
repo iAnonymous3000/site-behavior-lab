@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { loadCorpusOverview } from "@/lib/corpus-overview";
 import { buildDirectorySites, directoryPageCount } from "@/lib/directory-view";
 import { publicPageMetadata } from "@/lib/seo-metadata";
+import { siteUrl } from "@/lib/site-url";
 import { DirectoryIndex, directoryPath } from "../../directory-index";
 
 export const dynamic = "force-static";
@@ -23,11 +24,17 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
       robots: { index: false, follow: false }
     };
   }
-  return publicPageMetadata({
-    title: `Scanned sites directory, page ${page}`,
-    description: `Browse current Site Behavior Lab evidence profiles for scanned sites, directory page ${page}.`,
-    path: directoryPath(page)
-  });
+  // These routes stay reachable so nothing already linked or indexed 404s, but
+  // the directory is one sortable table now and they render all of it, so the
+  // canonical is /directory/ rather than this slice's former URL.
+  return {
+    ...publicPageMetadata({
+      title: `Scanned sites directory, page ${page}`,
+      description: `Browse current Site Behavior Lab evidence profiles for scanned sites, directory page ${page}.`,
+      path: directoryPath(page)
+    }),
+    alternates: { canonical: siteUrl("/directory/") }
+  };
 }
 
 export default async function PaginatedDirectoryPage({ params }: { params: Promise<{ page: string }> }) {

@@ -157,7 +157,7 @@ function ComparisonPanel({ view, facts }: { view: ReportView; facts: ReportFacts
   }
 
   return (
-    <section className="comparison-card">
+    <section className="comparison-card" id="comparison">
       <div className="comparison-heading">
         <div>
           <p className="eyebrow">{comparisonEyebrow(view)}</p>

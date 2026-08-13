@@ -9,7 +9,7 @@ import {
 import { NODE_ADBLOCK_ENGINE_VERSION, NODE_PLAYWRIGHT_VERSION } from "@/lib/legacy-methodology";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { trackerCatalogMetadata } from "@/lib/tracker-catalog";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 import { LiveDeploymentStatus } from "./live-deployment-status";
 import { StatusFreshness } from "./status-freshness";
 
@@ -47,7 +47,8 @@ export default async function StatusPage() {
   ).size;
 
   return (
-    <main className="legal-page status-page">
+    <SiteChrome>
+      <div className="legal-page status-page">
       <header className="legal-header">
         <p className="eyebrow">Status &amp; transparency</p>
         <h1>What is current, stale, or unknown</h1>
@@ -55,7 +56,6 @@ export default async function StatusPage() {
           This page reads public deployment receipts, scanner health, and versioned repository artifacts. Missing,
           malformed, future-dated, or unreachable evidence is shown as unknown, not silently treated as healthy.
         </p>
-        <p className="legal-back"><Link href="/">&larr; Back to Site Behavior Lab</Link></p>
       </header>
 
       <LiveDeploymentStatus />
@@ -124,8 +124,8 @@ export default async function StatusPage() {
         </ul>
       </section>
 
-      <TrustLinks />
-    </main>
+    </div>
+    </SiteChrome>
   );
 }
 

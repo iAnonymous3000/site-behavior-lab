@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { githubSourceUrlAtBuildCommit } from "@/lib/build-source-url";
 import { committedDetectorCalibrationReadiness } from "@/lib/detector-calibration-source";
 import { detectorValidationMetadata, detectorValidationRows } from "@/lib/detector-validation";
@@ -11,7 +10,7 @@ import { publicPageMetadata } from "@/lib/seo-metadata";
 import { trackerCatalogMetadata, trackerCatalogRecords } from "@/lib/tracker-catalog";
 import { CatalogSearch } from "./catalog-search";
 import styles from "./catalog.module.css";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 
 export const dynamic = "force-static";
 
@@ -37,7 +36,8 @@ export default function CatalogPage() {
   const calibration = committedDetectorCalibrationReadiness();
 
   return (
-    <main className={styles.page}>
+    <SiteChrome activePath="/catalog/">
+      <div className={styles.page}>
       <header className={styles.header}>
         <p className="eyebrow">Public evidence register</p>
         <h1>Known-service catalog and validation fixtures</h1>
@@ -47,7 +47,6 @@ export default function CatalogPage() {
           entity or product; it may not list that suffix or support the maintainer&apos;s category. A match is a useful
           lower-bound label, not proof of why a request occurred, what it carried, or whether it complied with law.
         </p>
-        <p className={styles.back}><Link href="/">&larr; Back to Site Behavior Lab</Link></p>
       </header>
 
       <div className={styles.summary} aria-label="Catalog summary">
@@ -200,7 +199,7 @@ export default function CatalogPage() {
 
         <p className={styles.digest}>Boundary {coverageBoundaryMetadata.version}</p>
       </section>
-      <TrustLinks />
-    </main>
+      </div>
+    </SiteChrome>
   );
 }
