@@ -98,6 +98,11 @@ A guard test writes a drawn frame to disk and runs the real
 the acquisition validator's digest recomputation are proven to agree rather
 than separately asserted.
 
+This producer landed on its own, ahead of any ceremony. The
+assemble custody wiring is already implemented and tested, so nothing about
+drawing a frame waits on the custody lane and an operator reading this should
+not treat either as pending code.
+
 Still outstanding here: the labeler endpoint appendix frozen from the candidate
 catalog, and the sweep receipts.
 
