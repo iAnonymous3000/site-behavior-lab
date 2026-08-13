@@ -371,3 +371,31 @@ test("validation rejects hollow, duplicated, and mislabeled entries", () => {
     /must distinguish declined/
   );
 });
+
+test("the causality boundary states what the scanner actually records", () => {
+  // The initiator join landed as a pure, unwired module, and this entry then
+  // described a capability no code path provides: RequestInitiatorIndex has no
+  // production caller and the scan opens no CDP session, so no live report has
+  // ever carried an initiator. A published boundary that overstates the
+  // instrument is precisely the defect this surface exists to prevent, so the
+  // wording and the wiring are pinned to each other in both directions.
+  const libDir = path.join(root, "lib");
+  const productionImporters = readdirSync(libDir).filter((file) => {
+    if (!file.endsWith(".ts") || file.endsWith(".test.ts")) return false;
+    if (file === "request-initiator.ts") return false;
+    return /from "\.\/request-initiator"/.test(readFileSync(path.join(libDir, file), "utf8"));
+  });
+
+  const entry = COVERAGE_BOUNDARY_ENTRIES.find(
+    (candidate) => candidate.id === "script-to-request-causality"
+  );
+  assert.ok(entry, "the causality boundary entry must exist");
+
+  assert.equal(
+    entry.explanation.includes("A live scan records no initiator at all"),
+    productionImporters.length === 0,
+    productionImporters.length === 0
+      ? "nothing wires the initiator index, so the boundary must say a live scan records no initiator"
+      : `${productionImporters.join(", ")} now wire the initiator index, so this boundary text must be rewritten to describe what a live scan records`
+  );
+});

@@ -79,6 +79,24 @@ const EMAIL_LIKE = /[A-Za-z0-9._%+-]+(?:@|%40)(?![0-9]{1,3}(?:x|dpi)?\.)[A-Za-z0
 const PHONE_LIKE = /(?:\+\d{1,3}[\s.-]?)?(?:\(\d{2,4}\)[\s.-]?|\d{2,4}[\s.-])\d{2,4}[\s.-]\d{2,4}/;
 const TOKEN_MARKERS = new Set(["[redacted:uuid-like]", "[redacted:hex-like]", "[redacted:long-token]"]);
 
+/**
+ * Identifier-shaped material in quoted policy sentences, for any schema.
+ *
+ * Schema-independent on purpose. The v1 inventory below is only reachable for
+ * v1 rows, but the format currently produced is v2/r2, and that is exactly the
+ * format whose quotes reach readers today. A sweep that could not see it would
+ * restate the old blind spot one schema along.
+ */
+export function policyQuoteIdentifierCount(
+  claims: readonly { quote: string }[] | undefined
+): number {
+  let count = 0;
+  for (const claim of claims ?? []) {
+    if (EMAIL_LIKE.test(claim.quote) || PHONE_LIKE.test(claim.quote)) count += 1;
+  }
+  return count;
+}
+
 export function inventoryV1Report(id: string, report: ScanReport, maxExamples = 5): ReportRemediationInventory {
   const counters = emptyRedactionCounters();
   const inventory: ReportRemediationInventory = {
@@ -130,11 +148,9 @@ function inventoryRun(run: ScanResult, label: string, inventory: ReportRemediati
   // The quote itself, not just its URL. Sanitization here is whitespace
   // normalization and a length cap, so an address published in the site's own
   // policy sentence reaches the stored report intact.
-  for (const claim of run.privacyPolicy?.claims ?? []) {
-    if (EMAIL_LIKE.test(claim.quote) || PHONE_LIKE.test(claim.quote)) {
-      inventory.riskSignals.policyQuoteIdentifiers += 1;
-    }
-  }
+  inventory.riskSignals.policyQuoteIdentifiers += policyQuoteIdentifierCount(
+    run.privacyPolicy?.claims
+  );
   for (const request of run.requests) {
     url("requests[].url", request.url, request.thirdParty);
     url("requests[].provenance.initiatorUrl", request.provenance?.initiatorUrl, false);

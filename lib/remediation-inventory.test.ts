@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { inventoryV1Report, summarizeInventories } from "./remediation-inventory";
+import {
+  inventoryV1Report,
+  policyQuoteIdentifierCount,
+  summarizeInventories
+} from "./remediation-inventory";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -158,4 +162,30 @@ test("an ordinary policy quote raises no identifier signal", () => {
   };
 
   assert.equal(inventoryV1Report("clean-quote", report).riskSignals.policyQuoteIdentifiers, 0);
+});
+
+test("the quote sweep is schema-independent, so r2 reports are not a blind spot again", () => {
+  // The v1 inventory is unreachable for schema-r2 rows: the CLI handles them on
+  // a separate branch and never calls it. The format currently produced IS
+  // r2, so a sweep that only ran on v1 would restate the old blind spot one
+  // schema along. The shared counter is what both branches call.
+  assert.equal(
+    policyQuoteIdentifierCount([
+      { quote: "We do not sell your data; write to privacy@example.com to object." }
+    ]),
+    1
+  );
+  assert.equal(
+    policyQuoteIdentifierCount([{ quote: "We do not sell your personal information." }]),
+    0
+  );
+  assert.equal(policyQuoteIdentifierCount(undefined), 0);
+  assert.equal(
+    policyQuoteIdentifierCount([
+      { quote: "Call us on +1 (415) 555-0132." },
+      { quote: "Reach the DPO at dpo@example.org." },
+      { quote: "We retain logs for 30 days." }
+    ]),
+    2
+  );
 });

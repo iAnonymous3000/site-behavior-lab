@@ -1,7 +1,12 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { publicReportDigest } from "./canonical-json";
-import { inventoryV1Report, summarizeInventories, type ReportRemediationInventory } from "./remediation-inventory";
+import {
+  inventoryV1Report,
+  policyQuoteIdentifierCount,
+  summarizeInventories,
+  type ReportRemediationInventory
+} from "./remediation-inventory";
 import { readStoredScanReport } from "./scan-report-reader";
 import {
   R2RedactionRemediationError,
@@ -40,7 +45,7 @@ async function main(): Promise<void> {
 
   const entries: ReportRemediationInventory[] = [];
   const skipped: string[] = [];
-  const r2 = { reports: 0, v3: 0, v4: 0, rewrites: 0, rejected: 0 };
+  const r2 = { reports: 0, v3: 0, v4: 0, rewrites: 0, rejected: 0, policyQuoteIdentifiers: 0 };
   for (const file of files) {
     const parsed: unknown = JSON.parse(await readFile(path.join(reportsDir, file), "utf8"));
     const read = readStoredScanReport(parsed);
@@ -54,6 +59,14 @@ async function main(): Promise<void> {
         continue;
       }
       r2.reports += 1;
+      // The v1 inventory below is unreachable for these rows, so the quote
+      // sweep has to run here too. This is the format currently produced, and
+      // a policy quote is the one public field that keeps page text verbatim.
+      const r2Report = read.stored.report;
+      const r2Runs = r2Report.reportType === "comparison" ? [r2Report.baseline, r2Report.variant] : [r2Report.run];
+      for (const run of r2Runs) {
+        r2.policyQuoteIdentifiers += policyQuoteIdentifierCount(run.evidence.privacyPolicy?.claims);
+      }
       try {
         const version = r2ReportRedactionVersion(read.stored.report);
         if (version === 3) r2.v3 += 1;
@@ -90,11 +103,13 @@ async function main(): Promise<void> {
   console.log(
     `Risk signals (RFC 9.6 step-2 audit basis): ${totals.riskSignals.emailLikeStrings} email-like strings, ` +
       `${totals.riskSignals.tokenLikePathSegments.toLocaleString("en-US")} token-shaped path segments, ` +
-      `${totals.riskSignals.unallowlistedSubdomainLabels.toLocaleString("en-US")} non-allowlisted subdomain labels generalized`
+      `${totals.riskSignals.unallowlistedSubdomainLabels.toLocaleString("en-US")} non-allowlisted subdomain labels generalized, ` +
+      `${totals.riskSignals.policyQuoteIdentifiers} policy quotes carrying an identifier shape`
   );
   console.log(
     `Schema-r2: ${r2.reports} report(s), ${r2.v3} v3, ${r2.v4} v${REDACTION_VERSION}, ` +
-      `${r2.rewrites} transform rewrite(s), ${r2.rejected} rejected. ` +
+      `${r2.rewrites} transform rewrite(s), ${r2.rejected} rejected, ` +
+      `${r2.policyQuoteIdentifiers} policy quote(s) carrying an identifier shape. ` +
       `Use reports:remediate for sidecar/clock proof.`
   );
   for (const line of skipped) console.log(`Skipped ${line}`);

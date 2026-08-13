@@ -158,7 +158,7 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
     label: "Why a request happened, as a causal chain",
     reason: "not-instrumented",
     explanation:
-      "Where Chromium named an initiator, the report records the URL that asked for a request. That is attribution, not causation: a script in an initiator position may itself have been told what to fetch by another script, and a parser-initiated request names the document rather than the markup that referenced it. Reports adapted from Brave PageGraph carry an instrumented causal graph and say so; a live scan does not. Requests whose initiator Chromium did not report, or whose URL was requested from more than one initiator in the same visit, are left unattributed rather than guessed."
+      "A live scan records no initiator at all. The scanner does not open the Chromium debugging session that would name which script or document asked for a request, so every entry in the request log stands on its own and this report cannot say what caused any of it. Reports adapted from Brave PageGraph carry an instrumented causal graph and say so. Even there an initiator is attribution rather than causation: a script in an initiator position may itself have been told what to fetch by another script, and a parser-initiated request names the document rather than the markup that referenced it."
   },
   {
     id: "device-sensors",
