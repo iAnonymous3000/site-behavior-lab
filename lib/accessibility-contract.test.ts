@@ -233,13 +233,21 @@ test("theme controls track OS preference changes only before an explicit overrid
 
 test("category summaries keep valid definition-list semantics and usable touch targets", () => {
   const category = source("app/categories/[category]/page.tsx");
-  const css = source("app/categories/[category]/category.module.css");
 
   assert.match(
     category,
     /<dt>Third-party cookies<\/dt>\s*<dd>\s*\{rollup\.medianCookies[\s\S]*<small>[\s\S]*complete cookie evidence<\/small>\s*<\/dd>/
   );
-  assert.match(css, /\.siteActions a \{[\s\S]*display: inline-flex;[\s\S]*min-height: 44px;/);
+  // The per-site card actions this used to check are gone: category pages and
+  // /directory/ render the same shared table now. Its row link is the
+  // equivalent control, and it is a BLOCK anchor, so WCAG 2.5.8's inline-text
+  // exception does not cover it the way it covers the meta line beneath.
+  const table = source("app/_components/site-evidence-table.module.css");
+  assert.match(table, /\.siteLink \{[\s\S]*min-height: 24px;/);
+  assert.match(
+    table,
+    /@media \(max-width: 720px\), \(any-pointer: coarse\) \{\s*\.siteLink \{\s*min-height: 44px;/
+  );
 });
 
 test("the focus indicator survives forced-colors mode and clears 3:1 in both themes", () => {

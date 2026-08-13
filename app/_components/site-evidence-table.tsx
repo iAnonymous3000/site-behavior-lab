@@ -2,19 +2,22 @@
 
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
-import styles from "./directory.module.css";
+import type { SiteEvidenceRow } from "@/lib/site-evidence-row";
+import styles from "./site-evidence-table.module.css";
 
 /**
- * The directory as one sortable table instead of a paginated grid of cards.
+ * One sortable table of sites and what their visits recorded.
  *
- * The card grid could not answer the question a directory exists for. Every
- * card carried the site's headline sentence, and for the great majority of the
- * corpus that sentence is the same one ("... recorded N fewer third-party
- * requests in the visit configured for Brave-list blocking"), so a reader
- * scanning the page saw a hundred near-identical paragraphs and no way to
- * compare the numbers underneath them. Twenty-four sites per page over five
- * pages meant "which sites loaded the most tracking-service requests" could not
- * be answered at all without opening every page and reading by eye.
+ * Shared by /directory/ and every /categories/<id>/ page, because both answer
+ * the same question and both used to answer it with cards. Every card carried
+ * its site's headline sentence, and for the great majority of the corpus that
+ * sentence is the same one ("... recorded N fewer third-party requests in the
+ * visit configured for Brave-list blocking"), so a reader saw a run of
+ * near-identical paragraphs and no way to compare the numbers underneath them.
+ * The directory made "which sites loaded the most tracking-service requests"
+ * unanswerable across five paginated pages; a category page titled "What news
+ * and media sites loaded" put npr.org at 298 requests and wikipedia.org at 0 in
+ * the same alphabetical run with nothing to rank them by.
  *
  * Sorting happens in the browser over the WHOLE set, which is why the table
  * takes every row rather than a page slice: a sort that only reorders the
@@ -25,25 +28,6 @@ import styles from "./directory.module.css";
  * the numbers for the row's first line.
  */
 
-export type DirectoryTableRow = {
-  domain: string;
-  profileHref: string;
-  reportHref: string;
-  headline: string;
-  tone: string;
-  categoryLabel: string;
-  reportCount: number;
-  scannedAt: string;
-  scannedLabel: string;
-  device: string;
-  kindLabel: string;
-  thirdPartyRequests: number;
-  trackerRequests: number;
-  thirdPartyCookies: number;
-  requestEvidenceComplete: boolean;
-  cookieEvidenceComplete: boolean;
-  capped: boolean;
-};
 
 type SortKey = "domain" | "thirdPartyRequests" | "trackerRequests" | "thirdPartyCookies" | "scannedAt";
 
@@ -55,7 +39,23 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
   { key: "scannedAt", label: "Latest visit", numeric: false }
 ];
 
-export function DirectoryTable({ rows }: { rows: DirectoryTableRow[] }) {
+export function SiteEvidenceTable({
+  rows,
+  caption,
+  /**
+   * Whether to offer the filter and the category term within it.
+   *
+   * A category page's rows are all one category, so filtering by it would say
+   * the same thing on every row, and a filter over six rows is a control that
+   * costs more attention than it saves.
+   */
+  filterable = true
+}: {
+  rows: SiteEvidenceRow[];
+  /** What this table is, for readers who reach it by its accessible name. */
+  caption: string;
+  filterable?: boolean;
+}) {
   const [sort, setSort] = useState<{ key: SortKey; descending: boolean }>({
     key: "domain",
     descending: false
@@ -63,7 +63,7 @@ export function DirectoryTable({ rows }: { rows: DirectoryTableRow[] }) {
   const [query, setQuery] = useState("");
 
   const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
+    const needle = filterable ? query.trim().toLowerCase() : "";
     const filtered = needle
       ? rows.filter(
           (row) =>
@@ -87,7 +87,7 @@ export function DirectoryTable({ rows }: { rows: DirectoryTableRow[] }) {
         direction * (left[sort.key] - right[sort.key]) || left.domain.localeCompare(right.domain)
       );
     });
-  }, [query, rows, sort]);
+  }, [filterable, query, rows, sort]);
 
   function toggle(key: SortKey) {
     setSort((current) =>
@@ -101,15 +101,17 @@ export function DirectoryTable({ rows }: { rows: DirectoryTableRow[] }) {
   return (
     <div className={styles.tableSection}>
       <div className={styles.tableTools}>
-        <label className={styles.tableFilter}>
-          <span className="visually-hidden">Filter sites by domain or category</span>
-          <input
-            type="search"
-            placeholder="Filter by domain or category"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
+        {filterable && (
+          <label className={styles.tableFilter}>
+            <span className="visually-hidden">Filter sites by domain or category</span>
+            <input
+              type="search"
+              placeholder="Filter by domain or category"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </label>
+        )}
         <p className={styles.tableCount} role="status">
           {visible.length === rows.length
             ? `${rows.length.toLocaleString()} sites`
@@ -122,10 +124,7 @@ export function DirectoryTable({ rows }: { rows: DirectoryTableRow[] }) {
           (see the CSS). The table names itself with its caption. */}
       <div className={styles.siteTableWrap}>
         <table className={styles.siteTable}>
-          <caption className="visually-hidden">
-            One current profile per scanned site, sortable by request, tracking-service and cookie
-            counts, and by the date of the latest retained visit.
-          </caption>
+          <caption className="visually-hidden">{caption}</caption>
           <thead>
             <tr>
               {COLUMNS.map((column) => {
@@ -166,8 +165,11 @@ export function DirectoryTable({ rows }: { rows: DirectoryTableRow[] }) {
                   </a>
                   <span className={styles.siteHeadline}>{row.headline}</span>
                   <span className={styles.siteMeta}>
-                    {row.categoryLabel} · {row.reportCount}{" "}
-                    {row.reportCount === 1 ? "report" : "reports"} ·{" "}
+                    {/* The category is dropped where every row shares it: on a
+                        category page it would repeat the page's own title once
+                        per row. */}
+                    {filterable && `${row.categoryLabel} · `}
+                    {row.reportCount} {row.reportCount === 1 ? "report" : "reports"} ·{" "}
                     <a href={row.reportHref}>Open latest evidence</a>
                   </span>
                 </th>
@@ -215,6 +217,6 @@ export function DirectoryTable({ rows }: { rows: DirectoryTableRow[] }) {
  * refuses to publish that number as a figure; it must not publish it as a rank
  * either.
  */
-function measured(row: DirectoryTableRow, key: Exclude<SortKey, "domain" | "scannedAt">): boolean {
+function measured(row: SiteEvidenceRow, key: Exclude<SortKey, "domain" | "scannedAt">): boolean {
   return key === "thirdPartyCookies" ? row.cookieEvidenceComplete : row.requestEvidenceComplete;
 }

@@ -21,18 +21,14 @@
 }
 
 .breadcrumbs a,
-.methodLinks a,
-.siteActions a,
-.siteHeading a {
+.methodLinks a {
   color: var(--accent);
   font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
 .breadcrumbs a:hover,
-.methodLinks a:hover,
-.siteActions a:hover,
-.siteHeading a:hover {
+.methodLinks a:hover {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -163,94 +159,6 @@
   text-align: right;
 }
 
-.siteList {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.siteList > li {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 15px;
-}
-
-.siteHeading {
-  align-items: baseline;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-}
-
-.siteHeading a {
-  font-size: 16px;
-  overflow-wrap: anywhere;
-}
-
-.siteHeading time {
-  color: var(--text-subtle);
-  font-size: 10.5px;
-  white-space: nowrap;
-}
-
-.siteList p {
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.45;
-  margin: 9px 0 13px;
-}
-
-.siteList dl {
-  display: grid;
-  gap: 7px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: auto 0 0;
-}
-
-.siteList dl > div {
-  background: var(--surface-2);
-  border-radius: 6px;
-  min-width: 0;
-  padding: 8px;
-}
-
-.siteList dt {
-  color: var(--text-subtle);
-  font-size: 9.5px;
-  line-height: 1.2;
-}
-
-.siteList dd {
-  font-size: 17px;
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--weight-bold);
-  margin: 5px 0 0;
-}
-
-.siteActions {
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 11.5px;
-  gap: 8px 14px;
-  justify-content: space-between;
-  margin-top: 12px;
-  padding-top: 10px;
-}
-
-.siteActions a {
-  align-items: center;
-  display: inline-flex;
-  min-height: 44px;
-}
-
 .method {
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -297,26 +205,9 @@
   .sectionHeading > p {
     text-align: left;
   }
-
-  .siteList {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 390px) {
-  .siteHeading,
-  .siteActions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .siteHeading {
-    gap: 4px;
-  }
-
-  .siteHeading time {
-    white-space: normal;
-  }
 }
 
 .cohortDetails {

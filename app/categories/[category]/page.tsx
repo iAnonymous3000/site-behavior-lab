@@ -5,9 +5,10 @@ import { notFound } from "next/navigation";
 import { loadCorpusOverview } from "@/lib/corpus-overview";
 import { buildCategoryEvidencePages, type CategoryEvidencePage } from "@/lib/directory-view";
 import { serializeJsonLd } from "@/lib/jsonld-script";
-import { reportPagePath } from "@/lib/report-locator";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { siteBaseUrl, sitePagesBasePath } from "@/lib/site-url";
+import { formatEvidenceDate, siteEvidenceRow } from "@/lib/site-evidence-row";
+import { SiteEvidenceTable } from "../../_components/site-evidence-table";
 import styles from "./category.module.css";
 import { SiteChrome } from "../../_components/site-chrome";
 
@@ -84,7 +85,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           Descriptive results from one newest eligible passive visit per site, not a ranking, privacy grade, causal
           claim or representative sample of all {category.label.toLowerCase()} sites.
         </p>
-        <p className={styles.updated}>Newest included observation: <time dateTime={category.lastScannedAt}>{formatDate(category.lastScannedAt)}</time></p>
+        <p className={styles.updated}>Newest included observation: <time dateTime={category.lastScannedAt}>{formatEvidenceDate(category.lastScannedAt)}</time></p>
       </header>
 
       <section className={styles.summary} aria-labelledby="summary-title">
@@ -124,31 +125,17 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
             <p className="eyebrow">Included evidence</p>
             <h2 id="sites-title">{category.sites.length} site-level observations</h2>
           </div>
-          <p>Alphabetical, not ranked. Open a profile for the currently retained, versioned report history.</p>
+          <p>Sort any column. Open a profile for the currently retained, versioned report history.</p>
         </div>
-        <ul className={styles.siteList}>
-          {category.sites.map((site) => (
-            <li key={site.domain}>
-              <div className={styles.siteHeading}>
-                <a href={`${pagesBasePath}${site.profilePath}/`}>{site.domain}</a>
-                <time dateTime={site.latest.scannedAt}>{formatDate(site.latest.scannedAt)}</time>
-              </div>
-              <p>{site.latest.headline}</p>
-              <dl>
-                <div><dt>Third-party requests</dt><dd>{site.latest.thirdPartyRequests.toLocaleString()}</dd></div>
-                <div><dt>Third-party tracking-service requests</dt><dd>{site.latest.trackerRequests.toLocaleString()}</dd></div>
-                <div>
-                  <dt>Third-party cookies</dt>
-                  <dd>{site.latest.cookieEvidenceComplete ? site.latest.thirdPartyCookies.toLocaleString() : "Not measured"}</dd>
-                </div>
-              </dl>
-              <div className={styles.siteActions}>
-                <a href={`${pagesBasePath}${site.profilePath}/`}>Profile and history</a>
-                <Link href={`${reportPagePath(site.latest.id)}/`}>Included report</Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {/* The same table /directory/ uses, through the same row mapper. These
+            were two independent card grids rendering the same facts, and they
+            disagreed: the directory withheld a cookie count it could not vouch
+            for while this page published the bare number. */}
+        <SiteEvidenceTable
+          caption={`Every ${category.label.toLowerCase()} site in this cohort, sortable by request, tracking-service and cookie counts, and by the date of its included visit.`}
+          filterable={false}
+          rows={category.sites.map((site) => siteEvidenceRow(pagesBasePath, site))}
+        />
       </section>
 
       <section className={styles.method} aria-labelledby="method-title">
@@ -205,9 +192,3 @@ function blockingMedianText(value: number | null): string {
   return `Median observed difference: ${Math.abs(value).toLocaleString()} ${value < 0 ? "fewer" : "more"} third-party requests with blocking on`;
 }
 
-function formatDate(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "date unavailable"
-    : date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
-}
