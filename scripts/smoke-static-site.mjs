@@ -620,10 +620,18 @@ async function main() {
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
     await loadStaticArchive(page);
     await page.locator(".static-report-card").first().click();
-    await page.waitForSelector(".report-header", { timeout: 10_000 });
-    await expectText(page.locator(".report-header"), "https://");
+    // .report-identity, not .report-header: the permalink's own header used to
+    // restate the site, URL and run facts that the evidence explorer's header
+    // also carries, so opening the explorer swapped one copy for another. It
+    // renders once now, in both states.
+    await page.waitForSelector(".report-identity", { timeout: 10_000 });
+    await expectText(page.locator(".report-identity"), "https://");
     if ((await page.locator(".scan-workbench").count()) !== 0) fail("saved report permalink must not put the scanner before evidence");
-    await expectText(page.locator("h1"), firstReport.headline);
+    // The <h1> is the SITE. The headline is the lead finding and leads the
+    // banner below; making it the heading too printed the same sentence three
+    // times on one page. Both must still be in the pre-hydration document.
+    await expectText(page.locator("h1"), firstReport.domain);
+    await expectText(page.locator(".headline-title"), firstReport.headline);
     await assertPrimaryLandmarks(page, "saved report permalink");
     await assertNoSeriousAxeViolations(page, "compact saved report permalink");
 
@@ -647,8 +655,9 @@ async function main() {
     const noScriptContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 1000 } });
     const noScriptPage = await noScriptContext.newPage();
     await noScriptPage.goto(`${baseUrl}/reports/${firstReport.id}/`, { waitUntil: "domcontentloaded" });
-    await expectText(noScriptPage.locator(".report-header"), "https://");
-    await expectText(noScriptPage.locator("h1"), firstReport.headline);
+    await expectText(noScriptPage.locator(".report-identity"), "https://");
+    await expectText(noScriptPage.locator("h1"), firstReport.domain);
+    await expectText(noScriptPage.locator(".headline-title"), firstReport.headline);
 
     const phaseReportHtmlPath = path.join(outDir, "reports", phaseReport.id, "index.html");
     const phaseReportHtml = await readFile(phaseReportHtmlPath, "utf8");
