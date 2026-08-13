@@ -1,0 +1,568 @@
+{
+  "arm": {
+    "device": "desktop",
+    "gpcEnabled": false,
+    "consentMode": "accept-all"
+  },
+  "rows": [
+    {
+      "url": "https://bumble.com/",
+      "stratum": "corpus-positive",
+      "elapsedMs": 12609,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "Meta"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.homedepot.com/",
+      "stratum": "corpus-positive",
+      "elapsedMs": 19692,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "Meta"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.creditkarma.com/",
+      "stratum": "corpus-positive",
+      "elapsedMs": 34961,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.webmd.com/",
+      "stratum": "corpus-positive",
+      "elapsedMs": 18250,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "budget-exhausted:request-capture"
+      ]
+    },
+    {
+      "url": "https://www.healthline.com/",
+      "stratum": "corpus-positive",
+      "elapsedMs": 15508,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.paypal.com/us/home",
+      "stratum": "corpus-positive",
+      "elapsedMs": 10403,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-weak-signal",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "Meta"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.nike.com/",
+      "stratum": "corpus-positive",
+      "elapsedMs": 16919,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok",
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.americanexpress.com/",
+      "stratum": "corpus-positive",
+      "elapsedMs": 9864,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "Meta"
+      ],
+      "httpStatus": null,
+      "qualityReasons": [
+        "capture-loss:page-subject-validity"
+      ]
+    },
+    {
+      "url": "https://www.zillow.com/",
+      "stratum": "commerce",
+      "elapsedMs": 2552,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.expedia.com/",
+      "stratum": "commerce",
+      "elapsedMs": 2356,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status"
+      ]
+    },
+    {
+      "url": "https://www.booking.com/",
+      "stratum": "commerce",
+      "elapsedMs": 12894,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.target.com/",
+      "stratum": "commerce",
+      "elapsedMs": 14239,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.walmart.com/",
+      "stratum": "commerce",
+      "elapsedMs": 15893,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.bestbuy.com/",
+      "stratum": "commerce",
+      "elapsedMs": 31628,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.macys.com/",
+      "stratum": "commerce",
+      "elapsedMs": 1647,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status"
+      ]
+    },
+    {
+      "url": "https://www.kohls.com/",
+      "stratum": "commerce",
+      "elapsedMs": 909,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.wayfair.com/",
+      "stratum": "pilot-blocked",
+      "elapsedMs": 2918,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.etsy.com/",
+      "stratum": "pilot-blocked",
+      "elapsedMs": 1804,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status"
+      ]
+    },
+    {
+      "url": "https://www.chewy.com/",
+      "stratum": "pilot-blocked",
+      "elapsedMs": 2577,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status"
+      ]
+    },
+    {
+      "url": "https://www.sephora.com/",
+      "stratum": "pilot-blocked",
+      "elapsedMs": 988,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.rei.com/",
+      "stratum": "pilot-blocked",
+      "elapsedMs": 301,
+      "served": false,
+      "notServedReason": "threw:The page could not be loaded. The site may be down, unreachable, or bl",
+      "armed": false,
+      "notArmedReason": null,
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.allbirds.com/",
+      "stratum": "pilot-loaded",
+      "elapsedMs": 14329,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.everydayhealth.com/",
+      "stratum": "health-media",
+      "elapsedMs": 39901,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.medicalnewstoday.com/",
+      "stratum": "health-media",
+      "elapsedMs": 9989,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.verywellhealth.com/",
+      "stratum": "health-media",
+      "elapsedMs": 3894,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.forbes.com/",
+      "stratum": "news-media",
+      "elapsedMs": 6093,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.usatoday.com/",
+      "stratum": "news-media",
+      "elapsedMs": 43213,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "budget-exhausted:proxy-traffic",
+        "budget-exhausted:request-capture"
+      ]
+    },
+    {
+      "url": "https://www.cnn.com/",
+      "stratum": "news-media",
+      "elapsedMs": 6956,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.nerdwallet.com/",
+      "stratum": "money-media",
+      "elapsedMs": 10063,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.bankrate.com/",
+      "stratum": "money-media",
+      "elapsedMs": 22201,
+      "served": true,
+      "notServedReason": null,
+      "armed": true,
+      "notArmedReason": null,
+      "scoreable": true,
+      "fired": false,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.lendingtree.com/",
+      "stratum": "money-media",
+      "elapsedMs": 7427,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.indeed.com/",
+      "stratum": "services",
+      "elapsedMs": 1041,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status"
+      ]
+    },
+    {
+      "url": "https://www.eventbrite.com/",
+      "stratum": "services",
+      "elapsedMs": 9254,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.grubhub.com/",
+      "stratum": "services",
+      "elapsedMs": 16369,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok",
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.doordash.com/",
+      "stratum": "services",
+      "elapsedMs": 2410,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.shopify.com/",
+      "stratum": "services",
+      "elapsedMs": 6576,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    }
+  ]
+}

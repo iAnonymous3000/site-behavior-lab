@@ -133,6 +133,33 @@ imply a number.
 
 ---
 
+## F5. The pixel arm cannot be collected from this egress
+
+**Status: measured against 36 live sites. No study collected, no rate published.**
+
+A feasibility screen under the canonical pixel arm (desktop, GPC off,
+`accept-all`) served 23 of 36 candidates, and **1 of those 23 reached a verified
+consent registration**. Twenty-one returned `choice-unavailable`: the scanner
+clicked and there was no registration to read back, which the operations contract
+retains as an `eligibility-criteria-not-met` censored attempt.
+
+Meanwhile pixels are plentiful. Ignoring the consent gate, 8 of the 23 served
+pages carried a decodable pixel. So F1's refutation of the pilot holds from a
+second direction: the detector has plenty to find, and what stops a study is the
+arm it is required to declare, not the behaviour it measures.
+
+Full numbers, the sizing arithmetic, the three things that would make the study
+collectable, and two harness defects that each produced a confident wrong answer
+are in
+[calibration-pixel-events-screening.md](calibration-pixel-events-screening.md).
+
+Nothing here licenses editing `detectorCalibrationMeasurementCondition`. That
+constant is bound into every future pixel study by a Layer A check; changing the
+arm is the next study's declaration, and this screen is the evidence such a
+proposal would cite.
+
+---
+
 ## F4. What blocks a published rate today is not code
 
 Everything the repository owns is built and verified: the analyzer and its
