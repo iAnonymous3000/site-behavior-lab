@@ -7,6 +7,7 @@ import {
   tokenShapeMarker,
   type RedactionCounters
 } from "./redaction-v2";
+import type { StoredScanReport } from "./scan-report-reader";
 import type { PublicScanReportV2R2 } from "./scan-report-v2-r2";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -114,6 +115,31 @@ export function policyQuoteIdentifiersInR2Report(report: PublicScanReportV2R2): 
     count += policyQuoteIdentifierCount(run.evidence.privacyPolicy?.claims);
   }
   return count;
+}
+
+export type StoredReportInventory =
+  | { schema: "v1"; entry: ReportRemediationInventory }
+  | { schema: "r2"; policyQuoteIdentifiers: number }
+  | { schema: "unsupported"; schemaVersion: number; schemaRevision: number };
+
+/**
+ * Route one stored report to the inventory its schema supports.
+ *
+ * Pure and total, so the routing itself is testable. The r2 quote sweep was
+ * previously decided inside the CLI's read loop, where the only way to check
+ * that a schema reached its sweep was to read the CLI's source and reason
+ * about control flow. A source assertion cannot distinguish a call that runs
+ * from a call sitting after the branch's `continue`, so the decision moved
+ * here, where a test can simply hand it a report and look at the answer.
+ */
+export function inventoryStoredReport(id: string, stored: StoredScanReport): StoredReportInventory {
+  if (stored.schemaVersion === 2) {
+    if (stored.schemaRevision !== 2) {
+      return { schema: "unsupported", schemaVersion: 2, schemaRevision: stored.schemaRevision };
+    }
+    return { schema: "r2", policyQuoteIdentifiers: policyQuoteIdentifiersInR2Report(stored.report) };
+  }
+  return { schema: "v1", entry: inventoryV1Report(id, stored.report) };
 }
 
 export function inventoryV1Report(id: string, report: ScanReport, maxExamples = 5): ReportRemediationInventory {

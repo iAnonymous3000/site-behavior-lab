@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import {
@@ -379,32 +379,46 @@ test("the causality boundary states what the scanner actually records", () => {
   // ever carried an initiator. A published boundary that overstates the
   // instrument is precisely the defect this surface exists to prevent, so the
   // wording and the wiring are pinned to each other in both directions.
-  // Resolve importers across every directory that can reach the scanner, and
-  // match every spelling that would actually wire it: relative or "@/lib"
-  // alias, static `from` or dynamic `import()`, with or without an extension.
-  // Searching one directory for one literal is how a guard like this goes
-  // quietly false the moment the capture lands in cloudflare/ or app/.
-  const INITIATOR_IMPORT =
-    /(?:\bfrom\s*|\bimport\s*\(\s*|\brequire\s*\(\s*)["'](?:(?:\.{1,2}\/)+|@\/lib\/)(?:[\w.-]+\/)*request-initiator(?:\.[jt]sx?)?["']/;
-  const productionImporters: string[] = [];
-  const walk = (dir: string): void => {
-    if (!existsSync(dir)) return;
-    for (const item of readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, item.name);
-      if (item.isDirectory()) {
-        if (item.name === "node_modules" || item.name.startsWith(".")) continue;
-        walk(full);
-        continue;
-      }
-      if (!/\.(ts|tsx|mts|mjs|js)$/.test(item.name)) continue;
-      if (/\.test\.[a-z]+$/.test(item.name)) continue;
-      if (path.relative(root, full) === path.join("lib", "request-initiator.ts")) continue;
-      if (INITIATOR_IMPORT.test(readFileSync(full, "utf8"))) {
-        productionImporters.push(path.relative(root, full));
-      }
+  // Reachability from the LIVE PRODUCER, not import presence in the repo.
+  // Presence is the wrong question: the selective calibration CLI already
+  // opens a CDP session of its own, so importing the index there would force
+  // this sentence to be withdrawn while live scans still recorded nothing.
+  // What makes the sentence false is the capture becoming reachable from the
+  // module that produces a live report.
+  const liveProducer = path.join(root, "lib", "scanner.ts");
+  const initiatorModule = path.join(root, "lib", "request-initiator.ts");
+
+  const resolveRepoSpecifier = (specifier: string, fromFile: string): string | null => {
+    const base = specifier.startsWith("@/")
+      ? path.join(root, specifier.slice(2))
+      : specifier.startsWith(".")
+        ? path.resolve(path.dirname(fromFile), specifier)
+        : null;
+    if (base === null) return null;
+    const stripped = base.replace(/\.(js|jsx|mjs)$/, "");
+    for (const candidate of [stripped, `${stripped}.ts`, `${stripped}.tsx`, path.join(stripped, "index.ts")]) {
+      if (existsSync(candidate) && statSync(candidate).isFile()) return candidate;
     }
+    return null;
   };
-  for (const dir of ["lib", "app", "cloudflare", "scripts"]) walk(path.join(root, dir));
+
+  const reachable = new Set<string>();
+  const queue = [liveProducer];
+  while (queue.length > 0) {
+    const file = queue.pop()!;
+    if (reachable.has(file)) continue;
+    reachable.add(file);
+    const source = readFileSync(file, "utf8");
+    for (const match of source.matchAll(
+      /(?:\bfrom\s*|\bimport\s*\(\s*|\brequire\s*\(\s*)["']([^"']+)["']/g
+    )) {
+      const resolved = resolveRepoSpecifier(match[1], file);
+      if (resolved !== null && !reachable.has(resolved)) queue.push(resolved);
+    }
+  }
+  const productionImporters = reachable.has(initiatorModule)
+    ? [path.relative(root, initiatorModule)]
+    : [];
 
   const entry = COVERAGE_BOUNDARY_ENTRIES.find(
     (candidate) => candidate.id === "script-to-request-causality"
@@ -416,6 +430,6 @@ test("the causality boundary states what the scanner actually records", () => {
     productionImporters.length === 0,
     productionImporters.length === 0
       ? "nothing wires the initiator index, so the boundary must say a live scan records no initiator"
-      : `${productionImporters.join(", ")} now wire the initiator index, so this boundary text must be rewritten to describe what a live scan records`
+      : `the live producer now reaches ${productionImporters.join(", ")}, so this boundary text must be rewritten to describe what a live scan records`
   );
 });

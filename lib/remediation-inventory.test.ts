@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { test } from "node:test";
 import {
+  inventoryStoredReport,
   inventoryV1Report,
   policyQuoteIdentifierCount,
   policyQuoteIdentifiersInR2Report,
@@ -12,7 +11,7 @@ import {
   makePublicSingleReportV2R2,
   makeShieldsInterventionReportV2R2
 } from "./scan-report-v2-r2-fixtures";
-import { makeScanReportV1 } from "./scan-report-v2-fixtures";
+import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import type { ScanReport, ScanResult } from "./types";
 
 function reportWithSensitiveArtifacts(): ScanReport {
@@ -230,17 +229,44 @@ test("an r2 comparison is swept on both arms, not just the one the reader sees",
   );
 });
 
-test("the inventory CLI actually runs the r2 sweep on its r2 branch", () => {
-  // The defect this closes was a call that was never made, not a function that
-  // was wrong, so the guard has to be about the call site. Reading the source
-  // is the only way to assert it without executing a CLI whose module body
-  // runs main() on import.
-  const source = readFileSync(path.join(process.cwd(), "lib", "remediation-inventory-cli.ts"), "utf8");
-  const r2Branch = source.slice(source.indexOf("read.stored.schemaVersion === 2"));
-  assert.ok(r2Branch.length > 0, "the CLI must still have a schema-2 branch");
-  assert.match(
-    r2Branch.slice(0, r2Branch.indexOf("inventoryV1Report")),
-    /policyQuoteIdentifiersInR2Report\(/,
-    "the schema-2 branch must sweep policy quotes before it returns, or r2 reports go uninspected again"
+test("routing a stored report to its inventory sweeps r2 quotes, v1 entries, and skips the rest", () => {
+  // The original defect was a schema that never reached its sweep. Asserting
+  // that from the CLI's source could not tell a call that runs from one
+  // stranded after the branch's `continue`, so the routing is a pure function
+  // and the test just asks it for the answer.
+  const r2Report = makePublicSingleReportV2R2();
+  r2Report.run.evidence.privacyPolicy = {
+    url: "https://example.com/privacy",
+    claims: [{ kind: "no-cookies", quote: "Questions? contact@example.com" }],
+    mentionedEntities: [],
+    unmentionedEntities: [],
+    policyTextLength: 40
+  };
+
+  const routedR2 = inventoryStoredReport("r2-row", {
+    schemaVersion: 2,
+    schemaRevision: 2,
+    report: r2Report
+  });
+  assert.equal(routedR2.schema, "r2");
+  assert.equal(
+    routedR2.schema === "r2" ? routedR2.policyQuoteIdentifiers : -1,
+    1,
+    "an r2 row must reach the quote sweep, which is the format the scanner writes today"
   );
+
+  const routedV1 = inventoryStoredReport("v1-row", {
+    schemaVersion: 1,
+    report: makeScanReportV1()
+  });
+  assert.equal(routedV1.schema, "v1");
+
+  // Revision 1 has no reviewed migration, so it is reported as unsupported
+  // rather than silently inventoried under the wrong assumptions.
+  const routedOld = inventoryStoredReport("r1-row", {
+    schemaVersion: 2,
+    schemaRevision: 1,
+    report: makePublicSingleReportV2()
+  });
+  assert.deepEqual(routedOld, { schema: "unsupported", schemaVersion: 2, schemaRevision: 1 });
 });

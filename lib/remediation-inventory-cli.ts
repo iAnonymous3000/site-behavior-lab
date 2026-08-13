@@ -2,8 +2,7 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { publicReportDigest } from "./canonical-json";
 import {
-  inventoryV1Report,
-  policyQuoteIdentifiersInR2Report,
+  inventoryStoredReport,
   summarizeInventories,
   type ReportRemediationInventory
 } from "./remediation-inventory";
@@ -53,31 +52,40 @@ async function main(): Promise<void> {
       skipped.push(`${file}: unreadable (${read.error})`);
       continue;
     }
-    if (read.stored.schemaVersion === 2) {
-      if (read.stored.schemaRevision !== 2) {
-        skipped.push(`${file}: schemaVersion 2 revision ${read.stored.schemaRevision} has no reviewed migration`);
-        continue;
-      }
-      r2.reports += 1;
-      // The v1 inventory below is unreachable for these rows, so the quote
-      // sweep has to run here too. This is the format currently produced, and
-      // a policy quote is the one public field that keeps page text verbatim.
-      r2.policyQuoteIdentifiers += policyQuoteIdentifiersInR2Report(read.stored.report);
-      try {
-        const version = r2ReportRedactionVersion(read.stored.report);
-        if (version === 3) r2.v3 += 1;
-        if (version === REDACTION_VERSION) r2.v4 += 1;
-        const redacted = redactPublicScanReportV2R2(read.stored.report);
-        if (publicReportDigest(redacted) !== publicReportDigest(read.stored.report)) r2.rewrites += 1;
-      } catch (error) {
-        r2.rejected += 1;
-        skipped.push(
-          `${file}: schema-r2 remediation rejected (${error instanceof R2RedactionRemediationError ? error.reason : "unknown error"})`
-        );
-      }
+    // Which inventory a schema gets is decided by inventoryStoredReport, not
+    // by the shape of this loop, so the routing can be tested directly instead
+    // of inferred from control flow.
+    const stored = read.stored;
+    const inventoried = inventoryStoredReport(REPORT_FILE_PATTERN.exec(file)![1], stored);
+    if (inventoried.schema === "unsupported") {
+      skipped.push(
+        `${file}: schemaVersion ${inventoried.schemaVersion} revision ${inventoried.schemaRevision} has no reviewed migration`
+      );
       continue;
     }
-    entries.push(inventoryV1Report(REPORT_FILE_PATTERN.exec(file)![1], read.stored.report));
+    if (inventoried.schema === "v1") {
+      entries.push(inventoried.entry);
+      continue;
+    }
+
+    r2.reports += 1;
+    r2.policyQuoteIdentifiers += inventoried.policyQuoteIdentifiers;
+    // Re-narrowed for the remediation probes below. inventoryStoredReport has
+    // already established this is schemaVersion 2 revision 2; this restates it
+    // for the type system rather than asserting.
+    if (stored.schemaVersion !== 2 || stored.schemaRevision !== 2) continue;
+    try {
+      const version = r2ReportRedactionVersion(stored.report);
+      if (version === 3) r2.v3 += 1;
+      if (version === REDACTION_VERSION) r2.v4 += 1;
+      const redacted = redactPublicScanReportV2R2(stored.report);
+      if (publicReportDigest(redacted) !== publicReportDigest(stored.report)) r2.rewrites += 1;
+    } catch (error) {
+      r2.rejected += 1;
+      skipped.push(
+        `${file}: schema-r2 remediation rejected (${error instanceof R2RedactionRemediationError ? error.reason : "unknown error"})`
+      );
+    }
   }
 
   const totals = summarizeInventories(entries);
