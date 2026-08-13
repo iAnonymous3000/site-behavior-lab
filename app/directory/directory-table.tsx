@@ -117,7 +117,10 @@ export function DirectoryTable({ rows }: { rows: DirectoryTableRow[] }) {
         </p>
       </div>
 
-      <div className={styles.siteTableWrap} role="region" aria-label="Scanned site profiles" tabIndex={0}>
+      {/* No role="region" or tabIndex: those exist to make a SCROLLPORT
+          keyboard-reachable, and this wrapper deliberately does not scroll
+          (see the CSS). The table names itself with its caption. */}
+      <div className={styles.siteTableWrap}>
         <table className={styles.siteTable}>
           <caption className="visually-hidden">
             One current profile per scanned site, sortable by request, tracking-service and cookie

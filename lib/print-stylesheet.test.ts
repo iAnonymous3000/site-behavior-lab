@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { chromium, type Browser } from "playwright";
@@ -40,7 +40,7 @@ const FIXTURE_BODY = `<body>
     <main>
       <div class="report-actions" id="reportactions"><button type="button">Download CSV</button></div>
       <div class="headline-actions" id="headlineactions"><button type="button">Share</button></div>
-      <div class="report-activation-actions" id="activationactions"><a href="#">Scan again</a></div>
+      <div class="report-identity-actions" id="activationactions"><a href="#">Scan again</a></div>
       <section class="report-evidence-loader" id="loader">
         <h2>Open the interactive evidence explorer</h2>
       </section>
@@ -324,4 +324,52 @@ function contrastOnWhite(hex: string): number {
   };
   const luminance = 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
   return 1.05 / (luminance + 0.05);
+}
+
+/**
+ * Every class the print block hides must still be rendered by something.
+ *
+ * This is the direction the fixture-coverage test above cannot see. It asks
+ * whether each hidden class appears in the FIXTURE, and the fixture is a
+ * hand-written copy of the markup, so renaming a class in a component and
+ * updating neither leaves the hide rule pointing at nothing while the test goes
+ * on passing. That shipped: `.report-activation-actions` was renamed to
+ * `.report-identity-actions` when the three report actions moved under the
+ * title, and a printed report started showing "View site history" and "Scan
+ * this exact route again" as though they were evidence.
+ */
+test("the print block hides classes something actually renders", () => {
+  const globalsCss = readFileSync(path.join(process.cwd(), "app", "globals.css"), "utf8");
+  const printBlockStart = globalsCss.indexOf("@media print {");
+  const hideGroup = globalsCss.slice(
+    printBlockStart,
+    globalsCss.indexOf("display: none !important", printBlockStart)
+  );
+  const hidden = [
+    ...hideGroup.replace(/\/\*(?:[^*]|\*(?!\/))*\*\//g, "").matchAll(/\.([a-z][a-z0-9-]*)/g)
+  ].map((match) => match[1]);
+  assert.ok(hidden.length > 5, "the hide group should have been parsed");
+
+  const rendered = componentSources().join("\n");
+  const orphaned = hidden.filter((className) => !rendered.includes(className));
+  assert.deepEqual(
+    orphaned,
+    [],
+    `the print block hides classes no component renders: ${orphaned.join(", ")}. ` +
+      "Either the class was renamed and the control is now printing, or the rule is dead."
+  );
+});
+
+/** Every .tsx under app/, so a rename anywhere is visible to the check above. */
+function componentSources(): string[] {
+  const sources: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith(".tsx")) sources.push(readFileSync(full, "utf8"));
+    }
+  };
+  walk(path.join(process.cwd(), "app"));
+  return sources;
 }

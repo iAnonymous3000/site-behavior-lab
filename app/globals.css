@@ -1744,16 +1744,6 @@ a {
   gap: 16px;
 }
 
-.report-summary-facts {
-  align-items: flex-end;
-  color: var(--text-muted);
-  display: flex;
-  flex-direction: column;
-  font-size: 12px;
-  gap: 5px;
-  text-align: right;
-}
-
 .report-evidence-loader {
   align-items: center;
   background: var(--surface);
@@ -1828,37 +1818,11 @@ a {
   max-width: 82ch;
 }
 
-.report-activation,
 .evidence-receipt {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-}
-
-.report-activation {
-  align-items: center;
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-  padding: 14px 18px;
-}
-
-.report-activation p:not(.eyebrow) {
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.45;
-  margin: 5px 0 0;
-  max-width: 72ch;
-}
-
-.report-activation-actions {
-  align-items: center;
-  display: flex;
-  flex: 0 0 auto;
-  flex-wrap: wrap;
-  gap: 9px;
-  justify-content: flex-end;
 }
 
 .evidence-receipt {
@@ -4702,11 +4666,6 @@ details[open] > summary .disclosure-chevron {
     justify-self: start;
   }
 
-  .report-summary-facts {
-    align-items: flex-start;
-    text-align: left;
-  }
-
   .site-profile-page {
     padding: 24px 14px 48px;
   }
@@ -4796,7 +4755,6 @@ details[open] > summary .disclosure-chevron {
     flex-direction: column;
   }
 
-  .report-activation,
   .evidence-receipt-heading {
     align-items: stretch;
     flex-direction: column;
@@ -4807,14 +4765,14 @@ details[open] > summary .disclosure-chevron {
     flex-direction: column;
   }
 
-  .report-activation-actions {
+  .report-identity-actions {
     align-items: stretch;
     flex-direction: column;
     justify-content: flex-start;
   }
 
-  .report-activation-actions .primary-button,
-  .report-activation-actions .secondary-button,
+  .report-identity-actions .primary-button,
+  .report-identity-actions .secondary-button,
   .evidence-receipt-links .secondary-button {
     justify-content: center;
     text-align: center;
@@ -5055,7 +5013,7 @@ details[open] > summary .disclosure-chevron {
   .app-footer-links,
   .report-actions,
   .headline-actions,
-  .report-activation-actions,
+  .report-identity-actions,
   .homepage-discovery-actions,
   .homepage-tools-disclosure,
   .scan-checks,
