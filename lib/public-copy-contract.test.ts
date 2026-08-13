@@ -17,6 +17,7 @@ test("public corpus copy describes current retention and correction-ledger pins"
     "README.md",
     "app/_components/report-page-context.tsx",
     "app/directory/directory-index.tsx",
+    "app/directory/directory-table.tsx",
     "app/categories/[category]/page.tsx",
     "app/privacy/page.tsx",
     "app/methodology/page.tsx"
@@ -56,7 +57,11 @@ test("catalog and project trust surfaces are linked from the site footer", () =>
 
 test("public metric copy keeps request rows and distinct service entities separate", () => {
   const home = source("app/site-behavior-app.tsx");
-  const directory = source("app/directory/directory-index.tsx");
+  // The directory's rows moved from a card grid in directory-index.tsx to the
+  // sortable table beside it. Both files are read as one surface so the
+  // vocabulary is pinned wherever the rows are rendered from.
+  const directory =
+    source("app/directory/directory-index.tsx") + source("app/directory/directory-table.tsx");
   const category = source("app/categories/[category]/page.tsx");
   const site = source("app/sites/[domain]/page.tsx");
   const siteFeed = source("app/sites/[domain]/feed.xml/route.ts");
@@ -77,7 +82,7 @@ test("public metric copy keeps request rows and distinct service entities separa
   assert.match(home, /item\.requestCapped \? "recording capped" : "request evidence incomplete"/);
   assert.match(source("app/page.tsx"), /requestEvidenceComplete: entry\.requestEvidenceComplete/);
   assert.match(directory, /third-party tracking-service requests/);
-  assert.match(directory, /!report\.requestEvidenceComplete && "at least "/);
+  assert.match(directory, /!row\.requestEvidenceComplete && <span className=\{styles\.bound\}>at least <\/span>/);
   assert.match(category, /Third-party tracking-service requests/);
   assert.match(category, /recorded host matched a reviewed service-catalog suffix/);
   assert.match(site, /Third-party tracking-service requests/);
@@ -100,7 +105,7 @@ test("public metric copy keeps request rows and distinct service entities separa
   assert.match(requestTable, /label: "Catalog matches"/);
   assert.match(requestTable, /recorded host matched a reviewed service-catalog suffix/);
   assert.match(requestTable, /Includes first-party and third-party matches/);
-  assert.match(phaseTable, /<th>Catalog-matched requests<\/th>/);
+  assert.match(phaseTable, /<th scope="col">Catalog-matched requests<\/th>/);
   assert.match(comparison, /Catalog-matched request and entity deltas/);
   assert.match(staticGallery, /Most retained third-party request rows/);
   assert.match(staticGallery, /Most retained catalog matches/);

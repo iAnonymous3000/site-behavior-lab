@@ -70,19 +70,22 @@ export function SiteChrome({
               <span className="brand-tagline">See what a site does, not just what it says.</span>
             </span>
           </a>
+          {/* A direct child of the header, not nested inside the actions: on a
+              narrow screen the bar becomes a two-row grid and the nav takes the
+              second row on its own, which it can only do as a grid item. */}
+          <nav className="topbar-nav" aria-label="Primary">
+            {SITE_PRIMARY_NAV.map((link) => (
+              <a
+                aria-current={link.href === activePath ? "page" : undefined}
+                className="topbar-link"
+                href={staticAssetPath(link.href)}
+                key={link.href}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
           <div className="topbar-actions">
-            <nav className="topbar-nav" aria-label="Primary">
-              {SITE_PRIMARY_NAV.map((link) => (
-                <a
-                  aria-current={link.href === activePath ? "page" : undefined}
-                  className="topbar-link"
-                  href={staticAssetPath(link.href)}
-                  key={link.href}
-                >
-                  {link.label}
-                </a>
-              ))}
-            </nav>
             {actions}
             <ThemeToggle />
           </div>

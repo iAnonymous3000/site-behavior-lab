@@ -73,6 +73,10 @@
      measure and a vertical rhythm. */
   --gutter: 24px;
   --pill: 999px;
+  /* The sticky top bar's height. The evidence explorer's section nav sticks
+     directly beneath it and anchor targets clear both, so all three read this
+     rather than restating a number that only one of them updates. */
+  --topbar-h: 60px;
 }
 
 /* ---- Tokens: dark ---- */
@@ -310,7 +314,7 @@ a {
   justify-content: space-between;
   margin-inline: auto;
   max-width: var(--maxw);
-  min-height: 60px;
+  min-height: var(--topbar-h);
   padding-block: 10px;
 }
 
@@ -352,6 +356,9 @@ a {
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-tagline {
@@ -386,6 +393,8 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 /* Padded to a real target rather than a 19px line of text. The former rule set
@@ -3558,7 +3567,7 @@ a {
   margin: 0 calc(var(--gutter) * -1) 16px;
   padding: 0 var(--gutter);
   position: sticky;
-  top: 60px;
+  top: var(--topbar-h);
   z-index: 20;
 }
 
@@ -3607,7 +3616,7 @@ a {
    heading behind them. Applied at the shell so in-page links on every route
    land the same way, not just inside the explorer grid. */
 .app-shell [id] {
-  scroll-margin-top: 112px;
+  scroll-margin-top: calc(var(--topbar-h) + 52px);
 }
 
 
@@ -4630,17 +4639,59 @@ details[open] > summary .disclosure-chevron {
      .arm-option (search: "Touch-target floor"); this block keeps only the
      narrow-LAYOUT changes a wide touchscreen must not inherit. */
 
+  /* Two rows, not a column. Stacked, the brand, a wrapping five-item nav and
+     the theme toggle made this STICKY bar 490px tall on an 844px phone: 58% of
+     the viewport, permanently. Brand and controls share row one; the nav gets
+     row two as a single scrolling strip that never wraps. */
   .topbar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
+    align-items: center;
+    display: grid;
+    gap: 4px 12px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-block: 8px;
   }
 
-  /* Stacked under the brand the actions are full width, so trailing alignment
-     strands the theme button alone on a second row. */
   .topbar-actions {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
+
+  .topbar-nav {
+    flex-wrap: nowrap;
+    grid-column: 1 / -1;
+    grid-row: 2;
     justify-content: flex-start;
-    width: 100%;
+    margin-inline: -4px;
+    margin-left: -4px;
+    overflow-x: auto;
+    padding-inline: 4px;
+    scrollbar-width: none;
+  }
+
+  .topbar-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Two rows: the value the sticky section nav and every anchor target below
+     read to stay clear of it. */
+  :root {
+    --topbar-h: 96px;
+  }
+
+  /* The tagline is the page heading's job on the home route and dead weight
+     everywhere else once the bar has to fit a phone. */
+  .brand-tagline {
+    display: none;
+  }
+
+  /* One column: the two-column grid stranded the timestamp alone against the
+     right edge under a heading that had already wrapped. */
+  .report-identity {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-identity-when {
+    text-align: left;
   }
 
   .report-evidence-loader {

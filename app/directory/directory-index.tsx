@@ -4,15 +4,14 @@ import { loadCorpusOverview } from "@/lib/corpus-overview";
 import {
   buildCategoryEvidencePages,
   buildDirectorySites,
-  DIRECTORY_PAGE_SIZE,
   directoryPageCount,
-  directoryPageSlice,
   type DirectorySite
 } from "@/lib/directory-view";
 import { reportPagePath } from "@/lib/report-locator";
 import { sitePagesBasePath } from "@/lib/site-url";
 import { reportKindLabel } from "@/lib/text-format";
 import { DirectoryControls } from "./directory-controls";
+import { DirectoryTable, type DirectoryTableRow } from "./directory-table";
 import styles from "./directory.module.css";
 import { SiteChrome } from "../_components/site-chrome";
 
@@ -20,11 +19,13 @@ export async function DirectoryIndex({ page }: { page: number }) {
   const { entries } = await loadCorpusOverview();
   const sites = buildDirectorySites(entries);
   const categoryPages = buildCategoryEvidencePages(entries);
+  // The paginated routes still resolve, so nothing already linked or indexed
+  // 404s, but every one of them now renders the same complete, sortable table
+  // and canonicalises to /directory/. A page slice cannot answer "which sites
+  // loaded the most tracking-service requests" -- a sort over twenty-four rows
+  // says "most" and means "most of these twenty-four".
   const pageCount = directoryPageCount(sites.length);
   if (!Number.isInteger(page) || page < 1 || page > pageCount) notFound();
-  const visibleSites = directoryPageSlice(sites, page);
-  const firstSiteNumber = sites.length === 0 ? 0 : (page - 1) * DIRECTORY_PAGE_SIZE + 1;
-  const lastSiteNumber = sites.length === 0 ? 0 : (page - 1) * DIRECTORY_PAGE_SIZE + visibleSites.length;
 
   const categoryPathById = new Map(categoryPages.map((category) => [category.id, category.path]));
   const pagesBasePath = sitePagesBasePath();
@@ -102,17 +103,12 @@ export async function DirectoryIndex({ page }: { page: number }) {
           <div>
             <p className="eyebrow">Site profiles</p>
             <h2 id="sites-title">
-              {sites.length === 0 ? "No published sites" : `Sites ${firstSiteNumber} to ${lastSiteNumber} of ${sites.length}`}
+              {sites.length === 0 ? "No published sites" : `All ${sites.length} scanned sites`}
             </h2>
           </div>
-          {pageCount > 1 && <p>Page {page} of {pageCount}</p>}
+          <p>Sort any column, or filter by domain or category.</p>
         </div>
-        {visibleSites.length > 0 && (
-          <ul className={styles.siteList}>
-            {visibleSites.map((site) => <DirectorySiteCard basePath={pagesBasePath} key={site.domain} site={site} />)}
-          </ul>
-        )}
-        <DirectoryPagination page={page} pageCount={pageCount} />
+        {sites.length > 0 && <DirectoryTable rows={sites.map((site) => tableRow(pagesBasePath, site))} />}
       </section>
 
       <aside className={styles.caveat}>
@@ -126,61 +122,35 @@ export async function DirectoryIndex({ page }: { page: number }) {
   );
 }
 
-function DirectorySiteCard({ basePath, site }: { basePath: string; site: DirectorySite }) {
+/**
+ * One table row per site.
+ *
+ * Every href is prefixed explicitly rather than routed through next/link: the
+ * table is a client component that renders raw anchors, so nothing prefixes the
+ * Pages base path for it, and an unprefixed "/sites/x/" 404s on a base-path
+ * deployment in a way that only reproduces in CI.
+ */
+function tableRow(basePath: string, site: DirectorySite): DirectoryTableRow {
   const report = site.latest;
-  const profileHref = `${basePath}${site.profilePath}/`;
-  return (
-    <li className={`${styles.siteCard} tone-${report.tone}`}>
-      <a className={styles.profileLink} href={profileHref}>
-        <span className={styles.siteTop}>
-          <strong>{site.domain}</strong>
-          <small>{site.reportCount} {site.reportCount === 1 ? "report" : "reports"}</small>
-        </span>
-        <span className={styles.headline}>{report.headline}</span>
-        <span className={styles.metrics}>
-          <span>
-            {!report.requestEvidenceComplete && "at least "}
-            <b>{report.thirdPartyRequests.toLocaleString()}</b> third-party requests
-          </span>
-          <span>
-            {!report.requestEvidenceComplete && "at least "}
-            <b>{report.trackerRequests.toLocaleString()}</b> third-party tracking-service requests
-          </span>
-          <span>
-            <b>{report.cookieEvidenceComplete ? report.thirdPartyCookies.toLocaleString() : "Not measured"}</b>{" "}
-            third-party cookies
-          </span>
-        </span>
-        <span className={styles.reportMeta}>
-          Latest: {formatDate(report.scannedAt)} · {reportKindLabel(report)} · {report.device}
-          {!report.requestEvidenceComplete && ` · ${report.capped ? "recording capped" : "request evidence incomplete"}`}
-        </span>
-      </a>
-      <div className={styles.cardActions}>
-        <a href={profileHref}>View profile and history</a>
-        <Link href={`${reportPagePath(report.id)}/`}>Open latest evidence</Link>
-      </div>
-    </li>
-  );
-}
-
-function DirectoryPagination({ page, pageCount }: { page: number; pageCount: number }) {
-  if (pageCount <= 1) return null;
-  return (
-    <nav className={styles.pagination} aria-label="Directory pages">
-      {page > 1 && <Link href={directoryPath(page - 1)} rel="prev">&larr; Previous</Link>}
-      <span className={styles.pageLinks}>
-        {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) =>
-          number === page ? (
-            <span aria-current="page" className={styles.currentPage} key={number}>{number}</span>
-          ) : (
-            <Link href={directoryPath(number)} key={number}>{number}</Link>
-          )
-        )}
-      </span>
-      {page < pageCount && <Link href={directoryPath(page + 1)} rel="next">Next &rarr;</Link>}
-    </nav>
-  );
+  return {
+    domain: site.domain,
+    profileHref: `${basePath}${site.profilePath}/`,
+    reportHref: `${basePath}${reportPagePath(report.id)}/`,
+    headline: report.headline,
+    tone: report.tone,
+    categoryLabel: report.categoryLabel,
+    reportCount: site.reportCount,
+    scannedAt: report.scannedAt,
+    scannedLabel: formatDate(report.scannedAt),
+    device: report.device,
+    kindLabel: reportKindLabel(report),
+    thirdPartyRequests: report.thirdPartyRequests,
+    trackerRequests: report.trackerRequests,
+    thirdPartyCookies: report.thirdPartyCookies,
+    requestEvidenceComplete: report.requestEvidenceComplete,
+    cookieEvidenceComplete: report.cookieEvidenceComplete,
+    capped: report.capped
+  };
 }
 
 export function directoryPath(page: number): string {

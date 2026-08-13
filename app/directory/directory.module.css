@@ -29,8 +29,7 @@
 
 .exportLine a,
 .backLink,
-.cardActions a,
-.pagination a {
+.siteMeta a {
   color: var(--accent);
   font-weight: 650;
   text-decoration: none;
@@ -47,8 +46,7 @@
 }
 
 .backLink:hover,
-.cardActions a:hover,
-.pagination a:hover {
+.siteMeta a:hover {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -240,142 +238,296 @@
   justify-content: space-between;
 }
 
-.siteList {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* The site table. The card grid this replaced spent about 200px per site on
+   five facts and a headline sentence that is near-identical across the corpus,
+   so a hundred sites could not be compared at a glance or sorted at all. */
+.tableSection {
+  margin-top: 4px;
 }
 
-.siteCard {
-  --card-tone: var(--sig-quiet);
+.tableTools {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tableFilter input {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  min-height: 40px;
+  min-width: 260px;
+  padding: 0 12px;
+}
+
+.tableFilter input:focus-visible {
+  border-color: var(--accent);
+}
+
+.tableCount {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.siteTableWrap {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--card-tone);
-  border-radius: var(--radius-sm);
-  min-width: 0;
+  border-radius: var(--radius);
+  overflow-x: auto;
 }
 
-.siteCard:global(.tone-alarm) { --card-tone: var(--sig-loud); }
-.siteCard:global(.tone-warn) { --card-tone: var(--sig-warn); }
-.siteCard:global(.tone-info) { --card-tone: var(--sig-info); }
-.siteCard:global(.tone-calm) { --card-tone: var(--sig-ok); }
-
-.profileLink {
-  color: inherit;
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-  padding: 15px 16px;
-  text-decoration: none;
+.siteTable {
+  border-collapse: collapse;
+  width: 100%;
 }
 
-.profileLink:hover .siteTop strong {
+.siteTable thead th {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+  position: sticky;
+  text-align: left;
+  top: 0;
+  z-index: 1;
+}
+
+/* The whole header cell is the control, so the target is the cell rather than
+   a word inside it. */
+.siteTable thead th button {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--text-muted);
+  display: flex;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 6px;
+  letter-spacing: 0.06em;
+  min-height: 44px;
+  padding: 8px 14px;
+  text-align: left;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.siteTable thead th button:hover {
+  color: var(--text);
+}
+
+.siteTable th[aria-sort]:not([aria-sort="none"]) button {
   color: var(--accent-strong);
 }
 
-.siteTop {
-  align-items: baseline;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-}
-
-.siteTop strong {
-  font-size: 16px;
-  overflow-wrap: anywhere;
-}
-
-.siteTop small {
-  color: var(--text-subtle);
+.numericColumn {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
   white-space: nowrap;
 }
 
-.headline {
-  color: var(--text-muted);
-  font-size: 13.5px;
-  line-height: 1.42;
-  overflow-wrap: anywhere;
+.siteTable thead th.numericColumn button {
+  justify-content: flex-end;
+  text-align: right;
 }
 
-.metrics {
-  color: var(--text-subtle);
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 12px;
-  gap: 6px 13px;
+.siteTable tbody tr {
+  border-top: 1px solid var(--border);
 }
 
-.metrics b {
+.siteTable tbody tr:hover {
+  background: var(--surface-2);
+}
+
+/* The tone stays a hairline on the row's leading edge: the headline sentence
+   beside it carries the finding in words, so this is emphasis, not the only
+   channel. */
+.siteTable tbody tr:global(.tone-alarm) { box-shadow: inset 3px 0 0 var(--sig-loud); }
+.siteTable tbody tr:global(.tone-warn) { box-shadow: inset 3px 0 0 var(--sig-warn); }
+.siteTable tbody tr:global(.tone-info) { box-shadow: inset 3px 0 0 var(--sig-info); }
+.siteTable tbody tr:global(.tone-calm) { box-shadow: inset 3px 0 0 var(--sig-ok); }
+
+/* globals.css styles bare `th` as a column header: uppercase, 11px, tracked
+   out, muted. That is right for a header row and wrong for a row header, and it
+   leaked in here because the selector is unqualified. Reset explicitly rather
+   than avoiding <th scope="row">, which is what makes each row announce itself
+   by site name. */
+.siteTable th[scope="row"] {
+  color: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  width: 44%;
+}
+
+/* Fixed shares for the counts so the numbers line up in a column a reader can
+   compare down, instead of each cell sizing to its own content. */
+.siteTable td.numericColumn {
+  width: 12%;
+}
+
+.siteTable td:last-child {
+  width: 20%;
+}
+
+.siteTable td,
+.siteTable th[scope="row"] {
+  padding: 12px 14px;
+  vertical-align: top;
+}
+
+.siteLink {
   color: var(--text);
-  font-variant-numeric: tabular-nums;
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+  text-decoration: none;
 }
 
-.reportMeta {
+.siteLink:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
+}
+
+/* Clamped to two lines. The sentence is the row's useful context, but at a
+   hundred rows an unclamped third line is a thousand pixels of table for text
+   the site's own profile carries in full. */
+.siteHeadline {
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin-top: 3px;
+  overflow: hidden;
+}
+
+.siteMeta {
+  color: var(--text-subtle);
+  display: block;
+  font-size: 11.5px;
+  margin-top: 4px;
+}
+
+.siteMeta a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.siteMeta a:hover {
+  text-decoration: underline;
+}
+
+.bound,
+.notMeasured {
+  color: var(--text-subtle);
+  font-size: 12px;
+}
+
+.tableEmpty {
+  color: var(--text-muted);
+  margin: 0;
+  padding: 24px 14px;
+}
+
+@media (max-width: 720px), (any-pointer: coarse) {
+  .searchMatches li {
+    min-height: 44px;
+  }
+}
+
+.searchMatches li:last-child {
+  border-bottom: 0;
+}
+
+.searchMatches a {
+  color: var(--accent);
+  font-weight: 650;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.searchMatches span {
   color: var(--text-subtle);
   font-size: 11px;
-  line-height: 1.4;
+  text-align: right;
 }
 
-.cardActions {
-  border-top: 1px solid var(--border);
+.categories,
+.sites {
+  margin: 0 0 34px;
+}
+
+.sectionHeading {
+  align-items: flex-end;
   display: flex;
-  flex-wrap: wrap;
-  font-size: 12px;
-  gap: 8px 16px;
+  gap: 20px;
   justify-content: space-between;
-  padding: 9px 16px 10px;
+  margin-bottom: 14px;
 }
 
-.pagination {
-  align-items: center;
+.sectionHeading h2 {
+  font-size: clamp(22px, 3vw, 29px);
+  letter-spacing: -0.02em;
+  margin: 3px 0 0;
+}
+
+.sectionHeading > p {
+  color: var(--text-subtle);
+  font-size: 12px;
+  margin: 0;
+  max-width: 43ch;
+  text-align: right;
+}
+
+.categoryGrid {
   display: grid;
-  gap: 14px;
-  grid-template-columns: minmax(90px, 1fr) auto minmax(90px, 1fr);
-  margin-top: 22px;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
-.pagination > a:last-child {
-  justify-self: end;
-}
-
-.pageLinks {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-/* 44px square minimum: these are the only way to page through the profile list, and a
-   mistap costs a full navigation plus the reader's scroll position. */
-.pageLinks a,
-.currentPage {
-  align-items: center;
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
-  display: inline-flex;
-  justify-content: center;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0 8px;
-}
-
-.currentPage {
-  background: var(--surface-2);
-  border-color: var(--border-strong);
-  font-weight: 750;
-}
-
-.caveat {
-  background: var(--surface-2);
+.categoryCard {
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
-  font-size: 12.5px;
-  line-height: 1.55;
-  padding: 14px 16px;
+  display: grid;
+  font-size: 13px;
+  gap: 9px;
+  line-height: 1.45;
+  padding: 14px 15px;
+  text-decoration: none;
+}
+
+.categoryCard:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.categoryCard b,
+.categoryTop strong {
+  color: var(--text);
+}
+
+.categoryCard > small,
+.categoryTop small {
+  color: var(--text-subtle);
+}
+
+.categoryTop {
+  align-items: baseline;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
 }
 
 @media (max-width: 720px) {
@@ -397,38 +549,25 @@
     text-align: left;
   }
 
-  .siteList {
-    grid-template-columns: minmax(0, 1fr);
+  /* The table's leading column is the widest thing on the page, so let it
+     wrap rather than forcing a horizontal scroll of the whole row. */
+  .siteTable th[scope="row"] {
+    max-width: 22ch;
   }
 
-  .pagination {
-    grid-template-columns: 1fr 1fr;
+  .tableFilter input {
+    min-width: 0;
+    width: 100%;
   }
 
-  .pageLinks {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    justify-content: center;
-  }
-
-  .pagination > a:last-child {
-    grid-column: 2;
+  .tableFilter {
+    flex: 1 1 100%;
   }
 }
 
 @media (max-width: 420px) {
-  .searchForm > div,
-  .siteTop,
-  .cardActions {
+  .searchForm > div {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .siteTop {
-    gap: 4px;
-  }
-
-  .siteTop small {
-    white-space: normal;
   }
 }
