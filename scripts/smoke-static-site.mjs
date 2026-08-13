@@ -757,14 +757,29 @@ async function main() {
     const storageCard = page.locator(".report-sidebar .side-card", {
       has: page.getByRole("heading", { name: "Storage", exact: true })
     });
+    // Both lists group by the field redaction LEAVES INTACT -- the setting
+    // domain, the storage area -- because the field they used to lead with is
+    // the one it blanks. A real report spent the whole rail on twelve rows of
+    // "Cookie N · name hidden for privacy" and then disclosed underneath that
+    // hundreds more records were not shown at all.
+    //
+    // What must not change is the redaction boundary, so that is what is
+    // asserted: reviewed names still published, withheld ones still counted and
+    // never invented, and the grouped facts a reader can act on.
     await expectText(cookieCard, "_octo");
-    await expectText(cookieCard, "Cookie 2 · name hidden for privacy");
-    await expectText(cookieCard, "Cookie 3 · name hidden for privacy");
+    await expectText(cookieCard, ".analytics.brave.test");
+    await expectText(cookieCard, "third-party · 1 persistent");
+    await expectText(cookieCard, "third-party · 1 session");
     await expectText(cookieCard, "2 cookie names hidden");
+    if ((await cookieCard.innerText()).includes("name hidden for privacy")) {
+      fail("the cookie rail still leads rows with the one field redaction blanks");
+    }
     await expectText(storageCard, "soft-nav:marker");
-    await expectText(storageCard, "Storage key 2 · name hidden for privacy");
-    await expectText(storageCard, "Storage key 3 · name hidden for privacy");
+    await expectText(storageCard, "localStorage");
     await expectText(storageCard, "2 storage keys hidden");
+    if ((await storageCard.innerText()).includes("name hidden for privacy")) {
+      fail("the storage rail still leads rows with the one field redaction blanks");
+    }
     const privacyCardsHtml = `${await cookieCard.innerHTML()}${await storageCard.innerHTML()}`;
     if (privacyCardsHtml.includes("[redacted")) fail("report cards expose raw redaction markers");
     pass("static report explains privacy-filtered cookie and storage names without changing reviewed names");
