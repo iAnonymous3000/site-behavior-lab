@@ -6,6 +6,7 @@ import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector
 import { reportActivation } from "@/lib/report-trust";
 import {
   degradedRunNotice,
+  displayRunView,
   runQualitySummary,
   schemaProvenanceLabel,
   type ReportView,
@@ -17,30 +18,39 @@ const SOURCE_REPOSITORY = "https://github.com/iAnonymous3000/site-behavior-lab";
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
 
 /**
- * Server-rendered activation and verification surface for a saved report.
- * Keeping these links outside the client report renderer makes history,
+ * Server-rendered identity, activation and verification surface for a saved
+ * report. Keeping these outside the client report renderer makes history,
  * rescanning, source provenance, JSON evidence, and corrections useful before
  * hydration and visible to non-JavaScript crawlers.
+ *
+ * Split from the receipt on purpose. A report page used to open with four
+ * consecutive blocks of machinery -- evidence quality, retention status, the
+ * integrity receipt, then the recorded-visit facts -- and only reached the
+ * plain-language finding fifth. A reader following a shared link wants the
+ * subject and the finding first and the provenance when they decide to check
+ * it, so `ReportEvidenceReceipt` renders after the evidence instead.
+ *
+ * The `<h1>` is the SITE, not the headline sentence. The headline is the lead
+ * finding and it already leads the banner below; making it the heading too
+ * printed the same sentence three times on one page. It also gives the report
+ * page the same subject-first heading as `/sites/<domain>/`.
  */
 export function ReportPageContext({
   corrections,
   id,
-  jsonHref,
   permanent,
-  provenanceHref,
   reportUrl,
   view
 }: {
   corrections: ReportCorrections;
   id: string;
-  jsonHref: string;
   permanent: boolean;
-  provenanceHref: string | null;
   reportUrl: string;
   view: ReportView;
 }) {
   const activation = reportActivation({ id, reportUrl, siteHistoryAvailable: permanent, view });
   const degradedNotice = degradedRunNotice(view);
+  const run = displayRunView(view);
   const profileHref = activation.profilePath
     ? `${sitePagesBasePath()}${activation.profilePath}/`
     : null;
@@ -63,32 +73,21 @@ export function ReportPageContext({
         </ol>
       </nav>
 
-      {(corrections.currentSubjectEvent || corrections.replacementEvents.length > 0) && (
-        <ReportCorrectionNotice corrections={corrections} />
-      )}
-
-      {/* Above the fold and above the numbers it qualifies. The evidence
-          receipt already carries per-visit run quality, but it sits several
-          facts down inside a section a reader scrolling to the tables never
-          reads, and on paper the tables look complete for pages. */}
-      {degradedNotice && (
-        <section className="report-incomplete-notice" role="status" aria-labelledby="report-incomplete-title">
-          <p className="eyebrow">Evidence quality</p>
-          <h2 id="report-incomplete-title">This report is built on an incomplete visit</h2>
-          <p>{degradedNotice}</p>
-        </section>
-      )}
-
-      <div className="report-activation">
-        <div>
-          <p className="eyebrow">{permanent ? "Currently retained public corpus evidence" : "Saved share evidence"}</p>
-          <p>
-            {permanent
-              ? "This versioned report is currently retained in the public corpus. Follow the currently retained site history, repeat the same public route when it is available, or request a transparent evidence correction."
-              : "This saved report records one controlled visit. Repeat the same public route when it is available, or report an evidence problem before the share expires."}
+      <header className="report-identity">
+        <div className="report-identity-title">
+          <p className="eyebrow">
+            Recorded visit <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
           </p>
+          <h1>{run.domain}</h1>
+          <p className="report-url">{run.conditions.requestedUrl}</p>
         </div>
-        <div className="report-activation-actions">
+        <p className="report-identity-when">{formatTimestamp(run.startedAt ?? view.scannedAt)}</p>
+        <p className="report-identity-quality">{runQualitySummary(run)}</p>
+        {/* Actions, not prose. The retention sentence these used to sit beside
+            is a statement about provenance, so it moved down to the receipt and
+            left the three things a reader can DO with this report right under
+            its title. */}
+        <div className="report-identity-actions">
           {profileHref && (
             <a className="primary-button" href={profileHref}>
               View site history
@@ -110,9 +109,58 @@ export function ReportPageContext({
             <span className="visually-hidden"> (opens in a new tab)</span>
           </a>
         </div>
-      </div>
+      </header>
 
-      <section className="evidence-receipt" aria-labelledby="evidence-receipt-title">
+      {(corrections.currentSubjectEvent || corrections.replacementEvents.length > 0) && (
+        <ReportCorrectionNotice corrections={corrections} />
+      )}
+
+      {/* Above the fold and above the numbers it qualifies. The evidence
+          receipt already carries per-visit run quality, but it sits several
+          facts down inside a section a reader scrolling to the tables never
+          reads, and on paper the tables look complete for pages. */}
+      {degradedNotice && (
+        <section className="report-incomplete-notice" role="status" aria-labelledby="report-incomplete-title">
+          <p className="eyebrow">Evidence quality</p>
+          <h2 id="report-incomplete-title">This report is built on an incomplete visit</h2>
+          <p>{degradedNotice}</p>
+        </section>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Integrity and provenance for one report, rendered AFTER the evidence.
+ *
+ * Deliberately in this file rather than a new one: `lib/print-contract.test.ts`
+ * and `lib/print-route-contract.test.ts` read this module as the single home of
+ * the receipt's pinned copy ("Evidence receipt", "Printable version", "Open
+ * PDF"), and splitting it across two files is exactly the drift those tests
+ * exist to catch.
+ */
+export function ReportEvidenceReceipt({
+  id,
+  jsonHref,
+  permanent,
+  provenanceHref,
+  reportUrl,
+  view
+}: {
+  id: string;
+  jsonHref: string;
+  permanent: boolean;
+  provenanceHref: string | null;
+  reportUrl: string;
+  view: ReportView;
+}) {
+  return (
+    <section className="evidence-receipt" id="receipt" aria-labelledby="evidence-receipt-title">
+        <p className="evidence-receipt-retention">
+          {permanent
+            ? "This versioned report is currently retained in the public corpus. Follow the currently retained site history, repeat the same public route when it is available, or request a transparent evidence correction."
+            : "This saved report records one controlled visit. Repeat the same public route when it is available, or report an evidence problem before the share expires."}
+        </p>
         <div className="evidence-receipt-heading">
           <div>
             <p className="eyebrow">Integrity and provenance</p>
@@ -200,8 +248,7 @@ export function ReportPageContext({
             </p>
           )}
         </div>
-      </section>
-    </div>
+    </section>
   );
 }
 

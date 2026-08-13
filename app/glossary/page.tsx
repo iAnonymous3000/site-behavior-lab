@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { publicPageMetadata } from "@/lib/seo-metadata";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 
 export const dynamic = "force-static";
 
@@ -97,16 +96,14 @@ const ENTRIES: GlossaryEntry[] = [
 
 export default function GlossaryPage() {
   return (
-    <main className="legal-page">
+    <SiteChrome activePath="/glossary/">
+      <div className="legal-page">
       <header className="legal-header">
         <p className="eyebrow">Glossary</p>
         <h1>The terms reports use</h1>
         <p>
           Reports describe what one controlled visit observed, in the plainest language the evidence allows. These are
           the technical terms that still appear, each defined once here so every report can link to it.
-        </p>
-        <p className="legal-back">
-          <Link href="/">&larr; Back to Site Behavior Lab</Link>
         </p>
       </header>
 
@@ -116,7 +113,7 @@ export default function GlossaryPage() {
           <p>{entry.definition}</p>
         </section>
       ))}
-      <TrustLinks />
-    </main>
+    </div>
+    </SiteChrome>
   );
 }

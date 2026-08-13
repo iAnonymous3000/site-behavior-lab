@@ -6,24 +6,23 @@ import {
   Eye,
   FileJson,
   Fingerprint,
-  FlaskConical,
   Keyboard,
   Loader2,
   Network,
   Radar,
   Shield
 } from "lucide-react";
-import { Fragment, lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   PageGraphR2UploadButton,
   ReportUploadButton,
   type PageGraphUploadSelection
 } from "./_components/file-upload-button";
 import { ScanControls } from "./_components/scan-controls";
+import { SiteChrome } from "./_components/site-chrome";
 import { ScanRecoveryBanner } from "./_components/scan-recovery-banner";
 import { ScheduledRescans } from "./_components/scheduled-rescans";
 import { useScanRuntime } from "./_hooks/use-scan-runtime";
-import { ThemeToggle } from "./_components/theme-toggle";
 import {
   LIVE_SCAN_ENABLED,
   SCAN_WORKFLOW_URL,
@@ -39,7 +38,6 @@ import { committedReportLocation } from "@/lib/report-locator";
 import { HEADLINE_PLATFORMS } from "@/lib/headline-platforms";
 import { humanList } from "@/lib/text-format";
 import { scanJobProgressCopy } from "@/lib/scan-job-progress";
-import { SITE_TRUST_LINKS } from "@/lib/site-navigation";
 import {
   LatestClientOperation,
   MAX_DIRECTORY_JSON_BYTES,
@@ -343,46 +341,28 @@ export function SiteBehaviorApp({
   );
 
   return (
-    <>
-      <a className="skip-link" href="#report">
-        Skip to results
-      </a>
-      <div className="app-shell">
-        <header className="topbar">
-          <a className="brand" href={staticAssetPath("/")} aria-label="Site Behavior Lab home">
-            <span className="brand-mark">
-              <FlaskConical size={22} aria-hidden="true" />
-            </span>
-            <div>
-              <p className="eyebrow">Site Behavior Lab</p>
-              <h1>See what a site does, not just what it says.</h1>
-            </div>
-          </a>
-          <div className="topbar-actions">
-            {/* The library is the larger half of the product. Without this the only
-                route to it is the footer, and Directory disappears entirely once a
-                report loads. */}
-            <nav className="topbar-nav" aria-label="Site">
-              <a className="topbar-link" href={staticAssetPath("/directory/")}>
-                Directory
-              </a>
-              <a className="topbar-link" href={staticAssetPath("/methodology/")}>
-                Methodology
-              </a>
-              <a className="topbar-link" href={staticAssetPath("/glossary/")}>
-                Glossary
-              </a>
-            </nav>
-            <span className={statusClassName}>
-              <span className="status-dot" />
-              {statusLabel}
-            </span>
-            <ThemeToggle />
-          </div>
-        </header>
-
-        <main>
+    <SiteChrome
+      activePath="/"
+      actions={
+        <span className={statusClassName}>
+          <span className="status-dot" />
+          {statusLabel}
+        </span>
+      }
+      skipToId="report"
+    >
           <section className="scan-workbench" id="scan">
+            <div className="workbench-lede">
+              {/* The product's one-line thesis is a page heading now, not a
+                  wordmark subtitle inside the brand link. The brand anchor used
+                  to wrap this <h1> and override it with its own aria-label,
+                  which left every other route free to own a second <h1>. */}
+              <h1>See what a site does, not just what it says.</h1>
+              <p>
+                Run a controlled Chromium visit and read what the page actually loaded: request rows, cookie records,
+                service-catalog matches and browser signals from that one visit.
+              </p>
+            </div>
             {LIVE_SCAN_ENABLED ? (
               scanForm
             ) : (
@@ -474,31 +454,7 @@ export function SiteBehaviorApp({
             </Suspense>
           )}
           </section>
-        </main>
-
-        <footer className="app-footer">
-          {/* Rendered from the shared list, not a second hand-written copy.
-              The copy this replaced had drifted: it omitted /about/, so the
-              page explaining what this project is was reachable from every
-              other page and not from the front door. */}
-          <span>
-            Site Behavior Lab: open-source web transparency tooling.{" "}
-            {SITE_TRUST_LINKS.map((link, index) => (
-              <Fragment key={link.href}>
-                {index > 0 ? " · " : null}
-                <a className="footer-link" href={staticAssetPath(link.href)}>
-                  {link.label}
-                </a>
-              </Fragment>
-            ))}
-          </span>
-          <span>
-            Reports use one completed automated visit per condition. On restart-safe deployments, an interrupted visit
-            may be retried; attempts are never merged. Reproducible for this configuration, not a universal claim.
-          </span>
-        </footer>
-      </div>
-    </>
+    </SiteChrome>
   );
 }
 

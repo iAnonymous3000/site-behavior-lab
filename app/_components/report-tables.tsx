@@ -11,6 +11,11 @@ import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
 import { usePrintComplete } from "./print-mode";
 import { listOverflowCopy } from "@/lib/report-table-copy";
 import {
+  groupReportWarnings,
+  reportWarningCount,
+  type ComparisonRunLabels
+} from "@/lib/report-warnings";
+import {
   identifiedHostCatalogMatchLabel,
   type IdentifiedHostFact,
   type RunFacts
@@ -32,17 +37,48 @@ import type {
 } from "@/lib/types";
 import type { PhaseSpan } from "@/lib/scan-report-v2";
 
-function Warnings({ warnings }: { warnings: string[] }) {
-  // Reports saved before the collector deduped can carry exact-duplicate
-  // warnings; a repeat adds nothing and would break the message-text keys.
-  const unique = Array.from(new Set(warnings));
-  if (unique.length === 0) return null;
+/**
+ * The report's measurement caveats, as one structured block.
+ *
+ * This was a flat list of full-width caution banners. On a comparison that is
+ * around sixteen of them in a row, and most are the same sentence twice, once
+ * per visit, because the report-level list prefixes each entry with the visit
+ * that recorded it. Sixteen identical-looking alarms is a wall a reader skips,
+ * which is the exact opposite of what a caveat is for.
+ *
+ * Grouped, nothing is hidden: every distinct sentence still renders, unclicked,
+ * on screen and on paper. Only the attribution moved, from a prefix repeated on
+ * every line to a heading over the lines it covers. `groupReportWarnings` falls
+ * back to the flat list whenever the attribution is not certain.
+ */
+function Warnings({
+  warnings,
+  runLabels
+}: {
+  warnings: string[];
+  runLabels: ComparisonRunLabels | null;
+}) {
+  const groups = groupReportWarnings(warnings, runLabels);
+  if (groups.length === 0) return null;
+  const total = reportWarningCount(groups);
+
   return (
-    <section className="warnings">
-      {unique.map((warning) => (
-        <div key={warning}>
-          <AlertTriangle size={16} aria-hidden="true" />
-          <span>{warning}</span>
+    <section className="warnings" aria-labelledby="measurement-limits-title">
+      <div className="warnings-heading">
+        <AlertTriangle size={16} aria-hidden="true" />
+        <h2 id="measurement-limits-title">Measurement limits</h2>
+        <span className="warnings-count">
+          {plural(total, "condition")} {total === 1 ? "affects" : "affect"} how this evidence reads
+        </span>
+      </div>
+      {groups.map((group) => (
+        <div className="warnings-group" key={group.scope}>
+          {group.label && <p className="warnings-group-label">{group.label}</p>}
+          <ul>
+            {group.warnings.map((warning) => (
+              <li key={warning}>{warning}</li>
+            ))}
+          </ul>
         </div>
       ))}
     </section>

@@ -36,24 +36,22 @@ test("catalog copy scopes official references to entity identity, not suffixes o
   assert.match(provenance, /may not list this suffix, prove the domain mapping, or support the functional category/);
 });
 
-test("catalog and project trust surfaces are linked from both primary footers", () => {
-  // Each surface renders the one shared list, so the routes are guaranteed by
+test("catalog and project trust surfaces are linked from the site footer", () => {
+  // The one shell renders the one shared list, so the routes are guaranteed by
   // membership rather than by three copies of the same grep. Those greps were
-  // why /about/ could ship absent from two of these three footers: each one
-  // only ever asserted the routes it already had.
+  // why /about/ could ship absent from two of the three former footers: each
+  // one only ever asserted the routes it already had.
   for (const route of ["/catalog/", "/status/", "/security/", "/corrections/"]) {
     assert.ok(
       SITE_TRUST_LINKS.some((link) => link.href === route),
       `${route} must stay in the shared trust-link set`
     );
   }
-  for (const surface of [
-    "app/_components/trust-links.tsx",
-    "app/site-behavior-app.tsx",
-    "app/reports/[id]/saved-report-client.tsx"
-  ]) {
-    assert.match(source(surface), /SITE_TRUST_LINKS/, `${surface} must render the shared set`);
-  }
+  assert.match(
+    source("app/_components/site-chrome.tsx"),
+    /SITE_TRUST_LINKS/,
+    "the site shell must render the shared set"
+  );
 });
 
 test("public metric copy keeps request rows and distinct service entities separate", () => {

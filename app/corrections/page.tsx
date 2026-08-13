@@ -3,7 +3,7 @@ import corrections from "@/public/corrections.json";
 import { parseCorrectionsLedger, type CorrectionsLedgerEvent } from "@/lib/corrections-ledger";
 import { publicPageMetadata } from "@/lib/seo-metadata";
 import { sitePagesBasePath } from "@/lib/site-url";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 
 export const dynamic = "force-static";
 
@@ -20,7 +20,8 @@ const ledger = parseCorrectionsLedger(corrections);
 
 export default function CorrectionsPage() {
   return (
-    <main className="legal-page">
+    <SiteChrome>
+      <div className="legal-page">
       <header className="legal-header">
         <p className="eyebrow">Corrections</p>
         <h1>Challenge the evidence, with a public record</h1>
@@ -33,7 +34,6 @@ export default function CorrectionsPage() {
           <a className="primary-button" href={EVIDENCE_ISSUE_URL}>Report an evidence problem</a>
           <a href={sitePagesBasePath() + "/corrections.json"}>Download the corrections ledger</a>
         </p>
-        <p className="legal-back"><Link href="/">&larr; Back to Site Behavior Lab</Link></p>
       </header>
 
       <section className="legal-section">
@@ -72,8 +72,8 @@ export default function CorrectionsPage() {
         </p>
       </section>
 
-      <TrustLinks />
-    </main>
+    </div>
+    </SiteChrome>
   );
 }
 

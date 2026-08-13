@@ -11,7 +11,7 @@ import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { sitePagesBasePath, siteUrl } from "@/lib/site-url";
 import { corpusCohortDifferences } from "@/lib/corpus-cohort";
 import { humanList, reportKindLabel } from "@/lib/text-format";
-import { TrustLinks } from "../../_components/trust-links";
+import { SiteChrome } from "../../_components/site-chrome";
 
 export const dynamic = "force-static";
 
@@ -92,7 +92,8 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
   ]);
 
   return (
-    <main className="site-profile-page">
+    <SiteChrome activePath="/directory/">
+      <div className="site-profile-page">
       <nav className="report-breadcrumbs" aria-label="Breadcrumb">
         <ol>
           <li><Link href="/">Home</Link></li>
@@ -114,7 +115,6 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
             Open latest evidence
           </Link>
           <a className="topbar-link" href="#history">Browse report history</a>
-          <Link className="topbar-link" href="/directory/">All scanned sites</Link>
           <a className="topbar-link" href={`${sitePagesBasePath()}${siteProfilePath(profile.domain)}/feed.xml`}>
             Atom feed
           </a>
@@ -214,8 +214,8 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           ))}
         </ol>
       </section>
-      <TrustLinks />
-    </main>
+      </div>
+    </SiteChrome>
   );
 }
 

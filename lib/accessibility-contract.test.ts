@@ -9,6 +9,31 @@ function source(file: string): string {
   return readFileSync(path.join(root, file), "utf8");
 }
 
+/**
+ * Every route component that renders the page shell itself, rather than being
+ * composed into one by a parent. `/directory/` and `/directory/page/[page]/`
+ * both delegate to `directory-index.tsx`, so that file stands for both.
+ *
+ * `app/reports/[id]/print/page.tsx` is deliberately absent: it is the
+ * container-only printable rendering, has no navigation by design, and
+ * `lib/print-route-contract.test.ts` owns its arrangement.
+ */
+const ROUTE_FILES_WITH_OWN_CHROME = [
+  "app/site-behavior-app.tsx",
+  "app/reports/[id]/saved-report-client.tsx",
+  "app/about/page.tsx",
+  "app/catalog/page.tsx",
+  "app/categories/[category]/page.tsx",
+  "app/corrections/page.tsx",
+  "app/directory/directory-index.tsx",
+  "app/glossary/page.tsx",
+  "app/methodology/page.tsx",
+  "app/privacy/page.tsx",
+  "app/security/page.tsx",
+  "app/sites/[domain]/page.tsx",
+  "app/status/page.tsx"
+];
+
 test("interactive report transitions move focus to the replacement result region", () => {
   const home = source("app/site-behavior-app.tsx");
   const permalink = source("app/reports/[id]/saved-report-client.tsx");
@@ -19,11 +44,27 @@ test("interactive report transitions move focus to the replacement result region
   assert.match(permalink, /aria-label="Interactive evidence explorer"[\s\S]*ref=\{evidenceExplorerRef\}[\s\S]*tabIndex=\{-1\}/);
 });
 
-test("primary shells expose banner, main, and contentinfo as sibling landmarks", () => {
-  for (const file of ["app/site-behavior-app.tsx", "app/reports/[id]/saved-report-client.tsx"]) {
+test("the one shell exposes banner, main, and contentinfo as sibling landmarks", () => {
+  // One file, because there is one shell. This assertion used to run over the
+  // homepage and the report permalink, which each hand-wrote this structure,
+  // while the other thirteen routes rendered a bare <main> with no banner, no
+  // contentinfo and no skip link at all -- a gap this shape of test could not
+  // see, because it only looked at the two files that already passed.
+  const chrome = source("app/_components/site-chrome.tsx");
+  assert.doesNotMatch(chrome, /<main className="app-shell/);
+  assert.match(
+    chrome,
+    /<div className=\{`app-shell[\s\S]*<header className="topbar">[\s\S]*<main[\s\S]*<footer className="app-footer">/
+  );
+  assert.match(chrome, /<a className="skip-link"/);
+  assert.match(chrome, /<nav className="topbar-nav" aria-label="Primary">/);
+
+  // And every route reaches it. A route that renders its own <main> is a route
+  // that has silently opted out of the header, the footer and the skip link.
+  for (const file of ROUTE_FILES_WITH_OWN_CHROME) {
     const contents = source(file);
-    assert.doesNotMatch(contents, /<main className="app-shell/);
-    assert.match(contents, /<div className="app-shell[^>]*">[\s\S]*<header className="topbar">[\s\S]*<main[\s\S]*<footer className="app-footer">/);
+    assert.match(contents, /<SiteChrome/, `${file} does not render the shared shell`);
+    assert.doesNotMatch(contents, /<main[ >]/, `${file} renders its own <main>, bypassing the shell`);
   }
 
   const home = source("app/site-behavior-app.tsx");
@@ -165,20 +206,24 @@ test("dynamic archive, watch, and gallery replacements relocate keyboard focus",
 test("theme controls track OS preference changes only before an explicit override", () => {
   const hook = source("app/_hooks/use-theme-preference.ts");
   const toggle = source("app/_components/theme-toggle.tsx");
-  const home = source("app/site-behavior-app.tsx");
-  const permalink = source("app/reports/[id]/saved-report-client.tsx");
+  const chrome = source("app/_components/site-chrome.tsx");
 
   assert.match(hook, /readExplicitTheme\(\)/);
   assert.match(hook, /media\.addEventListener\("change", syncSystemTheme\)/);
   assert.match(hook, /media\.removeEventListener\("change", syncSystemTheme\)/);
   assert.match(hook, /removeSystemListenerRef\.current\?\.\(\)/);
 
-  // One control, shared, so the two shells cannot drift apart.
+  // One control, in the one shell, so every route carries it. It used to live
+  // in the home and report shells plus a separate trust row on secondary pages,
+  // which is three places for one control.
   assert.match(toggle, /useThemePreference\(\)/);
-  assert.match(home, /<ThemeToggle \/>/);
-  assert.match(permalink, /<ThemeToggle \/>/);
-  for (const shell of [home, permalink]) {
-    assert.doesNotMatch(shell, /function ThemeToggle\(/, "the theme control was duplicated back into a shell");
+  assert.match(chrome, /<ThemeToggle \/>/);
+  for (const file of ROUTE_FILES_WITH_OWN_CHROME) {
+    assert.doesNotMatch(
+      source(file),
+      /function ThemeToggle\(/,
+      "the theme control was duplicated back into a route"
+    );
   }
 
   // Until the effect resolves the OS preference the button must not claim a direction.
@@ -516,29 +561,20 @@ test("scan failures and evidence-load failures relocate keyboard focus", () => {
   assert.match(permalink, /window\.requestAnimationFrame\(\(\) => evidenceLoaderRef\.current\?\.focus\(\)\)/);
 });
 
-test("every route reaches the trust surfaces and the theme control", () => {
-  const trust = source("app/_components/trust-links.tsx");
-  assert.match(trust, /<ThemeToggle \/>/);
-  // Renders the shared trust-link set rather than its own literal hrefs; the
-  // set's contents and every surface that must publish it are enforced in
+test("every route reaches the trust surfaces, the primary nav, and the theme control", () => {
+  const chrome = source("app/_components/site-chrome.tsx");
+  assert.match(chrome, /<ThemeToggle \/>/);
+  // Renders the shared sets rather than its own literal hrefs; their contents
+  // and the surface that must publish them are enforced in
   // site-navigation.test.ts.
-  assert.match(trust, /SITE_TRUST_LINKS/);
+  assert.match(chrome, /SITE_TRUST_LINKS/);
+  assert.match(chrome, /SITE_PRIMARY_NAV/);
 
-  // The toggle used to exist on the home and report shells only, so a reader arriving
-  // from search on any indexed library or policy page could not change theme.
-  for (const file of [
-    "app/catalog/page.tsx",
-    "app/glossary/page.tsx",
-    "app/methodology/page.tsx",
-    "app/directory/directory-index.tsx",
-    "app/categories/[category]/page.tsx",
-    "app/sites/[domain]/page.tsx",
-    "app/status/page.tsx",
-    "app/privacy/page.tsx",
-    "app/security/page.tsx",
-    "app/corrections/page.tsx"
-  ]) {
-    assert.match(source(file), /<TrustLinks \/>/, `${file} renders no trust surface`);
+  // Every route gets all three by rendering the shell. Before it existed, the
+  // theme toggle and the trust links reached secondary pages through a separate
+  // component and the primary nav reached them not at all.
+  for (const file of ROUTE_FILES_WITH_OWN_CHROME) {
+    assert.match(source(file), /<SiteChrome/, `${file} renders no trust surface`);
   }
 });
 

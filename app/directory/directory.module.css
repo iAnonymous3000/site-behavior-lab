@@ -1,8 +1,7 @@
 .page {
   margin: 0 auto;
-  max-width: 1040px;
-  min-height: 100vh;
-  padding: 44px 24px 80px;
+  max-width: var(--maxw-content);
+  padding: 8px 0 24px;
 }
 
 .header {

@@ -14,7 +14,7 @@ import { sitePagesBasePath } from "@/lib/site-url";
 import { reportKindLabel } from "@/lib/text-format";
 import { DirectoryControls } from "./directory-controls";
 import styles from "./directory.module.css";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 
 export async function DirectoryIndex({ page }: { page: number }) {
   const { entries } = await loadCorpusOverview();
@@ -36,7 +36,8 @@ export async function DirectoryIndex({ page }: { page: number }) {
   }));
 
   return (
-    <main className={styles.page}>
+    <SiteChrome activePath="/directory/">
+      <div className={styles.page}>
       <header className={styles.header}>
         <p className="eyebrow">Evidence directory</p>
         <h1>One current profile per scanned site</h1>
@@ -49,7 +50,6 @@ export async function DirectoryIndex({ page }: { page: number }) {
           <a href={`${sitePagesBasePath()}/corpus.csv`}>CSV</a>
           {" "}(curated measured corpus, not a random sample of the web)
         </p>
-        <Link className={styles.backLink} href="/">&larr; Scan a site</Link>
       </header>
 
       <DirectoryControls
@@ -121,8 +121,8 @@ export async function DirectoryIndex({ page }: { page: number }) {
         passive visit per canonical site. Consent-interaction arms are excluded. Visit results can vary because of ad
         rotation, experiments, caching, region and bot detection.
       </aside>
-      <TrustLinks />
-    </main>
+      </div>
+    </SiteChrome>
   );
 }
 

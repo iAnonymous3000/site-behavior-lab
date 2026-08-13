@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { publicPageMetadata } from "@/lib/seo-metadata";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 
 export const dynamic = "force-static";
 
@@ -17,7 +16,8 @@ const RETENTION_DAYS = 7;
 
 export default function PrivacyPage() {
   return (
-    <main className="legal-page">
+    <SiteChrome>
+      <div className="legal-page">
       <header className="legal-header">
         <p className="eyebrow">Privacy &amp; data handling</p>
         <h1>How your scans are handled</h1>
@@ -25,9 +25,6 @@ export default function PrivacyPage() {
           Site Behavior Lab inspects how a website behaves, so it would be a poor tool if it were careless with your
           own data. A URL can itself be sensitive (query strings often carry tracking ids, tokens, or email
           addresses), so here is exactly what happens to the address you type, in plain terms.
-        </p>
-        <p className="legal-back">
-          <Link href="/">&larr; Back to Site Behavior Lab</Link>
         </p>
       </header>
 
@@ -223,7 +220,7 @@ export default function PrivacyPage() {
         </p>
       </section>
 
-      <TrustLinks />
-    </main>
+    </div>
+    </SiteChrome>
   );
 }

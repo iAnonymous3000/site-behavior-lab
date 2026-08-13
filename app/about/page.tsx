@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
 import { publicPageMetadata } from "@/lib/seo-metadata";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 
 export const dynamic = "force-static";
 
@@ -30,7 +30,8 @@ const AUTHOR_URL = "https://github.com/iAnonymous3000";
  */
 export default function AboutPage() {
   return (
-    <main className="legal-page">
+    <SiteChrome>
+      <div className="legal-page">
       <header className="legal-header">
           <p className="eyebrow">About</p>
           <h1>See what a site does, not just what it says.</h1>
@@ -38,9 +39,6 @@ export default function AboutPage() {
           Site Behavior Lab uses a controlled browser to visit a public website, records bounded evidence from
           that visit, and publishes the record. Not a rating. Not a grade. The observations themselves, with
           enough detail that you can check them.
-          </p>
-          <p className="legal-back">
-          <Link href="/">&larr; Back to Site Behavior Lab</Link>
           </p>
       </header>
 
@@ -217,7 +215,7 @@ export default function AboutPage() {
         </section>
       )}
 
-      <TrustLinks />
-    </main>
+    </div>
+    </SiteChrome>
   );
 }

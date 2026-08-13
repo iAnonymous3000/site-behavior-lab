@@ -202,7 +202,10 @@ export function ReportRenderer({
           <MetricGrid facts={displayedFacts} />
           <TrafficViz facts={displayedFacts} />
           <VisitPhasesAndStateChanges run={displayedRun} />
-          <Warnings warnings={reportView.warnings} />
+          {/* The labels the report-level warning list was prefixed with, so the
+              caveats can be grouped by the visit that recorded them instead of
+              restating the prefix on every line. */}
+          <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />
         </div>
 
         <aside className="report-sidebar" aria-label="Supporting report evidence">

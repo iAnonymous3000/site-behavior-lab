@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { publicPageMetadata } from "@/lib/seo-metadata";
-import { TrustLinks } from "../_components/trust-links";
+import { SiteChrome } from "../_components/site-chrome";
 
 export const dynamic = "force-static";
 
@@ -15,7 +14,8 @@ const POLICY_URL = "https://github.com/iAnonymous3000/site-behavior-lab/security
 
 export default function SecurityPage() {
   return (
-    <main className="legal-page">
+    <SiteChrome>
+      <div className="legal-page">
       <header className="legal-header">
         <p className="eyebrow">Security</p>
         <h1>Report vulnerabilities privately</h1>
@@ -27,7 +27,6 @@ export default function SecurityPage() {
           <a className="primary-button" href={PRIVATE_REPORT_URL}>Open a private security report</a>
           <a href={POLICY_URL}>Read the full security policy</a>
         </p>
-        <p className="legal-back"><Link href="/">&larr; Back to Site Behavior Lab</Link></p>
       </header>
 
       <section className="legal-section">
@@ -49,7 +48,7 @@ export default function SecurityPage() {
         </p>
       </section>
 
-      <TrustLinks />
-    </main>
+    </div>
+    </SiteChrome>
   );
 }

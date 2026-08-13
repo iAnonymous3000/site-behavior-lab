@@ -1,7 +1,7 @@
 "use client";
 
-import { FlaskConical, Loader2 } from "lucide-react";
-import { Fragment, lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { Loader2 } from "lucide-react";
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { readLoadedReport } from "@/lib/client-report-reader";
 import {
   LatestClientOperation,
@@ -11,9 +11,7 @@ import { parseDigestBoundReportJson } from "@/lib/client-report-integrity";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
-import { ThemeToggle } from "@/app/_components/theme-toggle";
-import { staticAssetPath } from "../../client-runtime";
-import { SITE_TRUST_LINKS } from "@/lib/site-navigation";
+import { SiteChrome } from "@/app/_components/site-chrome";
 
 const LazyReportRenderer = lazy(() =>
   import("../../_components/report-renderer").then((module) => ({ default: module.ReportRenderer }))
@@ -31,6 +29,7 @@ export function SavedReportClient({
   expectedEvidenceSha256,
   title,
   context,
+  receipt,
   summary
 }: {
   id: string;
@@ -38,6 +37,8 @@ export function SavedReportClient({
   expectedEvidenceSha256: string;
   title: string;
   context: ReactNode;
+  /** Integrity and provenance, rendered after the evidence rather than before it. */
+  receipt: ReactNode;
   summary: ReactNode;
 }) {
   const [loaded, setLoaded] = useState<LoadedReport | null>(null);
@@ -137,25 +138,15 @@ export function SavedReportClient({
   }, [loaded]);
 
   return (
-    <>
-      <a className="skip-link" href="#report">Skip to results</a>
-      <div className="app-shell report-page-shell">
-        <header className="topbar">
-          <a className="brand" href={staticAssetPath("/")} aria-label="Site Behavior Lab home">
-            <span className="brand-mark"><FlaskConical size={22} aria-hidden="true" /></span>
-            <div>
-              <p className="eyebrow">Site Behavior Lab · Evidence</p>
-              <h1>{title}</h1>
-            </div>
-          </a>
-          <div className="topbar-actions">
-            <a className="topbar-link" href={staticAssetPath("/directory/")}>Directory</a>
-            <a className="secondary-button" href={staticAssetPath("/")}>Scan a site</a>
-            <ThemeToggle />
-          </div>
-        </header>
-
-        <main id="report" tabIndex={-1}>
+    <SiteChrome
+      /* The title names the main landmark rather than being painted a second
+         time. The former shell rendered it as an <h1> in the top bar while the
+         headline banner repeated the same sentence verbatim two blocks lower;
+         the visible heading is now the site, rendered once in the context. */
+      mainId="report"
+      mainProps={{ "aria-label": title, tabIndex: -1 }}
+      shellClassName="report-page-shell"
+    >
           {context}
           {!loaded && summary}
           {!loaded && (
@@ -199,30 +190,11 @@ export function SavedReportClient({
               </Suspense>
             </section>
           )}
-        </main>
-
-        <footer className="app-footer">
-          <span className="app-footer-links">
-            Site Behavior Lab: open-source web transparency tooling. {" "}
-            {/* The shared list, not a third hand-written copy. This footer had
-                the same seven routes as the home shell and the same omission of
-                /about/, on the surface readers forward most. */}
-            {SITE_TRUST_LINKS.map((link, index) => (
-              <Fragment key={link.href}>
-                {index > 0 ? " · " : null}
-                <a className="footer-link" href={staticAssetPath(link.href)}>
-                  {link.label}
-                </a>
-              </Fragment>
-            ))}
-          </span>
-          <span className="app-footer-caveat">
-            Reports use one completed automated visit per condition. Reproducible for this configuration, not a
-            universal claim.
-          </span>
-        </footer>
-      </div>
-    </>
+          {/* Provenance follows the evidence it certifies. It used to be the
+              third block on the page, ahead of the finding it is a receipt
+              for. */}
+          {receipt}
+    </SiteChrome>
   );
 }
 

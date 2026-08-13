@@ -63,6 +63,16 @@
     monospace;
 
   --maxw: 1320px;
+  /* Two content widths, not five. Every page-level container used to pick its
+     own (760 / 1040 / 1080 / 1180 / 1320px), so pages that look alike sat at
+     different measures. Data-dense pages share one; prose pages share the other,
+     capped near 70 characters where a line stays comfortable to read. */
+  --maxw-content: 1120px;
+  --maxw-prose: 768px;
+  /* The shell owns the horizontal gutter so page containers only choose a
+     measure and a vertical rhythm. */
+  --gutter: 24px;
+  --pill: 999px;
 }
 
 /* ---- Tokens: dark ---- */
@@ -255,7 +265,7 @@ a {
 /* ---- Shell ---- */
 .app-shell {
   min-height: 100vh;
-  padding: 24px 24px 64px;
+  padding: 0 var(--gutter) 64px;
 }
 
 .app-shell > * {
@@ -265,22 +275,51 @@ a {
 
 .app-shell > main {
   min-width: 0;
+  padding-top: 28px;
 }
 
 /* ---- Top bar ---- */
+/* Full-bleed and sticky: it cancels the shell's inline padding so its rule and
+   its backdrop reach the viewport edges, then re-centres its own contents. The
+   evidence explorer is a single six-thousand-pixel scroll, so navigation that
+   scrolls away is navigation a reader has to hunt for. */
+.app-shell > .topbar {
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--border);
+  margin-inline: calc(var(--gutter) * -1);
+  max-width: none;
+  padding-inline: var(--gutter);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+/* Browsers without backdrop-filter would show the page scrolling through an
+   88%-opaque bar, so they get an opaque one instead. */
+@supports not (backdrop-filter: blur(1px)) {
+  .app-shell > .topbar {
+    background: var(--bg);
+  }
+}
+
 .topbar {
   align-items: center;
   display: flex;
   gap: 16px;
   justify-content: space-between;
-  padding: 8px 0 22px;
+  margin-inline: auto;
+  max-width: var(--maxw);
+  min-height: 60px;
+  padding-block: 10px;
 }
 
 .brand {
   align-items: center;
   color: inherit;
   display: flex;
-  gap: 14px;
+  flex: 0 1 auto;
+  gap: 12px;
   min-width: 0;
   text-decoration: none;
 }
@@ -292,14 +331,36 @@ a {
 .brand-mark {
   align-items: center;
   background: linear-gradient(150deg, var(--accent), var(--accent-strong));
-  border-radius: 12px;
+  border-radius: 11px;
   box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   color: var(--accent-contrast);
   display: inline-flex;
   flex: 0 0 auto;
-  height: 44px;
+  height: 38px;
   justify-content: center;
-  width: 44px;
+  width: 38px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.brand-tagline {
+  color: var(--text-subtle);
+  font-size: 12px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .eyebrow {
@@ -309,15 +370,6 @@ a {
   letter-spacing: 0.16em;
   margin: 0;
   text-transform: uppercase;
-}
-
-.brand h1 {
-  font-size: clamp(19px, 2.4vw, 26px);
-  font-weight: 720;
-  letter-spacing: -0.015em;
-  line-height: 1.12;
-  margin: 3px 0 0;
-  max-width: 30ch;
 }
 
 .topbar-actions {
@@ -333,23 +385,35 @@ a {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 2px;
 }
 
+/* Padded to a real target rather than a 19px line of text. The former rule set
+   no padding at all, and the 44px floor below was scoped to `.topbar-nav
+   .topbar-link`, which four call sites outside the nav never matched. */
 .topbar-link {
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
+  display: inline-flex;
   font-size: 13px;
   font-weight: 650;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 10px;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .topbar-link:hover {
-  color: var(--accent-strong);
+  background: var(--surface-2);
+  color: var(--text);
 }
 
-.report-page-shell .topbar {
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 18px;
+/* The current route is named, not just tinted: `aria-current` carries it for
+   assistive technology and the underline carries it for everyone else. */
+.topbar-link[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 .status-pill {
@@ -435,6 +499,31 @@ a {
 }
 
 /* ---- Workbench ---- */
+/* The product's thesis and what a scan actually does, above the control that
+   does it. The thesis used to sit in the top bar as a wordmark subtitle, where
+   it had to compete with the navigation for the same line. */
+.workbench-lede {
+  grid-column: 1 / -1;
+  margin: 4px 0 4px;
+}
+
+.workbench-lede h1 {
+  font-size: clamp(28px, 4.6vw, 42px);
+  font-weight: 720;
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  margin: 0 0 10px;
+  max-width: 20ch;
+}
+
+.workbench-lede p {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 62ch;
+}
+
 .corpus-hero {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1676,6 +1765,61 @@ a {
   margin-bottom: 14px;
 }
 
+/* The report's one <h1> and the facts that identify the visit. This block used
+   to be a card in the summary slot, which the evidence explorer unmounted, so
+   the site being reported on disappeared the moment a reader opened the
+   evidence. It renders in both states now. */
+.report-identity {
+  align-items: end;
+  border-bottom: 1px solid var(--border);
+  column-gap: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 4px 0 18px;
+  row-gap: 10px;
+}
+
+.report-identity-title {
+  min-width: 0;
+}
+
+.report-identity h1 {
+  font-size: clamp(26px, 4.4vw, 40px);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 6px 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.report-identity-when {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Full-width and left-aligned: run quality is a sentence, not a stat. Ranged
+   right against the URL it wrapped into a ragged column that read as a second
+   heading. */
+.report-identity-quality {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  grid-column: 1 / -1;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 92ch;
+}
+
+.report-identity-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  grid-column: 1 / -1;
+  margin-top: 2px;
+}
+
 .report-page-summary {
   display: grid;
   gap: 16px;
@@ -1755,6 +1899,14 @@ a {
   color: var(--accent-strong);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.evidence-receipt-retention {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 16px;
+  max-width: 82ch;
 }
 
 .report-activation,
@@ -2768,10 +2920,12 @@ a {
 }
 
 /* ---- Legal / prose pages (privacy) ---- */
+/* The shell supplies the horizontal gutter now, so a page container chooses a
+   measure and a vertical rhythm and nothing else. */
 .legal-page {
   margin: 0 auto;
-  max-width: 760px;
-  padding: 48px 24px 80px;
+  max-width: var(--maxw-prose);
+  padding: 16px 0 24px;
 }
 
 .legal-header {
@@ -2911,7 +3065,7 @@ a {
 
 /* ---- Public status and trust surfaces ---- */
 .status-page {
-  max-width: 900px;
+  max-width: var(--maxw-content);
 }
 
 .status-live {
@@ -3100,9 +3254,8 @@ a {
 /* ---- Site history profiles ---- */
 .site-profile-page {
   margin: 0 auto;
-  max-width: var(--maxw);
-  min-height: 100vh;
-  padding: 40px 24px 72px;
+  max-width: var(--maxw-content);
+  padding: 8px 0 24px;
 }
 
 .site-profile-header {
@@ -3541,33 +3694,90 @@ a {
 }
 
 /* ---- Warnings ---- */
+/* One panel, not sixteen alarms. Each caveat used to be its own full-width
+   amber banner; a Brave-list comparison stacked around sixteen of them, so the
+   block read as an emergency and got skipped. It is one bordered region with a
+   heading and grouped rows now. Every sentence is still on the page, visible
+   without interaction and present on paper: only the visual weight changed. */
 .warnings {
-  display: grid;
-  gap: 9px;
-}
-
-.warnings div {
-  align-items: flex-start;
   background: var(--sig-warn-soft);
   border: 1px solid color-mix(in srgb, var(--sig-warn) 28%, transparent);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
+  padding: 16px 18px 6px;
+}
+
+.warnings-heading {
+  align-items: center;
   color: var(--sig-warn);
   display: flex;
-  font-size: 13px;
-  gap: 10px;
-  line-height: 1.5;
-  min-width: 0;
-  padding: 12px 14px;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-bottom: 12px;
 }
 
-.warnings div span {
+.warnings-heading svg {
+  flex: 0 0 auto;
+}
+
+.warnings-heading h2 {
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.warnings-count {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.warnings-group {
+  border-top: 1px solid color-mix(in srgb, var(--sig-warn) 18%, transparent);
+  padding: 10px 0;
+}
+
+.warnings-group:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* The attribution a prefix used to carry on every single line. */
+.warnings-group-label {
+  color: var(--sig-warn);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+.warnings-group ul {
+  color: var(--text-muted);
+  display: grid;
+  font-size: 13px;
+  gap: 7px;
+  line-height: 1.5;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.warnings-group li {
   min-width: 0;
   overflow-wrap: anywhere;
+  padding-left: 16px;
+  position: relative;
 }
 
-.warnings div svg {
-  flex: 0 0 auto;
-  margin-top: 1px;
+.warnings-group li::before {
+  color: var(--sig-warn);
+  content: "";
+  background: currentColor;
+  border-radius: var(--pill);
+  height: 4px;
+  left: 3px;
+  position: absolute;
+  top: 8px;
+  width: 4px;
 }
 
 /* ---- Data sections / tables ---- */

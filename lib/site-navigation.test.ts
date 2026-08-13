@@ -2,29 +2,25 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { SITE_TRUST_LINKS, SOURCE_REPOSITORY_URL } from "./site-navigation";
+import { SITE_PRIMARY_NAV, SITE_TRUST_LINKS, SOURCE_REPOSITORY_URL } from "./site-navigation";
 
 const root = process.cwd();
 
 /**
  * Every surface that publishes the WHOLE trust-link set, with the region of
- * the file that does it. The homepage shell is named explicitly rather than
- * discovered: a discovery rule that missed it once would miss it again.
+ * the file that does it.
  *
- * Regions matter because the home shell also has a top bar that deliberately
- * links a curated three (Directory, Methodology, Glossary). That is a chosen
- * subset, not a drifted copy, and forcing the full set into it would be a
- * worse design than the bug this file exists to prevent.
+ * There is exactly one now. This list used to name three files: a shared
+ * `TrustLinks` component that secondary pages rendered, plus a hand-written
+ * footer inside each of the two client shells. That arrangement is what the
+ * drift guard below was written for, and it is now structurally impossible:
+ * `SiteChrome` renders the header and the footer for every route, so a second
+ * copy cannot exist without someone writing a second shell.
+ *
+ * The header's primary nav is a deliberately curated subset (SITE_PRIMARY_NAV),
+ * not a drifted copy of this set. Its own well-formedness is checked below.
  */
-const NAV_SURFACES = [
-  { file: "app/_components/trust-links.tsx", from: null, to: null },
-  { file: "app/site-behavior-app.tsx", from: '<footer className="app-footer">', to: "</footer>" },
-  {
-    file: "app/reports/[id]/saved-report-client.tsx",
-    from: '<footer className="app-footer">',
-    to: "</footer>"
-  }
-] as const;
+const NAV_SURFACES = [{ file: "app/_components/site-chrome.tsx", from: null, to: null }] as const;
 
 function source(file: string): string {
   return readFileSync(path.join(root, file), "utf8");
@@ -56,6 +52,31 @@ test("the trust-link set is well formed and points at real routes", () => {
 
   assert.ok(SITE_TRUST_LINKS.some((link) => link.href === "/about/"), "About must stay in the set");
   assert.equal(SITE_TRUST_LINKS[0].href, "/about/", "About leads: a first-time reader needs it most");
+});
+
+test("the primary nav is well formed and points at real routes", () => {
+  assert.ok(SITE_PRIMARY_NAV.length > 0);
+  const hrefs = SITE_PRIMARY_NAV.map((link) => link.href);
+  assert.equal(new Set(hrefs).size, hrefs.length, "duplicate href in the primary nav");
+  assert.equal(SITE_PRIMARY_NAV[0].href, "/", "the scan workbench leads: it is what the product does");
+
+  for (const link of SITE_PRIMARY_NAV) {
+    assert.match(link.href, /^\/([a-z0-9-]+\/)?$/, `${link.href} must be a rooted, trailing-slash route`);
+    assert.ok(link.label.trim().length > 0, `${link.href} needs a label`);
+    // A nav entry pointing at a route that does not exist is a 404 shipped on
+    // every page, which is worse than the missing link this file exists to stop.
+    const route = path.join(root, "app", link.href.replace(/^\/|\/$/g, ""), "page.tsx");
+    assert.ok(existsSync(route), `${link.href} has no route at ${path.relative(root, route)}`);
+  }
+
+  // The two halves of the product must be able to reach each other from every
+  // page. Before one shell existed, thirteen of fifteen routes linked neither.
+  for (const required of ["/", "/directory/"]) {
+    assert.ok(
+      SITE_PRIMARY_NAV.some((link) => link.href === required),
+      `${required} must stay in the primary nav`
+    );
+  }
 });
 
 /**
@@ -126,5 +147,5 @@ test("the drift guard fails on the copy that actually shipped", () => {
 
 test("the source link is a real repository URL", () => {
   assert.match(SOURCE_REPOSITORY_URL, /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/);
-  assert.match(source("app/_components/trust-links.tsx"), /SOURCE_REPOSITORY_URL/);
+  assert.match(source("app/_components/site-chrome.tsx"), /SOURCE_REPOSITORY_URL/);
 });
