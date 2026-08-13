@@ -1,4 +1,5 @@
 import { githubSourceUrlAtBuildCommit } from "@/lib/build-source-url";
+import { calibrationIneligibilitySummary } from "@/lib/detector-calibration-reader";
 import { committedDetectorCalibrationReadiness } from "@/lib/detector-calibration-source";
 import { detectorValidationMetadata, detectorValidationRows } from "@/lib/detector-validation";
 import {
@@ -116,6 +117,47 @@ export default function CatalogPage() {
           fixtures outside the calibration denominator. {calibration.releaseIdentityGate}{" "}
           {calibration.labelProvenanceGate}
         </p>
+
+        {/* The register a checker actually needs: which studies exist, what
+            each measured, and the exact reason its re-analysis withholds a
+            rate. The report page states only that no rate is published; the
+            per-reason detail lives here, where someone verifying the claim
+            can compare it against the analyzer's own vocabulary. */}
+        {calibration.studies.length > 0 && (
+          <div className={styles.studyRegister}>
+            <h3>Committed calibration studies</h3>
+            <ul>
+              {calibration.studies.map((study) => (
+                <li key={study.studyId}>
+                  <p className={styles.studyIdentity}>
+                    <code>{study.studyId}</code>
+                    <span>{study.detector ?? "unidentified detector"}</span>
+                    <span className={styles.studyStatus} data-status={study.status}>{study.status}</span>
+                  </p>
+                  <p className={styles.studyCases}>
+                    {study.completeCases} complete {study.completeCases === 1 ? "case" : "cases"}
+                    {study.censoredCases > 0 ? `, ${study.censoredCases} censored` : ""}
+                  </p>
+                  {study.ineligibilityReasons.length > 0 && (
+                    <>
+                      <p className={styles.studyWhy}>
+                        No rate is published because {calibrationIneligibilitySummary(study.ineligibilityReasons)}.
+                      </p>
+                      <details className={styles.studyReasons}>
+                        <summary>Analyzer reasons ({study.ineligibilityReasons.length})</summary>
+                        <ul>
+                          {study.ineligibilityReasons.map((reason) => (
+                            <li key={reason}><code>{reason}</code></li>
+                          ))}
+                        </ul>
+                      </details>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className={styles.validationGrid}>
           {validationRows.map((row) => (

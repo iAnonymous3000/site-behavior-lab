@@ -22,6 +22,11 @@ import {
   type DetectorCalibrationAnalysis,
   type DetectorCalibrationReadiness
 } from "./detector-calibration";
+import {
+  detectorCalibrationReaderClaims,
+  type DetectorCalibrationReaderClaim
+} from "./detector-calibration-reader";
+import type { DetectorId } from "./scan-report-v2";
 
 /**
  * Discover and re-analyze the committed calibration studies.
@@ -152,6 +157,27 @@ export function committedCalibrationStudyAnalyses(
     });
   }
   return studies.sort((a, b) => a.studyDir.localeCompare(b.studyDir));
+}
+
+/**
+ * Per-detector reader state, re-analyzed against the current identity.
+ *
+ * The report surface calls this at render time rather than reading anything
+ * stored, because eligibility is perishable: the analyzer compares a study's
+ * recorded Brave-list identity against the current one, and that identity
+ * carries `fetchedAt`, which the weekly refresh moves. See
+ * lib/detector-calibration-reader.ts for the fail-closed publication rule.
+ */
+export function committedDetectorCalibrationReaderClaims(
+  detectors?: ReadonlyArray<DetectorId>,
+  rootDir: string = process.cwd(),
+  env: NodeJS.ProcessEnv = process.env,
+  options: CommittedCalibrationSourceOptions = {}
+): DetectorCalibrationReaderClaim[] {
+  return detectorCalibrationReaderClaims(
+    committedCalibrationStudyAnalyses(rootDir, env, options).map((study) => study.analysis),
+    detectors
+  );
 }
 
 /** Readiness over the committed studies, re-analyzed against the current identity. */

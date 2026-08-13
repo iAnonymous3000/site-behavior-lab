@@ -45,10 +45,12 @@ import type {
   ScanResult,
   StorageRecord
 } from "./types";
+import { DETECTOR_IDS } from "./scan-report-v2";
 import type {
   ArmVerification,
   CaptureLossEntry,
   CookieMutation,
+  DetectorId,
   DetectorStatus,
   EvidenceStrength,
   Fingerprints,
@@ -864,6 +866,27 @@ function legacyClaims(report: Extract<ScanReport, { reportType: "comparison" }>)
 }
 
 /** The newest parseable timestamp among the runs, for sorting and retention. */
+/**
+ * The governed detectors this report actually ran.
+ *
+ * Used to scope what the page may say about measured detector accuracy, so a
+ * report never carries a statement about an instrument it did not run. v1
+ * reports recorded no detector ledger at all; there the honest scope is every
+ * governed detector, because the page could be showing any of their outputs
+ * and an empty list would read as "nothing to qualify".
+ */
+export function reportDetectorIds(view: ReportView): DetectorId[] {
+  const ran = new Set<string>();
+  for (const run of view.runs) {
+    if (!run.detectors) continue;
+    for (const [id, entry] of Object.entries(run.detectors)) {
+      if (entry.status === "complete" || entry.status === "partial") ran.add(id);
+    }
+  }
+  if (ran.size === 0) return [...DETECTOR_IDS];
+  return DETECTOR_IDS.filter((id) => ran.has(id));
+}
+
 function latestRunAt(runs: readonly { startedAt: string | null }[]): string | null {
   let latest: string | null = null;
   let latestMs = Number.NEGATIVE_INFINITY;
