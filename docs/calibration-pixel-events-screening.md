@@ -4,6 +4,12 @@
 measurement arm from this scanner's egress. No rate is published, and the reason
 is not the one the pilot recorded.**
 
+Two screens, 60 live sites. The binding constraint is the consent arm the study
+is required to declare, not the detector: across both screens only 4 cases
+reached a scoreable state, and none of them fired a pixel. Targeting sites that
+run consent platforms triples the arming rate and still does not reach a
+collectable design.
+
 This is a feasibility screen, run before any preregistration exists, to decide
 whether a study is worth the collection budget. It is allowed to see detector
 output precisely because nothing it produces may become a frame. The
@@ -39,6 +45,49 @@ Why cases were lost:
   back. The operations contract retains exactly that as an
   `eligibility-criteria-not-met` censored attempt.
 
+## A second screen: targeting consent platforms does not rescue it
+
+The first screen's single armed case was bankrate, which runs a TCF consent
+platform. That suggested an obvious rescue: draw the pool from sites that run
+TCF CMPs, since European publishers render them to all visitors rather than only
+to EEA addresses. A second screen tested it on 24 candidates — 16 EU publishers,
+bankrate as a positive control, and 7 US ad-funded media.
+
+| | general pool (36) | TCF-targeted pool (24) |
+|---|---|---|
+| served | 23 (63.9%) | 20 (83.3%) |
+| armed | 1 (4.3% of served) | 3 (15.0% of served) |
+| scoreable | 1 (2.8%) | 3 (12.5%) |
+| fired a pixel | 0 / 1 | 0 / 3 |
+
+The mechanism is real: targeting consent platforms roughly triples the arming
+rate and lifts the serve rate to 83%. It is still not enough. Three armed cases
+in twenty served is far below what a design needing 100 in each of four
+denominators can use, and **no scoreable case in either screen fired a pixel**,
+so the positive rate inside the armed population remains unmeasured at 0/4.
+
+This narrows the claim rather than restating it. The arm is not impossible from
+this egress; it completes on roughly one site in six even when the pool is
+chosen to favour it.
+
+## An open question this screen did not settle
+
+Thirteen served sites in the TCF pool returned `choice-unavailable`, including
+theguardian.com and spiegel.de, which do run TCF platforms. Two readings fit:
+
+1. Those sites serve a non-TCF US privacy flow to a US visitor, so there is
+   genuinely no registration to read. The account above stands as written.
+2. A registration exists and the readback did not see it — a limit of the
+   instrument, not a fact about the web. Two `choice-weak-signal` results
+   (mirror.co.uk, repubblica.it) are consistent with this: a banner was seen and
+   the click changed something, but no strong registration was read.
+
+The distinction matters, because under (2) part of the arming rate measured here
+is an artifact and the refusal would need requalifying. It is not settled, and
+nothing in this document should be read as settling it. Dumping the full consent
+block for a known-TCF site — whether a control was activated, whether a banner
+transition was recorded — separates the two, and is the next diagnostic to run.
+
 ## The pilot's diagnosis was wrong, and this matters
 
 The committed pilot concluded:
@@ -60,10 +109,10 @@ Pixels are not scarce. Roughly a third of pages that serve this scanner fire one
 
 **The binding constraint is the consent arm, not the detector.** A case dies
 before the detector is ever consulted, because the arm the study is required to
-declare cannot complete: from a US egress almost nothing exposes a consent
-registration to read back. The pilot attributed its failure to privacy-respecting
-conditions suppressing pixels; the real mechanism is that the *non*-passive arm
-prescribed as the fix is the part that cannot be collected here.
+declare mostly does not complete: 4 of the 43 served pages across both screens
+reached a verified registration. The pilot attributed its failure to
+privacy-respecting conditions suppressing pixels; the real mechanism is that the
+*non*-passive arm prescribed as the fix is the part that rarely collects.
 
 ## Why no frame size rescues it
 
@@ -73,12 +122,17 @@ a scoreable positive about 1% of the time, so `referencePresent ≥ 100` needs o
 the order of **10,000 candidates**. The screen cannot even estimate that inner
 rate: it produced one armed case, and that case fired no pixel.
 
-Then zero censoring has to hold across every case in the sealed frame. At a 64%
-serve rate and a 4.3% arming rate, pre-qualification would have to remove ~97% of
-candidates before sealing, and the study's target population would become "sites
-that expose a machine-readable consent registration to a US visitor" — a
-population so unrepresentative that a rate over it describes almost nothing a
-reader cares about.
+The TCF-targeted pool is the favourable case and does not change the verdict.
+At 12.5% scoreable per candidate it would need about 800 candidates to reach 100
+scoreable cases, before any of them is required to be a positive -- and the
+positive rate inside that population is still unmeasured, at 0 of 4.
+
+Then zero censoring has to hold across every case in the sealed frame.
+Pre-qualification would have to remove the great majority of candidates before
+sealing, and the study's target population would become "sites that expose a
+machine-readable consent registration to this scanner" -- a population so
+unrepresentative that a rate over it describes almost nothing a reader cares
+about.
 
 Even the optimistic reading fails. With 1 armed case in 23, the Wilson 95%
 interval on the arming rate runs from 0.8% to 21.0%. Even at the *upper* bound,

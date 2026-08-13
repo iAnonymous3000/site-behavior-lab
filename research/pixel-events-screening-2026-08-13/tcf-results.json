@@ -1,0 +1,383 @@
+{
+  "arm": {
+    "device": "desktop",
+    "gpcEnabled": false,
+    "consentMode": "accept-all"
+  },
+  "rows": [
+    {
+      "url": "https://www.theguardian.com/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 41129,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.spiegel.de/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 10456,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.lemonde.fr/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 18996,
+      "served": true,
+      "notServedReason": null,
+      "armed": true,
+      "notArmedReason": null,
+      "scoreable": true,
+      "fired": false,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.elpais.com/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 2275,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status"
+      ]
+    },
+    {
+      "url": "https://www.corriere.it/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 9902,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-failed",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.bild.de/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 28022,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "budget-exhausted:request-capture"
+      ]
+    },
+    {
+      "url": "https://www.telegraph.co.uk/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 916,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.independent.co.uk/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 32194,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "budget-exhausted:proxy-traffic",
+        "budget-exhausted:request-capture"
+      ]
+    },
+    {
+      "url": "https://www.mirror.co.uk/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 17039,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-weak-signal",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "Meta",
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": [
+        "budget-exhausted:proxy-traffic",
+        "budget-exhausted:request-capture"
+      ]
+    },
+    {
+      "url": "https://www.dailymail.co.uk/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 848,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.lefigaro.fr/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 7358,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.zeit.de/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 12850,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.repubblica.it/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 15299,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-weak-signal",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.rtl.de/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 7766,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "Meta"
+      ],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.marca.com/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 9073,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.20minutos.es/",
+      "stratum": "eu-publisher",
+      "elapsedMs": 10928,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.bankrate.com/",
+      "stratum": "armed-control",
+      "elapsedMs": 14175,
+      "served": true,
+      "notServedReason": null,
+      "armed": true,
+      "notArmedReason": null,
+      "scoreable": true,
+      "fired": false,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.nerdwallet.com/",
+      "stratum": "us-money-media",
+      "elapsedMs": 10585,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.investopedia.com/",
+      "stratum": "us-money-media",
+      "elapsedMs": 3683,
+      "served": false,
+      "notServedReason": "run-failed",
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": [
+        "http-error-status",
+        "bot-wall-title"
+      ]
+    },
+    {
+      "url": "https://www.cnet.com/",
+      "stratum": "us-tech-media",
+      "elapsedMs": 12649,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.zdnet.com/",
+      "stratum": "us-tech-media",
+      "elapsedMs": 11981,
+      "served": true,
+      "notServedReason": null,
+      "armed": true,
+      "notArmedReason": null,
+      "scoreable": true,
+      "fired": false,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    },
+    {
+      "url": "https://www.techradar.com/",
+      "stratum": "us-tech-media",
+      "elapsedMs": 16563,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": [
+        "budget-exhausted:proxy-traffic",
+        "budget-exhausted:request-capture"
+      ]
+    },
+    {
+      "url": "https://www.tomsguide.com/",
+      "stratum": "us-tech-media",
+      "elapsedMs": 17685,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-unavailable",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [
+        "TikTok"
+      ],
+      "httpStatus": null,
+      "qualityReasons": [
+        "budget-exhausted:proxy-traffic",
+        "budget-exhausted:request-capture"
+      ]
+    },
+    {
+      "url": "https://www.androidauthority.com/",
+      "stratum": "us-tech-media",
+      "elapsedMs": 9141,
+      "served": true,
+      "notServedReason": null,
+      "armed": false,
+      "notArmedReason": "choice-failed",
+      "scoreable": false,
+      "fired": null,
+      "platforms": [],
+      "httpStatus": null,
+      "qualityReasons": []
+    }
+  ]
+}
