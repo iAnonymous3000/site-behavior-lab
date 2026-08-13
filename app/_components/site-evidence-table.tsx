@@ -119,6 +119,43 @@ export function SiteEvidenceTable({
         </p>
       </div>
 
+      {/* The narrow-viewport sort control.
+          Below 720px the table's `thead` is `display: none`, which stacks each
+          row as a card -- and takes every column-header sort button out of
+          rendering, the tab order AND the accessibility tree with it. Ranking
+          is the reason this component exists, so on a phone the whole point of
+          it was unreachable and rows sat in a fixed alphabetical order that
+          nothing on screen even named.
+          A select rather than five restyled buttons: it is one 44px target
+          instead of a wrapped row of them, it states the current sort as its
+          own value, and it is the control a phone reader already knows. */}
+      <div className={styles.mobileSort}>
+        <label className={styles.mobileSortField}>
+          <span>Sort by</span>
+          <select
+            value={sort.key}
+            onChange={(event) => toggle(event.target.value as SortKey)}
+          >
+            {COLUMNS.map((column) => (
+              <option key={column.key} value={column.key}>
+                {column.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          className={styles.mobileSortDirection}
+          // The visible label is the CURRENT order; the accessible name says
+          // what pressing it does, because an icon alone cannot.
+          aria-label={`Sorted ${sort.descending ? "highest first" : "lowest first"}. Reverse the order.`}
+          onClick={() => setSort((current) => ({ ...current, descending: !current.descending }))}
+        >
+          {sort.descending ? <ArrowDown size={14} aria-hidden="true" /> : <ArrowUp size={14} aria-hidden="true" />}
+          <span>{sort.descending ? "Highest first" : "Lowest first"}</span>
+        </button>
+      </div>
+
       {/* No role="region" or tabIndex: those exist to make a SCROLLPORT
           keyboard-reachable, and this wrapper deliberately does not scroll
           (see the CSS). The table names itself with its caption. */}

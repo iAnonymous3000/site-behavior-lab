@@ -255,7 +255,7 @@ export function requireRuntimeScanReportModeForSaver(saveReport: ReportSaver): "
     try {
       assertReportStoreAvailable();
     } catch {
-      throw new PublicScanError("Public r2 report persistence is unavailable.", 503);
+      throw new PublicScanError("Public r2 report persistence is unavailable.", 503, "feature-unavailable");
     }
   }
   return reportMode;

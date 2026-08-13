@@ -51,9 +51,13 @@ test("toPublicError scrubs unexpected errors without blaming the target URL and 
 test("the front Worker scrubs unexpected exception text before unauthenticated responses", () => {
   const containerWorker = readFileSync(path.join(process.cwd(), "cloudflare", "container-worker.ts"), "utf8");
 
+  // The guarantee is that the Worker's body comes from `toPublicError`, never
+  // from raw exception text. The declared `cause` may ride alongside the
+  // scrubbed message -- it is a closed vocabulary member, not error text -- so
+  // the pattern allows fields after `error:` while still pinning the scrub.
   assert.match(
     containerWorker,
-    /function gateErrorResponse[\s\S]*?const publicError = toPublicError\(error\);[\s\S]*?JSON\.stringify\(\{ ok: false, error: publicError\.message \}\)[\s\S]*?status: publicError\.status,/
+    /function gateErrorResponse[\s\S]*?const publicError = toPublicError\(error\);[\s\S]*?JSON\.stringify\(\{ ok: false, error: publicError\.message[^}]*\}\)[\s\S]*?status: publicError\.status,/
   );
   assert.doesNotMatch(containerWorker, /const message = error instanceof Error \? error\.message/);
 });

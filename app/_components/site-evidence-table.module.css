@@ -253,7 +253,67 @@
   padding: 24px 14px;
 }
 
+
+/* The narrow-viewport sort control. Hidden wherever the column headers are
+   real sort buttons; shown only where `thead` is display:none and they are
+   not. Two controls for one piece of state, never both visible at once. */
+.mobileSort {
+  display: none;
+}
+
+.mobileSortField {
+  align-items: center;
+  display: flex;
+  flex: 1 1 auto;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mobileSortField > span {
+  color: var(--text-muted);
+  flex: none;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mobileSortField select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  flex: 1 1 auto;
+  font: inherit;
+  font-size: 14px;
+  min-height: 44px;
+  min-width: 0;
+  padding: 0 10px;
+}
+
+.mobileSortDirection {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  font: inherit;
+  font-size: 13px;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
 @media (max-width: 720px) {
+  .mobileSort {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
   /* One card per site instead of five columns in 390px. The cells already
      carry data-label, the same mechanism the report tables use. */
   .siteTable,

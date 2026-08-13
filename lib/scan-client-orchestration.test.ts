@@ -10,6 +10,7 @@ import {
   recoverRuntimeScanAdmission,
   recoverRuntimeScanAdmissionThroughCommitWindow,
   resumeRuntimeScan,
+  ScanRequestError,
   scanJobWithCurrentAccessKey,
   shouldReleaseAcceptedScanJob,
   submitRuntimeScan,
@@ -871,12 +872,47 @@ test("cancellation requires a 2xx response bound to the exact accepted job", asy
   );
 });
 
-test("friendly scan errors preserve the existing public explanations", () => {
-  assert.match(friendlyScanError("Navigation timeout", false), /did not finish loading/);
-  assert.match(friendlyScanError("private address", false), /only visits public web pages/);
-  assert.match(friendlyScanError("Unauthorized", false), /valid access key/);
-  assert.match(friendlyScanError("Unauthorized", true), /still rejecting open scans/);
-  assert.equal(friendlyScanError("specific upstream failure", false), "specific upstream failure");
+test("friendly scan errors explain a DECLARED cause and never infer one", () => {
+  // This test used to assert the opposite, and in doing so it codified the
+  // defect: it required that any message containing "private address" render
+  // "only visits public web pages". That is precisely how "Durable scan
+  // admission must use the private coordinator" told a visitor their public URL
+  // was a private-network address. The guarantee worth keeping from the old
+  // version is the last one -- an unexplained failure reaches the reader as the
+  // server's own words -- and it is kept below.
+  assert.match(
+    friendlyScanError(new ScanRequestError("x", "page-load-timeout"), false),
+    /didn't finish loading/
+  );
+  assert.match(
+    friendlyScanError(new ScanRequestError("x", "private-target"), false),
+    /only visits public web pages/
+  );
+  assert.match(
+    friendlyScanError(new ScanRequestError("x", "access-key-required"), false),
+    /access key/
+  );
+  assert.match(
+    friendlyScanError(new ScanRequestError("x", "access-key-required"), true),
+    /rejected the request as unauthorized/
+  );
+
+  // Undeclared: verbatim, with nothing added.
+  assert.equal(
+    friendlyScanError(new Error("specific upstream failure"), false),
+    "specific upstream failure"
+  );
+
+  // The anti-regression that matters. A server message merely CONTAINING a
+  // keyword must no longer be routed by it.
+  assert.equal(
+    friendlyScanError(new Error("Durable scan admission must use the private coordinator."), false),
+    "Durable scan admission must use the private coordinator."
+  );
+  assert.equal(
+    friendlyScanError(new Error("This activation has the wrong lease token."), false),
+    "This activation has the wrong lease token."
+  );
 });
 
 test("a scanner-side verification outage is never rewritten as a bad address", () => {

@@ -18,6 +18,7 @@ import {
   type ScanAdmissionCredential,
   type ScanAdmissionRandomBytes
 } from "./scan-admission-capability";
+import { scanFailureText, type ScanFailureNotice } from "./scan-failure-causes";
 import { isRecord } from "./guards";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "./report-resource-limits";
 import {
@@ -301,7 +302,7 @@ export async function submitRuntimeScan(options: {
     if (options.durableAdmissionEnabled && responseStatus >= 400 && responseStatus < 500) {
       await options.onAdmissionCleared!();
     }
-    throw new Error(payload.error);
+    throw scanRequestError(payload);
   }
   if (responseStatus >= 200 && responseStatus < 300 && isScanJobSubmissionResponse(payload)) {
     // The status path is a recovery capability. Keep the admission access key
@@ -370,7 +371,7 @@ export async function recoverRuntimeScanAdmission(options: {
   if (result.status === 404 && isRuntimeScanError(result.payload)) {
     return Object.freeze({ status: "not-found" });
   }
-  if (isRuntimeScanError(result.payload)) throw new Error(result.payload.error);
+  if (isRuntimeScanError(result.payload)) throw scanRequestError(result.payload);
   if (result.status < 200 || result.status >= 300 || !isScanJobSubmissionResponse(result.payload)) {
     throw new Error("The retained scan admission could not be recovered.");
   }
@@ -484,7 +485,7 @@ export async function cancelRuntimeScan(options: {
   if (responseStatus < 200 || responseStatus >= 300) {
     throw new Error(`The scan could not be cancelled (HTTP ${responseStatus}).`);
   }
-  if (isRuntimeScanError(payload)) throw new Error(payload.error);
+  if (isRuntimeScanError(payload)) throw scanRequestError(payload);
   if (
     !isRecord(payload) ||
     payload.ok !== true ||
@@ -552,53 +553,33 @@ export function scannerStatusText(health: ScanRuntimeHealth | null, error: strin
   return `Scanner ready. Access key required.${comparison}${storage}${adblock}`;
 }
 
-export function friendlyScanError(message: string, openAccessScanner: boolean): string {
-  const lower = message.toLowerCase();
-  if (lower.includes("cancellation") && lower.includes("timeout")) {
-    return "The cancellation request timed out. The accepted scan is still retained; try cancelling again or resume its status checks.";
-  }
-  if (lower.includes("timeout") || lower.includes("did not load") || lower.includes("scan duration")) {
-    return "The page did not finish loading in time. It may be slow, very large, or blocking automated visits. Try again, or try a different page.";
-  }
-  if (
-    lower.includes("private") ||
-    lower.includes("localhost") ||
-    lower.includes("internal") ||
-    lower.includes("not a public")
-  ) {
-    return "That address can't be scanned. The scanner only visits public web pages, not localhost, private networks, or internal hosts.";
-  }
-  if (
-    lower.includes("could not be loaded") ||
-    lower.includes("could not be resolved") ||
-    lower.includes("blocking automated") ||
-    lower.includes("unreachable")
-  ) {
-    return "The scanner couldn't load that page. The site may be down, unreachable, or actively blocking automated visits. Try again, or try a different page.";
-  }
-  if (lower.includes("rate") || lower.includes("too many") || lower.includes("slow down")) {
-    return "Too many scans in a short window. Wait a moment and try again.";
-  }
-  if (
-    lower.includes("access") ||
-    lower.includes("token") ||
-    lower.includes("unauthorized") ||
-    lower.includes("forbidden")
-  ) {
-    return openAccessScanner
-      ? "The public scanner is still rejecting open scans. The Cloudflare Worker may need to be redeployed."
-      : "This scanner requires a valid access key. Add it under Options, or contact whoever runs this instance.";
-  }
-  if (
-    lower.includes("valid public url") ||
-    lower.includes("enter a public url") ||
-    lower.includes("only http and https") ||
-    lower.includes("credentials in url") ||
-    lower.includes("invalid url")
-  ) {
-    return "That doesn't look like a valid web address. Use a full URL such as https://example.com.";
-  }
-  return message;
+/**
+ * The reader-facing text for a failed scan.
+ *
+ * This used to infer the cause by testing the server's message for substrings
+ * in order, which is how "Durable scan admission must use the private
+ * coordinator" became "That address can't be scanned... not localhost, private
+ * networks" -- the product blaming a visitor's public URL for a server
+ * misconfiguration. The cause is now declared by whoever throws and carried on
+ * the wire; see lib/scan-failure-causes.ts.
+ *
+ * An undeclared cause returns the server's own words unchanged, with no added
+ * instruction. That is deliberate: the unclassified case is exactly where the
+ * old code guessed.
+ */
+export function friendlyScanError(error: unknown, openAccessScanner: boolean): string {
+  const notice = scanFailureNoticeFor(error, openAccessScanner);
+  return notice.action ? `${notice.message} ${notice.action}` : notice.message;
+}
+
+/** The structured notice, for surfaces that render the action separately. */
+export function scanFailureNoticeFor(
+  error: unknown,
+  openAccessScanner: boolean
+): ScanFailureNotice {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  const cause = error instanceof ScanRequestError ? error.failureCause : undefined;
+  return scanFailureText(cause, message, { openAccessScanner });
 }
 
 async function fetchRuntimeJsonWithPolicy(
@@ -643,8 +624,31 @@ async function fetchRuntimeJsonWithPolicy(
   return { status, payload };
 }
 
-function isRuntimeScanError(value: unknown): value is { ok: false; error: string } {
+function isRuntimeScanError(
+  value: unknown
+): value is { ok: false; error: string; cause?: unknown } {
   return isRecord(value) && value.ok === false && typeof value.error === "string";
+}
+
+/**
+ * A failed scan response, carrying the cause the SERVER declared.
+ *
+ * Without this the cause was parsed and thrown away, and the client re-derived
+ * one by matching substrings of the message. Carrying it is what lets the
+ * reader surface state a cause instead of guessing at one.
+ */
+export class ScanRequestError extends Error {
+  constructor(
+    message: string,
+    readonly failureCause?: unknown
+  ) {
+    super(message);
+    this.name = "ScanRequestError";
+  }
+}
+
+function scanRequestError(payload: { error: string; cause?: unknown }): ScanRequestError {
+  return new ScanRequestError(payload.error, payload.cause);
 }
 
 function isScanJobSubmissionResponse(value: unknown): value is ScanJobSubmissionResponse {

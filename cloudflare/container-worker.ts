@@ -2925,7 +2925,7 @@ export default {
           });
           if (body === null) {
             return gateErrorResponse(
-              new EdgeScanGateError("The scan request is too large.", 413),
+              new EdgeScanGateError("The scan request is too large.", 413, "request-rejected"),
               request,
               env
             );
@@ -3044,7 +3044,7 @@ export default {
       return gateErrorResponse(error, request, env);
     }
     if (body === null) {
-      return gateErrorResponse(new EdgeScanGateError("The scan request is too large.", 413), request, env);
+      return gateErrorResponse(new EdgeScanGateError("The scan request is too large.", 413, "request-rejected"), request, env);
     }
 
     try {
@@ -4103,7 +4103,7 @@ async function handleDurableRestartRuntimeRequest(
 async function refuseUnauthorizedDurableScanJobControl(request: Request, env: Env): Promise<Response | null> {
   const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim();
   if (expectedToken && !(await scanAccessTokenMatches(request.headers, expectedToken))) {
-    return gateErrorResponse(new EdgeScanGateError("Unauthorized scan request.", 401), request, env);
+    return gateErrorResponse(new EdgeScanGateError("Unauthorized scan request.", 401, "access-key-required"), request, env);
   }
   return null;
 }
@@ -4410,7 +4410,7 @@ async function authorizeScanAdmissionRecovery(request: Request, env: Env): Promi
   const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim();
   if (expectedToken) {
     if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
-      throw new EdgeScanGateError("Unauthorized scan request.", 401);
+      throw new EdgeScanGateError("Unauthorized scan request.", 401, "access-key-required");
     }
     return;
   }
@@ -5171,7 +5171,7 @@ async function gateScanRequest(
   const expectedToken = env.SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN?.trim();
   if (expectedToken) {
     if (!(await scanAccessTokenMatches(request.headers, expectedToken))) {
-      throw new EdgeScanGateError("Unauthorized scan request.", 401);
+      throw new EdgeScanGateError("Unauthorized scan request.", 401, "access-key-required");
     }
     if (chargeMode === "authorize") return null;
     if (chargeMode === "charge") return null;
@@ -5333,7 +5333,10 @@ function reportReadGateResponse(status: 429 | 503, message: string, retryAfterSe
 
 function gateErrorResponse(error: unknown, request: Request, env: Env): Response {
   const publicError = toPublicError(error);
-  return new Response(JSON.stringify({ ok: false, error: publicError.message }), {
+  // The Worker and the Node route are two producers of one contract. Both emit
+  // `cause` from the same `toPublicError`, so the client has a single shape to
+  // read and neither side can drift into its own error vocabulary.
+  return new Response(JSON.stringify({ ok: false, error: publicError.message, cause: publicError.cause }), {
     status: publicError.status,
     headers: {
       ...scanCorsHeaders(request.headers.get("origin"), env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN),
