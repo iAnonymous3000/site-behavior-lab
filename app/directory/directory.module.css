@@ -342,7 +342,17 @@
 .numericColumn {
   font-variant-numeric: tabular-nums;
   text-align: right;
+}
+
+/* nowrap belongs to the FIGURES, so a reader can compare them down a column.
+   Applying it to the header too made "Third-party tracking-service requests"
+   set the column's min-content width, which overflowed a 768px tablet. */
+.siteTable td.numericColumn {
   white-space: nowrap;
+}
+
+.siteTable thead th button {
+  white-space: normal;
 }
 
 .siteTable thead th.numericColumn button {
@@ -589,12 +599,30 @@
     padding-bottom: 6px;
   }
 
-  .siteTable td {
+  /* The percentage widths are what make the columns line up on a wide screen,
+     and they must not survive the stack: at 320px a 12% cell held a label and a
+     number in 33px and pushed the document 17px past the viewport. Matching the
+     base rules' specificity, since `.siteTable td` alone loses to
+     `.siteTable td.numericColumn`. */
+  .siteTable td,
+  .siteTable td.numericColumn,
+  .siteTable td:last-child {
     display: flex;
     gap: 12px;
     justify-content: space-between;
     padding: 3px 14px;
     text-align: left;
+    width: auto;
+    /* The numeric columns are nowrap so the figures line up in a column a
+       reader compares down. Stacked, the row label moves INTO the cell, and a
+       nowrap "Third-party tracking-service requests" is wider than a 320px
+       phone. */
+    white-space: normal;
+  }
+
+  .siteTable td::before {
+    flex: 0 1 auto;
+    min-width: 0;
   }
 
   .siteTable td::before {
