@@ -301,7 +301,13 @@
  * constraint that container never scrolls, so `top: 0` was a no-op and the column
  * labels left the viewport around row twelve of a hundred and five -- on a table
  * whose entire purpose is sorting by those columns. Offsetting from the shared
- * top-bar height parks the header just under the site chrome instead. */
+ * top-bar height parks the header just under the site chrome instead.
+ *
+ * Only above the stacking breakpoint. --topbar-h becomes 96px at <=720px, and
+ * that is exactly where the rows stack into cards and `thead` is hidden, so the
+ * mobile value of the token never reaches this rule. Correct, but correct by
+ * arrangement rather than by construction: do not "fix" the offset to match the
+ * two-row bar. */
 .siteTable thead th {
   background: var(--surface-2);
   border-bottom: 1px solid var(--border);
