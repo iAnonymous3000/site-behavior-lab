@@ -3948,7 +3948,15 @@ a {
   }
 }
 
-table {
+/* Scoped to the report tables' own wrapper.
+ *
+ * Unqualified, this reached every <table> on the site including CSS-module ones
+ * whose wrapper the mobile reset below never matches. The catalog module already
+ * patched `min-width: 0` back with a comment about it; the directory's new site
+ * table had no such patch and inherited a 720px floor, which pushed a 320px
+ * viewport to a 743px scroll width. Scoping fixes the class of bug rather than
+ * adding a third patch. */
+.table-wrap table {
   border-collapse: collapse;
   font-size: 13px;
   min-width: 720px;
