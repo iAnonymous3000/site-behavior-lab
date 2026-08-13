@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createServer } from "node:http";
+import { existsSync } from "node:fs";
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -1023,10 +1024,21 @@ async function assertStaticSeoContract(manifest, firstReport) {
   for (const route of ["status", "security", "corrections", "catalog"]) {
     sitemapUrlEntry(sitemapXml, `${publicBase}/${route}/`);
   }
-  const paginatedDirectoryMatch = sitemapXml.match(/<loc>([^<]*\/directory\/page\/2\/)<\/loc>/);
-  if (paginatedDirectoryMatch) {
-    const paginatedHtml = await readFile(path.join(outDir, "directory", "page", "2", "index.html"), "utf8");
-    assertCanonicalAndSocialUrl(paginatedHtml, paginatedDirectoryMatch[1], "paginated directory");
+  // The paginated directory routes still resolve, so nothing already linked or
+  // indexed 404s, but /directory/ now carries every scanned site in one sortable
+  // table and each paged route renders the same content. So they must NOT be in
+  // the sitemap, and each must canonicalise to /directory/. Asserted rather than
+  // skipped: this check used to run only if the sitemap listed the page, so
+  // dropping the entry would have made it disappear instead of fail.
+  if (/<loc>[^<]*\/directory\/page\//.test(sitemapXml)) {
+    fail("sitemap advertises a paginated directory alias of /directory/");
+  }
+  const paginatedIndex = path.join(outDir, "directory", "page", "2", "index.html");
+  if (existsSync(paginatedIndex)) {
+    const paginatedHtml = await readFile(paginatedIndex, "utf8");
+    if (!paginatedHtml.includes(`<link rel="canonical" href="${publicBase}/directory/"`)) {
+      fail("a paginated directory page must canonicalise to /directory/");
+    }
   }
   const categoryMatch = sitemapXml.match(/<loc>([^<]*\/categories\/[^<]+\/)<\/loc>/);
   if (!categoryMatch) fail("sitemap omits every quality-gated category page");
