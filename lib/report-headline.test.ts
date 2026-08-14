@@ -189,7 +189,7 @@ test("flags a GPC comparison that barely changed as an alarm", () => {
   // that the signal was verified as received or applied.
   assert.match(headline.headline, /amazon\.com still contacted 1 distinct catalogued tracking-related service with a privacy signal configured\./);
   assert.match(headline.subhead, /do not sell or share/);
-  assert.match(headline.subhead, /versus 420 in the visit without the signal/);
+  assert.match(headline.subhead, /versus 420 without the signal/);
   // The lead finding quotes the GPC-on visit's numbers, so the evidence
   // switcher must open on that arm.
   assert.equal(headline.focusArm, "variant");
@@ -212,7 +212,7 @@ test("phrases a GPC comparison that loaded more as 'more', not a negative percen
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
   // Side-by-side numbers, never a computed "down just -10%" phrase.
-  assert.match(headline.subhead, /110 third-party requests, versus 100 in the visit without the signal/);
+  assert.match(headline.subhead, /110 third-party requests, versus 100 without the signal/);
   assert.doesNotMatch(headline.subhead, /down just/);
   assert.doesNotMatch(headline.subhead, /-\d/);
 });
@@ -289,8 +289,13 @@ test("the GPC alarm counts tracking companies from the GPC-on visit, not the bas
 
   const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
   assert.equal(headline.tone, "alarm");
-  assert.match(headline.subhead, /still contacted 1 distinct catalogued tracking-related service:/);
-  assert.doesNotMatch(headline.subhead, /3 distinct catalogued tracking-related services/);
+  // Asserted on the HEADLINE, which is where the service count now lives: the
+  // subhead stopped restating it so the claim would fit the 300-character card
+  // bound. Pointing the negative assertion at the subhead too would have left a
+  // pattern that can no longer appear there, i.e. a guard that passes because
+  // it cannot fail.
+  assert.match(headline.headline, /still contacted 1 distinct catalogued tracking-related service\b/);
+  assert.doesNotMatch(headline.headline, /3 distinct catalogued tracking-related services/);
   // The stat chips and share text sit next to the sentence, so they must quote
   // the same GPC-on visit, not the baseline's three companies.
   assert.equal(headline.stats.find((stat) => stat.label.includes("tracking-service"))?.value, "1");
@@ -436,7 +441,7 @@ test("request capture loss cannot produce a comparative GPC headline", () => {
 
     const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, incompleteVariant)));
     assert.doesNotMatch(headline.headline, /privacy signal/, warning);
-    assert.doesNotMatch(headline.subhead, /100% lower|100 → 0|versus 100 in the visit without the signal/, warning);
+    assert.doesNotMatch(headline.subhead, /100% lower|100 → 0|versus 100 without the signal/, warning);
     assert.equal(headline.focusArm, undefined, warning);
   }
 });
