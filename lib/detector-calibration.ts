@@ -20,7 +20,10 @@ import {
   DETECTOR_VERSIONS
 } from "./measurement-kernel";
 import { NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION } from "./scan-report-v2-normalization";
-import { NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION } from "./scan-report-v2-r2-producer-contract";
+import {
+  braveListMeasurementIdentity,
+  NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION
+} from "./scan-report-v2-r2-producer-contract";
 import { DETECTOR_IDS, type DetectorId } from "./scan-report-v2";
 import { canonicalJson } from "./scan-report-v2-fingerprints";
 import { sha256Hex } from "./sha256";
@@ -599,7 +602,15 @@ export function analyzeDetectorCalibrationStudy(
   if (canonicalJson(study.release.trackerCatalog) !== canonicalJson(currentTrackerCatalogIdentity())) {
     ineligibilityReasons.push("tracker-catalog-revision-mismatch");
   }
-  if (canonicalJson(study.release.braveLists) !== canonicalJson(currentBraveListIdentity())) {
+  // Compared without `fetchedAt`, through the same definition the producer
+  // tuple uses. A refetch of byte-identical lists is not a new revision, and
+  // treating it as one would retire an otherwise eligible study over a
+  // timestamp that says only when the download happened. A moved
+  // catalogCommit, manifestDigest, rulesDigest or engine still mismatches.
+  if (
+    canonicalJson(braveListMeasurementIdentity(study.release.braveLists as Record<string, unknown>)) !==
+    canonicalJson(braveListMeasurementIdentity(currentBraveListIdentity() as unknown as Record<string, unknown>))
+  ) {
     ineligibilityReasons.push("brave-list-revision-mismatch");
   }
   if (denominators.completeCases === 0) ineligibilityReasons.push("no-complete-cases");

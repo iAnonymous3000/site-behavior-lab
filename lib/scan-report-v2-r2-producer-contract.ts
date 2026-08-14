@@ -1006,44 +1006,40 @@ function nodeTupleMatches(run: ScanRunV2R2, tuple: NodeR2ProducerTuple): boolean
     canonicalJson(run.provenance.detectorRegistry) === canonicalJson(tuple.detectorRegistry) &&
     canonicalJson(detectorVersions(run.detectors)) === canonicalJson(tuple.detectorVersions) &&
     canonicalJson(run.toolchain.trackerCatalog) === canonicalJson(tuple.trackerCatalog) &&
-    canonicalJson(adblockMeasurementIdentity(run.toolchain.adblock)) ===
-      canonicalJson(adblockMeasurementIdentity(tuple.adblockIdentity)) &&
+    canonicalJson(braveListMeasurementIdentity(run.toolchain.adblock)) ===
+      canonicalJson(braveListMeasurementIdentity(tuple.adblockIdentity)) &&
     canonicalJson(nodeRuntimeIdentity(run)) === canonicalJson(tuple.runtimeIdentity)
   );
 }
 
 /**
- * The adblock fields that constitute a MEASUREMENT identity, without `fetchedAt`.
+ * Drop the fetch timestamp from a Brave-list identity before comparing it.
  *
- * `manifestDigest` is sha256 over every source's url, byte length and sha256
- * (scripts/brave-list-digests.mjs), so it already determines the rule bytes
- * completely. `fetchedAt` records only WHEN the snapshot was downloaded, and
- * `scripts/fetch-brave-lists.mjs` stamps a fresh one on every run even when
- * upstream has not moved.
+ * ONE DEFINITION, because this rule is asserted in two places that must not
+ * drift: the Node producer tuple here, and the calibration analyzer's
+ * `brave-list-revision-mismatch`. Those identities carry different fields --
+ * calibration also records `catalogCommit`, `catalogDigest` and `rulesDigest`
+ * -- so this strips by key rather than rebuilding a shape, and stays correct
+ * for both.
  *
- * Including it therefore asserted that two reports measured against
- * byte-identical rules were different measurement identities. That is a false
- * distinction, and it had a real cost: the scheduled refresh could never pass,
- * because the snapshot it produces never matches the pinned literal. A job that
- * fails every week regardless of whether anything changed reports nothing when
- * something real does break.
+ * WHY `fetchedAt` IS NOT IDENTITY. `manifestDigest` is sha256 over every
+ * source's url, byte length and sha256, so it fixes the rule bytes exactly. The
+ * timestamp records only when the download happened, and
+ * `scripts/fetch-brave-lists.mjs` stamps a fresh one on every run. Comparing it
+ * asserted that two measurements against byte-identical rules were different
+ * measurements: it made the weekly refresh fail on every run, and in the
+ * calibration path it would retire a study over a refetch that changed nothing.
  *
- * NOT A WEAKENING, and worth being precise about. Same `manifestDigest` means
- * the same rule bytes, so nothing that was refused before is admitted now. When
- * the rules genuinely change the digest moves, the tuple still mismatches, and a
- * reviewed commit is still required -- because that IS a new measurement
- * identity.
- *
- * `fetchedAt` stays on the wire and in the pinned constant. It is provenance
- * worth publishing; it is just not identity, and this is the only place that
- * distinction had been collapsed.
+ * NOT A WEAKENING. Everything that determines behaviour still compares exactly,
+ * so a genuine rule change remains a new identity in both callers and still
+ * demands a reviewed commit. `fetchedAt` stays on the wire as provenance.
  */
-function adblockMeasurementIdentity(
-  adblock: Toolchain["adblock"] | undefined
+export function braveListMeasurementIdentity(
+  identity: Record<string, unknown> | null | undefined
 ): Record<string, unknown> | null | undefined {
-  if (adblock === undefined || adblock === null) return adblock;
-  const { fetchedAt: _fetchedAt, ...identity } = adblock;
-  return identity;
+  if (identity === null || identity === undefined) return identity;
+  const { fetchedAt: _fetchedAt, ...measured } = identity;
+  return measured;
 }
 
 function detectorVersions(detectors: DetectorLedger): Readonly<Record<DetectorId, string>> {

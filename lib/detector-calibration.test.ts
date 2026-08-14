@@ -279,7 +279,13 @@ test("all current release identities and the planned denominator are eligibility
   input.release.methodologyVersion = "stale-methodology";
   input.release.normalizationVersion = "stale-normalization";
   input.release.trackerCatalog.version = "stale-catalog";
-  input.release.braveLists.fetchedAt = "2026-01-01T00:00:00.000Z";
+  // Perturbs the manifest digest, not `fetchedAt`. This test's purpose is that
+  // the Brave-list identity is a gate at all, and the timestamp was only a
+  // convenient field to move. It is no longer part of the comparison -- a
+  // refetch of identical rules is not a new revision -- so moving it here would
+  // assert the opposite of what the analyzer now means and stop exercising the
+  // gate this line exists for.
+  input.release.braveLists.manifestDigest = "b".repeat(64);
   input.cases = input.cases.filter(
     (entry) => entry.outcome !== "complete" || entry.reference.value === "present"
   );
@@ -568,3 +574,45 @@ function analyze(input: unknown) {
 function digest(value: string): string {
   return sha256Hex(value);
 }
+
+test("a refetched but unchanged Brave snapshot does not retire a study", () => {
+  // The analyzer compared `release.braveLists` by full-object equality, so a
+  // refetch of byte-identical lists moved `fetchedAt` and pushed
+  // brave-list-revision-mismatch, retiring an otherwise eligible study over a
+  // timestamp that records only when the download happened. The producer tuple
+  // had the same defect; both now read one definition, so the two cannot drift
+  // into disagreeing about what the field means.
+  const input = study("simple-random");
+  input.release = currentDetectorCalibrationReleaseIdentity(
+    "fingerprint-heuristics",
+    input.release.buildCommit,
+    runtimeIdentity()
+  );
+  const refetched = {
+    ...input.release.braveLists,
+    fetchedAt: "2099-01-01T00:00:00.000Z"
+  };
+  assert.notEqual(
+    refetched.fetchedAt,
+    input.release.braveLists.fetchedAt,
+    "the fixture must actually differ in the field under test"
+  );
+  input.release = { ...input.release, braveLists: refetched };
+
+  const analysis = analyze(input);
+  assert.equal(
+    analysis.ineligibilityReasons.includes("brave-list-revision-mismatch"),
+    false,
+    "a refetch of identical rules is not a new Brave-list revision"
+  );
+
+  // The other direction: a moved manifest digest is a real revision and must
+  // still retire the study, or dropping the timestamp would have loosened the
+  // gate rather than corrected it.
+  const changed = { ...input.release, braveLists: { ...refetched, manifestDigest: "0".repeat(64) } };
+  assert.equal(
+    analyze({ ...input, release: changed }).ineligibilityReasons.includes("brave-list-revision-mismatch"),
+    true,
+    "changed Brave rules must still be a different revision"
+  );
+});
