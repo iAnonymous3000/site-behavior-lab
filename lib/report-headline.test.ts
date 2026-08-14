@@ -217,6 +217,35 @@ test("phrases a GPC comparison that loaded more as 'more', not a negative percen
   assert.doesNotMatch(headline.subhead, /-\d/);
 });
 
+test("a GPC pair that did not move says so, instead of claiming a difference", () => {
+  // This family fires when the signal did NOT reduce anything, so equal counts
+  // are squarely in scope. cdc.gov published "An observed difference for this
+  // pair of visits" over 4 versus 4: a hedge that asserts the very thing the
+  // numbers deny. The limitation must survive in both branches, because a
+  // request count cannot show whether a sale stopped either way.
+  const same = () =>
+    makeResult({
+      firstPartyDomain: "www.shop.example",
+      domains: [makeTrackerDomain("ads.example", 4, "AdCo", "advertising")],
+      thirdPartyRequests: 4,
+      thirdPartyDomains: 1
+    });
+
+  const headline = buildReportHeadline(viewFromV1Report(gpcPair(same(), same())));
+  assert.match(headline.subhead, /4 third-party requests, versus 4 without the signal/);
+  assert.match(headline.subhead, /No difference between this pair of visits/);
+  assert.doesNotMatch(
+    headline.subhead,
+    /An observed difference/,
+    "equal counts must not be described as a difference"
+  );
+  assert.match(
+    headline.subhead,
+    /request counts cannot show whether data sales stopped/,
+    "the limitation is the half that must survive in both branches"
+  );
+});
+
 test("credits a GPC comparison that pulled back as calm", () => {
   const baseline = makeResult({
     firstPartyDomain: "respectful.example",

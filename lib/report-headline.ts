@@ -514,10 +514,21 @@ export function buildReportHeadline(
         // fell back to publishing no claim at all, losing the reader the
         // finding AND the qualification that limits it. The qualification
         // below is unchanged, word for word: it is the half that must survive.
+        // The hedge follows the numbers rather than assuming them. This family
+        // fires when the signal did NOT reduce anything (reductionPct < 25), so
+        // equal counts are squarely in scope, and "an observed difference" then
+        // asserts a difference that is not there -- cdc.gov published exactly
+        // that over 4 versus 4. Both branches keep the same limitation, which
+        // is the part that must survive: a request count cannot show whether a
+        // sale stopped either way.
         `With a "do not sell or share" (GPC) signal configured: ${plural(
           after,
           "third-party request"
-        )}, versus ${n(before)} without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what was requested.`,
+        )}, versus ${n(before)} without the signal. ${
+          after === before
+            ? "No difference between this pair of visits"
+            : "An observed difference for this pair of visits"
+        }; request counts cannot show whether data sales stopped, only what was requested.`,
         buildStats(reportFacts.arms?.variant ?? facts, gpcOnTracking.length),
         "variant",
         {
