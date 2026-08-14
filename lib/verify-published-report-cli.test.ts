@@ -35,6 +35,40 @@ async function fixtureBundle(): Promise<{ dir: string; id: string }> {
   return { dir, id };
 }
 
+/**
+ * Change a value the report already records, rather than adding a key.
+ *
+ * The tamper used to be `report.title = "TAMPERED"`, which works only because
+ * `ids[0]` happens to be a v1 comparison today. On an r2 report `title` is not
+ * a valid key at all, so the reader returns `invalid-report` and the assertion
+ * on `digest-mismatch` fails -- the test would report a schema complaint while
+ * claiming to prove that a changed VALUE breaks the digest. Those are different
+ * guarantees, and only the second is what a reader verifying published bytes
+ * depends on.
+ *
+ * `summary.durationMs` exists on every schema this repo publishes, under
+ * whichever run wrapper that schema uses, so editing it keeps the document
+ * structurally valid and moves only the bytes.
+ */
+function tamperRecordedValue(report: Record<string, unknown>): void {
+  const runs = ["run", "baseline", "variant"]
+    .map((key) => report[key])
+    .filter((run): run is Record<string, unknown> => isRecord(run));
+  const summaries = [report, ...runs]
+    .map((holder) => holder.summary)
+    .filter((summary): summary is Record<string, unknown> => isRecord(summary));
+  const target = summaries.find((summary) => typeof summary.durationMs === "number");
+  assert.ok(
+    target,
+    "no summary.durationMs to tamper; pick another recorded value that exists on this schema rather than adding a key"
+  );
+  target!.durationMs = (target!.durationMs as number) + 1;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 test("an untampered committed bundle verifies and exits zero", async () => {
   const { dir, id } = await fixtureBundle();
   try {
@@ -52,7 +86,7 @@ test("a changed recorded value fails both the index and the canonical digest", a
   try {
     const reportPath = path.join(dir, `${id}.json`);
     const report = JSON.parse(readFileSync(reportPath, "utf8")) as Record<string, unknown>;
-    report.title = "TAMPERED";
+    tamperRecordedValue(report);
     writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
 
     const result = runCli([id, "--from", dir]);

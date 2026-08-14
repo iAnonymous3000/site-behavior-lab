@@ -343,14 +343,31 @@ test("names major platforms and escalates the third-party card", () => {
 test("major-platform evidence counts exact tracking-role request rows on a mixed matched host", () => {
   const result = makeResult({
     firstPartyDomain: "news.example",
-    domains: [makeTrackerDomain("{label}.google.com", 56, "Google", "advertising")],
-    thirdPartyRequests: 56,
-    thirdPartyDomains: 1
+    domains: [
+      makeTrackerDomain("{label}.google.com", 56, "Google", "advertising"),
+      // A catalogued tracking host that is NOT one of the headline platforms.
+      // Without it, dropping the platform scoping still counts 48 and the test
+      // stays green through the mutation it exists to catch.
+      makeTrackerDomain("{label}.casalemedia.example", 120, "Casale", "advertising")
+    ],
+    thirdPartyRequests: 176,
+    thirdPartyDomains: 2
   });
   // The host summary preserves the catalog identity because some rows match,
-  // but these eight exact request rows did not match the catalog.
-  for (const request of result.requests.slice(48)) request.tracker = null;
-  result.summary.knownTrackerRequests = 48;
+  // but these eight exact request rows did not match the catalog. Bounded to
+  // the Google tail: nulling from 48 onward would also strip the non-platform
+  // host and undo the discrimination it was added for.
+  for (const request of result.requests.slice(48, 56)) request.tracker = null;
+  // NO summary override. `makeResult` derives knownTrackerRequests from the
+  // domain summary (176), which differs from the 48 exact rows this finding
+  // must count. Pinning it to 48 made the fixture agree with itself no matter
+  // which source the implementation read, so a switch to the summary counted
+  // as a pass. The gap between 48 and 176 is the whole discriminating power.
+  assert.notEqual(
+    result.summary.knownTrackerRequests,
+    48,
+    "the fixture must not agree with the expected count by construction"
+  );
 
   const platforms = byId(buildFindings(viewFromV1Report(result), null), "named-platforms");
   assert.match(platforms.lead, /catalogued domains for Google/);
