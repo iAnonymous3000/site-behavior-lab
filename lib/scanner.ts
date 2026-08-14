@@ -4,6 +4,7 @@ import {
   devices,
   type BrowserContext,
   type BrowserContextOptions,
+  type CDPSession,
   type Frame,
   type Page,
   type Request,
@@ -12,6 +13,7 @@ import {
 import { randomBytes } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { findTrackerMatch } from "./tracker-catalog";
+import { initiatorObservationFromCdpParams, RequestInitiatorIndex } from "./request-initiator";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
 import type {
   CookieRecord,
@@ -808,6 +810,37 @@ export async function scanSiteWithMeasurement(
     }
 
     const page = await withScanTimeout(context.newPage(), started);
+
+    // Request attribution: who asked for each request.
+    //
+    // Playwright's request events say WHAT was requested and never WHY. Chromium
+    // reports an initiator per request over CDP, so a second subscription on the
+    // same page fills the `provenance` slot that until now only the PageGraph
+    // import path ever populated, and every live report rendered as
+    // "Not attributed".
+    //
+    // BEST EFFORT BY CONSTRUCTION. A scan that cannot open the session, or a
+    // page that outlives it, still produces a complete report with no
+    // attribution rather than failing. Attribution is an addition to the
+    // evidence, never a precondition for it, and a detach mid-scan simply stops
+    // adding observations. See lib/request-initiator.ts for why only the URL is
+    // taken and why ambiguous joins are refused.
+    const initiatorIndex = new RequestInitiatorIndex();
+    let initiatorSession: CDPSession | null = null;
+    try {
+      initiatorSession = await withScanTimeout(context.newCDPSession(page), started);
+      initiatorSession.on("Network.requestWillBeSent", (params: unknown) => {
+        const observation = initiatorObservationFromCdpParams(params);
+        if (observation) initiatorIndex.record(observation);
+      });
+      await withScanTimeout(initiatorSession.send("Network.enable"), started);
+    } catch {
+      // Chromium refused the session or it raced page teardown. Leave the index
+      // empty; every row stays unattributed, which is what the report already
+      // says when nothing is claimed.
+      initiatorSession = null;
+    }
+
     if (gpcWorkerInjection) {
       // Scope the registration wrapper to the measured page and its child
       // frames. Popups and the later out-of-evidence policy page do not share
@@ -2173,6 +2206,25 @@ export async function scanSiteWithMeasurement(
       });
     });
     const allPublicRequests = networkRecorder.publicRecords(trustedSubjectHostname, (record, request) => {
+      // Attribution is claimed HERE, after the visit, not when the row was
+      // recorded. The CDP event and Playwright's request event race, so a
+      // capture-time lookup would miss initiators that had simply not arrived
+      // yet and would under-attribute in a way that varied per run.
+      const initiatorUrl = initiatorIndex.claim(request.url());
+      if (initiatorUrl) {
+        // Only the URL and its host. `initiatorType` stays unset on purpose:
+        // that field is redacted against a PageGraph node-type vocabulary whose
+        // `parser`/`script` values mean something else, so writing a CDP type
+        // into it would put two kinds of evidence under one name and widen an
+        // admitted public string. Both fields below are redacted by
+        // redactProvenance (pass.url / pass.hostname) exactly like a request
+        // URL, so no raw query string or path reaches a published report.
+        const initiatorHost = safeParseUrl(initiatorUrl)?.hostname;
+        record.provenance = {
+          initiatorUrl,
+          ...(initiatorHost ? { initiatorDomain: initiatorHost } : {})
+        };
+      }
       const phaseId = measurementKernel.phaseForRequest(request) ?? passivePhaseId;
       const retainAtTrustedBoundary =
         subjectStateTrusted && activeProbeSubjectAvailable && !activeProbeSubjectLost
