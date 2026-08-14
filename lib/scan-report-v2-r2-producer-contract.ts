@@ -366,11 +366,32 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
   engineVersion: HISTORICAL_NODE_R2_V4_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
+/**
+ * The snapshot in `lib/adblock-wasm/brave-default-filters.meta.json`.
+ *
+ * MOVES WITH EVERY REFRESH, AND THAT IS WHY THE SCHEDULED JOB CANNOT SELF-GREEN.
+ * `scripts/fetch-brave-lists.mjs` stamps a fresh `fetchedAt` on every run, the
+ * producer match is full-object equality
+ * (`canonicalJson(run.toolchain.adblock) === canonicalJson(tuple.adblockIdentity)`
+ * below), and the workflow regenerates the snapshot but cannot edit this
+ * literal. So a refresh must carry the new snapshot AND this constant in one
+ * commit, or `assertNodeProducerContract` throws `unknown Node producer tuple`,
+ * the r2 redactor throws with it, and the managed reader relabels the whole
+ * thing `redaction-not-idempotent` -- a symptom that sends the next reader
+ * hunting a redaction bug that does not exist.
+ *
+ * NO HISTORICAL ROW IS RETIRED HERE. A closed row exists to keep
+ * already-published reports readable, and the previous 2026-08-11 identity
+ * published nothing: every committed r2 report carries the 2026-07-13 snapshot,
+ * which already has HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY. Freezing an
+ * identity no report was measured under would be a guard over an empty set.
+ * Check the corpus before assuming that holds for the next refresh.
+ */
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-08-11T18:35:37.416Z",
-  manifestDigest: "c16dadd4e9966e3c72e2dc6d29c6d2975f212a850563358043d57fcddd082a6e",
+  fetchedAt: "2026-08-14T16:25:33.478Z",
+  manifestDigest: "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
