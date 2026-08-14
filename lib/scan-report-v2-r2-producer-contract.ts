@@ -1006,9 +1006,44 @@ function nodeTupleMatches(run: ScanRunV2R2, tuple: NodeR2ProducerTuple): boolean
     canonicalJson(run.provenance.detectorRegistry) === canonicalJson(tuple.detectorRegistry) &&
     canonicalJson(detectorVersions(run.detectors)) === canonicalJson(tuple.detectorVersions) &&
     canonicalJson(run.toolchain.trackerCatalog) === canonicalJson(tuple.trackerCatalog) &&
-    canonicalJson(run.toolchain.adblock) === canonicalJson(tuple.adblockIdentity) &&
+    canonicalJson(adblockMeasurementIdentity(run.toolchain.adblock)) ===
+      canonicalJson(adblockMeasurementIdentity(tuple.adblockIdentity)) &&
     canonicalJson(nodeRuntimeIdentity(run)) === canonicalJson(tuple.runtimeIdentity)
   );
+}
+
+/**
+ * The adblock fields that constitute a MEASUREMENT identity, without `fetchedAt`.
+ *
+ * `manifestDigest` is sha256 over every source's url, byte length and sha256
+ * (scripts/brave-list-digests.mjs), so it already determines the rule bytes
+ * completely. `fetchedAt` records only WHEN the snapshot was downloaded, and
+ * `scripts/fetch-brave-lists.mjs` stamps a fresh one on every run even when
+ * upstream has not moved.
+ *
+ * Including it therefore asserted that two reports measured against
+ * byte-identical rules were different measurement identities. That is a false
+ * distinction, and it had a real cost: the scheduled refresh could never pass,
+ * because the snapshot it produces never matches the pinned literal. A job that
+ * fails every week regardless of whether anything changed reports nothing when
+ * something real does break.
+ *
+ * NOT A WEAKENING, and worth being precise about. Same `manifestDigest` means
+ * the same rule bytes, so nothing that was refused before is admitted now. When
+ * the rules genuinely change the digest moves, the tuple still mismatches, and a
+ * reviewed commit is still required -- because that IS a new measurement
+ * identity.
+ *
+ * `fetchedAt` stays on the wire and in the pinned constant. It is provenance
+ * worth publishing; it is just not identity, and this is the only place that
+ * distinction had been collapsed.
+ */
+function adblockMeasurementIdentity(
+  adblock: Toolchain["adblock"] | undefined
+): Record<string, unknown> | null | undefined {
+  if (adblock === undefined || adblock === null) return adblock;
+  const { fetchedAt: _fetchedAt, ...identity } = adblock;
+  return identity;
 }
 
 function detectorVersions(detectors: DetectorLedger): Readonly<Record<DetectorId, string>> {
