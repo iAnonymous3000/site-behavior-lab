@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { COVERAGE_BOUNDARY_ENTRIES } from "./detector-coverage-boundary";
@@ -74,18 +74,37 @@ test("the published manifest lookup actually finds a report digest in a real rec
 
   // The digest the reader is told to compare against step 1 must be the real
   // digest of the real file, or the whole procedure proves nothing.
-  const sample = wanted.find((file) => /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/.test(file.path));
-  assert.ok(sample, "the receipt must carry at least one canonical committed report path");
-  const onDisk = execFileSync("shasum", ["-a", "256", path.join(root, "public", sample!.path)], {
-    encoding: "utf8"
-  })
-    .split(/\s+/)[0]
-    .trim();
-  assert.equal(
-    onDisk,
-    sample!.sha256,
-    `the receipt's digest for ${sample!.path} does not match the committed bytes, so the published comparison would fail for a reader`
+  //
+  // EVERY SURVIVOR, NOT THE FIRST. A receipt is frozen at release time while
+  // the corpus keeps moving: 11 of this receipt's 448 canonical entries have
+  // already been pruned. The old form took `.find()`, so it verified one entry
+  // out of hundreds and its result depended on which one happened to sort
+  // first -- and had that entry been one of the pruned ones it would have died
+  // on a raw shasum ENOENT rather than asserting anything. Retention will only
+  // make that likelier, so the sample is now the whole surviving set.
+  const canonical = wanted.filter((file) => /^reports\/[0-9]{8}-[0-9a-f]{32}\.json$/.test(file.path));
+  assert.ok(canonical.length > 0, "the receipt must carry at least one canonical committed report path");
+  const surviving = canonical.filter((file) => existsSync(path.join(root, "public", file.path)));
+
+  // The anti-vacuity line. Skipping absent files is right -- a pruned report is
+  // not a broken receipt -- but it makes an empty set look identical to a clean
+  // pass, so the emptiness itself has to fail. `wanted.length > 0` above cannot
+  // stand in for this: it is satisfied by provenance sidecars alone.
+  assert.ok(
+    surviving.length > 0,
+    "no report named by the release receipt is still committed, so this guard verified nothing; pin at least one receipt-named report against retention"
   );
+
+  for (const file of surviving) {
+    const onDisk = createHash("sha256")
+      .update(readFileSync(path.join(root, "public", file.path)))
+      .digest("hex");
+    assert.equal(
+      onDisk,
+      file.sha256,
+      `the receipt's digest for ${file.path} does not match the committed bytes, so the published comparison would fail for a reader`
+    );
+  }
 });
 
 test("the published pruned-id command runs and agrees with the log it reads", () => {
