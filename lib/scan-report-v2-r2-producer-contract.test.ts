@@ -136,7 +136,8 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-6c78-tldts749-no-adblock",
       "node-v4-6c78-tldts7410-lists-2026-08-04",
       "node-v4-6c78-tldts7410-active-lists-2026-08-11",
-      "node-v4-6c78-tldts7410-active-no-adblock"
+      "node-v4-6c78-tldts7410-active-no-adblock",
+      "node-v4-6c78-tldts7410-lists-2026-08-14"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);

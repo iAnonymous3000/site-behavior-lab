@@ -257,6 +257,26 @@ export const HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY = Object.freeze({
   engineVersion: "adblock-rust-0.13.2"
 } satisfies NonNullable<Toolchain["adblock"]>);
 
+/**
+ * The snapshot the 2026-08-14 corpus refresh published under, retired the same
+ * day when Brave's rules moved again.
+ *
+ * A closed row exists because reports were published against it: the 60 r2
+ * reports committed in #144 carry this exact identity, and pointing the active
+ * row at a newer digest without this would make every one of them unreadable
+ * through the producer contract. The previous adoption needed no such row
+ * because nothing had published under its identity; that is a fact to CHECK per
+ * refresh, not a rule, and the active constant's docblock says so. The
+ * `every committed managed bundle remains readable` guard is what enforces it.
+ */
+export const HISTORICAL_R2_LISTS_2026_08_14_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-08-14T16:25:33.478Z",
+  manifestDigest: "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
+  engineVersion: "adblock-rust-0.13.2"
+} satisfies NonNullable<Toolchain["adblock"]>);
+
 const NODE_V3_NORMALIZATION =
   "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1";
 const NODE_V3_MIGRATED_NORMALIZATION = `${NODE_V3_NORMALIZATION}+v3-to-v4-ip-port-title@1`;
@@ -390,8 +410,8 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-08-14T16:25:33.478Z",
-  manifestDigest: "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
+  fetchedAt: "2026-08-14T23:10:31.506Z",
+  manifestDigest: "33313fb6103235af53051b55c3050c577b62beba8764891a4ec5646779e6129c",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -694,6 +714,16 @@ const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDEN
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         null
+      ),
+      // Closed: the 2026-08-14 corpus refresh published 60 reports under this
+      // snapshot before Brave's rules moved again the same day. Same producer
+      // in every other respect, so only the list identity differs.
+      nodeTuple(
+        "node-v4-6c78-tldts7410-lists-2026-08-14",
+        NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+        NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
+        ACTIVE_NODE_FIELDS,
+        HISTORICAL_R2_LISTS_2026_08_14_ADBLOCK_IDENTITY
       )
     ])
   : Object.freeze([]);

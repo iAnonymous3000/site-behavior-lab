@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-08-14T16:25:33.478Z",
+  "fetchedAt": "2026-08-14T23:10:31.506Z",
   "catalog": "https://raw.githubusercontent.com/brave/adblock-resources/87e925ec3ed08b28b96460b7615b033c52971fa9/filter_lists/list_catalog.json",
   "catalogCommit": "87e925ec3ed08b28b96460b7615b033c52971fa9",
   "catalogSha256": "d701b93f8988851c1637548071bed1fe3f4a4abc8b138d4f3109d9373c3a3b0e",
@@ -42,8 +42,8 @@
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-2026.txt",
-      "bytes": 72808,
-      "sha256": "73d8dda44b3701224376b3efaeaba155009026543c4fac098cd9eaa59f339bd3"
+      "bytes": 73059,
+      "sha256": "26c59970e29694d99e83108755ad4709a5bbb9ac09af3445ba603de2c58edc68"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters-general.txt",
@@ -72,13 +72,13 @@
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/ubo-link-shorteners.txt",
-      "bytes": 115568,
-      "sha256": "451c8bb65b290b951468c2c2e159ecc28c7548b1ca3dc6d4643e99c5ead84a39"
+      "bytes": 115686,
+      "sha256": "5a1c516b17bace3dc843f70bd325240398cdcaf17708aa24bf6712cf6b404978"
     },
     {
       "url": "https://easylist.to/easylist/easylist.txt",
-      "bytes": 2067997,
-      "sha256": "30f4e5fd4eafa85c3980f23bc934f39fd7812a1c70c1ee7e1ea969826caeaa5b"
+      "bytes": 2071339,
+      "sha256": "aafb8c405d32920b6d2d434842be95f1c227810b163d489cd6317a87908fd420"
     },
     {
       "url": "https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-agh-online.txt",
@@ -117,8 +117,8 @@
     },
     {
       "url": "https://easylist.to/easylist/easyprivacy.txt",
-      "bytes": 1494039,
-      "sha256": "fa955313af68026d0d93631e21c922c5ca268b3f07abca708238b8c5e47d6c77"
+      "bytes": 1494119,
+      "sha256": "9627999572b0d3dbe5f39edd7f68e5904ce832769ddc189bf0ead56a2989662d"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
@@ -142,8 +142,8 @@
     },
     {
       "url": "https://secure.fanboy.co.nz/fanboy-cookiemonster_ubo.txt",
-      "bytes": 1190029,
-      "sha256": "a994670d9ba6008aa0dbf20e2b32a2bd8c099cdd757398e36d42fdcbb4cd9b86"
+      "bytes": 1191585,
+      "sha256": "c7e48e25a00e6bb3754c7c6e8639ab5971ba3d951b3ad10f2e87dec350f47359"
     },
     {
       "url": "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances-cookies.txt",
@@ -161,8 +161,8 @@
       "sha256": "8bbd5deceb2ecfde67de15411ba9e1fc40c2f5c8d4c4348a48934c5bd06db74a"
     }
   ],
-  "manifestDigest": "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
-  "rulesDigest": "9f062c52bb680f73fb62bd22f120019baf1a91fe738f2807e337e25fddfaf91e",
-  "rawBytes": 8917428,
-  "gzipBytes": 2679836
+  "manifestDigest": "33313fb6103235af53051b55c3050c577b62beba8764891a4ec5646779e6129c",
+  "rulesDigest": "28c21d1f14751d5693584a4075f29da6d187427f2228986c0a773285351378d5",
+  "rawBytes": 8922775,
+  "gzipBytes": 2681948
 }
