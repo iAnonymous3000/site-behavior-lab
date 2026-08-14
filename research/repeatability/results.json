@@ -1,0 +1,950 @@
+{
+  "conditions": {
+    "device": "desktop",
+    "gpcEnabled": false,
+    "consentMode": "observe"
+  },
+  "repeats": 3,
+  "rows": [
+    {
+      "url": "https://en.wikipedia.org/wiki/Privacy",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7113,
+          "thirdPartyRequests": 19,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 3,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 5979,
+          "thirdPartyRequests": 19,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 3,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 6264,
+          "thirdPartyRequests": 19,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 3,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.healthline.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 13911,
+          "thirdPartyRequests": 164,
+          "trackerRequests": 43,
+          "thirdPartyCookies": 21,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": true,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 13716,
+          "thirdPartyRequests": 183,
+          "trackerRequests": 47,
+          "thirdPartyCookies": 20,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": true,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 13647,
+          "thirdPartyRequests": 163,
+          "trackerRequests": 43,
+          "thirdPartyCookies": 28,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": true,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.creditkarma.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 36767,
+          "thirdPartyRequests": 122,
+          "trackerRequests": 43,
+          "thirdPartyCookies": 17,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 37884,
+          "thirdPartyRequests": 120,
+          "trackerRequests": 42,
+          "thirdPartyCookies": 17,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 34925,
+          "thirdPartyRequests": 128,
+          "trackerRequests": 42,
+          "thirdPartyCookies": 17,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.webmd.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 42889,
+          "thirdPartyRequests": 980,
+          "trackerRequests": 417,
+          "thirdPartyCookies": 204,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 40761,
+          "thirdPartyRequests": 980,
+          "trackerRequests": 402,
+          "thirdPartyCookies": 235,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 41118,
+          "thirdPartyRequests": 980,
+          "trackerRequests": 414,
+          "thirdPartyCookies": 236,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://bumble.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7950,
+          "thirdPartyRequests": 42,
+          "trackerRequests": 31,
+          "thirdPartyCookies": 9,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 4837,
+          "thirdPartyRequests": 41,
+          "trackerRequests": 30,
+          "thirdPartyCookies": 9,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 4786,
+          "thirdPartyRequests": 39,
+          "trackerRequests": 28,
+          "thirdPartyCookies": 9,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.nike.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 15848,
+          "thirdPartyRequests": 124,
+          "trackerRequests": 68,
+          "thirdPartyCookies": 20,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 14963,
+          "thirdPartyRequests": 125,
+          "trackerRequests": 68,
+          "thirdPartyCookies": 19,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 14974,
+          "thirdPartyRequests": 125,
+          "trackerRequests": 66,
+          "thirdPartyCookies": 16,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": true
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.theguardian.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10122,
+          "thirdPartyRequests": 669,
+          "trackerRequests": 265,
+          "thirdPartyCookies": 149,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10435,
+          "thirdPartyRequests": 668,
+          "trackerRequests": 256,
+          "thirdPartyCookies": 173,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10217,
+          "thirdPartyRequests": 636,
+          "trackerRequests": 252,
+          "thirdPartyCookies": 148,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.independent.co.uk/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 14767,
+          "thirdPartyRequests": 951,
+          "trackerRequests": 346,
+          "thirdPartyCookies": 263,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 14582,
+          "thirdPartyRequests": 954,
+          "trackerRequests": 365,
+          "thirdPartyCookies": 285,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 14638,
+          "thirdPartyRequests": 953,
+          "trackerRequests": 352,
+          "thirdPartyCookies": 255,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.mirror.co.uk/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 8930,
+          "thirdPartyRequests": 156,
+          "trackerRequests": 53,
+          "thirdPartyCookies": 28,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7657,
+          "thirdPartyRequests": 154,
+          "trackerRequests": 52,
+          "thirdPartyCookies": 28,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7395,
+          "thirdPartyRequests": 153,
+          "trackerRequests": 51,
+          "thirdPartyCookies": 28,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.lefigaro.fr/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 5256,
+          "thirdPartyRequests": 39,
+          "trackerRequests": 13,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 4861,
+          "thirdPartyRequests": 39,
+          "trackerRequests": 13,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 5111,
+          "thirdPartyRequests": 40,
+          "trackerRequests": 14,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.zeit.de/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10358,
+          "thirdPartyRequests": 16,
+          "trackerRequests": 1,
+          "thirdPartyCookies": 2,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 9031,
+          "thirdPartyRequests": 16,
+          "trackerRequests": 1,
+          "thirdPartyCookies": 2,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 8667,
+          "thirdPartyRequests": 16,
+          "trackerRequests": 1,
+          "thirdPartyCookies": 2,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.repubblica.it/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7005,
+          "thirdPartyRequests": 79,
+          "trackerRequests": 14,
+          "thirdPartyCookies": 2,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 6378,
+          "thirdPartyRequests": 79,
+          "trackerRequests": 14,
+          "thirdPartyCookies": 2,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 6604,
+          "thirdPartyRequests": 79,
+          "trackerRequests": 14,
+          "thirdPartyCookies": 2,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.corriere.it/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 9526,
+          "thirdPartyRequests": 309,
+          "trackerRequests": 25,
+          "thirdPartyCookies": 5,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7243,
+          "thirdPartyRequests": 308,
+          "trackerRequests": 26,
+          "thirdPartyCookies": 5,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7102,
+          "thirdPartyRequests": 306,
+          "trackerRequests": 25,
+          "thirdPartyCookies": 5,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.bild.de/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10583,
+          "thirdPartyRequests": 191,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 9334,
+          "thirdPartyRequests": 193,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10578,
+          "thirdPartyRequests": 191,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": true
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.20minutos.es/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 9564,
+          "thirdPartyRequests": 94,
+          "trackerRequests": 7,
+          "thirdPartyCookies": 1,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 8257,
+          "thirdPartyRequests": 94,
+          "trackerRequests": 7,
+          "thirdPartyCookies": 1,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 8188,
+          "thirdPartyRequests": 94,
+          "trackerRequests": 7,
+          "thirdPartyCookies": 1,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.marca.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 6866,
+          "thirdPartyRequests": 206,
+          "trackerRequests": 28,
+          "thirdPartyCookies": 5,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 5654,
+          "thirdPartyRequests": 205,
+          "trackerRequests": 28,
+          "thirdPartyCookies": 5,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 5615,
+          "thirdPartyRequests": 206,
+          "trackerRequests": 29,
+          "thirdPartyCookies": 5,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.nerdwallet.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7767,
+          "thirdPartyRequests": 27,
+          "trackerRequests": 4,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7537,
+          "thirdPartyRequests": 27,
+          "trackerRequests": 4,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 7761,
+          "thirdPartyRequests": 27,
+          "trackerRequests": 4,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.investopedia.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 2536,
+          "thirdPartyRequests": 7,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 2338,
+          "thirdPartyRequests": 7,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 2847,
+          "thirdPartyRequests": 7,
+          "trackerRequests": 0,
+          "thirdPartyCookies": 0,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": false
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.cnet.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10264,
+          "thirdPartyRequests": 128,
+          "trackerRequests": 74,
+          "thirdPartyCookies": 13,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10222,
+          "thirdPartyRequests": 125,
+          "trackerRequests": 72,
+          "thirdPartyCookies": 13,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 10171,
+          "thirdPartyRequests": 124,
+          "trackerRequests": 72,
+          "thirdPartyCookies": 13,
+          "detectors": {
+            "fingerprint": true,
+            "pixel": false,
+            "cname": true
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://www.techradar.com/",
+      "repeats": [
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 13339,
+          "thirdPartyRequests": 955,
+          "trackerRequests": 285,
+          "thirdPartyCookies": 271,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 13253,
+          "thirdPartyRequests": 955,
+          "trackerRequests": 282,
+          "thirdPartyCookies": 271,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        },
+        {
+          "complete": true,
+          "reason": "complete",
+          "capped": false,
+          "elapsedMs": 13342,
+          "thirdPartyRequests": 955,
+          "trackerRequests": 276,
+          "thirdPartyCookies": 268,
+          "detectors": {
+            "fingerprint": false,
+            "pixel": true,
+            "cname": false
+          }
+        }
+      ]
+    }
+  ]
+}
