@@ -1,0 +1,5150 @@
+{
+  "schemaVersion": 2,
+  "schemaRevision": 2,
+  "reportType": "comparison",
+  "baseline": {
+    "runId": "20260814-69aa0673fbab4c8eb19c7ca5aeabeecc",
+    "startedAt": "2026-08-14T18:56:34.789Z",
+    "subject": {
+      "requested": {
+        "origin": "https://www.chase.com",
+        "registrableDomain": "chase.com",
+        "routeShape": "/"
+      },
+      "observed": {
+        "origin": "https://www.chase.com",
+        "registrableDomain": "chase.com",
+        "routeShape": "/"
+      }
+    },
+    "conditions": {
+      "gpc": false,
+      "shields": "classification",
+      "consent": "observe",
+      "device": {
+        "kind": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 980,
+          "isMobile": false
+        }
+      },
+      "probes": {
+        "keystroke": true,
+        "policyVisit": true
+      },
+      "locale": "en-US",
+      "language": "en-US",
+      "timezone": "UTC",
+      "egress": {
+        "label": "this scanner instance"
+      },
+      "browser": {
+        "name": "chromium",
+        "version": "151.0.7922.34"
+      },
+      "headless": true,
+      "automation": "playwright-chromium"
+    },
+    "provenance": {
+      "observer": "node-playwright",
+      "acquisition": "public-api",
+      "buildCommit": "817e3b68f7bd4f3ffbbb81337a23fa23ad40ba75",
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1",
+      "detectorRegistry": {
+        "version": "node-detectors-v4",
+        "digest": "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
+      }
+    },
+    "toolchain": {
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "entries": 146,
+        "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+      },
+      "adblock": {
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-14T16:25:33.478Z",
+        "manifestDigest": "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
+        "engineVersion": "adblock-rust-0.13.2"
+      },
+      "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+    },
+    "fingerprints": {
+      "execution": "513ae1a35359f3d8bc4df36c35918471704e3ddf58f53345a99a0cf6f33e18a2",
+      "measurementEnvironment": "db1cb71a88c66e3009f2b8dd9906b4b627811754b95a19bf68dae30b63b96dd0",
+      "condition": "6a816e00f84869395945326a0b79826b030b73fa73bb693c237ae26794293662"
+    },
+    "qualityFacts": {
+      "status": 200,
+      "botWallTitleMatched": false,
+      "navigationSettled": true,
+      "budgetsExhausted": [],
+      "captureLoss": []
+    },
+    "quality": {
+      "evaluatorVersion": "1",
+      "run": {
+        "outcome": "complete",
+        "reasons": []
+      },
+      "byFamily": {
+        "requests": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "cookies": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "storage": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "fingerprinting": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "detector-output": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "consent-verification": {
+          "outcome": "complete",
+          "reasons": []
+        }
+      }
+    },
+    "privacy": {
+      "redactionVersion": 4,
+      "redaction": {
+        "pathSegmentsGeneralized": 310,
+        "queryKeysRedacted": 14,
+        "storageKeysRedacted": 142,
+        "cookieNamesRedacted": 16,
+        "matrixParamsStripped": 0,
+        "subdomainLabelsGeneralized": 36,
+        "malformedUrlsDropped": 0
+      }
+    },
+    "detectors": {
+      "fingerprint-heuristics": {
+        "version": "fingerprint-observer@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "keystroke-exfiltration": {
+        "version": "synthetic-sentinel@3",
+        "status": "complete",
+        "phaseId": 1
+      },
+      "cname-uncloaking": {
+        "version": "dns-cname-chain@4",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "pixel-events": {
+        "version": "pixel-request-decoder@3",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "consent-banner": {
+        "version": "consent-control-and-state@2",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "privacy-policy": {
+        "version": "policy-text-cross-check@4",
+        "status": "complete",
+        "phaseId": 2
+      }
+    },
+    "phases": [
+      {
+        "phaseId": 0,
+        "kind": "passive-load",
+        "startedAtMs": 0,
+        "endedAtMs": 3455
+      },
+      {
+        "phaseId": 1,
+        "kind": "active-probe",
+        "startedAtMs": 3455,
+        "endedAtMs": 7041
+      },
+      {
+        "phaseId": 2,
+        "kind": "policy-analysis",
+        "startedAtMs": 7221,
+        "endedAtMs": 9194
+      }
+    ],
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 9195,
+      "counts": {
+        "totalRequests": 54,
+        "thirdPartyRequests": 4,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 2,
+        "cookies": 8,
+        "thirdPartyCookies": 0,
+        "storageEntries": 71,
+        "fingerprintEvents": 185,
+        "shieldsBlockedRequests": 2
+      },
+      "countsByPhase": [
+        {
+          "phaseId": 0,
+          "totalRequests": 54,
+          "thirdPartyRequests": 4,
+          "knownTrackerRequests": 0
+        }
+      ]
+    },
+    "evidence": {
+      "requests": [
+        {
+          "id": 1,
+          "url": "https://www.chase.com/",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "document",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 83,
+          "phaseId": 0
+        },
+        {
+          "id": 2,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 389,
+          "phaseId": 0
+        },
+        {
+          "id": 3,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 390,
+          "phaseId": 0
+        },
+        {
+          "id": 4,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 393,
+          "phaseId": 0
+        },
+        {
+          "id": 5,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 393,
+          "phaseId": 0
+        },
+        {
+          "id": 6,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 393,
+          "phaseId": 0
+        },
+        {
+          "id": 7,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 393,
+          "phaseId": 0
+        },
+        {
+          "id": 8,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 393,
+          "phaseId": 0
+        },
+        {
+          "id": 9,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 393,
+          "phaseId": 0
+        },
+        {
+          "id": 10,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 417,
+          "phaseId": 0
+        },
+        {
+          "id": 11,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 418,
+          "phaseId": 0
+        },
+        {
+          "id": 12,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 419,
+          "phaseId": 0
+        },
+        {
+          "id": 13,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 419,
+          "phaseId": 0
+        },
+        {
+          "id": 14,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 419,
+          "phaseId": 0
+        },
+        {
+          "id": 15,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "other",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 419,
+          "phaseId": 0
+        },
+        {
+          "id": 16,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 419,
+          "phaseId": 0
+        },
+        {
+          "id": 17,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 523,
+          "phaseId": 0
+        },
+        {
+          "id": 18,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 523,
+          "phaseId": 0
+        },
+        {
+          "id": 19,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 523,
+          "phaseId": 0
+        },
+        {
+          "id": 20,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 524,
+          "phaseId": 0
+        },
+        {
+          "id": 21,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 524,
+          "phaseId": 0
+        },
+        {
+          "id": 22,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 525,
+          "phaseId": 0
+        },
+        {
+          "id": 23,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 528,
+          "phaseId": 0
+        },
+        {
+          "id": 24,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 528,
+          "phaseId": 0
+        },
+        {
+          "id": 25,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 529,
+          "phaseId": 0
+        },
+        {
+          "id": 26,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 529,
+          "phaseId": 0
+        },
+        {
+          "id": 27,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 529,
+          "phaseId": 0
+        },
+        {
+          "id": 28,
+          "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+          "domain": "{label}.go-mpulse.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 531,
+          "phaseId": 0
+        },
+        {
+          "id": 29,
+          "url": "https://static.chasecdn.com/{seg}/{seg}",
+          "domain": "static.chasecdn.com",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "{label}.chase.com"
+          },
+          "startedAtMs": 673,
+          "phaseId": 0
+        },
+        {
+          "id": 30,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "{label}.chase.com"
+          },
+          "startedAtMs": 678,
+          "phaseId": 0
+        },
+        {
+          "id": 31,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 836,
+          "phaseId": 0
+        },
+        {
+          "id": 32,
+          "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.chasecdn.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 837,
+          "phaseId": 0
+        },
+        {
+          "id": 33,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 890,
+          "phaseId": 0
+        },
+        {
+          "id": 34,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{n}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 893,
+          "phaseId": 0
+        },
+        {
+          "id": 35,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 894,
+          "phaseId": 0
+        },
+        {
+          "id": 36,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 919,
+          "phaseId": 0
+        },
+        {
+          "id": 37,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 919,
+          "phaseId": 0
+        },
+        {
+          "id": 38,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 920,
+          "phaseId": 0
+        },
+        {
+          "id": 39,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 921,
+          "phaseId": 0
+        },
+        {
+          "id": 40,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 921,
+          "phaseId": 0
+        },
+        {
+          "id": 41,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 921,
+          "phaseId": 0
+        },
+        {
+          "id": 42,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 922,
+          "phaseId": 0
+        },
+        {
+          "id": 43,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 922,
+          "phaseId": 0
+        },
+        {
+          "id": 44,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 922,
+          "phaseId": 0
+        },
+        {
+          "id": 45,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 922,
+          "phaseId": 0
+        },
+        {
+          "id": 46,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 923,
+          "phaseId": 0
+        },
+        {
+          "id": 47,
+          "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+          "domain": "{label}.go-mpulse.net",
+          "method": "GET",
+          "resourceType": "xhr",
+          "status": 204,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://{label}.go-mpulse.net/{seg}/{seg}",
+            "initiatorDomain": "{label}.go-mpulse.net"
+          },
+          "startedAtMs": 936,
+          "phaseId": 0
+        },
+        {
+          "id": 48,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 987,
+          "phaseId": 0
+        },
+        {
+          "id": 49,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 988,
+          "phaseId": 0
+        },
+        {
+          "id": 50,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 988,
+          "phaseId": 0
+        },
+        {
+          "id": 51,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 989,
+          "phaseId": 0
+        },
+        {
+          "id": 52,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 1013,
+          "phaseId": 0
+        },
+        {
+          "id": 53,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 1045,
+          "phaseId": 0
+        },
+        {
+          "id": 54,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.chasecdn.com"
+          },
+          "startedAtMs": 1111,
+          "phaseId": 0
+        }
+      ],
+      "cookieMutations": [
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": true,
+            "httpOnly": true,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": false,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": false,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": "www.chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": false,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": "www.chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": false,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        }
+      ],
+      "cookiesFinal": [
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": true,
+          "httpOnly": true,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": false,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": false,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": "www.chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": false,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": "www.chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": false,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        }
+      ],
+      "storageMutations": [
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 918
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 906
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 8
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 939
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 898
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 884
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 40
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 938
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 2385
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 932
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 905
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 13
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 909
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 895
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 932
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 884
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 849
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 939
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 2
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 852
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 883
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 908
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 904
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 901
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 901
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 906
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 88
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 882
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 888
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 851
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 2
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 904
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 851
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 898
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 906
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 928
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 882
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 851
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 897
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 917
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 2259
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 901
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 912
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 884
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 905
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 22
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 937
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 884
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 892
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 13
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 850
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 917
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 849
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 885
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 900
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 908
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 882
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 935
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 905
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 908
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 849
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 887
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 917
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "sessionStorage",
+            "key": "[redacted]",
+            "valueBytes": 1
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "sessionStorage",
+            "key": "[redacted]",
+            "valueBytes": 64
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "sessionStorage",
+            "key": "[redacted]",
+            "valueBytes": 36
+          }
+        }
+      ],
+      "storageFinal": [
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 918
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 906
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 8
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 939
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 898
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 884
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 40
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 938
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 2385
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 932
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 905
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 13
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 909
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 895
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 932
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 884
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 849
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 939
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 2
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 852
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 883
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 908
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 904
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 901
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 901
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 906
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 88
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 882
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 888
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 851
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 2
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 904
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 851
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 898
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 906
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 928
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 882
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 851
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 897
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 917
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 2259
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 901
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 912
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 884
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 905
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 22
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 937
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 884
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 892
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 13
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 850
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 917
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 849
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 885
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 900
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 908
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 882
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 935
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 905
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 908
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 849
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 887
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 917
+        },
+        {
+          "area": "sessionStorage",
+          "key": "[redacted]",
+          "valueBytes": 1
+        },
+        {
+          "area": "sessionStorage",
+          "key": "[redacted]",
+          "valueBytes": 64
+        },
+        {
+          "area": "sessionStorage",
+          "key": "[redacted]",
+          "valueBytes": 36
+        }
+      ],
+      "fingerprintEvents": [
+        {
+          "api": "canvas.measureText",
+          "count": 119,
+          "phaseId": 0
+        },
+        {
+          "api": "canvas.getImageData",
+          "count": 49,
+          "phaseId": 0
+        },
+        {
+          "api": "canvas.toDataURL",
+          "count": 6,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+          "count": 2,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+          "count": 2,
+          "phaseId": 0
+        },
+        {
+          "api": "audio.OfflineAudioContext.createOscillator",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "audio.OfflineAudioContext.startRendering",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl2.readPixels",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webrtc.RTCPeerConnection",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webrtc.RTCPeerConnection.createDataChannel",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webrtc.RTCPeerConnection.createOffer",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webrtc.RTCPeerConnection.setLocalDescription",
+          "count": 1,
+          "phaseId": 0
+        }
+      ],
+      "fingerprintDetections": [
+        {
+          "kind": "canvas-fingerprinting",
+          "count": 2,
+          "phaseId": 0,
+          "heuristic": "openwpm-canvas-v1",
+          "evidence": {
+            "readApis": [
+              "canvas.toDataURL"
+            ],
+            "maxCanvasWidth": 300,
+            "maxCanvasHeight": 150,
+            "maxDistinctTextCharacters": 15,
+            "maxTextWriteCalls": 1
+          }
+        },
+        {
+          "kind": "audio-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "audio-rendering-v1",
+          "evidence": {
+            "apis": [
+              "audio.OfflineAudioContext.createOscillator",
+              "audio.OfflineAudioContext.startRendering"
+            ],
+            "offlineRenderCalls": 1,
+            "oscillatorCalls": 1,
+            "compressorCalls": 0,
+            "analyserCalls": 0
+          }
+        },
+        {
+          "kind": "canvas-font-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "canvas-font-probing-v1",
+          "evidence": {
+            "measureTextCalls": 119,
+            "maxDistinctFonts": 69,
+            "maxDistinctTextSamples": 37,
+            "maxTextLength": 6
+          }
+        },
+        {
+          "kind": "webgl-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "webgl-entropy-read-v1",
+          "evidence": {
+            "readApis": [
+              "webgl2.readPixels"
+            ],
+            "parameters": [
+              "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+              "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+            ],
+            "getParameterCalls": 9,
+            "readPixelsCalls": 1
+          }
+        },
+        {
+          "kind": "webrtc-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "webrtc-peerconnection-v1",
+          "evidence": {
+            "constructorCalls": 1,
+            "createDataChannelCalls": 1,
+            "createOfferCalls": 1,
+            "setLocalDescriptionCalls": 1
+          }
+        }
+      ],
+      "cnameCloaks": [],
+      "pixelEvents": [],
+      "privacyPolicy": {
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}",
+        "claims": [],
+        "mentionedEntities": [],
+        "unmentionedEntities": [],
+        "policyTextLength": 46453
+      }
+    },
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "verificationFacts": {
+      "gpc": {
+        "method": "gpc-header-readback@1",
+        "header": "confirmed-absent",
+        "jsSignal": "confirmed-absent",
+        "observedOn": "first-party-navigation",
+        "phaseId": 0
+      },
+      "shields": {
+        "method": "shields-engine-status@1",
+        "engineLoaded": true,
+        "applied": false,
+        "requestsEvaluated": 53,
+        "requestsMatched": 2,
+        "requestsActuallyBlocked": 0,
+        "phaseId": 0
+      }
+    }
+  },
+  "variant": {
+    "runId": "20260814-408c0d3735eede9b57f54bff94acdad9",
+    "startedAt": "2026-08-14T18:56:43.995Z",
+    "subject": {
+      "requested": {
+        "origin": "https://www.chase.com",
+        "registrableDomain": "chase.com",
+        "routeShape": "/"
+      },
+      "observed": {
+        "origin": "https://www.chase.com",
+        "registrableDomain": "chase.com",
+        "routeShape": "/"
+      }
+    },
+    "conditions": {
+      "gpc": true,
+      "shields": "classification",
+      "consent": "observe",
+      "device": {
+        "kind": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 980,
+          "isMobile": false
+        }
+      },
+      "probes": {
+        "keystroke": true,
+        "policyVisit": true
+      },
+      "locale": "en-US",
+      "language": "en-US",
+      "timezone": "UTC",
+      "egress": {
+        "label": "this scanner instance"
+      },
+      "browser": {
+        "name": "chromium",
+        "version": "151.0.7922.34"
+      },
+      "headless": true,
+      "automation": "playwright-chromium"
+    },
+    "provenance": {
+      "observer": "node-playwright",
+      "acquisition": "public-api",
+      "buildCommit": "817e3b68f7bd4f3ffbbb81337a23fa23ad40ba75",
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1",
+      "detectorRegistry": {
+        "version": "node-detectors-v4",
+        "digest": "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
+      }
+    },
+    "toolchain": {
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "entries": 146,
+        "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+      },
+      "adblock": {
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-14T16:25:33.478Z",
+        "manifestDigest": "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
+        "engineVersion": "adblock-rust-0.13.2"
+      },
+      "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+    },
+    "fingerprints": {
+      "execution": "2a6d640fd97e081d780bc3cee393f5347f5081c7bce91f5edb8dcf27563f97a1",
+      "measurementEnvironment": "db1cb71a88c66e3009f2b8dd9906b4b627811754b95a19bf68dae30b63b96dd0",
+      "condition": "095684dcd50a7468a1ba6c727f0bde8633ae38e2604b65248fa292d372fef0ed"
+    },
+    "qualityFacts": {
+      "status": 200,
+      "botWallTitleMatched": false,
+      "navigationSettled": true,
+      "budgetsExhausted": [],
+      "captureLoss": [
+        {
+          "family": "requests",
+          "phaseId": null,
+          "kind": "dropped",
+          "count": 2
+        }
+      ]
+    },
+    "quality": {
+      "evaluatorVersion": "1",
+      "run": {
+        "outcome": "complete",
+        "reasons": []
+      },
+      "byFamily": {
+        "requests": {
+          "outcome": "censored",
+          "reasons": [
+            "capture-loss:dropped"
+          ]
+        },
+        "cookies": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "storage": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "fingerprinting": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "detector-output": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "consent-verification": {
+          "outcome": "complete",
+          "reasons": []
+        }
+      }
+    },
+    "privacy": {
+      "redactionVersion": 4,
+      "redaction": {
+        "pathSegmentsGeneralized": 310,
+        "queryKeysRedacted": 14,
+        "storageKeysRedacted": 144,
+        "cookieNamesRedacted": 34,
+        "matrixParamsStripped": 0,
+        "subdomainLabelsGeneralized": 36,
+        "malformedUrlsDropped": 0
+      }
+    },
+    "detectors": {
+      "fingerprint-heuristics": {
+        "version": "fingerprint-observer@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "keystroke-exfiltration": {
+        "version": "synthetic-sentinel@3",
+        "status": "complete",
+        "phaseId": 1
+      },
+      "cname-uncloaking": {
+        "version": "dns-cname-chain@4",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "pixel-events": {
+        "version": "pixel-request-decoder@3",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "consent-banner": {
+        "version": "consent-control-and-state@2",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "privacy-policy": {
+        "version": "policy-text-cross-check@4",
+        "status": "complete",
+        "phaseId": 2
+      }
+    },
+    "phases": [
+      {
+        "phaseId": 0,
+        "kind": "passive-load",
+        "startedAtMs": 0,
+        "endedAtMs": 2457
+      },
+      {
+        "phaseId": 1,
+        "kind": "active-probe",
+        "startedAtMs": 2457,
+        "endedAtMs": 5955
+      },
+      {
+        "phaseId": 2,
+        "kind": "policy-analysis",
+        "startedAtMs": 6131,
+        "endedAtMs": 7768
+      }
+    ],
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 7769,
+      "counts": {
+        "totalRequests": 54,
+        "thirdPartyRequests": 4,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 2,
+        "cookies": 17,
+        "thirdPartyCookies": 0,
+        "storageEntries": 72,
+        "fingerprintEvents": 274,
+        "shieldsBlockedRequests": 2
+      },
+      "countsByPhase": [
+        {
+          "phaseId": 0,
+          "totalRequests": 54,
+          "thirdPartyRequests": 4,
+          "knownTrackerRequests": 0
+        }
+      ]
+    },
+    "evidence": {
+      "requests": [
+        {
+          "id": 1,
+          "url": "https://www.chase.com/",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "document",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 71,
+          "phaseId": 0
+        },
+        {
+          "id": 2,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 251,
+          "phaseId": 0
+        },
+        {
+          "id": 3,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 251,
+          "phaseId": 0
+        },
+        {
+          "id": 4,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 251,
+          "phaseId": 0
+        },
+        {
+          "id": 5,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 251,
+          "phaseId": 0
+        },
+        {
+          "id": 6,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 251,
+          "phaseId": 0
+        },
+        {
+          "id": 7,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 251,
+          "phaseId": 0
+        },
+        {
+          "id": 8,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 253,
+          "phaseId": 0
+        },
+        {
+          "id": 9,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 253,
+          "phaseId": 0
+        },
+        {
+          "id": 10,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 254,
+          "phaseId": 0
+        },
+        {
+          "id": 11,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 254,
+          "phaseId": 0
+        },
+        {
+          "id": 12,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 254,
+          "phaseId": 0
+        },
+        {
+          "id": 13,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 254,
+          "phaseId": 0
+        },
+        {
+          "id": 14,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 254,
+          "phaseId": 0
+        },
+        {
+          "id": 15,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "other",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 255,
+          "phaseId": 0
+        },
+        {
+          "id": 16,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 255,
+          "phaseId": 0
+        },
+        {
+          "id": 17,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 351,
+          "phaseId": 0
+        },
+        {
+          "id": 18,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 353,
+          "phaseId": 0
+        },
+        {
+          "id": 19,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 354,
+          "phaseId": 0
+        },
+        {
+          "id": 20,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 354,
+          "phaseId": 0
+        },
+        {
+          "id": 21,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 354,
+          "phaseId": 0
+        },
+        {
+          "id": 22,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 354,
+          "phaseId": 0
+        },
+        {
+          "id": 23,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 355,
+          "phaseId": 0
+        },
+        {
+          "id": 24,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 355,
+          "phaseId": 0
+        },
+        {
+          "id": 25,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 355,
+          "phaseId": 0
+        },
+        {
+          "id": 26,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 355,
+          "phaseId": 0
+        },
+        {
+          "id": 27,
+          "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 355,
+          "phaseId": 0
+        },
+        {
+          "id": 28,
+          "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+          "domain": "{label}.go-mpulse.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 358,
+          "phaseId": 0
+        },
+        {
+          "id": 29,
+          "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+          "domain": "{label}.go-mpulse.net",
+          "method": "GET",
+          "resourceType": "xhr",
+          "status": 204,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://{label}.go-mpulse.net/{seg}/{seg}",
+            "initiatorDomain": "{label}.go-mpulse.net"
+          },
+          "startedAtMs": 539,
+          "phaseId": 0
+        },
+        {
+          "id": 30,
+          "url": "https://static.chasecdn.com/{seg}/{seg}",
+          "domain": "static.chasecdn.com",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "{label}.chase.com"
+          },
+          "startedAtMs": 567,
+          "phaseId": 0
+        },
+        {
+          "id": 31,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "{label}.chase.com"
+          },
+          "startedAtMs": 567,
+          "phaseId": 0
+        },
+        {
+          "id": 32,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 773,
+          "phaseId": 0
+        },
+        {
+          "id": 33,
+          "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.chasecdn.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 774,
+          "phaseId": 0
+        },
+        {
+          "id": 34,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 826,
+          "phaseId": 0
+        },
+        {
+          "id": 35,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{n}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 827,
+          "phaseId": 0
+        },
+        {
+          "id": 36,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "fetch",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 830,
+          "phaseId": 0
+        },
+        {
+          "id": 37,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 847,
+          "phaseId": 0
+        },
+        {
+          "id": 38,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 848,
+          "phaseId": 0
+        },
+        {
+          "id": 39,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 852,
+          "phaseId": 0
+        },
+        {
+          "id": 40,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 853,
+          "phaseId": 0
+        },
+        {
+          "id": 41,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 853,
+          "phaseId": 0
+        },
+        {
+          "id": 42,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 853,
+          "phaseId": 0
+        },
+        {
+          "id": 43,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 853,
+          "phaseId": 0
+        },
+        {
+          "id": 44,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 854,
+          "phaseId": 0
+        },
+        {
+          "id": 45,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 854,
+          "phaseId": 0
+        },
+        {
+          "id": 46,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 875,
+          "phaseId": 0
+        },
+        {
+          "id": 47,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 879,
+          "phaseId": 0
+        },
+        {
+          "id": 48,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 971,
+          "phaseId": 0
+        },
+        {
+          "id": 49,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 973,
+          "phaseId": 0
+        },
+        {
+          "id": 50,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 973,
+          "phaseId": 0
+        },
+        {
+          "id": 51,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 974,
+          "phaseId": 0
+        },
+        {
+          "id": 52,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 992,
+          "phaseId": 0
+        },
+        {
+          "id": 53,
+          "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+          "domain": "www.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "www.chase.com"
+          },
+          "startedAtMs": 1048,
+          "phaseId": 0
+        },
+        {
+          "id": 54,
+          "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "{label}.chase.com",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.chasecdn.com"
+          },
+          "startedAtMs": 1103,
+          "phaseId": 0
+        }
+      ],
+      "cookieMutations": [
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": true,
+            "httpOnly": true,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": false,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": false,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".chase.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": true,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": "www.chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": false,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": "www.chase.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": false,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        }
+      ],
+      "cookiesFinal": [
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": true,
+          "httpOnly": true,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": false,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": false,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".chase.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": true,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": "www.chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": false,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": "www.chase.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": false,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        }
+      ],
+      "storageMutations": [
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 918
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 906
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 8
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 939
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 898
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 884
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 40
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 938
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 2385
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 932
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 905
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 13
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 909
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 895
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 932
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 884
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 849
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 939
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 852
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 883
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 908
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 904
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 901
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 901
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 906
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 88
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 882
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 888
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 851
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 2
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 904
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 851
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 898
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 906
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 928
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 882
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 851
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 897
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 46
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 917
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 2259
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 901
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 2
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 912
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 884
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 905
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 23
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 937
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 884
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 892
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 13
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 850
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 917
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 849
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 885
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 900
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 908
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 882
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 935
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 905
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 908
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 903
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 849
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 887
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 917
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "sessionStorage",
+            "key": "[redacted]",
+            "valueBytes": 1
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "sessionStorage",
+            "key": "[redacted]",
+            "valueBytes": 64
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "sessionStorage",
+            "key": "[redacted]",
+            "valueBytes": 36
+          }
+        }
+      ],
+      "storageFinal": [
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 918
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 906
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 8
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 939
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 898
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 884
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 40
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 938
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 2385
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 932
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 905
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 13
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 909
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 895
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 932
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 884
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 849
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 939
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 852
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 883
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 908
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 904
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 901
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 901
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 906
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 88
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 882
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 888
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 851
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 2
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 904
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 851
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 898
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 906
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 928
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 882
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 851
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 897
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 46
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 917
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 2259
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 901
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 2
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 912
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 884
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 905
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 23
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 937
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 884
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 892
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 13
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 850
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 917
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 849
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 885
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 900
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 908
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 882
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 935
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 905
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 908
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 903
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 849
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 887
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 917
+        },
+        {
+          "area": "sessionStorage",
+          "key": "[redacted]",
+          "valueBytes": 1
+        },
+        {
+          "area": "sessionStorage",
+          "key": "[redacted]",
+          "valueBytes": 64
+        },
+        {
+          "area": "sessionStorage",
+          "key": "[redacted]",
+          "valueBytes": 36
+        }
+      ],
+      "fingerprintEvents": [
+        {
+          "api": "canvas.measureText",
+          "count": 194,
+          "phaseId": 0
+        },
+        {
+          "api": "canvas.getImageData",
+          "count": 57,
+          "phaseId": 0
+        },
+        {
+          "api": "canvas.toDataURL",
+          "count": 10,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+          "count": 3,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+          "count": 3,
+          "phaseId": 0
+        },
+        {
+          "api": "audio.OfflineAudioContext.createOscillator",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "audio.OfflineAudioContext.startRendering",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl2.readPixels",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webrtc.RTCPeerConnection",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webrtc.RTCPeerConnection.createDataChannel",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webrtc.RTCPeerConnection.createOffer",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webrtc.RTCPeerConnection.setLocalDescription",
+          "count": 1,
+          "phaseId": 0
+        }
+      ],
+      "fingerprintDetections": [
+        {
+          "kind": "canvas-fingerprinting",
+          "count": 2,
+          "phaseId": 0,
+          "heuristic": "openwpm-canvas-v1",
+          "evidence": {
+            "readApis": [
+              "canvas.toDataURL"
+            ],
+            "maxCanvasWidth": 300,
+            "maxCanvasHeight": 150,
+            "maxDistinctTextCharacters": 15,
+            "maxTextWriteCalls": 1
+          }
+        },
+        {
+          "kind": "audio-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "audio-rendering-v1",
+          "evidence": {
+            "apis": [
+              "audio.OfflineAudioContext.createOscillator",
+              "audio.OfflineAudioContext.startRendering"
+            ],
+            "offlineRenderCalls": 1,
+            "oscillatorCalls": 1,
+            "compressorCalls": 0,
+            "analyserCalls": 0
+          }
+        },
+        {
+          "kind": "canvas-font-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "canvas-font-probing-v1",
+          "evidence": {
+            "measureTextCalls": 194,
+            "maxDistinctFonts": 80,
+            "maxDistinctTextSamples": 37,
+            "maxTextLength": 6
+          }
+        },
+        {
+          "kind": "webgl-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "webgl-entropy-read-v1",
+          "evidence": {
+            "readApis": [
+              "webgl2.readPixels"
+            ],
+            "parameters": [
+              "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+              "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+            ],
+            "getParameterCalls": 35,
+            "readPixelsCalls": 1
+          }
+        },
+        {
+          "kind": "webrtc-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "webrtc-peerconnection-v1",
+          "evidence": {
+            "constructorCalls": 1,
+            "createDataChannelCalls": 1,
+            "createOfferCalls": 1,
+            "setLocalDescriptionCalls": 1
+          }
+        }
+      ],
+      "cnameCloaks": [],
+      "pixelEvents": [],
+      "privacyPolicy": {
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}",
+        "claims": [],
+        "mentionedEntities": [],
+        "unmentionedEntities": [],
+        "policyTextLength": 46453
+      }
+    },
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+      "The scan blocked or could not verify one or more Web Workers while applying the simulated GPC signal; request evidence may be incomplete."
+    ],
+    "verificationFacts": {
+      "gpc": {
+        "method": "gpc-header-readback@1",
+        "header": "confirmed-present",
+        "jsSignal": "confirmed-true",
+        "observedOn": "first-party-navigation",
+        "phaseId": 0
+      },
+      "shields": {
+        "method": "shields-engine-status@1",
+        "engineLoaded": true,
+        "applied": false,
+        "requestsEvaluated": 53,
+        "requestsMatched": 2,
+        "requestsActuallyBlocked": 0,
+        "phaseId": 0
+      }
+    }
+  },
+  "experiment": {
+    "kind": "intervention",
+    "axis": "gpc",
+    "pairId": "pair-671d6da9664ead8e92826a96af24748e",
+    "order": "AB",
+    "verification": {
+      "baseline": {
+        "axis": "gpc",
+        "expected": "gpc:off",
+        "observed": "gpc:off",
+        "method": "gpc-header-readback@1",
+        "outcome": "passed",
+        "phaseId": 0
+      },
+      "variant": {
+        "axis": "gpc",
+        "expected": "gpc:on",
+        "observed": "gpc:on",
+        "method": "gpc-header-readback@1",
+        "outcome": "passed",
+        "phaseId": 0
+      }
+    },
+    "evidence": {
+      "pairs": 1,
+      "counterbalanced": false,
+      "strength": "observed-difference"
+    }
+  },
+  "comparability": {
+    "evaluatorVersion": "2",
+    "metricRegistryVersion": "2",
+    "pairValidity": {
+      "eligible": true,
+      "reasons": []
+    },
+    "perMetric": {
+      "raw-counts": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region",
+          "family-censored:variant"
+        ]
+      },
+      "tracker-classification": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region",
+          "family-censored:variant"
+        ]
+      },
+      "shields-simulation": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region",
+          "family-censored:variant"
+        ]
+      },
+      "consent-verification": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region",
+          "unknown-dimension:consent-interpreter"
+        ]
+      },
+      "detector-findings": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region",
+          "family-censored:variant"
+        ]
+      }
+    },
+    "interventionVerified": true
+  },
+  "diff": {
+    "families": {
+      "raw-counts": {
+        "eligible": false,
+        "metrics": {
+          "totalRequests": {
+            "baseline": 54,
+            "variant": 54,
+            "delta": 0
+          },
+          "thirdPartyRequests": {
+            "baseline": 4,
+            "variant": 4,
+            "delta": 0
+          },
+          "thirdPartyDomains": {
+            "baseline": 2,
+            "variant": 2,
+            "delta": 0
+          },
+          "cookies": {
+            "baseline": 8,
+            "variant": 17,
+            "delta": 9
+          },
+          "thirdPartyCookies": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          },
+          "storageEntries": {
+            "baseline": 71,
+            "variant": 72,
+            "delta": 1
+          }
+        }
+      },
+      "tracker-classification": {
+        "eligible": false,
+        "metrics": {
+          "knownTrackerRequests": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          }
+        },
+        "addedTrackerDomains": [],
+        "removedTrackerDomains": []
+      },
+      "shields-simulation": {
+        "eligible": false,
+        "metrics": {
+          "shieldsBlockedRequests": {
+            "baseline": 2,
+            "variant": 2,
+            "delta": 0
+          }
+        }
+      },
+      "consent-verification": {
+        "eligible": false
+      },
+      "detector-findings": {
+        "eligible": false,
+        "addedDetectionKinds": [],
+        "removedDetectionKinds": []
+      }
+    }
+  },
+  "share": {
+    "id": "20260814-c3c5213913aae84a30705e9f980a2cf1",
+    "path": "/reports/20260814-c3c5213913aae84a30705e9f980a2cf1/",
+    "jsonPath": "/reports/20260814-c3c5213913aae84a30705e9f980a2cf1.json"
+  }
+}

@@ -507,10 +507,17 @@ export function buildReportHeadline(
       return finish(
         "alarm",
         `${domain} still contacted ${plural(gpcOnTracking.length, "distinct catalogued tracking-related service")} with a privacy signal configured.`,
-        `The visit configured with a "do not sell or share" (GPC) signal still contacted ${plural(
-          gpcOnTracking.length,
-          "distinct catalogued tracking-related service"
-        )}: ${plural(after, "third-party request")}, versus ${n(before)} in the visit without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what was requested.`,
+        // Adds to the headline rather than restating it. The headline above
+        // already names the service count and the configured signal, and
+        // repeating both cost 125 characters against a 300-character card
+        // bound -- enough that cdc.gov's claim rendered at 321 and the card
+        // fell back to publishing no claim at all, losing the reader the
+        // finding AND the qualification that limits it. The qualification
+        // below is unchanged, word for word: it is the half that must survive.
+        `With a "do not sell or share" (GPC) signal configured: ${plural(
+          after,
+          "third-party request"
+        )}, versus ${n(before)} without the signal. An observed difference for this pair of visits; request counts cannot show whether data sales stopped, only what was requested.`,
         buildStats(reportFacts.arms?.variant ?? facts, gpcOnTracking.length),
         "variant",
         {

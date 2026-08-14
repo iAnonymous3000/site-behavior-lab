@@ -1,0 +1,2182 @@
+{
+  "schemaVersion": 2,
+  "schemaRevision": 2,
+  "reportType": "comparison",
+  "baseline": {
+    "runId": "20260814-31cf0f795c0f0a56d7e87813035341c9",
+    "startedAt": "2026-08-14T19:18:09.644Z",
+    "subject": {
+      "requested": {
+        "origin": "https://www.facebook.com",
+        "registrableDomain": "facebook.com",
+        "routeShape": "/"
+      },
+      "observed": {
+        "origin": "https://www.facebook.com",
+        "registrableDomain": "facebook.com",
+        "routeShape": "/"
+      }
+    },
+    "conditions": {
+      "gpc": false,
+      "shields": "classification",
+      "consent": "observe",
+      "device": {
+        "kind": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 980,
+          "isMobile": false
+        }
+      },
+      "probes": {
+        "keystroke": true,
+        "policyVisit": true
+      },
+      "locale": "en-US",
+      "language": "en-US",
+      "timezone": "UTC",
+      "egress": {
+        "label": "this scanner instance"
+      },
+      "browser": {
+        "name": "chromium",
+        "version": "151.0.7922.34"
+      },
+      "headless": true,
+      "automation": "playwright-chromium"
+    },
+    "provenance": {
+      "observer": "node-playwright",
+      "acquisition": "public-api",
+      "buildCommit": "817e3b68f7bd4f3ffbbb81337a23fa23ad40ba75",
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1",
+      "detectorRegistry": {
+        "version": "node-detectors-v4",
+        "digest": "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
+      }
+    },
+    "toolchain": {
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "entries": 146,
+        "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+      },
+      "adblock": {
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-14T16:25:33.478Z",
+        "manifestDigest": "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
+        "engineVersion": "adblock-rust-0.13.2"
+      },
+      "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+    },
+    "fingerprints": {
+      "execution": "513ae1a35359f3d8bc4df36c35918471704e3ddf58f53345a99a0cf6f33e18a2",
+      "measurementEnvironment": "db1cb71a88c66e3009f2b8dd9906b4b627811754b95a19bf68dae30b63b96dd0",
+      "condition": "6a816e00f84869395945326a0b79826b030b73fa73bb693c237ae26794293662"
+    },
+    "qualityFacts": {
+      "status": 200,
+      "botWallTitleMatched": false,
+      "navigationSettled": true,
+      "budgetsExhausted": [],
+      "captureLoss": []
+    },
+    "quality": {
+      "evaluatorVersion": "1",
+      "run": {
+        "outcome": "complete",
+        "reasons": []
+      },
+      "byFamily": {
+        "requests": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "cookies": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "storage": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "fingerprinting": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "detector-output": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "consent-verification": {
+          "outcome": "complete",
+          "reasons": []
+        }
+      }
+    },
+    "privacy": {
+      "redactionVersion": 4,
+      "redaction": {
+        "pathSegmentsGeneralized": 235,
+        "queryKeysRedacted": 57,
+        "storageKeysRedacted": 8,
+        "cookieNamesRedacted": 10,
+        "matrixParamsStripped": 0,
+        "subdomainLabelsGeneralized": 86,
+        "malformedUrlsDropped": 0
+      }
+    },
+    "detectors": {
+      "fingerprint-heuristics": {
+        "version": "fingerprint-observer@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "keystroke-exfiltration": {
+        "version": "synthetic-sentinel@3",
+        "status": "complete",
+        "phaseId": 1
+      },
+      "cname-uncloaking": {
+        "version": "dns-cname-chain@4",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "pixel-events": {
+        "version": "pixel-request-decoder@3",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "consent-banner": {
+        "version": "consent-control-and-state@2",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "privacy-policy": {
+        "version": "policy-text-cross-check@4",
+        "status": "complete",
+        "phaseId": 2
+      }
+    },
+    "phases": [
+      {
+        "phaseId": 0,
+        "kind": "passive-load",
+        "startedAtMs": 0,
+        "endedAtMs": 1607
+      },
+      {
+        "phaseId": 1,
+        "kind": "active-probe",
+        "startedAtMs": 1607,
+        "endedAtMs": 5097
+      },
+      {
+        "phaseId": 2,
+        "kind": "policy-analysis",
+        "startedAtMs": 5148,
+        "endedAtMs": 7254
+      }
+    ],
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 7254,
+      "counts": {
+        "totalRequests": 26,
+        "thirdPartyRequests": 21,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 2,
+        "cookies": 5,
+        "thirdPartyCookies": 0,
+        "storageEntries": 4,
+        "fingerprintEvents": 104,
+        "shieldsBlockedRequests": 2
+      },
+      "countsByPhase": [
+        {
+          "phaseId": 0,
+          "totalRequests": 24,
+          "thirdPartyRequests": 21,
+          "knownTrackerRequests": 0
+        },
+        {
+          "phaseId": 1,
+          "totalRequests": 2,
+          "thirdPartyRequests": 0,
+          "knownTrackerRequests": 0
+        }
+      ]
+    },
+    "evidence": {
+      "requests": [
+        {
+          "id": 1,
+          "url": "https://www.facebook.com/",
+          "domain": "www.facebook.com",
+          "method": "GET",
+          "resourceType": "document",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 74,
+          "phaseId": 0
+        },
+        {
+          "id": 2,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.facebook.com/",
+            "initiatorDomain": "www.facebook.com"
+          },
+          "startedAtMs": 256,
+          "phaseId": 0
+        },
+        {
+          "id": 3,
+          "url": "https://www.facebook.com/{seg}/{seg}",
+          "domain": "www.facebook.com",
+          "method": "POST",
+          "resourceType": "ping",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 262,
+          "phaseId": 0
+        },
+        {
+          "id": 4,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.facebook.com/",
+            "initiatorDomain": "www.facebook.com"
+          },
+          "startedAtMs": 380,
+          "phaseId": 0
+        },
+        {
+          "id": 5,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 497,
+          "phaseId": 0
+        },
+        {
+          "id": 6,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 498,
+          "phaseId": 0
+        },
+        {
+          "id": 7,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 500,
+          "phaseId": 0
+        },
+        {
+          "id": 8,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 500,
+          "phaseId": 0
+        },
+        {
+          "id": 9,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 501,
+          "phaseId": 0
+        },
+        {
+          "id": 10,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 501,
+          "phaseId": 0
+        },
+        {
+          "id": 11,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 501,
+          "phaseId": 0
+        },
+        {
+          "id": 12,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 503,
+          "phaseId": 0
+        },
+        {
+          "id": 13,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 503,
+          "phaseId": 0
+        },
+        {
+          "id": 14,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 504,
+          "phaseId": 0
+        },
+        {
+          "id": 15,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 504,
+          "phaseId": 0
+        },
+        {
+          "id": 16,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 504,
+          "phaseId": 0
+        },
+        {
+          "id": 17,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 504,
+          "phaseId": 0
+        },
+        {
+          "id": 18,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 504,
+          "phaseId": 0
+        },
+        {
+          "id": 19,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 654,
+          "phaseId": 0
+        },
+        {
+          "id": 20,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 655,
+          "phaseId": 0
+        },
+        {
+          "id": 21,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 655,
+          "phaseId": 0
+        },
+        {
+          "id": 22,
+          "url": "https://www.instagram.com/{seg}/{seg}",
+          "domain": "www.instagram.com",
+          "method": "GET",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 687,
+          "phaseId": 0
+        },
+        {
+          "id": 23,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 736,
+          "phaseId": 0
+        },
+        {
+          "id": 24,
+          "url": "https://www.facebook.com/{seg}/{seg}",
+          "domain": "www.facebook.com",
+          "method": "POST",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 962,
+          "phaseId": 0
+        },
+        {
+          "id": 25,
+          "url": "https://www.facebook.com/{seg}/{seg}",
+          "domain": "www.facebook.com",
+          "method": "POST",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 1650,
+          "phaseId": 1
+        },
+        {
+          "id": 26,
+          "url": "https://www.facebook.com/{seg}/{seg}",
+          "domain": "www.facebook.com",
+          "method": "POST",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 2650,
+          "phaseId": 1
+        }
+      ],
+      "cookieMutations": [
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": true,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": true,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": true,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": true,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        }
+      ],
+      "cookiesFinal": [
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": true,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": true,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": true,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": true,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        }
+      ],
+      "storageMutations": [
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 13
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 20
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 13
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "sessionStorage",
+            "key": "[redacted]",
+            "valueBytes": 6
+          }
+        }
+      ],
+      "storageFinal": [
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 13
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 20
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 13
+        },
+        {
+          "area": "sessionStorage",
+          "key": "[redacted]",
+          "valueBytes": 6
+        }
+      ],
+      "fingerprintEvents": [
+        {
+          "api": "canvas.measureText",
+          "count": 86,
+          "phaseId": 0
+        },
+        {
+          "api": "canvas.getImageData",
+          "count": 9,
+          "phaseId": 0
+        },
+        {
+          "api": "canvas.toDataURL",
+          "count": 2,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+          "count": 2,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+          "count": 2,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.readPixels",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+          "count": 1,
+          "phaseId": 0
+        }
+      ],
+      "fingerprintDetections": [
+        {
+          "kind": "canvas-fingerprinting",
+          "count": 2,
+          "phaseId": 0,
+          "heuristic": "openwpm-canvas-v1",
+          "evidence": {
+            "readApis": [
+              "canvas.toDataURL"
+            ],
+            "maxCanvasWidth": 400,
+            "maxCanvasHeight": 200,
+            "maxDistinctTextCharacters": 66,
+            "maxTextWriteCalls": 10
+          }
+        },
+        {
+          "kind": "canvas-font-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "canvas-font-probing-v1",
+          "evidence": {
+            "measureTextCalls": 86,
+            "maxDistinctFonts": 62,
+            "maxDistinctTextSamples": 6,
+            "maxTextLength": 22
+          }
+        },
+        {
+          "kind": "input-monitoring",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "input-listener-coverage-v1",
+          "evidence": {
+            "eventTypes": [
+              "change",
+              "input",
+              "keydown",
+              "keypress",
+              "keyup",
+              "paste"
+            ],
+            "listenerTargets": [
+              "documentElement",
+              "other",
+              "window"
+            ],
+            "thirdPartyOrigins": [
+              "https://static.{label}.fbcdn.net/"
+            ],
+            "totalListenerCalls": 21
+          }
+        },
+        {
+          "kind": "session-recording",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "interaction-listener-coverage-v1",
+          "evidence": {
+            "eventTypes": [
+              "click",
+              "input",
+              "keydown",
+              "keyup",
+              "mousedown",
+              "mousemove",
+              "mouseup",
+              "pointerdown",
+              "pointermove",
+              "pointerup",
+              "scroll",
+              "selectionchange",
+              "touchmove",
+              "touchstart",
+              "visibilitychange",
+              "wheel"
+            ],
+            "listenerTargets": [
+              "document",
+              "documentElement",
+              "other",
+              "window"
+            ],
+            "thirdPartyOrigins": [
+              "https://static.{label}.fbcdn.net/"
+            ],
+            "totalListenerCalls": 62
+          }
+        },
+        {
+          "kind": "webgl-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "webgl-entropy-read-v1",
+          "evidence": {
+            "readApis": [
+              "webgl.readPixels"
+            ],
+            "parameters": [
+              "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+              "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+              "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+              "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+            ],
+            "getParameterCalls": 34,
+            "readPixelsCalls": 1
+          }
+        }
+      ],
+      "cnameCloaks": [],
+      "pixelEvents": [],
+      "privacyPolicy": {
+        "url": "https://www.facebook.com/privacy/policy",
+        "claims": [],
+        "mentionedEntities": [],
+        "unmentionedEntities": [],
+        "policyTextLength": 399999
+      }
+    },
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.facebook.com/privacy/policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "verificationFacts": {
+      "gpc": {
+        "method": "gpc-header-readback@1",
+        "header": "confirmed-absent",
+        "jsSignal": "confirmed-absent",
+        "observedOn": "first-party-navigation",
+        "phaseId": 0
+      },
+      "shields": {
+        "method": "shields-engine-status@1",
+        "engineLoaded": true,
+        "applied": false,
+        "requestsEvaluated": 23,
+        "requestsMatched": 2,
+        "requestsActuallyBlocked": 0,
+        "phaseId": 0
+      }
+    }
+  },
+  "variant": {
+    "runId": "20260814-9a3136dbdc11473bd7407a1045df19c6",
+    "startedAt": "2026-08-14T19:18:02.118Z",
+    "subject": {
+      "requested": {
+        "origin": "https://www.facebook.com",
+        "registrableDomain": "facebook.com",
+        "routeShape": "/"
+      },
+      "observed": {
+        "origin": "https://www.facebook.com",
+        "registrableDomain": "facebook.com",
+        "routeShape": "/"
+      }
+    },
+    "conditions": {
+      "gpc": true,
+      "shields": "classification",
+      "consent": "observe",
+      "device": {
+        "kind": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 980,
+          "isMobile": false
+        }
+      },
+      "probes": {
+        "keystroke": true,
+        "policyVisit": true
+      },
+      "locale": "en-US",
+      "language": "en-US",
+      "timezone": "UTC",
+      "egress": {
+        "label": "this scanner instance"
+      },
+      "browser": {
+        "name": "chromium",
+        "version": "151.0.7922.34"
+      },
+      "headless": true,
+      "automation": "playwright-chromium"
+    },
+    "provenance": {
+      "observer": "node-playwright",
+      "acquisition": "public-api",
+      "buildCommit": "817e3b68f7bd4f3ffbbb81337a23fa23ad40ba75",
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1",
+      "detectorRegistry": {
+        "version": "node-detectors-v4",
+        "digest": "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
+      }
+    },
+    "toolchain": {
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "entries": 146,
+        "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+      },
+      "adblock": {
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-14T16:25:33.478Z",
+        "manifestDigest": "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
+        "engineVersion": "adblock-rust-0.13.2"
+      },
+      "normalizationVersion": "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1"
+    },
+    "fingerprints": {
+      "execution": "2a6d640fd97e081d780bc3cee393f5347f5081c7bce91f5edb8dcf27563f97a1",
+      "measurementEnvironment": "db1cb71a88c66e3009f2b8dd9906b4b627811754b95a19bf68dae30b63b96dd0",
+      "condition": "095684dcd50a7468a1ba6c727f0bde8633ae38e2604b65248fa292d372fef0ed"
+    },
+    "qualityFacts": {
+      "status": 200,
+      "botWallTitleMatched": false,
+      "navigationSettled": true,
+      "budgetsExhausted": [],
+      "captureLoss": []
+    },
+    "quality": {
+      "evaluatorVersion": "1",
+      "run": {
+        "outcome": "complete",
+        "reasons": []
+      },
+      "byFamily": {
+        "requests": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "cookies": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "storage": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "fingerprinting": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "detector-output": {
+          "outcome": "complete",
+          "reasons": []
+        },
+        "consent-verification": {
+          "outcome": "complete",
+          "reasons": []
+        }
+      }
+    },
+    "privacy": {
+      "redactionVersion": 4,
+      "redaction": {
+        "pathSegmentsGeneralized": 235,
+        "queryKeysRedacted": 57,
+        "storageKeysRedacted": 8,
+        "cookieNamesRedacted": 10,
+        "matrixParamsStripped": 0,
+        "subdomainLabelsGeneralized": 86,
+        "malformedUrlsDropped": 0
+      }
+    },
+    "detectors": {
+      "fingerprint-heuristics": {
+        "version": "fingerprint-observer@1",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "keystroke-exfiltration": {
+        "version": "synthetic-sentinel@3",
+        "status": "complete",
+        "phaseId": 1
+      },
+      "cname-uncloaking": {
+        "version": "dns-cname-chain@4",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "pixel-events": {
+        "version": "pixel-request-decoder@3",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "consent-banner": {
+        "version": "consent-control-and-state@2",
+        "status": "complete",
+        "phaseId": 0
+      },
+      "privacy-policy": {
+        "version": "policy-text-cross-check@4",
+        "status": "complete",
+        "phaseId": 2
+      }
+    },
+    "phases": [
+      {
+        "phaseId": 0,
+        "kind": "passive-load",
+        "startedAtMs": 0,
+        "endedAtMs": 1756
+      },
+      {
+        "phaseId": 1,
+        "kind": "active-probe",
+        "startedAtMs": 1756,
+        "endedAtMs": 5251
+      },
+      {
+        "phaseId": 2,
+        "kind": "policy-analysis",
+        "startedAtMs": 5300,
+        "endedAtMs": 7518
+      }
+    ],
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 7518,
+      "counts": {
+        "totalRequests": 26,
+        "thirdPartyRequests": 21,
+        "knownTrackerRequests": 0,
+        "thirdPartyDomains": 2,
+        "cookies": 5,
+        "thirdPartyCookies": 0,
+        "storageEntries": 4,
+        "fingerprintEvents": 104,
+        "shieldsBlockedRequests": 2
+      },
+      "countsByPhase": [
+        {
+          "phaseId": 0,
+          "totalRequests": 24,
+          "thirdPartyRequests": 21,
+          "knownTrackerRequests": 0
+        },
+        {
+          "phaseId": 1,
+          "totalRequests": 2,
+          "thirdPartyRequests": 0,
+          "knownTrackerRequests": 0
+        }
+      ]
+    },
+    "evidence": {
+      "requests": [
+        {
+          "id": 1,
+          "url": "https://www.facebook.com/",
+          "domain": "www.facebook.com",
+          "method": "GET",
+          "resourceType": "document",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 63,
+          "phaseId": 0
+        },
+        {
+          "id": 2,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "stylesheet",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.facebook.com/",
+            "initiatorDomain": "www.facebook.com"
+          },
+          "startedAtMs": 284,
+          "phaseId": 0
+        },
+        {
+          "id": 3,
+          "url": "https://www.facebook.com/{seg}/{seg}",
+          "domain": "www.facebook.com",
+          "method": "POST",
+          "resourceType": "ping",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 290,
+          "phaseId": 0
+        },
+        {
+          "id": 4,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://www.facebook.com/",
+            "initiatorDomain": "www.facebook.com"
+          },
+          "startedAtMs": 426,
+          "phaseId": 0
+        },
+        {
+          "id": 5,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 601,
+          "phaseId": 0
+        },
+        {
+          "id": 6,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "font",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 603,
+          "phaseId": 0
+        },
+        {
+          "id": 7,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 606,
+          "phaseId": 0
+        },
+        {
+          "id": 8,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 606,
+          "phaseId": 0
+        },
+        {
+          "id": 9,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 607,
+          "phaseId": 0
+        },
+        {
+          "id": 10,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 607,
+          "phaseId": 0
+        },
+        {
+          "id": 11,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 607,
+          "phaseId": 0
+        },
+        {
+          "id": 12,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 607,
+          "phaseId": 0
+        },
+        {
+          "id": 13,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 607,
+          "phaseId": 0
+        },
+        {
+          "id": 14,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 607,
+          "phaseId": 0
+        },
+        {
+          "id": 15,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 608,
+          "phaseId": 0
+        },
+        {
+          "id": 16,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 608,
+          "phaseId": 0
+        },
+        {
+          "id": 17,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 608,
+          "phaseId": 0
+        },
+        {
+          "id": 18,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 608,
+          "phaseId": 0
+        },
+        {
+          "id": 19,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 769,
+          "phaseId": 0
+        },
+        {
+          "id": 20,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 769,
+          "phaseId": 0
+        },
+        {
+          "id": 21,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "script",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 770,
+          "phaseId": 0
+        },
+        {
+          "id": 22,
+          "url": "https://www.instagram.com/{seg}/{seg}",
+          "domain": "www.instagram.com",
+          "method": "GET",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 801,
+          "phaseId": 0
+        },
+        {
+          "id": 23,
+          "url": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}",
+          "domain": "static.{label}.fbcdn.net",
+          "method": "GET",
+          "resourceType": "image",
+          "status": 200,
+          "thirdParty": true,
+          "tracker": null,
+          "blockedByShields": false,
+          "startedAtMs": 848,
+          "phaseId": 0
+        },
+        {
+          "id": 24,
+          "url": "https://www.facebook.com/{seg}/{seg}",
+          "domain": "www.facebook.com",
+          "method": "POST",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 1070,
+          "phaseId": 0
+        },
+        {
+          "id": 25,
+          "url": "https://www.facebook.com/{seg}/{seg}",
+          "domain": "www.facebook.com",
+          "method": "POST",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 1774,
+          "phaseId": 1
+        },
+        {
+          "id": 26,
+          "url": "https://www.facebook.com/{seg}/{seg}",
+          "domain": "www.facebook.com",
+          "method": "POST",
+          "resourceType": "xhr",
+          "status": 200,
+          "thirdParty": false,
+          "tracker": null,
+          "blockedByShields": true,
+          "provenance": {
+            "initiatorUrl": "https://static.{label}.fbcdn.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+            "initiatorDomain": "static.{label}.fbcdn.net"
+          },
+          "startedAtMs": 2773,
+          "phaseId": 1
+        }
+      ],
+      "cookieMutations": [
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": true,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": true,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": true,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "Lax",
+            "secure": true,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "cookie": {
+            "name": "[redacted]",
+            "domain": ".facebook.com",
+            "path": "/",
+            "sameSite": "None",
+            "secure": true,
+            "httpOnly": false,
+            "session": false,
+            "thirdParty": false
+          }
+        }
+      ],
+      "cookiesFinal": [
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": true,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": true,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": true,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "Lax",
+          "secure": true,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        },
+        {
+          "name": "[redacted]",
+          "domain": ".facebook.com",
+          "path": "/",
+          "sameSite": "None",
+          "secure": true,
+          "httpOnly": false,
+          "session": false,
+          "thirdParty": false
+        }
+      ],
+      "storageMutations": [
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 13
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 20
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "localStorage",
+            "key": "[redacted]",
+            "valueBytes": 13
+          }
+        },
+        {
+          "phaseId": 0,
+          "op": "added",
+          "entry": {
+            "area": "sessionStorage",
+            "key": "[redacted]",
+            "valueBytes": 6
+          }
+        }
+      ],
+      "storageFinal": [
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 13
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 20
+        },
+        {
+          "area": "localStorage",
+          "key": "[redacted]",
+          "valueBytes": 13
+        },
+        {
+          "area": "sessionStorage",
+          "key": "[redacted]",
+          "valueBytes": 6
+        }
+      ],
+      "fingerprintEvents": [
+        {
+          "api": "canvas.measureText",
+          "count": 86,
+          "phaseId": 0
+        },
+        {
+          "api": "canvas.getImageData",
+          "count": 9,
+          "phaseId": 0
+        },
+        {
+          "api": "canvas.toDataURL",
+          "count": 2,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+          "count": 2,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+          "count": 2,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl.readPixels",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+          "count": 1,
+          "phaseId": 0
+        },
+        {
+          "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+          "count": 1,
+          "phaseId": 0
+        }
+      ],
+      "fingerprintDetections": [
+        {
+          "kind": "canvas-fingerprinting",
+          "count": 2,
+          "phaseId": 0,
+          "heuristic": "openwpm-canvas-v1",
+          "evidence": {
+            "readApis": [
+              "canvas.toDataURL"
+            ],
+            "maxCanvasWidth": 400,
+            "maxCanvasHeight": 200,
+            "maxDistinctTextCharacters": 66,
+            "maxTextWriteCalls": 10
+          }
+        },
+        {
+          "kind": "canvas-font-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "canvas-font-probing-v1",
+          "evidence": {
+            "measureTextCalls": 86,
+            "maxDistinctFonts": 62,
+            "maxDistinctTextSamples": 6,
+            "maxTextLength": 22
+          }
+        },
+        {
+          "kind": "input-monitoring",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "input-listener-coverage-v1",
+          "evidence": {
+            "eventTypes": [
+              "change",
+              "input",
+              "keydown",
+              "keypress",
+              "keyup",
+              "paste"
+            ],
+            "listenerTargets": [
+              "documentElement",
+              "other",
+              "window"
+            ],
+            "thirdPartyOrigins": [
+              "https://static.{label}.fbcdn.net/"
+            ],
+            "totalListenerCalls": 21
+          }
+        },
+        {
+          "kind": "session-recording",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "interaction-listener-coverage-v1",
+          "evidence": {
+            "eventTypes": [
+              "click",
+              "input",
+              "keydown",
+              "keyup",
+              "mousedown",
+              "mousemove",
+              "mouseup",
+              "pointerdown",
+              "pointermove",
+              "pointerup",
+              "scroll",
+              "selectionchange",
+              "touchmove",
+              "touchstart",
+              "visibilitychange",
+              "wheel"
+            ],
+            "listenerTargets": [
+              "document",
+              "documentElement",
+              "other",
+              "window"
+            ],
+            "thirdPartyOrigins": [
+              "https://static.{label}.fbcdn.net/"
+            ],
+            "totalListenerCalls": 62
+          }
+        },
+        {
+          "kind": "webgl-fingerprinting",
+          "count": 1,
+          "phaseId": 0,
+          "heuristic": "webgl-entropy-read-v1",
+          "evidence": {
+            "readApis": [
+              "webgl.readPixels"
+            ],
+            "parameters": [
+              "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+              "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+              "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+              "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+            ],
+            "getParameterCalls": 34,
+            "readPixelsCalls": 1
+          }
+        }
+      ],
+      "cnameCloaks": [],
+      "pixelEvents": [],
+      "privacyPolicy": {
+        "url": "https://www.facebook.com/privacy/policy",
+        "claims": [],
+        "mentionedEntities": [],
+        "unmentionedEntities": [],
+        "policyTextLength": 399999
+      }
+    },
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.facebook.com/privacy/policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ],
+    "verificationFacts": {
+      "gpc": {
+        "method": "gpc-header-readback@1",
+        "header": "confirmed-present",
+        "jsSignal": "confirmed-true",
+        "observedOn": "first-party-navigation",
+        "phaseId": 0
+      },
+      "shields": {
+        "method": "shields-engine-status@1",
+        "engineLoaded": true,
+        "applied": false,
+        "requestsEvaluated": 23,
+        "requestsMatched": 2,
+        "requestsActuallyBlocked": 0,
+        "phaseId": 0
+      }
+    }
+  },
+  "experiment": {
+    "kind": "intervention",
+    "axis": "gpc",
+    "pairId": "pair-fe30976d8dd21f84cda5cdbb4eddd639",
+    "order": "BA",
+    "verification": {
+      "baseline": {
+        "axis": "gpc",
+        "expected": "gpc:off",
+        "observed": "gpc:off",
+        "method": "gpc-header-readback@1",
+        "outcome": "passed",
+        "phaseId": 0
+      },
+      "variant": {
+        "axis": "gpc",
+        "expected": "gpc:on",
+        "observed": "gpc:on",
+        "method": "gpc-header-readback@1",
+        "outcome": "passed",
+        "phaseId": 0
+      }
+    },
+    "evidence": {
+      "pairs": 1,
+      "counterbalanced": false,
+      "strength": "observed-difference"
+    }
+  },
+  "comparability": {
+    "evaluatorVersion": "2",
+    "metricRegistryVersion": "2",
+    "pairValidity": {
+      "eligible": true,
+      "reasons": []
+    },
+    "perMetric": {
+      "raw-counts": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region"
+        ]
+      },
+      "tracker-classification": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region"
+        ]
+      },
+      "shields-simulation": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region"
+        ]
+      },
+      "consent-verification": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region",
+          "unknown-dimension:consent-interpreter"
+        ]
+      },
+      "detector-findings": {
+        "eligible": false,
+        "reasons": [
+          "unknown-dimension:egress.region"
+        ]
+      }
+    },
+    "interventionVerified": true
+  },
+  "diff": {
+    "families": {
+      "raw-counts": {
+        "eligible": false,
+        "metrics": {
+          "totalRequests": {
+            "baseline": 26,
+            "variant": 26,
+            "delta": 0
+          },
+          "thirdPartyRequests": {
+            "baseline": 21,
+            "variant": 21,
+            "delta": 0
+          },
+          "thirdPartyDomains": {
+            "baseline": 2,
+            "variant": 2,
+            "delta": 0
+          },
+          "cookies": {
+            "baseline": 5,
+            "variant": 5,
+            "delta": 0
+          },
+          "thirdPartyCookies": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          },
+          "storageEntries": {
+            "baseline": 4,
+            "variant": 4,
+            "delta": 0
+          }
+        }
+      },
+      "tracker-classification": {
+        "eligible": false,
+        "metrics": {
+          "knownTrackerRequests": {
+            "baseline": 0,
+            "variant": 0,
+            "delta": 0
+          }
+        },
+        "addedTrackerDomains": [],
+        "removedTrackerDomains": []
+      },
+      "shields-simulation": {
+        "eligible": false,
+        "metrics": {
+          "shieldsBlockedRequests": {
+            "baseline": 2,
+            "variant": 2,
+            "delta": 0
+          }
+        }
+      },
+      "consent-verification": {
+        "eligible": false
+      },
+      "detector-findings": {
+        "eligible": false,
+        "addedDetectionKinds": [],
+        "removedDetectionKinds": []
+      }
+    }
+  },
+  "share": {
+    "id": "20260814-d22de049473bd588f0625e3d22992456",
+    "path": "/reports/20260814-d22de049473bd588f0625e3d22992456/",
+    "jsonPath": "/reports/20260814-d22de049473bd588f0625e3d22992456.json"
+  }
+}
