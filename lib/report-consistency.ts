@@ -29,7 +29,17 @@ export function reportConsistencyViolations(
   findings: readonly Finding[]
 ): ReportConsistencyViolation[] {
   const violations: ReportConsistencyViolation[] = [];
-  const run = facts.display;
+  // The finding-level rules below check the board a reader actually sees, and
+  // buildFindings computes that board from the headline's focused arm (see
+  // validateReportPresentation). Reading the display arm here instead would
+  // test a variant-focused board against the baseline arm's counts, which
+  // both invents violations the reader cannot see and hides real ones: an
+  // absence claim rendered over the variant's own cookies goes unreported
+  // whenever the baseline happens to be clean. Derive the arm through
+  // renderedEvidenceArm rather than headline.focusArm so the gate and the
+  // renderer cannot drift onto two answers.
+  const focusArm = renderedEvidenceArm(facts.view, headline);
+  const run = (focusArm && facts.arms?.[focusArm]) ?? facts.display;
   const headlineRuns =
     headline.semantic.runScope === "pair"
       ? facts.runs

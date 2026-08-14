@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import {
@@ -369,5 +369,67 @@ test("validation rejects hollow, duplicated, and mislabeled entries", () => {
   assert.match(
     validateCoverageBoundary([base]).join(" "),
     /must distinguish declined/
+  );
+});
+
+test("the causality boundary states what the scanner actually records", () => {
+  // The initiator join landed as a pure, unwired module, and this entry then
+  // described a capability no code path provides: RequestInitiatorIndex has no
+  // production caller and the scan opens no CDP session, so no live report has
+  // ever carried an initiator. A published boundary that overstates the
+  // instrument is precisely the defect this surface exists to prevent, so the
+  // wording and the wiring are pinned to each other in both directions.
+  // Reachability from the LIVE PRODUCER, not import presence in the repo.
+  // Presence is the wrong question: the selective calibration CLI already
+  // opens a CDP session of its own, so importing the index there would force
+  // this sentence to be withdrawn while live scans still recorded nothing.
+  // What makes the sentence false is the capture becoming reachable from the
+  // module that produces a live report.
+  const liveProducer = path.join(root, "lib", "scanner.ts");
+  const initiatorModule = path.join(root, "lib", "request-initiator.ts");
+
+  const resolveRepoSpecifier = (specifier: string, fromFile: string): string | null => {
+    const base = specifier.startsWith("@/")
+      ? path.join(root, specifier.slice(2))
+      : specifier.startsWith(".")
+        ? path.resolve(path.dirname(fromFile), specifier)
+        : null;
+    if (base === null) return null;
+    const stripped = base.replace(/\.(js|jsx|mjs)$/, "");
+    for (const candidate of [stripped, `${stripped}.ts`, `${stripped}.tsx`, path.join(stripped, "index.ts")]) {
+      if (existsSync(candidate) && statSync(candidate).isFile()) return candidate;
+    }
+    return null;
+  };
+
+  const reachable = new Set<string>();
+  const queue = [liveProducer];
+  while (queue.length > 0) {
+    const file = queue.pop()!;
+    if (reachable.has(file)) continue;
+    reachable.add(file);
+    const source = readFileSync(file, "utf8");
+    for (const match of source.matchAll(
+      /(?:\bfrom\s*|\bimport\s*\(\s*|\brequire\s*\(\s*)["']([^"']+)["']/g
+    )) {
+      const resolved = resolveRepoSpecifier(match[1], file);
+      if (resolved !== null && !reachable.has(resolved)) queue.push(resolved);
+    }
+  }
+  const productionImporters = reachable.has(initiatorModule)
+    ? [path.relative(root, initiatorModule)]
+    : [];
+
+  const entry = COVERAGE_BOUNDARY_ENTRIES.find(
+    (candidate) => candidate.id === "script-to-request-causality"
+  );
+  assert.ok(entry, "the causality boundary entry must exist");
+
+  assert.equal(
+    entry.explanation.includes("A live scan records no initiator at all"),
+    productionImporters.length === 0,
+    productionImporters.length === 0
+      ? "nothing wires the initiator index, so the boundary must say a live scan records no initiator"
+      : `the live producer now reaches ${productionImporters.join(", ")}, so this boundary text must be rewritten to describe what a live scan records`
   );
 });

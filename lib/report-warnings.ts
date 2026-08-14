@@ -47,6 +47,38 @@ export type ComparisonRunLabels = { baseline: string; variant: string };
 const PREFIX_SEPARATOR = ": ";
 
 /**
+ * The producer records the measurement-limits caveat PER RUN, where "This
+ * report is one automated, headless Chromium visit" is true. A comparison
+ * carries both runs' copies, so after deduping it renders once, at report
+ * level, still telling the reader the report is a single visit directly below
+ * a headline that says "Observed in two automated visits". It is on every
+ * committed comparison, in print, in the PDF, and in the exported JSON.
+ *
+ * The subject is corrected here, on the read side, and only for a report that
+ * really does hold more than one visit. The producer's sentence is an admitted
+ * public string whose bytes feed the r2 normalization identity, so rewriting it
+ * at the producer would retire that identity and require remediating every
+ * published report; nothing about the wire changes here.
+ */
+const SINGLE_VISIT_CLAUSE = " is one automated, headless Chromium visit";
+const MULTI_VISIT_SUBJECTS: ReadonlyArray<readonly [string, string]> = [
+  ["This report", "Each visit in this report"],
+  ["This Cloudflare report", "Each Cloudflare visit in this report"]
+];
+
+export function reSubjectForMultipleVisits(warning: string): string {
+  for (const [subject, replacement] of MULTI_VISIT_SUBJECTS) {
+    const at = warning.indexOf(`${subject}${SINGLE_VISIT_CLAUSE}`);
+    // Only at the start of the sentence: either the whole string, or straight
+    // after a visit-label prefix. Anywhere else it is part of another clause.
+    if (at === -1) continue;
+    if (at !== 0 && !warning.startsWith(PREFIX_SEPARATOR, at - PREFIX_SEPARATOR.length)) continue;
+    return `${warning.slice(0, at)}${replacement}${warning.slice(at + subject.length)}`;
+  }
+  return warning;
+}
+
+/**
  * Group a report's warnings by the visit that recorded them.
  *
  * @param warnings The report-level warning list, exactly as the view carries it.
@@ -58,7 +90,13 @@ export function groupReportWarnings(
 ): ReportWarningGroup[] {
   // Reports saved before the collector deduped can carry exact-duplicate
   // warnings; a repeat adds nothing and would break the message-text keys.
-  const unique = [...new Set(warnings)];
+  // A single-run report is correctly described by the producer's own sentence,
+  // so the re-subjecting applies only where a second visit exists. It runs
+  // before the label prefixes are stripped so the flat fall back is corrected
+  // too, and it preserves any prefix it finds.
+  const unique = [...new Set(warnings)].map((warning) =>
+    runLabels === null ? warning : reSubjectForMultipleVisits(warning)
+  );
   if (unique.length === 0) return [];
   if (!canAttribute(runLabels)) return [{ scope: "report", label: null, warnings: unique }];
 

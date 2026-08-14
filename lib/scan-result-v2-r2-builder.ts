@@ -287,6 +287,25 @@ export function buildNodeScanReportV2R2(
     publicPass,
     qualityFacts
   );
+  // Shields counts are frozen at the passive-load settle boundary, counted over
+  // the rows the scanner retained. sanitizeEvidence then drops rows that cannot
+  // be published (a host with no registrable domain, or the record cap), and a
+  // dropped row can be one that carried a blockedByShields flag. That leaves a
+  // counted match with no retained flag, which the r2 evaluator reads as a lost
+  // flag (scan-report-v2-r2-evaluators.ts) and refuses to build, so an otherwise
+  // healthy scan persists nothing at all. Clamp the published count down to the
+  // flags that actually survived, before buildSummary derives from it. Downward
+  // only: the freeze deliberately leaves a post-boundary straggler uncounted, so
+  // recounting from the published rows would wrongly inflate it. The drop is
+  // already disclosed as a capture loss above, so this adds no new public string.
+  const shieldsFacts = verificationFacts?.shields;
+  if (shieldsFacts !== undefined && conditions.shields === "classification") {
+    const publishedFlags = evidence.requests.filter(
+      (request) => request.phaseId === shieldsFacts.phaseId && request.blockedByShields === true
+    ).length;
+    shieldsFacts.requestsMatched = Math.min(shieldsFacts.requestsMatched, publishedFlags);
+  }
+
   const consentFacts =
     input.consent === undefined
       ? undefined

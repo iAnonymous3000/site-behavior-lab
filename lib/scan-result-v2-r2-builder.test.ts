@@ -1013,6 +1013,97 @@ test("failed intervention application remains evidence instead of being rejected
   assert.equal(report.run.verificationFacts?.shields?.applied, false);
 });
 
+test("a shields match dropped by publication is clamped instead of failing the build", () => {
+  // requestsMatched is frozen over the rows the scanner retained, but a host
+  // with no registrable domain can never be published, so its blockedByShields
+  // flag does not reach the wire. The evaluator reads a counted match with no
+  // retained flag as evidence loss, so before the clamp this threw and the
+  // whole scan persisted nothing, which is a strictly worse outcome than
+  // publishing the count the evidence can actually support.
+  const input = baseInput();
+  input.evidence.requests.push({
+    id: 2,
+    url: "https://s3.amazonaws.com/assets/pixel.gif",
+    domain: "s3.amazonaws.com",
+    method: "GET",
+    resourceType: "image",
+    status: 200,
+    thirdParty: true,
+    tracker: null,
+    blockedByShields: true,
+    startedAtMs: 40,
+    phaseId: 0
+  });
+  input.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 5,
+      requestsMatched: 1,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+
+  const report = buildNodeScanReportV2R2(input);
+
+  assert.equal(
+    report.run.evidence.requests.some((request) => request.domain === "s3.amazonaws.com"),
+    false,
+    "the unregistrable host must still be withheld from the wire"
+  );
+  assert.equal(report.run.verificationFacts?.shields?.requestsMatched, 0);
+  assert.equal(report.run.summary.counts.shieldsBlockedRequests, 0);
+  assert.equal(
+    report.run.verificationFacts?.shields?.requestsEvaluated,
+    5,
+    "the clamp must lower only the matched count, never what the engine evaluated"
+  );
+  assert.ok(
+    report.run.qualityFacts.captureLoss.some(
+      (loss) => loss.detail === "public-request-unregistrable-hosts"
+    ),
+    "the dropped row stays disclosed, so the clamp needs no new public string"
+  );
+  assert.deepEqual(scanReportV2R2SemanticViolations(toPublicScanReportR2(report)), []);
+});
+
+test("a shields match retained on the wire is never clamped away", () => {
+  // The clamp must not paper over real evidence loss: a flag that survives
+  // publication still has to support its count.
+  const input = baseInput();
+  input.evidence.requests.push({
+    id: 2,
+    url: "https://cdn.metrics-corp.com/beacon.gif",
+    domain: "cdn.metrics-corp.com",
+    method: "GET",
+    resourceType: "image",
+    status: 200,
+    thirdParty: true,
+    tracker: null,
+    blockedByShields: true,
+    startedAtMs: 40,
+    phaseId: 0
+  });
+  input.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 5,
+      requestsMatched: 1,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+
+  const report = buildNodeScanReportV2R2(input);
+
+  assert.equal(report.run.verificationFacts?.shields?.requestsMatched, 1);
+  assert.equal(report.run.summary.counts.shieldsBlockedRequests, 1);
+});
+
 test("the named-field r2 projection strips screenshots and reader dispatch accepts the result", () => {
   const shell = buildNodeScanReportV2R2(baseInput());
   const publicReport = toPublicScanReportR2(shell);
