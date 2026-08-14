@@ -1006,9 +1006,40 @@ function nodeTupleMatches(run: ScanRunV2R2, tuple: NodeR2ProducerTuple): boolean
     canonicalJson(run.provenance.detectorRegistry) === canonicalJson(tuple.detectorRegistry) &&
     canonicalJson(detectorVersions(run.detectors)) === canonicalJson(tuple.detectorVersions) &&
     canonicalJson(run.toolchain.trackerCatalog) === canonicalJson(tuple.trackerCatalog) &&
-    canonicalJson(run.toolchain.adblock) === canonicalJson(tuple.adblockIdentity) &&
+    canonicalJson(braveListMeasurementIdentity(run.toolchain.adblock)) ===
+      canonicalJson(braveListMeasurementIdentity(tuple.adblockIdentity)) &&
     canonicalJson(nodeRuntimeIdentity(run)) === canonicalJson(tuple.runtimeIdentity)
   );
+}
+
+/**
+ * Drop the fetch timestamp from a Brave-list identity before comparing it.
+ *
+ * ONE DEFINITION, because this rule is asserted in two places that must not
+ * drift: the Node producer tuple here, and the calibration analyzer's
+ * `brave-list-revision-mismatch`. Those identities carry different fields --
+ * calibration also records `catalogCommit`, `catalogDigest` and `rulesDigest`
+ * -- so this strips by key rather than rebuilding a shape, and stays correct
+ * for both.
+ *
+ * WHY `fetchedAt` IS NOT IDENTITY. `manifestDigest` is sha256 over every
+ * source's url, byte length and sha256, so it fixes the rule bytes exactly. The
+ * timestamp records only when the download happened, and
+ * `scripts/fetch-brave-lists.mjs` stamps a fresh one on every run. Comparing it
+ * asserted that two measurements against byte-identical rules were different
+ * measurements: it made the weekly refresh fail on every run, and in the
+ * calibration path it would retire a study over a refetch that changed nothing.
+ *
+ * NOT A WEAKENING. Everything that determines behaviour still compares exactly,
+ * so a genuine rule change remains a new identity in both callers and still
+ * demands a reviewed commit. `fetchedAt` stays on the wire as provenance.
+ */
+export function braveListMeasurementIdentity(
+  identity: Record<string, unknown> | null | undefined
+): Record<string, unknown> | null | undefined {
+  if (identity === null || identity === undefined) return identity;
+  const { fetchedAt: _fetchedAt, ...measured } = identity;
+  return measured;
 }
 
 function detectorVersions(detectors: DetectorLedger): Readonly<Record<DetectorId, string>> {

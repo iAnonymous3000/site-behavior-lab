@@ -431,9 +431,26 @@ test("one-field Node substitutions cannot synthesize an unreviewed producer", ()
     ["tracker digest", (run) => { run.toolchain.trackerCatalog.digest = "0".repeat(64); }],
     ["adblock source", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.source += " mixed"; }],
     ["adblock lists", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.lists += 1; }],
-    // One millisecond off the active snapshot: a near-miss list identity is not
-    // a reviewed producer row.
-    ["adblock fetchedAt", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.fetchedAt = "2026-08-11T18:35:37.417Z"; }],
+    // `adblock fetchedAt` used to be listed here, on the reasoning that one
+    // millisecond off the active snapshot is a near-miss identity rather than a
+    // reviewed producer row. That instinct is right, and it still holds for
+    // every field below -- but it was aimed at the wrong one.
+    //
+    // A differing `fetchedAt` with an identical `manifestDigest` is not a near
+    // miss. The digest is sha256 over every source's url, byte length and
+    // sha256, so it fixes the rule bytes exactly; the timestamp records only
+    // when the download happened. Treating it as identity asserted that two
+    // reports measured against byte-identical rules were different
+    // measurements, which is false, and it made the scheduled refresh fail on
+    // every run including the ones where upstream had not moved. A check that
+    // cannot pass carries no signal: a real breakage and an ordinary week were
+    // indistinguishable.
+    //
+    // The review this protects is already digest-scoped -- THIRD_PARTY_REVIEWS
+    // keys filter lists by `url@sha256` -- so a refetch of identical bytes
+    // inherits it exactly. `fetchedAt` stays on the wire as provenance, and the
+    // two guards below still reject a moved manifest or engine, which is what
+    // makes a genuine rule change a new identity.
     ["adblock digest", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.manifestDigest = "0".repeat(64); }],
     ["adblock engine", (run) => { if (run.toolchain.adblock) run.toolchain.adblock.engineVersion += "-mixed"; }],
     ["source artifact", (run) => { run.provenance.sourceArtifactDigest = "0".repeat(64); }],
@@ -654,4 +671,59 @@ test("every committed managed bundle remains readable through the exact producer
     });
     assert.equal(read.ok, true, `${name}: ${read.ok ? "" : read.reason}`);
   }
+});
+
+test("a refetched but unchanged Brave snapshot is the same measurement identity", () => {
+  // The weekly refresh stamps a fresh `fetchedAt` on every run, even when
+  // upstream has not moved a byte. While that field participated in the tuple
+  // match, the scheduled job could never pass: the snapshot it produced never
+  // equalled the pinned literal, so the refresh was red every week regardless
+  // of whether anything had actually changed.
+  const tuple = NODE_R2_PRODUCER_TUPLES.find((candidate) => candidate.adblockIdentity !== null);
+  assert.ok(tuple, "a Node tuple with an adblock identity is required for this guard");
+
+  const run = runForTuple(tuple!);
+  assert.ok(run.toolchain.adblock, "the fixture run must carry an adblock identity");
+  run.toolchain.adblock = {
+    ...run.toolchain.adblock!,
+    fetchedAt: "2099-01-01T00:00:00.000Z"
+  };
+  assert.notEqual(
+    run.toolchain.adblock.fetchedAt,
+    tuple!.adblockIdentity!.fetchedAt,
+    "the fixture must actually differ in the field under test"
+  );
+  assert.doesNotThrow(
+    () => assertR2ProducerContract(run),
+    "a refetch of identical rules must not be treated as a new measurement identity"
+  );
+});
+
+test("changed Brave rules are still a different measurement identity", () => {
+  // The other direction, and the reason the field above can be dropped safely:
+  // `manifestDigest` is sha256 over every source's url, bytes and sha256, so it
+  // determines the rule content completely. If it moves, the measurement really
+  // did change and a reviewed commit is still required.
+  const tuple = NODE_R2_PRODUCER_TUPLES.find((candidate) => candidate.adblockIdentity !== null);
+  assert.ok(tuple, "a Node tuple with an adblock identity is required for this guard");
+
+  const run = runForTuple(tuple!);
+  run.toolchain.adblock = {
+    ...run.toolchain.adblock!,
+    manifestDigest: "0".repeat(64)
+  };
+  assert.throws(
+    () => assertR2ProducerContract(run),
+    R2ProducerContractError,
+    "a different rule manifest must not pass as the pinned producer"
+  );
+
+  // Same for the engine: identical rules under a different engine version are a
+  // different measurement, and dropping fetchedAt must not have loosened this.
+  const engineRun = runForTuple(tuple!);
+  engineRun.toolchain.adblock = {
+    ...engineRun.toolchain.adblock!,
+    engineVersion: "adblock-rust-0.0.0-not-the-pinned-engine"
+  };
+  assert.throws(() => assertR2ProducerContract(engineRun), R2ProducerContractError);
 });
