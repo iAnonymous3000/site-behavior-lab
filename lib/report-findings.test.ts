@@ -2871,20 +2871,24 @@ test("a comparison card that observed no change never asserts a difference", () 
     ]
   ];
 
+  let asserted = 0;
   for (const [cardId, build] of flatPairs) {
     const card = build().find((finding) => finding.id === cardId);
-    if (!card) continue;
-    const saysNoChange = /No change observed|showed no change in the comparable metrics/.test(
-      `${card.title} ${card.lead}`
+    assert.ok(card, `${cardId} must render for an identical pair`);
+    assert.match(
+      `${card.title} ${card.lead}`,
+      /No change observed|showed no change in the comparable metrics/,
+      `${cardId} fixture must actually be flat, or this guard proves nothing`
     );
-    if (!saysNoChange) continue;
     assert.doesNotMatch(
       card.detail,
-      /\bAn observed difference\b|treat this as an observed difference\b/,
+      /\\bAn observed difference\\b|treat this as an observed difference\\b/,
       `${cardId} says no change was observed and must not assert one in the same card`
     );
     // The limitation itself must survive the branch: dropping the
     // run-to-run-variance caveat would trade one inaccuracy for a worse one.
     assert.match(card.detail, /run-to-run variance/);
+    asserted += 1;
   }
+  assert.equal(asserted, flatPairs.length, "every fixture must reach the assertions");
 });

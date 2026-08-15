@@ -2,7 +2,8 @@
 
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
-import { sortSiteEvidenceRows, type SiteEvidenceRow, type SiteEvidenceSortKey } from "@/lib/site-evidence-row";
+import type { SiteEvidenceRow } from "@/lib/site-evidence-row";
+import { sortSiteEvidenceRows, type SiteEvidenceSortKey } from "@/lib/site-evidence-sort";
 import styles from "./site-evidence-table.module.css";
 
 /**

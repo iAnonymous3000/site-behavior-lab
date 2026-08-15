@@ -1421,7 +1421,7 @@ export function buildFindings(
           detail: `${
             removedEntityNames.length > 0 ? `Services only seen in the unblocked visit: ${humanList(removedEntityNames)}. ` : ""
           }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as ${
-            direction === "flat"
+            direction === "flat" && removedEntityNames.length === 0
               ? "no observed difference for this pair of visits, not evidence that blocking removes nothing"
               : "an observed difference, not a measured blocking rate"
           }.`,
@@ -1539,13 +1539,19 @@ export function buildFindings(
               : `The visit configured with a "do not sell or share" (GPC) signal showed ${humanList(changedParts, 4)}.`,
           // The card's own title and lead say "no change" on the flat branch,
           // so asserting "An observed difference" in the same card contradicts
-          // it. Same sentence d3fd83e removed from the headline; the limitation
-          // clause after it is word for word identical in both branches,
-          // because that part is true either way.
+          // it. Same sentence d3fd83e removed from the headline.
+          //
+          // `direction` is computed from signed COUNT deltas alone, while
+          // `removedEntityNames` is a set difference over entities. They are
+          // independent, and both fire together on the commonest case the
+          // caveat itself names: ad rotation swaps Criteo for Taboola at equal
+          // counts. Denying a difference one sentence after naming a service
+          // seen in only one visit would be a worse claim than the one this
+          // replaces, so the denial is conditioned on BOTH being empty.
           detail: `${
             removedEntityNames.length > 0 ? `Services only seen in the visit without the signal: ${humanList(removedEntityNames)}. ` : ""
           }${
-            direction === "flat"
+            direction === "flat" && removedEntityNames.length === 0
               ? "No observed difference for this pair of visits, which is not proof the site received or honored the signal"
               : "An observed difference for this pair of visits, not proof the site received or honored the signal"
           }. A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments).`,

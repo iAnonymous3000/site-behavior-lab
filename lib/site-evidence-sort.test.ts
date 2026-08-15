@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  siteEvidenceValueIsRankable,
-  sortSiteEvidenceRows,
-  type SiteEvidenceRow
-} from "./site-evidence-row";
+import type { SiteEvidenceRow } from "./site-evidence-row";
+import { siteEvidenceValueIsRankable, sortSiteEvidenceRows } from "./site-evidence-sort";
 
 function row(domain: string, overrides: Partial<SiteEvidenceRow> = {}): SiteEvidenceRow {
   return {
