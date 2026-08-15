@@ -36,7 +36,11 @@ Work landing after the 0.5.0 milestone. Nothing here is released.
   sees per-target diagnostics; the counts now travel through that projection.
   Counts only: no target names, messages, or URLs reach the public issue, and a
   taxonomy that contradicts the counts beside it is dropped rather than
-  rendered.
+  rendered. The classification itself now reads the producer's structured
+  reason for the four values that name the site declining, rather than the
+  English diagnostic; the fifth is its catch-all and covers three outcomes that
+  are the scanner's, so it keeps going through the sentence, which separates
+  them.
 
 ## [0.5.0] - 2026-08-11
 
