@@ -48,12 +48,27 @@ test("every automation proposal explains both CI lanes and the manual approval",
     assert.ok(pullRequestCreates.length > 0);
     for (const [index, pullRequestCreate] of pullRequestCreates.entries()) {
       const command = `${workflowName} gh pr create #${index + 1}`;
-      const bodyStart = source.lastIndexOf("printf '%s\\n'", pullRequestCreate);
+      // Slice from the FIRST body-building printf inside the step that opens
+      // the pull request, not the last one before it.
+      //
+      // `lastIndexOf` assumed a body is built by exactly one printf. A step
+      // that appends a conditional section afterwards -- Brave-list refresh now
+      // appends the measurement identity a maintainer must declare -- moved the
+      // anchor past the guidance and failed a workflow whose body still carried
+      // every required sentence. The step boundary is the real scope: it cannot
+      // reach a neighbouring step, and no number of appends can hide text from
+      // it.
+      const stepStart = source.lastIndexOf("\n      - name:", pullRequestCreate);
+      const bodyStart = source.indexOf("printf '%s\\n'", stepStart === -1 ? 0 : stepStart);
 
       assert.notEqual(
         bodyStart,
         -1,
         `${command} must build a reviewable PR body first`
+      );
+      assert.ok(
+        bodyStart < pullRequestCreate,
+        `${command} must build its body before opening the pull request`
       );
       const body = source.slice(bodyStart, pullRequestCreate);
 
