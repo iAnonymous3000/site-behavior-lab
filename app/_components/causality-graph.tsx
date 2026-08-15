@@ -101,7 +101,24 @@ function truncateMiddle(value: string, max = 30): string {
   return `${value.slice(0, keep)}…${value.slice(value.length - keep)}`;
 }
 
-function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
+function CausalityGraph({
+  requests,
+  /**
+   * How the evidence was produced, because it decides what this section IS.
+   *
+   * A PageGraph import carries an instrumented causal graph. A live Node scan
+   * carries the initiator URL Chromium reported for each request, which is
+   * attribution and not causation: an initiator may itself have been told what
+   * to fetch, and rows with no initiator are not distinguished from rows whose
+   * URL was fetched from several. Captioning both "from PageGraph provenance"
+   * told a live reader they had the stronger artifact.
+   */
+  automation
+}: {
+  requests: NetworkRequestRecord[];
+  automation: string;
+}) {
+  const instrumented = automation === "brave-pagegraph";
   const { edges, totalEdges } = useMemo(() => buildCausalEdges(requests), [requests]);
   const headingId = useId();
   const scrollDescriptionId = useId();
@@ -143,7 +160,9 @@ function CausalityGraph({ requests }: { requests: NetworkRequestRecord[] }) {
       <div className="section-heading">
         <h2 id={headingId}>Causal map</h2>
         <span className="muted">
-          Which recorded actor each third-party request is attributed to, from PageGraph provenance.
+          {instrumented
+            ? "Which recorded actor each third-party request is attributed to, from PageGraph provenance."
+            : "Which actor each third-party request is attributed to, from the initiator the browser reported. Attribution, not causation: an initiator may itself have been told what to fetch, and requests with no reported initiator are not distinguished from ones fetched from several."}
         </span>
       </div>
       <p className="visually-hidden" id={scrollDescriptionId}>
