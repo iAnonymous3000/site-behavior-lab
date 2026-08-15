@@ -1420,7 +1420,11 @@ export function buildFindings(
               : `With ${simulationNote}, this paired visit showed ${humanList(changedParts, 4)}.`,
           detail: `${
             removedEntityNames.length > 0 ? `Services only seen in the unblocked visit: ${humanList(removedEntityNames)}. ` : ""
-          }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference, not a measured blocking rate.`,
+          }${engineNote ? `${engineNote.trim()} ` : ""}A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as ${
+            direction === "flat" && removedEntityNames.length === 0
+              ? "no observed difference for this pair of visits, not evidence that blocking removes nothing"
+              : "an observed difference, not a measured blocking rate"
+          }.`,
           evidence: `Signed per-metric differences between the two visits; nothing is summed across metrics.`
         });
       }
@@ -1533,9 +1537,24 @@ export function buildFindings(
                   4
                 )}).`
               : `The visit configured with a "do not sell or share" (GPC) signal showed ${humanList(changedParts, 4)}.`,
+          // The card's own title and lead say "no change" on the flat branch,
+          // so asserting "An observed difference" in the same card contradicts
+          // it. Same sentence d3fd83e removed from the headline.
+          //
+          // `direction` is computed from signed COUNT deltas alone, while
+          // `removedEntityNames` is a set difference over entities. They are
+          // independent, and both fire together on the commonest case the
+          // caveat itself names: ad rotation swaps Criteo for Taboola at equal
+          // counts. Denying a difference one sentence after naming a service
+          // seen in only one visit would be a worse claim than the one this
+          // replaces, so the denial is conditioned on BOTH being empty.
           detail: `${
             removedEntityNames.length > 0 ? `Services only seen in the visit without the signal: ${humanList(removedEntityNames)}. ` : ""
-          }An observed difference for this pair of visits, not proof the site received or honored the signal. A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments).`,
+          }${
+            direction === "flat" && removedEntityNames.length === 0
+              ? "No observed difference for this pair of visits, which is not proof the site received or honored the signal"
+              : "An observed difference for this pair of visits, not proof the site received or honored the signal"
+          }. A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments).`,
           evidence: `Signed per-metric differences between the two visits; nothing is summed across metrics.`
         });
       }
@@ -2042,9 +2061,14 @@ function buildConsentComparisonFinding(
         : classificationAllowed
           ? "No request to a catalogued tracking-related service was recorded in either visit; this describes only the two observed visits, not whether there was little to consent to."
           : "The visit where the scanner clicked Reject all recorded no request to a catalogued tracking-related service.",
-    detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as an observed difference for this pair of visits.${
-      rejectEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""
-    }`,
+    // "An observed difference" is only true when there was one. This card also
+    // fires when NEITHER visit recorded a catalogued tracking-related service,
+    // where the honest caveat is about the absence rather than about a delta.
+    detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} A single paired comparison can also reflect run-to-run variance (ad rotation, caching, experiments), so treat this as ${
+      classificationAllowed && acceptTracking.length > 0
+        ? "an observed difference for this pair of visits"
+        : "what these two visits recorded, not evidence that the choice made no difference"
+    }.${rejectEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
     evidence
   };
 }

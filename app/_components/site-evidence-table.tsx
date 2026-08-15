@@ -3,6 +3,7 @@
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { SiteEvidenceRow } from "@/lib/site-evidence-row";
+import { sortSiteEvidenceRows, type SiteEvidenceSortKey } from "@/lib/site-evidence-sort";
 import styles from "./site-evidence-table.module.css";
 
 /**
@@ -29,7 +30,7 @@ import styles from "./site-evidence-table.module.css";
  */
 
 
-type SortKey = "domain" | "thirdPartyRequests" | "trackerRequests" | "thirdPartyCookies" | "scannedAt";
+type SortKey = SiteEvidenceSortKey;
 
 const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
   { key: "domain", label: "Site", numeric: false },
@@ -71,22 +72,7 @@ export function SiteEvidenceTable({
             row.categoryLabel.toLowerCase().includes(needle)
         )
       : rows;
-    const direction = sort.descending ? -1 : 1;
-    return [...filtered].sort((left, right) => {
-      if (sort.key === "domain") return direction * left.domain.localeCompare(right.domain);
-      if (sort.key === "scannedAt") {
-        return direction * (Date.parse(left.scannedAt) - Date.parse(right.scannedAt));
-      }
-      // A count that was never measured must not sort as zero, which would rank
-      // "not measured" alongside a site that genuinely set none. Those rows sink
-      // to the bottom of either direction instead.
-      const leftMeasured = measured(left, sort.key);
-      const rightMeasured = measured(right, sort.key);
-      if (leftMeasured !== rightMeasured) return leftMeasured ? -1 : 1;
-      return (
-        direction * (left[sort.key] - right[sort.key]) || left.domain.localeCompare(right.domain)
-      );
-    });
+    return sortSiteEvidenceRows(filtered, sort);
   }, [filterable, query, rows, sort]);
 
   function toggle(key: SortKey) {
@@ -254,6 +240,3 @@ export function SiteEvidenceTable({
  * refuses to publish that number as a figure; it must not publish it as a rank
  * either.
  */
-function measured(row: SiteEvidenceRow, key: Exclude<SortKey, "domain" | "scannedAt">): boolean {
-  return key === "thirdPartyCookies" ? row.cookieEvidenceComplete : row.requestEvidenceComplete;
-}
