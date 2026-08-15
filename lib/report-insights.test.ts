@@ -370,4 +370,14 @@ test("listener-coverage evidence names addEventListener calls instead of live li
     evidence: { ...detection.evidence, totalListenerCalls: 1 }
   });
   assert.match(single, /1 third-party addEventListener call from/);
+
+  const privacyReduced = detectionEvidence({
+    ...detection,
+    evidence: {
+      ...detection.evidence,
+      thirdPartyOrigins: ["https://static.{label}.fbcdn.net/{seg}"]
+    }
+  });
+  assert.match(privacyReduced, /https:\/\/static\.\*\.fbcdn\.net\/…/);
+  assert.doesNotMatch(privacyReduced, /\{label\}|\{seg\}/);
 });

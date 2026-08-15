@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
-import { displayHost, hostMatchesQuery, plural } from "@/lib/text-format";
+import { displayHost, displayPublicUrl, hostMatchesQuery, plural } from "@/lib/text-format";
 import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
@@ -239,6 +239,7 @@ function RequestTable({
       return (
         hostMatchesQuery(request.domain, q) ||
         request.url.toLowerCase().includes(q) ||
+        displayPublicUrl(request.url).toLowerCase().includes(q) ||
         request.method.toLowerCase().includes(q) ||
         request.resourceType.toLowerCase().includes(q) ||
         requestProvenanceSearchText(request).toLowerCase().includes(q) ||
@@ -298,6 +299,9 @@ function RequestTable({
       </summary>
       {printComplete || opened ? (
         <>
+      <p className="muted privacy-filter-note">
+        In hosts and URLs, * and … mark details hidden for privacy.
+      </p>
       <div className="section-tools disclosure-tools request-log-tools">
         <div className="request-filter-chips" role="group" aria-label="Request signal filters">
           {REQUEST_SIGNAL_FILTERS.map((filter) => (
@@ -385,7 +389,7 @@ function RequestTable({
                 <td data-label="Provenance">
                   <RequestProvenanceCell request={request} />
                 </td>
-                <td className="url-cell mono" data-label="URL">{request.url}</td>
+                <td className="url-cell mono" data-label="URL">{displayPublicUrl(request.url)}</td>
               </tr>
             ))}
           </tbody>

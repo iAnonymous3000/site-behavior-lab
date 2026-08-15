@@ -10,7 +10,7 @@ import {
   isOperationalOnlyEntity as hasOperationalOnlyServiceRoles,
   isTrackingRelatedEntity as hasTrackingRelatedServiceRole
 } from "./service-role";
-import { humanList, plural } from "./text-format";
+import { displayPublicUrl, humanList, plural } from "./text-format";
 import type {
   DomainSummary,
   FingerprintDetectionSummary,
@@ -510,7 +510,7 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
   // listeners live at snapshot time: re-adding an identical handler is a DOM
   // no-op that still increments, and a removed handler still counts.
   return `${plural(detection.evidence.totalListenerCalls, "third-party addEventListener call")} from ${humanList(
-    detection.evidence.thirdPartyOrigins
+    detection.evidence.thirdPartyOrigins.map(displayPublicUrl)
   )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(
     detection.evidence.listenerTargets
   )}; repeat registrations of the same handler count separately and removals are not observed`;

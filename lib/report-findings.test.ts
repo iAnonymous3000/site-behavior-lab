@@ -9,7 +9,7 @@ import {
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
-import { buildFindings, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
+import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { HEADLINE_PLATFORMS, isTrackingTrackerMatch } from "./report-insights";
 import { COMPARED_POLICY_CLAIM_KINDS } from "./privacy-policy";
@@ -1534,6 +1534,18 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
   const cleanCard = byId(buildFindings(viewFromV1Report(crossSiteOnly), null), "session-recording-input-monitoring");
   assert.match(cleanCard.evidence, /4 third-party input listeners from/);
   assert.doesNotMatch(cleanCard.evidence, /attributed across/);
+
+  const privacyReducedOrigin = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [sameSiteDomain],
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://static.{label}.fbcdn.net/{seg}"])]
+  });
+  const privacyReducedCard = byId(
+    buildFindings(viewFromV1Report(privacyReducedOrigin), null),
+    "session-recording-input-monitoring"
+  );
+  assert.match(privacyReducedCard.evidence, /https:\/\/static\.\*\.fbcdn\.net\/…/);
+  assert.doesNotMatch(privacyReducedCard.evidence, /\{label\}|\{seg\}/);
 });
 
 test("the session-recording lead names only the event categories the detection recorded", () => {
@@ -2699,6 +2711,29 @@ test("the causal map names each provenance actor with the request log's own word
     }
   };
   assert.equal(requestProvenanceSummary(scripted)?.primary, "script tags.example.net");
+
+  const privacyReduced: NetworkRequestRecord = {
+    ...base,
+    provenance: {
+      initiatorDomain: "static.{label}.fbcdn.net",
+      initiatorUrl: "https://static.{label}.fbcdn.net/{seg}/{seg}"
+    }
+  };
+  assert.equal(
+    requestProvenanceSummary(privacyReduced)?.primary,
+    "initiated by static.*.fbcdn.net"
+  );
+  assert.equal(
+    provenanceChangeText({
+      domain: "{label}.fbsbx.com",
+      requests: 1,
+      tracker: null,
+      initiator: "parser https://static.{label}.fbcdn.net/{seg}/{seg}",
+      script: null,
+      injectedBy: null
+    }),
+    "initiator parser https://static.*.fbcdn.net/…"
+  );
 
   const graph = readFileSync(path.join(process.cwd(), "app", "_components", "causality-graph.tsx"), "utf8");
 

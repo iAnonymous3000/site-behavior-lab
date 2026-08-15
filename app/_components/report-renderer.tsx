@@ -36,7 +36,7 @@ import {
   type ReportView,
   type RunView
 } from "@/lib/scan-report-views";
-import { plural } from "@/lib/text-format";
+import { displayHost, plural } from "@/lib/text-format";
 
 /**
  * The evidence-heavy half of the product. The homepage imports this module
@@ -116,14 +116,14 @@ export function ReportRenderer({
   const screenshotFailedLoad = !displayedFacts.subject.describesSubject;
   const screenshotSubject =
     screenshotFailureStatus !== null
-      ? `the HTTP ${screenshotFailureStatus} error or block page returned by ${displayedRun.domain}`
+      ? `the HTTP ${screenshotFailureStatus} error or block page returned by ${displayHost(displayedRun.domain)}`
       : screenshotSubjectUnverified
-        ? `an unverified page subject returned while scanning ${displayedRun.domain}`
+        ? `an unverified page subject returned while scanning ${displayHost(displayedRun.domain)}`
         : screenshotSoftBlock
-          ? `the suspected challenge or soft-block page returned by ${displayedRun.domain}`
+          ? `the suspected challenge or soft-block page returned by ${displayHost(displayedRun.domain)}`
           : screenshotFailedLoad
-            ? `the page ${displayedRun.domain} returned on a load that did not complete`
-            : displayedRun.domain;
+            ? `the page ${displayHost(displayedRun.domain)} returned on a load that did not complete`
+            : displayHost(displayedRun.domain);
 
   async function downloadReport() {
     const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
@@ -167,7 +167,7 @@ export function ReportRenderer({
   return (
     <PrintCompleteProvider value={printComplete}>
       <p className="visually-hidden" role="status" aria-live="polite">
-        {`Scan report ready for ${primaryRun.domain}: ${plural(
+        {`Scan report ready for ${displayHost(primaryRun.domain)}: ${plural(
           primaryRun.evidence.requests.length,
           "recorded request row"
         )}.${reportFacts.display.subject.describesSubject ? "" : " The requested page was not established."}`}

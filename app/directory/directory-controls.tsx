@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import { normalizeDirectorySearchQuery } from "@/lib/directory-search";
-import { plural } from "@/lib/text-format";
+import { displayHost, plural } from "@/lib/text-format";
 import styles from "./directory.module.css";
 
 type SearchSite = { domain: string; path: string; category: string; categoryPath: string };
@@ -61,7 +61,7 @@ export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; 
           <ul aria-label="Matching site profiles" className={styles.searchMatches}>
             {matches.map((site) => (
               <li key={site.domain}>
-                <a href={site.path}>{site.domain}</a>
+                <a href={site.path}>{displayHost(site.domain)}</a>
                 <span>{site.category}</span>
               </li>
             ))}

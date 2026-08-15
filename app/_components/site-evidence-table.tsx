@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { SiteEvidenceRow } from "@/lib/site-evidence-row";
 import { sortSiteEvidenceRows, type SiteEvidenceSortKey } from "@/lib/site-evidence-sort";
+import { displayHost } from "@/lib/text-format";
 import styles from "./site-evidence-table.module.css";
 
 /**
@@ -69,6 +70,7 @@ export function SiteEvidenceTable({
       ? rows.filter(
           (row) =>
             row.domain.toLowerCase().includes(needle) ||
+            displayHost(row.domain).toLowerCase().includes(needle) ||
             row.categoryLabel.toLowerCase().includes(needle)
         )
       : rows;
@@ -184,7 +186,7 @@ export function SiteEvidenceTable({
               <tr className={`tone-${row.tone}`} key={row.domain}>
                 <th scope="row" data-label="Site">
                   <a className={styles.siteLink} href={row.profileHref}>
-                    {row.domain}
+                    {displayHost(row.domain)}
                   </a>
                   <span className={styles.siteHeadline}>{row.headline}</span>
                   <span className={styles.siteMeta}>

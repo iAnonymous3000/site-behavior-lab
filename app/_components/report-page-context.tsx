@@ -21,6 +21,7 @@ import {
   type RunView
 } from "@/lib/scan-report-views";
 import { printableReportHref, reportPdfHref, sitePagesBasePath } from "@/lib/site-url";
+import { displayHost, displayPublicUrl } from "@/lib/text-format";
 
 const SOURCE_REPOSITORY = "https://github.com/iAnonymous3000/site-behavior-lab";
 const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
@@ -73,7 +74,7 @@ export function ReportPageContext({
           {profileHref && (
             <>
               <li aria-hidden="true">/</li>
-              <li><a href={profileHref}>{view.domain}</a></li>
+              <li><a href={profileHref}>{displayHost(view.domain)}</a></li>
             </>
           )}
           <li aria-hidden="true">/</li>
@@ -89,8 +90,8 @@ export function ReportPageContext({
           <p className="eyebrow">
             {runVisitLabel(run)} <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
           </p>
-          <h1>{run.domain}</h1>
-          <p className="report-url">{run.conditions.requestedUrl}</p>
+          <h1>{displayHost(run.domain)}</h1>
+          <p className="report-url">{displayPublicUrl(run.conditions.requestedUrl)}</p>
         </div>
         <p className="report-identity-when">{formatTimestamp(run.startedAt ?? view.scannedAt)}</p>
         <p className="report-identity-quality">{runQualitySummary(run)}</p>
@@ -220,7 +221,7 @@ export function ReportEvidenceReceipt({
 
         <dl className="evidence-receipt-summary">
           <ReceiptFact term="Report ID"><code>{id}</code></ReceiptFact>
-          <ReceiptFact term="Site"><span>{view.domain}</span></ReceiptFact>
+          <ReceiptFact term="Site"><span>{displayHost(view.domain)}</span></ReceiptFact>
           <ReceiptFact term={view.reportType === "comparison" ? "Latest visit" : "Scan date"}>
             <time dateTime={(view.latestRunAt ?? view.scannedAt) ?? undefined}>
               {formatTimestamp(view.latestRunAt ?? view.scannedAt)}

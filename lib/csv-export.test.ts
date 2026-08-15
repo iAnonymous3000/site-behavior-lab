@@ -49,3 +49,25 @@ test("requestLogToCsv escapes a hostile domain/url without breaking columns", ()
   assert.ok(lines[1].includes("'=HYPERLINK(0)"));
   assert.ok(lines[1].endsWith("https://evil.example/=cmd"));
 });
+
+test("requestLogToCsv exports human-readable privacy notation", () => {
+  const requests: NetworkRequestRecord[] = [
+    {
+      id: 1,
+      domain: "static.{label}.fbcdn.net",
+      method: "GET",
+      resourceType: "image",
+      status: 200,
+      thirdParty: true,
+      tracker: null,
+      url: "https://static.{label}.fbcdn.net/{seg}/{seg}?%5Bredacted%5D=&version=",
+      startedAtMs: 0
+    }
+  ];
+  const csv = requestLogToCsv(requests);
+  assert.match(csv, /static\.\*\.fbcdn\.net/);
+  assert.match(csv, /https:\/\/static\.\*\.fbcdn\.net\/…\?…&version/);
+  assert.equal(csv.includes("{label}"), false);
+  assert.equal(csv.includes("{seg}"), false);
+  assert.equal(csv.includes("%5Bredacted%5D"), false);
+});

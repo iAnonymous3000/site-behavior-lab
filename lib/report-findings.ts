@@ -56,7 +56,7 @@ import {
   type ReportView,
   type RunView
 } from "./scan-report-views";
-import { humanList, plural } from "./text-format";
+import { displayHost, displayPublicUrl, humanList, plural } from "./text-format";
 import type { NetworkRequestRecord, PrivacyPolicyClaimKind, ProvenanceChange } from "./types";
 import {
   CONSENT_WHOLE_VISIT_CAVEAT,
@@ -296,6 +296,7 @@ export function buildFindings(
       ? corpusInput
       : null;
   const run = facts.run;
+  const visibleDomain = displayHost(run.domain);
   const arms = comparisonArmViews(view);
   const axis = view.comparison?.axis ?? null;
   const ownership = facts.identity.ownership;
@@ -634,7 +635,7 @@ export function buildFindings(
               : "A consent management platform was requested",
       lead:
         preConsentTrackers > 0
-          ? `${run.domain} sent a request to ${consentPlatformPhrase}, and the request log included ${retainedCountPhrase(
+          ? `${visibleDomain} sent a request to ${consentPlatformPhrase}, and the request log included ${retainedCountPhrase(
               preConsentTrackers,
               "distinct catalogued tracking-related service",
               "distinct catalogued tracking-related services",
@@ -646,7 +647,7 @@ export function buildFindings(
                   ? "; none of the retained matches recorded a response before collection stopped"
                   : "; none recorded a response"
             }.`
-          : `${run.domain} sent a request to ${consentPlatformPhrase}, before the scanner made any consent choice.${
+          : `${visibleDomain} sent a request to ${consentPlatformPhrase}, before the scanner made any consent choice.${
               frameworkEndpoint ? " This scan could not name the platform that served it." : ""
             } Tracker-service observations are reported separately so this positive tooling signal does not imply an absence.`,
       detail:
@@ -1156,7 +1157,7 @@ export function buildFindings(
       noun: "third-party interaction listener" | "third-party input listener"
     ): string => {
       if (!entry) return "";
-      const names = humanList(entry.detection.evidence.thirdPartyOrigins);
+      const names = humanList(entry.detection.evidence.thirdPartyOrigins.map(displayPublicUrl));
       const calls = entry.detection.evidence.totalListenerCalls;
       return entry.originsNarrowed
         ? `${plural(calls, noun.replace("third-party ", ""))} attributed across ${names} and same-site origins the probe could not separate`
@@ -1604,7 +1605,7 @@ export function buildFindings(
       id: "bottom-line",
       icon: "alert",
       level: "info",
-      title: `Bottom line: ${run.domain}'s rendered page subject was not verified`,
+      title: `Bottom line: ${visibleDomain}'s rendered page subject was not verified`,
       lead:
         "The bounded page-content collector was unavailable or unreadable, so the scanner could not establish that the rendered document was the requested page.",
       detail:
@@ -1623,7 +1624,7 @@ export function buildFindings(
       id: "bottom-line",
       icon: "alert",
       level: "info",
-      title: `Bottom line: ${run.domain} showed a suspected challenge or soft block`,
+      title: `Bottom line: ${visibleDomain} showed a suspected challenge or soft block`,
       lead:
         "Multiple signals indicate that the successful HTTP response was a robot check, CAPTCHA, or blocking consent interstitial rather than the requested page.",
       detail:
@@ -1648,7 +1649,7 @@ export function buildFindings(
       id: "bottom-line",
       icon: "alert",
       level: "info",
-      title: `Bottom line: ${run.domain}'s main page did not complete a trustworthy load`,
+      title: `Bottom line: ${visibleDomain}'s main page did not complete a trustworthy load`,
       lead: statusUnrepresentable
         ? "The site returned an HTTP status outside this frozen report format's representable range. The status field is left empty rather than coerced to a value the site never sent, and the navigation is recorded as failed."
         : "The scanner's recorded quality facts mark the main-page load as failed or incomplete.",
@@ -2123,7 +2124,7 @@ function requestProvenanceHighlights(requests: NetworkRequestRecord[]): string[]
     if (!request.thirdParty || !request.provenance) continue;
     const summary = requestProvenanceSummary(request);
     if (!summary) continue;
-    const label = `${request.domain}: ${summary.primary}${summary.secondary ? ` (${summary.secondary})` : ""}`;
+    const label = `${displayHost(request.domain)}: ${summary.primary}${summary.secondary ? ` (${summary.secondary})` : ""}`;
     if (seen.has(label)) continue;
     seen.add(label);
     highlights.push(label);
@@ -2159,16 +2160,27 @@ export function requestProvenanceSearchText(request: NetworkRequestRecord): stri
 
 export function provenanceChangeText(change: ProvenanceChange): string {
   const parts = [
-    change.script ? `script ${change.script}` : "",
-    change.initiator ? `initiator ${change.initiator}` : "",
-    change.injectedBy ? `injected by ${change.injectedBy}` : "",
+    change.script ? `script ${displayProvenanceChangeActor(change.script)}` : "",
+    change.initiator ? `initiator ${displayProvenanceChangeActor(change.initiator)}` : "",
+    change.injectedBy ? `injected by ${displayProvenanceChangeActor(change.injectedBy)}` : "",
     change.tracker ? `${change.tracker.entity} · ${change.tracker.category}` : ""
   ].filter(Boolean);
   return parts.length > 0 ? humanList(parts, 3) : "provenance supplied";
 }
 
+function displayProvenanceChangeActor(value: string): string {
+  // Frozen comparison rows can prefix a non-script initiator type (for
+  // example "parser ") to an actor URL. Preserve that recorded type while
+  // still formatting the privacy-reduced locator that follows it.
+  const urlIndex = value.search(/https?:\/\//i);
+  if (urlIndex >= 0) {
+    return `${value.slice(0, urlIndex)}${displayPublicUrl(value.slice(urlIndex))}`;
+  }
+  return displayHost(value);
+}
+
 function provenanceActorDisplay(domain: string | undefined, url: string | undefined, type?: string): string | null {
-  const actor = domain || url;
+  const actor = domain ? displayHost(domain) : url ? displayPublicUrl(url) : undefined;
   if (!actor) return null;
   const normalizedType = type?.trim().toLowerCase();
   if (!normalizedType || normalizedType === "script" || normalizedType === "unknown") return actor;

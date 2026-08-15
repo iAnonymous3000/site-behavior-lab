@@ -1,5 +1,6 @@
 import type { ReportHeadline } from "./report-headline";
 import { siteUrl } from "./site-url";
+import { displayHost } from "./text-format";
 
 export const SITE_TITLE_SUFFIX = " · Site Behavior Lab";
 export const REPORT_RENDERED_TITLE_MAX_LENGTH = 64;
@@ -67,7 +68,7 @@ export function reportMetadataTitle(input: {
   const reportRef = input.reportId.replace(/[^a-z0-9]/giu, "").toLowerCase().slice(-8) || "report";
   const suffix = ` ${kind}${date ? ` · ${date}` : ""} · ${reportRef}`;
   const domainBudget = Math.max(1, REPORT_TITLE_MAX_LENGTH - suffix.length);
-  return `${conciseMetadataText(input.domain, domainBudget)}${suffix}`;
+  return `${conciseMetadataText(displayHost(input.domain), domainBudget)}${suffix}`;
 }
 
 export function reportMetadataDescription(headline: ReportHeadline): string {

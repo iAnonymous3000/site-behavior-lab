@@ -43,6 +43,15 @@ test("report metadata is concise, report-specific, and retains the evidence cave
   });
   assert.notEqual(title, secondTitle, "same-day reports retain distinct titles");
   assert.ok(`${secondTitle}${SITE_TITLE_SUFFIX}`.length <= REPORT_RENDERED_TITLE_MAX_LENGTH);
+  assert.match(
+    reportMetadataTitle({
+      domain: "{label}.example.com",
+      reportId: "20260720-fedcba9876543210",
+      scannedAt: "2026-07-20T10:11:12.000Z",
+      reportType: "single"
+    }),
+    /^\*\.example\.com scan/
+  );
 
   const headline = {
     headline:

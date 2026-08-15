@@ -19,6 +19,9 @@ export function plural(count: number, singular: string, pluralForm = `${singular
   return `${formatCount(count)} ${count === 1 ? singular : pluralForm}`;
 }
 
+const HIDDEN_PATH_SEGMENT = /^\{(?:seg|n)\}$/i;
+const HIDDEN_QUERY_KEY = /^\[redacted(?::(?:uuid-like|numeric|hex-like|long-token))?\]$/i;
+
 /**
  * Join a list into prose with an overflow tail:
  * `["a", "b", "c", "d"]` → `"a, b and c, plus 1 other"`.
@@ -40,7 +43,62 @@ export function humanList(items: string[], limit = 3): string {
  * wire keeps the exact recorded shape.
  */
 export function displayHost(host: string): string {
-  return host.replaceAll("{label}", "*");
+  if (host.toLowerCase() === "{invalid-host}") return "host unavailable";
+  return host.replace(/\{label\}/gi, "*");
+}
+
+/**
+ * Reader-facing form of a privacy-reduced URL.
+ *
+ * The canonical report wire deliberately retains typed tokens so another
+ * sanitizer pass can prove byte idempotence. Those implementation tokens are
+ * useful in JSON, but they are poor interface copy. Human surfaces use the
+ * conventional `*` for a hidden host label and one ellipsis for any run of
+ * hidden path segments. Query values are never displayed; a hidden query key
+ * is represented by the same ellipsis instead of its percent-encoded wire
+ * spelling.
+ */
+export function displayPublicUrl(value: string): string {
+  if (value.toLowerCase() === "{invalid-url}") return "URL unavailable";
+
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return "URL unavailable";
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return "URL unavailable";
+
+  const visibleSegments: string[] = [];
+  for (const rawSegment of parsed.pathname.split("/").slice(1)) {
+    const segment = safeDecodeDisplayToken(rawSegment);
+    if (HIDDEN_PATH_SEGMENT.test(segment)) {
+      if (visibleSegments.at(-1) !== "…") visibleSegments.push("…");
+      continue;
+    }
+    visibleSegments.push(rawSegment);
+  }
+  const path = visibleSegments.length === 0 ? "/" : `/${visibleSegments.join("/")}`;
+
+  const queryKeys: string[] = [];
+  const seen = new Set<string>();
+  for (const key of parsed.searchParams.keys()) {
+    const visible = HIDDEN_QUERY_KEY.test(key) ? "…" : key;
+    if (seen.has(visible)) continue;
+    seen.add(visible);
+    queryKeys.push(visible);
+  }
+  const query = queryKeys.length > 0 ? `?${queryKeys.join("&")}` : "";
+
+  return `${parsed.protocol}//${displayHost(parsed.hostname)}${parsed.port ? `:${parsed.port}` : ""}${path}${query}`;
+}
+
+function safeDecodeDisplayToken(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
 }
 
 /** Match either the stored privacy token or the wildcard readers see. */

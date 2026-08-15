@@ -28,6 +28,7 @@ import { selectTurnstileWidgetSize, type TurnstileWidgetSize } from "@/lib/turns
 import type { HomepageKnownSite } from "@/lib/homepage-discovery";
 import { committedReportLocation } from "@/lib/report-locator";
 import { RUN_MODE_LABELS, RUN_MODE_TITLES, runModeHint, type RunMode } from "@/lib/run-mode-copy";
+import { displayHost } from "@/lib/text-format";
 import type { ScanDevice } from "@/lib/types";
 
 export type ScanFormState = {
@@ -192,7 +193,7 @@ export function ScanControls({
       {knownSite ? (
         <div className="known-evidence" role="status">
           <span>
-            Evidence already exists for <strong>{knownSite.domain}</strong> from {formatKnownEvidenceDate(knownSite.scannedAt)}.
+            Evidence already exists for <strong>{displayHost(knownSite.domain)}</strong> from {formatKnownEvidenceDate(knownSite.scannedAt)}.
           </span>
           <span className="known-evidence-actions">
             <a href={committedReportLocation(knownSite.latestReportId, clientReportRuntime()).pagePath}>
