@@ -53,6 +53,23 @@ function CausalityGraph({
   const headingId = useId();
   const scrollDescriptionId = useId();
   if (!model) return null;
+  if (model.kind === "unreconciled") {
+    // Say the section was withheld and why. A silently missing map is
+    // indistinguishable from a visit where nothing was attributed.
+    return (
+      <section className="data-section causal-graph-card" id="causal-map" aria-labelledby={headingId}>
+        <div className="section-heading">
+          <h2 id={headingId}>Request attribution map</h2>
+          <span className="muted">Withheld because its retained rows do not reconcile with the report totals.</span>
+        </div>
+        <p className="attribution-map-empty">
+          This map was not drawn: {model.reason}. Counts that disagree with the rest of
+          the report cannot be published as a map, so the section is withheld rather
+          than shown with a denominator the request log contradicts.
+        </p>
+      </section>
+    );
+  }
 
   const { coverage, destinations, edges, instrumented, sources, totalEdges } = model;
 
@@ -91,16 +108,23 @@ function CausalityGraph({
           <dd>{coverage.attributedValue}</dd>
         </div>
         <div>
+          <dt>Not attributable</dt>
+          <dd>{coverage.notAttributableValue}</dd>
+        </div>
+        <div>
           <dt>Third-party requests</dt>
           <dd>{coverage.thirdPartyValue}</dd>
         </div>
-        {coverage.percentage !== null && (
-          <div>
-            <dt>Coverage</dt>
-            <dd>{coverage.percentage}%</dd>
-          </div>
-        )}
       </dl>
+      {coverage.notAttributableRequests > 0 && (
+        <p className="attribution-coverage-note">
+          No unique actor could be assigned to{" "}
+          {coverage.notAttributableValue} of these requests. That includes requests for
+          which the browser reported no usable initiator, and repeated URLs seen with
+          conflicting initiators. This report does not distinguish those causes, so they
+          are counted together rather than drawn.
+        </p>
+      )}
       <p className={`attribution-coverage-note${coverage.lowerBound ? " is-lower-bound" : ""}`}>
         {coverage.summary}
       </p>
