@@ -417,8 +417,8 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-08-14T23:10:31.506Z",
-  manifestDigest: "33313fb6103235af53051b55c3050c577b62beba8764891a4ec5646779e6129c",
+  fetchedAt: "2026-08-15T05:18:29.332Z",
+  manifestDigest: "83cbcffc98c65083d7bd08e7c0224dfbb4360ba52a2c39a3345ca671051eb5c6",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
