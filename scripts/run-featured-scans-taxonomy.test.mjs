@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { classifyFeaturedFailures } from "./run-featured-scans.mjs";
+import {
+  buildFeaturedRefreshIssueReport,
+  publicFailureTaxonomy,
+  publicFeaturedScanSummary,
+  summarizeFailureTaxonomy
+} from "./run-featured-scans-diagnostics.mjs";
 
 /**
  * Pinned to the EXACT strings two real runs produced on 2026-08-14, not to
@@ -56,4 +62,103 @@ test("the taxonomy changes no counts", () => {
   const total = [...groups.values()].reduce((sum, group) => sum + group.length, 0);
   assert.equal(total, REAL_FAILURES.length);
   assert.deepEqual(classifyFeaturedFailures([]).size, 0);
+});
+
+/**
+ * The 2026-08-10 gallery leg published `61/81 (75%)` into the canonical issue
+ * and nothing else. An operator reading that starts debugging a scanner that
+ * is working. These tests hold the split all the way onto the issue an
+ * operator actually reads.
+ */
+function summaryFor(failures, { succeeded = 74, catalogTotal = 81 } = {}) {
+  const total = succeeded + failures.length;
+  return {
+    fullCatalog: true,
+    catalogVersion: 2,
+    catalogTotal,
+    unavailable: catalogTotal - total,
+    total,
+    succeeded,
+    failed: failures.length,
+    successRate: succeeded / total,
+    requiredSuccessRate: 0.8,
+    catalogCoverage: total / catalogTotal,
+    requiredCatalogCoverage: 0.8,
+    minimumEligibleSites: 50,
+    failureTaxonomy: summarizeFailureTaxonomy(failures),
+    failures
+  };
+}
+
+test("the split survives the sanitized cross-job projection", () => {
+  // The alerting job never sees `failures`, only this projection. Computing
+  // the taxonomy where the issue is written would render nothing at all.
+  const aggregate = publicFeaturedScanSummary(summaryFor(REAL_FAILURES));
+  assert.notEqual(aggregate, null);
+  assert.deepEqual(aggregate.failureTaxonomy, [
+    { kind: "target-refused", count: 5 },
+    { kind: "scanner-timeout", count: 1 },
+    { kind: "subject-unverified", count: 1 }
+  ]);
+});
+
+test("the canonical issue says which kind of red, in counts only", () => {
+  const aggregate = publicFeaturedScanSummary(summaryFor(REAL_FAILURES));
+  const report = buildFeaturedRefreshIssueReport({
+    failed: true,
+    summary: aggregate,
+    branch: "main",
+    serverUrl: "https://github.com",
+    repository: "iAnonymous3000/site-behavior-lab",
+    runId: "1",
+    catalogSlug: "gallery"
+  });
+
+  assert.match(report, /## Which kind of red/);
+  assert.match(report, /sites that refused an automated visit: \*\*5\*\*/);
+  assert.match(report, /5 of 7 failures are sites refusing an undisguised automated browser/);
+  assert.match(report, /2 are attributable to this scanner/);
+
+  // The issue is deliberately name-free. A taxonomy that leaked one target
+  // would be a disclosure regression, not a reporting improvement.
+  for (const failure of REAL_FAILURES) {
+    assert.ok(!report.includes(failure.site), `${failure.site} must not reach the public issue`);
+    assert.ok(!report.includes(failure.message), "raw failure messages must not reach the public issue");
+  }
+});
+
+test("a taxonomy that contradicts the published counts is dropped, not rendered", () => {
+  // It arrives over an untrusted cross-job boundary and sits beside the very
+  // numbers it explains. Two disagreeing accounts of one run is worse than one.
+  assert.equal(publicFailureTaxonomy([{ kind: "target-refused", count: 5 }], 7), null);
+  assert.equal(publicFailureTaxonomy([{ kind: "invented-kind", count: 7 }], 7), null);
+  assert.equal(publicFailureTaxonomy([{ kind: "target-refused", count: 1.5 }], 1.5), null);
+  assert.equal(
+    publicFailureTaxonomy([{ kind: "target-refused", count: 3 }, { kind: "target-refused", count: 4 }], 7),
+    null
+  );
+  assert.notEqual(publicFailureTaxonomy([{ kind: "target-refused", count: 7 }], 7), null);
+});
+
+test("a summary predating the taxonomy still publishes every other aggregate", () => {
+  const summary = summaryFor(REAL_FAILURES);
+  delete summary.failureTaxonomy;
+  const aggregate = publicFeaturedScanSummary(summary);
+  assert.notEqual(aggregate, null, "an older summary must not become unpublishable");
+  assert.equal(aggregate.failureTaxonomy, null);
+  assert.equal(aggregate.succeeded, 74);
+});
+
+test("a clean run publishes no taxonomy section", () => {
+  const aggregate = publicFeaturedScanSummary(summaryFor([], { succeeded: 81 }));
+  const report = buildFeaturedRefreshIssueReport({
+    failed: false,
+    summary: aggregate,
+    branch: "main",
+    serverUrl: "https://github.com",
+    repository: "iAnonymous3000/site-behavior-lab",
+    runId: "1",
+    catalogSlug: "gallery"
+  });
+  assert.doesNotMatch(report, /Which kind of red/);
 });

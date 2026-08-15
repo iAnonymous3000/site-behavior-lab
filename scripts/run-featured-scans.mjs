@@ -43,6 +43,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  classifyFeaturedFailures,
   failureDiagnosticFromStderr,
   featuredCatalogEligibility,
   featuredCatalogVersion,
@@ -50,8 +51,14 @@ import {
   featuredScanRetryReason,
   featuredSiteUnavailability,
   featuredTransientRetryLimit,
-  isFullFeaturedCatalogSelection
+  isFullFeaturedCatalogSelection,
+  summarizeFailureTaxonomy
 } from "./run-featured-scans-diagnostics.mjs";
+
+// The classifier lives with the canonical-issue builder that also needs it, so
+// the console taxonomy and the issue taxonomy cannot describe the same run
+// differently. Re-exported because this module is its established import site.
+export { classifyFeaturedFailures };
 import { FEATURED_READJUDICATION_REASONS } from "./featured-readjudication-lib.mjs";
 import { measurementFreezeRetentionPolicy } from "./measurement-freeze-retention-lib.mjs";
 
@@ -248,41 +255,6 @@ async function main(args = process.argv.slice(2)) {
   }
 }
 
-/**
- * Group failures by what a maintainer should DO about them.
- *
- * The success rate is one number over two populations that need opposite
- * responses. A 403, a 429, a bot wall or an unreachable load is the site
- * declining an undisguised automated visit: a real observation, not a bug, and
- * unfixable without the evasion this project refuses. A timeout or a subject
- * that could not be verified is ours.
- *
- * Deliberately does not change the threshold or the denominator. The gate still
- * measures what it measured; this only names the parts, so a red run says which
- * kind of red it is.
- */
-export function classifyFeaturedFailures(failures) {
-  const kindOf = (message) => {
-    const text = String(message ?? "");
-    if (/HTTP (401|403|429)\b/.test(text)) return "target-refused";
-    if (/could not be loaded|down, unreachable, or blocking/i.test(text)) return "target-refused";
-    if (/only \d+ network request/i.test(text)) return "target-refused";
-    if (/exceeded the maximum scan duration|did not load before/i.test(text)) return "scanner-timeout";
-    if (/verify the rendered page subject/i.test(text)) return "subject-unverified";
-    return "unclassified";
-  };
-  const groups = new Map();
-  for (const failure of failures) {
-    const kind = kindOf(failure.message);
-    if (!groups.has(kind)) groups.set(kind, []);
-    groups.get(kind).push(failure);
-  }
-  // Refusals first: they are the large, expected group, and burying them under
-  // one-off scanner faults is what makes a rate look like a regression.
-  const order = ["target-refused", "scanner-timeout", "subject-unverified", "unclassified"];
-  return new Map([...groups].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0])));
-}
-
 export function featuredRunPlan({
   sites,
   unavailable,
@@ -377,6 +349,10 @@ async function publishRunDiagnostics({
     catalogCoverage: eligibility.catalogCoverage,
     requiredCatalogCoverage: eligibility.requiredCatalogCoverage,
     minimumEligibleSites: eligibility.minimumEligibleSites,
+    // Counts by kind, carried alongside the rate. The alerting job never sees
+    // `failures` itself, so this is the only way the canonical issue can say
+    // which kind of red a run is instead of publishing a bare rate.
+    failureTaxonomy: summarizeFailureTaxonomy(failures),
     scanResults,
     failures
   };
