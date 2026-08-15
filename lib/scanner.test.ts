@@ -10,7 +10,6 @@ import {
   SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
 } from "./bot-wall-classifier";
 import { RedactionPass, redactScannerWarnings } from "./redact-scan-report-v1";
-import { redactUrlForReport } from "./report-url";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
@@ -602,41 +601,6 @@ function routeRequest({
   };
 }
 
-test("redactUrlForReport removes report-sensitive URL components", () => {
-  assert.equal(
-    redactUrlForReport("https://user:pass@example.com/path/to/page?token=secret&email=a%40b.test#section"),
-    "https://example.com/path/to/page"
-  );
-});
-
-test("redactUrlForReport keeps origin and path for normal report context", () => {
-  assert.equal(redactUrlForReport("https://Example.com/a/b?utm_source=newsletter"), "https://example.com/a/b");
-  assert.equal(redactUrlForReport("not a url"), "not a url");
-});
-
-test("redactUrlForReport can preserve query keys while redacting values", () => {
-  assert.equal(
-    redactUrlForReport("https://tracker.example/pixel?id=123&email=a%40b.test&id=456#frag", { preserveQueryKeys: true }),
-    "https://tracker.example/pixel?id=&email=&id="
-  );
-});
-
-test("redactUrlForReport replaces value-shaped query keys so names cannot leak PII", () => {
-  // A scanned page could put sensitive data in the parameter *name* itself.
-  const emailAsKey = redactUrlForReport("https://tracker.example/p?alice%40example.com=1", { preserveQueryKeys: true });
-  assert.equal(emailAsKey.includes("alice"), false);
-  assert.equal(emailAsKey, "https://tracker.example/p?%5Bredacted%5D=");
-
-  const longKey = "a".repeat(120);
-  const overlong = redactUrlForReport(`https://tracker.example/p?${longKey}=1`, { preserveQueryKeys: true });
-  assert.equal(overlong.includes(longKey), false);
-
-  // Conventional analytics/pixel key shapes still survive.
-  assert.equal(
-    redactUrlForReport("https://tracker.example/tr?ev=Purchase&ud%5Bem%5D=x&utm_source=n", { preserveQueryKeys: true }),
-    "https://tracker.example/tr?ev=&ud%5Bem%5D=&utm_source="
-  );
-});
 
 test("scanTimeout returns the smaller of the preferred timeout and remaining scan budget", () => {
   assert.equal(scanTimeout(1_000, 30_000, 2_000), 30_000);

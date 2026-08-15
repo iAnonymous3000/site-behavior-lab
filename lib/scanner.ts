@@ -2355,11 +2355,17 @@ export async function scanSiteWithMeasurement(
       types.add(cnameRequestTypeByRecordId.get(record.id) ?? mapRequestType(record.resourceType));
       observedRequestTypesByHost.set(host, types);
     }
-    const matchCnameTracker = (host: string): TrackerMatch | null => {
+    const matchCnameTracker = (host: string, requestedHost: string): TrackerMatch | null => {
       const named = findTrackerMatch(host);
       if (named) return isTrackingTrackerMatch(named) ? named : null;
       if (adblockEngine) {
-        const observed = observedRequestTypesByHost.get(host.toLowerCase());
+        // Keyed on the host the PAGE requested, never on the CNAME target. The
+        // target is by definition absent from the request log -- that is what
+        // cloaking means -- so looking it up there never hit, every probe fell
+        // back to type "other", and the type-scoped rules this exists to catch
+        // stayed unmatched. The comment above described the fix; the lookup
+        // did not perform it.
+        const observed = observedRequestTypesByHost.get(requestedHost.toLowerCase());
         const probeTypes = observed && observed.size > 0 ? [...observed] : [mapRequestType("other")];
         for (const requestType of probeTypes) {
           if (adblockEngine.check(`https://${host}/`, finalUrl, requestType)) {
@@ -4045,7 +4051,7 @@ async function resolveCnameCloaksForScan(
   firstPartyHostname: string,
   started: number,
   options: ScanSiteOptions,
-  matchTracker: (host: string) => TrackerMatch | null,
+  matchTracker: (host: string, requestedHost: string) => TrackerMatch | null,
   onResolutionFailure?: (host: string) => void
 ): Promise<CnameCloakResolution> {
   if (MAX_SCAN_DURATION_MS - (Date.now() - started) < CNAME_PROBE_MIN_BUDGET_MS) {

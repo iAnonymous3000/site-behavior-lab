@@ -166,3 +166,65 @@ test("a scan deadline bounds the whole probe, not just each lookup", async () =>
     "hosts abandoned at the deadline must be disclosed, never silently dropped"
   );
 });
+
+/**
+ * The matcher is given the host the PAGE contacted, alongside the CNAME target.
+ *
+ * A cloaked target is by definition never a requested hostname -- that is what
+ * cloaking means -- so a matcher that keys anything on the observed request log
+ * can only find the first-party subdomain. The scanner's matcher looks up the
+ * resource types a host was seen carrying, to probe the ad-block engine with a
+ * real type instead of "other"; keyed on the target that lookup never hit, so
+ * every probe fell back to "other" and the type-scoped rules ($script, $image,
+ * $xmlhttprequest) the step exists to catch stayed unmatched. Its own comment
+ * described the fix it was not performing.
+ */
+test("the matcher receives the requested subdomain, not only the CNAME target", () => {
+  const seen: Array<{ target: string; requestedHost: string }> = [];
+  const recordingDeps: CnameCloakDeps = {
+    registrableDomain,
+    matchTracker: (target, requestedHost) => {
+      seen.push({ target, requestedHost });
+      return null;
+    }
+  };
+
+  classifyCnameCloak(
+    "metrics.shop.example",
+    ["alias.cdn.example", "shop.eulerian.net"],
+    "shop.example",
+    recordingDeps
+  );
+
+  assert.equal(seen.length, 2, "every off-party link in the chain is probed");
+  assert.deepEqual(
+    seen.map((call) => call.target),
+    ["alias.cdn.example", "shop.eulerian.net"]
+  );
+  for (const call of seen) {
+    assert.equal(
+      call.requestedHost,
+      "metrics.shop.example",
+      "the requested host is the only one that can appear in the request log"
+    );
+    assert.notEqual(call.requestedHost, call.target);
+  }
+});
+
+test("a matcher keyed on the requested host still classifies the target", () => {
+  // Both arguments matter and they are not interchangeable: the verdict is
+  // about the TARGET, the observed-usage lookup is about the REQUESTED host.
+  const typesByRequestedHost = new Map([["metrics.shop.example", "script"]]);
+  const probed: string[] = [];
+  const cloak = classifyCnameCloak("metrics.shop.example", ["shop.eulerian.net"], "shop.example", {
+    registrableDomain,
+    matchTracker: (target, requestedHost) => {
+      probed.push(typesByRequestedHost.get(requestedHost) ?? "other");
+      return TRACKERS[registrableDomain(target)] ?? null;
+    }
+  });
+
+  assert.deepEqual(probed, ["script"], "the observed type is found, not the 'other' fallback");
+  assert.equal(cloak?.cname, "shop.eulerian.net");
+  assert.equal(cloak?.tracker.entity, "Eulerian");
+});

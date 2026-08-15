@@ -2845,3 +2845,46 @@ test("a focused variant arm is never ranked against the display run's cohort", (
     "a variant arm belongs to no corpus cohort and must not carry percentile wording"
   );
 });
+
+/**
+ * A card that says "no change observed" must not also assert that a difference
+ * was observed. The GPC card did exactly that: its title and lead branched on
+ * `direction === "flat"` while its detail asserted "An observed difference for
+ * this pair of visits" unconditionally, so the same card contradicted itself.
+ * d3fd83e had already removed that sentence from the headline; the findings
+ * board kept it, which is the shape this project keeps finding in itself -- one
+ * claim restated in two places, fixed in one.
+ *
+ * Written as a rule over every comparison card rather than three assertions,
+ * because the two siblings carried the same wording under the same `direction`
+ * computation and a fourth axis would inherit it.
+ */
+test("a comparison card that observed no change never asserts a difference", () => {
+  const flatPairs: Array<[string, () => Finding[]]> = [
+    [
+      "gpc-comparison",
+      () => buildFindings(viewFromV1Report(gpcPair(makeResult({}), makeResult({}))), null)
+    ],
+    [
+      "shields-comparison",
+      () => buildFindings(viewFromV1Report(shieldsPair(makeResult({}), makeResult({}))), null)
+    ]
+  ];
+
+  for (const [cardId, build] of flatPairs) {
+    const card = build().find((finding) => finding.id === cardId);
+    if (!card) continue;
+    const saysNoChange = /No change observed|showed no change in the comparable metrics/.test(
+      `${card.title} ${card.lead}`
+    );
+    if (!saysNoChange) continue;
+    assert.doesNotMatch(
+      card.detail,
+      /\bAn observed difference\b|treat this as an observed difference\b/,
+      `${cardId} says no change was observed and must not assert one in the same card`
+    );
+    // The limitation itself must survive the branch: dropping the
+    // run-to-run-variance caveat would trade one inaccuracy for a worse one.
+    assert.match(card.detail, /run-to-run variance/);
+  }
+});

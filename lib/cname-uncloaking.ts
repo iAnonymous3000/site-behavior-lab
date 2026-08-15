@@ -24,8 +24,16 @@ export type { CnameCloak } from "./types";
 export type CnameCloakDeps = {
   /** Registrable (eTLD+1) domain for a hostname, e.g. tldts `getDomain`. */
   registrableDomain: (host: string) => string;
-  /** Tracker lookup for a resolved CNAME target (catalog and/or ad-block engine). */
-  matchTracker: (host: string) => TrackerMatch | null;
+  /**
+   * Tracker lookup for a resolved CNAME target (catalog and/or ad-block engine).
+   *
+   * `requestedHost` is the first-party subdomain the page actually contacted,
+   * which is the only host that can appear in the observed request log: the
+   * cloaked target never does. A matcher that needs to know how the page used
+   * the host -- what resource types it carried, for a filter rule scoped with
+   * `$script` or `$image` -- must look it up under this, not under the target.
+   */
+  matchTracker: (host: string, requestedHost: string) => TrackerMatch | null;
   /** Optional measurement hook; resolution failure is otherwise a best-effort skip. */
   onResolutionFailure?: (host: string) => void;
 };
@@ -72,7 +80,10 @@ export function classifyCnameCloak(
   for (const link of cnameChain) {
     const target = normalizeHost(link);
     if (!target || deps.registrableDomain(target) === firstPartyRegistrable) continue;
-    const tracker = deps.matchTracker(target);
+    // The matcher also gets the host the PAGE contacted. A cloaked target is by
+    // definition never a requested hostname -- that is what cloaking means --
+    // so a matcher keyed on observed requests can only find the subdomain.
+    const tracker = deps.matchTracker(target, normalizeHost(host));
     if (tracker) return { host: normalizeHost(host), cname: target, tracker };
   }
 
