@@ -358,6 +358,10 @@ test("featured refresh issue reports expose aggregates but omit per-target diagn
     ]
   };
 
+  // The exact key set is the control, not incidental strictness: this is the
+  // projection that crosses into the public issue, so an unexpected key is a
+  // disclosure. `failureTaxonomy` is null here because this summary predates
+  // it; a summary that carries one publishes counts and nothing else.
   assert.deepEqual(publicFeaturedScanSummary(detailed), {
     catalogVersion: null,
     fullCatalog: false,
@@ -368,6 +372,7 @@ test("featured refresh issue reports expose aggregates but omit per-target diagn
     failed: 12,
     successRate: 69 / 81,
     requiredSuccessRate: 0.9,
+    failureTaxonomy: null,
     catalogCoverage: 1,
     requiredCatalogCoverage: 0.8,
     minimumEligibleSites: 50,
@@ -407,6 +412,7 @@ test("featured refresh issue reports expose aggregates but omit per-target diagn
     failed: 12,
     successRate: 69 / 81,
     requiredSuccessRate: 0.9,
+    failureTaxonomy: null,
     catalogCoverage: 81 / 94,
     requiredCatalogCoverage: 0.8,
     minimumEligibleSites: 50,
