@@ -141,7 +141,7 @@ export function formatBraveAdoptionSummary(
     "",
     `- Pinned manifest:   \`${adoption.pinned.manifestDigest}\``,
     `- Refreshed manifest: \`${snapshot.manifestDigest}\``,
-    `- Committed r2 reports published under the pinned identity: **${publishedUnderPinned}**`,
+    `- Committed reports whose evidence carries the outgoing manifest: **${publishedUnderPinned}**`,
     "",
     "Replace `NODE_R2_CURRENT_ADBLOCK_IDENTITY` in `lib/scan-report-v2-r2-producer-contract.ts` with:",
     "",
@@ -152,10 +152,10 @@ export function formatBraveAdoptionSummary(
   ];
   lines.push(
     publishedUnderPinned > 0
-      ? "Reports were published under the outgoing identity, so it must ALSO be frozen as a " +
+      ? "Reports were measured under the outgoing rules, so that identity must ALSO be frozen as a " +
           "`HISTORICAL_R2_LISTS_<date>_ADBLOCK_IDENTITY` row and added to the historical tuple " +
           "families, or every one of those reports becomes unreadable through the producer contract."
-      : "No committed report carries the outgoing identity, so freezing it would guard an empty " +
+      : "No committed report carries the outgoing manifest, so freezing that identity would guard an empty " +
           "set. Do not add a historical row for it."
   );
   return lines.join("\n");

@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import { adblockListMeta } from "./adblock-engine";
 import {
@@ -37,10 +39,13 @@ test("the pinned Node producer identity describes the vendored Brave snapshot", 
 
 /**
  * The mirror is deliberate (importing the engine module would drag the WASM
- * loader into every consumer of the check), so it needs a guard. Comparing the
- * two constructions is that guard: if the builder ever stamps a different
- * shape, this fails rather than the adoption check silently comparing the
- * wrong thing and reporting a clean bill of health.
+ * loader into every consumer of the check), so it needs a guard.
+ *
+ * Two halves, because either alone is weak. Comparing against a hand-written
+ * `{...adblockListMeta(), engineVersion}` only proves the reader agrees with a
+ * transcription of the builder's expression, and a transcription goes stale
+ * silently. So the builder's SOURCE is also read, and the expression this test
+ * transcribes must still appear in it.
  */
 test("the adoption reader mirrors exactly what the builder stamps on a report", () => {
   const meta = adblockListMeta();
@@ -49,6 +54,13 @@ test("the adoption reader mirrors exactly what the builder stamps on a report", 
     ...meta!,
     engineVersion: NODE_ADBLOCK_ENGINE_VERSION
   });
+
+  const builder = readFileSync(path.join(process.cwd(), "lib", "scan-result-v2-r2-builder.ts"), "utf8");
+  assert.match(
+    builder,
+    /adblock: \{ \.\.\.meta, engineVersion: NODE_ADBLOCK_ENGINE_VERSION \}/,
+    "the builder no longer stamps the shape this reader mirrors; re-derive readBraveSnapshotIdentity"
+  );
 });
 
 test("a moved fetch timestamp alone is not an adoption", () => {
