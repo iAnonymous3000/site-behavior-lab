@@ -4,7 +4,7 @@ import {
   preferAsSiteDataPoint,
   type DirectoryEntry
 } from "./corpus-overview";
-import type { CorpusCohortIdentity } from "./corpus-cohort";
+import { selectPrimaryCorpusCohort, type CorpusCohortIdentity } from "./corpus-cohort";
 import { siteProfileKey, siteProfilePath } from "./site-profile";
 
 /** Keep every crawlable directory document comfortably bounded. */
@@ -161,18 +161,44 @@ export function buildCategoryEvidencePages(
     });
   }
 
-  // A category route has one denominator. During a methodology migration,
-  // publish the largest cohort rather than silently adding incompatible rows.
-  const selectedByCategory = new Map<string, CategoryEvidencePage>();
+  // A category route has one denominator, chosen by the SAME rule as every
+  // other cohort selection in this project: composition-vetted, then newest
+  // evidence wins. `selectAggregateCorpusCohort` and the stats builder both
+  // call `selectPrimaryCorpusCohort` and neither restates it; this was the
+  // third caller, and it restated it as largest-wins.
+  //
+  // That is the rule `lib/corpus-cohort.ts` documents as wrong, for a reason
+  // this route demonstrated live: a cohort keyed on an UNRECORDED methodology
+  // can never receive another scan, so size alone pins a category to
+  // measurements no amount of scanning can refresh. Six of the twelve
+  // published categories were owned by a frozen 2026-07-06
+  // `legacy-v1-methodology-unspecified` cohort, and every one of them had won
+  // on an EXACT TIE against an equally sized current-line cohort up to five
+  // weeks newer, resolved by `"v1:legacy-" < "v1:shields-"`. Because a tie
+  // survives rescanning the same sites, the current line could only take those
+  // pages by gaining a site the frozen cohort never measured.
+  const byCategory = new Map<string, CategoryEvidencePage[]>();
   for (const candidate of candidates) {
-    const current = selectedByCategory.get(candidate.id);
-    if (
-      !current ||
-      candidate.sites.length > current.sites.length ||
-      (candidate.sites.length === current.sites.length && candidate.cohort.id.localeCompare(current.cohort.id) < 0)
-    ) {
-      selectedByCategory.set(candidate.id, candidate);
-    }
+    const list = byCategory.get(candidate.id);
+    if (list) list.push(candidate);
+    else byCategory.set(candidate.id, [candidate]);
+  }
+
+  const selectedByCategory = new Map<string, CategoryEvidencePage>();
+  for (const [id, group] of byCategory) {
+    const selected = selectPrimaryCorpusCohort(
+      group.map((candidate) => ({
+        identity: candidate.cohort,
+        siteCount: candidate.sites.length,
+        latestRunAt: candidate.lastScannedAt,
+        sites: candidate.sites.map((site) => site.domain)
+      })),
+      minimumSites
+    );
+    const page = selected
+      ? group.find((candidate) => candidate.cohort.id === selected.identity.id)
+      : undefined;
+    if (page) selectedByCategory.set(id, page);
   }
 
   return [...selectedByCategory.values()]
