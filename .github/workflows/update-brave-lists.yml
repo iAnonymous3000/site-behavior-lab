@@ -297,6 +297,7 @@ jobs:
           BRAVE_LIST_JOB_STATUS: ${{ job.status }}
           BRAVE_LIST_REPORT_FILE: ${{ runner.temp }}/brave-list-refresh.md
           ADOPTION_REQUIRED: ${{ steps.adoption.outputs.adoption_required }}
+          PR_BLOCKED: ${{ steps.commit.outputs.pr_blocked }}
         run: |
           set -euo pipefail
 
@@ -307,7 +308,15 @@ jobs:
           # Holding this issue open for it would make "upstream shipped rules
           # this week" indistinguishable from "the refresh is broken", which is
           # the exact ambiguity that left it open and uninformative for weeks.
-          if [[ "$BRAVE_LIST_JOB_STATUS" == "success" ]]; then
+          #
+          # PR_BLOCKED is the exception, and it is why this reads an output
+          # instead of job status alone. When repository policy forbids Actions
+          # from opening pull requests, the branch is pushed and every gate
+          # passed, so the job correctly stays green -- but no pull request
+          # exists, so the refresh did NOT reach a human. Keying only on job
+          # status closed the repair issue on exactly the runs where the
+          # hand-off failed, which is the one thing this issue exists to catch.
+          if [[ "$BRAVE_LIST_JOB_STATUS" == "success" && "$PR_BLOCKED" != "true" ]]; then
             failed=false
             outcome=completed
             if [[ "$ADOPTION_REQUIRED" == "true" ]]; then
@@ -315,6 +324,10 @@ jobs:
             else
               summary="The scheduled fetch, engine validation, review-ledger sync, unit suite, reviewed-PR proposal step, and any required non-promoting CI dispatch completed."
             fi
+          elif [[ "$BRAVE_LIST_JOB_STATUS" == "success" ]]; then
+            failed=true
+            outcome=needs-a-pull-request-opened-by-hand
+            summary="The refresh validated and pushed its proposal branch, but this repository does not permit Actions to open pull requests, so no review-required proposal exists. Open it from the linked run, or enable Settings > Actions > General > Allow GitHub Actions to create and approve pull requests."
           else
             failed=true
             outcome=failed
