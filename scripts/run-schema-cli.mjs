@@ -22,6 +22,7 @@ const [target, ...forwarded] = process.argv.slice(2);
 // never assembled from a caller-supplied path.
 const TARGETS = {
   "aggregate-v2-shadow": ["dist", "schema", "lib", "aggregate-v2-shadow-cli.js"],
+  "brave-snapshot-adoption": ["dist", "schema", "lib", "brave-snapshot-adoption-cli.js"],
   "calibration-acquire": ["scripts", "calibration-study-acquire.mjs"],
   "calibration-assemble": ["scripts", "calibration-study-assemble.mjs"],
   "calibration-finalize": ["scripts", "calibration-study-finalize.mjs"],

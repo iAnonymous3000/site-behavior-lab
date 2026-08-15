@@ -2,6 +2,7 @@ import { appendFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { FEATURED_READJUDICATION_REASONS } from "./featured-readjudication-lib.mjs";
 
 const ANSI_ESCAPE_PATTERN = /\u001b\[[0-?]*[ -/]*[@-~]/g;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g;
@@ -317,6 +318,11 @@ export function publicFeaturedScanSummary(value) {
       return null;
     }
   }
+  // Counts only, and only when they agree with `failed`. A summary that
+  // predates the taxonomy, or carries a malformed one, keeps every other
+  // aggregate rather than becoming unpublishable over an explanatory field.
+  const failureTaxonomy = publicFailureTaxonomy(value.failureTaxonomy, failed)?.counts ?? null;
+
   return {
     catalogVersion: fullCatalog ? value.catalogVersion : null,
     fullCatalog,
@@ -327,6 +333,7 @@ export function publicFeaturedScanSummary(value) {
     failed,
     successRate,
     requiredSuccessRate,
+    failureTaxonomy,
     ...eligibility
   };
 }
@@ -365,6 +372,127 @@ function workflowRunUrl({ serverUrl, repository, runId }) {
   return repo && id ? `${server}/${repo}/actions/runs/${id}` : null;
 }
 
+/**
+ * Group failures by what a maintainer should DO about them.
+ *
+ * The success rate is one number over two populations that need opposite
+ * responses. A 403, a 429, a bot wall or an unreachable load is the site
+ * declining an undisguised automated visit: a real observation, not a bug, and
+ * unfixable without the evasion this project refuses. A timeout or a subject
+ * that could not be verified is ours.
+ *
+ * READS THE UNAMBIGUOUS STRUCTURED REASONS FIRST. `botBlockUnavailableReason`
+ * classifies from report facts rather than from its own English, and four of
+ * the five values it can return name the site declining and nothing else.
+ * Classifying the diagnostic sentence instead threw that away: a Cloudflare
+ * challenge page ("landing page title matches a bot-block/challenge page") and
+ * a recorded soft block matched no regex and landed in `unclassified`, which is
+ * counted as scanner-attributable, publishing bot-walled sites among the "N
+ * attributable to this scanner and worth investigating".
+ *
+ * `navigation-incomplete` IS NOT ONE OF THEM, and treating it as one inverted
+ * the same claim in the other direction. It is the producer's catch-all: a
+ * missing HTTP response and a one-request navigation share it with three
+ * outcomes that are OURS -- a navigation that did not settle, a run the quality
+ * evaluator failed, and a page subject our own check could not verify. Mapping
+ * the whole reason to "refused" published a scanner-side verification failure
+ * as a site refusing an honest browser, which is precisely what this taxonomy
+ * exists to prevent. Those keep going through the sentence, which does separate
+ * them.
+ *
+ * Deliberately does not change the threshold or the denominator. The gate still
+ * measures what it measured; this only names the parts, so a red run says which
+ * kind of red it is.
+ */
+export function classifyFeaturedFailures(failures) {
+  const kindOf = (failure) => {
+    if (UNAMBIGUOUS_TARGET_REFUSALS.has(failure?.unavailableReason)) return "target-refused";
+    const text = String(failure?.message ?? "");
+    if (/HTTP (401|403|429)\b/.test(text)) return "target-refused";
+    if (/could not be loaded|down, unreachable, or blocking/i.test(text)) return "target-refused";
+    if (/only \d+ network request/i.test(text)) return "target-refused";
+    if (/main navigation produced no HTTP response/i.test(text)) return "target-refused";
+    if (/main navigation returned HTTP 5\d\d/i.test(text)) return "target-refused";
+    if (/exceeded the maximum scan duration|did not load before/i.test(text)) return "scanner-timeout";
+    if (/verify the rendered page subject/i.test(text)) return "subject-unverified";
+    return "unclassified";
+  };
+  const groups = new Map();
+  for (const failure of failures) {
+    const kind = kindOf(failure);
+    if (!groups.has(kind)) groups.set(kind, []);
+    groups.get(kind).push(failure);
+  }
+  // Refusals first: they are the large, expected group, and burying them under
+  // one-off scanner faults is what makes a rate look like a regression.
+  const order = ["target-refused", "scanner-timeout", "subject-unverified", "unclassified"];
+  return new Map([...groups].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0])));
+}
+
+/**
+ * The reasons that mean the SITE declined, and only that.
+ *
+ * Deliberately a subset of FEATURED_READJUDICATION_REASONS rather than that
+ * list: `navigation-incomplete` is the producer's catch-all and covers three
+ * scanner-side outcomes, so it cannot short-circuit a judgement about who is at
+ * fault. A guard asserts this stays a strict subset.
+ */
+export const UNAMBIGUOUS_TARGET_REFUSALS = new Set([
+  "access-denied",
+  "authentication-required",
+  "automation-blocked",
+  "rate-limited"
+]);
+
+const FAILURE_KIND_LABELS = new Map([
+  ["target-refused", "sites that refused an automated visit"],
+  ["scanner-timeout", "scanner timeouts"],
+  ["subject-unverified", "unverified page subjects"],
+  ["unclassified", "unrecognized failures"]
+]);
+
+/**
+ * Reduce classified failures to publishable counts: no names, no messages, no URLs.
+ *
+ * COMPUTED ON THE TRUSTED SIDE, DELIBERATELY. The alerting job never sees raw
+ * per-target diagnostics; it receives only the sanitized `public_summary`
+ * cross-job output. So the split has to be carried through that projection
+ * rather than recomputed where the issue is written, or it would silently
+ * render nothing.
+ */
+export function summarizeFailureTaxonomy(failures) {
+  if (!Array.isArray(failures) || failures.length === 0) return null;
+  if (failures.some((failure) => !failure || typeof failure !== "object")) return null;
+  const groups = classifyFeaturedFailures(failures);
+  return [...groups].map(([kind, group]) => ({ kind, count: group.length }));
+}
+
+/**
+ * Validate a taxonomy that arrived over the untrusted cross-job boundary.
+ *
+ * Returns null rather than throwing, so a malformed taxonomy costs the issue
+ * its explanatory section and nothing else. It must never be able to
+ * contradict the counts already published beside it, so the parts are required
+ * to sum to `failed`.
+ */
+export function publicFailureTaxonomy(value, failed) {
+  if (!Array.isArray(value) || value.length === 0) return null;
+  const counts = [];
+  const seen = new Set();
+  for (const entry of value) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+    const { kind, count } = entry;
+    if (!FAILURE_KIND_LABELS.has(kind) || seen.has(kind)) return null;
+    if (!Number.isSafeInteger(count) || count <= 0) return null;
+    seen.add(kind);
+    counts.push({ kind, count });
+  }
+  const total = counts.reduce((sum, entry) => sum + entry.count, 0);
+  if (total !== failed) return null;
+  const refused = counts.find((entry) => entry.kind === "target-refused")?.count ?? 0;
+  return { counts, refused, scannerAttributable: total - refused, total };
+}
+
 export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serverUrl, repository, runId, catalogSlug }) {
   const aggregate = publicFeaturedScanSummary(summary);
   const runUrl = workflowRunUrl({ serverUrl, repository, runId });
@@ -399,6 +527,26 @@ export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serve
   } else {
     lines.push("- Aggregate scan summary: **unavailable or invalid**");
   }
+
+  // Without this the issue is a rate under a threshold, and a rate cannot
+  // distinguish a broken scanner from a web that declines automated visits.
+  // Those need opposite responses, and only one of them is a defect to fix.
+  const taxonomy = aggregate ? publicFailureTaxonomy(aggregate.failureTaxonomy, aggregate.failed) : null;
+  if (taxonomy) {
+    lines.push("", "## Which kind of red", "");
+    for (const entry of taxonomy.counts) {
+      lines.push(`- ${FAILURE_KIND_LABELS.get(entry.kind) ?? entry.kind}: **${entry.count}**`);
+    }
+    lines.push(
+      "",
+      `${taxonomy.refused} of ${taxonomy.total} failures are sites refusing an undisguised automated browser. ` +
+        "That is an honest observation, not a scanner defect, and it is not fixable without the evasion this " +
+        "project refuses.",
+      `${taxonomy.scannerAttributable} ${taxonomy.scannerAttributable === 1 ? "is" : "are"} attributable to this ` +
+        `scanner and ${taxonomy.scannerAttributable === 1 ? "is" : "are"} worth investigating.`
+    );
+  }
+
   lines.push("");
   lines.push(
     failed

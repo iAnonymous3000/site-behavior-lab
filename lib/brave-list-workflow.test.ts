@@ -100,6 +100,33 @@ test("a policy refusal to open the proposal PR does not discard a validated refr
   assert.match(refreshJob, /if: steps\.commit\.outputs\.proposed == 'true'/);
 });
 
+/**
+ * Asserting that `pr_blocked=true` is WRITTEN is not the contract; the contract
+ * is that something acts on it. Nothing did. The branch was pushed, no pull
+ * request existed, the job stayed green by design, and the alert step -- keyed
+ * on job status alone -- reported the refresh completed and closed the canonical
+ * repair issue. A run where the hand-off to a human failed silently closed the
+ * issue that exists to say the hand-off to a human failed.
+ */
+test("a proposal that never became a pull request keeps the repair issue open", () => {
+  const alertStep = refreshJob.slice(
+    refreshJob.indexOf("- name: Prepare scheduled Brave-list refresh alert"),
+    refreshJob.indexOf("- name: Reconcile the scheduled Brave-list refresh issue")
+  );
+  assert.ok(alertStep.length > 0, "the alert step must exist");
+  assert.match(
+    alertStep,
+    /PR_BLOCKED: \$\{\{ steps\.commit\.outputs\.pr_blocked \}\}/,
+    "the alert decision must read the blocked-PR output, not only job status"
+  );
+  assert.match(
+    alertStep,
+    /"\$BRAVE_LIST_JOB_STATUS" == "success" && "\$PR_BLOCKED" != "true"/,
+    "a green job with no pull request must not report a completed refresh"
+  );
+  assert.match(alertStep, /failed=true\s+outcome=needs-a-pull-request-opened-by-hand/);
+});
+
 test("manual runs and the separate drift job cannot reconcile Brave-list refresh health", () => {
   const reconcileStart = refreshJob.indexOf("- name: Reconcile the scheduled Brave-list refresh issue");
   const preserveStart = refreshJob.indexOf("- name: Preserve scheduled Brave-list refresh failure", reconcileStart);

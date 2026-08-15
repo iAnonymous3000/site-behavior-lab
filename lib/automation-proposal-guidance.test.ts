@@ -48,14 +48,31 @@ test("every automation proposal explains both CI lanes and the manual approval",
     assert.ok(pullRequestCreates.length > 0);
     for (const [index, pullRequestCreate] of pullRequestCreates.entries()) {
       const command = `${workflowName} gh pr create #${index + 1}`;
-      const bodyStart = source.lastIndexOf("printf '%s\\n'", pullRequestCreate);
+      // Scope to the step that opens the pull request, then keep only the
+      // QUOTED payloads inside it.
+      //
+      // `lastIndexOf("printf '%s\\n'")` assumed a body is built by exactly one
+      // printf. A step that appends a conditional section afterwards -- the
+      // Brave-list refresh now appends the measurement identity a maintainer
+      // must declare -- moved the anchor past the guidance and failed a
+      // workflow whose body still carried every required sentence.
+      //
+      // Widening to "everything from the first printf onward" would have been
+      // the opposite mistake: the slice would then include the shell between
+      // the printfs, and a required sentence could be satisfied by a COMMENT
+      // that never reaches the pull request. Only quoted strings count, so the
+      // guard still asserts what a reviewer will actually read.
+      const stepStart = source.lastIndexOf("\n      - name:", pullRequestCreate);
+      const stepSource = source.slice(stepStart === -1 ? 0 : stepStart, pullRequestCreate);
 
       assert.notEqual(
-        bodyStart,
+        stepSource.indexOf("printf '%s\\n'"),
         -1,
         `${command} must build a reviewable PR body first`
       );
-      const body = source.slice(bodyStart, pullRequestCreate);
+      const body = [...stepSource.matchAll(/(['"])((?:\\.|(?!\1)[\s\S])*)\1/g)]
+        .map((match) => match[2])
+        .join("\n");
 
       assert.match(
         body,
