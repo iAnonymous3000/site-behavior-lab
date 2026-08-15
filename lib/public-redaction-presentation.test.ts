@@ -30,7 +30,19 @@ test("reader-facing report surfaces format canonical redaction tokens", () => {
   assert.doesNotMatch(gallery, />\{report\.requestedUrl\}</);
   assert.match(causalMap, /buildRequestAttributionMap\(/);
   assert.match(attributionModel, /const source = displayHost\(actor\.domain\)/);
-  assert.match(attributionModel, /request\.tracker\?\.entity \|\| displayHost\(request\.domain\)/);
+  assert.match(
+    attributionModel,
+    /entities\?\.size === 1 \? \[\.\.\.entities\]\[0\] : displayHost\(request\.domain\)/
+  );
+  assert.match(
+    attributionModel,
+    /destinationByHost\.get\(request\.domain\) \?\? displayHost\(request\.domain\)/
+  );
+  assert.doesNotMatch(
+    attributionModel,
+    /request\.tracker\?\.entity \|\| displayHost\(request\.domain\)/,
+    "per-request entity fallback would split one public host across two labels"
+  );
   assert.match(findings, /thirdPartyOrigins\.map\(displayPublicUrl\)/);
   assert.match(insights, /thirdPartyOrigins\.map\(displayPublicUrl\)/);
   assert.match(csv, /displayHost\(request\.domain\)/);

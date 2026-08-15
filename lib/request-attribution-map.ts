@@ -225,6 +225,48 @@ export function buildRequestAttributionMap(
   const unreconciled = reconciliationFailure(input);
   if (unreconciled) return { kind: "unreconciled", reason: unreconciled };
 
+  /**
+   * Resolve each host's catalog identity ONCE for the whole run, before any
+   * edge is keyed.
+   *
+   * A catalog match is recorded per REQUEST, so one host can carry matched and
+   * unmatched rows in the same visit. Keying each row on `entity || host`
+   * therefore split that host across two nodes: one committed report draws
+   * `{label}.google.com` as "Google" (1 request) beside "*.google.com" (8).
+   * Across the committed corpus that changed the drawn destination count in 56
+   * of 126 runs.
+   *
+   * Resolving per host keeps company grouping (several Meta hosts stay one
+   * "Meta" node, which is what the map is for) while making the destination
+   * namespace consistent within a run. A row that carried no match is not
+   * evidence that its host is uncatalogued.
+   *
+   * Totals reconcile either way, so the corpus gate cannot catch this: only the
+   * destination count and the drawn picture are affected.
+   */
+  const entitiesByHost = new Map<string, Set<string>>();
+  for (const request of input.requests) {
+    if (!request.thirdParty) continue;
+    const entity = request.tracker?.entity;
+    if (!entity) continue;
+    const entities = entitiesByHost.get(request.domain) ?? new Set<string>();
+    entities.add(entity);
+    entitiesByHost.set(request.domain, entities);
+  }
+  const destinationByHost = new Map<string, string>();
+  for (const request of input.requests) {
+    if (!request.thirdParty || destinationByHost.has(request.domain)) continue;
+    const entities = entitiesByHost.get(request.domain);
+    // A public redaction can collapse raw subdomains. If that ever leaves two
+    // entity names on one public host, choosing the first or last would make
+    // the map depend on request order. The host is the only honest common
+    // identity in that case.
+    destinationByHost.set(
+      request.domain,
+      entities?.size === 1 ? [...entities][0] : displayHost(request.domain)
+    );
+  }
+
   const byPair = new Map<string, AttributionMapEdge>();
   let attributedRequests = 0;
   let notAttributableRequests = 0;
@@ -241,7 +283,7 @@ export function buildRequestAttributionMap(
     attributedRequests += 1;
 
     const source = displayHost(actor.domain);
-    const dest = request.tracker?.entity || displayHost(request.domain);
+    const dest = destinationByHost.get(request.domain) ?? displayHost(request.domain);
     const key = `${source}\u001f${dest}`;
     const existing = byPair.get(key);
     if (existing) {

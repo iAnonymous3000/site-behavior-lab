@@ -328,3 +328,121 @@ test("every committed run reconciles through the attribution model", () => {
     "no committed run exercised the censored lower-bound path"
   );
 });
+
+/**
+ * A catalog match is recorded per REQUEST, so one host can carry matched and
+ * unmatched rows in the same visit. While each row was keyed on
+ * `entity || host`, that host became two nodes. Not hypothetical: report
+ * 20260814-1fc99c87bf75fc63a724167a5bab396d holds `{label}.google.com` as
+ * "Google" (1 request) and "*.google.com" (8), and across the committed corpus
+ * the drawn destination count changed in 56 of 126 runs.
+ *
+ * The corpus reconciliation gate cannot catch this. Every row is still counted
+ * exactly once, so `attributed + notAttributable === thirdParty` holds; only
+ * the destination count and the drawn picture are wrong.
+ */
+test("one host is one destination even when only some of its rows matched the catalog", () => {
+  const rows: NetworkRequestRecord[] = [
+    request(1, {
+      domain: "{label}.google.com",
+      url: "https://{label}.google.com/a",
+      thirdParty: true,
+      tracker: { domain: "google.com", entity: "Google", category: "advertising", confidence: "curated" },
+      provenance: { initiatorDomain: "shop.example" }
+    }),
+    ...Array.from({ length: 8 }, (_, index) =>
+      request(index + 2, {
+        domain: "{label}.google.com",
+        url: `https://{label}.google.com/b${index}`,
+        thirdParty: true,
+        tracker: null,
+        provenance: { initiatorDomain: "shop.example" }
+      })
+    )
+  ];
+
+  const model = buildRequestAttributionMap({
+    requests: rows,
+    totalRequests: rows.length,
+    thirdPartyRequests: rows.length,
+    automation: "playwright-chromium",
+    evidenceState: "complete"
+  });
+
+  assert.ok(model && model.kind === "map");
+  assert.equal(model.destinations.length, 1, "nine rows for one host are one destination, not two");
+  assert.equal(model.destinations[0].label, "Google", "one matched row names the host for all of them");
+  assert.equal(model.destinations[0].requests, 9, "no request is stranded on a second node");
+  assert.equal(model.edges.length, 1);
+  assert.equal(model.edges[0].requests, 9);
+  assert.equal(
+    model.coverage.attributedRequests + model.coverage.notAttributableRequests,
+    model.coverage.thirdPartyRequests,
+    "the invariant the corpus gate checks holds either way, which is why it could not catch this"
+  );
+});
+
+test("distinct hosts of one company stay grouped under that company", () => {
+  // Company grouping is what the map is for; the fix above must not undo it by
+  // drawing two nodes that both read "Meta".
+  const rows: NetworkRequestRecord[] = [
+    request(1, {
+      domain: "static.fbcdn.net",
+      url: "https://static.fbcdn.net/a",
+      thirdParty: true,
+      tracker: { domain: "fbcdn.net", entity: "Meta", category: "advertising", confidence: "curated" },
+      provenance: { initiatorDomain: "shop.example" }
+    }),
+    request(2, {
+      domain: "connect.facebook.net",
+      url: "https://connect.facebook.net/b",
+      thirdParty: true,
+      tracker: { domain: "facebook.net", entity: "Meta", category: "advertising", confidence: "curated" },
+      provenance: { initiatorDomain: "shop.example" }
+    })
+  ];
+
+  const model = buildRequestAttributionMap({
+    requests: rows,
+    totalRequests: rows.length,
+    thirdPartyRequests: rows.length,
+    automation: "playwright-chromium",
+    evidenceState: "complete"
+  });
+
+  assert.ok(model && model.kind === "map");
+  assert.deepEqual(model.destinations.map((d) => d.label), ["Meta"]);
+  assert.equal(model.destinations[0].requests, 2);
+});
+
+test("conflicting entity names on one public host fall back deterministically to the host", () => {
+  const rows = [
+    request(1, {
+      domain: "{label}.example.com",
+      tracker: { domain: "a.example.com", entity: "Alpha", category: "analytics", confidence: "curated" },
+      provenance: { initiatorDomain: "shop.example" }
+    }),
+    request(2, {
+      domain: "{label}.example.com",
+      tracker: { domain: "b.example.com", entity: "Beta", category: "analytics", confidence: "curated" },
+      provenance: { initiatorDomain: "shop.example" }
+    })
+  ];
+  const build = (requests: NetworkRequestRecord[]) =>
+    buildRequestAttributionMap({
+      requests,
+      totalRequests: requests.length,
+      thirdPartyRequests: requests.length,
+      automation: "playwright-chromium",
+      evidenceState: "complete"
+    });
+
+  const forward = build(rows);
+  const reversed = build([...rows].reverse());
+  assert.ok(forward && forward.kind === "map");
+  assert.ok(reversed && reversed.kind === "map");
+  assert.deepEqual(forward.destinations, reversed.destinations);
+  assert.deepEqual(forward.destinations, [
+    { label: "*.example.com", requests: 2, tracker: true }
+  ]);
+});
