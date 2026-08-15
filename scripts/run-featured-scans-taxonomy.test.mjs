@@ -5,8 +5,10 @@ import {
   buildFeaturedRefreshIssueReport,
   publicFailureTaxonomy,
   publicFeaturedScanSummary,
-  summarizeFailureTaxonomy
+  summarizeFailureTaxonomy,
+  UNAMBIGUOUS_TARGET_REFUSALS
 } from "./run-featured-scans-diagnostics.mjs";
+import { FEATURED_READJUDICATION_REASONS } from "./featured-readjudication-lib.mjs";
 
 /**
  * Pinned to the EXACT strings two real runs produced on 2026-08-14, not to
@@ -16,13 +18,13 @@ import {
  * the run still looks green.
  */
 const REAL_FAILURES = [
-  { site: "coinbase.com", message: "Skipping scan target: primary baseline arm: main navigation returned HTTP 403." },
-  { site: "reuters.com", message: "Skipping scan target: primary baseline arm: main navigation returned HTTP 401." },
-  { site: "wayfair.com", message: "Skipping scan target: primary baseline arm: main navigation returned HTTP 429." },
-  { site: "fidelity.com", message: "The page could not be loaded. The site may be down, unreachable, or blocking automated visits." },
-  { site: "cnn.com", message: "Skipping scan target: primary baseline arm: only 1 network request(s) observed, navigation likely failed or was blocked." },
-  { site: "ebay.com", message: "The scan exceeded the maximum scan duration." },
-  { site: "americanexpress.com", message: "Skipping scan target: primary baseline arm: report could not verify the rendered page subject." }
+  { site: "coinbase.com", message: "Skipping scan target: primary baseline arm: main navigation returned HTTP 403.", unavailableReason: "access-denied" },
+  { site: "reuters.com", message: "Skipping scan target: primary baseline arm: main navigation returned HTTP 401.", unavailableReason: "authentication-required" },
+  { site: "wayfair.com", message: "Skipping scan target: primary baseline arm: main navigation returned HTTP 429.", unavailableReason: "rate-limited" },
+  { site: "fidelity.com", message: "The page could not be loaded. The site may be down, unreachable, or blocking automated visits.", unavailableReason: null },
+  { site: "cnn.com", message: "Skipping scan target: primary baseline arm: only 1 network request(s) observed, navigation likely failed or was blocked.", unavailableReason: "navigation-incomplete" },
+  { site: "ebay.com", message: "The scan exceeded the maximum scan duration.", unavailableReason: null },
+  { site: "americanexpress.com", message: "Skipping scan target: primary baseline arm: report could not verify the rendered page subject.", unavailableReason: "navigation-incomplete" }
 ];
 
 test("site refusals are separated from scanner faults", () => {
@@ -59,38 +61,72 @@ test("nothing real lands in unclassified", () => {
  * `botBlockUnavailableReason` classifies the same run from report facts rather
  * than from its own English. Reading that is what fixes them all at once.
  */
-const PRODUCER_SENTENCES = [
-  "landing page title matches a bot-block/challenge page",
-  "report recorded a suspected challenge or soft block",
-  "main navigation produced no HTTP response",
-  "main navigation returned HTTP 503",
-  "main navigation returned HTTP 404",
-  "main navigation did not settle",
-  "report quality evaluator marked the run failed",
-  "main navigation returned HTTP 403",
-  "only 1 network request(s) observed, navigation likely failed or was blocked",
-  "report could not verify the rendered page subject"
+/**
+ * Every sentence `botBlockReason`/`runFailureReason` can emit, PAIRED WITH THE
+ * REASON THAT REAL RUN CARRIES. An earlier version of this guard stamped
+ * "automation-blocked" on all ten, which reduced it to asserting that a
+ * constant is a member of a constant list: it could not fail however wrong the
+ * sentence-to-reason mapping was, and it hid that mapping every
+ * `navigation-incomplete` failure -- including our own subject-verification
+ * failures -- onto "the site refused".
+ */
+const PRODUCER_OUTCOMES = [
+  ["landing page title matches a bot-block/challenge page", "automation-blocked", "target-refused"],
+  ["report recorded a suspected challenge or soft block", "automation-blocked", "target-refused"],
+  ["main navigation returned HTTP 403", "access-denied", "target-refused"],
+  ["main navigation returned HTTP 401", "authentication-required", "target-refused"],
+  ["main navigation returned HTTP 429", "rate-limited", "target-refused"],
+  ["main navigation produced no HTTP response", "navigation-incomplete", "target-refused"],
+  ["main navigation returned HTTP 503", "navigation-incomplete", "target-refused"],
+  ["only 1 network request(s) observed, navigation likely failed or was blocked", "navigation-incomplete", "target-refused"],
+  ["report could not verify the rendered page subject", "navigation-incomplete", "subject-unverified"],
+  ["main navigation did not settle", "navigation-incomplete", "unclassified"],
+  ["report quality evaluator marked the run failed", "navigation-incomplete", "unclassified"]
 ];
 
-test("every sentence the producer can emit is classified from the structured reason", () => {
-  for (const sentence of PRODUCER_SENTENCES) {
-    const failure = {
-      site: "example.test",
-      message: `Skipping scan target: primary baseline arm: ${sentence}.`,
-      unavailableReason: "automation-blocked"
-    };
-    const kinds = [...classifyFeaturedFailures([failure]).keys()];
-    assert.deepEqual(
-      kinds,
-      ["target-refused"],
-      `"${sentence}" must be classified from its structured reason, not its wording`
-    );
+test("every sentence the producer can emit lands where its cause belongs", () => {
+  for (const [sentence, unavailableReason, expected] of PRODUCER_OUTCOMES) {
+    const kinds = [
+      ...classifyFeaturedFailures([
+        {
+          site: "example.test",
+          message: `Skipping scan target: primary baseline arm: ${sentence}.`,
+          unavailableReason
+        }
+      ]).keys()
+    ];
+    assert.deepEqual(kinds, [expected], `"${sentence}" (${unavailableReason})`);
   }
 });
 
+test("the catch-all reason never decides fault on its own", () => {
+  // navigation-incomplete covers a missing HTTP response AND three outcomes
+  // that are ours. Short-circuiting on it published a scanner-side
+  // verification failure as a site refusing an honest browser.
+  assert.equal(
+    UNAMBIGUOUS_TARGET_REFUSALS.has("navigation-incomplete"),
+    false,
+    "navigation-incomplete is the producer catch-all and must not short-circuit"
+  );
+  for (const reason of UNAMBIGUOUS_TARGET_REFUSALS) {
+    assert.ok(
+      FEATURED_READJUDICATION_REASONS.includes(reason),
+      `${reason} must remain a real readjudication reason`
+    );
+  }
+
+  const ours = classifyFeaturedFailures([
+    {
+      site: "s.example",
+      message: "Skipping scan target: primary baseline arm: report could not verify the rendered page subject.",
+      unavailableReason: "navigation-incomplete"
+    }
+  ]);
+  assert.deepEqual([...ours.keys()], ["subject-unverified"], "our own verification failure stays ours");
+});
+
 test("a structured reason outranks the wording, and its absence falls back to it", () => {
-  // Every value botBlockUnavailableReason can return names the site declining.
-  for (const reason of ["access-denied", "authentication-required", "automation-blocked", "navigation-incomplete", "rate-limited"]) {
+  for (const reason of UNAMBIGUOUS_TARGET_REFUSALS) {
     const groups = classifyFeaturedFailures([
       { site: "s.example", message: "something nobody has seen", unavailableReason: reason }
     ]);

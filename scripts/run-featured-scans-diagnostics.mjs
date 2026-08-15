@@ -381,20 +381,24 @@ function workflowRunUrl({ serverUrl, repository, runId }) {
  * unfixable without the evasion this project refuses. A timeout or a subject
  * that could not be verified is ours.
  *
- * READS THE STRUCTURED REASON FIRST. `botBlockUnavailableReason` already
- * classifies a refusal from report facts, and every value it can return names
- * the site declining. Classifying the English diagnostic instead threw that
- * away: only five of the ten sentences the producer can emit matched a regex,
- * so a Cloudflare challenge page ("landing page title matches a
- * bot-block/challenge page"), a 503, an unsettled navigation and a failed
- * quality evaluation all landed in `unclassified` -- which is counted as
- * scanner-attributable, publishing every bot-walled site as one of the "N
- * attributable to this scanner and worth investigating". That is the exact
- * claim this taxonomy exists to prevent.
+ * READS THE UNAMBIGUOUS STRUCTURED REASONS FIRST. `botBlockUnavailableReason`
+ * classifies from report facts rather than from its own English, and four of
+ * the five values it can return name the site declining and nothing else.
+ * Classifying the diagnostic sentence instead threw that away: a Cloudflare
+ * challenge page ("landing page title matches a bot-block/challenge page") and
+ * a recorded soft block matched no regex and landed in `unclassified`, which is
+ * counted as scanner-attributable, publishing bot-walled sites among the "N
+ * attributable to this scanner and worth investigating".
  *
- * The regexes remain as the fallback for failures raised BEFORE a report
- * exists, which carry no structured reason: scan deadlines, transport faults,
- * and anything the child could not classify.
+ * `navigation-incomplete` IS NOT ONE OF THEM, and treating it as one inverted
+ * the same claim in the other direction. It is the producer's catch-all: a
+ * missing HTTP response and a one-request navigation share it with three
+ * outcomes that are OURS -- a navigation that did not settle, a run the quality
+ * evaluator failed, and a page subject our own check could not verify. Mapping
+ * the whole reason to "refused" published a scanner-side verification failure
+ * as a site refusing an honest browser, which is precisely what this taxonomy
+ * exists to prevent. Those keep going through the sentence, which does separate
+ * them.
  *
  * Deliberately does not change the threshold or the denominator. The gate still
  * measures what it measured; this only names the parts, so a red run says which
@@ -402,11 +406,13 @@ function workflowRunUrl({ serverUrl, repository, runId }) {
  */
 export function classifyFeaturedFailures(failures) {
   const kindOf = (failure) => {
-    if (FEATURED_READJUDICATION_REASONS.includes(failure?.unavailableReason)) return "target-refused";
+    if (UNAMBIGUOUS_TARGET_REFUSALS.has(failure?.unavailableReason)) return "target-refused";
     const text = String(failure?.message ?? "");
     if (/HTTP (401|403|429)\b/.test(text)) return "target-refused";
     if (/could not be loaded|down, unreachable, or blocking/i.test(text)) return "target-refused";
     if (/only \d+ network request/i.test(text)) return "target-refused";
+    if (/main navigation produced no HTTP response/i.test(text)) return "target-refused";
+    if (/main navigation returned HTTP 5\d\d/i.test(text)) return "target-refused";
     if (/exceeded the maximum scan duration|did not load before/i.test(text)) return "scanner-timeout";
     if (/verify the rendered page subject/i.test(text)) return "subject-unverified";
     return "unclassified";
@@ -422,6 +428,21 @@ export function classifyFeaturedFailures(failures) {
   const order = ["target-refused", "scanner-timeout", "subject-unverified", "unclassified"];
   return new Map([...groups].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0])));
 }
+
+/**
+ * The reasons that mean the SITE declined, and only that.
+ *
+ * Deliberately a subset of FEATURED_READJUDICATION_REASONS rather than that
+ * list: `navigation-incomplete` is the producer's catch-all and covers three
+ * scanner-side outcomes, so it cannot short-circuit a judgement about who is at
+ * fault. A guard asserts this stays a strict subset.
+ */
+export const UNAMBIGUOUS_TARGET_REFUSALS = new Set([
+  "access-denied",
+  "authentication-required",
+  "automation-blocked",
+  "rate-limited"
+]);
 
 const FAILURE_KIND_LABELS = new Map([
   ["target-refused", "sites that refused an automated visit"],
