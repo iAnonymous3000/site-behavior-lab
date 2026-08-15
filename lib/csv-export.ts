@@ -1,4 +1,5 @@
 import type { NetworkRequestRecord } from "./types";
+import { displayHost, displayPublicUrl } from "./text-format";
 
 /**
  * Request-log CSV export, shared by the report UI.
@@ -22,14 +23,14 @@ const CSV_HEADER = [
 export function requestLogToCsv(requests: NetworkRequestRecord[]): string {
   const rows = requests.map((request) => [
     request.id,
-    request.domain,
+    displayHost(request.domain),
     request.method,
     request.resourceType,
     request.status ?? "",
     request.thirdParty ? "yes" : "no",
     request.tracker?.entity ?? "",
     request.tracker?.category ?? "",
-    request.url
+    displayPublicUrl(request.url)
   ]);
   return [CSV_HEADER, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n").concat("\r\n");
 }

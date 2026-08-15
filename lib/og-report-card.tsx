@@ -5,6 +5,7 @@ import {
   type ReportHeadlineStat
 } from "./report-headline";
 import type { ReportView } from "./scan-report-views";
+import { displayHost } from "./text-format";
 
 /**
  * Shared `next/og` social-card renderers for report and homepage links.
@@ -89,7 +90,7 @@ export function renderReportCard(view: ReportView): ImageResponse {
               border: `1px solid ${BORDER}`
             }}
           >
-            {truncate(headline.domain, 30)}
+            {truncate(displayHost(headline.domain), 30)}
           </div>
         </div>
 

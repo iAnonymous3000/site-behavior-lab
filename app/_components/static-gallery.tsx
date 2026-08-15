@@ -22,7 +22,7 @@ import {
   staticReportRequestCountLabel,
   staticReportRequestEvidenceStatus
 } from "@/lib/static-report-card-copy";
-import { plural } from "@/lib/text-format";
+import { displayHost, displayPublicUrl, plural } from "@/lib/text-format";
 import {
   createLoadedTemporalComparison,
   temporalUploadSelectionError
@@ -88,7 +88,7 @@ function StaticReportGallery({
   const filteredReports = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     const matches = (reports ?? []).filter((report) => {
-      const searchable = `${report.title} ${report.domain} ${report.requestedUrl}`.toLowerCase();
+      const searchable = `${report.title} ${report.domain} ${displayHost(report.domain)} ${report.requestedUrl} ${displayPublicUrl(report.requestedUrl)}`.toLowerCase();
       return (
         (!normalizedQuery || searchable.includes(normalizedQuery)) &&
         (typeFilter === "all" || report.reportType === typeFilter) &&
@@ -156,7 +156,9 @@ function StaticReportGallery({
     // conditions; two unrelated sites or devices produce a diff that reads as
     // a site change but is really an apples-to-oranges pairing.
     if (!comparableSubjectHosts(before.domain, after.domain)) {
-      setCompareError(`Temporal comparison needs two scans of the same site (${before.domain} vs ${after.domain}).`);
+      setCompareError(
+        `Temporal comparison needs two scans of the same site (${displayHost(before.domain)} vs ${displayHost(after.domain)}).`
+      );
       return;
     }
     if (before.device !== after.device) {
@@ -474,11 +476,11 @@ function StaticReportCard({
       ref={focusRef}
     >
       <span className="static-report-main">
-        <strong>{report.title || report.domain}</strong>
+        <strong>{report.title || displayHost(report.domain)}</strong>
         <small>
-          {report.domain} · {formatDateTime(report.scannedAt)}
+          {displayHost(report.domain)} · {formatDateTime(report.scannedAt)}
         </small>
-        <em>{report.requestedUrl}</em>
+        <em>{displayPublicUrl(report.requestedUrl)}</em>
       </span>
       <span className="static-report-meta">
         <span className="visually-hidden print-text-equivalent">{staticReportCardExtraEvidenceLabel(report)}</span>
@@ -524,25 +526,25 @@ async function loadStaticTemporalReport(entry: StaticReportManifestEntry, signal
     committedReportLocation(entry.id, clientReportRuntime()).dataUrl,
     { cache: "no-store" },
     {
-      label: `Saved report for ${entry.domain}`,
+      label: `Saved report for ${displayHost(entry.domain)}`,
       maxBytes: BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES,
       signal,
-      httpError: () => new Error(`Could not load ${entry.domain}.`)
+      httpError: () => new Error(`Could not load ${displayHost(entry.domain)}.`)
     }
   );
   if (bytes.byteLength !== entry.reportWireBytes) {
-    throw new Error(`Saved report for ${entry.domain} did not match its manifest byte length.`);
+    throw new Error(`Saved report for ${displayHost(entry.domain)} did not match its manifest byte length.`);
   }
   const payload = await parseDigestBoundReportJson(
     bytes,
     entry.reportWireSha256,
-    `Saved report for ${entry.domain}`
+    `Saved report for ${displayHost(entry.domain)}`
   );
   signal.throwIfAborted();
   const read = await readLoadedReport(payload, entry.domain);
   if (!read.ok) throw new Error(read.message);
   if (read.loaded.wire.share?.id !== entry.id) {
-    throw new Error(`Saved report for ${entry.domain} did not match its manifest identity.`);
+    throw new Error(`Saved report for ${displayHost(entry.domain)} did not match its manifest identity.`);
   }
   return read.loaded;
 }
@@ -606,7 +608,7 @@ async function readCompareUpload(
 }
 
 function staticReportOptionLabel(report: StaticReportManifestEntry): string {
-  return `${report.domain} · ${formatDateTime(report.scannedAt)} · ${report.device}`;
+  return `${displayHost(report.domain)} · ${formatDateTime(report.scannedAt)} · ${report.device}`;
 }
 
 type HistoryGroup = { key: string; label: string; reports: StaticReportManifestEntry[] };
@@ -636,7 +638,7 @@ function buildHistoryGroups(reports: StaticReportManifestEntry[]): HistoryGroup[
       const kind = first.reportType === "comparison" ? first.comparisonType ?? "comparison" : "single scans";
       return {
         key,
-        label: `${first.domain} · ${kind} · ${first.device} (${sorted.length})`,
+        label: `${displayHost(first.domain)} · ${kind} · ${first.device} (${sorted.length})`,
         reports: sorted
       };
     })

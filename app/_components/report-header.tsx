@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { absoluteShareUrl, reportPdfHref, reportSharePath } from "./report-overview";
 import type { RunFacts } from "@/lib/report-facts";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
+import { displayHost, displayPublicUrl } from "@/lib/text-format";
 import {
   schemaProvenanceLabel,
   type ReportView
@@ -58,8 +59,8 @@ export function ReportHeader({
     (runFacts.subject.describesSubject
       ? run.pageTitle
       : runFacts.subject.kind === "http-error"
-        ? `HTTP ${runFacts.subject.status} returned while scanning ${run.domain}`
-        : `Unverified document returned while scanning ${run.domain}`);
+        ? `HTTP ${runFacts.subject.status} returned while scanning ${displayHost(run.domain)}`
+        : `Unverified document returned while scanning ${displayHost(run.domain)}`);
   const selectedRequestEvidence = evidenceFacts.requestEvidenceState;
   const requestEvidenceExplanation =
     selectedRequestEvidence === "capped"
@@ -110,15 +111,15 @@ export function ReportHeader({
             </span>
           )}
         </p>
-        <h2>{title || run.domain}</h2>
+        <h2>{title || displayHost(run.domain)}</h2>
         {finalUrl ? (
           <a href={finalUrl} target="_blank" rel="noreferrer">
-            {run.conditions.finalUrl}
+            {displayPublicUrl(run.conditions.finalUrl)}
             <ExternalLink size={14} aria-hidden="true" />
             <span className="visually-hidden"> (opens in a new tab)</span>
           </a>
         ) : (
-          <span className="report-url">{run.conditions.finalUrl}</span>
+          <span className="report-url">{displayPublicUrl(run.conditions.finalUrl)}</span>
         )}
         {requestEvidenceExplanation && (
           <p className="request-evidence-explanation" id="request-evidence-explanation">

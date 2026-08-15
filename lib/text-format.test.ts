@@ -4,6 +4,7 @@ import {
   comparisonDeltaHeading,
   displayEvidenceName,
   displayHost,
+  displayPublicUrl,
   hostMatchesQuery,
   reportKindLabel
 } from "./text-format";
@@ -13,6 +14,24 @@ test("host search accepts the wildcard form displayed to readers", () => {
   assert.equal(hostMatchesQuery("{label}.metrics.example", "*.metrics.example"), true);
   assert.equal(hostMatchesQuery("{label}.metrics.example", "{label}.metrics"), true);
   assert.equal(hostMatchesQuery("{label}.metrics.example", "unrelated"), false);
+});
+
+test("privacy-reduced URLs use reader notation instead of wire tokens", () => {
+  assert.equal(
+    displayPublicUrl("https://static.{label}.fbcdn.net/{seg}/{seg}/{n}/{seg}"),
+    "https://static.*.fbcdn.net/…"
+  );
+  assert.equal(
+    displayPublicUrl("https://{label}.fbsbx.com/{seg}/{seg}?%5Bredacted%5D=&version="),
+    "https://*.fbsbx.com/…?…&version"
+  );
+  assert.equal(
+    displayPublicUrl("https://example.com/legal/privacy?utm_source=&utm_source="),
+    "https://example.com/legal/privacy?utm_source"
+  );
+  assert.equal(displayPublicUrl("{invalid-url}"), "URL unavailable");
+  assert.equal(displayPublicUrl("not a public URL"), "URL unavailable");
+  assert.equal(displayHost("{invalid-host}"), "host unavailable");
 });
 
 test("privacy markers render as explained, distinct evidence rows while reviewed names stay exact", () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useMemo } from "react";
-import { plural } from "@/lib/text-format";
+import { displayHost, plural } from "@/lib/text-format";
 import type { NetworkRequestRecord } from "@/lib/types";
 
 /** Which recorded provenance field named the actor, so no surface has to guess. */
@@ -57,9 +57,9 @@ function buildCausalEdges(requests: NetworkRequestRecord[]): CausalEdgeSet {
     if (!request.thirdParty) continue;
     const actor = provenanceActor(request);
     if (!actor) continue;
-    const source = actor.domain;
+    const source = displayHost(actor.domain);
 
-    const dest = request.tracker?.entity || request.domain;
+    const dest = request.tracker?.entity || displayHost(request.domain);
     // The role stays out of the edge key on purpose: one domain can be the recorded
     // script of one request and only the injector of another, and two nodes with the
     // same label would collide in the layout and in the React keys. A role that is not
@@ -161,8 +161,8 @@ function CausalityGraph({
         <h2 id={headingId}>Causal map</h2>
         <span className="muted">
           {instrumented
-            ? "Which recorded actor each third-party request is attributed to, from PageGraph provenance."
-            : "Which actor each third-party request is attributed to, from the initiator the browser reported. Attribution, not causation: an initiator may itself have been told what to fetch, and requests with no reported initiator are not distinguished from ones fetched from several."}
+            ? "Which recorded actor each third-party request is attributed to, from PageGraph provenance. Asterisks mark subdomain labels hidden for privacy."
+            : "Which actor each third-party request is attributed to, from the initiator the browser reported. Attribution, not causation: an initiator may itself have been told what to fetch, and requests with no reported initiator are not distinguished from ones fetched from several. Asterisks mark subdomain labels hidden for privacy."}
         </span>
       </div>
       <p className="visually-hidden" id={scrollDescriptionId}>

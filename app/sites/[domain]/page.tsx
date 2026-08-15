@@ -10,7 +10,7 @@ import { formatDelta } from "@/lib/temporal-deltas";
 import { safeNavigableHttpUrl } from "@/lib/report-url";
 import { sitePagesBasePath, siteUrl } from "@/lib/site-url";
 import { corpusCohortDifferences } from "@/lib/corpus-cohort";
-import { humanList, reportKindLabel } from "@/lib/text-format";
+import { displayHost, humanList, reportKindLabel } from "@/lib/text-format";
 import { SiteChrome } from "../../_components/site-chrome";
 
 export const dynamic = "force-static";
@@ -34,11 +34,12 @@ export async function generateMetadata({ params }: { params: Promise<{ domain: s
   const latest = profile.entries[0];
   const profilePath = siteProfilePath(profile.domain);
   const canonical = siteUrl(`${profilePath}/`);
-  const title = `What ${profile.domain} loaded: website behavior history`;
+  const visibleDomain = displayHost(profile.domain);
+  const title = `What ${visibleDomain} loaded: website behavior history`;
   const description = conciseMetadataText(
     `Controlled-visit evidence, not a verdict. Browse ${profile.entries.length} ${
       profile.entries.length === 1 ? "report" : "reports"
-    } for ${profile.domain}; latest ${formatDate(latest.scannedAt)}: ${latest.headline}`,
+    } for ${visibleDomain}; latest ${formatDate(latest.scannedAt)}: ${latest.headline}`,
     160
   );
   return {
@@ -100,12 +101,12 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           <li aria-hidden="true">/</li>
           <li><Link href="/directory/">Scanned sites</Link></li>
           <li aria-hidden="true">/</li>
-          <li aria-current="page">{profile.domain}</li>
+          <li aria-current="page">{displayHost(profile.domain)}</li>
         </ol>
       </nav>
       <header className="site-profile-header">
         <p className="eyebrow">Curated public corpus · Site history</p>
-        <h1>{profile.domain}</h1>
+        <h1>{displayHost(profile.domain)}</h1>
         <p>{latest.headline}</p>
         <div className="site-profile-actions">
           <Link className="primary-button" href={rescanHref}>
