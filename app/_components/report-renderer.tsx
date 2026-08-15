@@ -149,7 +149,7 @@ export function ReportRenderer({
   const sections: ReportSection[] = [
     { id: "findings", label: "Findings" },
     { id: "comparison", label: "Comparison" },
-    { id: "causal-map", label: "Causal map" },
+    { id: "causal-map", label: "Attribution" },
     { id: "numbers", label: "Numbers" },
     { id: "traffic", label: "Traffic" },
     { id: "visit-phases", label: "Visit phases" },
@@ -223,8 +223,8 @@ export function ReportRenderer({
             </div>
           )}
           <CausalityGraph
-            requests={displayedRun.evidence.requests}
-            automation={displayedRun.conditions.automation}
+            run={displayedRun}
+            requestEvidenceState={displayedFacts.evidence.requests.state}
           />
           <MetricGrid facts={displayedFacts} />
           <TrafficViz facts={displayedFacts} />

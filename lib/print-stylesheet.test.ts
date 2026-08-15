@@ -59,7 +59,7 @@ const FIXTURE_BODY = `<body>
       <p class="muted disclosure-lazy-note" id="lazynote">Open the request log to render its rows.</p>
       <button class="change-list-toggle" id="difftoggle" type="button">Show all 14</button>
       <section class="causal-graph">
-        <h3 class="visually-hidden print-text-equivalent" id="mapheading">Relationships shown in the causal map</h3>
+        <h3 class="visually-hidden print-text-equivalent" id="mapheading">Relationships shown in the attribution map</h3>
         <ol class="visually-hidden print-text-equivalent" id="maplist"><li>3 requests to example.test</li></ol>
       </section>
       <p class="print-only" id="armprint">Evidence below is from the baseline visit.</p>
@@ -179,9 +179,9 @@ test.after(async () => {
 test("evidence and its qualifications survive onto paper", () => {
   // The evidence itself, including a disclosure the reader never opened.
   assert.equal(visible.logbody, true, "a collapsed disclosure must still print its evidence");
-  // The text equivalent of the causal map: the SVG may not survive page width.
-  assert.equal(visible.mapheading, true, "the causal map text equivalent must print");
-  assert.equal(visible.maplist, true, "the causal map relationship list must print");
+  // The text equivalent of the attribution map: the SVG may not survive page width.
+  assert.equal(visible.mapheading, true, "the attribution map text equivalent must print");
+  assert.equal(visible.maplist, true, "the attribution map relationship list must print");
   // The digest and the standing scope caveat.
   assert.equal(visible.printfooter, true, "the evidence footer must print");
   assert.equal(visible.caveat, true, "the standing scope caveat must print");

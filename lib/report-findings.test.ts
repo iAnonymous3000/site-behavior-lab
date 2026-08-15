@@ -2676,7 +2676,7 @@ test("an uncatalogued platform domain is not reported as no platform requests", 
   assert.match(cleanCard.lead, /No requests to catalogued Google/);
 });
 
-test("the causal map names each provenance actor with the request log's own word for that field", () => {
+test("the attribution map names each provenance actor with the request log's own word for that field", () => {
   const base: NetworkRequestRecord = {
     id: 1,
     url: "https://ads.example.com/pixel",
@@ -2736,6 +2736,7 @@ test("the causal map names each provenance actor with the request log's own word
   );
 
   const graph = readFileSync(path.join(process.cwd(), "app", "_components", "causality-graph.tsx"), "utf8");
+  const model = readFileSync(path.join(process.cwd(), "lib", "request-attribution-map.ts"), "utf8");
 
   // Whatever phrase the log prints for a field is the phrase the map has to print for it.
   const logWording = [
@@ -2746,7 +2747,7 @@ test("the causal map names each provenance actor with the request log's own word
     assert.equal(requestProvenanceSummary(request)?.primary, `${phrase} ${actor}`);
     assert.ok(
       graph.includes(`return "${phrase}"`),
-      `the causal map has to offer "${phrase}", the request log's own phrase for that field`
+      `the attribution map has to offer "${phrase}", the request log's own phrase for that field`
     );
   }
 
@@ -2759,15 +2760,15 @@ test("the causal map names each provenance actor with the request log's own word
   ];
   for (const { field, role } of fieldRoles) {
     assert.ok(
-      graph.includes(`domain: provenance.${field}, role: "${role}"`),
-      `the causal map has to record ${field} as the ${role} role`
+      model.includes(`domain: provenance.${field}, role: "${role}"`),
+      `the attribution map has to record ${field} as the ${role} role`
     );
   }
-  const consulted = Array.from(new Set(graph.match(/provenance\.[A-Za-z]+/g) ?? []));
+  const consulted = Array.from(new Set(model.match(/provenance\.[A-Za-z]+/g) ?? []));
   assert.deepEqual(
     consulted,
     fieldRoles.map(({ field }) => `provenance.${field}`),
-    "the map has to resolve the actor from the same fields, in the same order, as the request log"
+    "the map model has to resolve the actor from the same fields, in the same order, as the request log"
   );
 
   assert.doesNotMatch(
@@ -2784,7 +2785,7 @@ test("the causal map names each provenance actor with the request log's own word
 
 test("the provenance chip claims recorded attribution, not a causal chain", () => {
   // The chip's filter matches only rows requestProvenanceSummary can display,
-  // and the causal map describes the same records as attribution ("which
+  // and the attribution map describes the same records as attribution ("which
   // recorded actor each third-party request is attributed to"). A title
   // asserting a recorded causal chain and a script that triggered the request
   // overclaims both: PageGraph provenance records reachability, and the
