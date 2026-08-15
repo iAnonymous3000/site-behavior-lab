@@ -22,7 +22,7 @@ export type ReportSection = { id: string; label: string };
 export function ReportSectionNav({ sections }: { sections: ReportSection[] }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   // Which sections this report actually rendered. Several explorer sections
-  // return null on their own internal evidence check -- the causal map when
+  // return null on their own internal evidence check -- the attribution map when
   // provenance produces no edges, visit phases when the run records none --
   // and no predicate the caller can write outside those components is exactly
   // equal to their guard. Rather than approximate them and risk an anchor that

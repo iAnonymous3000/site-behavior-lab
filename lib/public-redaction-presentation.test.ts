@@ -15,6 +15,7 @@ test("reader-facing report surfaces format canonical redaction tokens", () => {
   const savedContext = source("app/_components/report-page-context.tsx");
   const gallery = source("app/_components/static-gallery.tsx");
   const causalMap = source("app/_components/causality-graph.tsx");
+  const attributionModel = source("lib/request-attribution-map.ts");
   const findings = source("lib/report-findings.ts");
   const insights = source("lib/report-insights.ts");
   const csv = source("lib/csv-export.ts");
@@ -27,8 +28,21 @@ test("reader-facing report surfaces format canonical redaction tokens", () => {
   assert.doesNotMatch(savedContext, />\{run\.conditions\.requestedUrl\}</);
   assert.match(gallery, /displayPublicUrl\(report\.requestedUrl\)/);
   assert.doesNotMatch(gallery, />\{report\.requestedUrl\}</);
-  assert.match(causalMap, /const source = displayHost\(actor\.domain\)/);
-  assert.match(causalMap, /request\.tracker\?\.entity \|\| displayHost\(request\.domain\)/);
+  assert.match(causalMap, /buildRequestAttributionMap\(/);
+  assert.match(attributionModel, /const source = displayHost\(actor\.domain\)/);
+  assert.match(
+    attributionModel,
+    /entities\?\.size === 1 \? \[\.\.\.entities\]\[0\] : displayHost\(request\.domain\)/
+  );
+  assert.match(
+    attributionModel,
+    /destinationByHost\.get\(request\.domain\) \?\? displayHost\(request\.domain\)/
+  );
+  assert.doesNotMatch(
+    attributionModel,
+    /request\.tracker\?\.entity \|\| displayHost\(request\.domain\)/,
+    "per-request entity fallback would split one public host across two labels"
+  );
   assert.match(findings, /thirdPartyOrigins\.map\(displayPublicUrl\)/);
   assert.match(insights, /thirdPartyOrigins\.map\(displayPublicUrl\)/);
   assert.match(csv, /displayHost\(request\.domain\)/);

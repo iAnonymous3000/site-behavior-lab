@@ -3806,7 +3806,56 @@ a {
   border-top: 1px solid var(--border);
 }
 
-/* ---- Causal map (PageGraph provenance graph) ---- */
+/* ---- Request attribution map ---- */
+.attribution-coverage {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin: 0;
+  padding: 16px 16px 0;
+}
+
+.attribution-coverage > div {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-width: 0;
+  padding: 12px 14px;
+}
+
+.attribution-coverage dt {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: var(--weight-medium);
+}
+
+.attribution-coverage dd {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+  margin: 4px 0 0;
+}
+
+.attribution-coverage-note,
+.attribution-map-empty {
+  color: var(--text-subtle);
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 10px 16px 0;
+}
+
+.attribution-coverage-note.is-lower-bound {
+  border-left: 3px solid var(--sig-warn);
+  padding-left: 10px;
+}
+
+.attribution-map-empty {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  padding: 14px;
+}
+
 .causal-graph-scroll {
   overflow-x: auto;
   padding: 16px;
@@ -3825,8 +3874,8 @@ a {
   width: 100%;
 }
 
-/* No opacity wash here: this diagram's whole content is which script caused which
-   request, and at 0.55 the edges measured 1.28:1 in light theme. --border-strong now
+/* No opacity wash here: this diagram's whole content is which actor was attributed
+   to which request, and at 0.55 the edges measured 1.28:1 in light theme. --border-strong now
    clears 3:1 on every surface, so the edges are drawn at full strength. */
 .causal-edge {
   stroke: var(--border-strong);
@@ -5189,7 +5238,7 @@ details[open] > summary .disclosure-chevron {
      hidden by default.
 
      But some of it is the ONLY text form of a piece of evidence, and losing
-     that is not tidiness, it is data loss: the causal map's relationship list
+     that is not tidiness, it is data loss: the attribution map's relationship list
      is the text equivalent of an SVG that may not survive the page width, and
      the capped-evidence qualifiers explain a chip that reads "recording
      capped" and nothing else. Those opt in by name. Adding the class to a
