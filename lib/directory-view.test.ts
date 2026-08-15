@@ -196,18 +196,184 @@ test("category medians select one methodology cohort instead of pooling generati
     trackerCatalogOrigin: "legacy-metadata-hash" as const,
     ...SERVICE_ROLE_IDENTITY
   };
+  // The r2 cohort is deliberately LARGER and NEWER than the v1 one. With the
+  // old size rule this test passed because legacy had three sites to r2s two,
+  // so it could not distinguish generation from size and never asserted what
+  // its name claims.
   const r2 = [
-    entry("r2-a", { domain: "a.com", trackerRequests: 100 }),
-    entry("r2-b", { domain: "b.com", trackerRequests: 200 })
+    entry("r2-a", { domain: "a.com", trackerRequests: 100, scannedAt: "2026-08-10T00:00:00.000Z" }),
+    entry("r2-b", { domain: "b.com", trackerRequests: 200, scannedAt: "2026-08-10T00:00:00.000Z" }),
+    entry("r2-c", { domain: "f.com", trackerRequests: 300, scannedAt: "2026-08-10T00:00:00.000Z" }),
+    entry("r2-d", { domain: "g.com", trackerRequests: 400, scannedAt: "2026-08-10T00:00:00.000Z" })
   ];
   const legacy = [
-    entry("v1-a", { domain: "c.com", trackerRequests: 1, corpusCohort: legacyCohort }),
-    entry("v1-b", { domain: "d.com", trackerRequests: 2, corpusCohort: legacyCohort }),
-    entry("v1-c", { domain: "e.com", trackerRequests: 3, corpusCohort: legacyCohort })
+    entry("v1-a", { domain: "c.com", trackerRequests: 1, corpusCohort: legacyCohort, scannedAt: "2026-07-01T00:00:00.000Z" }),
+    entry("v1-b", { domain: "d.com", trackerRequests: 2, corpusCohort: legacyCohort, scannedAt: "2026-07-01T00:00:00.000Z" }),
+    entry("v1-c", { domain: "e.com", trackerRequests: 3, corpusCohort: legacyCohort, scannedAt: "2026-07-01T00:00:00.000Z" })
   ];
 
+  // Generation still separates first: a v1 cohort is never displaced by a v2
+  // one, so an r2 migration stays visible rather than blending denominators.
   const [page] = buildCategoryEvidencePages([...r2, ...legacy], 1);
-  assert.equal(page.cohort.id, legacyCohort.id, "the larger independently counted cohort wins");
+  assert.equal(page.cohort.id, legacyCohort.id, "a v1 cohort is not displaced by a v2 one");
   assert.equal(page.sites.length, 3);
   assert.equal(page.rollup.medianTrackers, 2);
+});
+
+/**
+ * The rule used to be size, and the guard above used to assert it with the
+ * message "the larger independently counted cohort wins" while every fixture
+ * row shared one `scannedAt`. With recency held constant the test could not
+ * distinguish size from freshness, so it was structurally blind to the defect
+ * it sat next to.
+ *
+ * Live consequence at the time of this fix: six of twelve published categories
+ * were owned by a frozen `legacy-v1-methodology-unspecified` cohort dated
+ * 2026-07-06, each winning on an EXACT TIE against an equally sized
+ * current-line cohort up to five weeks newer, resolved by
+ * `"v1:legacy-" < "v1:shields-"`. Because a tie survives rescanning the same
+ * sites, and a cohort keyed on an unrecorded methodology can never receive
+ * another scan, no amount of scanning could move those numbers.
+ */
+test("a category publishes the newest usable cohort, not the biggest", () => {
+  const stale = {
+    id: "v1:legacy-v1-methodology-unspecified:producer-unrecorded",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "legacy-v1-methodology-unspecified",
+    methodologyOrigin: "legacy-derived" as const,
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest: "b".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash" as const,
+    ...SERVICE_ROLE_IDENTITY
+  };
+  const fresh = { ...stale, id: "v1:shields-current:producer-node", methodologyVersion: "shields-current" };
+
+  // Same size, same sites, five weeks apart. Under the old rule the stale
+  // cohort took the page on the lexicographic tiebreak.
+  const older = ["a.com", "b.com", "c.com"].map((domain, index) =>
+    entry(`old-${index}`, {
+      domain,
+      trackerRequests: 1,
+      corpusCohort: stale,
+      scannedAt: "2026-07-06T00:00:00.000Z"
+    })
+  );
+  const newer = ["a.com", "b.com", "c.com"].map((domain, index) =>
+    entry(`new-${index}`, {
+      domain,
+      trackerRequests: 90,
+      corpusCohort: fresh,
+      scannedAt: "2026-08-10T00:00:00.000Z"
+    })
+  );
+
+  const [page] = buildCategoryEvidencePages([...older, ...newer], 1);
+  assert.equal(page.cohort.id, fresh.id, "an exact tie must be broken by recency, not by cohort id");
+  assert.equal(page.rollup.medianTrackers, 90);
+  assert.equal(page.lastScannedAt, "2026-08-10T00:00:00.000Z");
+});
+
+test("recency may not buy a category a narrower universe", () => {
+  // The composition veto the aggregate already applies, and the reason this
+  // cannot be naive newest-wins. Scoped to SUBSTITUTABLE cohorts: two
+  // descriptions of the same measurement that differ only in the requested GPC
+  // condition. A different methodology is a different question and deliberately
+  // does not veto, which is why the fixtures here differ only in `gpc`.
+  const wide = {
+    id: "v1:same-line:producer-node:gpc-on",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "same-line",
+    methodologyOrigin: "legacy-derived" as const,
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest: "c".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash" as const,
+    ...SERVICE_ROLE_IDENTITY
+  };
+  const narrow = { ...wide, id: "v1:same-line:producer-node:gpc-off", gpc: false };
+
+  const broad = ["a.com", "b.com", "c.com", "d.com", "e.com"].map((domain, index) =>
+    entry(`w-${index}`, { domain, trackerRequests: 10, corpusCohort: wide, scannedAt: "2026-07-06T00:00:00.000Z" })
+  );
+  const thin = [
+    entry("n-0", { domain: "a.com", trackerRequests: 99, corpusCohort: narrow, scannedAt: "2026-08-10T00:00:00.000Z" })
+  ];
+
+  const [page] = buildCategoryEvidencePages([...broad, ...thin], 1);
+  assert.equal(page.cohort.id, wide.id, "a newer cohort measuring one of five sites must not take the page");
+  assert.equal(page.sites.length, 5);
+});
+
+/**
+ * The generation rule is applied to cohorts that could actually carry the page,
+ * never before that.
+ *
+ * `selectPrimaryCorpusCohort` reduces to the v1 generation whenever any v1
+ * candidate exists, BEFORE its own floor. That is right for the corpus
+ * aggregate. Delegated to unfiltered, it lets a single leftover v1 report beat
+ * a complete r2 cohort and then fall under the category floor, deleting a live
+ * route from generateStaticParams and sitemap.xml and 404ing its inbound links.
+ */
+test("a leftover sub-floor v1 report cannot delete a category that r2 can publish", () => {
+  const legacyCohort = {
+    id: "v1:leftover:producer-unrecorded",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "leftover",
+    methodologyOrigin: "legacy-derived" as const,
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest: "d".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash" as const,
+    ...SERVICE_ROLE_IDENTITY
+  };
+
+  const r2 = ["a.com", "b.com", "c.com"].map((domain, index) =>
+    entry(`r2-${index}`, { domain, trackerRequests: 50, scannedAt: "2026-08-10T00:00:00.000Z" })
+  );
+  const strayV1 = entry("v1-stray", {
+    domain: "a.com",
+    trackerRequests: 1,
+    corpusCohort: legacyCohort,
+    scannedAt: "2026-07-01T00:00:00.000Z"
+  });
+
+  const pages = buildCategoryEvidencePages([...r2, strayV1], 3);
+  assert.equal(pages.length, 1, "the category must still publish");
+  assert.equal(pages[0].cohort.schemaVersion, 2, "a one-site v1 leftover cannot take a three-site page");
+  assert.equal(pages[0].sites.length, 3);
+});
+
+test("the generation rule still holds between cohorts that can each carry the page", () => {
+  // Not a licence to blend: when BOTH clear the floor, v1 still publishes, the
+  // same rule the corpus aggregate applies.
+  const legacyCohort = {
+    id: "v1:publishable:producer-unrecorded",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "publishable",
+    methodologyOrigin: "legacy-derived" as const,
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest: "e".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash" as const,
+    ...SERVICE_ROLE_IDENTITY
+  };
+  const r2 = ["a.com", "b.com", "c.com"].map((domain, index) =>
+    entry(`r2-${index}`, { domain, trackerRequests: 50, scannedAt: "2026-08-10T00:00:00.000Z" })
+  );
+  const v1 = ["d.com", "e.com", "f.com"].map((domain, index) =>
+    entry(`v1-${index}`, {
+      domain,
+      trackerRequests: 5,
+      corpusCohort: legacyCohort,
+      scannedAt: "2026-07-01T00:00:00.000Z"
+    })
+  );
+
+  const [page] = buildCategoryEvidencePages([...r2, ...v1], 3);
+  assert.equal(page.cohort.schemaVersion, 1, "a publishable v1 cohort is not displaced by r2");
 });

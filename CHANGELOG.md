@@ -9,6 +9,39 @@ public API or a 1.0 release.
 
 Work landing after the 0.5.0 milestone. Nothing here is released.
 
+### Fixed
+
+- The weekly Brave Shields list refresh can complete again. It regenerated
+  `THIRD_PARTY_INVENTORY.json` for the new list bytes but never synced
+  `THIRD_PARTY_REVIEWS.json`, whose rows are keyed by `url@sha256`, so every
+  refresh failed the unit suite on `missing ledger row` before reaching the
+  proposal step and no refresh ever reached a human. New rows are created
+  unreviewed, so the review gate is unchanged.
+- A Brave refresh whose rules moved upstream is no longer reported as a broken
+  refresh. `NODE_R2_CURRENT_ADBLOCK_IDENTITY` is a source literal no workflow
+  may edit, so once the fetch overwrites the snapshot the producer-contract
+  assertions have a predetermined answer: the run went red with `unknown Node
+  producer tuple` and `redaction-not-idempotent`, which reads as a redaction
+  bug that does not exist. `npm run lists:adoption` now names that condition
+  directly, prints the exact literal to adopt, and counts the committed reports
+  measured under the outgoing identity so a maintainer knows whether it must
+  also be frozen. A new guard test fails first, and says so, when the pin goes
+  stale. The pinned constant's own docblock still claimed the fetch timestamp
+  was why the job could not self-green, which #146 had already fixed.
+- The canonical featured-refresh issue says which kind of red a run is. It
+  published a bare rate (`61/81 (75%)`), and a rate cannot distinguish a broken
+  scanner from sites declining an undisguised automated browser, which need
+  opposite responses. The failure taxonomy added in #149 existed only in the
+  job log, because the alerting job receives a sanitized projection and never
+  sees per-target diagnostics; the counts now travel through that projection.
+  Counts only: no target names, messages, or URLs reach the public issue, and a
+  taxonomy that contradicts the counts beside it is dropped rather than
+  rendered. The classification itself now reads the producer's structured
+  reason for the four values that name the site declining, rather than the
+  English diagnostic; the fifth is its catch-all and covers three outcomes that
+  are the scanner's, so it keeps going through the sentence, which separates
+  them.
+
 ## [0.5.0] - 2026-08-11
 
 Evidence you can print, cite, and check. A report now leaves the browser as a

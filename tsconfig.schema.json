@@ -44,7 +44,8 @@
     "lib/jsonld-script.ts",
     "lib/aggregate-v2-shadow-cli.ts",
     "lib/verify-v2-shadow-cli.ts",
-    "lib/corpus-neutrality-cli.ts"
+    "lib/corpus-neutrality-cli.ts",
+    "lib/brave-snapshot-adoption-cli.ts"
   ],
   "exclude": ["node_modules", ".next", ".unit-test-dist", "dist"]
 }

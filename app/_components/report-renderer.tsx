@@ -222,7 +222,10 @@ export function ReportRenderer({
               </p>
             </div>
           )}
-          <CausalityGraph requests={displayedRun.evidence.requests} />
+          <CausalityGraph
+            requests={displayedRun.evidence.requests}
+            automation={displayedRun.conditions.automation}
+          />
           <MetricGrid facts={displayedFacts} />
           <TrafficViz facts={displayedFacts} />
           <VisitPhasesAndStateChanges run={displayedRun} />

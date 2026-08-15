@@ -105,6 +105,17 @@ export default function MethodologyPage() {
           messages. Storage keys are read from the top frame
           only, and trackers that load only after interaction or consent are not seen by a passive visit.
         </p>
+        <p>
+          A visit that requests Global Privacy Control refuses one more kind of worker, and only that visit does.
+          The refusal is by script URL rather than by worker class: it applies to both <code>Worker</code> and{" "}
+          <code>SharedWorker</code>. Putting the signal inside a worker means instrumenting the worker&apos;s
+          script before its first statement, which cannot be done for a <code>blob:</code> or <code>data:</code>{" "}
+          script URL without changing that worker&apos;s URL, origin, and content-security context. Rather than
+          change what it is measuring, the scanner refuses it: the constructor throws and that worker never runs.
+          A visit where this happened says so in its warnings and marks its request evidence incomplete. It also
+          means a GPC comparison differs between its two visits in more than the GPC signal itself, on sites that
+          build either kind of worker from a <code>blob:</code> URL.
+        </p>
       </section>
 
       <section className="legal-section">

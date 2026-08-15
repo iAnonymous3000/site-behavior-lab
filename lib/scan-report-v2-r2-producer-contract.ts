@@ -389,23 +389,30 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 /**
  * The snapshot in `lib/adblock-wasm/brave-default-filters.meta.json`.
  *
- * MOVES WITH EVERY REFRESH, AND THAT IS WHY THE SCHEDULED JOB CANNOT SELF-GREEN.
- * `scripts/fetch-brave-lists.mjs` stamps a fresh `fetchedAt` on every run, the
- * producer match is full-object equality
- * (`canonicalJson(run.toolchain.adblock) === canonicalJson(tuple.adblockIdentity)`
- * below), and the workflow regenerates the snapshot but cannot edit this
- * literal. So a refresh must carry the new snapshot AND this constant in one
- * commit, or `assertNodeProducerContract` throws `unknown Node producer tuple`,
- * the r2 redactor throws with it, and the managed reader relabels the whole
- * thing `redaction-not-idempotent` -- a symptom that sends the next reader
- * hunting a redaction bug that does not exist.
+ * MOVES WHEN BRAVE'S RULES MOVE, and a refresh must carry the new snapshot AND
+ * this constant in one commit. The workflow regenerates the snapshot but must
+ * never edit this literal: declaring a measurement identity is a human act.
  *
- * NO HISTORICAL ROW IS RETIRED HERE. A closed row exists to keep
- * already-published reports readable, and the previous 2026-08-11 identity
- * published nothing: every committed r2 report carries the 2026-07-13 snapshot,
- * which already has HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY. Freezing an
- * identity no report was measured under would be a guard over an empty set.
- * Check the corpus before assuming that holds for the next refresh.
+ * The comparison is `braveListMeasurementIdentity` on both sides, so a refetch
+ * of byte-identical rules under a moved `fetchedAt` matches. Only `source`,
+ * `lists`, `manifestDigest` and `engineVersion` decide identity. (An earlier
+ * revision of this docblock said full-object equality including `fetchedAt`
+ * made the scheduled job structurally unable to pass; #146 fixed that and the
+ * claim outlived it.)
+ *
+ * WHEN THIS GOES STALE, THE SYMPTOM DOES NOT NAME THE CAUSE.
+ * `assertNodeProducerContract` throws `unknown Node producer tuple`, the r2
+ * redactor throws with it, and the managed reader relabels the whole thing
+ * `redaction-not-idempotent` -- which reads as a redaction bug that does not
+ * exist. `brave-snapshot-adoption.test.ts` now fails first and says so
+ * directly; `npm run lists:adoption` prints the replacement literal.
+ *
+ * NO HISTORICAL ROW IS RETIRED HERE, because no committed report was measured
+ * under the outgoing identity. A closed row exists only to keep
+ * already-published reports readable, so freezing an identity nothing published
+ * under would guard an empty set. That is a fact to CHECK per refresh, not a
+ * rule: `npm run lists:adoption` counts the committed reports carrying the
+ * outgoing manifest and says which case this is.
  */
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",

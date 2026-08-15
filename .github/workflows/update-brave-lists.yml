@@ -6,6 +6,10 @@ name: Update Brave Shields Lists
 #      validated end to end (the WASM engine must load the new snapshot and
 #      still block known ad URLs) before the refresh is committed. Scheduled
 #      failures are tracked in a separate canonical issue and remain job-red.
+#      Rules moving upstream is NOT one of those failures: it is the ordinary
+#      weekly outcome, and the run hands the maintainer a proposal carrying the
+#      new bytes, the synced review ledger, and the measurement identity they
+#      must declare. Only broken machinery is red.
 #   2. A measurement-toolchain drift check against crates.io, npm, and Chrome's
 #      consumer stable channel. Actionable drift is tracked in one canonical issue;
 #      browser-channel lag without a stable Playwright upgrade remains informational.
@@ -107,14 +111,59 @@ jobs:
       - name: Verify the regenerated inventory
         run: npm run supply-chain:third-party:check
 
+      # THIRD_PARTY_REVIEWS.json is keyed by `url@sha256`, so new list bytes
+      # create 31 new keys by construction and leave the committed ledger out
+      # of sync with the inventory regenerated above. That failed the unit
+      # suite on `missing ledger row` for every refresh, before any of the
+      # measurement-identity work below was even reached. --sync creates rows
+      # as UNREVIEWED and preserves reviewed rows verbatim, so the human review
+      # gate is intact: the reviewer sees the new unreviewed rows in the
+      # proposal. dependabot-bookkeeping.yml does the same for version bumps.
+      - name: Sync the third-party review ledger for the new list bytes
+        run: npm run supply-chain:reviews:sync
+
+      - name: Verify the synced review ledger
+        run: npm run supply-chain:reviews:check
+
+      # Ask, before running a suite that cannot answer, whether these bytes are
+      # a new measurement identity.
+      #
+      # `NODE_R2_CURRENT_ADBLOCK_IDENTITY` is a source literal this workflow
+      # must never edit, because declaring a measurement identity is a human
+      # act. Once the fetch above has overwritten the snapshot without it, the
+      # producer-contract assertions have a predetermined answer: three suites
+      # go red with `unknown Node producer tuple` and `redaction-not-idempotent`
+      # and one durable test waits forever for a publication that cannot
+      # happen. That is what the 2026-08-03 "deadlock" was, and the 45-minute
+      # bound below was added to survive the symptom rather than the cause.
+      #
+      # A red run that means "upstream published new rules this week" carries
+      # no signal, and it also killed the proposal step, so the refresh never
+      # even reached a human. The check exits 0 either way and the job branches.
+      - name: Determine whether the refreshed rules are a new measurement identity
+        id: adoption
+        run: npm run lists:adoption
+
       - name: Run unit tests against the new snapshot
-        # The suite normally finishes in well under half this bound. A refresh
-        # that deadlocks a test (2026-08-03: refreshed list bytes made every
-        # runtime-built r2 report unpersistable and one durable test awaited a
-        # publication milestone forever) must fail fast with the always()
-        # alert steps below, not consume the 6-hour job budget.
+        # Only meaningful while the pinned identity still describes the
+        # snapshot. The suite normally finishes in well under half this bound;
+        # the timeout stays as a backstop for a genuine hang.
+        if: steps.adoption.outputs.adoption_required != 'true'
         timeout-minutes: 45
         run: npm run test:unit
+
+      - name: Explain the unit suite this refresh cannot run
+        if: steps.adoption.outputs.adoption_required == 'true'
+        env:
+          ADOPTION_SUMMARY: ${{ steps.adoption.outputs.adoption_summary }}
+        run: |
+          set -euo pipefail
+          echo "::warning title=Brave refresh needs a declared measurement identity::Upstream rules moved, so the pinned Node producer identity no longer describes this snapshot. The unit suite is skipped because its producer-contract assertions have a predetermined answer until a human declares the new identity; the proposal's own CI is the gate that can actually fail informatively."
+          {
+            echo "## Measurement identity"
+            echo
+            printf '%s\n' "$ADOPTION_SUMMARY"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # Remote list bytes are third-party measurement inputs. Validation may
       # prepare a proposal, but it must never advance main or production without
@@ -127,12 +176,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           BASE_BRANCH: ${{ github.event.repository.default_branch }}
           PROPOSAL_BRANCH: automation/brave-list-refresh
+          ADOPTION_REQUIRED: ${{ steps.adoption.outputs.adoption_required }}
+          ADOPTION_SUMMARY: ${{ steps.adoption.outputs.adoption_summary }}
         run: |
           set -euo pipefail
           echo "proposed=false" >> "$GITHUB_OUTPUT"
           git config user.name "iAnonymous3000"
           git config user.email "32236127+iAnonymous3000@users.noreply.github.com"
-          git add lib/adblock-wasm/brave-default-filters.txt.gz lib/adblock-wasm/brave-default-filters.meta.json THIRD_PARTY_INVENTORY.json
+          git add lib/adblock-wasm/brave-default-filters.txt.gz lib/adblock-wasm/brave-default-filters.meta.json THIRD_PARTY_INVENTORY.json THIRD_PARTY_REVIEWS.json
           if git diff --cached --quiet; then
             echo "No filter list changes to commit."
             exit 0
@@ -154,6 +205,11 @@ jobs:
           fi
 
           proposal_body="$RUNNER_TEMP/brave-list-refresh-pr.md"
+          if [[ "$ADOPTION_REQUIRED" == "true" ]]; then
+            suite_line="- The WASM engine check passed. The unit suite was NOT run: its producer-contract assertions cannot pass until the measurement identity below is declared in this same commit."
+          else
+            suite_line="- The WASM engine check and unit suite passed before this proposal was published."
+          fi
           printf '%s\n' \
             '<!-- site-behavior-lab:brave-list-refresh-pr -->' \
             '# Reviewed Brave Shields list refresh' \
@@ -162,10 +218,24 @@ jobs:
             '' \
             '- The fetcher forbids redirects and non-approved hosts or paths.' \
             '- Every source and the combined ruleset are byte-capped and SHA-256 recorded.' \
-            '- The WASM engine check and unit suite passed before this proposal was published.' \
+            '- New `THIRD_PARTY_REVIEWS.json` rows are created UNREVIEWED; filling them in is part of this review.' \
+            "$suite_line" \
             "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
             "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
             > "$proposal_body"
+
+          # The identity a human has to declare, with the literal to paste and
+          # the corpus count that decides whether the outgoing row must also be
+          # frozen. Without it a reviewer transcribes a 64-character digest out
+          # of a workflow log into a value whose whole job is to be exact.
+          if [[ "$ADOPTION_REQUIRED" == "true" ]]; then
+            {
+              echo
+              echo '## This refresh needs a declared measurement identity'
+              echo
+              printf '%s\n' "$ADOPTION_SUMMARY"
+            } >> "$proposal_body"
+          fi
 
           pr_number=$(gh pr list \
             --repo "$GITHUB_REPOSITORY" \
@@ -226,13 +296,38 @@ jobs:
         env:
           BRAVE_LIST_JOB_STATUS: ${{ job.status }}
           BRAVE_LIST_REPORT_FILE: ${{ runner.temp }}/brave-list-refresh.md
+          ADOPTION_REQUIRED: ${{ steps.adoption.outputs.adoption_required }}
+          PR_BLOCKED: ${{ steps.commit.outputs.pr_blocked }}
         run: |
           set -euo pipefail
 
-          if [[ "$BRAVE_LIST_JOB_STATUS" == "success" ]]; then
+          # This issue tracks the refresh MACHINERY, not the review it hands
+          # over. A run that fetched, validated and proposed did its whole job
+          # even when upstream's new rules still need a human to declare the
+          # measurement identity; that hand-off is tracked by the proposal PR.
+          # Holding this issue open for it would make "upstream shipped rules
+          # this week" indistinguishable from "the refresh is broken", which is
+          # the exact ambiguity that left it open and uninformative for weeks.
+          #
+          # PR_BLOCKED is the exception, and it is why this reads an output
+          # instead of job status alone. When repository policy forbids Actions
+          # from opening pull requests, the branch is pushed and every gate
+          # passed, so the job correctly stays green -- but no pull request
+          # exists, so the refresh did NOT reach a human. Keying only on job
+          # status closed the repair issue on exactly the runs where the
+          # hand-off failed, which is the one thing this issue exists to catch.
+          if [[ "$BRAVE_LIST_JOB_STATUS" == "success" && "$PR_BLOCKED" != "true" ]]; then
             failed=false
             outcome=completed
-            summary="The scheduled fetch, engine validation, unit suite, reviewed-PR proposal step, and any required non-promoting CI dispatch completed."
+            if [[ "$ADOPTION_REQUIRED" == "true" ]]; then
+              summary="The scheduled fetch, engine validation, review-ledger sync, and reviewed-PR proposal completed. Upstream rules moved, so the proposal also carries the measurement identity a maintainer must declare before it can merge; the unit suite runs on that adoption commit."
+            else
+              summary="The scheduled fetch, engine validation, review-ledger sync, unit suite, reviewed-PR proposal step, and any required non-promoting CI dispatch completed."
+            fi
+          elif [[ "$BRAVE_LIST_JOB_STATUS" == "success" ]]; then
+            failed=true
+            outcome=needs-a-pull-request-opened-by-hand
+            summary="The refresh validated and pushed its proposal branch, but this repository does not permit Actions to open pull requests, so no review-required proposal exists. Open it from the linked run, or enable Settings > Actions > General > Allow GitHub Actions to create and approve pull requests."
           else
             failed=true
             outcome=failed
