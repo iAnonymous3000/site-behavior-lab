@@ -508,17 +508,19 @@ containment choice and can make the visit differ from a normal returning-user
 session. Dedicated Web Worker requests are recorded; SharedWorker traffic
 beyond the entry script is not, and no WebSocket activity is.
 
-A **GPC-enabled visit blocks one more class**, and only that visit does. To
-expose `navigator.globalPrivacyControl` inside a worker, the scanner has to
-instrument the worker's source before its first statement, which Playwright
-routing cannot do for a `blob:` or `data:` script URL. Rewrapping such a worker
-would change its URL, origin, CSP, and module base, so the scanner refuses it
-instead: the `Worker` constructor throws `NotSupportedError` and that worker
-never runs. A run where this happened says so in its warnings and marks its
-request evidence incomplete. Because the instrumentation is installed only on
-the GPC-on arm, this is an intervention present in one arm of a GPC comparison
-and absent from the other; read a difference on a site that builds workers from
-`blob:` URLs with that in mind.
+A **GPC-enabled visit refuses one more kind of worker**, and only that visit
+does. The refusal is by SCRIPT URL, not by worker class: it applies to both
+`Worker` and `SharedWorker`. To expose `navigator.globalPrivacyControl` inside a
+worker, the scanner has to instrument the worker's source before its first
+statement, which Playwright routing cannot do for a `blob:` or `data:` script
+URL. Rewrapping such a worker would change its URL, origin, CSP, and module
+base, so the scanner refuses it instead: the constructor throws
+`NotSupportedError` and that worker never runs. A run where this happened says
+so in its warnings and marks its request evidence incomplete. Because the
+instrumentation is installed only on the GPC-on arm, this is an intervention
+present in one arm of a GPC comparison and absent from the other; read a
+difference on a site that builds either kind of worker from a `blob:` URL with
+that in mind.
 
 ### What one report covers
 
