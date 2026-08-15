@@ -186,8 +186,23 @@ export function buildCategoryEvidencePages(
 
   const selectedByCategory = new Map<string, CategoryEvidencePage>();
   for (const [id, group] of byCategory) {
+    // THE FLOOR IS APPLIED HERE, BEFORE THE SELECTOR, and that ordering is the
+    // whole reason this is not a bare delegation.
+    //
+    // `selectPrimaryCorpusCohort` reduces to the v1 generation whenever ANY v1
+    // candidate exists, and it does that BEFORE its own floor. That is right
+    // for the corpus aggregate, which must never publish a blended denominator
+    // and holds the whole site on v1 until r2 takes over. Applied to a category
+    // unfiltered it also means a single one-site v1 leftover can beat a
+    // complete r2 cohort and then fail `sites.length >= minimumSites` below --
+    // deleting a live route from generateStaticParams and sitemap.xml, and
+    // 404ing every inbound link to it. Filtering to cohorts that can actually
+    // carry the page first keeps the generation rule and cannot starve the
+    // category with a candidate too small to publish.
+    const eligible = group.filter((candidate) => candidate.sites.length >= minimumSites);
+    const publishable = eligible.length > 0 ? eligible : group;
     const selected = selectPrimaryCorpusCohort(
-      group.map((candidate) => ({
+      publishable.map((candidate) => ({
         identity: candidate.cohort,
         siteCount: candidate.sites.length,
         latestRunAt: candidate.lastScannedAt,
@@ -196,7 +211,7 @@ export function buildCategoryEvidencePages(
       minimumSites
     );
     const page = selected
-      ? group.find((candidate) => candidate.cohort.id === selected.identity.id)
+      ? publishable.find((candidate) => candidate.cohort.id === selected.identity.id)
       : undefined;
     if (page) selectedByCategory.set(id, page);
   }

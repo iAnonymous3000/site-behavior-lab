@@ -196,14 +196,20 @@ test("category medians select one methodology cohort instead of pooling generati
     trackerCatalogOrigin: "legacy-metadata-hash" as const,
     ...SERVICE_ROLE_IDENTITY
   };
+  // The r2 cohort is deliberately LARGER and NEWER than the v1 one. With the
+  // old size rule this test passed because legacy had three sites to r2s two,
+  // so it could not distinguish generation from size and never asserted what
+  // its name claims.
   const r2 = [
-    entry("r2-a", { domain: "a.com", trackerRequests: 100 }),
-    entry("r2-b", { domain: "b.com", trackerRequests: 200 })
+    entry("r2-a", { domain: "a.com", trackerRequests: 100, scannedAt: "2026-08-10T00:00:00.000Z" }),
+    entry("r2-b", { domain: "b.com", trackerRequests: 200, scannedAt: "2026-08-10T00:00:00.000Z" }),
+    entry("r2-c", { domain: "f.com", trackerRequests: 300, scannedAt: "2026-08-10T00:00:00.000Z" }),
+    entry("r2-d", { domain: "g.com", trackerRequests: 400, scannedAt: "2026-08-10T00:00:00.000Z" })
   ];
   const legacy = [
-    entry("v1-a", { domain: "c.com", trackerRequests: 1, corpusCohort: legacyCohort }),
-    entry("v1-b", { domain: "d.com", trackerRequests: 2, corpusCohort: legacyCohort }),
-    entry("v1-c", { domain: "e.com", trackerRequests: 3, corpusCohort: legacyCohort })
+    entry("v1-a", { domain: "c.com", trackerRequests: 1, corpusCohort: legacyCohort, scannedAt: "2026-07-01T00:00:00.000Z" }),
+    entry("v1-b", { domain: "d.com", trackerRequests: 2, corpusCohort: legacyCohort, scannedAt: "2026-07-01T00:00:00.000Z" }),
+    entry("v1-c", { domain: "e.com", trackerRequests: 3, corpusCohort: legacyCohort, scannedAt: "2026-07-01T00:00:00.000Z" })
   ];
 
   // Generation still separates first: a v1 cohort is never displaced by a v2
@@ -299,4 +305,75 @@ test("recency may not buy a category a narrower universe", () => {
   const [page] = buildCategoryEvidencePages([...broad, ...thin], 1);
   assert.equal(page.cohort.id, wide.id, "a newer cohort measuring one of five sites must not take the page");
   assert.equal(page.sites.length, 5);
+});
+
+/**
+ * The generation rule is applied to cohorts that could actually carry the page,
+ * never before that.
+ *
+ * `selectPrimaryCorpusCohort` reduces to the v1 generation whenever any v1
+ * candidate exists, BEFORE its own floor. That is right for the corpus
+ * aggregate. Delegated to unfiltered, it lets a single leftover v1 report beat
+ * a complete r2 cohort and then fall under the category floor, deleting a live
+ * route from generateStaticParams and sitemap.xml and 404ing its inbound links.
+ */
+test("a leftover sub-floor v1 report cannot delete a category that r2 can publish", () => {
+  const legacyCohort = {
+    id: "v1:leftover:producer-unrecorded",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "leftover",
+    methodologyOrigin: "legacy-derived" as const,
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest: "d".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash" as const,
+    ...SERVICE_ROLE_IDENTITY
+  };
+
+  const r2 = ["a.com", "b.com", "c.com"].map((domain, index) =>
+    entry(`r2-${index}`, { domain, trackerRequests: 50, scannedAt: "2026-08-10T00:00:00.000Z" })
+  );
+  const strayV1 = entry("v1-stray", {
+    domain: "a.com",
+    trackerRequests: 1,
+    corpusCohort: legacyCohort,
+    scannedAt: "2026-07-01T00:00:00.000Z"
+  });
+
+  const pages = buildCategoryEvidencePages([...r2, strayV1], 3);
+  assert.equal(pages.length, 1, "the category must still publish");
+  assert.equal(pages[0].cohort.schemaVersion, 2, "a one-site v1 leftover cannot take a three-site page");
+  assert.equal(pages[0].sites.length, 3);
+});
+
+test("the generation rule still holds between cohorts that can each carry the page", () => {
+  // Not a licence to blend: when BOTH clear the floor, v1 still publishes, the
+  // same rule the corpus aggregate applies.
+  const legacyCohort = {
+    id: "v1:publishable:producer-unrecorded",
+    schemaVersion: 1 as const,
+    schemaRevision: null,
+    methodologyVersion: "publishable",
+    methodologyOrigin: "legacy-derived" as const,
+    producer: null,
+    gpc: true,
+    trackerCatalogDigest: "e".repeat(64),
+    trackerCatalogOrigin: "legacy-metadata-hash" as const,
+    ...SERVICE_ROLE_IDENTITY
+  };
+  const r2 = ["a.com", "b.com", "c.com"].map((domain, index) =>
+    entry(`r2-${index}`, { domain, trackerRequests: 50, scannedAt: "2026-08-10T00:00:00.000Z" })
+  );
+  const v1 = ["d.com", "e.com", "f.com"].map((domain, index) =>
+    entry(`v1-${index}`, {
+      domain,
+      trackerRequests: 5,
+      corpusCohort: legacyCohort,
+      scannedAt: "2026-07-01T00:00:00.000Z"
+    })
+  );
+
+  const [page] = buildCategoryEvidencePages([...r2, ...v1], 3);
+  assert.equal(page.cohort.schemaVersion, 1, "a publishable v1 cohort is not displaced by r2");
 });
