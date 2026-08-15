@@ -2,6 +2,7 @@ import { appendFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { FEATURED_READJUDICATION_REASONS } from "./featured-readjudication-lib.mjs";
 
 const ANSI_ESCAPE_PATTERN = /\u001b\[[0-?]*[ -/]*[@-~]/g;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g;
@@ -380,13 +381,29 @@ function workflowRunUrl({ serverUrl, repository, runId }) {
  * unfixable without the evasion this project refuses. A timeout or a subject
  * that could not be verified is ours.
  *
+ * READS THE STRUCTURED REASON FIRST. `botBlockUnavailableReason` already
+ * classifies a refusal from report facts, and every value it can return names
+ * the site declining. Classifying the English diagnostic instead threw that
+ * away: only five of the ten sentences the producer can emit matched a regex,
+ * so a Cloudflare challenge page ("landing page title matches a
+ * bot-block/challenge page"), a 503, an unsettled navigation and a failed
+ * quality evaluation all landed in `unclassified` -- which is counted as
+ * scanner-attributable, publishing every bot-walled site as one of the "N
+ * attributable to this scanner and worth investigating". That is the exact
+ * claim this taxonomy exists to prevent.
+ *
+ * The regexes remain as the fallback for failures raised BEFORE a report
+ * exists, which carry no structured reason: scan deadlines, transport faults,
+ * and anything the child could not classify.
+ *
  * Deliberately does not change the threshold or the denominator. The gate still
  * measures what it measured; this only names the parts, so a red run says which
  * kind of red it is.
  */
 export function classifyFeaturedFailures(failures) {
-  const kindOf = (message) => {
-    const text = String(message ?? "");
+  const kindOf = (failure) => {
+    if (FEATURED_READJUDICATION_REASONS.includes(failure?.unavailableReason)) return "target-refused";
+    const text = String(failure?.message ?? "");
     if (/HTTP (401|403|429)\b/.test(text)) return "target-refused";
     if (/could not be loaded|down, unreachable, or blocking/i.test(text)) return "target-refused";
     if (/only \d+ network request/i.test(text)) return "target-refused";
@@ -396,7 +413,7 @@ export function classifyFeaturedFailures(failures) {
   };
   const groups = new Map();
   for (const failure of failures) {
-    const kind = kindOf(failure.message);
+    const kind = kindOf(failure);
     if (!groups.has(kind)) groups.set(kind, []);
     groups.get(kind).push(failure);
   }

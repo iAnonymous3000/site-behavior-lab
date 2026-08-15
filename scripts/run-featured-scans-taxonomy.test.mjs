@@ -47,6 +47,70 @@ test("nothing real lands in unclassified", () => {
   assert.equal((unknown.get("unclassified") ?? []).length, 1);
 });
 
+/**
+ * The sampled fixture above was seven of the ten sentences the producer can
+ * emit, and it happened to contain the five the regexes matched. Enumerating
+ * the producer's whole vocabulary is the difference between a guard and a
+ * coincidence: five of these ten reached `unclassified`, which is counted as
+ * scanner-attributable, so every bot-walled site was published inside "N are
+ * attributable to this scanner and are worth investigating."
+ *
+ * Every one of them carries a structured `unavailableReason`, because
+ * `botBlockUnavailableReason` classifies the same run from report facts rather
+ * than from its own English. Reading that is what fixes them all at once.
+ */
+const PRODUCER_SENTENCES = [
+  "landing page title matches a bot-block/challenge page",
+  "report recorded a suspected challenge or soft block",
+  "main navigation produced no HTTP response",
+  "main navigation returned HTTP 503",
+  "main navigation returned HTTP 404",
+  "main navigation did not settle",
+  "report quality evaluator marked the run failed",
+  "main navigation returned HTTP 403",
+  "only 1 network request(s) observed, navigation likely failed or was blocked",
+  "report could not verify the rendered page subject"
+];
+
+test("every sentence the producer can emit is classified from the structured reason", () => {
+  for (const sentence of PRODUCER_SENTENCES) {
+    const failure = {
+      site: "example.test",
+      message: `Skipping scan target: primary baseline arm: ${sentence}.`,
+      unavailableReason: "automation-blocked"
+    };
+    const kinds = [...classifyFeaturedFailures([failure]).keys()];
+    assert.deepEqual(
+      kinds,
+      ["target-refused"],
+      `"${sentence}" must be classified from its structured reason, not its wording`
+    );
+  }
+});
+
+test("a structured reason outranks the wording, and its absence falls back to it", () => {
+  // Every value botBlockUnavailableReason can return names the site declining.
+  for (const reason of ["access-denied", "authentication-required", "automation-blocked", "navigation-incomplete", "rate-limited"]) {
+    const groups = classifyFeaturedFailures([
+      { site: "s.example", message: "something nobody has seen", unavailableReason: reason }
+    ]);
+    assert.deepEqual([...groups.keys()], ["target-refused"], `${reason} is the site declining`);
+  }
+
+  // Failures raised BEFORE a report exists carry no structured reason, so the
+  // regexes must still classify them. A scan deadline is ours, not theirs.
+  const preReport = classifyFeaturedFailures([
+    { site: "s.example", message: "The scan exceeded the maximum scan duration.", unavailableReason: null }
+  ]);
+  assert.deepEqual([...preReport.keys()], ["scanner-timeout"]);
+
+  // An unrecognized reason must not be trusted into the refused bucket.
+  const bogus = classifyFeaturedFailures([
+    { site: "s.example", message: "something nobody has seen", unavailableReason: "invented" }
+  ]);
+  assert.deepEqual([...bogus.keys()], ["unclassified"]);
+});
+
 test("refusals are reported first", () => {
   // They are the large, expected group. Listing a one-off scanner fault above
   // them is what makes a rate read as a regression.

@@ -174,7 +174,16 @@ async function main(args = process.argv.slice(2)) {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`  Failed: ${message}`);
-      failures.push({ site: site.domain, message });
+      // Carry the STRUCTURED reason, not just the English one. The child
+      // already classified this failure from report facts; re-deriving it from
+      // the diagnostic sentence downstream throws that away and misclassifies
+      // most of what the producer can say.
+      failures.push({
+        site: site.domain,
+        message,
+        unavailableReason:
+          error instanceof ClassifiedFeaturedUnavailableError ? error.unavailableReason : null
+      });
       scanResults.push(
         error instanceof ClassifiedFeaturedUnavailableError
           ? {
