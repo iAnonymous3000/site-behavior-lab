@@ -214,6 +214,26 @@ async function main(args = process.argv.slice(2)) {
     console.log(`  - ${failure.site}: ${failure.message}`);
   }
 
+  // Say WHY, not just how many. A bare rate cannot distinguish "the scanner
+  // broke" from "these sites refuse an honest automated browser", and those
+  // need opposite responses: one is a defect to fix, the other is a property of
+  // the web that no amount of fixing changes short of disguising the scanner,
+  // which this project refuses to do. Reading the rate alone, every operator
+  // sees a number below a threshold and starts debugging code.
+  const taxonomy = classifyFeaturedFailures(failures);
+  if (failures.length > 0) {
+    console.log("\nFailure taxonomy:");
+    for (const [kind, group] of taxonomy) {
+      console.log(`  ${kind.padEnd(22)} ${String(group.length).padStart(3)}  ${group.map((f) => f.site).join(", ")}`);
+    }
+    const refused = (taxonomy.get("target-refused") ?? []).length;
+    const ours = failures.length - refused;
+    console.log(
+      `\n  ${refused} of ${failures.length} failures are sites refusing automation, which is an honest result rather than a scanner defect.`
+    );
+    console.log(`  ${ours} ${ours === 1 ? "is" : "are"} attributable to this scanner and ${ours === 1 ? "is" : "are"} worth investigating.`);
+  }
+
   // A green run must mean a meaningful refresh. Individual bot walls and
   // outages are tolerated up to the threshold; beyond it the run stays red
   // and its canonical issue stays open. The workflow may still revalidate and
@@ -226,6 +246,41 @@ async function main(args = process.argv.slice(2)) {
     );
     process.exit(1);
   }
+}
+
+/**
+ * Group failures by what a maintainer should DO about them.
+ *
+ * The success rate is one number over two populations that need opposite
+ * responses. A 403, a 429, a bot wall or an unreachable load is the site
+ * declining an undisguised automated visit: a real observation, not a bug, and
+ * unfixable without the evasion this project refuses. A timeout or a subject
+ * that could not be verified is ours.
+ *
+ * Deliberately does not change the threshold or the denominator. The gate still
+ * measures what it measured; this only names the parts, so a red run says which
+ * kind of red it is.
+ */
+export function classifyFeaturedFailures(failures) {
+  const kindOf = (message) => {
+    const text = String(message ?? "");
+    if (/HTTP (401|403|429)\b/.test(text)) return "target-refused";
+    if (/could not be loaded|down, unreachable, or blocking/i.test(text)) return "target-refused";
+    if (/only \d+ network request/i.test(text)) return "target-refused";
+    if (/exceeded the maximum scan duration|did not load before/i.test(text)) return "scanner-timeout";
+    if (/verify the rendered page subject/i.test(text)) return "subject-unverified";
+    return "unclassified";
+  };
+  const groups = new Map();
+  for (const failure of failures) {
+    const kind = kindOf(failure.message);
+    if (!groups.has(kind)) groups.set(kind, []);
+    groups.get(kind).push(failure);
+  }
+  // Refusals first: they are the large, expected group, and burying them under
+  // one-off scanner faults is what makes a rate look like a regression.
+  const order = ["target-refused", "scanner-timeout", "subject-unverified", "unclassified"];
+  return new Map([...groups].sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0])));
 }
 
 export function featuredRunPlan({
