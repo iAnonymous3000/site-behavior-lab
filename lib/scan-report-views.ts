@@ -18,7 +18,6 @@ import {
   type ComparisonDecision
 } from "./comparison-decision";
 import {
-  COMPARISON_REQUEST_CAP,
   runHitFingerprintObserverCaptureLoss,
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
@@ -1186,14 +1185,19 @@ function qualityReasonNote(run: RunView, reason: string): string {
   if (budget === "request-capture" && run.quality.origin === "recorded") {
     const requestCountCap = runHitRequestRecordingCap(run);
     const responseByteCap = responseByteLimitFromWarnings(run.warnings) !== null;
-    if (requestCountCap && responseByteCap) {
+    const distinctResponseByteBudget =
+      run.quality.facts?.budgetsExhausted.includes(RESPONSE_BYTE_CAPTURE_LOSS_DETAIL) ?? false;
+    if (requestCountCap && responseByteCap && !distinctResponseByteBudget) {
       return "the visit exhausted both its request-count and aggregate response-byte budgets";
     }
-    if (responseByteCap) {
+    if (responseByteCap && !distinctResponseByteBudget && !requestCountCap) {
       return `the visit exhausted its ${responseByteLimitFromWarnings(run.warnings)} aggregate response-byte budget`;
     }
     if (requestCountCap) {
-      return `the visit exhausted its ${COMPARISON_REQUEST_CAP.toLocaleString("en-US")}-request routing and recording budget`;
+      const requestLimit = requestRecordingLimitFromWarnings(run.warnings);
+      return requestLimit === null
+        ? "the visit exhausted its configured request routing and recording budget"
+        : `the visit exhausted its ${requestLimit.toLocaleString("en-US")}-request routing and recording budget`;
     }
   }
   if (budget) {
@@ -1231,6 +1235,7 @@ function qualityReasonNote(run: RunView, reason: string): string {
  */
 const RESPONSE_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate response-byte budget/;
 const UPLOAD_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate upload-byte budget/;
+const REQUEST_RECORDING_LIMIT_WARNING = /stopped recording or loading additional requests after ([1-9][0-9,]*) requests/;
 
 function warningLimit(warnings: readonly string[], pattern: RegExp): string | null {
   for (const warning of warnings) {
@@ -1246,6 +1251,13 @@ function responseByteLimitFromWarnings(warnings: readonly string[]): string | nu
 
 function uploadByteLimitFromWarnings(warnings: readonly string[]): string | null {
   return warningLimit(warnings, UPLOAD_BYTE_LIMIT_WARNING);
+}
+
+function requestRecordingLimitFromWarnings(warnings: readonly string[]): number | null {
+  const recorded = warningLimit(warnings, REQUEST_RECORDING_LIMIT_WARNING);
+  if (recorded === null) return null;
+  const parsed = Number(recorded.replaceAll(",", ""));
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
 function presentationLoss(run: RunView, loss: CaptureLossEntry): CaptureLossEntry {
@@ -1267,7 +1279,11 @@ function censoredFamilyDetailNote(run: RunView, family: string): string {
   const responseByteLimit = responseByteLimitFromWarnings(run.warnings);
   const uploadByteLimit = uploadByteLimitFromWarnings(run.warnings);
   const historicalMergedRequestAndByteLoss =
-    responseByteLimit !== null && runHitRequestRecordingCap(run);
+    responseByteLimit !== null &&
+    runHitRequestRecordingCap(run) &&
+    !(run.quality.facts?.captureLoss ?? []).some(
+      (loss) => loss.family === family && loss.detail === RESPONSE_BYTE_CAPTURE_LOSS_DETAIL
+    );
   const details = Array.from(
     new Set(
       (run.quality.facts?.captureLoss ?? [])
