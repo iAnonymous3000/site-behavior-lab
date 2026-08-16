@@ -37,15 +37,23 @@
  */
 export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
   "caseId",
+  "pass",
+  "observedAt",
   "loaded",
   "status",
   "navigationSettled",
+  "subjectVerified",
+  "botWalled",
   "runOutcome",
   "censoredFamilyCount",
   "requestEvidenceComplete"
 ]);
 
 const BARE_LOAD_FIELD_SET = new Set(BARE_LOAD_OUTCOME_FIELDS);
+
+const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
+const PAGE_SUBJECT_UNVERIFIED = /could not verify the rendered page subject|page subject/i;
+const SUSPECTED_CHALLENGE = /suspected challenge or soft block|bot-block|challenge page/i;
 
 function require(condition, message) {
   if (!condition) throw new Error(message);
@@ -81,43 +89,65 @@ export function assertBareLoadOnly(outcome, context = "bare-load outcome") {
  * the report again, so there is no path by which sweep logic can consult
  * evidence: the narrowing happens once, here, at ingestion.
  */
-export function bareLoadOutcome(caseId, report) {
+export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
   require(
     typeof caseId === "string" && caseId.length > 0,
     "bare-load outcome requires a case id"
   );
-  const run = isRecord(report)
-    ? (report.run ?? report.baseline ?? null)
-    : null;
-  if (!isRecord(run)) {
-    return assertBareLoadOnly({
-      caseId,
-      loaded: false,
-      status: null,
-      navigationSettled: false,
-      runOutcome: "unavailable",
-      censoredFamilyCount: 0,
-      requestEvidenceComplete: false
-    });
+  require(
+    pass === 1 || pass === 2,
+    "bare-load outcome requires an explicit sweep pass number (1 or 2)"
+  );
+  require(
+    typeof observedAt === "string" && ISO_UTC.test(observedAt),
+    "bare-load outcome requires an ISO-8601 UTC observedAt supplied by the caller"
+  );
+
+  // EVERY field below defaults to the INELIGIBLE value. Absence of evidence is
+  // never evidence of soundness: a report missing its quality ledger tells us
+  // the visit was not verified, not that it was fine. The first version of this
+  // function defaulted navigationSettled, runOutcome and requestEvidenceComplete
+  // the other way, and `{run:{summary:{status:200}}}` -- a report with no
+  // quality data at all -- came out eligible.
+  const unverified = {
+    caseId,
+    pass,
+    observedAt,
+    loaded: false,
+    status: null,
+    navigationSettled: false,
+    subjectVerified: false,
+    botWalled: true,
+    runOutcome: "unavailable",
+    censoredFamilyCount: 0,
+    requestEvidenceComplete: false
+  };
+
+  const run = isRecord(report) ? (report.run ?? report.baseline ?? null) : null;
+  if (!isRecord(run) || !isRecord(run.quality) || !isRecord(run.quality.byFamily)) {
+    // No r2 quality ledger means the producer recorded no verdict we can read.
+    return assertBareLoadOnly(unverified);
   }
 
   const status = typeof run.summary?.status === "number" ? run.summary.status : null;
-  const navigationSettled = run.qualityFacts?.navigationSettled !== false;
-  const runOutcome =
-    typeof run.quality?.run?.outcome === "string" ? run.quality.run.outcome : "unrecorded";
-  const byFamily = isRecord(run.quality?.byFamily) ? run.quality.byFamily : {};
-  const censoredFamilyCount = Object.values(byFamily).filter(
-    (entry) => entry?.outcome === "censored"
-  ).length;
+  const byFamily = run.quality.byFamily;
+  const families = Object.values(byFamily);
+  const warnings = Array.isArray(run.warnings) ? run.warnings : [];
 
   return assertBareLoadOnly({
     caseId,
-    loaded: status !== null && status < 400,
+    pass,
+    observedAt,
+    loaded: status !== null && status >= 200 && status < 400,
     status,
-    navigationSettled,
-    runOutcome,
-    censoredFamilyCount,
-    requestEvidenceComplete: byFamily.requests?.outcome !== "censored"
+    // Exact positive evidence, not "was not explicitly false".
+    navigationSettled: run.qualityFacts?.navigationSettled === true,
+    subjectVerified: !warnings.some((warning) => PAGE_SUBJECT_UNVERIFIED.test(warning)),
+    botWalled: warnings.some((warning) => SUSPECTED_CHALLENGE.test(warning)),
+    runOutcome:
+      typeof run.quality.run?.outcome === "string" ? run.quality.run.outcome : "unrecorded",
+    censoredFamilyCount: families.filter((entry) => entry?.outcome === "censored").length,
+    requestEvidenceComplete: byFamily.requests?.outcome === "complete"
   });
 }
 
@@ -125,14 +155,51 @@ export function bareLoadOutcome(caseId, report) {
  * A case is sweep-eligible when the visit was sound enough that a later labeled
  * run is likely to be usable. This reads ONLY projected load facts.
  */
-export function bareLoadEligible(outcome) {
+/**
+ * One pass is sound. Every clause demands exact positive evidence.
+ *
+ * `censoredFamilyCount === 0` is the approved zero-censoring policy, not
+ * strictness for its own sake: one censored family on acquisition day kills the
+ * study, so a candidate that censored anything during screening has already
+ * shown it carries that risk.
+ */
+export function bareLoadPassSound(outcome) {
   assertBareLoadOnly(outcome, "eligibility input");
   return (
     outcome.loaded &&
     outcome.navigationSettled &&
-    outcome.runOutcome !== "failed" &&
-    outcome.requestEvidenceComplete
+    outcome.subjectVerified &&
+    !outcome.botWalled &&
+    outcome.runOutcome === "complete" &&
+    outcome.requestEvidenceComplete &&
+    outcome.censoredFamilyCount === 0
   );
+}
+
+export const SWEEP_MINIMUM_PASS_SEPARATION_MS = 48 * 60 * 60 * 1000;
+
+/**
+ * A candidate joins the eligible pool only if BOTH passes were sound and they
+ * are at least 48 hours apart, which is what the frame-construction draft
+ * requires. A single sound visit says nothing about reliability; two visits an
+ * hour apart mostly re-measure one cache state.
+ */
+export function candidateEligible(outcomes) {
+  require(Array.isArray(outcomes), "candidate eligibility requires its pass outcomes");
+  const passes = new Map();
+  for (const outcome of outcomes) {
+    assertBareLoadOnly(outcome, "candidate eligibility input");
+    require(!passes.has(outcome.pass), `duplicate pass ${outcome.pass} for ${outcome.caseId}`);
+    passes.set(outcome.pass, outcome);
+  }
+  const first = passes.get(1);
+  const second = passes.get(2);
+  if (first === undefined || second === undefined) return false;
+  if (!bareLoadPassSound(first) || !bareLoadPassSound(second)) return false;
+  const separation = Math.abs(
+    Date.parse(second.observedAt) - Date.parse(first.observedAt)
+  );
+  return separation >= SWEEP_MINIMUM_PASS_SEPARATION_MS;
 }
 
 export const CALIBRATION_RELIABILITY_SWEEP_RECEIPT_KIND =
@@ -145,38 +212,139 @@ export const CALIBRATION_RELIABILITY_SWEEP_RECEIPT_KIND =
  * outcome and the aggregate, and is re-checked field by field before it is
  * returned, so the published artifact provably carries no prediction.
  */
-export function buildReliabilitySweepReceipt({ studyId, sweptAt, outcomes }) {
+const REQUIRED_IDENTITY_FIELDS = Object.freeze([
+  "buildCommit",
+  "runtime",
+  "runnerLabel",
+  "egress"
+]);
+
+/**
+ * Build the sweep receipt.
+ *
+ * A receipt that records only outcomes proves nothing: it cannot say WHICH
+ * candidate set was swept, under WHAT condition, by WHICH build, so it cannot
+ * be checked against the frame that was later frozen from it. The identity
+ * below is what makes the receipt falsifiable rather than merely tidy, and all
+ * of it is supplied by the caller because none of it is derivable from the
+ * projections.
+ *
+ * `outcomes` must already be projections. Every case is re-checked field by
+ * field on the way out: a receipt is a published artifact, so it must be
+ * provably free of predictions rather than believed to be.
+ */
+export function buildReliabilitySweepReceipt({
+  studyId,
+  sweptAt,
+  measurementCondition,
+  candidateSetDigest,
+  sourceDigests,
+  identity,
+  outcomes
+}) {
   require(
     typeof studyId === "string" && studyId.length > 0,
     "reliability sweep receipt requires a study id"
   );
   require(
-    typeof sweptAt === "string" && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(sweptAt),
+    typeof sweptAt === "string" && ISO_UTC.test(sweptAt),
     "reliability sweep receipt requires an ISO-8601 UTC sweptAt supplied by the caller"
   );
+  require(
+    typeof candidateSetDigest === "string" && /^[0-9a-f]{64}$/.test(candidateSetDigest),
+    "reliability sweep receipt requires the sha256 of the exact candidate set it swept"
+  );
+  require(
+    isRecord(measurementCondition) &&
+      typeof measurementCondition.device === "string" &&
+      typeof measurementCondition.consentMode === "string" &&
+      typeof measurementCondition.gpcEnabled === "boolean",
+    "reliability sweep receipt requires the exact measurement condition (device, consentMode, gpcEnabled)"
+  );
+  require(isRecord(identity), "reliability sweep receipt requires producer identity");
+  for (const field of REQUIRED_IDENTITY_FIELDS) {
+    require(
+      typeof identity[field] === "string" && identity[field].length > 0,
+      `reliability sweep receipt identity requires ${field}`
+    );
+  }
+  require(
+    isRecord(sourceDigests) && Object.keys(sourceDigests).length > 0,
+    "reliability sweep receipt requires the digests of the sources it was produced from"
+  );
+  for (const [name, digest] of Object.entries(sourceDigests)) {
+    require(
+      typeof digest === "string" && /^[0-9a-f]{64}$/.test(digest),
+      `reliability sweep source digest for ${name} must be a sha256`
+    );
+  }
   require(Array.isArray(outcomes) && outcomes.length > 0, "reliability sweep observed no cases");
 
-  const seen = new Set();
-  const cases = outcomes.map((outcome) => {
+  const byCase = new Map();
+  for (const outcome of outcomes) {
     assertBareLoadOnly(outcome, "receipt case");
-    require(!seen.has(outcome.caseId), `duplicate case id ${outcome.caseId} in reliability sweep`);
-    seen.add(outcome.caseId);
-    return outcome;
-  });
-  cases.sort((a, b) => a.caseId.localeCompare(b.caseId));
+    const passes = byCase.get(outcome.caseId) ?? [];
+    require(
+      !passes.some((existing) => existing.pass === outcome.pass),
+      `duplicate pass ${outcome.pass} for case ${outcome.caseId} in reliability sweep`
+    );
+    passes.push(outcome);
+    byCase.set(outcome.caseId, passes);
+  }
 
-  const eligible = cases.filter((outcome) => bareLoadEligible(outcome)).length;
+  const cases = [...byCase.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([caseId, passes]) => ({
+      caseId,
+      eligible: candidateEligible(passes),
+      passes: [...passes].sort((a, b) => a.pass - b.pass)
+    }));
+
+  const eligible = cases.filter((entry) => entry.eligible).length;
   const receipt = {
     kind: CALIBRATION_RELIABILITY_SWEEP_RECEIPT_KIND,
     studyId,
     sweptAt,
-    observedCases: cases.length,
-    eligibleCases: eligible,
+    measurementCondition: {
+      device: measurementCondition.device,
+      consentMode: measurementCondition.consentMode,
+      gpcEnabled: measurementCondition.gpcEnabled
+    },
+    candidateSetDigest,
+    sourceDigests: Object.fromEntries(
+      Object.entries(sourceDigests).sort(([a], [b]) => a.localeCompare(b))
+    ),
+    identity: Object.fromEntries(REQUIRED_IDENTITY_FIELDS.map((f) => [f, identity[f]])),
+    minimumPassSeparationMs: SWEEP_MINIMUM_PASS_SEPARATION_MS,
+    observedCandidates: cases.length,
+    eligibleCandidates: eligible,
     // A rate, not a verdict. Whether the pool clears is a preregistered
     // threshold applied by a human, not something this producer decides.
     eligibleFraction: eligible / cases.length,
     cases
   };
-  for (const entry of receipt.cases) assertBareLoadOnly(entry, "assembled receipt case");
+  for (const entry of receipt.cases) {
+    for (const pass of entry.passes) assertBareLoadOnly(pass, "assembled receipt case");
+  }
   return receipt;
+}
+
+/**
+ * Deterministic bytes for the receipt: keys sorted at every level, so two
+ * sweeps of the same pool under the same identity produce byte-identical
+ * artifacts and any difference is a real difference.
+ */
+export function serializeReliabilitySweepReceipt(receipt) {
+  const canonical = (value) => {
+    if (Array.isArray(value)) return value.map(canonical);
+    if (isRecord(value)) {
+      return Object.fromEntries(
+        Object.keys(value)
+          .sort()
+          .map((key) => [key, canonical(value[key])])
+      );
+    }
+    return value;
+  };
+  return `${JSON.stringify(canonical(receipt), null, 2)}\n`;
 }

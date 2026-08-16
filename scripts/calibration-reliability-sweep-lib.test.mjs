@@ -5,30 +5,37 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import {
   BARE_LOAD_OUTCOME_FIELDS,
+  SWEEP_MINIMUM_PASS_SEPARATION_MS,
   assertBareLoadOnly,
-  bareLoadEligible,
   bareLoadOutcome,
-  buildReliabilitySweepReceipt
+  bareLoadPassSound,
+  buildReliabilitySweepReceipt,
+  candidateEligible,
+  serializeReliabilitySweepReceipt
 } from "./calibration-reliability-sweep-lib.mjs";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
+const PASS_1 = "2026-08-16T00:00:00.000Z";
+const PASS_2 = "2026-08-18T01:00:00.000Z"; // > 48h after PASS_1
+
 /**
- * A report shaped like the real thing: a sound load AND populated detector
+ * A report shaped like the real thing: a sound visit AND populated detector
  * evidence. If any of that evidence can reach a projection or a receipt, the
  * sweep can select on the detector's own answers and the preregistration is
  * void.
  */
-function reportWithDetectorOutput(overrides = {}) {
+function soundReport(runOverrides = {}) {
   return {
     run: {
       summary: { status: 200, pageTitle: "Example" },
       qualityFacts: { navigationSettled: true },
+      warnings: [],
       quality: {
         run: { outcome: "complete" },
         byFamily: {
           requests: { outcome: "complete", reasons: [] },
-          fingerprinting: { outcome: "censored", reasons: ["capture-loss:dropped"] }
+          fingerprinting: { outcome: "complete", reasons: [] }
         }
       },
       evidence: {
@@ -38,23 +45,38 @@ function reportWithDetectorOutput(overrides = {}) {
         pixelEvents: [{ platform: "meta", event: "PageView" }],
         requests: [{ url: "https://collect.tracker.example/p", domain: "collect.tracker.example" }]
       },
-      ...overrides
+      ...runOverrides
     }
   };
 }
 
+const project = (caseId, report, pass, observedAt) =>
+  bareLoadOutcome(caseId, report, { pass, observedAt });
+
+function receiptArgs(overrides = {}) {
+  return {
+    studyId: "cname-uncloaking-2026-08",
+    sweptAt: PASS_2,
+    measurementCondition: { device: "desktop", consentMode: "observe", gpcEnabled: false },
+    candidateSetDigest: "a".repeat(64),
+    sourceDigests: { candidates: "b".repeat(64) },
+    identity: {
+      buildCommit: "c".repeat(40),
+      runtime: "node-24.14.1",
+      runnerLabel: "controlled-self-hosted",
+      egress: "controlled-self-hosted"
+    },
+    ...overrides
+  };
+}
+
 test("a projection strips detector evidence from a report that has plenty", () => {
-  const outcome = bareLoadOutcome("case-a", reportWithDetectorOutput());
+  const outcome = project("case-a", soundReport(), 1, PASS_1);
   assert.deepEqual(Object.keys(outcome).sort(), [...BARE_LOAD_OUTCOME_FIELDS].sort());
-
-  // The load facts survive.
   assert.equal(outcome.loaded, true);
-  assert.equal(outcome.status, 200);
   assert.equal(outcome.navigationSettled, true);
-  assert.equal(outcome.censoredFamilyCount, 1);
 
-  // Nothing about what the detector found does. Serializing is the honest
-  // check: a nested leak would not show up in a key comparison.
+  // Serializing is the honest check: a nested leak would survive a key compare.
   const serialized = JSON.stringify(outcome);
   for (const forbidden of [
     "cnameCloaks",
@@ -64,73 +86,145 @@ test("a projection strips detector evidence from a report that has plenty", () =
     "Tracker Co",
     "PageView"
   ]) {
-    assert.equal(
-      serialized.includes(forbidden),
-      false,
-      `projected outcome leaked "${forbidden}"`
-    );
+    assert.equal(serialized.includes(forbidden), false, `projected outcome leaked "${forbidden}"`);
   }
 });
 
 test("the projection refuses a widened field set instead of admitting it", () => {
-  // The enforcement the frame-construction draft said was missing. A future
-  // edit that adds a detector field to the projection must fail here.
   assert.throws(
     () => assertBareLoadOnly({ caseId: "case-a", loaded: true, cnameCloaks: [] }),
     /carries "cnameCloaks", which is not a bare-load field/
   );
-  assert.throws(
-    () => assertBareLoadOnly({ caseId: "case-a", detected: true }),
-    /carries "detected"/
-  );
+  assert.throws(() => assertBareLoadOnly({ caseId: "case-a", detected: true }), /carries "detected"/);
 });
 
-test("eligibility reads only load facts and cannot be handed a report", () => {
-  const sound = bareLoadOutcome("case-a", reportWithDetectorOutput());
-  assert.equal(bareLoadEligible(sound), true);
+test("every soundness clause demands positive evidence and fails closed", () => {
+  // THE REGRESSION THIS SUITE EXISTS FOR. The first version defaulted
+  // navigationSettled, runOutcome and requestEvidenceComplete to the PASSING
+  // value, so a report carrying nothing but a 200 came out sound. Absence of
+  // evidence is not evidence of soundness.
+  const bare = project("case-x", { run: { summary: { status: 200 } } }, 1, PASS_1);
+  assert.equal(bare.loaded, false, "no quality ledger means the visit was not verified");
+  assert.equal(bare.navigationSettled, false);
+  assert.equal(bare.subjectVerified, false);
+  assert.equal(bare.botWalled, true);
+  assert.equal(bare.runOutcome, "unavailable");
+  assert.equal(bare.requestEvidenceComplete, false);
+  assert.equal(bareLoadPassSound(bare), false);
 
-  const failed = bareLoadOutcome("case-b", {
-    run: {
-      summary: { status: 403 },
-      qualityFacts: { navigationSettled: false },
-      quality: { run: { outcome: "failed" }, byFamily: {} }
-    }
-  });
-  assert.equal(bareLoadEligible(failed), false);
-  assert.equal(failed.loaded, false);
+  assert.equal(bareLoadPassSound(project("case-a", soundReport(), 1, PASS_1)), true);
 
-  // A raw report is not an eligibility input.
-  assert.throws(() => bareLoadEligible(reportWithDetectorOutput()), /not a bare-load field/);
-});
-
-test("a missing or unusable report is recorded as a failed load, never skipped", () => {
-  // Silently dropping unloadable cases would bias the frame toward sites that
-  // happen to cooperate, which is the same selection hazard by another route.
-  const missing = bareLoadOutcome("case-c", null);
-  assert.equal(missing.loaded, false);
-  assert.equal(missing.runOutcome, "unavailable");
-  assert.equal(bareLoadEligible(missing), false);
-});
-
-test("the receipt carries load outcomes, an eligible rate, and no verdict", () => {
-  const receipt = buildReliabilitySweepReceipt({
-    studyId: "cname-uncloaking-2026-08",
-    sweptAt: "2026-08-16T00:00:00.000Z",
-    outcomes: [
-      bareLoadOutcome("case-b", reportWithDetectorOutput()),
-      bareLoadOutcome("case-a", reportWithDetectorOutput()),
-      bareLoadOutcome("case-c", null)
+  // Each clause independently sinks an otherwise-sound visit.
+  const cases = [
+    ["a 3xx-only status", { summary: { status: 500 } }],
+    ["unsettled navigation", { qualityFacts: { navigationSettled: false } }],
+    ["an unverified page subject", { warnings: ["report could not verify the rendered page subject"] }],
+    ["a bot wall", { warnings: ["report recorded a suspected challenge or soft block"] }],
+    [
+      "an incomplete run",
+      { quality: { run: { outcome: "failed" }, byFamily: { requests: { outcome: "complete" } } } }
+    ],
+    [
+      "censored request evidence",
+      { quality: { run: { outcome: "complete" }, byFamily: { requests: { outcome: "censored" } } } }
+    ],
+    [
+      "any censored family at all",
+      {
+        quality: {
+          run: { outcome: "complete" },
+          byFamily: {
+            requests: { outcome: "complete" },
+            fingerprinting: { outcome: "censored" }
+          }
+        }
+      }
     ]
-  });
+  ];
+  for (const [label, override] of cases) {
+    assert.equal(
+      bareLoadPassSound(project("case-a", soundReport(override), 1, PASS_1)),
+      false,
+      `${label} must not be sound`
+    );
+  }
+});
 
-  assert.equal(receipt.observedCases, 3);
-  assert.equal(receipt.eligibleCases, 2);
-  assert.equal(receipt.eligibleFraction, 2 / 3);
-  assert.deepEqual(
-    receipt.cases.map((entry) => entry.caseId),
-    ["case-a", "case-b", "case-c"],
-    "cases are sorted so the receipt is deterministic"
+test("a candidate needs two sound passes at least 48 hours apart", () => {
+  const sound = (pass, at) => project("case-a", soundReport(), pass, at);
+  assert.equal(candidateEligible([sound(1, PASS_1), sound(2, PASS_2)]), true);
+
+  // One pass says nothing about reliability.
+  assert.equal(candidateEligible([sound(1, PASS_1)]), false, "a single pass is not screening");
+
+  // Two passes an hour apart mostly re-measure one cache state.
+  assert.equal(
+    candidateEligible([sound(1, PASS_1), sound(2, "2026-08-16T01:00:00.000Z")]),
+    false,
+    "passes closer than 48h do not establish reliability"
   );
+  assert.equal(SWEEP_MINIMUM_PASS_SEPARATION_MS, 48 * 60 * 60 * 1000);
+
+  // A failed second pass disqualifies even when the first was clean.
+  const failed = project("case-a", soundReport({ summary: { status: 403 } }), 2, PASS_2);
+  assert.equal(candidateEligible([sound(1, PASS_1), failed]), false);
+
+  assert.throws(
+    () => candidateEligible([sound(1, PASS_1), sound(1, PASS_2)]),
+    /duplicate pass 1/
+  );
+  assert.throws(() => candidateEligible([soundReport()]), /not a bare-load field/);
+});
+
+test("a missing or unusable report is recorded as a failed pass, never skipped", () => {
+  // Silently dropping unloadable cases biases the frame toward sites that
+  // happen to cooperate, which is the same selection hazard by another route.
+  const missing = project("case-c", null, 1, PASS_1);
+  assert.equal(missing.runOutcome, "unavailable");
+  assert.equal(bareLoadPassSound(missing), false);
+});
+
+test("the projection refuses an unlabelled pass or timestamp", () => {
+  // Without these the receipt cannot prove the 48-hour separation it claims.
+  assert.throws(() => bareLoadOutcome("case-a", soundReport(), {}), /explicit sweep pass number/);
+  assert.throws(
+    () => bareLoadOutcome("case-a", soundReport(), { pass: 3, observedAt: PASS_1 }),
+    /explicit sweep pass number/
+  );
+  assert.throws(
+    () => bareLoadOutcome("case-a", soundReport(), { pass: 1, observedAt: "yesterday" }),
+    /ISO-8601 UTC observedAt/
+  );
+});
+
+test("the receipt binds the sweep to a candidate set, condition, and producer", () => {
+  // A receipt recording only outcomes cannot be checked against the frame later
+  // frozen from it: it cannot say WHICH pool was swept, under WHAT condition,
+  // by WHICH build.
+  const receipt = buildReliabilitySweepReceipt(
+    receiptArgs({
+      outcomes: [
+        project("case-b", soundReport(), 2, PASS_2),
+        project("case-a", soundReport(), 1, PASS_1),
+        project("case-a", soundReport(), 2, PASS_2),
+        project("case-b", soundReport(), 1, PASS_1),
+        project("case-c", null, 1, PASS_1)
+      ]
+    })
+  );
+
+  assert.equal(receipt.observedCandidates, 3);
+  assert.equal(receipt.eligibleCandidates, 2);
+  assert.equal(receipt.candidateSetDigest, "a".repeat(64));
+  assert.deepEqual(receipt.measurementCondition, {
+    device: "desktop",
+    consentMode: "observe",
+    gpcEnabled: false
+  });
+  assert.equal(receipt.identity.runnerLabel, "controlled-self-hosted");
+  assert.equal(receipt.minimumPassSeparationMs, SWEEP_MINIMUM_PASS_SEPARATION_MS);
+  assert.deepEqual(receipt.cases.map((entry) => entry.caseId), ["case-a", "case-b", "case-c"]);
+
   // No pass/fail: clearing the pool is a preregistered human threshold.
   assert.equal("cleared" in receipt, false);
   assert.equal("passed" in receipt, false);
@@ -141,45 +235,60 @@ test("the receipt carries load outcomes, an eligible rate, and no verdict", () =
   }
 });
 
-test("the receipt refuses inputs that would make it non-reproducible or unsound", () => {
-  const ok = bareLoadOutcome("case-a", reportWithDetectorOutput());
+test("the receipt refuses inputs that would make it unfalsifiable", () => {
+  const ok = project("case-a", soundReport(), 1, PASS_1);
+  const missing = (field) => {
+    const args = receiptArgs({ outcomes: [ok] });
+    delete args[field];
+    return args;
+  };
+  assert.throws(() => buildReliabilitySweepReceipt(missing("candidateSetDigest")), /candidate set/);
   assert.throws(
-    () => buildReliabilitySweepReceipt({ studyId: "s", sweptAt: "2026-08-16T00:00:00.000Z", outcomes: [] }),
+    () => buildReliabilitySweepReceipt(missing("measurementCondition")),
+    /exact measurement condition/
+  );
+  assert.throws(() => buildReliabilitySweepReceipt(missing("sourceDigests")), /digests of the sources/);
+  assert.throws(() => buildReliabilitySweepReceipt(missing("identity")), /producer identity/);
+  assert.throws(
+    () =>
+      buildReliabilitySweepReceipt(
+        receiptArgs({ outcomes: [ok], identity: { buildCommit: "c".repeat(40) } })
+      ),
+    /identity requires runtime/
+  );
+  assert.throws(
+    () => buildReliabilitySweepReceipt(receiptArgs({ outcomes: [] })),
     /observed no cases/
   );
   assert.throws(
-    () => buildReliabilitySweepReceipt({ studyId: "s", sweptAt: "not-a-time", outcomes: [ok] }),
-    /ISO-8601 UTC sweptAt/
+    () => buildReliabilitySweepReceipt(receiptArgs({ outcomes: [ok, ok] })),
+    /duplicate pass 1/
   );
   assert.throws(
-    () =>
-      buildReliabilitySweepReceipt({
-        studyId: "s",
-        sweptAt: "2026-08-16T00:00:00.000Z",
-        outcomes: [ok, ok]
-      }),
-    /duplicate case id/
-  );
-  // A raw report handed straight to the receipt builder must not pass through.
-  assert.throws(
-    () =>
-      buildReliabilitySweepReceipt({
-        studyId: "s",
-        sweptAt: "2026-08-16T00:00:00.000Z",
-        outcomes: [reportWithDetectorOutput()]
-      }),
+    () => buildReliabilitySweepReceipt(receiptArgs({ outcomes: [soundReport()] })),
     /not a bare-load field/
   );
+});
+
+test("receipt bytes are canonical, so two identical sweeps are byte-identical", () => {
+  const build = () =>
+    buildReliabilitySweepReceipt(
+      receiptArgs({
+        outcomes: [project("case-a", soundReport(), 1, PASS_1), project("case-a", soundReport(), 2, PASS_2)]
+      })
+    );
+  const first = serializeReliabilitySweepReceipt(build());
+  assert.equal(first, serializeReliabilitySweepReceipt(build()));
+  const keys = Object.keys(JSON.parse(first));
+  assert.deepEqual(keys, [...keys].sort(), "receipt keys are sorted at the top level");
+  assert.equal(first.endsWith("\n"), true);
 });
 
 test("the sweep module never names a detector evidence field in its source", () => {
   // Layer three. The projection could be correct today and a later edit could
   // reach into evidence directly; this reads the module the way the repo's
   // other source-binding guards do, so that edit fails here.
-  const source = readFileSync(
-    path.join(moduleDir, "calibration-reliability-sweep-lib.mjs"),
-    "utf8"
-  );
+  const source = readFileSync(path.join(moduleDir, "calibration-reliability-sweep-lib.mjs"), "utf8");
   const code = source
     .split("\n")
     .filter((line) => !line.trimStart().startsWith("*") && !line.trimStart().startsWith("//"))
