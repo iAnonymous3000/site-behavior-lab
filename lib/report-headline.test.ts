@@ -1093,7 +1093,7 @@ test("a detector loss hedges the detectors, not the request and cookie counts", 
 
   // The detector loss is disclosed, and absence claims over it are hedged.
   assert.equal(headline.tone, "info");
-  assert.match(headline.subhead, /detector-output evidence was censored/);
+  assert.match(headline.subhead, /detector output evidence was censored/);
   assert.match(headline.subhead, /unproven here rather than shown to be absent/);
 
   // But nothing may call the completed families interrupted.
@@ -1104,7 +1104,7 @@ test("a detector loss hedges the detectors, not the request and cookie counts", 
   assert.match(headline.subhead, /cookie snapshot recorded no third-party cookie records/);
   // "capture-loss:truncated" names a mechanism, not an instrument. The reader
   // must be able to tell WHICH check stopped.
-  assert.match(headline.subhead, /the privacy-policy visit did not finish/);
+  assert.match(headline.subhead, /1 privacy-policy visit did not finish before collection stopped/);
 
   // A loss in a family that DOES back the counts still hedges them.
   const capped = makePublicSingleReportV2R2();

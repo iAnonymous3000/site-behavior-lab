@@ -1384,8 +1384,8 @@ export async function scanSiteWithMeasurement(
         capturePassiveBoundary(withScanTimeout(collectStorageSnapshot(passivePhaseId), started)),
         capturePassiveBoundary(withScanTimeout(collectFingerprintObservationsWithCoverage(page.frames()), started))
       ]);
-      // Capture-loss details use the registered budget vocabulary
-      // (BUDGET_FAMILIES); the phaseId already records WHICH boundary was lost.
+      // Capture-loss details use the shared first-party semantic registry; the
+      // phaseId already records WHICH boundary was lost.
       if (passiveCookies.ok) {
         passiveBoundary.cookies = true;
         passiveCookiesForTrustedSubject = passiveCookies.value;

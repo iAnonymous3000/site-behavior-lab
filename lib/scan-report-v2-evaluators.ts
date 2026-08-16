@@ -37,6 +37,7 @@ import {
   type QualityReason,
   type ScanRunV2
 } from "./scan-report-v2";
+import { CAPTURE_LOSS_DETAIL_CONTRACT } from "./capture-loss-detail-contract";
 import { PAGE_SUBJECT_CAPTURE_LOSS_DETAIL } from "./bot-wall-classifier";
 import { buildFingerprints, canonicalJson } from "./scan-report-v2-fingerprints";
 import { METRIC_EVIDENCE_SOURCES } from "./metric-evidence-sources";
@@ -106,54 +107,18 @@ const ARM_METHODS: Record<InterventionAxis, Set<string>> = {
  * cuts, so an exhausted request budget cannot hide behind an unrelated
  * detector loss. An unknown budget name is a violation.
  */
-export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.freeze({
-  "request-capture": "requests",
-  "request-upload": "requests",
-  "proxy-traffic": "requests",
-  "cookie-snapshot": "cookies",
-  "storage-snapshot": "storage",
-  "fingerprint-observer": "fingerprinting",
-  "keystroke-probe": "detector-output",
-  "cname-lookups": "detector-output",
-  "pixel-decode": "detector-output",
-  "consent-banner": "detector-output",
-  "policy-visit": "detector-output",
-  // Truncation details the Node scanner records. These are capture-loss
-  // details rather than budget names, but assertQualityVocabulary resolves
-  // both through this one table, so an unregistered detail is a thrown build
-  // and a 500 to the visitor. `policy-link-candidates` did exactly that to
-  // every site whose page carries more policy-link candidates than the cap,
-  // github.com among them, from the moment it was introduced.
-  "policy-link-candidates": "detector-output",
-  "keystroke-probe-capture": "detector-output",
-  "page-title": "detector-output",
-  // Recorded by the scanner (scanner.ts, family "detector-output") whenever the
-  // trusted-subject page-text read is unavailable, which is exactly the
-  // hostile/heavy page this scanner most needs to publish about. evaluateQuality
-  // and the view layer both already carry this detail; only the registry did
-  // not, so assertQualityVocabulary threw and the r2 producer answered the
-  // visitor with a 500 instead of a report. Same recurrence as
-  // policy-link-candidates above.
-  [PAGE_SUBJECT_CAPTURE_LOSS_DETAIL]: "detector-output",
-  "consent-verification": "consent-verification",
-  // Public build-time caps. These are part of the pre-emission registry: a
-  // hostile page cannot bloat a wire artifact, and every clipped family is
-  // explicitly censored instead of silently truncated.
-  "public-request-unregistrable-hosts": "requests",
-  "public-request-records": "requests",
-  "public-cookie-mutations": "cookies",
-  "public-cookie-final": "cookies",
-  "public-storage-mutations": "storage",
-  "public-storage-final": "storage",
-  "public-fingerprint-events": "fingerprinting",
-  "public-fingerprint-detections": "detector-output",
-  "public-cname-cloaks": "detector-output",
-  "public-pixel-events": "detector-output",
-  "public-policy-claims": "detector-output",
-  "public-policy-entities": "detector-output",
-  "public-warnings": "detector-output",
-  "public-consent-observations": "consent-verification"
-});
+export const BUDGET_FAMILIES: Readonly<Record<string, EvidenceFamily>> = Object.freeze(
+  Object.fromEntries(
+    Object.entries(CAPTURE_LOSS_DETAIL_CONTRACT)
+      .filter(([, contract]) => contract.budget)
+      .map(([detail, contract]) => {
+        if (contract.families.length !== 1) {
+          throw new Error(`Budget ${detail} must cut exactly one evidence family.`);
+        }
+        return [detail, contract.families[0]];
+      })
+  )
+);
 
 // ---------------------------------------------------------------------------
 // Quality (RFC 5.3)

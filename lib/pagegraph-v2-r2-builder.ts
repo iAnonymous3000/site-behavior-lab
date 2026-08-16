@@ -1,4 +1,5 @@
 import { normalizePageGraphRequests } from "./pagegraph-adapter";
+import { PAGEGRAPH_UNSUPPORTED_CAPTURE_LOSS_FAMILIES } from "./capture-loss-detail-contract";
 import {
   PAGEGRAPH_R2_MAX_ARTIFACT_BYTES,
   PAGEGRAPH_R2_SUPPORTED_SCHEMA_VERSION,
@@ -40,7 +41,6 @@ import {
   type CaptureLossEntry,
   type ConditionVector,
   type DetectorLedger,
-  type EvidenceFamily,
   type QualityFacts,
   type SubjectKey,
   type Toolchain
@@ -84,13 +84,7 @@ const PAGEGRAPH_NO_CAUSALITY_DISCLOSURE =
   "No PageGraph request provenance was supplied. This report can show observed requests but not script-to-request causality.";
 
 const UNSUPPORTED_COVERAGE = Object.freeze({ outcome: "unsupported" as const });
-const UNSUPPORTED_FAMILIES = [
-  "cookies",
-  "storage",
-  "fingerprinting",
-  "detector-output",
-  "consent-verification"
-] as const satisfies readonly EvidenceFamily[];
+const UNSUPPORTED_FAMILIES = PAGEGRAPH_UNSUPPORTED_CAPTURE_LOSS_FAMILIES;
 
 export type PageGraphRequestCoverage =
   | { outcome: "complete" }

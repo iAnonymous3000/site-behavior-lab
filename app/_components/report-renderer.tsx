@@ -29,9 +29,9 @@ import {
   gpcRunMeasurement
 } from "@/lib/report-insights";
 import type { LoadedReport } from "@/lib/scan-report-view";
+import { runQualitySummary } from "@/lib/scan-report-censorship";
 import {
   comparisonArmViews,
-  runQualitySummary,
   schemaProvenanceLabel,
   type ReportView,
   type RunView

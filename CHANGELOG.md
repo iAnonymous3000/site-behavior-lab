@@ -11,6 +11,11 @@ Work landing after the 0.5.0 milestone. Nothing here is released.
 
 ### Fixed
 
+- Incomplete-visit copy no longer exposes internal `capture-loss:*` reason
+  codes or silently discards the recorded loss count. Historical reports whose
+  warning proves the 64 MiB aggregate response-byte ceiling now say how many
+  response streams or proxy tunnels were truncated or refused, without
+  relabelling that number as missing requests.
 - The weekly Brave Shields list refresh can complete again. It regenerated
   `THIRD_PARTY_INVENTORY.json` for the new list bytes but never synced
   `THIRD_PARTY_REVIEWS.json`, whose rows are keyed by `url@sha256`, so every

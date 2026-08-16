@@ -19,6 +19,7 @@ import {
   WEBGL_READ_APIS
 } from "./measurement-kernel";
 import { phaseOmissionExplainedByDetector } from "./detector-phase-omission";
+import { captureLossDetailAllowsFamily } from "./capture-loss-detail-contract";
 import {
   REDACTION_VERSION,
   addRedactionCounters,
@@ -1363,8 +1364,7 @@ function assertQualityVocabulary(facts: QualityFacts): void {
       }
       continue;
     }
-    const family = BUDGET_FAMILIES[loss.detail];
-    if (family === undefined || family !== loss.family) {
+    if (!captureLossDetailAllowsFamily(loss.detail, loss.family)) {
       throw new Error(`Capture-loss detail ${loss.detail} is not registered for ${loss.family}.`);
     }
   }

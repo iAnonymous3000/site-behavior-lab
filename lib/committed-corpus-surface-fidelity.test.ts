@@ -9,6 +9,7 @@ import {
   CORPUS_EXPORT_SCHEMA_VERSION
 } from "./corpus-export";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
+import { KNOWN_CAPTURE_LOSS_DETAILS } from "./capture-loss-presentation";
 import { loadCorpusOverview } from "./corpus-overview";
 import { corpusSiteDomainKey } from "./corpus-site-domain";
 import { isCorpusStats, type CorpusStats } from "./corpus-stats";
@@ -34,6 +35,7 @@ import {
   type ReportView,
   type RunView
 } from "./scan-report-views";
+import { runCensorshipNotes } from "./scan-report-censorship";
 import {
   listStaticReportCandidateIds,
   readStaticReportBundle
@@ -88,6 +90,7 @@ test("every committed bundle stays faithful across every public report surface",
 
   const corpus = await readProductionCorpusStats();
   const bundles: AcceptedBundle[] = [];
+  let censorshipNoteCount = 0;
 
   for (const id of ids) {
     const managed = await readStaticReportBundle(reportsDir, id);
@@ -132,6 +135,24 @@ test("every committed bundle stays faithful across every public report surface",
     );
 
     assertJsonLdFidelity(id, loaded.view, presentation);
+    for (const run of loaded.view.runs) {
+      const notes = runCensorshipNotes(run);
+      censorshipNoteCount += notes.length;
+      for (const note of notes) {
+        assert.doesNotMatch(note, /capture-loss:|budget-exhausted:/, `${id}: raw quality reason reached copy`);
+        for (const detail of KNOWN_CAPTURE_LOSS_DETAILS) {
+          assert.equal(note.includes(detail), false, `${id}: raw capture-loss detail ${detail} reached copy`);
+        }
+      }
+      for (const loss of run.quality.facts?.captureLoss ?? []) {
+        if (loss.detail === "pagegraph-unsupported") continue;
+        assert.equal(
+          notes.join(" ").includes(loss.count.toLocaleString("en-US")),
+          true,
+          `${id}: ${loss.detail ?? "detail-less"} discarded its recorded loss count`
+        );
+      }
+    }
     bundles.push({
       id,
       stored: generic.stored,
@@ -142,6 +163,11 @@ test("every committed bundle stays faithful across every public report surface",
   }
 
   assert.equal(bundles.length, ids.length, "every committed bundle must complete every read/render path");
+  assert.equal(
+    censorshipNoteCount > 0,
+    true,
+    "the committed-corpus copy gate found no censorship notes; a zero must be investigated, not treated as success"
+  );
 
   await assertCorpusProjection(bundles, corpus);
   await assertManifestProjection(reportsDir, bundles);
