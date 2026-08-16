@@ -2,6 +2,7 @@ import dns from "node:dns/promises";
 import http, { type IncomingMessage, type ServerResponse } from "node:http";
 import net from "node:net";
 import { type Duplex, type Readable, type Writable } from "node:stream";
+import { RESPONSE_BYTE_CAPTURE_LOSS_DETAIL } from "./capture-loss-detail-contract";
 import { isIpAddress, isPublicIpAddress, normalizeHostname } from "./ip-safety";
 import { assertPublicHttpUrlShape } from "./url-safety";
 
@@ -48,7 +49,11 @@ export type PublicScanProxy = {
   close: () => Promise<void>;
 };
 
-export const PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME = "request-capture" as const;
+// Distinct from the 1,000-request routing/recording budget. These two limits
+// used to share `request-capture`, so the measurement kernel merged their loss
+// counts and the public reader could not tell a count ceiling from a 64 MiB
+// response-byte ceiling without parsing a warning sentence.
+export const PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME = RESPONSE_BYTE_CAPTURE_LOSS_DETAIL;
 export const DEFAULT_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT = 64 * 1024 * 1024;
 export const MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT = 128 * 1024 * 1024;
 export const PUBLIC_SCAN_PROXY_UPLOAD_BYTE_BUDGET_NAME = "request-upload" as const;

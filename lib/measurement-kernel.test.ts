@@ -56,6 +56,20 @@ test("records detector outcomes and maps exhausted budgets to capture loss once"
   assert.equal(result.detectors["privacy-policy"].status, "skipped");
 });
 
+test("request-count and response-byte ceilings retain separate loss identities and counts", () => {
+  const kernel = new MeasurementKernel(0, () => 10);
+  kernel.beginPhase("passive-load");
+  kernel.exhaustBudget({ name: "request-capture", family: "requests", count: 9 });
+  kernel.exhaustBudget({ name: "response-bytes", family: "requests", count: 74 });
+  const result = kernel.finish();
+
+  assert.deepEqual(result.budgetsExhausted, ["request-capture", "response-bytes"]);
+  assert.deepEqual(result.captureLoss, [
+    { family: "requests", phaseId: 0, kind: "cap", count: 9, detail: "request-capture" },
+    { family: "requests", phaseId: 0, kind: "cap", count: 74, detail: "response-bytes" }
+  ]);
+});
+
 test("quality stays evaluator-owned and capture loss censors only its family", () => {
   const kernel = new MeasurementKernel(0, () => 1);
   kernel.beginPhase("passive-load");
