@@ -1,0 +1,83 @@
+CALIBRATION CENSORING DECISION PACKAGE
+development evidence -- NOT frame-selection evidence
+generated from 126 r2 runs; primary analysis restricted to the declared CNAME arm
+CNAME arm = device desktop / GPC false / consent observe
+arm runs: 61   off-arm (supplementary only): 65
+
+PRIMARY -- CNAME ARM ONLY (n=61)
+  bare-load sound                         61/61   100.0%  Wilson [94.1%, 100.0%]  clustered too few clusters (2)
+  A generic all-family zero-loss          27/61    44.3%  Wilson [32.5%, 56.7%]  clustered too few clusters (2)
+  B CNAME scoreable (inputs whole)        54/61    88.5%  Wilson [78.2%, 94.3%]  clustered too few clusters (2)
+    CNAME stage finished                  60/61    98.4%  Wilson [91.3%, 99.7%]  clustered too few clusters (2)
+    of which INDETERMINATE (inputs cut)    6/61     9.8%  Wilson [4.6%, 19.8%]  clustered too few clusters (2)
+
+SUPPLEMENTARY -- pooled across all conditions (n=126)
+  A generic all-family zero-loss          53/126   42.1%  Wilson [33.8%, 50.8%]  clustered [39.2%, 100.0%]
+  B CNAME scoreable                       93/126   73.8%  Wilson [65.5%, 80.7%]  clustered [72.5%, 100.0%]
+    CNAME stage finished                 125/126   99.2%  Wilson [95.6%, 99.9%]  clustered [99.2%, 100.0%]
+    of which INDETERMINATE                32/126   25.4%  Wilson [18.6%, 33.6%]  clustered [0.0%, 26.7%]
+
+EVIDENCE FAMILY CENSORING (CNAME arm)
+  requests                   6/61  9.8%
+  cookies                    0/61  0.0%
+  storage                    1/61  1.6%
+  fingerprinting            18/61  29.5%
+  detector-output           20/61  32.8%
+  consent-verification       0/61  0.0%
+
+CAPTURE-LOSS REASONS (CNAME arm)
+   18  fingerprinting/fingerprint-observer/dropped
+    6  detector-output/keystroke-probe/dropped
+    6  detector-output/policy-visit/dropped
+    6  detector-output/policy-link-candidates/truncated
+    5  requests/request-capture/cap
+    3  detector-output/policy-visit/cap
+    2  detector-output/keystroke-probe-capture/truncated
+    1  detector-output/keystroke-probe/cap
+    1  detector-output/cname-lookups/cap
+    1  requests/proxy-traffic/cap
+    1  requests/public-request-unregistrable-hosts/dropped
+    1  storage/storage-snapshot/truncated
+
+DETECTOR LEDGER STATE (CNAME arm)
+  cname-uncloaking         complete=60  partial(evidence-cap-reached)=1
+  consent-banner           complete=61
+  fingerprint-heuristics   complete=43  partial(scan-failed)=15  failed(engine-unavailable)=3
+  keystroke-exfiltration   complete=53  partial(scan-failed)=5  skipped(budget-unavailable)=1  partial(evidence-cap-reached)=1  failed(scan-failed)=1
+  pixel-events             complete=61
+  privacy-policy           complete=45  unsupported(unsupported)=6  failed(load-failed)=6  skipped(budget-unavailable)=3  skipped(evidence-cap-reached)=1
+
+RECOVERY: cases B admits that A rejects (CNAME arm)
+  27 cases scoreable for CNAME but rejected by zero-censoring
+     censored family present: detector-output = 16
+     censored family present: fingerprinting = 15
+     censored family present: storage = 1
+
+NULL-DETAIL REQUEST LOSS -- compatibility-derived attribution
+  runs with a null-detail requests loss: 24
+  of those, carrying the GPC-worker warning: 24
+  all GPC-on: true
+  NOTE: the frozen r2 ledger carries no structured detail for these, so this
+  attribution is COMPATIBILITY-DERIVED from warning text, not canonical.
+
+POLICY SIMULATION -- CNAME arm rates applied to planned N
+  statistical half-width is Wilson at the worst case p=0.5 on the usable denominator.
+  C additionally admits indeterminate predictions and widens by their share.
+
+  policy                                N  usable  indet    stat  missing   total
+  A zero-censoring (current)          200      89      0   10.2%     0.0%   10.2%
+  A zero-censoring (current)          350     155      0    7.8%     0.0%    7.8%
+  A zero-censoring (current)          500     221      0    6.5%     0.0%    6.5%
+
+  B detector-specific zero-censoring  200     177      0    7.3%     0.0%    7.3%
+  B detector-specific zero-censoring  350     310      0    5.5%     0.0%    5.5%
+  B detector-specific zero-censoring  500     443      0    4.6%     0.0%    4.6%
+
+  C bounded + conservative bounds     200     177     20    7.3%    10.0%   12.3%
+  C bounded + conservative bounds     350     310     34    5.5%     9.7%   10.4%
+  C bounded + conservative bounds     500     443     49    4.6%     9.8%    9.5%
+
+  Policy A publishes ONLY when every case is clean. At the arm rate above that
+  is not a smaller study, it is no study; no q^N is quoted because failures
+  here are clustered by batch and build rather than independent.
+  The approved maximum worst-case half-width is 0.1.
