@@ -10,7 +10,7 @@
  */
 import { compareRunFacts, consentComparisonTitle } from "./compare-reports";
 import { RESPONSE_BYTE_CAPTURE_LOSS_DETAIL } from "./capture-loss-detail-contract";
-import { captureLossDetailNote, captureLossPresentationSubject } from "./capture-loss-presentation";
+import { captureLossDetailNote } from "./capture-loss-presentation";
 import { consentControlQualification } from "./consent-control-semantics";
 import {
   legacyComparisonDecision,
@@ -1201,10 +1201,7 @@ function qualityReasonNote(run: RunView, reason: string): string {
     }
   }
   if (budget) {
-    const subject = captureLossPresentationSubject(budget);
-    return subject === null
-      ? "the visit exhausted a producer-defined collection budget"
-      : `the visit exhausted the configured budget for ${subject}`;
+    return "the visit exhausted a producer-defined collection budget";
   }
   if (reason.startsWith("capture-loss:")) {
     return "the run recorded a collection loss that prevents a complete visit";

@@ -6,22 +6,15 @@ import {
 } from "./capture-loss-detail-contract";
 import type { CaptureLossEntry } from "./scan-report-v2";
 
-type CountUnit = {
-  singular: string;
-  plural: string;
-};
+type CaptureLossPresentation = readonly [
+  /** Human subject for losses whose recorded count has no stable unit. */
+  subject: string | null,
+  /** Stable unit for a positive recorded count. */
+  singular?: string,
+  plural?: string
+];
 
-type CaptureLossPresentation = {
-  subject: string;
-  countUnit: CountUnit | null;
-};
-
-const unit = (singular: string, plural = `${singular}s`): CountUnit => ({ singular, plural });
-
-const PUBLIC_PROJECTION_PRESENTATION = Object.freeze({
-  subject: "the bounded public evidence projection",
-  countUnit: null
-});
+const PUBLIC_PROJECTION_PRESENTATION = ["the bounded public evidence projection"] as const;
 
 function assertNever(value: never): never {
   throw new Error(`unpresented first-party capture-loss detail: ${String(value)}`);
@@ -40,45 +33,38 @@ function assertNever(value: never): never {
 function captureLossPresentation(detail: KnownCaptureLossDetail): CaptureLossPresentation {
   switch (detail) {
     case "request-capture":
-      return { subject: "request evidence collection", countUnit: unit("request routing or recording event") };
+      return [null, "request routing or recording event"];
     case RESPONSE_BYTE_CAPTURE_LOSS_DETAIL:
-      return {
-        subject: "aggregate response-byte loading",
-        countUnit: unit("response stream or proxy tunnel", "response streams or proxy tunnels")
-      };
+      return [null, "response stream or proxy tunnel", "response streams or proxy tunnels"];
     case "request-upload":
-      return {
-        subject: "aggregate upload forwarding",
-        countUnit: unit("upload stream or proxy tunnel", "upload streams or proxy tunnels")
-      };
+      return [null, "upload stream or proxy tunnel", "upload streams or proxy tunnels"];
     case "proxy-traffic":
-      return { subject: "proxy traffic forwarding", countUnit: unit("proxy transaction") };
+      return [null, "proxy transaction"];
     case "cookie-snapshot":
-      return { subject: "the end-of-visit cookie snapshot", countUnit: unit("snapshot operation") };
     case "storage-snapshot":
-      return { subject: "the end-of-visit storage snapshot", countUnit: unit("snapshot operation") };
+      return [null, "snapshot operation"];
     case "fingerprint-observer":
-      return { subject: "the in-page fingerprint observer", countUnit: null };
+      return ["the in-page fingerprint observer"];
     case "keystroke-probe":
-      return { subject: "the synthetic keystroke probe", countUnit: null };
+      return ["the synthetic keystroke probe"];
     case "cname-lookups":
-      return { subject: "the tracker-CNAME lookups", countUnit: unit("lookup") };
+      return [null, "CNAME lookup"];
     case "pixel-decode":
-      return { subject: "the advertising-pixel request-body decoder", countUnit: unit("request body") };
+      return [null, "pixel request body"];
     case "consent-banner":
-      return { subject: "the consent-banner probe", countUnit: null };
+      return ["the consent-banner probe"];
     case "policy-visit":
-      return { subject: "the privacy-policy visit", countUnit: unit("privacy-policy visit") };
+      return [null, "privacy-policy visit"];
     case "policy-link-candidates":
-      return { subject: "the privacy-policy link search", countUnit: null };
+      return ["the privacy-policy link search"];
     case "keystroke-probe-capture":
-      return { subject: "the synthetic keystroke probe's readback", countUnit: null };
+      return ["the synthetic keystroke probe's readback"];
     case "page-title":
-      return { subject: "the page title capture", countUnit: null };
+      return ["the page title capture"];
     case "page-subject-validity":
-      return { subject: "the page-subject validity check", countUnit: null };
+      return ["the page-subject validity check"];
     case "consent-verification":
-      return { subject: "consent-state verification", countUnit: unit("verification operation") };
+      return [null, "consent verification"];
     case "public-request-unregistrable-hosts":
     case "public-request-records":
     case "public-cookie-mutations":
@@ -95,22 +81,22 @@ function captureLossPresentation(detail: KnownCaptureLossDetail): CaptureLossPre
     case "public-consent-observations":
       return PUBLIC_PROJECTION_PRESENTATION;
     case "pagegraph-unsupported":
-      return { subject: "an evidence family unsupported by the PageGraph producer", countUnit: null };
+      return ["an evidence family unsupported by the PageGraph producer"];
     case "pagegraph-request-loss":
-      return { subject: "PageGraph request collection", countUnit: null };
+      return ["PageGraph request collection"];
     case "pagegraph-invalid-request":
-      return { subject: "PageGraph request validation", countUnit: unit("request record") };
+      return [null, "request record"];
     case "r2-navigation-status-unrepresentable":
-      return { subject: "navigation-status capture", countUnit: unit("status observation") };
     case "r2-request-status-unrepresentable":
-      return { subject: "request-status capture", countUnit: unit("status observation") };
+      return [null, "status observation"];
     default:
       return assertNever(detail);
   }
 }
 
-function countLabel(count: number, countUnit: CountUnit): string {
-  return `${count.toLocaleString("en-US")} ${count === 1 ? countUnit.singular : countUnit.plural}`;
+function countLabel(count: number, presentation: CaptureLossPresentation): string {
+  const singular = presentation[1]!;
+  return `${count.toLocaleString("en-US")} ${count === 1 ? singular : (presentation[2] ?? `${singular}s`)}`;
 }
 
 function recordedLossCount(count: number): string {
@@ -131,11 +117,6 @@ function describedAction(kind: CaptureLossEntry["kind"], count: number): string 
     case "dropped":
       return "did not produce usable evidence";
   }
-}
-
-export function captureLossPresentationSubject(detail: string | undefined): string | null {
-  if (detail === undefined || !isKnownCaptureLossDetail(detail)) return null;
-  return captureLossPresentation(detail).subject;
 }
 
 export function captureLossDetailNote(
@@ -161,7 +142,7 @@ export function captureLossDetailNote(
     const ceiling = options.responseByteLimit
       ? `${options.responseByteLimit} aggregate response-byte ceiling`
       : "configured aggregate response-byte ceiling";
-    return `${countLabel(loss.count, presentation.countUnit!)} ${
+    return `${countLabel(loss.count, presentation)} ${
       loss.count === 1 ? "was" : "were"
     } truncated or refused at or after the ${ceiling}`;
   }
@@ -169,22 +150,22 @@ export function captureLossDetailNote(
     const ceiling = options.uploadByteLimit
       ? `${options.uploadByteLimit} aggregate upload-byte ceiling`
       : "configured aggregate upload-byte ceiling";
-    return `${countLabel(loss.count, presentation.countUnit!)} ${
+    return `${countLabel(loss.count, presentation)} ${
       loss.count === 1 ? "was" : "were"
     } truncated or refused at or after the ${ceiling}`;
   }
   if (detail === "proxy-traffic" && loss.count > 0) {
-    return `${countLabel(loss.count, presentation.countUnit!)} ${
+    return `${countLabel(loss.count, presentation)} ${
       loss.count === 1 ? "was" : "were"
     } refused by the connection and target safety budget`;
   }
   if (detail === "pagegraph-unsupported") {
-    return `${presentation.subject} (${recordedLossCount(loss.count)})`;
+    return `${presentation[0]} (${recordedLossCount(loss.count)})`;
   }
-  if (presentation.countUnit !== null && loss.count > 0) {
-    return `${countLabel(loss.count, presentation.countUnit)} ${describedAction(loss.kind, loss.count)}`;
+  if (presentation[1] !== undefined && loss.count > 0) {
+    return `${countLabel(loss.count, presentation)} ${describedAction(loss.kind, loss.count)}`;
   }
-  return `${presentation.subject} did not finish (${recordedLossCount(loss.count)})`;
+  return `${presentation[0] ?? "evidence collection"} did not finish (${recordedLossCount(loss.count)})`;
 }
 
 export const KNOWN_CAPTURE_LOSS_DETAILS = Object.freeze(
