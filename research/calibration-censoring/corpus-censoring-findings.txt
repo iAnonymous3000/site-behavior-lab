@@ -1,0 +1,143 @@
+CALIBRATION CENSORING DECISION PACKAGE
+development evidence -- NOT frame-selection evidence
+generated from 126 r2 runs; primary analysis restricted to the declared CNAME arm
+CNAME arm = device desktop / GPC false / consent observe
+arm runs: 61   off-arm (supplementary only): 65
+
+PRIMARY -- CNAME ARM ONLY (n=61)
+  bare-load sound                         61/61   100.0%  Wilson [94.1%, 100.0%]  clustered too few clusters (2)
+  A generic all-family zero-loss          27/61    44.3%  Wilson [32.5%, 56.7%]  clustered too few clusters (2)
+  B CNAME scoreable (inputs whole)        54/61    88.5%  Wilson [78.2%, 94.3%]  clustered too few clusters (2)
+    CNAME stage finished                  60/61    98.4%  Wilson [91.3%, 99.7%]  clustered too few clusters (2)
+    of which INDETERMINATE (inputs cut)    6/61     9.8%  Wilson [4.6%, 19.8%]  clustered too few clusters (2)
+
+SUPPLEMENTARY -- pooled across all conditions (n=126)
+  A generic all-family zero-loss          53/126   42.1%  Wilson [33.8%, 50.8%]  clustered [39.2%, 100.0%]
+  B CNAME scoreable                       93/126   73.8%  Wilson [65.5%, 80.7%]  clustered [72.5%, 100.0%]
+    CNAME stage finished                 125/126   99.2%  Wilson [95.6%, 99.9%]  clustered [99.2%, 100.0%]
+    of which INDETERMINATE                32/126   25.4%  Wilson [18.6%, 33.6%]  clustered [0.0%, 26.7%]
+
+EVIDENCE FAMILY CENSORING (CNAME arm)
+  requests                   6/61  9.8%
+  cookies                    0/61  0.0%
+  storage                    1/61  1.6%
+  fingerprinting            18/61  29.5%
+  detector-output           20/61  32.8%
+  consent-verification       0/61  0.0%
+
+CAPTURE-LOSS REASONS (CNAME arm)
+   18  fingerprinting/fingerprint-observer/dropped
+    6  detector-output/keystroke-probe/dropped
+    6  detector-output/policy-visit/dropped
+    6  detector-output/policy-link-candidates/truncated
+    5  requests/request-capture/cap
+    3  detector-output/policy-visit/cap
+    2  detector-output/keystroke-probe-capture/truncated
+    1  detector-output/keystroke-probe/cap
+    1  detector-output/cname-lookups/cap
+    1  requests/proxy-traffic/cap
+    1  requests/public-request-unregistrable-hosts/dropped
+    1  storage/storage-snapshot/truncated
+
+DETECTOR LEDGER STATE (CNAME arm)
+  cname-uncloaking         complete=60  partial(evidence-cap-reached)=1
+  consent-banner           complete=61
+  fingerprint-heuristics   complete=43  partial(scan-failed)=15  failed(engine-unavailable)=3
+  keystroke-exfiltration   complete=53  partial(scan-failed)=5  skipped(budget-unavailable)=1  partial(evidence-cap-reached)=1  failed(scan-failed)=1
+  pixel-events             complete=61
+  privacy-policy           complete=45  unsupported(unsupported)=6  failed(load-failed)=6  skipped(budget-unavailable)=3  skipped(evidence-cap-reached)=1
+
+RECOVERY: cases B admits that A rejects (CNAME arm)
+  27 cases scoreable for CNAME but rejected by zero-censoring
+     censored family present: detector-output = 16
+     censored family present: fingerprinting = 15
+     censored family present: storage = 1
+
+NULL-DETAIL REQUEST LOSS -- compatibility-derived attribution
+  runs with a null-detail requests loss: 24
+  of those, carrying the GPC-worker warning: 24
+  all GPC-on: true
+  NOTE: the frozen r2 ledger carries no structured detail for these, so this
+  attribution is COMPATIBILITY-DERIVED from warning text, not canonical.
+
+CATEGORY STRATA (CNAME arm)
+  search                 n=  9  zero-loss  44.4%  CNAME-scoreable 100.0%
+  kids                   n=  9  zero-loss  55.6%  CNAME-scoreable 100.0%
+  money                  n=  9  zero-loss  22.2%  CNAME-scoreable 100.0%
+  news                   n=  8  zero-loss  50.0%  CNAME-scoreable  62.5%
+  gov                    n=  7  zero-loss  42.9%  CNAME-scoreable  71.4%
+  shopping               n=  6  zero-loss  33.3%  CNAME-scoreable  83.3%
+  health                 n=  6  zero-loss  50.0%  CNAME-scoreable  83.3%
+  dating                 n=  6  zero-loss  50.0%  CNAME-scoreable 100.0%
+  not-in-gallery         n=  1  zero-loss 100.0%  CNAME-scoreable 100.0%
+
+POLICY SIMULATION -- every rate on ITS OWN marginal denominator
+  The gate evaluates each rate on its own class, and every class is a
+  FRACTION of the usable total, so a pooled half-width understates all of
+  them. Floors (>=100 per class) are checked alongside width (<=0.1).
+
+  Operating point is an ASSUMPTION, not a measurement: the corpus has no
+  independent references, so prevalence/recall/specificity are declared
+  inputs. Several are shown because the answer depends on them.
+
+  prev .50 recall .90 spec .95
+    policy                                                  N usable widest rate                  half  numEligible  why
+    A  zero-censoring (current)                           200     89 sensitivity (45)             8.6%  NO           all-or-nothing unmet (44.3% usable)  n=89
+    A  zero-censoring (current)                           350    155 sensitivity (78)             6.8%  NO           all-or-nothing unmet (44.3% usable)  n=155
+    A  zero-censoring (current)                           500    221 falseNegativeRate (111)      5.6%  NO           all-or-nothing unmet (44.3% usable)  n=221
+    B  detector-scoped complete-case                      200    177 falseNegativeRate (89)       6.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected  n=177
+    B  detector-scoped complete-case                      350    310 sensitivity (155)            4.7%  yes          scope: subpopulation only  n=310
+    B  detector-scoped complete-case                      500    443 sensitivity (222)            4.0%  yes          scope: subpopulation only  n=443
+    C  bounded + conservative bounds [refs unknown, worst composition]  200    177 falseNegativeRate (89)      16.6%  NO           FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected  n=200
+    C  bounded + conservative bounds [refs obtained, worst composition]  200    177 falseNegativeRate (89)      16.6%  NO           FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected  n=200
+    C  bounded + conservative bounds [refs unknown, worst composition]  350    310 sensitivity (155)           15.1%  NO           ok  n=350
+    C  bounded + conservative bounds [refs obtained, worst composition]  350    310 sensitivity (155)           15.1%  NO           ok  n=350
+    C  bounded + conservative bounds [refs unknown, worst composition]  500    443 sensitivity (222)           14.3%  NO           ok  n=500
+    C  bounded + conservative bounds [refs obtained, worst composition]  500    443 sensitivity (222)           14.3%  NO           ok  n=500
+
+  prev .50 recall .70 spec .95
+    policy                                                  N usable widest rate                  half  numEligible  why
+    A  zero-censoring (current)                           200     89 falseNegativeRate (45)      13.1%  NO           all-or-nothing unmet (44.3% usable)  n=89
+    A  zero-censoring (current)                           350    155 sensitivity (78)             9.9%  NO           all-or-nothing unmet (44.3% usable)  n=155
+    A  zero-censoring (current)                           500    221 falseNegativeRate (111)      8.4%  NO           all-or-nothing unmet (44.3% usable)  n=221
+    B  detector-scoped complete-case                      200    177 sensitivity (89)             9.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected  n=177
+    B  detector-scoped complete-case                      350    310 sensitivity (155)            7.1%  yes          scope: subpopulation only  n=310
+    B  detector-scoped complete-case                      500    443 sensitivity (222)            6.0%  yes          scope: subpopulation only  n=443
+    C  bounded + conservative bounds [refs unknown, worst composition]  200    177 precision (66)              19.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected  n=200
+    C  bounded + conservative bounds [refs obtained, worst composition]  200    177 precision (66)              19.1%  NO           FAIL referencePresent,referenceAbsent,predictedDetected  n=200
+    C  bounded + conservative bounds [refs unknown, worst composition]  350    310 precision (117)             17.8%  NO           ok  n=350
+    C  bounded + conservative bounds [refs obtained, worst composition]  350    310 precision (117)             17.3%  NO           ok  n=350
+    C  bounded + conservative bounds [refs unknown, worst composition]  500    443 precision (166)             17.0%  NO           ok  n=500
+    C  bounded + conservative bounds [refs obtained, worst composition]  500    443 precision (166)             16.5%  NO           ok  n=500
+
+  prev .35 recall .70 spec .95
+    policy                                                  N usable widest rate                  half  numEligible  why
+    A  zero-censoring (current)                           200     89 sensitivity (31)            15.2%  NO           all-or-nothing unmet (44.3% usable)  n=89
+    A  zero-censoring (current)                           350    155 sensitivity (54)            11.8%  NO           all-or-nothing unmet (44.3% usable)  n=155
+    A  zero-censoring (current)                           500    221 sensitivity (77)            10.0%  NO           all-or-nothing unmet (44.3% usable)  n=221
+    B  detector-scoped complete-case                      200    177 sensitivity (62)            11.2%  NO           FAIL referencePresent,predictedDetected  n=177
+    B  detector-scoped complete-case                      350    310 falseNegativeRate (109)      8.5%  NO           FAIL predictedDetected  n=310
+    B  detector-scoped complete-case                      500    443 sensitivity (155)            7.1%  yes          scope: subpopulation only  n=443
+    C  bounded + conservative bounds [refs unknown, worst composition]  200    177 precision (49)              24.0%  NO           FAIL referencePresent,predictedDetected  n=200
+    C  bounded + conservative bounds [refs obtained, worst composition]  200    177 precision (49)              23.0%  NO           FAIL referencePresent,predictedDetected  n=200
+    C  bounded + conservative bounds [refs unknown, worst composition]  350    310 precision (86)              22.0%  NO           FAIL predictedDetected  n=350
+    C  bounded + conservative bounds [refs obtained, worst composition]  350    310 precision (86)              21.0%  NO           FAIL predictedDetected  n=350
+    C  bounded + conservative bounds [refs unknown, worst composition]  500    443 precision (123)             21.0%  NO           ok  n=500
+    C  bounded + conservative bounds [refs obtained, worst composition]  500    443 precision (123)             19.9%  NO           ok  n=500
+
+  SCOREABILITY IS ITSELF ESTIMATED. The rows above use the arm's point
+  estimate 88.5% for CNAME-scoreable. The endpoint below is a
+  PER-CASE WILSON BOUND and therefore an iid-only diagnostic: this arm has
+  two clusters, so it is NOT a defensible design lower bound, only an
+  indication that sizing on the point estimate assumes what is not pinned down.
+    C @ N=350, scoreable=78.2% (iid-only endpoint), balanced refs -> 16.0% (sensitivity)
+    C @ N=500, scoreable=78.2% (iid-only endpoint), balanced refs -> 15.3% (falseNegativeRate)
+
+  POLICY A CANNOT BE READ FROM WIDTH. It publishes only when the study
+  censored NOTHING. At the arm's 44.3% zero-loss rate that is not a
+  narrower study, it is no study, and no q^N is quoted because these
+  failures are clustered by batch and build rather than independent.
+
+  NO CATEGORICAL "N CLEARS" CLAIM IS MADE. Whether any policy publishes
+  depends on the operating point above, which the corpus cannot supply.
+  These rows show feasibility under declared assumptions only.
