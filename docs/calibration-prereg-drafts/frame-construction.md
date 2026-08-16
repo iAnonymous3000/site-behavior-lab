@@ -124,4 +124,27 @@ study, not to the gate.
 produce detector output. Preregistration is void if the frame is chosen after
 predictions are seen, so the sweep must be treated as a bare load check whose
 detector outputs are never read, and its receipts should record only load
-outcome. Nothing currently enforces that separation.
+outcome.
+
+That separation is now enforced rather than remembered, in
+[`scripts/calibration-reliability-sweep-lib.mjs`](../../scripts/calibration-reliability-sweep-lib.mjs):
+
+1. `bareLoadOutcome` is the only entry point, and it returns a fixed closed
+   record (`BARE_LOAD_OUTCOME_FIELDS`). The report is narrowed once, at
+   ingestion, so no sweep logic downstream holds a reference to evidence.
+2. `assertBareLoadOnly` refuses any object carrying a key outside that
+   vocabulary, and runs on every projected case *and* on the assembled receipt.
+   A widened projection fails loudly instead of quietly admitting predictions.
+3. A source-reading guard asserts the module never names a detector evidence
+   field or reaches into `run.evidence` at all.
+
+`censoredFamilyCount` is deliberately a count rather than a list of families:
+knowing that CNAME evidence specifically was censored is itself a weak signal
+about the detector, and the sweep has no need for it. The receipt carries no
+pass/fail — whether the pool clears is a preregistered threshold a human
+applies, not something the producer decides. An unloadable case is recorded as a
+failed load rather than skipped, because silently dropping uncooperative sites
+would bias the frame by another route.
+
+Mutation-tested: widening the projection to carry `cnameCloaks` fails five of
+the seven guards; disabling the field check fails three.
