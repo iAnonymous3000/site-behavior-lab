@@ -10,7 +10,7 @@ import {
   captureLossDetailAllowsFamily,
   isKnownCaptureLossDetail
 } from "./capture-loss-detail-contract";
-import { CAPTURE_LOSS_PRESENTATIONS, captureLossDetailNote } from "./capture-loss-presentation";
+import { captureLossDetailNote } from "./capture-loss-presentation";
 import { BUDGET_FAMILIES } from "./scan-report-v2-evaluators";
 
 /**
@@ -114,7 +114,7 @@ test("every capture-loss detail a producer can record has a family and reader pr
       // itself and are rejected when supplied by a caller.
       if (detail.startsWith("public-")) continue;
       checked += 1;
-      if (!isKnownCaptureLossDetail(detail) || !(detail in CAPTURE_LOSS_PRESENTATIONS)) {
+      if (!isKnownCaptureLossDetail(detail)) {
         unregistered.push(`${file}: ${detail}`);
       }
     }
@@ -162,11 +162,7 @@ test("the PageGraph unsupported sentinel is registered for its complete five-fam
   assert.equal(captureLossDetailAllowsFamily("pagegraph-unsupported", "requests"), false);
 });
 
-test("the compiler-backed presentation registry covers the semantic detail registry exactly", () => {
-  assert.deepEqual(
-    Object.keys(CAPTURE_LOSS_PRESENTATIONS).sort(),
-    Object.keys(CAPTURE_LOSS_DETAIL_FAMILIES).sort()
-  );
+test("the compiler-backed presentation switch covers every semantic detail and family", () => {
   for (const [budget, family] of Object.entries(BUDGET_FAMILIES)) {
     assert.equal(captureLossDetailAllowsFamily(budget, family), true, budget);
   }
