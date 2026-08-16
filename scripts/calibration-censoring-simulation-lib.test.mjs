@@ -5,6 +5,7 @@ import {
   METRIC_DENOMINATOR,
   POLICIES,
   RATE_CELLS,
+  WORST_CASE_COMPOSITION_MODES,
   boundsOverAssignments,
   classDenominators,
   confusionMatrix,
@@ -302,4 +303,42 @@ test("floors are read off the conserved matrix, not recomputed", () => {
       "the prediction partition must cover the matrix"
     );
   }
+});
+
+test("worstCaseComposition is a validated enum, never a truthy flag", () => {
+  // REGRESSION. The mode was compared with === "including-unknown-reference",
+  // so ANY other truthy value -- `true`, or a misspelling of the conservative
+  // mode itself -- silently selected the NARROWER references-obtained model. A
+  // typo therefore bought better-looking evidence, which is the one direction a
+  // default must never fail.
+  const base = {
+    policy: "bounded-censoring-with-sensitivity-analysis",
+    plannedCases: 350, scoreableRate: 54 / 61, admittedRate: 1,
+    prevalence: 0.5, recall: 0.9, specificity: 0.95
+  };
+
+  for (const bad of ["typo", true, "References-Obtained", "including-unknown-references", null, 1, {}]) {
+    assert.throws(
+      () => simulatePolicy({ ...base, worstCaseComposition: bad }),
+      /worstCaseComposition must be one of/,
+      `${JSON.stringify(bad)} must be rejected, not resolved to a model`
+    );
+  }
+
+  // The three accepted values, and the direction each one means.
+  const conservative = simulatePolicy({ ...base, worstCaseComposition: "including-unknown-reference" });
+  const obtained = simulatePolicy({ ...base, worstCaseComposition: "references-obtained" });
+  assert.ok(conservative.missing.missingBoth > 0, "the conservative mode admits missing references");
+  assert.equal(obtained.missing.missingBoth, 0, "references-obtained admits none");
+  assert.ok(
+    conservative.widestHalfWidth >= obtained.widestHalfWidth,
+    "the conservative mode can never bound tighter than the narrower one"
+  );
+
+  // false uses the declared split rather than searching at all.
+  const declared = simulatePolicy({
+    ...base, worstCaseComposition: false, missingReferenceSplit: { present: 1, absent: 0, both: 0 }
+  });
+  assert.equal(declared.missing.missingReferencePresent, declared.missingCases);
+  assert.deepEqual([...WORST_CASE_COMPOSITION_MODES].sort(), [false, "including-unknown-reference", "references-obtained"].sort());
 });

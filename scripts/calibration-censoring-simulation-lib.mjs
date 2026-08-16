@@ -85,6 +85,11 @@ export const POLICIES = Object.freeze({
   })
 });
 
+/** The only accepted values for `worstCaseComposition`. */
+export const WORST_CASE_COMPOSITION_MODES = Object.freeze(
+  new Set([false, "including-unknown-reference", "references-obtained"])
+);
+
 export function wilsonHalfWidth(n, p = 0.5, z = 1.96) {
   if (!Number.isFinite(n) || n <= 0) return 0.5;
   const d = 1 + (z * z) / n;
@@ -357,8 +362,20 @@ export function simulatePolicy({
   // scan, so a study that obtains references for every ADMITTED case may
   // justify the known split -- but it must say so.
   missingReferenceSplit = { present: 0, absent: 0, both: 1 },
-  // When true, ignore the declared split and take the genuinely worst
-  // composition over every integer allocation.
+  /**
+   * Ignore the declared split and take the worst composition over every integer
+   * allocation. An EXPLICIT ENUM, never a boolean:
+   *
+   *   false                          use the declared missingReferenceSplit
+   *   "including-unknown-reference"  conservative; a case may lack a reference
+   *   "references-obtained"          narrower; every admitted case has one
+   *
+   * It was previously compared with `=== "including-unknown-reference"`, so any
+   * other truthy value -- `true`, or a misspelling of the conservative mode --
+   * silently selected the NARROWER model. A typo therefore resolved toward
+   * better-looking evidence, which is the one direction a default must never
+   * fail. Anything outside the enum now throws.
+   */
   worstCaseComposition = false,
   prevalence,
   recall,
@@ -382,7 +399,14 @@ export function simulatePolicy({
     throw new Error(`matrix total ${matrixTotal(matrix)} does not conserve ${usableCases} usable cases`);
   }
 
-  const missing = worstCaseComposition && missingCases > 0
+  if (!WORST_CASE_COMPOSITION_MODES.has(worstCaseComposition)) {
+    throw new Error(
+      `worstCaseComposition must be one of ${[...WORST_CASE_COMPOSITION_MODES]
+        .map((mode) => JSON.stringify(mode))
+        .join(", ")}, got ${JSON.stringify(worstCaseComposition)}`
+    );
+  }
+  const missing = worstCaseComposition !== false && missingCases > 0
     ? worstComposition(
         confusionMatrix({ usableCases, prevalence, recall, specificity }),
         missingCases,
