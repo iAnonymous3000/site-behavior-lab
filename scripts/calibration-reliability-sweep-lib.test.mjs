@@ -283,6 +283,108 @@ test("the 48-hour rule is directed: pass 2 must follow pass 1", () => {
   );
 });
 
+test("the recorded facts ledger is consulted, not just the derived family view", () => {
+  // REGRESSION. `quality.byFamily` is DERIVED; `qualityFacts` is what the
+  // producer RECORDED. This module runs no semantic r2 validation, so it cannot
+  // assume they agree -- and it previously trusted the derived view alone while
+  // defaulting an absent captureLoss array to [], i.e. "nothing was lost".
+  const withFacts = (qualityFacts) => ({
+    run: {
+      summary: { status: 200 },
+      warnings: [],
+      qualityFacts,
+      quality: { run: { outcome: "complete" }, byFamily: { requests: { outcome: "complete" } } }
+    }
+  });
+  const sound = (report) => bareLoadPassSound(project("case-f", report, 1, PASS_1));
+
+  // 1. An absent captureLoss array is a MISSING ledger, not an empty one.
+  const absentLedger = withFacts({
+    status: 200,
+    navigationSettled: true,
+    botWallTitleMatched: false
+  });
+  assert.equal(
+    sound(absentLedger),
+    false,
+    "an absent captureLoss array must not read as 'nothing was lost'"
+  );
+  // The PUBLISHED field must also be false, not merely the eligibility verdict.
+  // A receipt saying subjectVerified: true for a visit whose producer recorded
+  // no ledger is a false statement in an artifact, even where the candidate was
+  // rejected for another reason.
+  const projected = project("case-f", absentLedger, 1, PASS_1);
+  assert.equal(projected.factsLedgerRecorded, false);
+  assert.equal(
+    projected.subjectVerified,
+    false,
+    "subject verification cannot be asserted from a ledger that was never recorded"
+  );
+
+  // 2. A canonical capture loss beside a stale "complete" family ledger.
+  assert.equal(
+    sound(
+      withFacts({
+        status: 200,
+        navigationSettled: true,
+        botWallTitleMatched: false,
+        budgetsExhausted: [],
+        captureLoss: [{ family: "requests", kind: "cap", count: 74, detail: "request-capture" }]
+      })
+    ),
+    false,
+    "a recorded capture loss outranks a derived ledger claiming completeness"
+  );
+
+  // 3. An exhausted budget beside a stale "complete" family ledger.
+  assert.equal(
+    sound(
+      withFacts({
+        status: 200,
+        navigationSettled: true,
+        botWallTitleMatched: false,
+        budgetsExhausted: ["request-capture"],
+        captureLoss: []
+      })
+    ),
+    false,
+    "a recorded exhausted budget outranks a derived ledger claiming completeness"
+  );
+
+  // Control: both ledgers present and both clean.
+  assert.equal(
+    sound(
+      withFacts({
+        status: 200,
+        navigationSettled: true,
+        botWallTitleMatched: false,
+        budgetsExhausted: [],
+        captureLoss: []
+      })
+    ),
+    true
+  );
+
+  // The counts are exposed so a receipt shows WHY a candidate was rejected,
+  // without naming which families or budgets (that would leak toward detectors).
+  const rejected = project(
+    "case-f",
+    withFacts({
+      status: 200,
+      navigationSettled: true,
+      botWallTitleMatched: false,
+      budgetsExhausted: ["request-capture"],
+      captureLoss: [{ family: "requests", kind: "cap", count: 74, detail: "request-capture" }]
+    }),
+    1,
+    PASS_1
+  );
+  assert.equal(rejected.factsLedgerRecorded, true);
+  assert.equal(rejected.recordedCaptureLosses, 1);
+  assert.equal(rejected.budgetsExhausted, 1);
+  assert.equal(JSON.stringify(rejected).includes("request-capture"), false, "counts only, no tokens");
+});
+
 test("a missing or unusable report is recorded as a failed pass, never skipped", () => {
   // Silently dropping unloadable cases biases the frame toward sites that
   // happen to cooperate, which is the same selection hazard by another route.

@@ -45,6 +45,9 @@ export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
   "subjectVerified",
   "botWalled",
   "runOutcome",
+  "factsLedgerRecorded",
+  "recordedCaptureLosses",
+  "budgetsExhausted",
   "censoredFamilyCount",
   "requestEvidenceComplete"
 ]);
@@ -125,6 +128,9 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     subjectVerified: false,
     botWalled: true,
     runOutcome: "unavailable",
+    factsLedgerRecorded: false,
+    recordedCaptureLosses: 0,
+    budgetsExhausted: 0,
     censoredFamilyCount: 0,
     requestEvidenceComplete: false
   };
@@ -147,7 +153,16 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
   const status = typeof run.summary?.status === "number" ? run.summary.status : null;
   const byFamily = run.quality.byFamily;
   const families = Object.values(byFamily);
-  const captureLoss = Array.isArray(facts.captureLoss) ? facts.captureLoss : [];
+
+  // `quality.byFamily` is DERIVED; `qualityFacts` is what the producer
+  // RECORDED. This module runs no semantic r2 validation, so it cannot assume
+  // the two agree -- a stale or hand-edited ledger can say "complete" beside a
+  // recorded request-capture loss. Both ledgers must be present and both must
+  // say nothing was lost, and an absent array is a missing ledger rather than
+  // an empty one.
+  const factsLedgerRecorded =
+    Array.isArray(facts.captureLoss) && Array.isArray(facts.budgetsExhausted);
+  const captureLoss = factsLedgerRecorded ? facts.captureLoss : null;
 
   return assertBareLoadOnly({
     caseId,
@@ -160,11 +175,14 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     // botWallTitleMatched is the thing the evaluator actually decided.
     navigationSettled: facts.navigationSettled === true,
     botWalled: facts.botWallTitleMatched !== false,
-    subjectVerified: !captureLoss.some(
-      (loss) => loss?.detail === PAGE_SUBJECT_CAPTURE_LOSS_DETAIL
-    ),
+    subjectVerified:
+      captureLoss !== null &&
+      !captureLoss.some((loss) => loss?.detail === PAGE_SUBJECT_CAPTURE_LOSS_DETAIL),
     runOutcome:
       typeof run.quality.run?.outcome === "string" ? run.quality.run.outcome : "unrecorded",
+    factsLedgerRecorded,
+    recordedCaptureLosses: captureLoss === null ? 0 : captureLoss.length,
+    budgetsExhausted: factsLedgerRecorded ? facts.budgetsExhausted.length : 0,
     censoredFamilyCount: families.filter((entry) => entry?.outcome === "censored").length,
     requestEvidenceComplete: byFamily.requests?.outcome === "complete"
   });
@@ -190,6 +208,12 @@ export function bareLoadPassSound(outcome) {
     outcome.subjectVerified &&
     !outcome.botWalled &&
     outcome.runOutcome === "complete" &&
+    // Both ledgers, and both must be present. The derived family view alone is
+    // not enough: it can say "complete" beside a recorded capture loss or an
+    // exhausted budget, and nothing here validates that they agree.
+    outcome.factsLedgerRecorded &&
+    outcome.recordedCaptureLosses === 0 &&
+    outcome.budgetsExhausted === 0 &&
     outcome.requestEvidenceComplete &&
     outcome.censoredFamilyCount === 0
   );
