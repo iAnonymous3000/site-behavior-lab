@@ -42,9 +42,9 @@ import {
   familyCensoredOnRun,
   familyUnsupportedOnRun,
   runHitRequestRecordingCap,
-  runQualitySummary,
   type ReportView
 } from "./scan-report-views";
+import { runQualitySummary } from "./scan-report-censorship";
 import { sha256BytesHex } from "./sha256";
 import { createLoadedTemporalComparison } from "./temporal-report-comparison";
 import {

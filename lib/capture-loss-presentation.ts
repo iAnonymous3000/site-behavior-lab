@@ -6,85 +6,97 @@ import {
 } from "./capture-loss-detail-contract";
 import type { CaptureLossEntry } from "./scan-report-v2";
 
-type CountUnit = {
-  singular: string;
-  plural: string;
-};
+type CaptureLossPresentation = readonly [
+  /** Human subject for losses whose recorded count has no stable unit. */
+  subject: string | null,
+  /** Stable unit for a positive recorded count. */
+  singular?: string,
+  plural?: string
+];
 
-type CaptureLossPresentation = {
-  subject: string;
-  countUnit: CountUnit | null;
-};
+const PUBLIC_PROJECTION_PRESENTATION = ["the bounded public evidence projection"] as const;
 
-const unit = (singular: string, plural = `${singular}s`): CountUnit => ({ singular, plural });
+function assertNever(value: never): never {
+  throw new Error(`unpresented first-party capture-loss detail: ${String(value)}`);
+}
 
 /**
  * Human presentation for every first-party detail token.
  *
- * `satisfies Record<KnownCaptureLossDetail, ...>` is the compiler gate: adding
- * a producer token without reader copy fails TypeScript. The public schema is
- * still forward-compatible; an unknown conforming producer receives generic
- * safe copy rather than leaking its internal token or crashing the report.
+ * This exhaustive switch is the compiler gate: adding a producer token to the
+ * semantic contract without reader handling makes the default call fail
+ * TypeScript's `never` check. Grouped public-projection markers deliberately
+ * share one honest presentation because their counts have different units;
+ * naming a made-up common unit would be worse than retaining the wire count.
+ * Unknown conforming producers still receive generic safe copy.
  */
-export const CAPTURE_LOSS_PRESENTATIONS = Object.freeze({
-  "request-capture": {
-    subject: "request evidence collection",
-    countUnit: unit("request routing or recording event")
-  },
-  [RESPONSE_BYTE_CAPTURE_LOSS_DETAIL]: {
-    subject: "aggregate response-byte loading",
-    countUnit: unit("response stream or proxy tunnel", "response streams or proxy tunnels")
-  },
-  "request-upload": {
-    subject: "aggregate upload forwarding",
-    countUnit: unit("upload stream or proxy tunnel", "upload streams or proxy tunnels")
-  },
-  "proxy-traffic": { subject: "proxy traffic forwarding", countUnit: unit("proxy transaction") },
-  "cookie-snapshot": { subject: "the end-of-visit cookie snapshot", countUnit: unit("snapshot operation") },
-  "storage-snapshot": { subject: "the end-of-visit storage snapshot", countUnit: unit("snapshot operation") },
-  "fingerprint-observer": { subject: "the in-page fingerprint observer", countUnit: null },
-  "keystroke-probe": { subject: "the synthetic keystroke probe", countUnit: null },
-  "cname-lookups": { subject: "the tracker-CNAME lookups", countUnit: unit("lookup") },
-  "pixel-decode": { subject: "the advertising-pixel request-body decoder", countUnit: unit("request body") },
-  "consent-banner": { subject: "the consent-banner probe", countUnit: null },
-  "policy-visit": { subject: "the privacy-policy visit", countUnit: unit("privacy-policy visit") },
-  "policy-link-candidates": { subject: "the privacy-policy link search", countUnit: null },
-  "keystroke-probe-capture": { subject: "the synthetic keystroke probe's readback", countUnit: null },
-  "page-title": { subject: "the page title capture", countUnit: null },
-  "page-subject-validity": { subject: "the page-subject validity check", countUnit: null },
-  "consent-verification": { subject: "consent-state verification", countUnit: unit("verification operation") },
-  "public-request-unregistrable-hosts": {
-    subject: "public request-host registration",
-    countUnit: unit("request record")
-  },
-  "public-request-records": { subject: "the public request-record list", countUnit: unit("request record") },
-  "public-cookie-mutations": { subject: "the public cookie-mutation list", countUnit: unit("cookie mutation") },
-  "public-cookie-final": { subject: "the public final-cookie list", countUnit: unit("cookie record") },
-  "public-storage-mutations": { subject: "the public storage-mutation list", countUnit: unit("storage mutation") },
-  "public-storage-final": { subject: "the public final-storage list", countUnit: unit("storage record") },
-  "public-fingerprint-events": { subject: "the public fingerprint-event list", countUnit: unit("fingerprint event") },
-  "public-fingerprint-detections": {
-    subject: "the public fingerprint-detection list",
-    countUnit: unit("fingerprint detection")
-  },
-  "public-cname-cloaks": { subject: "the public CNAME-cloak list", countUnit: unit("CNAME-cloak record") },
-  "public-pixel-events": { subject: "the public pixel-event list", countUnit: unit("pixel event") },
-  "public-policy-claims": { subject: "the public policy-claim list", countUnit: unit("policy claim") },
-  "public-policy-entities": { subject: "the public policy-entity list", countUnit: unit("policy entity") },
-  "public-warnings": { subject: "the public warning list", countUnit: unit("warning") },
-  "public-consent-observations": {
-    subject: "the public consent-observation list",
-    countUnit: unit("consent observation")
-  },
-  "pagegraph-unsupported": { subject: "an evidence family unsupported by the PageGraph producer", countUnit: null },
-  "pagegraph-request-loss": { subject: "PageGraph request collection", countUnit: null },
-  "pagegraph-invalid-request": { subject: "PageGraph request validation", countUnit: unit("request record") },
-  "r2-navigation-status-unrepresentable": { subject: "navigation-status capture", countUnit: unit("status observation") },
-  "r2-request-status-unrepresentable": { subject: "request-status capture", countUnit: unit("status observation") }
-} as const satisfies Record<KnownCaptureLossDetail, CaptureLossPresentation>);
+function captureLossPresentation(detail: KnownCaptureLossDetail): CaptureLossPresentation {
+  switch (detail) {
+    case "request-capture":
+      return [null, "request routing or recording event"];
+    case RESPONSE_BYTE_CAPTURE_LOSS_DETAIL:
+      return [null, "response stream or proxy tunnel", "response streams or proxy tunnels"];
+    case "request-upload":
+      return [null, "upload stream or proxy tunnel", "upload streams or proxy tunnels"];
+    case "proxy-traffic":
+      return [null, "proxy transaction"];
+    case "cookie-snapshot":
+    case "storage-snapshot":
+      return [null, "snapshot operation"];
+    case "fingerprint-observer":
+      return ["the in-page fingerprint observer"];
+    case "keystroke-probe":
+      return ["the synthetic keystroke probe"];
+    case "cname-lookups":
+      return [null, "CNAME lookup"];
+    case "pixel-decode":
+      return [null, "pixel request body"];
+    case "consent-banner":
+      return ["the consent-banner probe"];
+    case "policy-visit":
+      return [null, "privacy-policy visit"];
+    case "policy-link-candidates":
+      return ["the privacy-policy link search"];
+    case "keystroke-probe-capture":
+      return ["the synthetic keystroke probe's readback"];
+    case "page-title":
+      return ["the page title capture"];
+    case "page-subject-validity":
+      return ["the page-subject validity check"];
+    case "consent-verification":
+      return [null, "consent verification"];
+    case "public-request-unregistrable-hosts":
+    case "public-request-records":
+    case "public-cookie-mutations":
+    case "public-cookie-final":
+    case "public-storage-mutations":
+    case "public-storage-final":
+    case "public-fingerprint-events":
+    case "public-fingerprint-detections":
+    case "public-cname-cloaks":
+    case "public-pixel-events":
+    case "public-policy-claims":
+    case "public-policy-entities":
+    case "public-warnings":
+    case "public-consent-observations":
+      return PUBLIC_PROJECTION_PRESENTATION;
+    case "pagegraph-unsupported":
+      return ["an evidence family unsupported by the PageGraph producer"];
+    case "pagegraph-request-loss":
+      return ["PageGraph request collection"];
+    case "pagegraph-invalid-request":
+      return [null, "request record"];
+    case "r2-navigation-status-unrepresentable":
+    case "r2-request-status-unrepresentable":
+      return [null, "status observation"];
+    default:
+      return assertNever(detail);
+  }
+}
 
-function countLabel(count: number, countUnit: CountUnit): string {
-  return `${count.toLocaleString("en-US")} ${count === 1 ? countUnit.singular : countUnit.plural}`;
+function countLabel(count: number, presentation: CaptureLossPresentation): string {
+  const singular = presentation[1]!;
+  return `${count.toLocaleString("en-US")} ${count === 1 ? singular : (presentation[2] ?? `${singular}s`)}`;
 }
 
 function recordedLossCount(count: number): string {
@@ -107,11 +119,6 @@ function describedAction(kind: CaptureLossEntry["kind"], count: number): string 
   }
 }
 
-export function captureLossPresentationSubject(detail: string | undefined): string | null {
-  if (detail === undefined || !isKnownCaptureLossDetail(detail)) return null;
-  return CAPTURE_LOSS_PRESENTATIONS[detail].subject;
-}
-
 export function captureLossDetailNote(
   loss: CaptureLossEntry,
   options: {
@@ -125,7 +132,7 @@ export function captureLossDetailNote(
     return `the producer recorded an additional collection loss (${recordedLossCount(loss.count)})`;
   }
 
-  const presentation = CAPTURE_LOSS_PRESENTATIONS[detail];
+  const presentation = captureLossPresentation(detail);
   if (detail === "request-capture" && options.historicalMergedRequestAndByteLoss) {
     return `request recording and response-byte loading did not finish; the historical wire carries a combined ${recordedLossCount(
       loss.count
@@ -135,7 +142,7 @@ export function captureLossDetailNote(
     const ceiling = options.responseByteLimit
       ? `${options.responseByteLimit} aggregate response-byte ceiling`
       : "configured aggregate response-byte ceiling";
-    return `${countLabel(loss.count, presentation.countUnit!)} ${
+    return `${countLabel(loss.count, presentation)} ${
       loss.count === 1 ? "was" : "were"
     } truncated or refused at or after the ${ceiling}`;
   }
@@ -143,22 +150,22 @@ export function captureLossDetailNote(
     const ceiling = options.uploadByteLimit
       ? `${options.uploadByteLimit} aggregate upload-byte ceiling`
       : "configured aggregate upload-byte ceiling";
-    return `${countLabel(loss.count, presentation.countUnit!)} ${
+    return `${countLabel(loss.count, presentation)} ${
       loss.count === 1 ? "was" : "were"
     } truncated or refused at or after the ${ceiling}`;
   }
   if (detail === "proxy-traffic" && loss.count > 0) {
-    return `${countLabel(loss.count, presentation.countUnit!)} ${
+    return `${countLabel(loss.count, presentation)} ${
       loss.count === 1 ? "was" : "were"
     } refused by the connection and target safety budget`;
   }
   if (detail === "pagegraph-unsupported") {
-    return `${presentation.subject} (${recordedLossCount(loss.count)})`;
+    return `${presentation[0]} (${recordedLossCount(loss.count)})`;
   }
-  if (presentation.countUnit !== null && loss.count > 0) {
-    return `${countLabel(loss.count, presentation.countUnit)} ${describedAction(loss.kind, loss.count)}`;
+  if (presentation[1] !== undefined && loss.count > 0) {
+    return `${countLabel(loss.count, presentation)} ${describedAction(loss.kind, loss.count)}`;
   }
-  return `${presentation.subject} did not finish (${recordedLossCount(loss.count)})`;
+  return `${presentation[0] ?? "evidence collection"} did not finish (${recordedLossCount(loss.count)})`;
 }
 
 export const KNOWN_CAPTURE_LOSS_DETAILS = Object.freeze(

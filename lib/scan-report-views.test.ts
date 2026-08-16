@@ -24,11 +24,11 @@ import {
 import {
   familyCensoredOnRun,
   requestEvidenceState,
-  runCensorshipNotes,
   runHitRequestRecordingCap,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
+import { runCensorshipNotes } from "./scan-report-censorship";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { runRequestEvidenceCapped } from "./comparison-eligibility";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
@@ -409,6 +409,44 @@ test("a merged historical byte-and-count loss never invents a partition for its 
   assert.ok(notes.some((note) => note.includes("combined recorded loss count: 91")));
   assert.ok(notes.some((note) => note.includes("cannot be partitioned between the two ceilings")));
   assert.equal(notes.some((note) => /91 (?:requests|response streams|proxy tunnels)/.test(note)), false);
+});
+
+test("a split byte-and-count loss renders both independent counts without historical merged copy", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.summary.counts.totalRequests = 1_000;
+  report.run.warnings.push(
+    "The scan stopped recording or loading additional requests after 1000 requests.",
+    "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget."
+  );
+  report.run.qualityFacts.budgetsExhausted = ["request-capture", "response-bytes"];
+  report.run.qualityFacts.captureLoss = [
+    { family: "requests", phaseId: null, kind: "cap", count: 91, detail: "request-capture" },
+    { family: "requests", phaseId: null, kind: "cap", count: 74, detail: "response-bytes" }
+  ];
+  report.run.quality = evaluateQuality(report.run.qualityFacts, { observedRequests: 1_000 });
+
+  const notes = runCensorshipNotes(viewFromV2(report, 2).runs[0]);
+  assert.ok(notes.includes("the visit exhausted its 1,000-request routing and recording budget"));
+  assert.ok(notes.includes("the visit exhausted its 64 MiB aggregate response-byte budget"));
+  assert.ok(notes.some((note) => note.includes("91 request routing or recording events were cut off")));
+  assert.ok(notes.some((note) => note.includes("74 response streams or proxy tunnels were truncated or refused")));
+  assert.equal(notes.some((note) => note.includes("both its request-count and aggregate response-byte budgets")), false);
+  assert.equal(notes.some((note) => /combined|cannot be partitioned/.test(note)), false);
+});
+
+test("a historical request cap is read from its warning instead of today's live limit", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.summary.counts.totalRequests = 750;
+  report.run.warnings.push("The scan stopped recording or loading additional requests after 750 requests.");
+  report.run.qualityFacts.budgetsExhausted = ["request-capture"];
+  report.run.qualityFacts.captureLoss = [
+    { family: "requests", phaseId: null, kind: "cap", count: 3, detail: "request-capture" }
+  ];
+  report.run.quality = evaluateQuality(report.run.qualityFacts, { observedRequests: 750 });
+
+  const notes = runCensorshipNotes(viewFromV2(report, 2).runs[0]);
+  assert.ok(notes.includes("the visit exhausted its 750-request routing and recording budget"));
+  assert.equal(notes.some((note) => note.includes("1,000-request")), false);
 });
 
 test("an open-schema capture-loss detail gets generic copy without leaking its token", () => {

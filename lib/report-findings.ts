@@ -50,12 +50,12 @@ import {
   comparisonArmViews,
   familyCensoredOnRun,
   runInCorpusDistributionPopulation,
-  runCensorshipNotes,
   unsupportedEvidenceFamilies,
   type ClaimGate,
   type ReportView,
   type RunView
 } from "./scan-report-views";
+import { runCensorshipNotes } from "./scan-report-censorship";
 import { displayHost, displayPublicUrl, humanList, plural } from "./text-format";
 import type { NetworkRequestRecord, PrivacyPolicyClaimKind, ProvenanceChange } from "./types";
 import {

@@ -17,19 +17,18 @@ import { readStoredScanReport } from "./scan-report-reader";
 import {
   comparisonArmViews,
   comparisonDiffView,
-  degradedRunNotice,
   displayRunView,
   familyCensoredOnRun,
   publicWireForExportOrPersistence,
   readScanTransportPayload,
   requestEvidenceState,
   runHitRequestRecordingCap,
-  runQualitySummary,
   schemaProvenanceLabel,
   toReportView,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-view";
+import { degradedRunNotice, runQualitySummary } from "./scan-report-censorship";
 import { makeGpcInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
 import {

@@ -35,10 +35,10 @@ import {
   displayRunView,
   familyCensoredOnRun,
   requestEvidenceState,
-  runCensorshipNotes,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
+import { runCensorshipNotes } from "./scan-report-censorship";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,

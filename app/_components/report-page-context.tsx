@@ -9,12 +9,11 @@ import {
 import { committedDetectorCalibrationReaderClaims } from "@/lib/detector-calibration-source";
 import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
+import { degradedRunNotice, runQualitySummary } from "@/lib/scan-report-censorship";
 import {
   completedVisitsPhrase,
-  degradedRunNotice,
   displayRunView,
   reportDetectorScope,
-  runQualitySummary,
   runVisitLabel,
   schemaProvenanceLabel,
   type ReportView,
