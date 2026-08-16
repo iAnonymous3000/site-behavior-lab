@@ -63,7 +63,12 @@ const EXPECTED_FAMILIES = Object.freeze([
 
 function assertCanonicalConstants(repoRoot) {
   const calibration = fs.readFileSync(path.join(repoRoot, "lib", "detector-calibration.ts"), "utf8");
-  const passiveArm = calibration.slice(calibration.lastIndexOf("return {"));
+  // Anchor on the passive arm's own interpretation constant; the file has many
+  // `return {` blocks and the last one is a different function.
+  const marker = calibration.indexOf("interpretation: PASSIVE_CALIBRATION_CONDITION_INTERPRETATION");
+  if (marker < 0) throw new Error("lib/detector-calibration.ts no longer declares a passive calibration arm");
+  const blockStart = calibration.lastIndexOf("return {", marker);
+  const passiveArm = calibration.slice(blockStart, marker);
   for (const [key, value] of [["device", '"desktop"'], ["gpcEnabled", "false"], ["consentMode", '"observe"']]) {
     if (!passiveArm.includes(`${key}: ${value}`)) {
       throw new Error(`declared CNAME arm drifted: lib/detector-calibration.ts no longer says ${key}: ${value}`);
@@ -207,6 +212,12 @@ function rateRow(label, items, predicate) {
   return `  ${label.padEnd(38)} ${String(k).padStart(3)}/${String(n).padEnd(4)} ${pct(k / n).padStart(6)}  Wilson [${pct(w.lo)}, ${pct(w.hi)}]  clustered ${clustered}`;
 }
 
+const checkOnly = process.argv.includes("--check");
+
+// Activated, not merely defined. A guard that is never called is the defect
+// class this repository keeps finding, and this one was written and left dead.
+assertCanonicalConstants(root);
+
 const runs = loadRuns();
 const arm = runs.filter(inCnameArm);
 
@@ -333,19 +344,26 @@ for (const point of OPERATING_POINTS) {
     ["bounded-censoring-with-sensitivity-analysis", usableB, indetC]
   ]) {
     for (const N of [200, 350, 500]) {
-      const scenarios = POLICIES[policyId].admitsIndeterminate
-        ? ["balanced", "worst-class-concentration"]
-        : ["balanced"];
-      for (const scenario of scenarios) {
+      // For C, both whether the missing cases' REFERENCE class is known and
+      // whether it is not; a case missing both is unconstrained and bounds worse.
+      const scenarios = POLICIES[policyId].admitsIndeterminate ? [true, false] : [true];
+      for (const referenceKnownForMissing of scenarios) {
         const r = simulatePolicy({
           policy: policyId, plannedCases: N, usableRate, indeterminateRate,
-          prevalence: point.prevalence, recall: point.recall, specificity: point.specificity, scenario
+          prevalence: point.prevalence, recall: point.recall, specificity: point.specificity,
+          referenceKnownForMissing
         });
-        const tag = POLICIES[policyId].admitsIndeterminate ? ` [${scenario === "balanced" ? "bal" : "worst"}]` : "";
+        const tag = POLICIES[policyId].admitsIndeterminate
+          ? (referenceKnownForMissing ? " [ref known]" : " [ref unknown]")
+          : "";
+        const why = r.allOrNothingUnsatisfiedAt !== null
+          ? `all-or-nothing unmet (${pct(r.allOrNothingUnsatisfiedAt)} usable)`
+          : r.failingFloors.length ? `FAIL ${r.failingFloors.join(",")}`
+          : "ok";
         say(
-          `    ${(POLICIES[policyId].label + tag).padEnd(34)} ${String(N).padStart(4)} ${String(r.usableCases).padStart(6)} ` +
-          `${`${r.widestMetric} (${r.metrics[r.widestMetric].observed})`.padEnd(24)} ${pct(r.widestHalfWidth).padStart(6)} ` +
-          `${(r.failingFloors.length ? `FAIL ${r.failingFloors.join(",")}` : "ok").padStart(7)} ${r.publishable ? "yes" : "NO"}`
+          `    ${(POLICIES[policyId].label + tag).padEnd(36)} ${String(N).padStart(4)} ${String(r.usableCases).padStart(6)} ` +
+          `${`${r.widestRate} (${r.bounds[r.widestRate].observedDenominator})`.padEnd(26)} ${pct(r.widestHalfWidth).padStart(6)}  ` +
+          `${r.publishable ? "yes" : "NO "}  ${why}`
         );
       }
     }
@@ -362,7 +380,20 @@ say(`  NO CATEGORICAL "N CLEARS" CLAIM IS MADE. Whether any policy publishes`);
 say(`  depends on the operating point above, which the corpus cannot supply.`);
 say(`  These rows show feasibility under declared assumptions only.`);
 
-fs.writeFileSync(
-  path.join(path.dirname(fileURLToPath(import.meta.url)), "corpus-censoring-findings.txt"),
-  `${out.join("\n")}\n`
-);
+const artifactPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "corpus-censoring-findings.txt");
+const rendered = `${out.join("\n")}\n`;
+
+if (checkOnly) {
+  // --check must never rewrite: it exists to prove the committed artifact still
+  // reproduces from the committed corpus.
+  const committed = fs.existsSync(artifactPath) ? fs.readFileSync(artifactPath, "utf8") : null;
+  if (committed !== rendered) {
+    console.error(
+      "\ncorpus-censoring-findings.txt is stale: regenerate with `node research/calibration-censoring/analyze-corpus-censoring.mjs`"
+    );
+    process.exit(1);
+  }
+  console.error("\ncorpus-censoring-findings.txt reproduces exactly.");
+} else {
+  fs.writeFileSync(artifactPath, rendered);
+}

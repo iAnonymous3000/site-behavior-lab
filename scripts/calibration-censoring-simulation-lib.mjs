@@ -46,21 +46,42 @@ export const POLICIES = Object.freeze({
     label: "A  zero-censoring (current)",
     publishesFrom: "all-cases",
     admitsIndeterminate: false,
-    allOrNothing: true
+    allOrNothing: true,
+    inferenceScope: "target-population"
   }),
   "detector-scoped-complete-case": Object.freeze({
     id: "detector-scoped-complete-case",
     label: "B  detector-scoped complete-case",
     publishesFrom: "detector-input-complete cases",
     admitsIndeterminate: false,
-    allOrNothing: false
+    allOrNothing: false,
+    /**
+     * B DOES NOT INHERIT THE FRAME'S TARGET POPULATION.
+     *
+     * Complete-case analysis is potentially selected on measurement
+     * difficulty: the cases it drops are exactly the ones the instrument found
+     * hard, and there is no reason to assume the detector performs the same on
+     * those. So a B rate describes the SCOREABLE SUBPOPULATION, not the
+     * randomized frame, unless the target population was defined before
+     * sampling as sites that pass detector-input screening.
+     *
+     * Two admissible resolutions, and the preregistration must pick one:
+     *  - define the population up front as screening-passing sites, which makes
+     *    B a target-population estimate for a narrower, explicitly stated
+     *    population; or
+     *  - publish B as descriptive scoreable-subpopulation evidence and let C
+     *    carry the target-population claim through its bounds.
+     */
+    inferenceScope: "scoreable-subpopulation-unless-population-predefined"
   }),
   "bounded-censoring-with-sensitivity-analysis": Object.freeze({
     id: "bounded-censoring-with-sensitivity-analysis",
     label: "C  bounded + conservative bounds",
     publishesFrom: "all bare-load-valid cases",
     admitsIndeterminate: true,
-    allOrNothing: false
+    allOrNothing: false,
+    /** C keeps every admitted case, so its bounds do describe the frame. */
+    inferenceScope: "target-population"
   })
 });
 
@@ -94,39 +115,123 @@ export function classDenominators({ usableCases, prevalence, recall, specificity
 }
 
 /**
- * How indeterminate predictions distribute across the four classes.
- *
- * Without independent references the corpus CANNOT show which class holds them,
- * so a single "conservative" number is not available. Both scenarios are
- * reported and the worst one governs.
- *
- *  - `balanced` spreads them in proportion to class size.
- *  - `worst-class-concentration` puts every one into the SMALLEST class, which
- *    is where they do the most damage to a bound.
+ * The seven rates the analyzer publishes, each with the 2x2 cells it is
+ * computed from. Mirrors `detectorCalibrationRates` in lib/detector-calibration.ts.
  */
-export function distributeIndeterminate(denominators, indeterminate, scenario) {
-  const entries = CLASS_DENOMINATORS.map((k) => [k, denominators[k]]);
-  const total = entries.reduce((sum, [, v]) => sum + v, 0);
-  if (indeterminate <= 0 || total <= 0) {
-    return Object.fromEntries(CLASS_DENOMINATORS.map((k) => [k, 0]));
-  }
-  if (scenario === "balanced") {
-    return Object.fromEntries(entries.map(([k, v]) => [k, Math.round((indeterminate * v) / total)]));
-  }
-  if (scenario === "worst-class-concentration") {
-    const smallest = entries.reduce((a, b) => (b[1] < a[1] ? b : a))[0];
-    return Object.fromEntries(CLASS_DENOMINATORS.map((k) => [k, k === smallest ? indeterminate : 0]));
-  }
-  throw new Error(`unknown missingness scenario ${scenario}`);
+export const RATE_CELLS = Object.freeze({
+  sensitivity: Object.freeze({ numerator: ["tp"], denominator: ["tp", "fn"] }),
+  specificity: Object.freeze({ numerator: ["tn"], denominator: ["tn", "fp"] }),
+  precision: Object.freeze({ numerator: ["tp"], denominator: ["tp", "fp"] }),
+  negativePredictiveValue: Object.freeze({ numerator: ["tn"], denominator: ["tn", "fn"] }),
+  accuracy: Object.freeze({ numerator: ["tp", "tn"], denominator: ["tp", "fp", "tn", "fn"] }),
+  falsePositiveRate: Object.freeze({ numerator: ["fp"], denominator: ["fp", "tn"] }),
+  falseNegativeRate: Object.freeze({ numerator: ["fn"], denominator: ["fn", "tp"] })
+});
+
+/** The expected 2x2 at an operating point. */
+export function confusionMatrix({ usableCases, prevalence, recall, specificity }) {
+  requireUnit(prevalence, "prevalence");
+  requireUnit(recall, "recall");
+  requireUnit(specificity, "specificity");
+  const positives = usableCases * prevalence;
+  const negatives = usableCases - positives;
+  return {
+    tp: Math.round(recall * positives),
+    fn: Math.round(positives - recall * positives),
+    tn: Math.round(specificity * negatives),
+    fp: Math.round(negatives - specificity * negatives)
+  };
+}
+
+const sum = (matrix, cells) => cells.reduce((total, cell) => total + matrix[cell], 0);
+
+export function rateFrom(matrix, rateId) {
+  const spec = RATE_CELLS[rateId];
+  if (spec === undefined) throw new Error(`unknown rate ${rateId}`);
+  const denominator = sum(matrix, spec.denominator);
+  if (denominator === 0) return null;
+  return sum(matrix, spec.numerator) / denominator;
 }
 
 /**
- * Per-metric bound for one policy at one planned N.
+ * Extremal 2x2s obtained by assigning `missing` indeterminate cases.
  *
- * Total half-width is sampling uncertainty on the observed class PLUS the
- * width the indeterminate cases could move the estimate through: with `d`
- * observed and `m` indeterminate in a class, the rate lies anywhere in an
- * interval of width `m/(d+m)`, so its half-contribution is `m/(2*(d+m))`.
+ * WHY A MATRIX AND NOT FOUR MARGINS. The four class denominators are two
+ * PARTITIONS of the same cases -- referencePresent+referenceAbsent = n and
+ * predictedDetected+predictedNotDetected = n -- so they sum to 2n. An earlier
+ * version allocated each missing case ONCE across those four margins, which is
+ * not a realizable assignment: "all of them in predictedDetected" never says
+ * what their reference class is, and a case cannot be added to a prediction
+ * margin without also joining a reference margin.
+ *
+ * A case with a missing PREDICTION but a known reference can only land in the
+ * two cells of its reference row (TP or FN if present; TN or FP if absent). A
+ * case missing BOTH is unconstrained. Enumerating the corner assignments and
+ * taking the envelope over all of them is the honest bound: every corner is
+ * realizable, and the true value lies inside their hull.
+ */
+export function extremalMatrices(matrix, missing, { referenceKnown = true } = {}) {
+  if (missing <= 0) return [{ label: "observed", matrix }];
+  const corners = referenceKnown
+    ? [["tp", "fn"], ["tn", "fp"]].flatMap(([a, b]) => [a, b])
+    : ["tp", "fn", "tn", "fp"];
+  const results = [];
+  for (const cell of corners) {
+    results.push({ label: `all-missing->${cell}`, matrix: { ...matrix, [cell]: matrix[cell] + missing } });
+  }
+  // Split evenly across the reference rows as an interior reference point.
+  results.push({
+    label: "missing-split-evenly",
+    matrix: {
+      tp: matrix.tp + Math.round(missing / 4),
+      fn: matrix.fn + Math.round(missing / 4),
+      tn: matrix.tn + Math.round(missing / 4),
+      fp: matrix.fp + (missing - 3 * Math.round(missing / 4))
+    }
+  });
+  return results;
+}
+
+/**
+ * Per-rate bound over every extremal assignment, combined with sampling
+ * uncertainty on that rate's own denominator.
+ */
+export function boundsOverAssignments(matrix, missing, options) {
+  const assignments = extremalMatrices(matrix, missing, options);
+  const bounds = {};
+  for (const rateId of Object.keys(RATE_CELLS)) {
+    let lo = Infinity, hi = -Infinity, widestSampling = 0, smallestDenominator = Infinity;
+    for (const { matrix: candidate } of assignments) {
+      const value = rateFrom(candidate, rateId);
+      if (value === null) continue;
+      lo = Math.min(lo, value);
+      hi = Math.max(hi, value);
+      const denominator = sum(candidate, RATE_CELLS[rateId].denominator);
+      smallestDenominator = Math.min(smallestDenominator, denominator);
+      widestSampling = Math.max(widestSampling, wilsonHalfWidth(denominator));
+    }
+    if (lo === Infinity) { bounds[rateId] = null; continue; }
+    const assignmentHalfWidth = (hi - lo) / 2;
+    bounds[rateId] = {
+      observedDenominator: sum(matrix, RATE_CELLS[rateId].denominator),
+      smallestDenominator,
+      assignmentHalfWidth,
+      samplingHalfWidth: widestSampling,
+      totalHalfWidth: assignmentHalfWidth + widestSampling
+    };
+  }
+  return bounds;
+}
+
+/**
+ * One policy at one planned N, derived from a full 2x2.
+ *
+ * `publishable` requires ALL of: every class floor met, every rate's total
+ * half-width within the maximum, AND the policy's own all-or-nothing rule
+ * satisfied. An earlier version omitted the last clause, so policy A reported
+ * publishable at N=500 while only 44.3% of cases were usable -- which
+ * contradicts A's own definition, since A publishes nothing unless the study
+ * censored nothing at all.
  */
 export function simulatePolicy({
   policy,
@@ -136,7 +241,7 @@ export function simulatePolicy({
   prevalence,
   recall,
   specificity,
-  scenario = "balanced",
+  referenceKnownForMissing = true,
   minimumClassDenominator = 100,
   maximumHalfWidth = 0.1
 }) {
@@ -144,48 +249,33 @@ export function simulatePolicy({
   if (spec === undefined) throw new Error(`unknown policy ${policy}`);
 
   const usableCases = Math.round(plannedCases * usableRate);
-  const indeterminate = spec.admitsIndeterminate ? Math.round(plannedCases * indeterminateRate) : 0;
+  const missing = spec.admitsIndeterminate ? Math.round(plannedCases * indeterminateRate) : 0;
+  const matrix = confusionMatrix({ usableCases, prevalence, recall, specificity });
   const denominators = classDenominators({ usableCases, prevalence, recall, specificity });
-  const missing = distributeIndeterminate(denominators, indeterminate, scenario);
+  const bounds = boundsOverAssignments(matrix, missing, { referenceKnown: referenceKnownForMissing });
 
-  const metrics = {};
-  for (const [metric, className] of Object.entries(METRIC_DENOMINATOR)) {
-    const observed = denominators[className];
-    const m = missing[className];
-    const sampling = wilsonHalfWidth(observed);
-    const missingness = m > 0 ? m / (2 * (observed + m)) : 0;
-    metrics[metric] = {
-      className,
-      observed,
-      indeterminate: m,
-      samplingHalfWidth: sampling,
-      missingnessHalfWidth: missingness,
-      totalHalfWidth: sampling + missingness,
-      clearsWidth: sampling + missingness <= maximumHalfWidth,
-      clearsFloor: observed >= minimumClassDenominator
-    };
-  }
+  const failingFloors = CLASS_DENOMINATORS.filter((c) => denominators[c] < minimumClassDenominator);
+  const rates = Object.entries(bounds).filter(([, b]) => b !== null);
+  const widest = rates.reduce((a, b) => (b[1].totalHalfWidth > a[1].totalHalfWidth ? b : a));
+  const allWidthsClear = rates.every(([, b]) => b.totalHalfWidth <= maximumHalfWidth);
 
-  const failingFloors = Object.values(metrics).filter((m) => !m.clearsFloor).map((m) => m.className);
-  const widest = Object.entries(metrics).reduce((a, b) => (b[1].totalHalfWidth > a[1].totalHalfWidth ? b : a));
+  // A's rule is not a width question: it publishes only when nothing was
+  // censored at all, so a usable rate below 1 means no study.
+  const allOrNothingUnsatisfiedAt = spec.allOrNothing && usableRate < 1 ? usableRate : null;
 
   return {
     policy: spec,
     plannedCases,
     usableCases,
-    indeterminate,
-    scenario,
+    indeterminate: missing,
+    matrix,
     denominators,
-    metrics,
-    widestMetric: widest[0],
+    bounds,
+    widestRate: widest[0],
     widestHalfWidth: widest[1].totalHalfWidth,
-    // Every floor AND every width, which is what the gate actually requires.
-    publishable: failingFloors.length === 0 && Object.values(metrics).every((m) => m.clearsWidth),
-    failingFloors: [...new Set(failingFloors)],
-    // A publishes nothing unless the study censored nothing at all, so a usable
-    // rate below 1 is not a smaller study -- it is no study. Stated separately
-    // because it is not a width question.
-    allOrNothingUnsatisfiedAt: spec.allOrNothing && usableRate < 1 ? usableRate : null
+    failingFloors,
+    publishable: failingFloors.length === 0 && allWidthsClear && allOrNothingUnsatisfiedAt === null,
+    allOrNothingUnsatisfiedAt
   };
 }
 

@@ -103,56 +103,76 @@ The first draft conflated A and B. They are different *shapes* of rule:
 
 ## Policy simulation
 
-Every rate is sized on **its own marginal denominator**, never the usable total.
-`predictedDetected` is not `referencePresent`: at recall `r` it is
-`r·referencePresent + (1−specificity)·referenceAbsent`, so sizing the reference
-class to 100 can still starve the detector's own class. An earlier draft computed
-one Wilson half-width from the total and reported 5.5% where the binding class
-carries 8–9%.
+Bounds come from a **full 2x2**, not from four margins. The four class
+denominators are two partitions of the same cases and sum to `2n`, so allocating
+a missing case once across them is not a realizable assignment: "all of them in
+`predictedDetected`" never says what their reference class is. An earlier draft
+did exactly that and every C row it produced was invalid.
 
-Floors (≥100 per class) are enforced **alongside** width (≤0.1), because a study
-can be narrow and still ineligible.
+A case with a missing prediction but a known reference can only land in the two
+cells of its reference row; a case missing both is unconstrained. The bound is
+the envelope over those corner assignments, and **all seven published rates**
+are derived from each extremal matrix.
+
+`publishable` requires every class floor, every rate's width, **and** the
+policy's own all-or-nothing rule. An earlier draft omitted the last, so A read
+publishable at N=500 while only 44.3% of cases were usable.
 
 The operating point is an **assumption, not a measurement** — the corpus has no
-independent references — so several are shown.
+independent references.
 
-**`precision` is the binding metric at every point**, because `predictedDetected`
-is the smallest class.
+**`precision` binds at every point**, because `predictedDetected` is the
+smallest class.
 
 | operating point | policy | N=350 | N=500 |
 |---|---|---|---|
-| prev .50 · recall .90 | A | ✗ floors | ✓ 9.4% |
+| prev .50 · recall .90 | A | ✗ all-or-nothing (44.3% usable) | ✗ all-or-nothing |
 | | B | **✓ 8.0%** | ✓ 6.7% |
-| | C balanced | ✗ 10.6% | ✓ 9.4% |
-| | C worst-class | ✗ 17.4% | ✗ 16.2% |
-| prev .50 · recall .70 | B | **✓ 9.0%** | ✓ 7.5% |
-| | C balanced | ✗ 11.4% | ✗ 10.1% |
-| | C worst-class | ✗ 20.3% | ✗ 18.9% |
-| prev .35 · recall .70 | B | ✗ floor | ✓ 8.7% |
-| | C balanced | ✗ 13.1% | ✗ 11.4% |
-| | C worst-class | ✗ 24.5% | ✗ 22.9% |
+| | C | ✗ 17.3% | ✗ 16.2% |
 
-**No categorical "N clears" claim is made.** An earlier draft asserted C clears at
-N≈500; under class-specific denominators C fails the worst-class-concentration
-scenario at every N shown, and B's publishability depends on prevalence.
+**C clears nowhere.** Under a realizable 2x2 assignment the unassigned cases move
+`precision` by far more than the margin-allocation model suggested. Any earlier
+statement that C clears at some N is withdrawn.
 
-Policy A cannot be read from width at all: at the arm's 44.3% zero-loss rate it
-is not a narrower study, it is no study.
+## B's inference scope
+
+Complete-case analysis is **potentially selected on measurement difficulty**: the
+cases B drops are exactly the ones the instrument found hard, and nothing
+justifies assuming the detector behaves the same on them. So a B rate describes
+the **scoreable subpopulation**, not the randomized frame.
+
+The preregistration must pick one resolution:
+
+1. **Define the target population before sampling** as sites that pass
+   detector-input screening — making B a target-population estimate for a
+   narrower, explicitly stated population; or
+2. **Publish B as descriptive** scoreable-subpopulation evidence and let C carry
+   the target-population claim through its bounds.
+
+This is recorded as `inferenceScope` on the policy object and asserted by a test,
+so it cannot be quietly dropped.
 
 ## What the evidence supports
 
-- **B recovers 27 genuinely usable historical runs** and is the only candidate
-  that publishes at N=350 under favourable operating points.
-- **C's cost is scenario-dependent and large.** Without independent references
-  the corpus cannot say which class holds the indeterminate cases, so the
-  worst-class-concentration row governs — and it clears nowhere yet.
+- **B recovers 27 genuinely usable historical runs** in the arm.
 - Unrelated-family losses should not censor CNAME.
-- Six arm predictions are indeterminate because request inputs were incomplete.
-- Bare-load-only screening is insufficient: screening must measure
+- Six arm predictions are indeterminate from incomplete request inputs.
+- Bare-load-only screening is insufficient; screening must measure
   **detector-input readiness** without reading prediction values.
 
-It does **not** yet support "B is publishable at N=350" as an unconditional
-claim, nor any statement that C clears at a given N.
+It does **not** support B as a target-population claim without resolution (1),
+nor any statement that C clears at a given N.
+
+## Reducing the sizing circularity
+
+`precision` binds, and it depends on the detector's own recall, which is unknown
+until a study runs. That is reducible rather than circular:
+
+- Estimate **predicted-positive prevalence** on a **disjoint development pool**
+  under the exact arm, exclude that pool from the confirmatory frame, and size
+  from a conservative lower confidence bound.
+- **Reference prevalence** still requires an independent labeled pilot or a
+  preregistered minimum operating point. It cannot come from the scanner.
 
 ## Not settled here
 

@@ -4,8 +4,12 @@ import {
   CLASS_DENOMINATORS,
   METRIC_DENOMINATOR,
   POLICIES,
+  RATE_CELLS,
+  boundsOverAssignments,
   classDenominators,
-  distributeIndeterminate,
+  confusionMatrix,
+  extremalMatrices,
+  rateFrom,
   simulatePolicy,
   wilsonHalfWidth
 } from "./calibration-censoring-simulation-lib.mjs";
@@ -31,9 +35,9 @@ test("each rate is sized on its own marginal denominator, never the total", () =
   assert.ok(result.denominators.predictedDetected < result.denominators.referencePresent);
 
   for (const [metric, className] of Object.entries(METRIC_DENOMINATOR)) {
-    assert.equal(result.metrics[metric].className, className);
+    assert.equal(result.bounds[metric] && METRIC_DENOMINATOR[metric], className);
     assert.ok(
-      result.metrics[metric].samplingHalfWidth > pooled,
+      result.bounds[metric].samplingHalfWidth > pooled,
       `${metric} must be wider than the pooled figure, since its class is smaller than the total`
     );
   }
@@ -74,38 +78,57 @@ test("the class floors are enforced alongside interval width", () => {
   assert.deepEqual(result.failingFloors, ["predictedDetected"]);
 });
 
-test("indeterminate cases are scenario-dependent, not one conservative number", () => {
-  // Without independent references the corpus cannot say WHICH class holds the
-  // indeterminate predictions, so a single number is not available. The worst
-  // case concentrates them in the smallest class.
-  const denominators = { referencePresent: 155, referenceAbsent: 155, predictedDetected: 109, predictedNotDetected: 201 };
+test("missing cases are assigned in a 2x2, not allocated once across margins", () => {
+  // REGRESSION. The four class denominators are TWO PARTITIONS of the same
+  // cases, so they sum to 2n. The first version allocated each missing case
+  // once across those four margins, which is not a realizable assignment:
+  // "all of them in predictedDetected" never says what their reference class
+  // is, and nothing can join a prediction margin without joining a reference
+  // margin too. Every bound it produced was invalid.
+  const matrix = { tp: 109, fn: 47, tn: 147, fp: 8 };
+  const observed = matrix.tp + matrix.fn + matrix.tn + matrix.fp;
 
-  const balanced = distributeIndeterminate(denominators, 34, "balanced");
-  assert.ok(balanced.predictedDetected < 34);
-  assert.equal(
-    Object.values(balanced).reduce((a, b) => a + b, 0) >= 33,
-    true,
-    "a balanced split still assigns every indeterminate case"
-  );
+  for (const { matrix: candidate } of extremalMatrices(matrix, 34, { referenceKnown: true })) {
+    const total = candidate.tp + candidate.fn + candidate.tn + candidate.fp;
+    assert.equal(total, observed + 34, "every assignment must place all 34 cases exactly once");
+    // Each rate's denominators stay coherent: the two partitions still agree.
+    assert.equal(
+      candidate.tp + candidate.fn + candidate.tn + candidate.fp,
+      (candidate.tp + candidate.fn) + (candidate.tn + candidate.fp),
+      "reference partition must cover the whole matrix"
+    );
+    assert.equal(
+      (candidate.tp + candidate.fp) + (candidate.tn + candidate.fn),
+      total,
+      "prediction partition must cover the whole matrix"
+    );
+  }
+});
 
-  const worst = distributeIndeterminate(denominators, 34, "worst-class-concentration");
-  assert.equal(worst.predictedDetected, 34, "the smallest class takes all of them");
-  assert.equal(worst.referencePresent, 0);
+test("all seven published rates are bounded, from the same matrix", () => {
+  // The gate publishes seven rates; bounding four and hoping is not a bound.
+  const matrix = { tp: 109, fn: 47, tn: 147, fp: 8 };
+  const bounds = boundsOverAssignments(matrix, 34, { referenceKnown: true });
+  assert.deepEqual(Object.keys(bounds).sort(), Object.keys(RATE_CELLS).sort());
+  for (const [rateId, bound] of Object.entries(bounds)) {
+    assert.ok(bound.totalHalfWidth > 0, `${rateId} must carry a bound`);
+    assert.ok(bound.assignmentHalfWidth > 0, `${rateId} must widen for 34 unassigned cases`);
+  }
+  // With nothing missing the assignment component vanishes and only sampling remains.
+  const exact = boundsOverAssignments(matrix, 0, { referenceKnown: true });
+  for (const bound of Object.values(exact)) assert.equal(bound.assignmentHalfWidth, 0);
+});
 
-  const balancedRun = simulatePolicy({
-    policy: "bounded-censoring-with-sensitivity-analysis",
-    plannedCases: 350, usableRate: 0.885, indeterminateRate: 0.098,
-    prevalence: 0.5, recall: 0.7, specificity: 0.95, scenario: "balanced"
-  });
-  const worstRun = simulatePolicy({
-    policy: "bounded-censoring-with-sensitivity-analysis",
-    plannedCases: 350, usableRate: 0.885, indeterminateRate: 0.098,
-    prevalence: 0.5, recall: 0.7, specificity: 0.95, scenario: "worst-class-concentration"
-  });
-  assert.ok(
-    worstRun.widestHalfWidth > balancedRun.widestHalfWidth,
-    "the concentration scenario must bound worse than the balanced one"
-  );
+test("a case missing its reference too bounds no better than one that is not", () => {
+  const matrix = { tp: 109, fn: 47, tn: 147, fp: 8 };
+  const known = boundsOverAssignments(matrix, 34, { referenceKnown: true });
+  const unknown = boundsOverAssignments(matrix, 34, { referenceKnown: false });
+  for (const rateId of Object.keys(RATE_CELLS)) {
+    assert.ok(
+      unknown[rateId].totalHalfWidth >= known[rateId].totalHalfWidth - 1e-9,
+      `${rateId}: an unconstrained case cannot bound better than a constrained one`
+    );
+  }
 });
 
 test("only the bounded policy admits indeterminate cases", () => {
@@ -166,9 +189,25 @@ test("an unknown policy or scenario fails rather than defaulting", () => {
     () => simulatePolicy({ policy: "lenient", plannedCases: 350, usableRate: 1, prevalence: 0.5, recall: 0.7, specificity: 0.95 }),
     /unknown policy/
   );
-  assert.throws(() => distributeIndeterminate({ a: 1 }, 5, "optimistic"), /unknown missingness scenario/);
   assert.throws(
     () => simulatePolicy({ policy: "zero-censoring", plannedCases: 350, usableRate: 1, prevalence: 1.4, recall: 0.7, specificity: 0.95 }),
     /prevalence must be a probability/
+  );
+});
+
+test("B does not silently inherit the frame's target population", () => {
+  // Complete-case analysis is potentially selected on measurement difficulty:
+  // the cases it drops are the ones the instrument found hard. Absent a
+  // predefined screening population, a B rate describes the scoreable
+  // subpopulation, and saying otherwise would generalize from a selected set.
+  assert.equal(
+    POLICIES["detector-scoped-complete-case"].inferenceScope,
+    "scoreable-subpopulation-unless-population-predefined"
+  );
+  assert.equal(POLICIES["zero-censoring"].inferenceScope, "target-population");
+  assert.equal(
+    POLICIES["bounded-censoring-with-sensitivity-analysis"].inferenceScope,
+    "target-population",
+    "C keeps every admitted case, so its bounds do describe the frame"
   );
 });
