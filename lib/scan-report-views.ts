@@ -9,6 +9,8 @@
  * scan-report-view.ts, which is lazy-loaded via lib/client-report-reader.ts).
  */
 import { compareRunFacts, consentComparisonTitle } from "./compare-reports";
+import { RESPONSE_BYTE_CAPTURE_LOSS_DETAIL } from "./capture-loss-detail-contract";
+import { captureLossDetailNote, captureLossPresentationSubject } from "./capture-loss-presentation";
 import { consentControlQualification } from "./consent-control-semantics";
 import {
   legacyComparisonDecision,
@@ -16,6 +18,7 @@ import {
   type ComparisonDecision
 } from "./comparison-decision";
 import {
+  COMPARISON_REQUEST_CAP,
   runHitFingerprintObserverCaptureLoss,
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
@@ -1172,10 +1175,39 @@ function qualityReasonNote(run: RunView, reason: string): string {
   const mapped = QUALITY_REASON_NOTES[reason];
   if (mapped) return mapped;
   const budget = reason.startsWith("budget-exhausted:") ? reason.slice("budget-exhausted:".length) : null;
-  if (budget) return `the visit exhausted its ${budget.replace(/-/g, " ")} collection budget`;
+  if (budget === RESPONSE_BYTE_CAPTURE_LOSS_DETAIL) {
+    const limit = responseByteLimitFromWarnings(run.warnings);
+    return `the visit exhausted its ${limit ? `${limit} ` : ""}aggregate response-byte budget`;
+  }
+  if (budget === "request-upload") {
+    const limit = uploadByteLimitFromWarnings(run.warnings);
+    return `the visit exhausted its ${limit ? `${limit} ` : ""}aggregate upload-byte budget`;
+  }
+  if (budget === "request-capture" && run.quality.origin === "recorded") {
+    const requestCountCap = runHitRequestRecordingCap(run);
+    const responseByteCap = responseByteLimitFromWarnings(run.warnings) !== null;
+    if (requestCountCap && responseByteCap) {
+      return "the visit exhausted both its request-count and aggregate response-byte budgets";
+    }
+    if (responseByteCap) {
+      return `the visit exhausted its ${responseByteLimitFromWarnings(run.warnings)} aggregate response-byte budget`;
+    }
+    if (requestCountCap) {
+      return `the visit exhausted its ${COMPARISON_REQUEST_CAP.toLocaleString("en-US")}-request routing and recording budget`;
+    }
+  }
+  if (budget) {
+    const subject = captureLossPresentationSubject(budget);
+    return subject === null
+      ? "the visit exhausted a producer-defined collection budget"
+      : `the visit exhausted the configured budget for ${subject}`;
+  }
+  if (reason.startsWith("capture-loss:")) {
+    return "the run recorded a collection loss that prevents a complete visit";
+  }
   return run.quality.origin === "legacy-derived"
-    ? `the visit shows a quality limitation derived from its status and warnings (${reason})`
-    : `the run recorded a quality limitation (${reason})`;
+    ? "the visit shows a quality limitation derived from its status and warnings"
+    : "the run recorded a quality limitation";
 }
 
 /**
@@ -1197,35 +1229,70 @@ function qualityReasonNote(run: RunView, reason: string): string {
  * keystroke probe. The detail is already recorded alongside each loss; this
  * only renders it.
  */
-const CAPTURE_LOSS_DETAIL_LABELS: Record<string, string> = {
-  "cname-lookups": "the tracker-CNAME lookups",
-  "cookie-snapshot": "the end-of-visit cookie snapshot",
-  "fingerprint-observer": "the in-page fingerprint observer",
-  "keystroke-probe": "the synthetic keystroke probe",
-  "keystroke-probe-capture": "the synthetic keystroke probe's readback",
-  "page-title": "the page-title capture",
-  "page-subject-validity": "the page-subject validity check",
-  "pixel-decode": "the advertising-pixel request-body decoder",
-  "policy-link-candidates": "the privacy-policy link search",
-  "policy-visit": "the privacy-policy visit",
-  "storage-snapshot": "the end-of-visit storage snapshot"
-};
+const RESPONSE_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate response-byte budget/;
+const UPLOAD_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate upload-byte budget/;
+
+function warningLimit(warnings: readonly string[], pattern: RegExp): string | null {
+  for (const warning of warnings) {
+    const match = pattern.exec(warning);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+function responseByteLimitFromWarnings(warnings: readonly string[]): string | null {
+  return warningLimit(warnings, RESPONSE_BYTE_LIMIT_WARNING);
+}
+
+function uploadByteLimitFromWarnings(warnings: readonly string[]): string | null {
+  return warningLimit(warnings, UPLOAD_BYTE_LIMIT_WARNING);
+}
+
+function presentationLoss(run: RunView, loss: CaptureLossEntry): CaptureLossEntry {
+  // Historical Node reports used `request-capture` for both independent
+  // ceilings. The warning remains the only recorded discriminator on those
+  // immutable wires. Resolve only when exactly one cause is proven; if both
+  // warnings exist their already-merged count has no honest partition.
+  if (
+    loss.detail === "request-capture" &&
+    responseByteLimitFromWarnings(run.warnings) !== null &&
+    !runHitRequestRecordingCap(run)
+  ) {
+    return { ...loss, detail: RESPONSE_BYTE_CAPTURE_LOSS_DETAIL };
+  }
+  return loss;
+}
 
 function censoredFamilyDetailNote(run: RunView, family: string): string {
+  const responseByteLimit = responseByteLimitFromWarnings(run.warnings);
+  const uploadByteLimit = uploadByteLimitFromWarnings(run.warnings);
+  const historicalMergedRequestAndByteLoss =
+    responseByteLimit !== null && runHitRequestRecordingCap(run);
   const details = Array.from(
     new Set(
       (run.quality.facts?.captureLoss ?? [])
-        .filter((loss) => loss.family === family && typeof loss.detail === "string" && loss.detail.length > 0)
-        .map((loss) => CAPTURE_LOSS_DETAIL_LABELS[loss.detail as string] ?? (loss.detail as string))
+        .filter((loss) => loss.family === family)
+        .map((loss) =>
+          captureLossDetailNote(presentationLoss(run, loss), {
+            ...(responseByteLimit === null ? {} : { responseByteLimit }),
+            ...(uploadByteLimit === null ? {} : { uploadByteLimit }),
+            ...(historicalMergedRequestAndByteLoss ? { historicalMergedRequestAndByteLoss: true } : {})
+          })
+        )
     )
   );
   if (details.length === 0) return "";
-  const rendered =
-    details.length === 1
-      ? details[0]
-      : `${details.slice(0, -1).join(", ")} and ${details[details.length - 1]}`;
-  return ` — ${rendered} did not finish`;
+  return ` — ${details.join("; ")}`;
 }
+
+const EVIDENCE_FAMILY_LABELS: Readonly<Record<string, string>> = Object.freeze({
+  requests: "request",
+  cookies: "cookie",
+  storage: "storage",
+  fingerprinting: "fingerprinting",
+  "detector-output": "detector output",
+  "consent-verification": "consent verification"
+});
 
 export function runCensorshipNotes(run: RunView): string[] {
   const notes: string[] = [];
@@ -1241,9 +1308,9 @@ export function runCensorshipNotes(run: RunView): string[] {
         continue;
       }
       notes.push(
-        `${family} evidence was censored before completion${
-          entry.reasons.length > 0 ? ` (${entry.reasons.join(", ")})` : ""
-        }${censoredFamilyDetailNote(run, family)}`
+        `${EVIDENCE_FAMILY_LABELS[family] ?? "recorded"} evidence was censored before completion${
+          censoredFamilyDetailNote(run, family) || " — the producer recorded incomplete collection"
+        }`
       );
     }
   }

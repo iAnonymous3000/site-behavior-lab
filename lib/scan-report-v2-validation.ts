@@ -14,6 +14,7 @@
  * and is enforced by the reader on top of this module.
  */
 import { isRecord } from "./guards";
+import { PAGEGRAPH_UNSUPPORTED_CAPTURE_LOSS_FAMILIES } from "./capture-loss-detail-contract";
 import { isFingerprintDetectionSummary } from "./fingerprint-detection-guard";
 import { detectorStatusReasonIsValid } from "./detector-status-contract";
 import {
@@ -267,13 +268,7 @@ const DETECTOR_STATUSES = new Set(["complete", "partial", "skipped", "unsupporte
 const RUN_OUTCOMES = new Set(["complete", "failed"]);
 const FAMILY_OUTCOMES = new Set(["complete", "censored"]);
 const CAPTURE_LOSS_KINDS = new Set(["dropped", "clipped", "truncated", "timeout", "cap"]);
-const PAGEGRAPH_UNSUPPORTED_FAMILIES = new Set([
-  "cookies",
-  "storage",
-  "fingerprinting",
-  "detector-output",
-  "consent-verification"
-]);
+const PAGEGRAPH_UNSUPPORTED_FAMILIES = new Set<string>(PAGEGRAPH_UNSUPPORTED_CAPTURE_LOSS_FAMILIES);
 const MUTATION_OPS = new Set(["added", "changed", "removed"]);
 const ARM_OUTCOMES = new Set(["passed", "failed", "inconclusive"]);
 const EVIDENCE_STRENGTHS = new Set(["observed-difference", "replicated-difference"]);

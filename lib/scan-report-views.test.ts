@@ -24,10 +24,12 @@ import {
 import {
   familyCensoredOnRun,
   requestEvidenceState,
+  runCensorshipNotes,
   runHitRequestRecordingCap,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
+import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { runRequestEvidenceCapped } from "./comparison-eligibility";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
@@ -360,4 +362,75 @@ test("a timed-out v1 synthetic-input probe censors detector and request evidence
   assert.equal(familyCensoredOnRun(run, "requests"), true);
   assert.equal(familyCensoredOnRun(run, "cookies"), false);
   assert.equal(requestEvidenceState(run), "incomplete");
+});
+
+test("historical response-byte loss names the ceiling and counts streams, never missing requests", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.summary.counts.totalRequests = 164;
+  report.run.warnings.push(
+    "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget."
+  );
+  report.run.qualityFacts.budgetsExhausted = ["request-capture"];
+  report.run.qualityFacts.captureLoss = [
+    { family: "requests", phaseId: null, kind: "cap", count: 74, detail: "request-capture" },
+    { family: "detector-output", phaseId: 2, kind: "dropped", count: 1, detail: "policy-visit" }
+  ];
+  report.run.quality = evaluateQuality(report.run.qualityFacts, { observedRequests: 164 });
+
+  const notes = runCensorshipNotes(viewFromV2(report, 2).runs[0]);
+  assert.ok(notes.includes("the visit exhausted its 64 MiB aggregate response-byte budget"));
+  assert.ok(
+    notes.some((note) =>
+      note.includes(
+        "74 response streams or proxy tunnels were truncated or refused at or after the 64 MiB aggregate response-byte ceiling"
+      )
+    )
+  );
+  assert.ok(notes.some((note) => note.includes("1 privacy-policy visit did not produce usable evidence")));
+  assert.equal(notes.some((note) => /74 (?:further |missing )?requests/.test(note)), false);
+  assert.equal(notes.some((note) => /capture-loss:|request-capture/.test(note)), false);
+});
+
+test("a merged historical byte-and-count loss never invents a partition for its count", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.summary.counts.totalRequests = 1_000;
+  report.run.warnings.push(
+    "The scan stopped recording or loading additional requests after 1000 requests.",
+    "The scan stopped loading additional response bytes after reaching the 64 MiB aggregate response-byte budget."
+  );
+  report.run.qualityFacts.budgetsExhausted = ["request-capture"];
+  report.run.qualityFacts.captureLoss = [
+    { family: "requests", phaseId: null, kind: "cap", count: 91, detail: "request-capture" }
+  ];
+  report.run.quality = evaluateQuality(report.run.qualityFacts, { observedRequests: 1_000 });
+
+  const notes = runCensorshipNotes(viewFromV2(report, 2).runs[0]);
+  assert.ok(notes.includes("the visit exhausted both its request-count and aggregate response-byte budgets"));
+  assert.ok(notes.some((note) => note.includes("combined recorded loss count: 91")));
+  assert.ok(notes.some((note) => note.includes("cannot be partitioned between the two ceilings")));
+  assert.equal(notes.some((note) => /91 (?:requests|response streams|proxy tunnels)/.test(note)), false);
+});
+
+test("an open-schema capture-loss detail gets generic copy without leaking its token", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.qualityFacts.captureLoss = [
+    { family: "requests", phaseId: 0, kind: "dropped", count: 7, detail: "future-producer-token" }
+  ];
+  report.run.quality = evaluateQuality(report.run.qualityFacts, { observedRequests: 1 });
+
+  const notes = runCensorshipNotes(viewFromV2(report, 2).runs[0]);
+  assert.ok(notes.some((note) => note.includes("producer recorded an additional collection loss")));
+  assert.ok(notes.some((note) => note.includes("recorded loss count: 7")));
+  assert.equal(notes.some((note) => note.includes("future-producer-token")), false);
+  assert.equal(notes.some((note) => note.includes("capture-loss:")), false);
+});
+
+test("an open-schema budget reason gets generic copy without leaking its token", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.quality.run.reasons = ["budget-exhausted:future-producer-token"];
+
+  const notes = runCensorshipNotes(viewFromV2(report, 2).runs[0]);
+  assert.ok(notes.includes("the visit exhausted a producer-defined collection budget"));
+  assert.equal(notes.some((note) => note.includes("future-producer-token")), false);
+  assert.equal(notes.some((note) => note.includes("budget-exhausted:")), false);
 });
