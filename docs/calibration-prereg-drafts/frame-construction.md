@@ -112,6 +112,14 @@ For a rare-positive detector a 400-case draw from a ~0.20 pool misses the
 100-positive floor about 99% of the time, and enlarging the frame makes
 zero-censoring survival worse, not better. Size from the pool's base rate.
 
+It also had no structural basis. The preflight derived 400 by summing the four
+class minimums, but those are two partitions of the same N, so the structural
+floor is 200. The 400 was neither the floor nor a power calculation -- it was a
+double count that happened to sit above the real floor while rejecting the
+~350-case design the base-rate arithmetic actually justifies. The preflight now
+derives 200 from the partition structure, and sizing above it belongs to the
+study, not to the gate.
+
 **Sweep hazard.** The reliability sweep as described runs full scans, which
 produce detector output. Preregistration is void if the frame is chosen after
 predictions are seen, so the sweep must be treated as a bare load check whose

@@ -622,6 +622,47 @@ export function validateCalibrationCandidateFiles(rootDir, studyId) {
   };
 }
 
+/**
+ * The smallest case count that could satisfy all four class denominators.
+ *
+ * The four minimums are NOT four separate populations. They are two partitions
+ * of the SAME N cases:
+ *
+ *   referencePresent  + referenceAbsent       = N   (how the reference split it)
+ *   predictedDetected + predictedNotDetected  = N   (how the detector split it)
+ *
+ * So summing all four counts every case twice and yields 2N. The old preflight
+ * did exactly that and then compared the result against N, demanding 400 cases
+ * where the structure requires 200 -- a floor twice as high as anything the
+ * final gate enforces, blocking designs the project's own power analysis
+ * justifies (the CNAME design sizes N ~ 350 from the pool's base rate, which
+ * the 400 floor rejected while being no more valid).
+ *
+ * This is a FLOOR, not a sample size. It says only that fewer cases cannot
+ * possibly fill the four classes; it never says a design this size is adequate.
+ * Real sizing comes from the detector's prevalence and the recall it must
+ * tolerate, and is argued per study in its preregistration. The final gate is
+ * unchanged and stricter: every one of the four denominators must independently
+ * reach its minimum on the labeled data, and every Wilson 95% interval must
+ * meet the policy's maximum half-width.
+ */
+export function structuralMinimumCasesFor(minimumDenominators) {
+  const partitions = [
+    ["referencePresent", "referenceAbsent"],
+    ["predictedDetected", "predictedNotDetected"]
+  ];
+  return Math.max(
+    ...partitions.map(([a, b]) => {
+      require(
+        Number.isInteger(minimumDenominators?.[a]) &&
+          Number.isInteger(minimumDenominators?.[b]),
+        `rate-publication policy must declare integer minimums for ${a} and ${b}`
+      );
+      return minimumDenominators[a] + minimumDenominators[b];
+    })
+  );
+}
+
 export function assertCalibrationCandidateCanSatisfyRatePolicy(candidate) {
   require(
     isRecord(candidate?.preregistration) &&
@@ -630,9 +671,9 @@ export function assertCalibrationCandidateCanSatisfyRatePolicy(candidate) {
   );
   const eligibility = calibrationRatePublicationEligibility();
   const design = candidate.preregistration.design;
-  const conservativeMinimumCases = Object.values(
+  const structuralMinimumCases = structuralMinimumCasesFor(
     eligibility.minimumDenominators
-  ).reduce((sum, value) => sum + value, 0);
+  );
   require(
     design.sampling === eligibility.sampling &&
       design.independentUnits === eligibility.independentUnits &&
@@ -643,12 +684,12 @@ export function assertCalibrationCandidateCanSatisfyRatePolicy(candidate) {
     "calibration candidate design cannot satisfy the approved simple-random, independent, mutually blinded rate-publication policy"
   );
   require(
-    candidate.preregistration.plannedCases >= conservativeMinimumCases,
-    `calibration candidate plans ${candidate.preregistration.plannedCases} cases, below the conservative pre-labeling minimum ${conservativeMinimumCases}`
+    candidate.preregistration.plannedCases >= structuralMinimumCases,
+    `calibration candidate plans ${candidate.preregistration.plannedCases} cases, below the structural pre-labeling minimum ${structuralMinimumCases}`
   );
   return {
     plannedCases: candidate.preregistration.plannedCases,
-    conservativeMinimumCases,
+    structuralMinimumCases,
     ratePublicationEligibility: eligibility
   };
 }

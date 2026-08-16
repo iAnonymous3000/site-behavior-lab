@@ -212,9 +212,26 @@ Case ids and cases must be unique and sorted. The scaffold writes:
 The policy is global and byte-identical across studies. `--check` reproduces
 and compares the exact bytes without rewriting them. Dispatch preflight also
 requires the simple-random, independent, mutually blinded design and at least
-400 planned cases before anyone spends time labeling. Final eligibility is
-stricter: all four class denominators must be at least 100 and every Wilson 95%
-interval must meet the policy's maximum half-width.
+200 planned cases before anyone spends time labeling.
+
+That 200 is a **structural floor, not a sample size**. The four class minimums
+are two partitions of the same N (`referencePresent + referenceAbsent = N` and
+`predictedDetected + predictedNotDetected = N`), so 100 in each of four classes
+needs 200 cases, not 400. The preflight previously summed the four and demanded
+400, which counted every case twice and rejected adequately powered designs for
+no structural reason.
+
+The floor says only that fewer cases *cannot* fill the four classes. It never
+says a design of that size is adequate: real sizing comes from the detector's
+prevalence and the recall it must tolerate, and is argued in each study's
+preregistration. For a rare-positive detector the honest number is far above the
+floor -- the CNAME design sizes N ~ 350 so that `referencePresent` is expected
+near 175, because `predictedDetected` is roughly `recall x referencePresent` and
+falls short of 100 whenever recall is below 1.
+
+Final eligibility is unchanged and stricter than either number: all four class
+denominators must independently reach 100 on the labeled data, and every Wilson
+95% interval must meet the policy's maximum half-width.
 
 Generate one RSA keypair of at least 2048 bits per study in approved credential
 handling. Store the public half as canonical SPKI PEM at the exact
