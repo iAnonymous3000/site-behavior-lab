@@ -49,6 +49,7 @@ import {
   addAssembledCalibrationToMeasurementBinding,
   assembleCalibrationStudy,
   assertCalibrationCandidateCanSatisfyRatePolicy,
+  structuralMinimumCasesFor,
   assertCalibrationDecisionApproved,
   calibrationMeasurementCondition,
   calibrationPolicyDispositionSha256,
@@ -195,16 +196,77 @@ test("preflight refuses a candidate that cannot satisfy the approved rate policy
   );
   const candidate = structuredClone(fixture.candidate);
   candidate.preregistration.design.sampling = "simple-random";
-  candidate.preregistration.plannedCases = 399;
+  candidate.preregistration.plannedCases = 199;
   assert.throws(
     () => assertCalibrationCandidateCanSatisfyRatePolicy(candidate),
-    /below the conservative pre-labeling minimum 400/
+    /below the structural pre-labeling minimum 200/
   );
-  candidate.preregistration.plannedCases = 400;
+  candidate.preregistration.plannedCases = 200;
   assert.equal(
     assertCalibrationCandidateCanSatisfyRatePolicy(candidate)
-      .conservativeMinimumCases,
-    400
+      .structuralMinimumCases,
+    200
+  );
+});
+
+test("the pre-labeling floor is derived from the partition structure, not a sum", () => {
+  // The four minimums are two partitions of the SAME N. Summing them counts
+  // every case twice; the old preflight did that and demanded 400 where the
+  // structure requires 200. Asymmetric minimums make the two rules disagree
+  // visibly, so this cannot pass by coincidence on the symmetric 100/100/100/100
+  // policy the project actually ships.
+  assert.equal(
+    structuralMinimumCasesFor({
+      referencePresent: 100,
+      referenceAbsent: 100,
+      predictedDetected: 100,
+      predictedNotDetected: 100
+    }),
+    200,
+    "the shipped symmetric policy needs 200 cases, not the 400 a sum produces"
+  );
+  assert.equal(
+    structuralMinimumCasesFor({
+      referencePresent: 40,
+      referenceAbsent: 10,
+      predictedDetected: 5,
+      predictedNotDetected: 5
+    }),
+    50,
+    "the binding partition is the larger of the two, never their sum (which would be 60)"
+  );
+  assert.equal(
+    structuralMinimumCasesFor({
+      referencePresent: 5,
+      referenceAbsent: 5,
+      predictedDetected: 30,
+      predictedNotDetected: 30
+    }),
+    60,
+    "either partition can be the binding one"
+  );
+  assert.throws(
+    () =>
+      structuralMinimumCasesFor({
+        referencePresent: 100,
+        referenceAbsent: 100,
+        predictedDetected: 100
+      }),
+    /predictedDetected and predictedNotDetected/,
+    "a policy missing a class minimum must fail rather than silently floor lower"
+  );
+});
+
+test("the design the CNAME power analysis justifies clears the corrected floor", () => {
+  // The whole point of the correction: 350 is what the detector's prevalence
+  // and recall require, and the old 400 floor rejected it for no structural
+  // reason. This is the regression that matters to the project.
+  const candidate = structuredClone(candidateFixture("cname-uncloaking").candidate);
+  candidate.preregistration.design.sampling = "simple-random";
+  candidate.preregistration.plannedCases = 350;
+  assert.equal(
+    assertCalibrationCandidateCanSatisfyRatePolicy(candidate).plannedCases,
+    350
   );
 });
 

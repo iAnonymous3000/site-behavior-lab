@@ -76,7 +76,7 @@
     "test:durable-producers": "node --test scripts/controlled-runner-expected-environment.test.mjs scripts/durable-replay-parent-lib.test.mjs scripts/durable-transition-receipt-lib.test.mjs scripts/staging-teardown-github-app-token.test.mjs scripts/staging-teardown-provider-adapter.test.mjs scripts/staging-teardown-provider-adapters.test.mjs scripts/staging-teardown-provider-http.test.mjs scripts/staging-teardown-target-manifest.test.mjs",
     "test:calibration-producer": "node scripts/run-schema-cli.mjs calibration-producer-test",
     "test:calibration-ceremony": "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs scripts/calibration-assemble-custody-lib.test.mjs",
-    "test:calibration-tools": "node --test scripts/calibration-cname-reference-lib.test.mjs scripts/calibration-frame-lib.test.mjs",
+    "test:calibration-tools": "node --test scripts/calibration-cname-reference-lib.test.mjs scripts/calibration-frame-lib.test.mjs scripts/calibration-reliability-sweep-lib.test.mjs",
     "test:aa-producer": "node --test scripts/aa-study-producer-lib.test.mjs",
     "test:pdf-reader": "node --test scripts/pdf-text-lib.test.mjs",
     "test:featured-taxonomy": "node --test scripts/run-featured-scans-taxonomy.test.mjs",

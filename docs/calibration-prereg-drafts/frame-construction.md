@@ -1,6 +1,9 @@
 # Frame construction (draft)
 
-How each study's 400 cases get chosen, screened, and frozen. Under the
+How each study's N cases get chosen, screened, and frozen. N is
+detector-specific and comes from the study's own prevalence and recall
+arithmetic, never from the preflight floor: the CNAME design sizes N ~ 350 so
+that E[referencePresent] ~ 175. Under the
 approved zero-censoring policy one failed case kills a study, so the frame
 is an exercise in reliability engineering first and sampling second.
 
@@ -18,14 +21,15 @@ Two sweep passes are the floor, not a guarantee. The pilot's 37.5 percent
 failure was on unscreened consumer retail; screened pools should do far
 better, but the residual risk that a screened site fails on acquisition day
 is the risk the zero-censoring policy chose to carry. Minimizing it means:
-frame exactly 400 (never more; substitution is forbidden and every planned
+frame exactly N (never more; substitution is forbidden and every planned
 case must complete), draw from the most reliable screened candidates, and
 schedule acquisition close to the second sweep pass.
 
 ## Pool composition per study
 
-Each pool holds 600 or more screened candidates, composed so a simple
-random draw of 400 plausibly clears every 100-minimum marginal denominator.
+Each pool must hold enough screened candidates that a simple random draw of the
+study's N plausibly clears every 100-minimum marginal denominator -- for CNAME
+at N ~ 350, a pool of 600 or more.
 Strata inform pool COMPOSITION only; the draw itself is simple random from
 the whole pool, seeded by the SHA-256 of the committed preregistration, so
 nobody chooses cases after seeing anything.
@@ -104,16 +108,65 @@ drawing a frame waits on the custody lane and an operator reading this should
 not treat either as pending code.
 
 Still outstanding here: the labeler endpoint appendix frozen from the candidate
-catalog, and the sweep receipts.
+catalog, and a runnable sweep command that owns the scan loop end to end. The
+receipt producer and its blinding enforcement are built (below); what is not yet
+built is the caller that runs the two passes and hands reports straight into the
+projection, so today the blinding boundary is enforced at the library rather
+than at the process that holds the reports.
 
-**Sizing note.** The 400-case figure above predates the arithmetic in
+**Sizing note.** This draft originally fixed every study at 400 cases, which predates the arithmetic in
 [../calibration-cname-uncloaking-design.md](../calibration-cname-uncloaking-design.md).
 For a rare-positive detector a 400-case draw from a ~0.20 pool misses the
 100-positive floor about 99% of the time, and enlarging the frame makes
 zero-censoring survival worse, not better. Size from the pool's base rate.
 
+It also had no structural basis. The preflight derived 400 by summing the four
+class minimums, but those are two partitions of the same N, so the structural
+floor is 200. The 400 was neither the floor nor a power calculation -- it was a
+double count that happened to sit above the real floor while rejecting the
+~350-case design the base-rate arithmetic actually justifies. The preflight now
+derives 200 from the partition structure, and sizing above it belongs to the
+study, not to the gate.
+
 **Sweep hazard.** The reliability sweep as described runs full scans, which
 produce detector output. Preregistration is void if the frame is chosen after
 predictions are seen, so the sweep must be treated as a bare load check whose
 detector outputs are never read, and its receipts should record only load
-outcome. Nothing currently enforces that separation.
+outcome.
+
+That separation is now enforced rather than remembered, in
+[`scripts/calibration-reliability-sweep-lib.mjs`](../../scripts/calibration-reliability-sweep-lib.mjs):
+
+1. `bareLoadOutcome` is the only entry point, and it returns a fixed closed
+   record (`BARE_LOAD_OUTCOME_FIELDS`). The report is narrowed once, at
+   ingestion, so no sweep logic downstream holds a reference to evidence.
+2. `assertBareLoadOnly` refuses any object carrying a key outside that
+   vocabulary, and runs on every projected case *and* on the assembled receipt.
+   A widened projection fails loudly instead of quietly admitting predictions.
+3. A source-reading guard asserts the module never names a detector evidence
+   field or reaches into `run.evidence` at all.
+
+Soundness is fail-closed on every clause, which is the correction that mattered
+most: an earlier version defaulted `navigationSettled`, the run outcome and
+request-evidence completeness to the PASSING value, so a report carrying nothing
+but a 200 came out sound. A candidate now needs positive evidence of a settled
+navigation, a verified subject, no bot wall, a complete run, and zero censored
+families -- the last because the approved zero-censoring policy means one
+censored family on acquisition day kills the study, so a candidate that censored
+anything during screening has already shown it carries that risk.
+
+Eligibility is per CANDIDATE, not per visit: both passes must be sound and at
+least `SWEEP_MINIMUM_PASS_SEPARATION_MS` (48 hours) apart, matching the rule
+stated at the top of this section. Two visits an hour apart mostly re-measure
+one cache state.
+
+`censoredFamilyCount` is deliberately a count rather than a list of families:
+knowing that CNAME evidence specifically was censored is itself a weak signal
+about the detector, and the sweep has no need for it. The receipt carries no
+pass/fail — whether the pool clears is a preregistered threshold a human
+applies, not something the producer decides. An unloadable case is recorded as a
+failed load rather than skipped, because silently dropping uncooperative sites
+would bias the frame by another route.
+
+Mutation-tested: widening the projection to carry `cnameCloaks` fails five of
+the seven guards; disabling the field check fails three.
