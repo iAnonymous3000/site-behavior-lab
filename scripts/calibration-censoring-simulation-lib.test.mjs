@@ -9,136 +9,135 @@ import {
   classDenominators,
   confusionMatrix,
   extremalMatrices,
+  matrixTotal,
   rateFrom,
   simulatePolicy,
   wilsonHalfWidth
 } from "./calibration-censoring-simulation-lib.mjs";
 
-test("each rate is sized on its own marginal denominator, never the total", () => {
-  // THE REGRESSION THIS SUITE EXISTS FOR. The first simulation computed one
-  // Wilson half-width from the TOTAL usable count and reported 5.5% at 310
-  // usable cases. The gate evaluates four rates on four marginals, each a
-  // fraction of that total, so every published interval was understated.
-  const pooled = wilsonHalfWidth(310);
-  const result = simulatePolicy({
-    policy: "detector-scoped-complete-case",
-    plannedCases: 350,
-    usableRate: 310 / 350,
-    prevalence: 0.5,
-    recall: 0.7,
-    specificity: 0.95
-  });
+const ARM = { prevalence: 0.5, recall: 0.9, specificity: 0.95 };
 
-  assert.equal(result.usableCases, 310);
-  // referencePresent ~155, predictedDetected ~ 0.7*155 + 0.05*155 ~ 116.
-  assert.ok(result.denominators.referencePresent < 310);
-  assert.ok(result.denominators.predictedDetected < result.denominators.referencePresent);
-
-  for (const [metric, className] of Object.entries(METRIC_DENOMINATOR)) {
-    assert.equal(result.bounds[metric] && METRIC_DENOMINATOR[metric], className);
-    assert.ok(
-      result.bounds[metric].samplingHalfWidth > pooled,
-      `${metric} must be wider than the pooled figure, since its class is smaller than the total`
-    );
+test("the matrix conserves the planned frame exactly", () => {
+  // REGRESSION. Rounding each cell independently over-counted every frame
+  // checked by one, so a 310-case study carried a 311-case matrix.
+  for (const usableCases of [199, 200, 221, 310, 311, 313, 317, 443]) {
+    const matrix = confusionMatrix({ usableCases, ...ARM });
+    assert.equal(matrixTotal(matrix), usableCases, `matrix must total ${usableCases}`);
+    for (const cell of ["tp", "fn", "tn", "fp"]) {
+      assert.ok(Number.isInteger(matrix[cell]) && matrix[cell] >= 0, `${cell} must be a count`);
+    }
   }
-  assert.ok(
-    result.widestHalfWidth > pooled * 1.5,
-    "the binding metric is materially wider than the pooled number suggested"
+});
+
+test("C represents the whole admitted frame, not just its scoreable part", () => {
+  // REGRESSION. C claims to retain every bare-load-valid case, but was passed
+  // scoreable + indeterminate rates summing to 60/61, so at N=350 only 344
+  // cases were represented in a study claiming 350.
+  const result = simulatePolicy({
+    policy: "bounded-censoring-with-sensitivity-analysis",
+    plannedCases: 350, scoreableRate: 54 / 61, admittedRate: 1, ...ARM
+  });
+  assert.equal(result.representedCases, 350, "every admitted case must be represented");
+  assert.equal(result.usableCases + result.missingCases, 350);
+  assert.equal(
+    result.missing.missingReferencePresent + result.missing.missingReferenceAbsent + result.missing.missingBoth,
+    result.missingCases,
+    "every missing case must be assigned a constraint class"
+  );
+  assert.throws(
+    () => simulatePolicy({
+      policy: "bounded-censoring-with-sensitivity-analysis",
+      plannedCases: 350, scoreableRate: 0.9, admittedRate: 0.5, ...ARM
+    }),
+    /admittedRate cannot be below scoreableRate/
   );
 });
 
-test("predictedDetected is not referencePresent", () => {
-  // At recall below 1 the detector's own class is short even when the
-  // reference class is sized exactly. This is why sizing to E[present]=100
-  // leaves the study ineligible.
-  const d = classDenominators({ usableCases: 200, prevalence: 0.5, recall: 0.7, specificity: 1 });
-  assert.equal(d.referencePresent, 100);
-  assert.equal(d.predictedDetected, 70);
-  assert.equal(d.referenceAbsent, 100);
-  assert.equal(d.predictedNotDetected, 130);
-
-  // False positives push it back up; it is a different quantity either way.
-  const withFp = classDenominators({ usableCases: 200, prevalence: 0.5, recall: 0.7, specificity: 0.8 });
-  assert.equal(withFp.predictedDetected, 90);
-});
-
-test("the class floors are enforced alongside interval width", () => {
-  // A study can be narrow and still ineligible: the policy requires every one
-  // of the four classes to reach its minimum, which width alone never shows.
-  const result = simulatePolicy({
-    policy: "detector-scoped-complete-case",
-    plannedCases: 350,
-    usableRate: 0.885,
-    prevalence: 0.5,
-    recall: 0.5,
-    specificity: 1
-  });
-  assert.ok(result.denominators.predictedDetected < 100, "recall 0.5 starves the detector class");
-  assert.equal(result.publishable, false);
-  assert.deepEqual(result.failingFloors, ["predictedDetected"]);
-});
-
-test("missing cases are assigned in a 2x2, not allocated once across margins", () => {
-  // REGRESSION. The four class denominators are TWO PARTITIONS of the same
-  // cases, so they sum to 2n. The first version allocated each missing case
-  // once across those four margins, which is not a realizable assignment:
-  // "all of them in predictedDetected" never says what their reference class
-  // is, and nothing can join a prediction margin without joining a reference
-  // margin too. Every bound it produced was invalid.
-  const matrix = { tp: 109, fn: 47, tn: 147, fp: 8 };
-  const observed = matrix.tp + matrix.fn + matrix.tn + matrix.fp;
-
-  for (const { matrix: candidate } of extremalMatrices(matrix, 34, { referenceKnown: true })) {
-    const total = candidate.tp + candidate.fn + candidate.tn + candidate.fp;
-    assert.equal(total, observed + 34, "every assignment must place all 34 cases exactly once");
-    // Each rate's denominators stay coherent: the two partitions still agree.
-    assert.equal(
-      candidate.tp + candidate.fn + candidate.tn + candidate.fp,
-      (candidate.tp + candidate.fn) + (candidate.tn + candidate.fp),
-      "reference partition must cover the whole matrix"
-    );
-    assert.equal(
-      (candidate.tp + candidate.fp) + (candidate.tn + candidate.fn),
-      total,
-      "prediction partition must cover the whole matrix"
-    );
+test("known and unknown reference classes bound STRICTLY differently", () => {
+  // REGRESSION. A boolean `referenceKnown` had two branches that enumerated the
+  // SAME four cells, so it did nothing -- and the old test allowed equality, so
+  // it protected the bug. An unconstrained case must bound strictly worse.
+  const matrix = confusionMatrix({ usableCases: 310, ...ARM });
+  const known = boundsOverAssignments(matrix, { missingReferencePresent: 20, missingReferenceAbsent: 20 });
+  const unknown = boundsOverAssignments(matrix, { missingBoth: 40 });
+  assert.ok(
+    unknown.sensitivity.totalHalfWidth > known.sensitivity.totalHalfWidth + 1e-6,
+    "an unconstrained case must bound STRICTLY worse, not merely no better"
+  );
+  // A reference-present case can only reach TP or FN, never the negative row.
+  for (const { matrix: candidate } of extremalMatrices(matrix, { missingReferencePresent: 20 })) {
+    assert.equal(candidate.tn, matrix.tn, "a known-present case cannot land in TN");
+    assert.equal(candidate.fp, matrix.fp, "a known-present case cannot land in FP");
   }
 });
 
-test("all seven published rates are bounded, from the same matrix", () => {
-  // The gate publishes seven rates; bounding four and hoping is not a bound.
-  const matrix = { tp: 109, fn: 47, tn: 147, fp: 8 };
-  const bounds = boundsOverAssignments(matrix, 34, { referenceKnown: true });
-  assert.deepEqual(Object.keys(bounds).sort(), Object.keys(RATE_CELLS).sort());
+test("bounds are a Wilson envelope, not a half-range plus a half-width", () => {
+  // REGRESSION. Adding the assignment half-range to a worst-case sampling
+  // half-width is neither a Wilson interval nor a bound on one. Each assignment
+  // gets its own interval; the envelope is min lower to max upper.
+  const matrix = confusionMatrix({ usableCases: 310, ...ARM });
+  const bounds = boundsOverAssignments(matrix, { missingBoth: 40 });
   for (const [rateId, bound] of Object.entries(bounds)) {
-    assert.ok(bound.totalHalfWidth > 0, `${rateId} must carry a bound`);
-    assert.ok(bound.assignmentHalfWidth > 0, `${rateId} must widen for 34 unassigned cases`);
-  }
-  // With nothing missing the assignment component vanishes and only sampling remains.
-  const exact = boundsOverAssignments(matrix, 0, { referenceKnown: true });
-  for (const bound of Object.values(exact)) assert.equal(bound.assignmentHalfWidth, 0);
-});
-
-test("a case missing its reference too bounds no better than one that is not", () => {
-  const matrix = { tp: 109, fn: 47, tn: 147, fp: 8 };
-  const known = boundsOverAssignments(matrix, 34, { referenceKnown: true });
-  const unknown = boundsOverAssignments(matrix, 34, { referenceKnown: false });
-  for (const rateId of Object.keys(RATE_CELLS)) {
+    assert.ok(bound.lower >= 0 && bound.upper <= 1, `${rateId} envelope must stay in [0,1]`);
+    assert.ok(bound.upper > bound.lower, `${rateId} envelope must be non-degenerate`);
     assert.ok(
-      unknown[rateId].totalHalfWidth >= known[rateId].totalHalfWidth - 1e-9,
-      `${rateId}: an unconstrained case cannot bound better than a constrained one`
+      Math.abs(bound.totalHalfWidth - (bound.upper - bound.lower) / 2) < 1e-9,
+      `${rateId} half-width must be derived from the envelope itself`
     );
+    // Every realizable assignment's point estimate must lie inside the envelope.
+    for (const { matrix: candidate } of extremalMatrices(matrix, { missingBoth: 40 })) {
+      const point = rateFrom(candidate, rateId);
+      if (point === null) continue;
+      assert.ok(
+        point >= bound.lower - 1e-9 && point <= bound.upper + 1e-9,
+        `${rateId}: assignment estimate ${point} escaped its own envelope`
+      );
+    }
   }
 });
 
-test("only the bounded policy admits indeterminate cases", () => {
+test("numerical eligibility is not publishability", () => {
+  // REGRESSION. B could report publishable while its own inferenceScope said
+  // only subpopulation inference was justified.
+  const b = simulatePolicy({
+    policy: "detector-scoped-complete-case", plannedCases: 350, scoreableRate: 54 / 61, ...ARM
+  });
+  assert.equal(b.numericallyEligible, true, "the floors and widths do clear");
+  assert.equal(b.inferenceScopeResolved, false, "but the population was never predefined");
+  assert.equal(b.publishable, false, "so no target-population rate may be published");
+
+  const declared = simulatePolicy({
+    policy: "detector-scoped-complete-case", plannedCases: 350, scoreableRate: 54 / 61,
+    populationPredefinedByScreening: true, ...ARM
+  });
+  assert.equal(declared.publishable, true, "declaring the screening population resolves it");
+
+  // A target-population policy needs no such declaration.
+  const c = simulatePolicy({
+    policy: "bounded-censoring-with-sensitivity-analysis",
+    plannedCases: 350, scoreableRate: 54 / 61, admittedRate: 1, ...ARM
+  });
+  assert.equal(c.inferenceScopeResolved, true);
+});
+
+test("only the bounded policy carries the unscoreable remainder", () => {
+  // A and B analyse only complete cases, so an admittedRate above their
+  // scoreable rate must not silently enlarge their study.
   const common = {
-    plannedCases: 350, usableRate: 0.885, indeterminateRate: 0.098,
+    plannedCases: 350, scoreableRate: 0.885, admittedRate: 1,
     prevalence: 0.5, recall: 0.7, specificity: 0.95
   };
-  assert.equal(simulatePolicy({ ...common, policy: "zero-censoring" }).indeterminate, 0);
-  assert.equal(simulatePolicy({ ...common, policy: "detector-scoped-complete-case" }).indeterminate, 0);
-  assert.ok(simulatePolicy({ ...common, policy: "bounded-censoring-with-sensitivity-analysis" }).indeterminate > 0);
+  const a = simulatePolicy({ ...common, policy: "zero-censoring" });
+  const b = simulatePolicy({ ...common, policy: "detector-scoped-complete-case" });
+  const c = simulatePolicy({ ...common, policy: "bounded-censoring-with-sensitivity-analysis" });
+
+  assert.equal(a.missingCases, 0);
+  assert.equal(b.missingCases, 0);
+  assert.ok(c.missingCases > 0, "C retains the cases the others drop");
+
+  assert.equal(a.representedCases, a.usableCases, "A represents only what it analyses");
+  assert.equal(b.representedCases, b.usableCases);
+  assert.equal(c.representedCases, 350, "C represents the whole admitted frame");
 });
 
 test("zero-censoring reports its all-or-nothing failure separately from width", () => {
@@ -147,14 +146,14 @@ test("zero-censoring reports its all-or-nothing failure separately from width", 
   // and that is not a width question.
   const result = simulatePolicy({
     policy: "zero-censoring",
-    plannedCases: 350, usableRate: 0.443,
+    plannedCases: 350, scoreableRate: 0.443,
     prevalence: 0.5, recall: 0.7, specificity: 0.95
   });
   assert.equal(result.allOrNothingUnsatisfiedAt, 0.443);
 
   const complete = simulatePolicy({
     policy: "zero-censoring",
-    plannedCases: 350, usableRate: 1,
+    plannedCases: 350, scoreableRate: 1,
     prevalence: 0.5, recall: 0.7, specificity: 0.95
   });
   assert.equal(complete.allOrNothingUnsatisfiedAt, null);
@@ -163,7 +162,7 @@ test("zero-censoring reports its all-or-nothing failure separately from width", 
   assert.equal(
     simulatePolicy({
       policy: "detector-scoped-complete-case",
-      plannedCases: 350, usableRate: 0.443,
+      plannedCases: 350, scoreableRate: 0.443,
       prevalence: 0.5, recall: 0.7, specificity: 0.95
     }).allOrNothingUnsatisfiedAt,
     null
@@ -186,11 +185,11 @@ test("every declared class has a metric and vice versa", () => {
 
 test("an unknown policy or scenario fails rather than defaulting", () => {
   assert.throws(
-    () => simulatePolicy({ policy: "lenient", plannedCases: 350, usableRate: 1, prevalence: 0.5, recall: 0.7, specificity: 0.95 }),
+    () => simulatePolicy({ policy: "lenient", plannedCases: 350, scoreableRate: 1, prevalence: 0.5, recall: 0.7, specificity: 0.95 }),
     /unknown policy/
   );
   assert.throws(
-    () => simulatePolicy({ policy: "zero-censoring", plannedCases: 350, usableRate: 1, prevalence: 1.4, recall: 0.7, specificity: 0.95 }),
+    () => simulatePolicy({ policy: "zero-censoring", plannedCases: 350, scoreableRate: 1, prevalence: 1.4, recall: 0.7, specificity: 0.95 }),
     /prevalence must be a probability/
   );
 });

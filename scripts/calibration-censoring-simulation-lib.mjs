@@ -128,22 +128,27 @@ export const RATE_CELLS = Object.freeze({
   falseNegativeRate: Object.freeze({ numerator: ["fn"], denominator: ["fn", "tp"] })
 });
 
-/** The expected 2x2 at an operating point. */
+/**
+ * The expected 2x2 at an operating point, with CONSERVED row totals.
+ *
+ * Rounding each cell independently does not conserve: a 310-case frame produced
+ * a matrix totalling 311 for every operating point checked. Each row is now
+ * rounded once and its partner takes the remainder, so
+ * `tp+fn+tn+fp === usableCases` exactly.
+ */
 export function confusionMatrix({ usableCases, prevalence, recall, specificity }) {
   requireUnit(prevalence, "prevalence");
   requireUnit(recall, "recall");
   requireUnit(specificity, "specificity");
-  const positives = usableCases * prevalence;
+  const positives = Math.round(usableCases * prevalence);
   const negatives = usableCases - positives;
-  return {
-    tp: Math.round(recall * positives),
-    fn: Math.round(positives - recall * positives),
-    tn: Math.round(specificity * negatives),
-    fp: Math.round(negatives - specificity * negatives)
-  };
+  const tp = Math.round(recall * positives);
+  const tn = Math.round(specificity * negatives);
+  return { tp, fn: positives - tp, tn, fp: negatives - tn };
 }
 
 const sum = (matrix, cells) => cells.reduce((total, cell) => total + matrix[cell], 0);
+export const matrixTotal = (matrix) => matrix.tp + matrix.fn + matrix.tn + matrix.fp;
 
 export function rateFrom(matrix, rateId) {
   const spec = RATE_CELLS[rateId];
@@ -153,128 +158,175 @@ export function rateFrom(matrix, rateId) {
   return sum(matrix, spec.numerator) / denominator;
 }
 
+export function wilsonInterval(k, n, z = 1.96) {
+  if (!Number.isFinite(n) || n <= 0) return { lo: 0, hi: 1 };
+  const p = k / n, d = 1 + (z * z) / n;
+  const centre = (p + (z * z) / (2 * n)) / d;
+  const half = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
+  return { lo: Math.max(0, centre - half), hi: Math.min(1, centre + half) };
+}
+
 /**
- * Extremal 2x2s obtained by assigning `missing` indeterminate cases.
+ * Every corner assignment of the missing cases.
  *
- * WHY A MATRIX AND NOT FOUR MARGINS. The four class denominators are two
- * PARTITIONS of the same cases -- referencePresent+referenceAbsent = n and
- * predictedDetected+predictedNotDetected = n -- so they sum to 2n. An earlier
- * version allocated each missing case ONCE across those four margins, which is
- * not a realizable assignment: "all of them in predictedDetected" never says
- * what their reference class is, and a case cannot be added to a prediction
- * margin without also joining a reference margin.
+ * A boolean `referenceKnown` was not enough, and worse, its two branches
+ * enumerated the SAME four cells -- so known and unknown produced identical
+ * rows and the flag did nothing. The model needs COUNTS:
  *
- * A case with a missing PREDICTION but a known reference can only land in the
- * two cells of its reference row (TP or FN if present; TN or FP if absent). A
- * case missing BOTH is unconstrained. Enumerating the corner assignments and
- * taking the envelope over all of them is the honest bound: every corner is
- * realizable, and the true value lies inside their hull.
+ *  - `missingReferencePresent`: prediction missing, reference known present.
+ *    Can only land in TP or FN.
+ *  - `missingReferenceAbsent`: reference known absent. Only TN or FP.
+ *  - `missingBoth`: unconstrained, any of the four cells.
+ *
+ * Each rate is monotone in each cell, so the extremes are attained at corners
+ * and this enumeration is an exact envelope rather than an approximation.
  */
-export function extremalMatrices(matrix, missing, { referenceKnown = true } = {}) {
-  if (missing <= 0) return [{ label: "observed", matrix }];
-  const corners = referenceKnown
-    ? [["tp", "fn"], ["tn", "fp"]].flatMap(([a, b]) => [a, b])
-    : ["tp", "fn", "tn", "fp"];
+export function extremalMatrices(matrix, { missingReferencePresent = 0, missingReferenceAbsent = 0, missingBoth = 0 } = {}) {
+  const presentTargets = missingReferencePresent > 0 ? ["tp", "fn"] : [null];
+  const absentTargets = missingReferenceAbsent > 0 ? ["tn", "fp"] : [null];
+  const bothTargets = missingBoth > 0 ? ["tp", "fn", "tn", "fp"] : [null];
+
   const results = [];
-  for (const cell of corners) {
-    results.push({ label: `all-missing->${cell}`, matrix: { ...matrix, [cell]: matrix[cell] + missing } });
-  }
-  // Split evenly across the reference rows as an interior reference point.
-  results.push({
-    label: "missing-split-evenly",
-    matrix: {
-      tp: matrix.tp + Math.round(missing / 4),
-      fn: matrix.fn + Math.round(missing / 4),
-      tn: matrix.tn + Math.round(missing / 4),
-      fp: matrix.fp + (missing - 3 * Math.round(missing / 4))
+  for (const p of presentTargets) {
+    for (const a of absentTargets) {
+      for (const b of bothTargets) {
+        const candidate = { ...matrix };
+        if (p) candidate[p] += missingReferencePresent;
+        if (a) candidate[a] += missingReferenceAbsent;
+        if (b) candidate[b] += missingBoth;
+        results.push({ label: `present->${p ?? "-"} absent->${a ?? "-"} both->${b ?? "-"}`, matrix: candidate });
+      }
     }
-  });
+  }
   return results;
 }
 
 /**
- * Per-rate bound over every extremal assignment, combined with sampling
- * uncertainty on that rate's own denominator.
+ * Outer Wilson envelope over every realizable assignment.
+ *
+ * NOT the assignment half-range plus a worst-case sampling half-width -- adding
+ * those is neither a Wilson interval nor a bound on one, and it reported 17.3%
+ * with precision binding where the true envelope is 13.9% with sensitivity
+ * binding. Each assignment gets its own Wilson interval on its own denominator;
+ * the envelope is the min lower bound and the max upper bound across all of them.
  */
-export function boundsOverAssignments(matrix, missing, options) {
-  const assignments = extremalMatrices(matrix, missing, options);
+export function boundsOverAssignments(matrix, missing = {}) {
+  const assignments = extremalMatrices(matrix, missing);
   const bounds = {};
   for (const rateId of Object.keys(RATE_CELLS)) {
-    let lo = Infinity, hi = -Infinity, widestSampling = 0, smallestDenominator = Infinity;
+    let lo = Infinity, hi = -Infinity, smallestDenominator = Infinity, observedDenominator = null;
     for (const { matrix: candidate } of assignments) {
-      const value = rateFrom(candidate, rateId);
-      if (value === null) continue;
-      lo = Math.min(lo, value);
-      hi = Math.max(hi, value);
-      const denominator = sum(candidate, RATE_CELLS[rateId].denominator);
+      const spec = RATE_CELLS[rateId];
+      const denominator = sum(candidate, spec.denominator);
+      if (denominator === 0) continue;
+      const interval = wilsonInterval(sum(candidate, spec.numerator), denominator);
+      lo = Math.min(lo, interval.lo);
+      hi = Math.max(hi, interval.hi);
       smallestDenominator = Math.min(smallestDenominator, denominator);
-      widestSampling = Math.max(widestSampling, wilsonHalfWidth(denominator));
     }
+    observedDenominator = sum(matrix, RATE_CELLS[rateId].denominator);
     if (lo === Infinity) { bounds[rateId] = null; continue; }
-    const assignmentHalfWidth = (hi - lo) / 2;
     bounds[rateId] = {
-      observedDenominator: sum(matrix, RATE_CELLS[rateId].denominator),
+      observedDenominator,
       smallestDenominator,
-      assignmentHalfWidth,
-      samplingHalfWidth: widestSampling,
-      totalHalfWidth: assignmentHalfWidth + widestSampling
+      lower: lo,
+      upper: hi,
+      totalHalfWidth: (hi - lo) / 2
     };
   }
   return bounds;
 }
 
 /**
- * One policy at one planned N, derived from a full 2x2.
+ * One policy at one planned N.
  *
- * `publishable` requires ALL of: every class floor met, every rate's total
- * half-width within the maximum, AND the policy's own all-or-nothing rule
- * satisfied. An earlier version omitted the last clause, so policy A reported
- * publishable at N=500 while only 44.3% of cases were usable -- which
- * contradicts A's own definition, since A publishes nothing unless the study
- * censored nothing at all.
+ * FRAME CONSERVATION. C claims to retain every bare-load-valid case, so its
+ * missing count is `admittedRate - scoreableRate`, taken from the WHOLE admitted
+ * frame. An earlier version passed scoreable and indeterminate rates that summed
+ * to 60/61, silently dropping the stage-incomplete case, so at N=350 only 344
+ * cases were represented in a study that claimed 350.
+ *
+ * ELIGIBILITY IS NOT PUBLISHABILITY. `numericallyEligible` means the floors and
+ * the widths clear. It is deliberately NOT called publishable, because a policy
+ * whose `inferenceScope` admits only subpopulation inference cannot publish a
+ * target-population rate however narrow its interval is. `publishable` requires
+ * an explicit preregistered population decision on top.
  */
 export function simulatePolicy({
   policy,
   plannedCases,
-  usableRate,
-  indeterminateRate = 0,
+  scoreableRate,
+  admittedRate = scoreableRate,
+  // CONSERVATIVE BY DEFAULT: assume nothing is known about a missing case's
+  // reference class. Assuming the reference is known narrows the envelope by
+  // ~4.5 points here, which is a modelling claim, not a free choice. For CNAME
+  // the reference is an independent DNS resolution that does not depend on the
+  // scan, so a study that obtains references for every ADMITTED case may
+  // justify the known split -- but it must say so.
+  missingReferenceSplit = { present: 0, absent: 0, both: 1 },
   prevalence,
   recall,
   specificity,
-  referenceKnownForMissing = true,
+  populationPredefinedByScreening = false,
   minimumClassDenominator = 100,
   maximumHalfWidth = 0.1
 }) {
   const spec = POLICIES[policy];
   if (spec === undefined) throw new Error(`unknown policy ${policy}`);
 
-  const usableCases = Math.round(plannedCases * usableRate);
-  const missing = spec.admitsIndeterminate ? Math.round(plannedCases * indeterminateRate) : 0;
+  const usableCases = Math.round(plannedCases * scoreableRate);
+  // Only C carries the unscoreable remainder of the admitted frame.
+  const missingCases = spec.admitsIndeterminate
+    ? Math.round(plannedCases * admittedRate) - usableCases
+    : 0;
+  if (missingCases < 0) throw new Error("admittedRate cannot be below scoreableRate");
+
   const matrix = confusionMatrix({ usableCases, prevalence, recall, specificity });
+  if (matrixTotal(matrix) !== usableCases) {
+    throw new Error(`matrix total ${matrixTotal(matrix)} does not conserve ${usableCases} usable cases`);
+  }
+
+  const present = Math.round(missingCases * missingReferenceSplit.present);
+  const absent = Math.round(missingCases * missingReferenceSplit.absent);
+  const missing = {
+    missingReferencePresent: present,
+    missingReferenceAbsent: absent,
+    missingBoth: missingCases - present - absent
+  };
+
   const denominators = classDenominators({ usableCases, prevalence, recall, specificity });
-  const bounds = boundsOverAssignments(matrix, missing, { referenceKnown: referenceKnownForMissing });
+  const bounds = boundsOverAssignments(matrix, missing);
 
   const failingFloors = CLASS_DENOMINATORS.filter((c) => denominators[c] < minimumClassDenominator);
   const rates = Object.entries(bounds).filter(([, b]) => b !== null);
   const widest = rates.reduce((a, b) => (b[1].totalHalfWidth > a[1].totalHalfWidth ? b : a));
   const allWidthsClear = rates.every(([, b]) => b.totalHalfWidth <= maximumHalfWidth);
 
-  // A's rule is not a width question: it publishes only when nothing was
-  // censored at all, so a usable rate below 1 means no study.
-  const allOrNothingUnsatisfiedAt = spec.allOrNothing && usableRate < 1 ? usableRate : null;
+  const allOrNothingUnsatisfiedAt = spec.allOrNothing && scoreableRate < 1 ? scoreableRate : null;
+  const numericallyEligible =
+    failingFloors.length === 0 && allWidthsClear && allOrNothingUnsatisfiedAt === null;
+
+  // A scoreable-subpopulation policy needs the population declared before
+  // sampling before any target-population rate may be published.
+  const inferenceScopeResolved =
+    spec.inferenceScope === "target-population" || populationPredefinedByScreening;
 
   return {
     policy: spec,
     plannedCases,
     usableCases,
-    indeterminate: missing,
+    missingCases,
+    representedCases: usableCases + missingCases,
     matrix,
+    missing,
     denominators,
     bounds,
     widestRate: widest[0],
     widestHalfWidth: widest[1].totalHalfWidth,
     failingFloors,
-    publishable: failingFloors.length === 0 && allWidthsClear && allOrNothingUnsatisfiedAt === null,
+    numericallyEligible,
+    inferenceScopeResolved,
+    publishable: numericallyEligible && inferenceScopeResolved,
     allOrNothingUnsatisfiedAt
   };
 }

@@ -103,36 +103,43 @@ The first draft conflated A and B. They are different *shapes* of rule:
 
 ## Policy simulation
 
-Bounds come from a **full 2x2**, not from four margins. The four class
-denominators are two partitions of the same cases and sum to `2n`, so allocating
-a missing case once across them is not a realizable assignment: "all of them in
-`predictedDetected`" never says what their reference class is. An earlier draft
-did exactly that and every C row it produced was invalid.
+Four things the model must get right, each of which it previously did not.
 
-A case with a missing prediction but a known reference can only land in the two
-cells of its reference row; a case missing both is unconstrained. The bound is
-the envelope over those corner assignments, and **all seven published rates**
-are derived from each extremal matrix.
+**The frame is conserved.** C retains every bare-load-valid case, so its missing
+count comes from the whole admitted frame. An earlier draft passed scoreable and
+indeterminate rates summing to 60/61, so a study claiming N=350 represented 344.
+Matrix cells are also rounded by row rather than independently — independent
+rounding over-counted *every* frame checked by one.
 
-`publishable` requires every class floor, every rate's width, **and** the
-policy's own all-or-nothing rule. An earlier draft omitted the last, so A read
-publishable at N=500 while only 44.3% of cases were usable.
+**Missing cases carry constraint classes, not a boolean.** A case whose
+prediction failed but whose reference is known present can only land in TP or
+FN; one missing both is unconstrained. An earlier `referenceKnown` boolean had
+two branches enumerating the *same* four cells, so it did nothing — and its test
+allowed equality, so it protected the bug.
 
-The operating point is an **assumption, not a measurement** — the corpus has no
-independent references.
+**Bounds are a Wilson envelope.** Each realizable assignment gets its own Wilson
+interval on its own denominator; the envelope is the minimum lower bound to the
+maximum upper bound. Adding an assignment half-range to a worst-case sampling
+half-width is neither a Wilson interval nor a bound on one, and it reported 17.3%
+with `precision` binding where the envelope gives 15.1% with **`sensitivity`**
+binding. The earlier claim that "precision binds everywhere" was an artifact of
+that arithmetic.
 
-**`precision` binds at every point**, because `predictedDetected` is the
-smallest class.
+**Numerical eligibility is not publishability.** See the next section.
 
 | operating point | policy | N=350 | N=500 |
 |---|---|---|---|
 | prev .50 · recall .90 | A | ✗ all-or-nothing (44.3% usable) | ✗ all-or-nothing |
-| | B | **✓ 8.0%** | ✓ 6.7% |
-| | C | ✗ 17.3% | ✗ 16.2% |
+| | B | ✓ 4.7% *numerically* — scope unresolved | ✓ 4.0% — scope unresolved |
+| | C, references unknown | ✗ 15.1% | ✗ 14.3% |
+| | C, references obtained | ✗ 10.6% | ✓ 9.9% |
 
-**C clears nowhere.** Under a realizable 2x2 assignment the unassigned cases move
-`precision` by far more than the margin-allocation model suggested. Any earlier
-statement that C clears at some N is withdrawn.
+**Whether C ever clears depends on a modelling claim.** If the study obtains an
+independent reference for every *admitted* case — defensible for CNAME, whose
+reference is a DNS resolution that does not depend on the scan — the envelope
+narrows by about 4.5 points and C clears at N=500. If references are unavailable
+for unscoreable cases, C clears nowhere. The default is the conservative case;
+the preregistration must state which applies and why.
 
 ## B's inference scope
 

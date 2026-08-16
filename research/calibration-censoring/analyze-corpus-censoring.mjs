@@ -327,7 +327,9 @@ say();
 const rateOf = (predicate) => (arm.length ? arm.filter(predicate).length / arm.length : 0);
 const usableA = rateOf(allFamilyZeroLoss);
 const usableB = rateOf(cnameScoreable);
-const indetC = rateOf(cnameIndeterminate);
+// C retains the WHOLE bare-load-valid frame, so its admitted rate is that
+// population -- not scoreable+indeterminate, which drops the stage-incomplete case.
+const admittedRate = rateOf(bareLoadValid);
 
 const OPERATING_POINTS = [
   { label: "prev .50 recall .90 spec .95", prevalence: 0.5, recall: 0.9, specificity: 0.95 },
@@ -338,32 +340,37 @@ const OPERATING_POINTS = [
 for (const point of OPERATING_POINTS) {
   say(`  ${point.label}`);
   say(`    ${"policy".padEnd(34)} ${"N".padStart(4)} ${"usable".padStart(6)} ${"widest metric".padEnd(24)} ${"half".padStart(6)} ${"floors".padStart(7)} publishable`);
-  for (const [policyId, usableRate, indeterminateRate] of [
-    ["zero-censoring", usableA, 0],
-    ["detector-scoped-complete-case", usableB, 0],
-    ["bounded-censoring-with-sensitivity-analysis", usableB, indetC]
+  for (const [policyId, usableRate] of [
+    ["zero-censoring", usableA],
+    ["detector-scoped-complete-case", usableB],
+    ["bounded-censoring-with-sensitivity-analysis", usableB]
   ]) {
     for (const N of [200, 350, 500]) {
-      // For C, both whether the missing cases' REFERENCE class is known and
-      // whether it is not; a case missing both is unconstrained and bounds worse.
-      const scenarios = POLICIES[policyId].admitsIndeterminate ? [true, false] : [true];
-      for (const referenceKnownForMissing of scenarios) {
+      // For C: references unknown (conservative) and references obtained for
+      // every admitted case. The gap between them is a modelling claim.
+      const scenarios = POLICIES[policyId].admitsIndeterminate
+        ? [{ present: 0, absent: 0, both: 1 }, { present: 0.5, absent: 0.5, both: 0 }]
+        : [null];
+      for (const missingReferenceSplit of scenarios) {
         const r = simulatePolicy({
-          policy: policyId, plannedCases: N, usableRate, indeterminateRate,
-          prevalence: point.prevalence, recall: point.recall, specificity: point.specificity,
-          referenceKnownForMissing
+          policy: policyId, plannedCases: N,
+          scoreableRate: usableRate,
+          admittedRate: POLICIES[policyId].admitsIndeterminate ? admittedRate : usableRate,
+          ...(missingReferenceSplit ? { missingReferenceSplit } : {}),
+          prevalence: point.prevalence, recall: point.recall, specificity: point.specificity
         });
         const tag = POLICIES[policyId].admitsIndeterminate
-          ? (referenceKnownForMissing ? " [ref known]" : " [ref unknown]")
+          ? (missingReferenceSplit.both === 1 ? " [refs unknown]" : " [refs obtained]")
           : "";
         const why = r.allOrNothingUnsatisfiedAt !== null
           ? `all-or-nothing unmet (${pct(r.allOrNothingUnsatisfiedAt)} usable)`
           : r.failingFloors.length ? `FAIL ${r.failingFloors.join(",")}`
+          : !r.inferenceScopeResolved ? "scope: subpopulation only"
           : "ok";
         say(
           `    ${(POLICIES[policyId].label + tag).padEnd(36)} ${String(N).padStart(4)} ${String(r.usableCases).padStart(6)} ` +
           `${`${r.widestRate} (${r.bounds[r.widestRate].observedDenominator})`.padEnd(26)} ${pct(r.widestHalfWidth).padStart(6)}  ` +
-          `${r.publishable ? "yes" : "NO "}  ${why}`
+          `${r.numericallyEligible ? "yes" : "NO "}  ${why}  n=${r.representedCases}`
         );
       }
     }
