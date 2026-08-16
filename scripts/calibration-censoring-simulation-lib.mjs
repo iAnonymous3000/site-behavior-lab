@@ -227,6 +227,82 @@ export function extremalMatrices(matrix, { missingReferencePresent = 0, missingR
  * binding. Each assignment gets its own Wilson interval on its own denominator;
  * the envelope is the min lower bound and the max upper bound across all of them.
  */
+/**
+ * Largest-remainder allocation across ALL THREE declared shares.
+ *
+ * An earlier version computed present and absent by flooring and took the
+ * remainder as `both`, never reading `missingReferenceSplit.both` at all. A
+ * declared `{present: .5, absent: .5, both: 0}` over 57 cases then produced
+ * 28/28/1 -- contradicting the `both: 0` it was given. Largest remainder
+ * distributes the shortfall to the largest fractional parts, so the result
+ * honours every declared share and sums exactly.
+ */
+export function allocateMissing(missingCases, split) {
+  const shares = [
+    ["missingReferencePresent", split.present ?? 0],
+    ["missingReferenceAbsent", split.absent ?? 0],
+    ["missingBoth", split.both ?? 0]
+  ];
+  const total = shares.reduce((sum, [, value]) => sum + value, 0);
+  if (Math.abs(total - 1) > 1e-9) throw new Error(`missing-reference split must sum to 1, got ${total}`);
+
+  const exact = shares.map(([key, share]) => [key, missingCases * share]);
+  const allocated = exact.map(([key, value]) => [key, Math.floor(value)]);
+  let remaining = missingCases - allocated.reduce((sum, [, value]) => sum + value, 0);
+  const byRemainder = exact
+    .map(([key, value], index) => ({ index, remainder: value - Math.floor(value) }))
+    .sort((a, b) => b.remainder - a.remainder);
+  for (const { index } of byRemainder) {
+    if (remaining <= 0) break;
+    allocated[index][1] += 1;
+    remaining -= 1;
+  }
+
+  const result = Object.fromEntries(allocated);
+  for (const [key, value] of Object.entries(result)) {
+    if (!Number.isInteger(value) || value < 0) throw new Error(`${key} must be a non-negative integer, got ${value}`);
+  }
+  const sumAllocated = Object.values(result).reduce((a, b) => a + b, 0);
+  if (sumAllocated !== missingCases) throw new Error(`allocation sums to ${sumAllocated}, not ${missingCases}`);
+  // A share of exactly zero must allocate exactly zero.
+  for (const [key, share] of shares) {
+    if (share === 0 && result[key] !== 0) throw new Error(`${key} was declared 0 but allocated ${result[key]}`);
+  }
+  return result;
+}
+
+/**
+ * The genuinely worst composition, found by exhaustive search.
+ *
+ * Checking three hand-picked corners is not "worst realizable": with 100 usable,
+ * 15 missing, prevalence .2, recall .5 and specificity .95 the maximum sits at
+ * ONE reference-present case (34.20%), which all-present, all-absent and
+ * balanced all miss. The composition space is small enough to enumerate.
+ */
+export function worstComposition(matrix, missingCases, { allowUnknownReference = true } = {}) {
+  let worst = null;
+  for (let present = 0; present <= missingCases; present++) {
+    for (let absent = 0; absent + present <= missingCases; absent++) {
+      // When references are obtained for every admitted case, no case can be
+      // missing its reference, so those compositions are not realizable.
+      if (!allowUnknownReference && present + absent !== missingCases) continue;
+      const missing = {
+        missingReferencePresent: present,
+        missingReferenceAbsent: absent,
+        missingBoth: missingCases - present - absent
+      };
+      const bounds = boundsOverAssignments(matrix, missing);
+      const widest = Math.max(
+        ...Object.values(bounds).filter(Boolean).map((b) => b.totalHalfWidth)
+      );
+      if (worst === null || widest > worst.widestHalfWidth) {
+        worst = { missing, widestHalfWidth: widest, bounds };
+      }
+    }
+  }
+  return worst;
+}
+
 export function boundsOverAssignments(matrix, missing = {}) {
   const assignments = extremalMatrices(matrix, missing);
   const bounds = {};
@@ -281,6 +357,9 @@ export function simulatePolicy({
   // scan, so a study that obtains references for every ADMITTED case may
   // justify the known split -- but it must say so.
   missingReferenceSplit = { present: 0, absent: 0, both: 1 },
+  // When true, ignore the declared split and take the genuinely worst
+  // composition over every integer allocation.
+  worstCaseComposition = false,
   prevalence,
   recall,
   specificity,
@@ -303,25 +382,13 @@ export function simulatePolicy({
     throw new Error(`matrix total ${matrixTotal(matrix)} does not conserve ${usableCases} usable cases`);
   }
 
-  // Conserve exactly. Rounding both halves of a 57-case split gave 29+29 and a
-  // missingBoth of -1, which extremalMatrices silently dropped -- so every
-  // matrix carried 58 extra cases while representedCases reported 57. Floor
-  // both named shares so the remainder is never negative, and assert the sum.
-  const present = Math.floor(missingCases * missingReferenceSplit.present);
-  const absent = Math.floor(missingCases * missingReferenceSplit.absent);
-  const missing = {
-    missingReferencePresent: present,
-    missingReferenceAbsent: absent,
-    missingBoth: missingCases - present - absent
-  };
-  for (const [key, value] of Object.entries(missing)) {
-    if (!Number.isInteger(value) || value < 0) {
-      throw new Error(`${key} must be a non-negative integer, got ${value}`);
-    }
-  }
-  if (missing.missingReferencePresent + missing.missingReferenceAbsent + missing.missingBoth !== missingCases) {
-    throw new Error("missing-case split does not conserve the missing cases");
-  }
+  const missing = worstCaseComposition && missingCases > 0
+    ? worstComposition(
+        confusionMatrix({ usableCases, prevalence, recall, specificity }),
+        missingCases,
+        { allowUnknownReference: worstCaseComposition === "including-unknown-reference" }
+      ).missing
+    : allocateMissing(missingCases, missingReferenceSplit);
 
   const denominators = denominatorsFromMatrix(matrix);
   const bounds = boundsOverAssignments(matrix, missing);

@@ -348,7 +348,10 @@ const OPERATING_POINTS = [
 
 for (const point of OPERATING_POINTS) {
   say(`  ${point.label}`);
-  say(`    ${"policy".padEnd(34)} ${"N".padStart(4)} ${"usable".padStart(6)} ${"widest metric".padEnd(24)} ${"half".padStart(6)} ${"floors".padStart(7)} publishable`);
+  // The column reports NUMERICAL ELIGIBILITY. Labelling it "publishable" made B
+  // print "yes" beside "scope: subpopulation only", which is the opposite of
+  // what r.publishable says.
+  say(`    ${"policy".padEnd(52)} ${"N".padStart(4)} ${"usable".padStart(6)} ${"widest rate".padEnd(26)} ${"half".padStart(6)}  numEligible  why`);
   for (const [policyId, usableRate] of [
     ["zero-censoring", usableA],
     ["detector-scoped-complete-case", usableB],
@@ -362,29 +365,18 @@ for (const point of OPERATING_POINTS) {
       // all-present / all-absent / balanced rather than assuming balance.
       const scenarios = POLICIES[policyId].admitsIndeterminate
         ? [
-            { label: "refs unknown", compositions: [{ present: 0, absent: 0, both: 1 }] },
-            {
-              label: "refs obtained, worst composition",
-              compositions: [
-                { present: 1, absent: 0, both: 0 },
-                { present: 0, absent: 1, both: 0 },
-                { present: 0.5, absent: 0.5, both: 0 }
-              ]
-            }
+            { label: "refs unknown, worst composition", mode: "including-unknown-reference" },
+            { label: "refs obtained, worst composition", mode: "references-obtained" }
           ]
-        : [{ label: null, compositions: [null] }];
+        : [{ label: null, mode: false }];
       for (const scenario of scenarios) {
-        // Bound over the composition: the widest realizable one governs.
-        const candidates = scenario.compositions.map((missingReferenceSplit) =>
-          simulatePolicy({
-            policy: policyId, plannedCases: N,
-            scoreableRate: usableRate,
-            admittedRate: POLICIES[policyId].admitsIndeterminate ? admittedRate : usableRate,
-            ...(missingReferenceSplit ? { missingReferenceSplit } : {}),
-            prevalence: point.prevalence, recall: point.recall, specificity: point.specificity
-          })
-        );
-        const r = candidates.reduce((a, b) => (b.widestHalfWidth > a.widestHalfWidth ? b : a));
+        const r = simulatePolicy({
+          policy: policyId, plannedCases: N,
+          scoreableRate: usableRate,
+          admittedRate: POLICIES[policyId].admitsIndeterminate ? admittedRate : usableRate,
+          worstCaseComposition: scenario.mode,
+          prevalence: point.prevalence, recall: point.recall, specificity: point.specificity
+        });
         const tag = scenario.label ? ` [${scenario.label}]` : "";
         const why = r.allOrNothingUnsatisfiedAt !== null
           ? `all-or-nothing unmet (${pct(r.allOrNothingUnsatisfiedAt)} usable)`
@@ -392,7 +384,7 @@ for (const point of OPERATING_POINTS) {
           : !r.inferenceScopeResolved ? "scope: subpopulation only"
           : "ok";
         say(
-          `    ${(POLICIES[policyId].label + tag).padEnd(36)} ${String(N).padStart(4)} ${String(r.usableCases).padStart(6)} ` +
+          `    ${(POLICIES[policyId].label + tag).padEnd(52)} ${String(N).padStart(4)} ${String(r.usableCases).padStart(6)} ` +
           `${`${r.widestRate} (${r.bounds[r.widestRate].observedDenominator})`.padEnd(26)} ${pct(r.widestHalfWidth).padStart(6)}  ` +
           `${(r.numericallyEligible ? "yes" : "NO ").padEnd(11)}  ${why}  n=${r.representedCases}`
         );
@@ -403,9 +395,10 @@ for (const point of OPERATING_POINTS) {
 }
 
 say(`  SCOREABILITY IS ITSELF ESTIMATED. The rows above use the arm's point`);
-say(`  estimate ${pct(usableB)} for CNAME-scoreable, whose Wilson interval is wide`);
-say(`  (n=${arm.length}, two clusters). Sizing on the point estimate assumes a`);
-say(`  quantity this corpus does not pin down. At its lower bound:`);
+say(`  estimate ${pct(usableB)} for CNAME-scoreable. The endpoint below is a`);
+say(`  PER-CASE WILSON BOUND and therefore an iid-only diagnostic: this arm has`);
+say(`  two clusters, so it is NOT a defensible design lower bound, only an`);
+say(`  indication that sizing on the point estimate assumes what is not pinned down.`);
 {
   const lower = wilsonBounds(arm.filter(cnameScoreable).length, arm.length).lo;
   for (const N of [350, 500]) {
@@ -415,7 +408,7 @@ say(`  quantity this corpus does not pin down. At its lower bound:`);
       missingReferenceSplit: { present: 0.5, absent: 0.5, both: 0 },
       prevalence: 0.5, recall: 0.9, specificity: 0.95
     });
-    say(`    C @ N=${N}, scoreable=${pct(lower)} (lower bound), balanced refs -> ${pct(r.widestHalfWidth)} (${r.widestRate})`);
+    say(`    C @ N=${N}, scoreable=${pct(lower)} (iid-only endpoint), balanced refs -> ${pct(r.widestHalfWidth)} (${r.widestRate})`);
   }
 }
 say();

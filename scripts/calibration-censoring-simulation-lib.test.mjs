@@ -9,8 +9,11 @@ import {
   classDenominators,
   confusionMatrix,
   extremalMatrices,
+  allocateMissing,
+  denominatorsFromMatrix,
   matrixTotal,
   rateFrom,
+  worstComposition,
   simulatePolicy,
   wilsonHalfWidth
 } from "./calibration-censoring-simulation-lib.mjs";
@@ -209,4 +212,94 @@ test("B does not silently inherit the frame's target population", () => {
     "target-population",
     "C keeps every admitted case, so its bounds do describe the frame"
   );
+});
+
+test("a declared share of zero allocates exactly zero", () => {
+  // REGRESSION. `missingReferenceSplit.both` was never read: present and absent
+  // were floored and `both` took the remainder, so a declared {.5,.5,0} over 57
+  // cases produced 28/28/1 -- contradicting the zero it was given.
+  const odd = allocateMissing(57, { present: 0.5, absent: 0.5, both: 0 });
+  assert.equal(odd.missingBoth, 0, "a declared both:0 must allocate zero");
+  assert.equal(odd.missingReferencePresent + odd.missingReferenceAbsent, 57);
+
+  // Odd counts still conserve, for every count and both parities.
+  for (const missing of [0, 1, 2, 3, 15, 40, 57, 58, 99]) {
+    for (const split of [
+      { present: 0.5, absent: 0.5, both: 0 },
+      { present: 0, absent: 0, both: 1 },
+      { present: 1, absent: 0, both: 0 },
+      { present: 1 / 3, absent: 1 / 3, both: 1 / 3 }
+    ]) {
+      const allocated = allocateMissing(missing, split);
+      const total = Object.values(allocated).reduce((a, b) => a + b, 0);
+      assert.equal(total, missing, `${missing} under ${JSON.stringify(split)} must conserve`);
+      for (const [key, share] of [["missingReferencePresent", split.present], ["missingReferenceAbsent", split.absent], ["missingBoth", split.both]]) {
+        if (share === 0) assert.equal(allocated[key], 0, `${key} declared 0 must stay 0`);
+      }
+    }
+  }
+
+  assert.throws(() => allocateMissing(10, { present: 0.5, absent: 0.4, both: 0 }), /must sum to 1/);
+});
+
+test("the worst composition is found exhaustively, not from sampled corners", () => {
+  // REGRESSION. Checking all-present / all-absent / balanced is not "worst
+  // realizable": at 100 usable, 15 missing, prevalence .2, recall .5,
+  // specificity .95 the maximum sits at ONE reference-present case, which all
+  // three sampled corners miss.
+  const matrix = confusionMatrix({ usableCases: 100, prevalence: 0.2, recall: 0.5, specificity: 0.95 });
+  const worst = worstComposition(matrix, 15, { allowUnknownReference: false });
+
+  const cornerWidth = (present) => {
+    const bounds = boundsOverAssignments(matrix, {
+      missingReferencePresent: present, missingReferenceAbsent: 15 - present, missingBoth: 0
+    });
+    return Math.max(...Object.values(bounds).filter(Boolean).map((b) => b.totalHalfWidth));
+  };
+  const sampledCorners = Math.max(cornerWidth(0), cornerWidth(15), cornerWidth(7));
+  assert.ok(
+    worst.widestHalfWidth > sampledCorners,
+    "the exhaustive maximum must exceed what the three sampled corners find"
+  );
+  assert.equal(worst.missing.missingBoth, 0, "references obtained means no case lacks one");
+
+  // No composition anywhere may exceed the reported worst.
+  for (let present = 0; present <= 15; present++) {
+    assert.ok(cornerWidth(present) <= worst.widestHalfWidth + 1e-12, `present=${present} escaped the worst case`);
+  }
+});
+
+test("an obtained reference cannot be missing", () => {
+  const matrix = confusionMatrix({ usableCases: 310, prevalence: 0.5, recall: 0.9, specificity: 0.95 });
+  const obtained = worstComposition(matrix, 40, { allowUnknownReference: false });
+  assert.equal(obtained.missing.missingBoth, 0);
+  const unknown = worstComposition(matrix, 40, { allowUnknownReference: true });
+  assert.ok(
+    unknown.widestHalfWidth >= obtained.widestHalfWidth,
+    "allowing unknown references can only widen the envelope"
+  );
+});
+
+test("floors are read off the conserved matrix, not recomputed", () => {
+  // REGRESSION. Expected margins recomputed from fractions disagreed with the
+  // matrix by one at several operating points, always fail-open.
+  for (const usableCases of [199, 221, 313, 443]) {
+    const point = { prevalence: 0.5, recall: 0.9, specificity: 0.95 };
+    const matrix = confusionMatrix({ usableCases, ...point });
+    const fromMatrix = denominatorsFromMatrix(matrix);
+    const result = simulatePolicy({
+      policy: "detector-scoped-complete-case", plannedCases: usableCases, scoreableRate: 1, ...point
+    });
+    assert.deepEqual(result.denominators, fromMatrix, `n=${usableCases} floors must match the matrix`);
+    assert.equal(
+      fromMatrix.referencePresent + fromMatrix.referenceAbsent,
+      matrixTotal(matrix),
+      "the reference partition must cover the matrix"
+    );
+    assert.equal(
+      fromMatrix.predictedDetected + fromMatrix.predictedNotDetected,
+      matrixTotal(matrix),
+      "the prediction partition must cover the matrix"
+    );
+  }
 });

@@ -119,6 +119,12 @@ the floor where the matrix held 99), which let a short class pass.
 | | C, references unknown | ✗ 15.1% | ✗ 14.3% |
 | | C, references obtained, worst composition | ✗ 15.1% | ✗ 14.3% |
 
+Both C rows take the **exhaustively worst realizable composition** over every
+integer allocation, not a sampled corner. Sampling three corners is not the same
+thing: at 100 usable / 15 missing / prevalence .2 / recall .5 the true maximum
+sits at one reference-present case, which all-present, all-absent and balanced
+all miss.
+
 ### C does not clear, at any N modelled
 
 An earlier draft reported C clearing at N=500 with 9.9%. That number assumed the
@@ -140,10 +146,14 @@ written as one.
 ### Scoreability is itself estimated
 
 Every row above sizes from the arm's point estimate of 88.5% CNAME-scoreable,
-whose Wilson interval is 78.2%–94.3% on n=61 with two clusters. At the lower
-bound, C at N=350 with balanced references is **16.0%**. Reference availability
-is therefore not the lone decision variable; the scoreable rate is a second
-estimated input the corpus does not pin down.
+whose Wilson interval is 78.2%–94.3% on n=61 with two clusters. At that endpoint,
+C at N=350 with balanced references is **16.0%**.
+
+That 78.2% is a **per-case Wilson endpoint and therefore an iid-only
+diagnostic** — this arm has two clusters, so it is not a defensible design lower
+bound. It shows only that sizing on the point estimate assumes a quantity the
+corpus does not pin down; a real design bound needs a cluster-aware estimate the
+corpus cannot currently supply.
 
 ## B's inference scope
 

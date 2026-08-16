@@ -81,56 +81,57 @@ POLICY SIMULATION -- every rate on ITS OWN marginal denominator
   inputs. Several are shown because the answer depends on them.
 
   prev .50 recall .90 spec .95
-    policy                                N usable widest metric              half  floors publishable
-    A  zero-censoring (current)           200     89 sensitivity (45)             8.6%  NO           all-or-nothing unmet (44.3% usable)  n=89
-    A  zero-censoring (current)           350    155 sensitivity (78)             6.8%  NO           all-or-nothing unmet (44.3% usable)  n=155
-    A  zero-censoring (current)           500    221 falseNegativeRate (111)      5.6%  NO           all-or-nothing unmet (44.3% usable)  n=221
-    B  detector-scoped complete-case      200    177 falseNegativeRate (89)       6.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected  n=177
-    B  detector-scoped complete-case      350    310 sensitivity (155)            4.7%  yes          scope: subpopulation only  n=310
-    B  detector-scoped complete-case      500    443 sensitivity (222)            4.0%  yes          scope: subpopulation only  n=443
-    C  bounded + conservative bounds [refs unknown]  200    177 falseNegativeRate (89)      16.6%  NO           FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected  n=200
+    policy                                                  N usable widest rate                  half  numEligible  why
+    A  zero-censoring (current)                           200     89 sensitivity (45)             8.6%  NO           all-or-nothing unmet (44.3% usable)  n=89
+    A  zero-censoring (current)                           350    155 sensitivity (78)             6.8%  NO           all-or-nothing unmet (44.3% usable)  n=155
+    A  zero-censoring (current)                           500    221 falseNegativeRate (111)      5.6%  NO           all-or-nothing unmet (44.3% usable)  n=221
+    B  detector-scoped complete-case                      200    177 falseNegativeRate (89)       6.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected  n=177
+    B  detector-scoped complete-case                      350    310 sensitivity (155)            4.7%  yes          scope: subpopulation only  n=310
+    B  detector-scoped complete-case                      500    443 sensitivity (222)            4.0%  yes          scope: subpopulation only  n=443
+    C  bounded + conservative bounds [refs unknown, worst composition]  200    177 falseNegativeRate (89)      16.6%  NO           FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected  n=200
     C  bounded + conservative bounds [refs obtained, worst composition]  200    177 falseNegativeRate (89)      16.6%  NO           FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected  n=200
-    C  bounded + conservative bounds [refs unknown]  350    310 sensitivity (155)           15.1%  NO           ok  n=350
+    C  bounded + conservative bounds [refs unknown, worst composition]  350    310 sensitivity (155)           15.1%  NO           ok  n=350
     C  bounded + conservative bounds [refs obtained, worst composition]  350    310 sensitivity (155)           15.1%  NO           ok  n=350
-    C  bounded + conservative bounds [refs unknown]  500    443 sensitivity (222)           14.3%  NO           ok  n=500
+    C  bounded + conservative bounds [refs unknown, worst composition]  500    443 sensitivity (222)           14.3%  NO           ok  n=500
     C  bounded + conservative bounds [refs obtained, worst composition]  500    443 sensitivity (222)           14.3%  NO           ok  n=500
 
   prev .50 recall .70 spec .95
-    policy                                N usable widest metric              half  floors publishable
-    A  zero-censoring (current)           200     89 falseNegativeRate (45)      13.1%  NO           all-or-nothing unmet (44.3% usable)  n=89
-    A  zero-censoring (current)           350    155 sensitivity (78)             9.9%  NO           all-or-nothing unmet (44.3% usable)  n=155
-    A  zero-censoring (current)           500    221 falseNegativeRate (111)      8.4%  NO           all-or-nothing unmet (44.3% usable)  n=221
-    B  detector-scoped complete-case      200    177 sensitivity (89)             9.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected  n=177
-    B  detector-scoped complete-case      350    310 sensitivity (155)            7.1%  yes          scope: subpopulation only  n=310
-    B  detector-scoped complete-case      500    443 sensitivity (222)            6.0%  yes          scope: subpopulation only  n=443
-    C  bounded + conservative bounds [refs unknown]  200    177 precision (66)              19.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected  n=200
+    policy                                                  N usable widest rate                  half  numEligible  why
+    A  zero-censoring (current)                           200     89 falseNegativeRate (45)      13.1%  NO           all-or-nothing unmet (44.3% usable)  n=89
+    A  zero-censoring (current)                           350    155 sensitivity (78)             9.9%  NO           all-or-nothing unmet (44.3% usable)  n=155
+    A  zero-censoring (current)                           500    221 falseNegativeRate (111)      8.4%  NO           all-or-nothing unmet (44.3% usable)  n=221
+    B  detector-scoped complete-case                      200    177 sensitivity (89)             9.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected  n=177
+    B  detector-scoped complete-case                      350    310 sensitivity (155)            7.1%  yes          scope: subpopulation only  n=310
+    B  detector-scoped complete-case                      500    443 sensitivity (222)            6.0%  yes          scope: subpopulation only  n=443
+    C  bounded + conservative bounds [refs unknown, worst composition]  200    177 precision (66)              19.4%  NO           FAIL referencePresent,referenceAbsent,predictedDetected  n=200
     C  bounded + conservative bounds [refs obtained, worst composition]  200    177 precision (66)              19.1%  NO           FAIL referencePresent,referenceAbsent,predictedDetected  n=200
-    C  bounded + conservative bounds [refs unknown]  350    310 precision (117)             17.8%  NO           ok  n=350
+    C  bounded + conservative bounds [refs unknown, worst composition]  350    310 precision (117)             17.8%  NO           ok  n=350
     C  bounded + conservative bounds [refs obtained, worst composition]  350    310 precision (117)             17.3%  NO           ok  n=350
-    C  bounded + conservative bounds [refs unknown]  500    443 precision (166)             17.0%  NO           ok  n=500
+    C  bounded + conservative bounds [refs unknown, worst composition]  500    443 precision (166)             17.0%  NO           ok  n=500
     C  bounded + conservative bounds [refs obtained, worst composition]  500    443 precision (166)             16.5%  NO           ok  n=500
 
   prev .35 recall .70 spec .95
-    policy                                N usable widest metric              half  floors publishable
-    A  zero-censoring (current)           200     89 sensitivity (31)            15.2%  NO           all-or-nothing unmet (44.3% usable)  n=89
-    A  zero-censoring (current)           350    155 sensitivity (54)            11.8%  NO           all-or-nothing unmet (44.3% usable)  n=155
-    A  zero-censoring (current)           500    221 sensitivity (77)            10.0%  NO           all-or-nothing unmet (44.3% usable)  n=221
-    B  detector-scoped complete-case      200    177 sensitivity (62)            11.2%  NO           FAIL referencePresent,predictedDetected  n=177
-    B  detector-scoped complete-case      350    310 falseNegativeRate (109)      8.5%  NO           FAIL predictedDetected  n=310
-    B  detector-scoped complete-case      500    443 sensitivity (155)            7.1%  yes          scope: subpopulation only  n=443
-    C  bounded + conservative bounds [refs unknown]  200    177 precision (49)              24.0%  NO           FAIL referencePresent,predictedDetected  n=200
+    policy                                                  N usable widest rate                  half  numEligible  why
+    A  zero-censoring (current)                           200     89 sensitivity (31)            15.2%  NO           all-or-nothing unmet (44.3% usable)  n=89
+    A  zero-censoring (current)                           350    155 sensitivity (54)            11.8%  NO           all-or-nothing unmet (44.3% usable)  n=155
+    A  zero-censoring (current)                           500    221 sensitivity (77)            10.0%  NO           all-or-nothing unmet (44.3% usable)  n=221
+    B  detector-scoped complete-case                      200    177 sensitivity (62)            11.2%  NO           FAIL referencePresent,predictedDetected  n=177
+    B  detector-scoped complete-case                      350    310 falseNegativeRate (109)      8.5%  NO           FAIL predictedDetected  n=310
+    B  detector-scoped complete-case                      500    443 sensitivity (155)            7.1%  yes          scope: subpopulation only  n=443
+    C  bounded + conservative bounds [refs unknown, worst composition]  200    177 precision (49)              24.0%  NO           FAIL referencePresent,predictedDetected  n=200
     C  bounded + conservative bounds [refs obtained, worst composition]  200    177 precision (49)              23.0%  NO           FAIL referencePresent,predictedDetected  n=200
-    C  bounded + conservative bounds [refs unknown]  350    310 precision (86)              22.0%  NO           FAIL predictedDetected  n=350
+    C  bounded + conservative bounds [refs unknown, worst composition]  350    310 precision (86)              22.0%  NO           FAIL predictedDetected  n=350
     C  bounded + conservative bounds [refs obtained, worst composition]  350    310 precision (86)              21.0%  NO           FAIL predictedDetected  n=350
-    C  bounded + conservative bounds [refs unknown]  500    443 precision (123)             21.0%  NO           ok  n=500
+    C  bounded + conservative bounds [refs unknown, worst composition]  500    443 precision (123)             21.0%  NO           ok  n=500
     C  bounded + conservative bounds [refs obtained, worst composition]  500    443 precision (123)             19.9%  NO           ok  n=500
 
   SCOREABILITY IS ITSELF ESTIMATED. The rows above use the arm's point
-  estimate 88.5% for CNAME-scoreable, whose Wilson interval is wide
-  (n=61, two clusters). Sizing on the point estimate assumes a
-  quantity this corpus does not pin down. At its lower bound:
-    C @ N=350, scoreable=78.2% (lower bound), balanced refs -> 16.0% (sensitivity)
-    C @ N=500, scoreable=78.2% (lower bound), balanced refs -> 15.3% (precision)
+  estimate 88.5% for CNAME-scoreable. The endpoint below is a
+  PER-CASE WILSON BOUND and therefore an iid-only diagnostic: this arm has
+  two clusters, so it is NOT a defensible design lower bound, only an
+  indication that sizing on the point estimate assumes what is not pinned down.
+    C @ N=350, scoreable=78.2% (iid-only endpoint), balanced refs -> 16.0% (sensitivity)
+    C @ N=500, scoreable=78.2% (iid-only endpoint), balanced refs -> 15.3% (falseNegativeRate)
 
   POLICY A CANNOT BE READ FROM WIDTH. It publishes only when the study
   censored NOTHING. At the arm's 44.3% zero-loss rate that is not a
