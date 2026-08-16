@@ -60,24 +60,76 @@ NULL-DETAIL REQUEST LOSS -- compatibility-derived attribution
   NOTE: the frozen r2 ledger carries no structured detail for these, so this
   attribution is COMPATIBILITY-DERIVED from warning text, not canonical.
 
-POLICY SIMULATION -- CNAME arm rates applied to planned N
-  statistical half-width is Wilson at the worst case p=0.5 on the usable denominator.
-  C additionally admits indeterminate predictions and widens by their share.
+CATEGORY STRATA (CNAME arm)
+  search                 n=  9  zero-loss  44.4%  CNAME-scoreable 100.0%
+  kids                   n=  9  zero-loss  55.6%  CNAME-scoreable 100.0%
+  money                  n=  9  zero-loss  22.2%  CNAME-scoreable 100.0%
+  news                   n=  8  zero-loss  50.0%  CNAME-scoreable  62.5%
+  gov                    n=  7  zero-loss  42.9%  CNAME-scoreable  71.4%
+  shopping               n=  6  zero-loss  33.3%  CNAME-scoreable  83.3%
+  health                 n=  6  zero-loss  50.0%  CNAME-scoreable  83.3%
+  dating                 n=  6  zero-loss  50.0%  CNAME-scoreable 100.0%
+  not-in-gallery         n=  1  zero-loss 100.0%  CNAME-scoreable 100.0%
 
-  policy                                N  usable  indet    stat  missing   total
-  A zero-censoring (current)          200      89      0   10.2%     0.0%   10.2%
-  A zero-censoring (current)          350     155      0    7.8%     0.0%    7.8%
-  A zero-censoring (current)          500     221      0    6.5%     0.0%    6.5%
+POLICY SIMULATION -- every rate on ITS OWN marginal denominator
+  The gate evaluates each rate on its own class, and every class is a
+  FRACTION of the usable total, so a pooled half-width understates all of
+  them. Floors (>=100 per class) are checked alongside width (<=0.1).
 
-  B detector-specific zero-censoring  200     177      0    7.3%     0.0%    7.3%
-  B detector-specific zero-censoring  350     310      0    5.5%     0.0%    5.5%
-  B detector-specific zero-censoring  500     443      0    4.6%     0.0%    4.6%
+  Operating point is an ASSUMPTION, not a measurement: the corpus has no
+  independent references, so prevalence/recall/specificity are declared
+  inputs. Several are shown because the answer depends on them.
 
-  C bounded + conservative bounds     200     177     20    7.3%    10.0%   12.3%
-  C bounded + conservative bounds     350     310     34    5.5%     9.7%   10.4%
-  C bounded + conservative bounds     500     443     49    4.6%     9.8%    9.5%
+  prev .50 recall .90 spec .95
+    policy                                N usable widest metric              half  floors publishable
+    A  zero-censoring (current)         200     89 precision (42)            14.5% FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected NO
+    A  zero-censoring (current)         350    155 precision (74)            11.1% FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected NO
+    A  zero-censoring (current)         500    221 precision (105)            9.4%      ok yes
+    B  detector-scoped complete-case    200    177 precision (84)            10.5% FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected NO
+    B  detector-scoped complete-case    350    310 precision (147)            8.0%      ok yes
+    B  detector-scoped complete-case    500    443 precision (210)            6.7%      ok yes
+    C  bounded + conservative bounds [bal]  200    177 precision (84)            13.3% FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected NO
+    C  bounded + conservative bounds [worst]  200    177 precision (84)            20.1% FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected NO
+    C  bounded + conservative bounds [bal]  350    310 precision (147)           10.6%      ok NO
+    C  bounded + conservative bounds [worst]  350    310 precision (147)           17.4%      ok NO
+    C  bounded + conservative bounds [bal]  500    443 precision (210)            9.4%      ok yes
+    C  bounded + conservative bounds [worst]  500    443 precision (210)           16.2%      ok NO
 
-  Policy A publishes ONLY when every case is clean. At the arm rate above that
-  is not a smaller study, it is no study; no q^N is quoted because failures
-  here are clustered by batch and build rather than independent.
-  The approved maximum worst-case half-width is 0.1.
+  prev .50 recall .70 spec .95
+    policy                                N usable widest metric              half  floors publishable
+    A  zero-censoring (current)         200     89 precision (33)            16.1% FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected NO
+    A  zero-censoring (current)         350    155 precision (58)            12.5% FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected NO
+    A  zero-censoring (current)         500    221 precision (83)            10.5% FAIL predictedDetected NO
+    B  detector-scoped complete-case    200    177 precision (66)            11.7% FAIL referencePresent,referenceAbsent,predictedDetected NO
+    B  detector-scoped complete-case    350    310 precision (116)            9.0%      ok yes
+    B  detector-scoped complete-case    500    443 precision (166)            7.5%      ok yes
+    C  bounded + conservative bounds [bal]  200    177 precision (66)            14.6% FAIL referencePresent,referenceAbsent,predictedDetected NO
+    C  bounded + conservative bounds [worst]  200    177 precision (66)            23.4% FAIL referencePresent,referenceAbsent,predictedDetected NO
+    C  bounded + conservative bounds [bal]  350    310 precision (116)           11.4%      ok NO
+    C  bounded + conservative bounds [worst]  350    310 precision (116)           20.3%      ok NO
+    C  bounded + conservative bounds [bal]  500    443 precision (166)           10.1%      ok NO
+    C  bounded + conservative bounds [worst]  500    443 precision (166)           18.9%      ok NO
+
+  prev .35 recall .70 spec .95
+    policy                                N usable widest metric              half  floors publishable
+    A  zero-censoring (current)         200     89 precision (25)            18.2% FAIL referencePresent,referenceAbsent,predictedDetected,predictedNotDetected NO
+    A  zero-censoring (current)         350    155 precision (43)            14.3% FAIL referencePresent,predictedDetected NO
+    A  zero-censoring (current)         500    221 precision (61)            12.2% FAIL referencePresent,predictedDetected NO
+    B  detector-scoped complete-case    200    177 precision (49)            13.5% FAIL referencePresent,predictedDetected NO
+    B  detector-scoped complete-case    350    310 precision (86)            10.3% FAIL predictedDetected NO
+    B  detector-scoped complete-case    500    443 precision (123)            8.7%      ok yes
+    C  bounded + conservative bounds [bal]  200    177 precision (49)            16.4% FAIL referencePresent,predictedDetected NO
+    C  bounded + conservative bounds [worst]  200    177 precision (49)            28.0% FAIL referencePresent,predictedDetected NO
+    C  bounded + conservative bounds [bal]  350    310 precision (86)            13.1% FAIL predictedDetected NO
+    C  bounded + conservative bounds [worst]  350    310 precision (86)            24.5% FAIL predictedDetected NO
+    C  bounded + conservative bounds [bal]  500    443 precision (123)           11.4%      ok NO
+    C  bounded + conservative bounds [worst]  500    443 precision (123)           22.9%      ok NO
+
+  POLICY A CANNOT BE READ FROM WIDTH. It publishes only when the study
+  censored NOTHING. At the arm's 44.3% zero-loss rate that is not a
+  narrower study, it is no study, and no q^N is quoted because these
+  failures are clustered by batch and build rather than independent.
+
+  NO CATEGORICAL "N CLEARS" CLAIM IS MADE. Whether any policy publishes
+  depends on the operating point above, which the corpus cannot supply.
+  These rows show feasibility under declared assumptions only.

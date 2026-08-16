@@ -88,36 +88,71 @@ candidates for load reliability will not move these rates.
 is a DNS chain; none of those families touch it. These are genuine recoveries,
 not a relaxation of evidence.
 
+## Policy definitions
+
+The first draft conflated A and B. They are different *shapes* of rule:
+
+- **A `zero-censoring` (current).** Publishes only if the study censored
+  **nothing**. One censored case and there is no rate at all.
+- **B `detector-scoped-complete-case`.** Analyses cases whose detector-required
+  inputs are whole and reports the rest as coverage loss. This is a
+  complete-case analysis; calling it "detector-scoped zero-censoring" would
+  claim a study-level guarantee it does not make.
+- **C `bounded-censoring-with-sensitivity-analysis`.** Admits all bare-load-valid
+  cases, assigning indeterminate predictions adversarially to produce bounds.
+
 ## Policy simulation
 
-Statistical half-width is Wilson at the worst case `p = 0.5` on the usable
-denominator; `C` additionally widens by the indeterminate share. The approved
-maximum worst-case half-width is **0.1**.
+Every rate is sized on **its own marginal denominator**, never the usable total.
+`predictedDetected` is not `referencePresent`: at recall `r` it is
+`r·referencePresent + (1−specificity)·referenceAbsent`, so sizing the reference
+class to 100 can still starve the detector's own class. An earlier draft computed
+one Wilson half-width from the total and reported 5.5% where the binding class
+carries 8–9%.
 
-| policy | N | usable | indet | stat | missing | total |
-|---|---:|---:|---:|---:|---:|---:|
-| A zero-censoring | 350 | 155 | 0 | 7.8% | 0.0% | **7.8%** |
-| B detector-specific | 350 | 310 | 0 | 5.5% | 0.0% | **5.5%** |
-| C bounded + conservative | 350 | 310 | 34 | 5.5% | 9.7% | **10.4%** |
-| C bounded + conservative | 500 | 443 | 49 | 4.6% | 9.8% | **9.5%** |
+Floors (≥100 per class) are enforced **alongside** width (≤0.1), because a study
+can be narrow and still ineligible.
 
-Policy A's column is misleading on its own: it publishes only when *every* case
-is clean, so at a 44.3% arm rate it is not a smaller study, it is no study.
+The operating point is an **assumption, not a measurement** — the corpus has no
+independent references — so several are shown.
 
-**C does not clear 0.1 at N = 350.** It needs roughly N = 500. That is the
-opposite of this analysis's first conclusion and follows directly from counting
-indeterminate predictions honestly.
+**`precision` is the binding metric at every point**, because `predictedDetected`
+is the smallest class.
 
-## Recommendation
+| operating point | policy | N=350 | N=500 |
+|---|---|---|---|
+| prev .50 · recall .90 | A | ✗ floors | ✓ 9.4% |
+| | B | **✓ 8.0%** | ✓ 6.7% |
+| | C balanced | ✗ 10.6% | ✓ 9.4% |
+| | C worst-class | ✗ 17.4% | ✗ 16.2% |
+| prev .50 · recall .70 | B | **✓ 9.0%** | ✓ 7.5% |
+| | C balanced | ✗ 11.4% | ✗ 10.1% |
+| | C worst-class | ✗ 20.3% | ✗ 18.9% |
+| prev .35 · recall .70 | B | ✗ floor | ✓ 8.7% |
+| | C balanced | ✗ 13.1% | ✗ 11.4% |
+| | C worst-class | ✗ 24.5% | ✗ 22.9% |
 
-- **B as the preregistered primary policy.** It is a correction rather than a
-  concession: the current rule requires evidence the study never uses, and
-  every recovered case has whole inputs for the detector under study.
-- **C as the preregistered sensitivity analysis**, sized at N ≈ 500 rather than
-  350 if its bounds are to be publishable.
-- **A retained as the gold tier**, reported when it happens to hold.
-- Choose the maximum bound width from what is scientifically useful, **not**
-  from the observed censoring rate. The rates here establish feasibility only.
+**No categorical "N clears" claim is made.** An earlier draft asserted C clears at
+N≈500; under class-specific denominators C fails the worst-class-concentration
+scenario at every N shown, and B's publishability depends on prevalence.
+
+Policy A cannot be read from width at all: at the arm's 44.3% zero-loss rate it
+is not a narrower study, it is no study.
+
+## What the evidence supports
+
+- **B recovers 27 genuinely usable historical runs** and is the only candidate
+  that publishes at N=350 under favourable operating points.
+- **C's cost is scenario-dependent and large.** Without independent references
+  the corpus cannot say which class holds the indeterminate cases, so the
+  worst-class-concentration row governs — and it clears nowhere yet.
+- Unrelated-family losses should not censor CNAME.
+- Six arm predictions are indeterminate because request inputs were incomplete.
+- Bare-load-only screening is insufficient: screening must measure
+  **detector-input readiness** without reading prediction values.
+
+It does **not** yet support "B is publishable at N=350" as an unconditional
+claim, nor any statement that C clears at a given N.
 
 ## Not settled here
 

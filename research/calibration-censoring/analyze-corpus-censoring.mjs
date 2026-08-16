@@ -38,16 +38,50 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  METRIC_DENOMINATOR,
+  POLICIES,
+  simulatePolicy
+} from "../../scripts/calibration-censoring-simulation-lib.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const reportsDir = path.join(root, "public", "reports");
 
-/** The exact arm the CNAME study declares (lib/detector-calibration.ts). */
+/**
+ * The exact arm the CNAME study declares, and the canonical family list.
+ *
+ * Both are RESTATED here because this driver is plain ESM and the sources are
+ * TypeScript, so they are checked against those sources at startup rather than
+ * trusted. A silent drift would make the primary analysis describe a condition
+ * the study does not run in.
+ */
 const CNAME_ARM = Object.freeze({ device: "desktop", gpcEnabled: false, consentMode: "observe" });
 
 const EXPECTED_FAMILIES = Object.freeze([
   "requests", "cookies", "storage", "fingerprinting", "detector-output", "consent-verification"
 ]);
+
+function assertCanonicalConstants(repoRoot) {
+  const calibration = fs.readFileSync(path.join(repoRoot, "lib", "detector-calibration.ts"), "utf8");
+  const passiveArm = calibration.slice(calibration.lastIndexOf("return {"));
+  for (const [key, value] of [["device", '"desktop"'], ["gpcEnabled", "false"], ["consentMode", '"observe"']]) {
+    if (!passiveArm.includes(`${key}: ${value}`)) {
+      throw new Error(`declared CNAME arm drifted: lib/detector-calibration.ts no longer says ${key}: ${value}`);
+    }
+  }
+  const schema = fs.readFileSync(path.join(repoRoot, "lib", "scan-report-v2.ts"), "utf8");
+  const declared = schema
+    .match(/export const EVIDENCE_FAMILIES[^=]*=\s*\[([^\]]+)\]/)?.[1]
+    ?.match(/"([^"]+)"/g)
+    ?.map((entry) => entry.replaceAll('"', ""));
+  const same =
+    Array.isArray(declared) &&
+    declared.length === EXPECTED_FAMILIES.length &&
+    [...declared].sort().join(",") === [...EXPECTED_FAMILIES].sort().join(",");
+  if (!same) {
+    throw new Error(`evidence family list drifted from EVIDENCE_FAMILIES: ${JSON.stringify(declared)}`);
+  }
+}
 
 /**
  * Families whose loss can corrupt a CNAME PREDICTION.
@@ -253,33 +287,80 @@ say(`  NOTE: the frozen r2 ledger carries no structured detail for these, so thi
 say(`  attribution is COMPATIBILITY-DERIVED from warning text, not canonical.`);
 say();
 
-say(`POLICY SIMULATION -- CNAME arm rates applied to planned N`);
-say(`  statistical half-width is Wilson at the worst case p=0.5 on the usable denominator.`);
-say(`  C additionally admits indeterminate predictions and widens by their share.`);
+say(`CATEGORY STRATA (CNAME arm)`);
+{
+  const groups = new Map();
+  for (const r of arm) {
+    const k = categoryOf.get(r.domain) ?? "not-in-gallery";
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r);
+  }
+  [...groups.entries()].sort((a, b) => b[1].length - a[1].length).forEach(([k, items]) => {
+    const a = items.filter(allFamilyZeroLoss).length;
+    const b = items.filter(cnameScoreable).length;
+    say(`  ${String(k).padEnd(22)} n=${String(items.length).padStart(3)}  zero-loss ${pct(a / items.length).padStart(6)}  CNAME-scoreable ${pct(b / items.length).padStart(6)}`);
+  });
+}
 say();
-const armRate = (predicate) => (arm.length ? arm.filter(predicate).length / arm.length : 0);
-const rateA = armRate(allFamilyZeroLoss);
-const rateB = armRate(cnameScoreable);
-const rateIndet = armRate(cnameIndeterminate);
-say(`  ${"policy".padEnd(34)} ${"N".padStart(4)} ${"usable".padStart(7)} ${"indet".padStart(6)} ${"stat".padStart(7)} ${"missing".padStart(8)} ${"total".padStart(7)}`);
-for (const [label, rate, indeterminateRate] of [
-  ["A zero-censoring (current)", rateA, 0],
-  ["B detector-specific zero-censoring", rateB, 0],
-  ["C bounded + conservative bounds", rateB, rateIndet]
-]) {
-  for (const N of [200, 350, 500]) {
-    const usable = Math.round(N * rate);
-    const indeterminate = Math.round(N * indeterminateRate);
-    const stat = usable > 0 ? wilson(Math.round(usable / 2), usable).half : 0.5;
-    const missing = N > 0 ? indeterminate / N : 0;
-    say(`  ${label.padEnd(34)} ${String(N).padStart(4)} ${String(usable).padStart(7)} ${String(indeterminate).padStart(6)} ${pct(stat).padStart(7)} ${pct(missing).padStart(8)} ${pct(stat + missing / 2).padStart(7)}`);
+
+say(`POLICY SIMULATION -- every rate on ITS OWN marginal denominator`);
+say(`  The gate evaluates each rate on its own class, and every class is a`);
+say(`  FRACTION of the usable total, so a pooled half-width understates all of`);
+say(`  them. Floors (>=100 per class) are checked alongside width (<=0.1).`);
+say();
+say(`  Operating point is an ASSUMPTION, not a measurement: the corpus has no`);
+say(`  independent references, so prevalence/recall/specificity are declared`);
+say(`  inputs. Several are shown because the answer depends on them.`);
+say();
+
+const rateOf = (predicate) => (arm.length ? arm.filter(predicate).length / arm.length : 0);
+const usableA = rateOf(allFamilyZeroLoss);
+const usableB = rateOf(cnameScoreable);
+const indetC = rateOf(cnameIndeterminate);
+
+const OPERATING_POINTS = [
+  { label: "prev .50 recall .90 spec .95", prevalence: 0.5, recall: 0.9, specificity: 0.95 },
+  { label: "prev .50 recall .70 spec .95", prevalence: 0.5, recall: 0.7, specificity: 0.95 },
+  { label: "prev .35 recall .70 spec .95", prevalence: 0.35, recall: 0.7, specificity: 0.95 }
+];
+
+for (const point of OPERATING_POINTS) {
+  say(`  ${point.label}`);
+  say(`    ${"policy".padEnd(34)} ${"N".padStart(4)} ${"usable".padStart(6)} ${"widest metric".padEnd(24)} ${"half".padStart(6)} ${"floors".padStart(7)} publishable`);
+  for (const [policyId, usableRate, indeterminateRate] of [
+    ["zero-censoring", usableA, 0],
+    ["detector-scoped-complete-case", usableB, 0],
+    ["bounded-censoring-with-sensitivity-analysis", usableB, indetC]
+  ]) {
+    for (const N of [200, 350, 500]) {
+      const scenarios = POLICIES[policyId].admitsIndeterminate
+        ? ["balanced", "worst-class-concentration"]
+        : ["balanced"];
+      for (const scenario of scenarios) {
+        const r = simulatePolicy({
+          policy: policyId, plannedCases: N, usableRate, indeterminateRate,
+          prevalence: point.prevalence, recall: point.recall, specificity: point.specificity, scenario
+        });
+        const tag = POLICIES[policyId].admitsIndeterminate ? ` [${scenario === "balanced" ? "bal" : "worst"}]` : "";
+        say(
+          `    ${(POLICIES[policyId].label + tag).padEnd(34)} ${String(N).padStart(4)} ${String(r.usableCases).padStart(6)} ` +
+          `${`${r.widestMetric} (${r.metrics[r.widestMetric].observed})`.padEnd(24)} ${pct(r.widestHalfWidth).padStart(6)} ` +
+          `${(r.failingFloors.length ? `FAIL ${r.failingFloors.join(",")}` : "ok").padStart(7)} ${r.publishable ? "yes" : "NO"}`
+        );
+      }
+    }
   }
   say();
 }
-say(`  Policy A publishes ONLY when every case is clean. At the arm rate above that`);
-say(`  is not a smaller study, it is no study; no q^N is quoted because failures`);
-say(`  here are clustered by batch and build rather than independent.`);
-say(`  The approved maximum worst-case half-width is 0.1.`);
+
+say(`  POLICY A CANNOT BE READ FROM WIDTH. It publishes only when the study`);
+say(`  censored NOTHING. At the arm's ${pct(usableA)} zero-loss rate that is not a`);
+say(`  narrower study, it is no study, and no q^N is quoted because these`);
+say(`  failures are clustered by batch and build rather than independent.`);
+say();
+say(`  NO CATEGORICAL "N CLEARS" CLAIM IS MADE. Whether any policy publishes`);
+say(`  depends on the operating point above, which the corpus cannot supply.`);
+say(`  These rows show feasibility under declared assumptions only.`);
 
 fs.writeFileSync(
   path.join(path.dirname(fileURLToPath(import.meta.url)), "corpus-censoring-findings.txt"),
