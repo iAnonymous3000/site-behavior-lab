@@ -9,9 +9,15 @@ import {
   MAX_PUBLIC_SCAN_PROXY_RESPONSE_BYTE_LIMIT,
   MAX_PUBLIC_SCAN_PROXY_UNIQUE_TARGET_LIMIT,
   MAX_PUBLIC_SCAN_PROXY_UPLOAD_BYTE_LIMIT,
+  PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME,
   isValidPublicScanProxyUpstreamStatusLine,
   startPublicScanProxy
 } from "./public-scan-proxy";
+
+test("response bytes have a distinct identity from the request-count ceiling", () => {
+  assert.equal(PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME, "response-bytes");
+  assert.notEqual(PUBLIC_SCAN_PROXY_RESPONSE_BYTE_BUDGET_NAME, "request-capture");
+});
 
 test("public scan proxy refuses private DNS results before opening the upstream socket", async (t) => {
   let privateServerHits = 0;
@@ -659,7 +665,7 @@ test("public scan proxy forwards a socket-level HTTP response below the aggregat
 
   assert.equal(rawResponseBody(wire).toString(), "hello");
   assert.deepEqual(proxy.getDiagnostics().responseByteBudget, {
-    name: "request-capture",
+    name: "response-bytes",
     family: "requests",
     limitBytes: 6,
     forwardedBytes: 5,
@@ -687,7 +693,7 @@ test("public scan proxy permits an exact HTTP byte-cap response, then refuses ne
   const exact = await rawProxyGet(proxy.server, `http://public.test:${upstreamPort}/exact`);
   assert.equal(rawResponseBody(exact).toString(), "hello");
   assert.deepEqual(proxy.getDiagnostics().responseByteBudget, {
-    name: "request-capture",
+    name: "response-bytes",
     family: "requests",
     limitBytes: 5,
     forwardedBytes: 5,
@@ -704,7 +710,7 @@ test("public scan proxy permits an exact HTTP byte-cap response, then refuses ne
     phaseId: null,
     kind: "cap",
     count: 1,
-    detail: "request-capture"
+    detail: "response-bytes"
   });
 });
 
@@ -723,7 +729,7 @@ test("public scan proxy truncates a socket-level HTTP response that exceeds the 
 
   assert.equal(rawResponseBody(wire).toString(), "abcde");
   assert.deepEqual(proxy.getDiagnostics().responseByteBudget, {
-    name: "request-capture",
+    name: "response-bytes",
     family: "requests",
     limitBytes: 5,
     forwardedBytes: 5,
@@ -734,7 +740,7 @@ test("public scan proxy truncates a socket-level HTTP response that exceeds the 
       phaseId: null,
       kind: "cap",
       count: 1,
-      detail: "request-capture"
+      detail: "response-bytes"
     }
   });
 });
@@ -786,7 +792,7 @@ test("public scan proxy aggregates one byte budget across HTTP responses and CON
   assert.equal(refused.byteLength, 0);
   assert.equal(httpHits, 2);
   assert.deepEqual(proxy.getDiagnostics().responseByteBudget, {
-    name: "request-capture",
+    name: "response-bytes",
     family: "requests",
     limitBytes: 10,
     forwardedBytes: 10,
@@ -797,7 +803,7 @@ test("public scan proxy aggregates one byte budget across HTTP responses and CON
       phaseId: null,
       kind: "cap",
       count: 2,
-      detail: "request-capture"
+      detail: "response-bytes"
     }
   });
 });

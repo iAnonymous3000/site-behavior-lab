@@ -98,7 +98,7 @@ export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1";
 
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
-  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}`;
+  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}`;
 
 /** Exact producer epoch attested by the reviewed Node r2/v3 corpus. */
 export const HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION =
@@ -248,6 +248,9 @@ export const HISTORICAL_SERVICE_ROLE_V1_NODE_R2_SERVICE_ROLE_TAXONOMY = Object.f
 export const HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION =
   "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
 export const HISTORICAL_NODE_R2_2026_08_04_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
+/** Exact method carried by the 2026-08-14 corpus before byte/count budget identities split. */
+export const HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
 export const HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
@@ -728,7 +731,7 @@ const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDEN
       nodeTuple(
         "node-v4-6c78-tldts7410-lists-2026-08-14",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
-        NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
+        HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         HISTORICAL_R2_LISTS_2026_08_14_ADBLOCK_IDENTITY
       )

@@ -742,7 +742,7 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
           : null
       },
       responseByteBudget: {
-        name: "request-capture",
+        name: "response-bytes",
         family: "requests",
         limitBytes: 100,
         forwardedBytes: input.responseBytes,
@@ -754,7 +754,7 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
               phaseId: null,
               kind: "cap",
               count: input.responseLoss,
-              detail: "request-capture"
+              detail: "response-bytes"
             }
           : null
       },
