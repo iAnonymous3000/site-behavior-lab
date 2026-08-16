@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import {
   BARE_LOAD_OUTCOME_FIELDS,
+  EXPECTED_EVIDENCE_FAMILIES,
   SWEEP_MINIMUM_PASS_SEPARATION_MS,
   assertBareLoadOnly,
   bareLoadOutcome,
@@ -41,7 +42,11 @@ function soundReport(runOverrides = {}) {
         run: { outcome: "complete" },
         byFamily: {
           requests: { outcome: "complete", reasons: [] },
-          fingerprinting: { outcome: "complete", reasons: [] }
+          cookies: { outcome: "complete", reasons: [] },
+          storage: { outcome: "complete", reasons: [] },
+          fingerprinting: { outcome: "complete", reasons: [] },
+          "detector-output": { outcome: "complete", reasons: [] },
+          "consent-verification": { outcome: "complete", reasons: [] }
         }
       },
       evidence: {
@@ -288,12 +293,15 @@ test("the recorded facts ledger is consulted, not just the derived family view",
   // producer RECORDED. This module runs no semantic r2 validation, so it cannot
   // assume they agree -- and it previously trusted the derived view alone while
   // defaulting an absent captureLoss array to [], i.e. "nothing was lost".
+  const completeLedger = Object.fromEntries(
+    EXPECTED_EVIDENCE_FAMILIES.map((family) => [family, { outcome: "complete", reasons: [] }])
+  );
   const withFacts = (qualityFacts) => ({
     run: {
       summary: { status: 200 },
       warnings: [],
       qualityFacts,
-      quality: { run: { outcome: "complete" }, byFamily: { requests: { outcome: "complete" } } }
+      quality: { run: { outcome: "complete" }, byFamily: completeLedger }
     }
   });
   const sound = (report) => bareLoadPassSound(project("case-f", report, 1, PASS_1));
@@ -383,6 +391,85 @@ test("the recorded facts ledger is consulted, not just the derived family view",
   assert.equal(rejected.recordedCaptureLosses, 1);
   assert.equal(rejected.budgetsExhausted, 1);
   assert.equal(JSON.stringify(rejected).includes("request-capture"), false, "counts only, no tokens");
+});
+
+test("the summary and the recorded facts must agree about one visit", () => {
+  // REGRESSION. Two statements about the same visit. This module runs no
+  // semantic validation, so it cannot adjudicate a disagreement -- and it must
+  // not silently pick the reassuring one. A summary reading 200 beside a
+  // recorded 403 previously passed as sound.
+  const disagreeing = soundReport({
+    summary: { status: 200 },
+    qualityFacts: {
+      status: 403,
+      navigationSettled: true,
+      botWallTitleMatched: false,
+      budgetsExhausted: [],
+      captureLoss: []
+    }
+  });
+  const outcome = project("case-s", disagreeing, 1, PASS_1);
+  assert.equal(outcome.statusAgrees, false);
+  assert.equal(bareLoadPassSound(outcome), false, "a disagreement is unverified, not a 200");
+
+  // A recorded status that is simply absent is also a disagreement.
+  const absent = soundReport({
+    qualityFacts: {
+      navigationSettled: true,
+      botWallTitleMatched: false,
+      budgetsExhausted: [],
+      captureLoss: []
+    }
+  });
+  assert.equal(project("case-s2", absent, 1, PASS_1).statusAgrees, false);
+
+  assert.equal(project("case-s3", soundReport(), 1, PASS_1).statusAgrees, true);
+});
+
+test("every expected evidence family must have reported complete", () => {
+  // REGRESSION. A ledger carrying only `requests` is a producer that never
+  // reported on the other five, not a clean run. Counting censored entries
+  // cannot see it: there is nothing there to count.
+  const partial = (families) =>
+    soundReport({
+      quality: {
+        run: { outcome: "complete" },
+        byFamily: Object.fromEntries(
+          families.map((family) => [family, { outcome: "complete", reasons: [] }])
+        )
+      }
+    });
+
+  const requestsOnly = project("case-p", partial(["requests"]), 1, PASS_1);
+  assert.equal(requestsOnly.familyLedgerComplete, false);
+  assert.equal(requestsOnly.censoredFamilyCount, 0, "the old rule saw nothing wrong here");
+  assert.equal(requestsOnly.requestEvidenceComplete, true, "and the old rule called it complete");
+  assert.equal(bareLoadPassSound(requestsOnly), false);
+
+  // Every single omission is caught, not just a wholesale one.
+  for (const omitted of EXPECTED_EVIDENCE_FAMILIES) {
+    const rest = EXPECTED_EVIDENCE_FAMILIES.filter((family) => family !== omitted);
+    assert.equal(
+      bareLoadPassSound(project("case-p", partial(rest), 1, PASS_1)),
+      false,
+      `a ledger missing ${omitted} must not be sound`
+    );
+  }
+
+  assert.equal(bareLoadPassSound(project("case-p", partial([...EXPECTED_EVIDENCE_FAMILIES]), 1, PASS_1)), true);
+});
+
+test("the expected family list matches the schema that defines it", () => {
+  const schema = readFileSync(path.join(moduleDir, "..", "lib", "scan-report-v2.ts"), "utf8");
+  const declared = schema
+    .match(/export const EVIDENCE_FAMILIES[^=]*=\s*\[([^\]]+)\]/)?.[1]
+    ?.match(/"([^"]+)"/g)
+    ?.map((entry) => entry.replaceAll('"', ""));
+  assert.deepEqual(
+    [...EXPECTED_EVIDENCE_FAMILIES].sort(),
+    [...(declared ?? [])].sort(),
+    "the sweep's family list must track EVIDENCE_FAMILIES, not drift from it"
+  );
 });
 
 test("a missing or unusable report is recorded as a failed pass, never skipped", () => {

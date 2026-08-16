@@ -41,6 +41,7 @@ export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
   "observedAt",
   "loaded",
   "status",
+  "statusAgrees",
   "navigationSettled",
   "subjectVerified",
   "botWalled",
@@ -48,8 +49,26 @@ export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
   "factsLedgerRecorded",
   "recordedCaptureLosses",
   "budgetsExhausted",
+  "familyLedgerComplete",
   "censoredFamilyCount",
   "requestEvidenceComplete"
+]);
+
+/**
+ * The six families a Node run records, pinned to `EVIDENCE_FAMILIES` in
+ * lib/scan-report-v2.ts by a guard in this module's test.
+ *
+ * A ledger carrying only some of them is not a clean run: it is a run whose
+ * producer never reported on the rest. Reading it as "nothing censored" is the
+ * same fail-open as an absent array, one level up.
+ */
+export const EXPECTED_EVIDENCE_FAMILIES = Object.freeze([
+  "requests",
+  "cookies",
+  "storage",
+  "fingerprinting",
+  "detector-output",
+  "consent-verification"
 ]);
 
 const BARE_LOAD_FIELD_SET = new Set(BARE_LOAD_OUTCOME_FIELDS);
@@ -124,6 +143,7 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     observedAt,
     loaded: false,
     status: null,
+    statusAgrees: false,
     navigationSettled: false,
     subjectVerified: false,
     botWalled: true,
@@ -131,6 +151,7 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     factsLedgerRecorded: false,
     recordedCaptureLosses: 0,
     budgetsExhausted: 0,
+    familyLedgerComplete: false,
     censoredFamilyCount: 0,
     requestEvidenceComplete: false
   };
@@ -164,12 +185,19 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     Array.isArray(facts.captureLoss) && Array.isArray(facts.budgetsExhausted);
   const captureLoss = factsLedgerRecorded ? facts.captureLoss : null;
 
+  // The summary and the recorded facts are two statements about one visit. This
+  // module runs no semantic validation, so a disagreement between them is not
+  // something it can resolve -- and it must not pick the reassuring one. A
+  // summary reading 200 beside a recorded 403 is an unverified report.
+  const statusAgrees = status !== null && facts.status === status;
+
   return assertBareLoadOnly({
     caseId,
     pass,
     observedAt,
     loaded: status !== null && status >= 200 && status < 400,
     status,
+    statusAgrees,
     // Read the producer's own recorded facts, never its English. The warning
     // strings restate these; a restatement drifts, and the report's canonical
     // botWallTitleMatched is the thing the evaluator actually decided.
@@ -183,6 +211,9 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     factsLedgerRecorded,
     recordedCaptureLosses: captureLoss === null ? 0 : captureLoss.length,
     budgetsExhausted: factsLedgerRecorded ? facts.budgetsExhausted.length : 0,
+    familyLedgerComplete: EXPECTED_EVIDENCE_FAMILIES.every(
+      (family) => byFamily[family]?.outcome === "complete"
+    ),
     censoredFamilyCount: families.filter((entry) => entry?.outcome === "censored").length,
     requestEvidenceComplete: byFamily.requests?.outcome === "complete"
   });
@@ -204,10 +235,16 @@ export function bareLoadPassSound(outcome) {
   assertBareLoadOnly(outcome, "eligibility input");
   return (
     outcome.loaded &&
+    // Two statements about one visit must agree; this module cannot adjudicate
+    // a disagreement, so it refuses the case instead of choosing a side.
+    outcome.statusAgrees &&
     outcome.navigationSettled &&
     outcome.subjectVerified &&
     !outcome.botWalled &&
     outcome.runOutcome === "complete" &&
+    // Every expected family reported, and reported complete. A partial ledger
+    // is a producer that never spoke about the rest, not a clean run.
+    outcome.familyLedgerComplete &&
     // Both ledgers, and both must be present. The derived family view alone is
     // not enough: it can say "complete" beside a recorded capture loss or an
     // exhausted budget, and nothing here validates that they agree.
