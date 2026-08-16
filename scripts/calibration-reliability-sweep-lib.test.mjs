@@ -29,7 +29,13 @@ function soundReport(runOverrides = {}) {
   return {
     run: {
       summary: { status: 200, pageTitle: "Example" },
-      qualityFacts: { navigationSettled: true },
+      qualityFacts: {
+        status: 200,
+        navigationSettled: true,
+        botWallTitleMatched: false,
+        budgetsExhausted: [],
+        captureLoss: []
+      },
       warnings: [],
       quality: {
         run: { outcome: "complete" },
@@ -117,9 +123,28 @@ test("every soundness clause demands positive evidence and fails closed", () => 
   // Each clause independently sinks an otherwise-sound visit.
   const cases = [
     ["a 3xx-only status", { summary: { status: 500 } }],
-    ["unsettled navigation", { qualityFacts: { navigationSettled: false } }],
-    ["an unverified page subject", { warnings: ["report could not verify the rendered page subject"] }],
-    ["a bot wall", { warnings: ["report recorded a suspected challenge or soft block"] }],
+    [
+      "unsettled navigation",
+      { qualityFacts: { navigationSettled: false, botWallTitleMatched: false, captureLoss: [] } }
+    ],
+    [
+      "an unverified page subject",
+      {
+        qualityFacts: {
+          navigationSettled: true,
+          botWallTitleMatched: false,
+          captureLoss: [{ family: "requests", kind: "dropped", count: 1, detail: "page-subject-validity" }]
+        }
+      }
+    ],
+    [
+      "a bot wall recorded in qualityFacts",
+      { qualityFacts: { navigationSettled: true, botWallTitleMatched: true, captureLoss: [] } }
+    ],
+    [
+      "a report with no qualityFacts at all",
+      { qualityFacts: undefined }
+    ],
     [
       "an incomplete run",
       { quality: { run: { outcome: "failed" }, byFamily: { requests: { outcome: "complete" } } } }
@@ -174,6 +199,88 @@ test("a candidate needs two sound passes at least 48 hours apart", () => {
     /duplicate pass 1/
   );
   assert.throws(() => candidateEligible([soundReport()]), /not a bare-load field/);
+});
+
+test("canonical producer facts outrank warning prose", () => {
+  // REGRESSION. The first version inferred bot walls and subject verification
+  // from warning STRINGS while the report carried qualityFacts.botWallTitleMatched
+  // and a page-subject-validity capture-loss entry. This module runs no semantic
+  // r2 validation, so prose was all it consulted -- and a report whose own
+  // evaluator recorded a bot wall passed as sound.
+  const botWalled = soundReport({
+    warnings: [],
+    qualityFacts: {
+      status: 200,
+      navigationSettled: true,
+      botWallTitleMatched: true,
+      budgetsExhausted: [],
+      captureLoss: []
+    }
+  });
+  const outcome = project("case-w", botWalled, 1, PASS_1);
+  assert.equal(outcome.botWalled, true, "the producer's own bot-wall verdict is the answer");
+  assert.equal(bareLoadPassSound(outcome), false);
+
+  // And the inverse: reassuring prose cannot rescue a recorded bot wall.
+  const withCalmWarnings = soundReport({
+    warnings: ["everything was completely fine"],
+    qualityFacts: {
+      status: 200,
+      navigationSettled: true,
+      botWallTitleMatched: true,
+      budgetsExhausted: [],
+      captureLoss: []
+    }
+  });
+  assert.equal(bareLoadPassSound(project("case-w2", withCalmWarnings, 1, PASS_1)), false);
+
+  // An absent botWallTitleMatched is not a clean bill of health.
+  const noVerdict = soundReport({
+    qualityFacts: { navigationSettled: true, captureLoss: [] }
+  });
+  assert.equal(project("case-w3", noVerdict, 1, PASS_1).botWalled, true);
+});
+
+test("the subject-validity token matches the producer that writes it", () => {
+  // One token restated in two files that drift is this repository's most common
+  // defect, so bind the sweep's copy to lib/bot-wall-classifier.ts.
+  const classifier = readFileSync(
+    path.join(moduleDir, "..", "lib", "bot-wall-classifier.ts"),
+    "utf8"
+  );
+  const declared = classifier.match(
+    /PAGE_SUBJECT_CAPTURE_LOSS_DETAIL\s*=\s*"([^"]+)"/
+  )?.[1];
+  assert.equal(declared, "page-subject-validity");
+  const sweep = readFileSync(
+    path.join(moduleDir, "calibration-reliability-sweep-lib.mjs"),
+    "utf8"
+  );
+  assert.ok(
+    sweep.includes(`PAGE_SUBJECT_CAPTURE_LOSS_DETAIL = "${declared}"`),
+    "the sweep must read the same page-subject token the producer writes"
+  );
+});
+
+test("the 48-hour rule is directed: pass 2 must follow pass 1", () => {
+  // REGRESSION. Math.abs accepted pass 2 occurring 48 hours BEFORE pass 1,
+  // which is not a screening interval -- it is two visits labelled out of
+  // order, qualifying a candidate on a chronology that never happened.
+  const p1Late = project("case-r", soundReport(), 1, "2026-08-18T00:00:00.000Z");
+  const p2Early = project("case-r", soundReport(), 2, "2026-08-16T00:00:00.000Z");
+  assert.equal(
+    candidateEligible([p1Late, p2Early]),
+    false,
+    "a reversed chronology must never qualify"
+  );
+  // Same instants in the correct order do qualify.
+  assert.equal(
+    candidateEligible([
+      project("case-r", soundReport(), 1, "2026-08-16T00:00:00.000Z"),
+      project("case-r", soundReport(), 2, "2026-08-18T00:00:00.000Z")
+    ]),
+    true
+  );
 });
 
 test("a missing or unusable report is recorded as a failed pass, never skipped", () => {

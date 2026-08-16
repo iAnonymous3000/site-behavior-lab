@@ -52,8 +52,14 @@ export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
 const BARE_LOAD_FIELD_SET = new Set(BARE_LOAD_OUTCOME_FIELDS);
 
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;
-const PAGE_SUBJECT_UNVERIFIED = /could not verify the rendered page subject|page subject/i;
-const SUSPECTED_CHALLENGE = /suspected challenge or soft block|bot-block|challenge page/i;
+
+/**
+ * The capture-loss detail the producer records when the page subject could not
+ * be verified. Pinned to `PAGE_SUBJECT_CAPTURE_LOSS_DETAIL` in
+ * lib/bot-wall-classifier.ts by a guard in this module's test, because a token
+ * restated in two files that drift is this repository's most common defect.
+ */
+const PAGE_SUBJECT_CAPTURE_LOSS_DETAIL = "page-subject-validity";
 
 function require(condition, message) {
   if (!condition) throw new Error(message);
@@ -124,15 +130,24 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
   };
 
   const run = isRecord(report) ? (report.run ?? report.baseline ?? null) : null;
-  if (!isRecord(run) || !isRecord(run.quality) || !isRecord(run.quality.byFamily)) {
-    // No r2 quality ledger means the producer recorded no verdict we can read.
+  // qualityFacts is required, not optional: it is where the producer records
+  // its own verdicts. Without it there is nothing to read but prose, and this
+  // module does not run semantic r2 validation, so a report missing it is
+  // unverified rather than fine.
+  if (
+    !isRecord(run) ||
+    !isRecord(run.quality) ||
+    !isRecord(run.quality.byFamily) ||
+    !isRecord(run.qualityFacts)
+  ) {
     return assertBareLoadOnly(unverified);
   }
 
+  const facts = run.qualityFacts;
   const status = typeof run.summary?.status === "number" ? run.summary.status : null;
   const byFamily = run.quality.byFamily;
   const families = Object.values(byFamily);
-  const warnings = Array.isArray(run.warnings) ? run.warnings : [];
+  const captureLoss = Array.isArray(facts.captureLoss) ? facts.captureLoss : [];
 
   return assertBareLoadOnly({
     caseId,
@@ -140,10 +155,14 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     observedAt,
     loaded: status !== null && status >= 200 && status < 400,
     status,
-    // Exact positive evidence, not "was not explicitly false".
-    navigationSettled: run.qualityFacts?.navigationSettled === true,
-    subjectVerified: !warnings.some((warning) => PAGE_SUBJECT_UNVERIFIED.test(warning)),
-    botWalled: warnings.some((warning) => SUSPECTED_CHALLENGE.test(warning)),
+    // Read the producer's own recorded facts, never its English. The warning
+    // strings restate these; a restatement drifts, and the report's canonical
+    // botWallTitleMatched is the thing the evaluator actually decided.
+    navigationSettled: facts.navigationSettled === true,
+    botWalled: facts.botWallTitleMatched !== false,
+    subjectVerified: !captureLoss.some(
+      (loss) => loss?.detail === PAGE_SUBJECT_CAPTURE_LOSS_DETAIL
+    ),
     runOutcome:
       typeof run.quality.run?.outcome === "string" ? run.quality.run.outcome : "unrecorded",
     censoredFamilyCount: families.filter((entry) => entry?.outcome === "censored").length,
@@ -196,9 +215,11 @@ export function candidateEligible(outcomes) {
   const second = passes.get(2);
   if (first === undefined || second === undefined) return false;
   if (!bareLoadPassSound(first) || !bareLoadPassSound(second)) return false;
-  const separation = Math.abs(
-    Date.parse(second.observedAt) - Date.parse(first.observedAt)
-  );
+  // Directed, not absolute. `Math.abs` accepted pass 2 occurring 48 hours
+  // BEFORE pass 1, which is not a screening interval at all -- it is two visits
+  // labelled out of order, and it would let a candidate qualify on a
+  // chronology that never happened.
+  const separation = Date.parse(second.observedAt) - Date.parse(first.observedAt);
   return separation >= SWEEP_MINIMUM_PASS_SEPARATION_MS;
 }
 
