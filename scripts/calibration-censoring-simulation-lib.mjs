@@ -150,6 +150,23 @@ export function confusionMatrix({ usableCases, prevalence, recall, specificity }
 const sum = (matrix, cells) => cells.reduce((total, cell) => total + matrix[cell], 0);
 export const matrixTotal = (matrix) => matrix.tp + matrix.fn + matrix.tn + matrix.fp;
 
+/**
+ * The four class denominators, read straight off the conserved matrix.
+ *
+ * `classDenominators` recomputes them from fractional expectations and can
+ * disagree with the matrix by one -- it reported referenceAbsent 100 where the
+ * matrix held 99, so a floor passed on a class that was actually short. Floors
+ * and intervals must come from the SAME cells.
+ */
+export function denominatorsFromMatrix(matrix) {
+  return {
+    referencePresent: matrix.tp + matrix.fn,
+    referenceAbsent: matrix.tn + matrix.fp,
+    predictedDetected: matrix.tp + matrix.fp,
+    predictedNotDetected: matrix.tn + matrix.fn
+  };
+}
+
 export function rateFrom(matrix, rateId) {
   const spec = RATE_CELLS[rateId];
   if (spec === undefined) throw new Error(`unknown rate ${rateId}`);
@@ -286,16 +303,37 @@ export function simulatePolicy({
     throw new Error(`matrix total ${matrixTotal(matrix)} does not conserve ${usableCases} usable cases`);
   }
 
-  const present = Math.round(missingCases * missingReferenceSplit.present);
-  const absent = Math.round(missingCases * missingReferenceSplit.absent);
+  // Conserve exactly. Rounding both halves of a 57-case split gave 29+29 and a
+  // missingBoth of -1, which extremalMatrices silently dropped -- so every
+  // matrix carried 58 extra cases while representedCases reported 57. Floor
+  // both named shares so the remainder is never negative, and assert the sum.
+  const present = Math.floor(missingCases * missingReferenceSplit.present);
+  const absent = Math.floor(missingCases * missingReferenceSplit.absent);
   const missing = {
     missingReferencePresent: present,
     missingReferenceAbsent: absent,
     missingBoth: missingCases - present - absent
   };
+  for (const [key, value] of Object.entries(missing)) {
+    if (!Number.isInteger(value) || value < 0) {
+      throw new Error(`${key} must be a non-negative integer, got ${value}`);
+    }
+  }
+  if (missing.missingReferencePresent + missing.missingReferenceAbsent + missing.missingBoth !== missingCases) {
+    throw new Error("missing-case split does not conserve the missing cases");
+  }
 
-  const denominators = classDenominators({ usableCases, prevalence, recall, specificity });
+  const denominators = denominatorsFromMatrix(matrix);
   const bounds = boundsOverAssignments(matrix, missing);
+
+  // Every enumerated assignment must place exactly the missing cases.
+  for (const { label, matrix: candidate } of extremalMatrices(matrix, missing)) {
+    if (matrixTotal(candidate) !== usableCases + missingCases) {
+      throw new Error(
+        `assignment ${label} totals ${matrixTotal(candidate)}, not ${usableCases + missingCases}`
+      );
+    }
+  }
 
   const failingFloors = CLASS_DENOMINATORS.filter((c) => denominators[c] < minimumClassDenominator);
   const rates = Object.entries(bounds).filter(([, b]) => b !== null);

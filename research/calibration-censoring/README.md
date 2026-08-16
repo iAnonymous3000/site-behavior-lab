@@ -103,43 +103,47 @@ The first draft conflated A and B. They are different *shapes* of rule:
 
 ## Policy simulation
 
-Four things the model must get right, each of which it previously did not.
+Bounds are a **Wilson envelope over realizable 2x2 assignments**: each assignment
+gets its own interval on its own denominator, and the envelope runs min-lower to
+max-upper. Missing cases carry constraint classes — a known-present case can only
+reach TP or FN; one missing both is unconstrained.
 
-**The frame is conserved.** C retains every bare-load-valid case, so its missing
-count comes from the whole admitted frame. An earlier draft passed scoreable and
-indeterminate rates summing to 60/61, so a study claiming N=350 represented 344.
-Matrix cells are also rounded by row rather than independently — independent
-rounding over-counted *every* frame checked by one.
-
-**Missing cases carry constraint classes, not a boolean.** A case whose
-prediction failed but whose reference is known present can only land in TP or
-FN; one missing both is unconstrained. An earlier `referenceKnown` boolean had
-two branches enumerating the *same* four cells, so it did nothing — and its test
-allowed equality, so it protected the bug.
-
-**Bounds are a Wilson envelope.** Each realizable assignment gets its own Wilson
-interval on its own denominator; the envelope is the minimum lower bound to the
-maximum upper bound. Adding an assignment half-range to a worst-case sampling
-half-width is neither a Wilson interval nor a bound on one, and it reported 17.3%
-with `precision` binding where the envelope gives 15.1% with **`sensitivity`**
-binding. The earlier claim that "precision binds everywhere" was an artifact of
-that arithmetic.
-
-**Numerical eligibility is not publishability.** See the next section.
+Floors and intervals are read from the **same conserved matrix**. Recomputing
+expected margins separately disagreed with it by one (`referenceAbsent` 100 for
+the floor where the matrix held 99), which let a short class pass.
 
 | operating point | policy | N=350 | N=500 |
 |---|---|---|---|
 | prev .50 · recall .90 | A | ✗ all-or-nothing (44.3% usable) | ✗ all-or-nothing |
 | | B | ✓ 4.7% *numerically* — scope unresolved | ✓ 4.0% — scope unresolved |
 | | C, references unknown | ✗ 15.1% | ✗ 14.3% |
-| | C, references obtained | ✗ 10.6% | ✓ 9.9% |
+| | C, references obtained, worst composition | ✗ 15.1% | ✗ 14.3% |
 
-**Whether C ever clears depends on a modelling claim.** If the study obtains an
-independent reference for every *admitted* case — defensible for CNAME, whose
-reference is a DNS resolution that does not depend on the scan — the envelope
-narrows by about 4.5 points and C clears at N=500. If references are unavailable
-for unscoreable cases, C clears nowhere. The default is the conservative case;
-the preregistration must state which applies and why.
+### C does not clear, at any N modelled
+
+An earlier draft reported C clearing at N=500 with 9.9%. That number assumed the
+missing rows split evenly between reference-present and reference-absent.
+**Obtaining references reveals the composition; it does not make it balanced.**
+At N=500:
+
+| missing-reference composition | widest | clears |
+|---|---:|---|
+| balanced | 9.9% | yes |
+| all reference-present | 14.3% | no |
+| all reference-absent | 14.0% | no |
+
+Prospective sizing must bound over the composition, so the worst realizable one
+governs and C clears nowhere. Publication could instead be preregistered as
+contingent on the realized rows, but that is a different commitment and must be
+written as one.
+
+### Scoreability is itself estimated
+
+Every row above sizes from the arm's point estimate of 88.5% CNAME-scoreable,
+whose Wilson interval is 78.2%–94.3% on n=61 with two clusters. At the lower
+bound, C at N=350 with balanced references is **16.0%**. Reference availability
+is therefore not the lone decision variable; the scoreable rate is a second
+estimated input the corpus does not pin down.
 
 ## B's inference scope
 
@@ -172,8 +176,15 @@ nor any statement that C clears at a given N.
 
 ## Reducing the sizing circularity
 
-`precision` binds, and it depends on the detector's own recall, which is unknown
-until a study runs. That is reducible rather than circular:
+**Which rate binds varies by operating point and by missing-reference
+composition** — `sensitivity` in most rows here, `precision` when the missing
+rows are all reference-absent, `falseNegativeRate` at the smaller Ns. An earlier
+draft asserted precision binds everywhere; that was an artifact of adding a
+half-range to a half-width rather than enveloping.
+
+What is stable is that the binding class is whichever is smallest, and
+`predictedDetected` depends on the detector's own recall, which is unknown until
+a study runs. That is reducible rather than circular:
 
 - Estimate **predicted-positive prevalence** on a **disjoint development pool**
   under the exact arm, exclude that pool from the confirmatory frame, and size

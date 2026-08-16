@@ -204,6 +204,15 @@ function clusterInterval(items, predicate, keyOf, iterations = 4000) {
 
 const pct = (x) => (x === null ? "n/a" : `${(x * 100).toFixed(1)}%`);
 
+/** Wilson bounds on an observed rate, for sizing that does not assume the point estimate. */
+function wilsonBounds(k, n, z = 1.96) {
+  if (n === 0) return { lo: 0, hi: 1 };
+  const p = k / n, d = 1 + (z * z) / n;
+  const c = (p + (z * z) / (2 * n)) / d;
+  const h = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
+  return { lo: Math.max(0, c - h), hi: Math.min(1, c + h) };
+}
+
 function rateRow(label, items, predicate) {
   const k = items.filter(predicate).length, n = items.length;
   const w = wilson(k, n);
@@ -346,22 +355,37 @@ for (const point of OPERATING_POINTS) {
     ["bounded-censoring-with-sensitivity-analysis", usableB]
   ]) {
     for (const N of [200, 350, 500]) {
-      // For C: references unknown (conservative) and references obtained for
-      // every admitted case. The gap between them is a modelling claim.
+      // For C: references unknown, and references obtained. Obtaining a
+      // reference REVEALS the composition of the missing rows; it does not make
+      // that composition balanced. Prospective sizing must therefore bound over
+      // the composition, so the "obtained" row takes the WORST of
+      // all-present / all-absent / balanced rather than assuming balance.
       const scenarios = POLICIES[policyId].admitsIndeterminate
-        ? [{ present: 0, absent: 0, both: 1 }, { present: 0.5, absent: 0.5, both: 0 }]
-        : [null];
-      for (const missingReferenceSplit of scenarios) {
-        const r = simulatePolicy({
-          policy: policyId, plannedCases: N,
-          scoreableRate: usableRate,
-          admittedRate: POLICIES[policyId].admitsIndeterminate ? admittedRate : usableRate,
-          ...(missingReferenceSplit ? { missingReferenceSplit } : {}),
-          prevalence: point.prevalence, recall: point.recall, specificity: point.specificity
-        });
-        const tag = POLICIES[policyId].admitsIndeterminate
-          ? (missingReferenceSplit.both === 1 ? " [refs unknown]" : " [refs obtained]")
-          : "";
+        ? [
+            { label: "refs unknown", compositions: [{ present: 0, absent: 0, both: 1 }] },
+            {
+              label: "refs obtained, worst composition",
+              compositions: [
+                { present: 1, absent: 0, both: 0 },
+                { present: 0, absent: 1, both: 0 },
+                { present: 0.5, absent: 0.5, both: 0 }
+              ]
+            }
+          ]
+        : [{ label: null, compositions: [null] }];
+      for (const scenario of scenarios) {
+        // Bound over the composition: the widest realizable one governs.
+        const candidates = scenario.compositions.map((missingReferenceSplit) =>
+          simulatePolicy({
+            policy: policyId, plannedCases: N,
+            scoreableRate: usableRate,
+            admittedRate: POLICIES[policyId].admitsIndeterminate ? admittedRate : usableRate,
+            ...(missingReferenceSplit ? { missingReferenceSplit } : {}),
+            prevalence: point.prevalence, recall: point.recall, specificity: point.specificity
+          })
+        );
+        const r = candidates.reduce((a, b) => (b.widestHalfWidth > a.widestHalfWidth ? b : a));
+        const tag = scenario.label ? ` [${scenario.label}]` : "";
         const why = r.allOrNothingUnsatisfiedAt !== null
           ? `all-or-nothing unmet (${pct(r.allOrNothingUnsatisfiedAt)} usable)`
           : r.failingFloors.length ? `FAIL ${r.failingFloors.join(",")}`
@@ -370,7 +394,7 @@ for (const point of OPERATING_POINTS) {
         say(
           `    ${(POLICIES[policyId].label + tag).padEnd(36)} ${String(N).padStart(4)} ${String(r.usableCases).padStart(6)} ` +
           `${`${r.widestRate} (${r.bounds[r.widestRate].observedDenominator})`.padEnd(26)} ${pct(r.widestHalfWidth).padStart(6)}  ` +
-          `${r.numericallyEligible ? "yes" : "NO "}  ${why}  n=${r.representedCases}`
+          `${(r.numericallyEligible ? "yes" : "NO ").padEnd(11)}  ${why}  n=${r.representedCases}`
         );
       }
     }
@@ -378,6 +402,23 @@ for (const point of OPERATING_POINTS) {
   say();
 }
 
+say(`  SCOREABILITY IS ITSELF ESTIMATED. The rows above use the arm's point`);
+say(`  estimate ${pct(usableB)} for CNAME-scoreable, whose Wilson interval is wide`);
+say(`  (n=${arm.length}, two clusters). Sizing on the point estimate assumes a`);
+say(`  quantity this corpus does not pin down. At its lower bound:`);
+{
+  const lower = wilsonBounds(arm.filter(cnameScoreable).length, arm.length).lo;
+  for (const N of [350, 500]) {
+    const r = simulatePolicy({
+      policy: "bounded-censoring-with-sensitivity-analysis",
+      plannedCases: N, scoreableRate: lower, admittedRate: admittedRate,
+      missingReferenceSplit: { present: 0.5, absent: 0.5, both: 0 },
+      prevalence: 0.5, recall: 0.9, specificity: 0.95
+    });
+    say(`    C @ N=${N}, scoreable=${pct(lower)} (lower bound), balanced refs -> ${pct(r.widestHalfWidth)} (${r.widestRate})`);
+  }
+}
+say();
 say(`  POLICY A CANNOT BE READ FROM WIDTH. It publishes only when the study`);
 say(`  censored NOTHING. At the arm's ${pct(usableA)} zero-loss rate that is not a`);
 say(`  narrower study, it is no study, and no q^N is quoted because these`);
