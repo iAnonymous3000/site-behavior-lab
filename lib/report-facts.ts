@@ -32,11 +32,11 @@ import {
   familyCensoredOnRun,
   familyUnsupportedOnRun,
   requestEvidenceState,
-  runCensorshipNotes,
   unsupportedEvidenceFamilies,
   type ReportView,
   type RunView
 } from "./scan-report-views";
+import { runCensorshipNotes } from "./scan-report-censorship";
 import {
   EVIDENCE_FAMILIES,
   type DetectorId,

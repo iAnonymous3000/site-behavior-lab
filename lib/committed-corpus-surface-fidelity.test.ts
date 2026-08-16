@@ -31,11 +31,11 @@ import {
   comparisonArmViews,
   displayRunView,
   familyCensoredOnRun,
-  runCensorshipNotes,
   runHitRequestRecordingCap,
   type ReportView,
   type RunView
 } from "./scan-report-views";
+import { runCensorshipNotes } from "./scan-report-censorship";
 import {
   listStaticReportCandidateIds,
   readStaticReportBundle

@@ -22,10 +22,9 @@ import {
 import { isPublicScanReportV2R2 } from "./scan-report-v2-r2-validation";
 import {
   familyUnsupportedOnRun,
-  runCensorshipNotes,
-  runQualitySummary,
   viewFromV2
 } from "./scan-report-views";
+import { runCensorshipNotes, runQualitySummary } from "./scan-report-censorship";
 import { sha256BytesHex } from "./sha256";
 import { publicReportDigest } from "./canonical-json";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";

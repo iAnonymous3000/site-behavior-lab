@@ -236,7 +236,7 @@ test("the Shields stat is denominated by requests the engine actually evaluated"
  * fingerprinting all completed.
  */
 test("the degraded-run notice scopes its lower-bound claim to what was censored", () => {
-  const views = source("lib/scan-report-views.ts");
+  const views = source("lib/scan-report-censorship.ts");
   const notice = views.slice(
     views.indexOf("export function degradedRunNotice"),
     views.indexOf("export function runQualitySummary")

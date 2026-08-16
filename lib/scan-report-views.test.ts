@@ -24,11 +24,11 @@ import {
 import {
   familyCensoredOnRun,
   requestEvidenceState,
-  runCensorshipNotes,
   runHitRequestRecordingCap,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
+import { runCensorshipNotes } from "./scan-report-censorship";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { runRequestEvidenceCapped } from "./comparison-eligibility";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
