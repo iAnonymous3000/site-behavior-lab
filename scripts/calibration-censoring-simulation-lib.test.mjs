@@ -340,5 +340,31 @@ test("worstCaseComposition is a validated enum, never a truthy flag", () => {
     ...base, worstCaseComposition: false, missingReferenceSplit: { present: 1, absent: 0, both: 0 }
   });
   assert.equal(declared.missing.missingReferencePresent, declared.missingCases);
-  assert.deepEqual([...WORST_CASE_COMPOSITION_MODES].sort(), [false, "including-unknown-reference", "references-obtained"].sort());
+  assert.deepEqual(
+    [...WORST_CASE_COMPOSITION_MODES].sort(),
+    [false, "including-unknown-reference", "references-obtained"].sort()
+  );
+});
+
+test("the allow-list itself cannot be widened at runtime", () => {
+  // REGRESSION. The enum was Object.freeze(new Set([...])), which does NOT stop
+  // Set.add -- that mutates internal slots, not properties. So the allow-list
+  // was mutable: any code could add "typo" and the validation would then accept
+  // it, silently selecting a model the author never approved. A frozen ARRAY
+  // makes push throw, which is what closes the list.
+  assert.ok(Array.isArray(WORST_CASE_COMPOSITION_MODES), "must be an array, not a Set");
+  assert.ok(Object.isFrozen(WORST_CASE_COMPOSITION_MODES));
+  assert.throws(() => WORST_CASE_COMPOSITION_MODES.push("typo"), TypeError);
+  assert.equal(WORST_CASE_COMPOSITION_MODES.includes("typo"), false);
+
+  // And the validation still rejects it after the attempt.
+  assert.throws(
+    () => simulatePolicy({
+      policy: "bounded-censoring-with-sensitivity-analysis",
+      plannedCases: 350, scoreableRate: 54 / 61, admittedRate: 1,
+      prevalence: 0.5, recall: 0.9, specificity: 0.95,
+      worstCaseComposition: "typo"
+    }),
+    /worstCaseComposition must be one of/
+  );
 });

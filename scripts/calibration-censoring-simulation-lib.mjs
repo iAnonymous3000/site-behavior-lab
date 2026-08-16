@@ -85,10 +85,20 @@ export const POLICIES = Object.freeze({
   })
 });
 
-/** The only accepted values for `worstCaseComposition`. */
-export const WORST_CASE_COMPOSITION_MODES = Object.freeze(
-  new Set([false, "including-unknown-reference", "references-obtained"])
-);
+/**
+ * The only accepted values for `worstCaseComposition`.
+ *
+ * A FROZEN ARRAY, not a frozen Set. `Object.freeze` does not stop `Set.add`,
+ * which mutates internal slots rather than properties, so the previous
+ * `Object.freeze(new Set([...]))` was a mutable allow-list: anything could add
+ * "typo" to it and the validation would then accept "typo". Freezing an array
+ * makes `push` throw, so the allow-list is genuinely closed.
+ */
+export const WORST_CASE_COMPOSITION_MODES = Object.freeze([
+  false,
+  "including-unknown-reference",
+  "references-obtained"
+]);
 
 export function wilsonHalfWidth(n, p = 0.5, z = 1.96) {
   if (!Number.isFinite(n) || n <= 0) return 0.5;
@@ -399,9 +409,9 @@ export function simulatePolicy({
     throw new Error(`matrix total ${matrixTotal(matrix)} does not conserve ${usableCases} usable cases`);
   }
 
-  if (!WORST_CASE_COMPOSITION_MODES.has(worstCaseComposition)) {
+  if (!WORST_CASE_COMPOSITION_MODES.includes(worstCaseComposition)) {
     throw new Error(
-      `worstCaseComposition must be one of ${[...WORST_CASE_COMPOSITION_MODES]
+      `worstCaseComposition must be one of ${WORST_CASE_COMPOSITION_MODES
         .map((mode) => JSON.stringify(mode))
         .join(", ")}, got ${JSON.stringify(worstCaseComposition)}`
     );
