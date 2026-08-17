@@ -1,6 +1,7 @@
 import Link from "next/link";
 import adblockMetadata from "@/lib/adblock-wasm/brave-default-filters.meta.json";
 import { entryEligibleForCorpusRollups, loadCorpusOverview } from "@/lib/corpus-overview";
+import { currentScanRankingSentence, loadCommittedCorpusStats } from "@/lib/current-scan-cohort";
 import { buildCategoryEvidencePages } from "@/lib/directory-view";
 import {
   PUBLIC_STATUS_MAX_CORPUS_AGE_MS,
@@ -45,6 +46,15 @@ export default async function StatusPage() {
   const categoryCohortCount = new Set(
     buildCategoryEvidencePages(overview.entries).map((category) => category.cohort.id)
   ).size;
+  // What a scan run TODAY is ranked against depends on whether the committed
+  // artifact holds a usable cohort for the current production tuple, which
+  // changes both when the toolchain epoch moves and when the corpus refreshes.
+  // The sentence is derived per build; a fixed sentence here was true only in
+  // the gap between a methodology bump and the next refresh.
+  const scanRankingSentence = currentScanRankingSentence(
+    await loadCommittedCorpusStats(),
+    aggregateCohortId
+  );
 
   return (
     <SiteChrome>
@@ -75,7 +85,7 @@ export default async function StatusPage() {
               page&apos;s aggregates describe; {overview.coverageSiteCount.toLocaleString()} sites have at least one
               successful load.
             </p>
-            <p className="status-note">This is not the cohort every report page uses. Each report ranks against its own exact cohort, and most committed pages use a different and older one than this: a page compares only against scans that share its schema revision, methodology, tracker catalog, role taxonomy, metric contract, producer and requested-GPC state. Where no cohort reaches fifty sites, that page falls back to fixed thresholds instead. A scan run today records the current methodology, for which no cohort exists yet, so it is ranked against fixed thresholds and not against this number. Each percentile card names its own denominator, and the <a href="/methodology/#corpus">methodology</a> states the rule. {categoryCohortCount > 1 ? `Category medians are published one cohort per category and span ${categoryCohortCount} cohorts in total, so no single cohort backs every published aggregate.` : "Category medians are published one cohort per category, and today that is this same cohort."} Current means no more than eight days old. It does not mean every site was refreshed in that window. A site that loaded but whose evidence was cut short, by a request cap or a censored family, is counted as covered and never as measured, so the two numbers differ by more than failed loads. Nearly all committed corpus reports are frozen schema v1 from the disclosed fallback collection lane; the <a href="/methodology/#corpus">methodology</a> states what v1 evidence can and cannot support.</p>
+            <p className="status-note">This is not the cohort every report page uses. Each report ranks against its own exact cohort, and most committed pages use a different and older one than this: a page compares only against scans that share its schema revision, methodology, tracker catalog, role taxonomy, metric contract, producer and requested-GPC state. Where no cohort reaches fifty sites, that page falls back to fixed thresholds instead. {scanRankingSentence} Each percentile card names its own denominator, and the <a href="/methodology/#corpus">methodology</a> states the rule. {categoryCohortCount > 1 ? `Category medians are published one cohort per category and span ${categoryCohortCount} cohorts in total, so no single cohort backs every published aggregate.` : "Category medians are published one cohort per category, and today that is this same cohort."} Current means no more than eight days old. It does not mean every site was refreshed in that window. A site that loaded but whose evidence was cut short, by a request cap or a censored family, is counted as covered and never as measured, so the two numbers differ by more than failed loads. Nearly all committed corpus reports are frozen schema v1 from the disclosed fallback collection lane; the <a href="/methodology/#corpus">methodology</a> states what v1 evidence can and cannot support.</p>
           </article>
 
           <article className="status-card">

@@ -224,21 +224,31 @@ test("the status card never claims one cohort backs every corpus aggregate while
   // overview.siteCount is the LARGEST cohort, which is the one this page's
   // aggregates describe. It is not the cohort a report page ranks against:
   // each report uses its own exact cohort, and measured across the committed
-  // corpus only 198 of 725 pages use this one. 221 use an 85-site cohort, 152
-  // a 64-site, 60 each a 56- and 54-site, and 34 fall below the fifty-site
-  // floor onto fixed thresholds. A scan run today records the current
-  // methodology, for which no cohort exists at all.
+  // corpus most published pages use a different one.
   //
   // The card previously said this count was "the corpus sample a report page
   // compares a scan against" and "the one measurement cohort behind that
-  // comparison". Both are false for 68% of published pages.
+  // comparison". Both were false for most published pages.
   assert.match(status, /make up the largest measurement cohort/);
   assert.match(status, /This is not the cohort every report page uses/);
-  assert.match(status, /ranked against fixed thresholds and not against this number/);
   assert.doesNotMatch(status, /the corpus sample a report page/);
   assert.doesNotMatch(status, /the one measurement cohort behind that comparison/);
   assert.doesNotMatch(status, /cohort the corpus aggregates use/);
   assert.doesNotMatch(status, /qualify for corpus aggregates/);
+
+  // What a scan run TODAY ranks against is a corpus-plus-epoch state, not a
+  // timeless fact. The page once pinned "no cohort exists yet, so it is ranked
+  // against fixed thresholds", which was true only in the gap after #158 moved
+  // the methodology past the newest refresh; one matched-epoch refresh made
+  // the fixed sentence false with every guard green. So the page must RENDER
+  // the derived sentence (currentScanRankingSentence, whose two branches are
+  // exercised against corpus fixtures in current-scan-cohort.test.ts) and may
+  // not restate either branch as prose of its own.
+  assert.match(status, /currentScanRankingSentence\(/);
+  assert.match(status, /\{scanRankingSentence\}/);
+  assert.doesNotMatch(status, /no cohort exists yet/);
+  assert.doesNotMatch(status, /ranked against fixed thresholds and not against this number/);
+  assert.doesNotMatch(status, /is ranked against its own committed/);
 
   const overview = await loadCorpusOverview();
   const categoryCohortCount = new Set(
