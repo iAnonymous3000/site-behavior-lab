@@ -26,13 +26,19 @@ export const HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
   detectorRegistryDigest: "ad2971a6c3eff3a0ba537529ba91cb28686a5101bf2f2c290e47c176cd23c38b"
 });
 
-export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
+export const HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
   detectorRegistryVersion: "node-detectors-v4",
   detectorRegistryDigest: "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
 });
 
+export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
+  detectorRegistryVersion: "node-detectors-v5",
+  detectorRegistryDigest: "65547960bf03ca7d6d7b8279aa8b5ffed3a995bed2f36a64535d4179743ce204"
+});
+
 export const DETECTOR_OBLIGATION_TARGET_REGISTRIES = Object.freeze([
   HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   DETECTOR_OBLIGATION_TARGET_REGISTRY
 ]);
 

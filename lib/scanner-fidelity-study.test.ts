@@ -509,7 +509,7 @@ test("short-run budget exceptions preserve exact v2 evidence caps but never appl
     digest: "4f4bf67ce216d0a5c173ae2d1a1ddb79bac3c7699c04e6900908350ee4f5bdc5"
   };
   const active = {
-    version: "node-detectors-v4",
+    version: "node-detectors-v5",
     digest: "4".repeat(64)
   };
   const detectorLoss = (kind: string, detail: string) => ({

@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "12493126b839fc4c456519daa4364e3d6c4128dc9f61dc4a5657f56278990915"
+      "sha256": "9cb186c98fe37c17bb40d63dca9ea710cf91cdfa90783c40a7db4c6b6d206df6"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -28,8 +28,8 @@
   },
   "summary": {
     "npm": {
-      "total": 155,
-      "declared": 155,
+      "total": 168,
+      "declared": 168,
       "unknown": 0
     },
     "cargo": {
@@ -927,6 +927,150 @@
       "optional": false
     },
     {
+      "name": "@napi-rs/canvas",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas/-/canvas-1.0.6.tgz",
+      "integrity": "sha512-Ud4d0jLr9vSaakvfOTIjgP3hoY8kMIYgHC4mtE4L0bP3St9lf6TyCVsInvFIOEofzcUeMfDydHDy8Fs2WuWz+A==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-android-arm64",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-android-arm64",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-android-arm64/-/canvas-android-arm64-1.0.6.tgz",
+      "integrity": "sha512-CZUmZEyN/cmSN1OhRJ44vBE6xyb5ekBbsIF8dqNgizbnAiHSFNi8eAA4oyyIAe5KzJ72K16OKC2lAynZLhv32Q==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-darwin-arm64",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-darwin-arm64",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-darwin-arm64/-/canvas-darwin-arm64-1.0.6.tgz",
+      "integrity": "sha512-FGJsIngRfS9LDaX4t/lFthqn2Km6b61ONzjJFC6+yuabL1NgaK7x0fwrj8276OQFkjCvSpJZ7+CeZWgcy03F2w==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-darwin-x64",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-darwin-x64",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-darwin-x64/-/canvas-darwin-x64-1.0.6.tgz",
+      "integrity": "sha512-wLDrtfX9V4bu6O55/WwGvPVCjfunL2bEm59lzIFk9ZQOt7oJrPzdx/ytZiQr6bMZ9XOFwvXujszYtpoCK7yUbg==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-linux-arm-gnueabihf",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-linux-arm-gnueabihf",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm-gnueabihf/-/canvas-linux-arm-gnueabihf-1.0.6.tgz",
+      "integrity": "sha512-8TllEP/9UPDVxrBN/tnbGBsxxwG8Eo2tgyW8wDy+Gi9rm9si2I6MsDv9MlfI3a7JOuzkBcurHYDHZxwLgzAIdA==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-linux-arm64-gnu",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-linux-arm64-gnu",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-gnu/-/canvas-linux-arm64-gnu-1.0.6.tgz",
+      "integrity": "sha512-YF15AKoGrgU7aoA03CR+cATCRPQcVt6L14Lb/a9hqK7pT7/DhIkqh4qyl+a2GLfqx++yIIJfBuZ3sHM3zlXM1Q==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-linux-arm64-musl",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-linux-arm64-musl",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-musl/-/canvas-linux-arm64-musl-1.0.6.tgz",
+      "integrity": "sha512-zXeVWNFpj720HZln0bfAs+1/nP3Wy6Z5hUw60UJu+cvgips5jZtuX2+EjDHFk98q3BY35GaE1TQLwE9S244vPA==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-linux-riscv64-gnu",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-linux-riscv64-gnu",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-riscv64-gnu/-/canvas-linux-riscv64-gnu-1.0.6.tgz",
+      "integrity": "sha512-kvy1Ypq4ODEI2WRNGvs588qTMcWCjlEIuZRyW8JXpiBnMUirgxQukIDFVDQEcrLlHP5cqZ9cvvfOkBJ7koOktA==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-linux-x64-gnu",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-linux-x64-gnu",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-gnu/-/canvas-linux-x64-gnu-1.0.6.tgz",
+      "integrity": "sha512-czHnfLgSCl48iluS6bNrytGYhsbSTUuIvMucAwO0mPEj1uhkHk6SUiRI0xoqv0PSFzpGFfSnQvFpm7vV+tDO+A==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-linux-x64-musl",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-linux-x64-musl",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-musl/-/canvas-linux-x64-musl-1.0.6.tgz",
+      "integrity": "sha512-afsg6GyfUx8qZzjsywjimXUEWcSWETY5F80hmMb2FWVSXkRbor8IpftY2gXnasq+Y42Xug/76qTHwqvti7HRTw==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-win32-arm64-msvc",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-win32-arm64-msvc",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-win32-arm64-msvc/-/canvas-win32-arm64-msvc-1.0.6.tgz",
+      "integrity": "sha512-byzha357piy0wgK6IZOQtU4plpt94f6CxHFS7LhJpWYrDWWT/AitQNxRMfCNNaQHZXUB3BwNhQSfH2RpiZ0WaQ==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
+      "name": "@napi-rs/canvas-win32-x64-msvc",
+      "version": "1.0.6",
+      "lockPath": "node_modules/@napi-rs/canvas-win32-x64-msvc",
+      "license": "MIT",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/@napi-rs/canvas-win32-x64-msvc/-/canvas-win32-x64-msvc-1.0.6.tgz",
+      "integrity": "sha512-gWLOgKGZz3hZhzg49q2PJIURwy2pCWh1zvNFXmLO1yineOPhEpoL3EV6/VIjOiKa1l2P6ieP12Eo385u1MLLVQ==",
+      "developmentOnly": false,
+      "optional": true
+    },
+    {
       "name": "@next/env",
       "version": "16.2.12",
       "lockPath": "node_modules/@next/env",
@@ -1575,6 +1719,18 @@
       "optional": false
     },
     {
+      "name": "pdfjs-dist",
+      "version": "6.2.108",
+      "lockPath": "node_modules/pdfjs-dist",
+      "license": "Apache-2.0",
+      "licenseStatus": "declared-in-package-lock",
+      "licenseEvidence": "package-lock.json",
+      "resolved": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-6.2.108.tgz",
+      "integrity": "sha512-YxFb+SQcodN2rnX9Tn3dHYlqfb7NjlzzfONPpJd+AKoKtUjEdevTfbC07d5TcczzOK6261auRkP/M8OBHs9vFQ==",
+      "developmentOnly": false,
+      "optional": false
+    },
+    {
       "name": "picocolors",
       "version": "1.1.1",
       "lockPath": "node_modules/picocolors",
@@ -1811,7 +1967,7 @@
       "licenseEvidence": "package-lock.json",
       "resolved": "https://registry.npmjs.org/undici/-/undici-7.29.0.tgz",
       "integrity": "sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==",
-      "developmentOnly": true,
+      "developmentOnly": false,
       "optional": false
     },
     {

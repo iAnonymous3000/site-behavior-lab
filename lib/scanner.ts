@@ -12,6 +12,7 @@ import {
 } from "playwright";
 import { randomBytes } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
+import { Client, ProxyAgent, request as requestThroughProxy } from "undici";
 import { findTrackerMatch } from "./tracker-catalog";
 import { initiatorObservationFromCdpParams, RequestInitiatorIndex } from "./request-initiator";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
@@ -93,6 +94,7 @@ import {
   type FingerprintObservationCollection,
   type FingerprintObservations
 } from "./fingerprint-observer";
+import { extractPolicyTextFromPdf, MAX_POLICY_PDF_BYTES } from "./policy-pdf";
 import {
   startPublicScanProxy,
   type PublicScanProxyDiagnostics,
@@ -298,6 +300,7 @@ const PROXY_TRAFFIC_BUDGET_WARNING =
 const PRIVACY_POLICY_MIN_BUDGET_MS = 7_000;
 const PRIVACY_POLICY_NAV_TIMEOUT_MS = 8_000;
 const PRIVACY_POLICY_RENDER_WAIT_MS = 1_000;
+const MAX_POLICY_PDF_REDIRECTS = 5;
 const MAX_POLICY_LINK_CANDIDATES = 12;
 export const MAX_POLICY_LINKS_INSPECTED = 2_000;
 export const MAX_POLICY_LINK_HREF_CHARS = MAX_RECORDED_REQUEST_URL_CHARS;
@@ -2511,6 +2514,7 @@ export async function scanSiteWithMeasurement(
             links: policyLinks,
             firstPartyHostname: finalParsed.hostname,
             requests: publicRequests,
+            proxyServer: scanProxy.server,
             started,
             verifyPublicUrl,
             warnings: policyWarnings
@@ -3794,6 +3798,7 @@ async function probePrivacyPolicy(input: {
   links: PolicyLinkCandidate[];
   firstPartyHostname: string;
   requests: NetworkRequestRecord[];
+  proxyServer: string;
   started: number;
   verifyPublicUrl: (url: URL) => Promise<void>;
   warnings: ScanWarningCollector;
@@ -3807,6 +3812,44 @@ async function probePrivacyPolicy(input: {
   // Same SSRF posture as every other navigation: shape + DNS preflight here,
   // with the context's connect-time public-address proxy as the backstop.
   await input.verifyPublicUrl(parsed);
+
+  const trackingEntities = trackerEntitySummaries({ requests: input.requests })
+    .filter(isTrackingEntity)
+    .map((entity) => entity.entity);
+
+  // Headless Chromium treats a top-level PDF navigation as a download and
+  // rejects page.goto("Download is starting"), so the HTML collector never
+  // gets a body to inspect. Fetch direct policy PDFs through the exact same
+  // connect-time SSRF proxy, retain only a bounded body, and parse them with
+  // the same all-or-nothing text ceiling as HTML policies.
+  if (/\.pdf$/i.test(parsed.pathname)) {
+    const fetched = await fetchBoundedPolicyPdf({
+      firstPartyHostname: input.firstPartyHostname,
+      policyUrl: parsed,
+      proxyServer: input.proxyServer,
+      started: input.started,
+      verifyPublicUrl: input.verifyPublicUrl
+    });
+    if (!fetched) return null;
+    const policyText = await withScanDeadline(
+      extractPolicyTextFromPdf(fetched.bytes, MAX_POLICY_TEXT_CHARS),
+      input.started,
+      MAX_SCAN_DURATION_MS,
+      scanTimeoutError
+    );
+    if (!policyText) return null;
+    const summary = buildPrivacyPolicySummary({
+      url: fetched.url,
+      policyText,
+      trackingEntities
+    });
+    if (summary) {
+      input.warnings.add(
+        `Read the site's privacy policy (${summary.url}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.`
+      );
+    }
+    return summary;
+  }
 
   const policyPage = await input.context.newPage();
   let requestCount = 0;
@@ -3861,10 +3904,6 @@ async function probePrivacyPolicy(input: {
     const observedPolicyUrl = policyPage.url();
     assertAllowedPrivacyPolicyPage(observedPolicyUrl, input.firstPartyHostname);
 
-    const trackingEntities = trackerEntitySummaries({ requests: input.requests })
-      .filter(isTrackingEntity)
-      .map((entity) => entity.entity);
-
     const summary = buildPrivacyPolicySummary({
       url: observedPolicyUrl,
       policyText,
@@ -3879,6 +3918,81 @@ async function probePrivacyPolicy(input: {
   } finally {
     await policyPage.close().catch(() => undefined);
   }
+}
+
+async function fetchBoundedPolicyPdf(input: {
+  firstPartyHostname: string;
+  policyUrl: URL;
+  proxyServer: string;
+  started: number;
+  verifyPublicUrl: (url: URL) => Promise<void>;
+}): Promise<{ bytes: Uint8Array; url: string } | null> {
+  const plainHttpProxy = new Client(input.proxyServer);
+  const tunnelProxy = new ProxyAgent(input.proxyServer);
+  let currentUrl = input.policyUrl;
+  try {
+    for (let redirectCount = 0; redirectCount <= MAX_POLICY_PDF_REDIRECTS; redirectCount += 1) {
+      assertAllowedPrivacyPolicyPage(currentUrl.href, input.firstPartyHostname);
+      await input.verifyPublicUrl(currentUrl);
+      const timeout = scanTimeout(input.started, PRIVACY_POLICY_NAV_TIMEOUT_MS);
+      const requestOptions = {
+        bodyTimeout: timeout,
+        headers: { accept: "application/pdf" },
+        headersTimeout: timeout,
+        method: "GET" as const,
+        signal: AbortSignal.timeout(timeout)
+      };
+      const response = currentUrl.protocol === "http:"
+        ? await plainHttpProxy.request({ ...requestOptions, path: currentUrl.href })
+        : await requestThroughProxy(currentUrl, { ...requestOptions, dispatcher: tunnelProxy });
+
+      if ([301, 302, 303, 307, 308].includes(response.statusCode)) {
+        const location = firstHeaderValue(response.headers.location);
+        response.body.destroy();
+        if (!location || redirectCount === MAX_POLICY_PDF_REDIRECTS) return null;
+        const redirected = safeParseUrl(new URL(location, currentUrl).href);
+        if (!redirected) return null;
+        currentUrl = redirected;
+        continue;
+      }
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        response.body.destroy();
+        return null;
+      }
+
+      const declaredLength = Number(firstHeaderValue(response.headers["content-length"]));
+      if (Number.isFinite(declaredLength) && declaredLength > MAX_POLICY_PDF_BYTES) {
+        response.body.destroy();
+        return null;
+      }
+
+      const chunks: Buffer[] = [];
+      let totalBytes = 0;
+      for await (const chunk of response.body) {
+        const bytes = Buffer.from(chunk);
+        totalBytes += bytes.byteLength;
+        if (totalBytes > MAX_POLICY_PDF_BYTES) {
+          response.body.destroy();
+          return null;
+        }
+        chunks.push(bytes);
+      }
+      return {
+        bytes: new Uint8Array(Buffer.concat(chunks, totalBytes)),
+        url: currentUrl.href
+      };
+    }
+    return null;
+  } finally {
+    await Promise.all([
+      plainHttpProxy.close().catch(() => undefined),
+      tunnelProxy.close().catch(() => undefined)
+    ]);
+  }
+}
+
+function firstHeaderValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }
 
 export function boundedPolicyTextFromWire(wire: string | null): string {

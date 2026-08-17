@@ -28,6 +28,7 @@ import {
   HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION,
   HISTORICAL_NODE_R2_V4_PLAYWRIGHT_1_62_METHODOLOGY_VERSION,
   HISTORICAL_NODE_R2_V4_TRACKER_CATALOG,
+  HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION,
   HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
   HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
   HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
@@ -137,9 +138,11 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-6c78-tldts749-lists-2026-07-25",
       "node-v4-6c78-tldts749-no-adblock",
       "node-v4-6c78-tldts7410-lists-2026-08-04",
-      "node-v4-6c78-tldts7410-active-lists-2026-08-11",
-      "node-v4-6c78-tldts7410-active-no-adblock",
-      "node-v4-6c78-tldts7410-lists-2026-08-14"
+      "node-v4-6c78-tldts7410-lists-2026-08-14",
+      "node-v4-6c78-tldts7410-lists-2026-08-15",
+      "node-v4-6c78-tldts7410-no-adblock",
+      "node-v5-6c78-tldts7410-active-lists-2026-08-15",
+      "node-v5-6c78-tldts7410-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -279,7 +282,7 @@ test("Node producer rows are complete, immutable, and individually replayable", 
   }, TypeError);
 });
 
-test("the response-byte identity opens a new resource-budget epoch without moving the 2026-08-14 row", () => {
+test("the detector-v5 identity preserves both resource-budget-v1 and v2 detector-v4 rows", () => {
   assert.match(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION, /\+resource-budget-v2(?:\+|$)/);
   assert.match(HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION, /\+resource-budget-v1(?:\+|$)/);
   assert.doesNotMatch(HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION, /resource-budget-v2/);
@@ -287,11 +290,19 @@ test("the response-byte identity opens a new resource-budget epoch without movin
   const historical = NODE_R2_PRODUCER_TUPLES.find(
     (tuple) => tuple.id === "node-v4-6c78-tldts7410-lists-2026-08-14"
   );
+  const detectorV4 = NODE_R2_PRODUCER_TUPLES.find(
+    (tuple) => tuple.id === "node-v4-6c78-tldts7410-lists-2026-08-15"
+  );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v4-6c78-tldts7410-active-lists-2026-08-11"
+    (tuple) => tuple.id === "node-v5-6c78-tldts7410-active-lists-2026-08-15"
   );
   assert.equal(historical?.methodologyVersion, HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION);
+  assert.equal(
+    detectorV4?.methodologyVersion,
+    HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION
+  );
   assert.equal(active?.methodologyVersion, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION);
+  assert.notDeepEqual(active?.detectorRegistry, detectorV4?.detectorRegistry);
 });
 
 test("pre-accountability and active accountability fields cannot be mixed", () => {

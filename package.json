@@ -123,10 +123,12 @@
     "aws4fetch": "^1.0.20",
     "lucide-react": "^1.30.0",
     "next": "^16.2.12",
+    "pdfjs-dist": "^6.2.108",
     "playwright": "1.62.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "tldts": "7.4.10"
+    "tldts": "7.4.10",
+    "undici": "7.29.0"
   },
   "overrides": {
     "brace-expansion": "5.0.9",
