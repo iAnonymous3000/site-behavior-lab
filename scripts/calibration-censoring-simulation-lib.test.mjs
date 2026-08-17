@@ -368,3 +368,57 @@ test("the allow-list itself cannot be widened at runtime", () => {
     /worstCaseComposition must be one of/
   );
 });
+
+test("the honesty boundary's own corpus claims are true", async () => {
+  // REGRESSION, in the section that certifies the package's honesty. It said
+  // "two scan dates on two builds" while provenance recorded THREE builds, and
+  // it promised cluster intervals "print their cluster count" while rateRow
+  // printed the count only in the too-few-clusters branch -- so the four pooled
+  // rows, the only ones whose bootstrap actually ran, never showed theirs.
+  const { readFileSync, readdirSync } = await import("node:fs");
+  const { default: path } = await import("node:path");
+
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  const builds = new Set();
+  const dates = new Set();
+  for (const file of readdirSync(reportsDir)) {
+    if (!file.endsWith(".json") || file.includes("provenance")) continue;
+    let wire;
+    try {
+      wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
+    } catch {
+      continue;
+    }
+    for (const arm of ["run", "baseline", "variant"]) {
+      const run = wire[arm];
+      if (!run?.qualityFacts || !run.quality?.byFamily) continue;
+      builds.add((run.provenance?.buildCommit ?? "unrecorded").slice(0, 8));
+      dates.add(file.slice(0, 8));
+    }
+  }
+  assert.ok(builds.size > 0, "corpus probe found nothing; the guard would be vacuous");
+
+  const readme = readFileSync(
+    path.join(process.cwd(), "research", "calibration-censoring", "README.md"),
+    "utf8"
+  );
+  const words = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6 };
+  const claimed = readme.match(/spans\s+(\w+)\s+scan dates? and \*\*(\w+)\*\*\s+builds/i);
+  assert.ok(claimed, "the boundary must state its scan-date and build counts");
+  assert.equal(words[claimed[1].toLowerCase()] ?? Number(claimed[1]), dates.size, "scan-date count");
+  assert.equal(words[claimed[2].toLowerCase()] ?? Number(claimed[2]), builds.size, "build count");
+
+  // The visibility promise must hold on the branch where the bootstrap RUNS,
+  // not only where it refuses.
+  const driver = readFileSync(
+    path.join(process.cwd(), "research", "calibration-censoring", "analyze-corpus-censoring.mjs"),
+    "utf8"
+  );
+  const rendered = driver.match(/const clustered =[\s\S]*?;\n/)?.[0] ?? "";
+  const ranBranch = rendered.slice(rendered.indexOf(":", rendered.indexOf("too few clusters")));
+  assert.match(
+    ranBranch,
+    /c\.clusters/,
+    "a bootstrapped interval must print its cluster count, not just the refused branch"
+  );
+});

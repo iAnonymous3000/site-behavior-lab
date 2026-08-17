@@ -217,7 +217,16 @@ function rateRow(label, items, predicate) {
   const k = items.filter(predicate).length, n = items.length;
   const w = wilson(k, n);
   const c = clusterInterval(items, predicate, (r) => `${r.scanDate}|${r.build}`);
-  const clustered = c.lo === null ? `too few clusters (${c.clusters})` : `[${pct(c.lo)}, ${pct(c.hi)}]`;
+  // Print the cluster count on EVERY row, not only when the bootstrap refused
+  // to run. The boundary promises the count is visible so the interval's
+  // weakness is visible with it, and the rows that most need it are exactly the
+  // ones where the bootstrap DID run: the pooled rows resample 3 clusters, one
+  // of which holds 120 of 126 runs. Printing it only in the too-few branch hid
+  // it from every row whose number a reader might actually use.
+  const clustered =
+    c.lo === null
+      ? `too few clusters (${c.clusters})`
+      : `[${pct(c.lo)}, ${pct(c.hi)}] over ${c.clusters} clusters`;
   return `  ${label.padEnd(38)} ${String(k).padStart(3)}/${String(n).padEnd(4)} ${pct(k / n).padStart(6)}  Wilson [${pct(w.lo)}, ${pct(w.hi)}]  clustered ${clustered}`;
 }
 
