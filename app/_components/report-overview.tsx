@@ -44,7 +44,7 @@ import {
   requestTimingSummary,
   type EvidenceArm
 } from "@/lib/report-evidence-navigation";
-import { gpcRunMeasurement } from "@/lib/report-insights";
+import { gpcRunMeasurement, shieldsFilterMatchDetail } from "@/lib/report-insights";
 import {
   committedReportLocation,
   locateReport,
@@ -447,19 +447,13 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
                   shieldsMeasurement.count,
                   facts.evidence.requests.state
                 ),
-                // The denominator is what the engine EVALUATED, not the
-                // retained request total. Those are different populations:
-                // evaluation happens at the passive-load boundary, while later
-                // straggler rows are retained and deliberately excluded from
-                // the frozen counter. Pairing the two read as a ratio over
-                // requests the engine never saw.
-                detail:
-                  shieldsMeasurement.origin === "recorded"
-                    ? `verified over ${shieldsMeasurement.evaluated} requests the engine evaluated`
-                    : `classification reported over ${retainedCountLabel(
-                        run.counts.totalRequests,
-                        facts.evidence.requests.state
-                      )}${facts.evidence.requests.state === "censored" ? " retained" : ""} requests; no engine readback recorded`,
+                // The denominator is what the engine EVALUATED, never the
+                // retained request total: those are different populations,
+                // and a legacy v1 wire records no evaluated count at all, so
+                // its line states the counter's provenance with no ratio.
+                // Both branches come from one shared builder so this line,
+                // the card, and the headline cannot disagree again.
+                detail: shieldsFilterMatchDetail(shieldsMeasurement),
                 icon: shieldsMeasurement.origin === "recorded" ? ShieldCheck : Shield
               }
         ]

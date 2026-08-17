@@ -10,7 +10,7 @@ import {
   isOperationalOnlyEntity as hasOperationalOnlyServiceRoles,
   isTrackingRelatedEntity as hasTrackingRelatedServiceRole
 } from "./service-role";
-import { displayPublicUrl, humanList, plural } from "./text-format";
+import { displayPublicUrl, formatCount, humanList, plural } from "./text-format";
 import type {
   DomainSummary,
   FingerprintDetectionSummary,
@@ -406,6 +406,28 @@ export function shieldsRunMeasurement(run: {
     origin: "legacy-derived",
     evaluated: null
   };
+}
+
+/**
+ * The metric grid's detail line for a filter-matches measurement.
+ *
+ * A recorded run names the only honest denominator: the requests the engine
+ * evaluated, an exact route-time counter that request-capture censoring never
+ * truncates. A legacy v1 wire records no evaluated count, so no ratio can be
+ * stated at all: this line used to pair the v1 counter with the retained
+ * request total, the exact two-population conflation the docblock above
+ * rejects, on the same page whose headline can explicitly refuse to state a
+ * ratio. It now names the counter's provenance and what is missing, with no
+ * denominator.
+ *
+ * One builder feeds the grid so the card, the headline, and this line cannot
+ * drift apart again; the grid guard asserts against this function, not a
+ * restated copy.
+ */
+export function shieldsFilterMatchDetail(measurement: ShieldsRunMeasurement): string {
+  return measurement.origin === "recorded"
+    ? `verified over ${formatCount(measurement.evaluated)} requests the engine evaluated`
+    : "classification reported by this visit; no engine readback recorded";
 }
 
 export type GpcRunMeasurement = {
