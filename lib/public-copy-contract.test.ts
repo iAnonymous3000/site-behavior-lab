@@ -221,10 +221,22 @@ test("the status card never claims one cohort backs every corpus aggregate while
   // The count is rendered, never restated as a literal that can go stale.
   assert.match(status, /span \$\{categoryCohortCount\} cohorts in total/);
 
-  // overview.siteCount counts one cohort and is only consumed by the report
-  // page's corpus comparison, so the card may only speak for that surface.
-  assert.match(status, /make up the corpus sample a report page\s+compares a scan against/);
-  assert.match(status, /the one measurement cohort behind that comparison/);
+  // overview.siteCount is the LARGEST cohort, which is the one this page's
+  // aggregates describe. It is not the cohort a report page ranks against:
+  // each report uses its own exact cohort, and measured across the committed
+  // corpus only 198 of 725 pages use this one. 221 use an 85-site cohort, 152
+  // a 64-site, 60 each a 56- and 54-site, and 34 fall below the fifty-site
+  // floor onto fixed thresholds. A scan run today records the current
+  // methodology, for which no cohort exists at all.
+  //
+  // The card previously said this count was "the corpus sample a report page
+  // compares a scan against" and "the one measurement cohort behind that
+  // comparison". Both are false for 68% of published pages.
+  assert.match(status, /make up the largest measurement cohort/);
+  assert.match(status, /This is not the cohort every report page uses/);
+  assert.match(status, /ranked against fixed thresholds and not against this number/);
+  assert.doesNotMatch(status, /the corpus sample a report page/);
+  assert.doesNotMatch(status, /the one measurement cohort behind that comparison/);
   assert.doesNotMatch(status, /cohort the corpus aggregates use/);
   assert.doesNotMatch(status, /qualify for corpus aggregates/);
 
