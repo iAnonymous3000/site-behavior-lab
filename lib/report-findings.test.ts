@@ -1525,14 +1525,17 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
   assert.match(mixedCard.evidence, /same-site origins the probe could not separate/);
   assert.doesNotMatch(mixedCard.evidence, /4 third-party input listeners from/);
 
-  // Nothing was filtered, so the direct attribution stands unqualified.
+  // Nothing was filtered, so the chain attribution stands unqualified. It is
+  // still a chain claim, never "listeners from" the named origin: the wire
+  // does not say which script registered.
   const crossSiteOnly = makeResult({
     firstPartyDomain: "www.shop.example",
     domains: [sameSiteDomain],
     fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://recorder.example.net"])]
   });
   const cleanCard = byId(buildFindings(viewFromV1Report(crossSiteOnly), null), "session-recording-input-monitoring");
-  assert.match(cleanCard.evidence, /4 third-party input listeners from/);
+  assert.match(cleanCard.evidence, /4 input-listener registrations with/);
+  assert.match(cleanCard.evidence, /in the registration call chain/);
   assert.doesNotMatch(cleanCard.evidence, /attributed across/);
 
   const privacyReducedOrigin = makeResult({
@@ -1546,6 +1549,43 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
   );
   assert.match(privacyReducedCard.evidence, /https:\/\/static\.\*\.fbcdn\.net\/…/);
   assert.doesNotMatch(privacyReducedCard.evidence, /\{label\}|\{seg\}/);
+});
+
+test("a chain-attributed listener detection is never published as registered by a third party", () => {
+  // False-accusation counterexample. The producer's stack attribution prefers
+  // a third-party origin anywhere in the bounded registration call chain, so a
+  // FIRST-PARTY script that registers its own listeners through a synchronous
+  // third-party helper (a CDN utility that never calls addEventListener)
+  // produces exactly this wire evidence. The recorded fact is "a third-party
+  // origin appeared in the registration call chain"; the copy must claim that
+  // and no more.
+  const helperChain = makeResult({
+    firstPartyDomain: "www.shop.example",
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://cdn.example.net"])]
+  });
+  const card = byId(buildFindings(viewFromV1Report(helperChain), null), "session-recording-input-monitoring");
+  const copy = [card.title, card.lead, card.detail, card.evidence].join(" ");
+  // The accusation forms: "script registered listener(s)/broad ...". The
+  // detail's caveat legitimately contains "the third-party script registered
+  // the listener" inside an explicit negation, so the pattern pins the
+  // accusative object, not the words alone.
+  assert.doesNotMatch(copy, /(third-party|cross-site) script registered (listeners?\b|broad)/i);
+  assert.doesNotMatch(copy, /registered broad third-party/i);
+  assert.doesNotMatch(copy, /listeners? from /i);
+  assert.match(card.lead, /call chains that included a third-party script/);
+  assert.match(card.detail, /does not by itself establish that the third-party script registered the listener/);
+  // Not vacuous: the detection rendered and named the chain origin.
+  assert.match(card.evidence, /cdn\.example\.net/);
+
+  const sessionChain = makeResult({
+    firstPartyDomain: "www.shop.example",
+    fingerprintDetections: [makeListenerDetection("session-recording", ["https://cdn.example.net"])]
+  });
+  const sessionCard = byId(buildFindings(viewFromV1Report(sessionChain), null), "session-recording-input-monitoring");
+  const sessionCopy = [sessionCard.title, sessionCard.lead, sessionCard.detail, sessionCard.evidence].join(" ");
+  assert.doesNotMatch(sessionCopy, /(third-party|cross-site) script registered (listeners?\b|broad)/i);
+  assert.match(sessionCard.lead, /call chains that included a third-party script/);
+  assert.match(sessionCard.evidence, /cdn\.example\.net/);
 });
 
 test("the session-recording lead names only the event categories the detection recorded", () => {
@@ -1594,7 +1634,7 @@ test("the session-recording lead names only the event categories the detection r
   // An event set the category map does not cover names no category at all
   // rather than falling back to a list the visit did not support.
   const unmappedLead = leadFor(["gotpointercapture", "auxclick", "dblclick", "drag", "focusin"]);
-  assert.match(unmappedLead, /broad interaction listener coverage/);
+  assert.match(unmappedLead, /[Bb]road interaction listener coverage/);
   assert.doesNotMatch(unmappedLead, /scroll|visibility|keyboard/i);
 });
 

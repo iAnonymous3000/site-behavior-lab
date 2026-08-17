@@ -131,7 +131,7 @@ test("an over-long subhead drops its secondary observation, never its qualificat
     "An advertising pixel on shop.example attached populated personal-identifier fields (external ID) to the events it reported. " +
     "These fields exist to match a visit to a known person; the scanner records only that they were filled, never their values, so what they contained is not verified.";
   const secondary =
-    " It also looks like a third-party script registered listeners on keyboard input and 4 browser-fingerprinting heuristics matched.";
+    " It also looks like keyboard-input listeners were registered through a call chain that included a cross-site script and 4 browser-fingerprinting heuristics matched.";
   const headline = {
     ...buildReportHeadline(view),
     subhead: `${primary}${secondary}`,
