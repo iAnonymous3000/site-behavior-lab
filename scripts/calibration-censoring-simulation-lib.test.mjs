@@ -369,51 +369,80 @@ test("the allow-list itself cannot be widened at runtime", () => {
   );
 });
 
-test("the honesty boundary's own corpus claims are true", async () => {
-  // REGRESSION, in the section that certifies the package's honesty. It said
-  // "two scan dates on two builds" while provenance recorded THREE builds, and
-  // it promised cluster intervals "print their cluster count" while rateRow
-  // printed the count only in the too-few-clusters branch -- so the four pooled
-  // rows, the only ones whose bootstrap actually ran, never showed theirs.
-  const { readFileSync, readdirSync } = await import("node:fs");
+test("the honesty boundary's corpus claims match the committed findings artifact", async () => {
+  // REGRESSION, in the section that certifies the package's honesty. The
+  // boundary once said "two scan dates on two builds" while provenance
+  // recorded THREE builds, and it promised cluster intervals "print their
+  // cluster count" while rateRow printed the count only in the
+  // too-few-clusters branch -- so the four pooled rows, the only ones whose
+  // bootstrap actually ran, never showed theirs.
+  //
+  // The counts are held to the COMMITTED artifact, not re-derived from the
+  // live corpus: the README's paragraph is scoped to "the corpus behind this
+  // artifact", so a weekly corpus refresh must not redden this test on its
+  // own. The --check stage owns artifact-vs-corpus staleness; when the
+  // artifact regenerates, this guard is what makes the prose go stale WITH it
+  // instead of silently.
+  const { readFileSync } = await import("node:fs");
   const { default: path } = await import("node:path");
+  const packageDir = path.join(process.cwd(), "research", "calibration-censoring");
 
-  const reportsDir = path.join(process.cwd(), "public", "reports");
-  const builds = new Set();
-  const dates = new Set();
-  for (const file of readdirSync(reportsDir)) {
-    if (!file.endsWith(".json") || file.includes("provenance")) continue;
-    let wire;
-    try {
-      wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
-    } catch {
-      continue;
-    }
-    for (const arm of ["run", "baseline", "variant"]) {
-      const run = wire[arm];
-      if (!run?.qualityFacts || !run.quality?.byFamily) continue;
-      builds.add((run.provenance?.buildCommit ?? "unrecorded").slice(0, 8));
-      dates.add(file.slice(0, 8));
-    }
-  }
-  assert.ok(builds.size > 0, "corpus probe found nothing; the guard would be vacuous");
-
-  const readme = readFileSync(
-    path.join(process.cwd(), "research", "calibration-censoring", "README.md"),
-    "utf8"
+  const artifact = readFileSync(path.join(packageDir, "corpus-censoring-findings.txt"), "utf8");
+  const structure = artifact.match(/CLUSTER STRUCTURE[^\n]*\n([\s\S]*?)\n\n/);
+  assert.ok(structure, "the committed artifact must record its cluster structure");
+  const scanDates = Number(structure[1].match(/scan dates: (\d+)/)?.[1]);
+  const builds = Number(structure[1].match(/builds: (\d+)/)?.[1]);
+  const armClusters = Number(structure[1].match(/CNAME arm clusters: (\d+)/)?.[1]);
+  const buildRows = [...structure[1].matchAll(/build \S+\s+(\d+) of (\d+) runs/g)]
+    .map((row) => ({ runs: Number(row[1]), total: Number(row[2]) }));
+  assert.ok(
+    Number.isFinite(scanDates) && Number.isFinite(builds) && Number.isFinite(armClusters) && buildRows.length > 0,
+    "the artifact's cluster structure must parse; an unparsed section would make this guard vacuous"
   );
-  const words = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6 };
-  const claimed = readme.match(/spans\s+(\w+)\s+scan dates? and \*\*(\w+)\*\*\s+builds/i);
-  assert.ok(claimed, "the boundary must state its scan-date and build counts");
-  assert.equal(words[claimed[1].toLowerCase()] ?? Number(claimed[1]), dates.size, "scan-date count");
-  assert.equal(words[claimed[2].toLowerCase()] ?? Number(claimed[2]), builds.size, "build count");
+  // The section must cohere with the artifact's own run census before any
+  // prose is held to it.
+  assert.equal(buildRows.length, builds, "one build row per build");
+  const totalRuns = Number(artifact.match(/generated from (\d+) r2 runs/)?.[1]);
+  assert.ok(Number.isFinite(totalRuns), "the artifact must declare its run count");
+  assert.equal(buildRows.reduce((sum, row) => sum + row.runs, 0), totalRuns, "build rows cover every run");
+  for (const row of buildRows) assert.equal(row.total, totalRuns, "every build row cites the same total");
+  assert.match(
+    artifact,
+    new RegExp(`this arm has\\s+${armClusters} clusters`),
+    "the scoreability caveat's arm cluster count must agree with the cluster structure"
+  );
+
+  const readme = readFileSync(path.join(packageDir, "README.md"), "utf8");
+  const words = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9 };
+  const toCount = (token) => words[token.toLowerCase()] ?? Number(token);
+  const spans = readme.match(/spans\s+(\w+)\s+scan\s+dates?\s+and\s+\*\*(\w+)\*\*\s+builds?/i);
+  assert.ok(spans, "the boundary must state its scan-date and build counts");
+  assert.equal(toCount(spans[1]), scanDates, "scan-date count");
+  assert.equal(toCount(spans[2]), builds, "build count");
+
+  const split = readme.match(
+    /one\s+build\s+carries\s+(\d+)\s+of\s+the\s+(\d+)\s+runs?,\s+the\s+other\s+(\w+)\s+carry\s+((?:\d+|and|,|\s)+)\./
+  );
+  assert.ok(split, "the boundary must state the run split it scopes to the artifact");
+  assert.equal(Number(split[1]), buildRows[0].runs, "dominant build's run count");
+  assert.equal(Number(split[2]), totalRuns, "total run count");
+  assert.equal(toCount(split[3]), builds - 1, "count of remaining builds");
+  assert.deepEqual(
+    (split[4].match(/\d+/g) ?? []).map(Number),
+    buildRows.slice(1).map((row) => row.runs),
+    "remaining builds' run counts, largest first"
+  );
+
+  // "Too few clusters to bootstrap" is a corpus fact, held in both directions.
+  if (/in\s+the\s+primary\s+arm\s+there\s+are\s+too\s+few\s+clusters\s+to\s+bootstrap/.test(readme)) {
+    assert.ok(armClusters < 3, "the boundary claims too few arm clusters while the artifact records enough");
+  } else {
+    assert.ok(armClusters >= 3, "the artifact records too few arm clusters and the boundary no longer says so");
+  }
 
   // The visibility promise must hold on the branch where the bootstrap RUNS,
   // not only where it refuses.
-  const driver = readFileSync(
-    path.join(process.cwd(), "research", "calibration-censoring", "analyze-corpus-censoring.mjs"),
-    "utf8"
-  );
+  const driver = readFileSync(path.join(packageDir, "analyze-corpus-censoring.mjs"), "utf8");
   const rendered = driver.match(/const clustered =[\s\S]*?;\n/)?.[0] ?? "";
   const ranBranch = rendered.slice(rendered.indexOf(":", rendered.indexOf("too few clusters")));
   assert.match(

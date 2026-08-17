@@ -30,20 +30,24 @@ These bind every number below and are enforced in the script's own comments.
    reference is not answerable from a committed report. "Scoreable" here means
    the scanner side is scoreable and nothing more, so the fourth clause of the
    full definition is deliberately absent.
-3. **Failures are not i.i.d.** The corpus spans two scan dates and **three**
-   builds, and it is severely unbalanced: one build carries 120 of the 126 runs,
-   the other two carry 4 and 2. No pooled `q^N` is computed. Cluster intervals
-   print their cluster count on every row, and in the primary arm there are too
-   few clusters to bootstrap at all. This corpus cannot support cluster-robust
-   inference; that is a finding, not an oversight.
+3. **Failures are not i.i.d.** The corpus behind
+   [corpus-censoring-findings.txt](corpus-censoring-findings.txt) spans two scan
+   dates and **three** builds, and it is severely unbalanced: one build carries
+   120 of the 126 runs, the other two carry 4 and 2. Those counts describe that
+   committed artifact, whose CLUSTER STRUCTURE section records them; the test
+   suite holds this paragraph to the artifact, so they go stale together with
+   the `--check` stage rather than silently. No pooled `q^N` is computed.
+   Cluster intervals print their cluster count on every row, and in the primary
+   arm there are too few clusters to bootstrap at all. This corpus cannot
+   support cluster-robust inference; that is a finding, not an oversight.
 
    Both halves of this were wrong when first written, in the section that
    certifies the package's honesty. It said "two builds" while provenance
-   recorded three, and it promised a visible cluster count that `rateRow` printed
-   only in the too-few-clusters branch — so the four pooled rows, the only ones
-   whose bootstrap actually ran, never showed theirs. The concentration above is
-   the fact that makes those intervals weak, and it was the one a reader could
-   not see.
+   recorded three, and it promised a visible cluster count that `rateRow`
+   printed only in the too-few-clusters branch, so the four pooled rows, the
+   only ones whose bootstrap actually ran, never showed theirs. The
+   concentration above is the fact that makes those intervals weak, and it was
+   the one a reader could not see.
 
 ## The correction that decides the package
 

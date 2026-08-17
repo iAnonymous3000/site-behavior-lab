@@ -4,6 +4,13 @@ generated from 126 r2 runs; primary analysis restricted to the declared CNAME ar
 CNAME arm = device desktop / GPC false / consent observe
 arm runs: 61   off-arm (supplementary only): 65
 
+CLUSTER STRUCTURE -- failures cluster by scan date and build
+  scan dates: 2   builds: 3   scan-date x build clusters: 3
+  build 817e3b68   120 of 126 runs
+  build 003060ab     4 of 126 runs
+  build 13e44494     2 of 126 runs
+  CNAME arm clusters: 2
+
 PRIMARY -- CNAME ARM ONLY (n=61)
   bare-load sound                         61/61   100.0%  Wilson [94.1%, 100.0%]  clustered too few clusters (2)
   A generic all-family zero-loss          27/61    44.3%  Wilson [32.5%, 56.7%]  clustered too few clusters (2)
@@ -128,7 +135,7 @@ POLICY SIMULATION -- every rate on ITS OWN marginal denominator
   SCOREABILITY IS ITSELF ESTIMATED. The rows above use the arm's point
   estimate 88.5% for CNAME-scoreable. The endpoint below is a
   PER-CASE WILSON BOUND and therefore an iid-only diagnostic: this arm has
-  two clusters, so it is NOT a defensible design lower bound, only an
+  2 clusters, so it is NOT a defensible design lower bound, only an
   indication that sizing on the point estimate assumes what is not pinned down.
     C @ N=350, scoreable=78.2% (iid-only endpoint), balanced refs -> 16.0% (sensitivity)
     C @ N=500, scoreable=78.2% (iid-only endpoint), balanced refs -> 15.3% (falseNegativeRate)
