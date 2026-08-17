@@ -12,6 +12,9 @@ const ROOT = process.cwd();
 const RELEASE_SCRIPT = path.join(ROOT, "scripts", "release-evidence.mjs");
 const PROVENANCE_SCRIPT = path.join(ROOT, "scripts", "static-deployment-provenance.mjs");
 
+const hasArchivedReleaseReceipt = (version: string): boolean =>
+  existsSync(path.join(ROOT, "docs", "release-receipts", version, "release-receipt.json"));
+
 type StaticDeploymentProvenance = {
   buildDeploymentReceipt(
     commit: string,
@@ -74,7 +77,7 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   // receipt. It catches up in the tag step.
   const citedVersion = citation.match(/^version: "([^"]+)"$/m)?.[1];
   assert.ok(citedVersion, "CITATION.cff must cite a version");
-  if (existsSync(path.join(process.cwd(), "docs", "release-receipts", policy.version))) {
+  if (hasArchivedReleaseReceipt(policy.version)) {
     assert.equal(
       citedVersion,
       policy.version,
@@ -87,7 +90,7 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
       `CITATION.cff must not cite ${policy.version} before its receipt exists`
     );
     assert.ok(
-      existsSync(path.join(process.cwd(), "docs", "release-receipts", citedVersion)),
+      hasArchivedReleaseReceipt(citedVersion),
       `CITATION.cff cites ${citedVersion}, which has no archived receipt either`
     );
   }
@@ -108,7 +111,7 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
     // not the declaration. During the declare-then-tag window it still carries
     // the last actually-released date, and the guard below proves that date
     // belongs to a version whose receipt exists.
-    if (existsSync(path.join(process.cwd(), "docs", "release-receipts", policy.version))) {
+    if (hasArchivedReleaseReceipt(policy.version)) {
       assert.match(citation, new RegExp(`^date-released: "${policy.releaseDate}"$`, "m"));
     } else {
       assert.doesNotMatch(
@@ -2349,8 +2352,7 @@ test("a declared release with no archived receipt must say so in the policy", ()
   };
   if (policy.status !== "released") return;
 
-  const receiptDir = path.join(process.cwd(), "docs", "release-receipts", policy.version);
-  const receiptArchived = existsSync(receiptDir);
+  const receiptArchived = hasArchivedReleaseReceipt(policy.version);
 
   if (receiptArchived) {
     assert.equal(
