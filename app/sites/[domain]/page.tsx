@@ -170,10 +170,12 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
             ))}
           </ul>
           <p className="site-profile-note">
-            These successful, uncapped passive visits hold the route, scanner method, browser, device, conditions,
-            catalog, Brave-list source and list count constant. The list snapshot may differ, so these are not
-            Shields or detector changes. Differences can still reflect site experiments, ad rotation, caching or
-            bot detection.
+            These successful, uncapped passive visits hold the route, scanner method, browser, device, conditions and
+            tracker catalog constant. They do <strong>not</strong> hold the Brave filter lists constant: the pairing
+            identity deliberately omits the ad-block source, list count and snapshot, because this timeline reports
+            tracker classification and that evaluator never reads them. So these are not Shields or detector changes,
+            and a difference here is not evidence that blocking behaviour changed. Differences can still reflect site
+            experiments, ad rotation, caching or bot detection.
           </p>
         </section>
       )}
