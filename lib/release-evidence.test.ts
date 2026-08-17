@@ -1727,11 +1727,20 @@ type AttestContext = {
  * a real fixture and a real producer run, never hand-written, so a producer or
  * gate change shows up here instead of being restated.
  */
-async function attestContext(t: TestContext): Promise<AttestContext> {
+async function attestContext(
+  t: TestContext,
+  options: {
+    fixture?: Parameters<typeof makeFixture>[1];
+    /** The dispatched version; defaults to the released fixture's 0.1.0. */
+    releaseVersion?: string;
+  } = {}
+): Promise<AttestContext> {
+  const releaseVersion = options.releaseVersion ?? "0.1.0";
   const fixture = await makeFixture(t, {
     policy: RELEASED_POLICY,
     citation: RELEASED_CITATION,
-    changelog: RELEASED_CHANGELOG
+    changelog: RELEASED_CHANGELOG,
+    ...options.fixture
   });
   const governanceReceiptSha256 = "a".repeat(64);
   const produced = runEvidence(fixture.root, [
@@ -1786,6 +1795,20 @@ async function attestContext(t: TestContext): Promise<AttestContext> {
     "release-policy.json"
   ])) {
     await writeFileContent(repositoryPath, fixture.root);
+  }
+  // The citation gate re-runs the receipt selection itself, so hand it the
+  // same directory listing and receipt bytes the read-back step fetches,
+  // derived from the fixture's real archive rather than restated.
+  const receiptsDir = path.join(fixture.root, "docs", "release-receipts");
+  const archivedVersions = readdirSync(receiptsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+  await writeContext(
+    "release-receipts.json",
+    archivedVersions.map((name) => ({ type: "dir", name }))
+  );
+  for (const name of archivedVersions) {
+    await writeFileContent(`docs/release-receipts/${name}/release-receipt.json`, fixture.root);
   }
 
   const digest = createHash("sha256").update(receiptBytes).digest("hex");
@@ -1843,8 +1866,8 @@ async function attestContext(t: TestContext): Promise<AttestContext> {
       STATIC_ARTIFACT_ID: "12",
       RELEASE_SHA: fixture.commit,
       REQUESTED_SHA: fixture.commit,
-      RELEASE_VERSION: "0.1.0",
-      RELEASE_TAG: "v0.1.0",
+      RELEASE_VERSION: releaseVersion,
+      RELEASE_TAG: `v${releaseVersion}`,
       RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: governanceReceiptSha256
     }
   };
@@ -2011,6 +2034,95 @@ test("the validator refuses wrong handoff, CI, source, and policy facts", { skip
       content: Buffer.from(`${JSON.stringify({ ...policy, status: "development" }, null, 2)}\n`).toString("base64")
     });
   }, /exact source|released|policy/i);
+});
+
+test("the attest citation selector is the producer's exported selector, byte for byte", async () => {
+  // The isolated attest job may never execute candidate code (its guard above
+  // bans checkout and npm outright), so it carries a copy of
+  // selectCitedReceiptedVersion instead of importing it. A copy is the
+  // contract-restatement defect class, so pin it to the export's exact
+  // source text: a change to either side that does not move the other
+  // fails here.
+  const { selectCitedReceiptedVersion } = await releaseEvidenceModule();
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+  const normalize = (text: string) => text.replace(/\s+/g, " ").trim();
+  assert.ok(
+    normalize(controller).includes(normalize(selectCitedReceiptedVersion.toString())),
+    "the validator must carry the exported selector's exact text"
+  );
+});
+
+test("the validator accepts the ceremony-window citation and refuses the declared one", { skip: hostToolchainSkip }, async (t) => {
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+  // The shape every honest ceremony has: 0.2.0 declared released in the
+  // policy while only 0.1.0 is receipted, so CITATION.cff still cites 0.1.0.
+  // The old gate required the citation to carry 0.2.0 with its date, which
+  // the release-evidence gate refuses at the same SHA, and the receipt only
+  // exists after this very workflow succeeds, so no tree could satisfy both
+  // and no release could ever be attested again.
+  const ceremony = {
+    releaseVersion: "0.2.0",
+    fixture: {
+      policy: {
+        ...RELEASED_POLICY,
+        version: "0.2.0",
+        releaseTag: "v0.2.0",
+        releaseDate: "2026-02-10"
+      },
+      packageVersion: "0.2.0",
+      receiptedVersion: "0.1.0",
+      receiptedDate: "2026-01-01",
+      citation: 'cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-01-01"\n',
+      changelog: "# Changelog\n\n## Unreleased\n\n## [0.2.0] - 2026-02-10\n"
+    }
+  };
+  const accepted = runValidator(controller, await attestContext(t, ceremony));
+  assert.equal(accepted.status, 0, `${accepted.stderr}${accepted.stdout}`);
+
+  const encodedCitation = (text: string) => ({
+    type: "file",
+    encoding: "base64",
+    content: Buffer.from(text).toString("base64")
+  });
+
+  // Citing the declared version before its receipt exists is the standalone
+  // overclaim the receipt-following contract retired; the validator must
+  // refuse it rather than require it.
+  const advanced = await attestContext(t, ceremony);
+  await advanced.writeContext(
+    "content-CITATION_cff.json",
+    encodedCitation('cff-version: 1.2.0\nversion: "0.2.0"\ndate-released: "2026-02-10"\n')
+  );
+  const advancedRefused = runValidator(controller, advanced);
+  assert.equal(advancedRefused.status, 1, advancedRefused.stdout);
+  assert.match(
+    advancedRefused.stderr,
+    /must cite the most recent receipted release \(0\.1\.0, 2026-01-01\)/
+  );
+
+  // Post-archival replay: the default context is the state after the receipt
+  // for the policy's own version is archived and the citation has advanced.
+  // The same check passes there because the selector now prefers the declared
+  // version once its receipt exists; a date differing from that receipt still
+  // refuses.
+  const postArchival = await attestContext(t);
+  await postArchival.writeContext(
+    "content-CITATION_cff.json",
+    encodedCitation('cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-07-26"\n')
+  );
+  const dateRefused = runValidator(controller, postArchival);
+  assert.equal(dateRefused.status, 1, dateRefused.stdout);
+  assert.match(
+    dateRefused.stderr,
+    /must cite the most recent receipted release \(0\.1\.0, 2026-07-25\)/
+  );
+
+  // An empty archive cannot satisfy the citation contract at all.
+  const noReceipts = await attestContext(t);
+  await noReceipts.writeContext("release-receipts.json", []);
+  const emptyRefused = runValidator(controller, noReceipts);
+  assert.equal(emptyRefused.status, 1, emptyRefused.stdout);
+  assert.match(emptyRefused.stderr, /No archived release receipt exists at the release SHA/);
 });
 
 type TagReconciliationContext = {

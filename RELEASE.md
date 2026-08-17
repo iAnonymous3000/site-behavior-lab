@@ -44,8 +44,14 @@ A `vX.Y.Z` tag claims exactly this, and nothing else:
 - it was promoted to `production` before the tag existed;
 - an exact-source release receipt was generated for it and attested through the
   same Sigstore keyless path CI already uses for exact-SHA evidence; and
-- `CHANGELOG.md` carries a dated section for that version and `CITATION.cff`
-  carries the matching `date-released`.
+- `CHANGELOG.md` carries a dated section for that version. `CITATION.cff`
+  still cites the previous receipted release when the tag is created, and
+  catches up to this version, with the matching `date-released`, only after
+  the receipt is archived (step 5): the receipt this ceremony produces is what
+  makes the citation truthful, so every gate that runs at the tagged revision,
+  the release-evidence gate in `prepare` and the attestation validator alike,
+  requires the citation to name the most recent receipted release, never the
+  declared one.
 
 It does not claim API stability, support commitments, or that any externally
 operated control was activated. The ScanReport schema contracts (v1 frozen,
@@ -388,7 +394,9 @@ fails unless:
 - Git `HEAD` is a full commit and the staged, tracked, untracked, and submodule
   worktree state is clean;
 - any CI-provided commit identity exactly matches `HEAD`;
-- package, lockfile, citation, and release-policy versions agree;
+- package, lockfile, and release-policy versions agree, and the citation
+  names the most recent receipted release (the declared version itself once
+  its receipt is archived) with that receipt's recorded date;
 - the evidence builder runs on exactly Node 24.14.1 with npm 11.11.0;
 - the development status still has no tag, stable-API, or npm-publication
   claim; and
