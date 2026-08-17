@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "generatedAt": "2026-08-14T19:27:36.034Z",
+  "generatedAt": "2026-08-17T08:32:48.811Z",
   "metricContractVersion": "metric-contract-v1",
   "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "sampleSize": 93,
@@ -388,7 +388,7 @@
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 93,
-      "latestRunAt": "2026-08-11T04:24:14.032Z",
+      "latestRunAt": "2026-08-17T08:17:34.816Z",
       "metrics": {
         "thirdPartyRequests": {
           "count": 93,
@@ -436,7 +436,7 @@
           "p95": 60
         },
         "fingerprintEvents": {
-          "count": 73,
+          "count": 76,
           "min": 0,
           "max": 544,
           "p50": 0,
@@ -713,7 +713,7 @@
       "p95": 60
     },
     "fingerprintEvents": {
-      "count": 73,
+      "count": 76,
       "min": 0,
       "max": 544,
       "p50": 0,
