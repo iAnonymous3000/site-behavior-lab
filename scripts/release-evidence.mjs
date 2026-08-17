@@ -125,27 +125,52 @@ export async function buildReleaseEvidence({
 }
 
 /**
- * The most recent release that actually has an archived receipt.
+ * Which archived release CITATION.cff must cite, given the set of receipted
+ * versions and the version release-policy.json currently declares.
+ *
+ * The declared version wins the moment its own receipt exists, release
+ * candidate or stable: once the archive records that the release happened,
+ * the citation must advance to it, and an rc rehearsal whose receipt is
+ * archived while the policy still names it (the recorded 0.4.0-rc.1 state)
+ * is cited as itself, not as an older stable release. Before that receipt
+ * exists, the newest stable receipt is the release that actually happened;
+ * 0.4.0-rc.1 has a receipt and is not what this repository should be cited
+ * as while 0.4.0 exists. A project whose only receipts are candidates has
+ * genuinely shipped nothing else, and citing the newest candidate is then
+ * honest -- refusing would be the false claim.
+ *
+ * Exported because the release workflow's isolated attest job enforces the
+ * same contract but must never execute candidate code, so it carries a
+ * byte-identical copy of this function; lib/release-evidence.test.ts
+ * cross-asserts the two texts. Keep the body self-contained and comment-free.
+ */
+export function selectCitedReceiptedVersion(receiptedVersions, policyVersion) {
+  const versions = [...new Set(receiptedVersions)];
+  if (versions.length === 0) return null;
+  if (versions.includes(policyVersion)) return policyVersion;
+  const stable = versions.filter((name) => !name.includes("-"));
+  const candidates = stable.length > 0 ? stable : versions;
+  const key = (version) =>
+    version.split(".").map((part) => Number(part).toString().padStart(6, "0")).join(".");
+  return candidates.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0)).at(-1);
+}
+
+/**
+ * The release CITATION.cff must cite right now.
  *
  * A receipt is the canonical record that a release happened: it exists only
  * after the tag ceremony completes. A version merely DECLARED in
  * release-policy.json has not necessarily been tagged, promoted, or receipted.
  */
-function latestReceiptedVersion(root) {
+function latestReceiptedVersion(root, policyVersion) {
   const dir = path.join(root, "docs", "release-receipts");
   const versions = readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .filter((name) => existsSync(path.join(dir, name, "release-receipt.json")));
-  if (versions.length === 0) throw new Error("no archived release receipt exists to cite");
-  // Prefer a stable release: 0.4.0-rc.1 has a receipt and is not what this
-  // repository should be cited as while 0.4.0 exists. But a project whose only
-  // receipts are candidates has genuinely shipped nothing else, and citing the
-  // candidate is then honest -- refusing would be the false claim.
-  const stable = versions.filter((name) => !name.includes("-"));
-  const candidates = stable.length > 0 ? stable : versions;
-  const key = (v) => v.split(".").map((part) => Number(part).toString().padStart(6, "0")).join(".");
-  return candidates.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0)).at(-1);
+  const selected = selectCitedReceiptedVersion(versions, policyVersion);
+  if (selected === null) throw new Error("no archived release receipt exists to cite");
+  return selected;
 }
 
 function receiptedReleaseDate(root, version) {
@@ -238,13 +263,14 @@ async function releaseMetadata(root) {
   // CITATION.cff to assert it -- making the standalone overclaim mandatory
   // rather than accidental. Two sibling guards in lib/ enforced the same
   // coupling and now follow the receipt too.
-  const receiptedVersion = latestReceiptedVersion(root);
+  const receiptedVersion = latestReceiptedVersion(root, policy.version);
   const citationVersions = [...citation.matchAll(/^version:\s*["']?([^"'\s]+)["']?\s*$/gm)].map(
     (match) => match[1]
   );
   if (citationVersions.length !== 1 || citationVersions[0] !== receiptedVersion) {
     throw new Error(
-      `CITATION.cff must declare the most recent receipted release (${receiptedVersion}), not the declared version ${policy.version}`
+      `CITATION.cff must declare the most recent receipted release (${receiptedVersion})` +
+        (receiptedVersion === policy.version ? "" : `, not the declared version ${policy.version}`)
     );
   }
   const citationDates = [...citation.matchAll(/^date-released:\s*["']?([0-9]{4}-[0-9]{2}-[0-9]{2})["']?\s*$/gm)].map(
