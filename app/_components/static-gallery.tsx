@@ -14,6 +14,7 @@ import {
 } from "@/lib/client-fetch-policy";
 import { parseDigestBoundReportJson } from "@/lib/client-report-integrity";
 import { readClientFileText } from "@/lib/client-file-policy";
+import { COMPARISON_HISTORY_IDENTITY_SENTENCES } from "@/lib/comparison-history-copy";
 import { committedReportLocation } from "@/lib/report-locator";
 import { BROWSER_PUBLIC_REPORT_JSON_MAX_BYTES } from "@/lib/report-resource-limits";
 import type { LoadedReport } from "@/lib/scan-report-view";
@@ -614,10 +615,13 @@ function staticReportOptionLabel(report: StaticReportManifestEntry): string {
 type HistoryGroup = { key: string; label: string; reports: StaticReportManifestEntry[] };
 
 function historyGroupMethodNote(group: HistoryGroup): string {
+  // The identity sentences are shared with the site profile's "Comparable
+  // visits" note, so the two surfaces cannot state different pairing rules
+  // for the same era.
   if (group.key.startsWith("comparison-history-key-v2|")) {
-    return "This v2/r2 history holds the route, device, condition vector, execution environment, methodology, normalization and tracker-catalog snapshot constant. Every selected pair is re-evaluated per metric family before any delta is shown.";
+    return `${COMPARISON_HISTORY_IDENTITY_SENTENCES.v2} Every selected pair is re-evaluated per metric family before any delta is shown.`;
   }
-  return "This v1 history holds the route, scanner method, browser, device, conditions, catalog, Brave-list source and list count constant. A changed list snapshot can support raw and catalogued-service differences, but never a Shields or detector delta.";
+  return `${COMPARISON_HISTORY_IDENTITY_SENTENCES.v1} A changed list snapshot can support raw and catalogued-service differences, but never a Shields or detector delta.`;
 }
 
 function buildHistoryGroups(reports: StaticReportManifestEntry[]): HistoryGroup[] {

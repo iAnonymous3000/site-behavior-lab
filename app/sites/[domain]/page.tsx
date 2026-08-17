@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { siteProfileComparableVisitsNote } from "@/lib/comparable-visits-note";
 import { entryEligibleForCorpusRollups, loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
 import { scanPrefillHref } from "@/lib/scan-prefill";
@@ -58,6 +59,15 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
   if (!profile) notFound();
   const latest = profile.entries[0];
   const compatibleChanges = profile.entries.filter((entry) => entry.sinceLastScan);
+  // The v1 and v2/r2 pairing identities hold different things constant (the
+  // v1 key binds the Brave-list source and list count and lets only the
+  // snapshot date drift; the v2 key omits all three), so the method note is
+  // stated per era actually present among these pairs, exactly like the
+  // archive's compare picker. One flat sentence here restated the v2 rule
+  // over pairs that were all v1.
+  const comparableEras = (["v1", "v2"] as const).filter((era) =>
+    compatibleChanges.some((entry) => entry.comparisonHistoryEra === era)
+  );
   const exactRescanUrl = safeNavigableHttpUrl(latest.requestedUrl) ? latest.requestedUrl : null;
   const rescanUrl = exactRescanUrl ?? `https://${profile.domain}/`;
   const rescanHref = scanPrefillHref(rescanUrl) ?? "/#scan";
@@ -169,14 +179,11 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
               </li>
             ))}
           </ul>
-          <p className="site-profile-note">
-            These successful, uncapped passive visits hold the route, scanner method, browser, device, conditions and
-            tracker catalog constant. They do <strong>not</strong> hold the Brave filter lists constant: the pairing
-            identity deliberately omits the ad-block source, list count and snapshot, because this timeline reports
-            tracker classification and that evaluator never reads them. So these are not Shields or detector changes,
-            and a difference here is not evidence that blocking behaviour changed. Differences can still reflect site
-            experiments, ad rotation, caching or bot detection.
-          </p>
+          {comparableEras.map((era) => (
+            <p className="site-profile-note" key={era}>
+              {siteProfileComparableVisitsNote(era)}
+            </p>
+          ))}
         </section>
       )}
 
