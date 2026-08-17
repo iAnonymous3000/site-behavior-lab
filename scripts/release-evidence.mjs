@@ -136,12 +136,16 @@ function latestReceiptedVersion(root) {
   const versions = readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
-    .filter((name) => existsSync(path.join(dir, name, "release-receipt.json")))
-    // Release candidates are not releases anything should be cited as.
-    .filter((name) => !name.includes("-"));
+    .filter((name) => existsSync(path.join(dir, name, "release-receipt.json")));
   if (versions.length === 0) throw new Error("no archived release receipt exists to cite");
+  // Prefer a stable release: 0.4.0-rc.1 has a receipt and is not what this
+  // repository should be cited as while 0.4.0 exists. But a project whose only
+  // receipts are candidates has genuinely shipped nothing else, and citing the
+  // candidate is then honest -- refusing would be the false claim.
+  const stable = versions.filter((name) => !name.includes("-"));
+  const candidates = stable.length > 0 ? stable : versions;
   const key = (v) => v.split(".").map((part) => Number(part).toString().padStart(6, "0")).join(".");
-  return versions.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0)).at(-1);
+  return candidates.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0)).at(-1);
 }
 
 function receiptedReleaseDate(root, version) {

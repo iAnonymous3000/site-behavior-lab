@@ -665,9 +665,30 @@ async function makeFixture(
     policy?: Record<string, unknown>;
     citation?: string;
     changelog?: string;
+    /**
+     * The release the fixture has an archived receipt for.
+     *
+     * CITATION.cff is checked against the most recent RECEIPTED release, not
+     * the declared one, so every fixture needs a receipt the way a real
+     * repository always has one. Defaults to the citation's own version so the
+     * common case is consistent without each test restating it.
+     */
+    receiptedVersion?: string | null;
+    receiptedDate?: string;
   } = {}
 ) {
   const root = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-release-evidence-"));
+  // A real repository always carries at least one archived receipt, and the
+  // citation coupling reads it. Pass receiptedVersion: null to build the
+  // no-receipt tree deliberately.
+  const receiptedVersion =
+    options.receiptedVersion === undefined ? options.packageVersion ?? "0.1.0" : options.receiptedVersion;
+  // Default the receipt's date to the fixture's own declared release date, so a
+  // test that supplies a released policy and a matching CITATION stays
+  // self-consistent without restating the date a third time.
+  const policyReleaseDate =
+    typeof options.policy?.releaseDate === "string" ? options.policy.releaseDate : null;
+  const receiptedDate = options.receiptedDate ?? policyReleaseDate ?? "2026-01-01";
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(path.join(root, "scripts"), { recursive: true });
   await copyFile(RELEASE_SCRIPT, path.join(root, "scripts", "release-evidence.mjs"));
@@ -715,9 +736,21 @@ async function makeFixture(
   );
   await writeFile(
     path.join(root, "CITATION.cff"),
-    options.citation ?? 'cff-version: 1.2.0\nversion: "0.1.0"\n'
+    options.citation ??
+      `cff-version: 1.2.0\nversion: "${receiptedVersion ?? "0.1.0"}"\ndate-released: "${receiptedDate}"\n`
   );
   await writeFile(path.join(root, "CHANGELOG.md"), options.changelog ?? "# Changelog\n\n## Unreleased\n");
+  if (receiptedVersion !== null) {
+    await mkdir(path.join(root, "docs", "release-receipts", receiptedVersion), { recursive: true });
+    await writeFile(
+      path.join(root, "docs", "release-receipts", receiptedVersion, "release-receipt.json"),
+      `${JSON.stringify({
+        version: receiptedVersion,
+        releaseDate: receiptedDate,
+        artifacts: []
+      })}\n`
+    );
+  }
   await writeFile(path.join(root, "Dockerfile"), "FROM scratch\n");
   await writeFile(path.join(root, "wrangler.container.jsonc"), "{}\n");
 
@@ -1356,7 +1389,12 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
     assert.match(refused.stderr, pattern);
   }
 
-  // The dated evidence must agree with the policy, in both files.
+  // The dated evidence must agree with the RECEIPT, in both files.
+  //
+  // This previously required CITATION.cff to carry the POLICY's release date,
+  // which is what made the standalone overclaim mandatory: a version declared
+  // but not yet tagged or receipted had to be cited as released. Citation
+  // tooling reads this file alone and never sees the declare-then-tag window.
   const wrongCitation = await makeFixture(t, {
     policy: releasedPolicy(),
     citation: 'cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-01-01"\n',
@@ -1364,7 +1402,24 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
   });
   const citationRefused = runEvidence(wrongCitation.root, ["--static-dir", "out"]);
   assert.notEqual(citationRefused.status, 0);
-  assert.match(citationRefused.stderr, /released CITATION\.cff must carry exactly the policy's release date/);
+  assert.match(citationRefused.stderr, /CITATION\.cff must carry the receipted release date/);
+
+  // And the inverse, which is the defect this replaced: citing a version that
+  // is declared but has no receipt must be refused, not required.
+  const declaredButUnreceipted = await makeFixture(t, {
+    policy: releasedPolicy({ version: "0.2.0", releaseTag: "v0.2.0" }),
+    packageVersion: "0.2.0",
+    receiptedVersion: "0.1.0",
+    receiptedDate: "2026-07-25",
+    citation: 'cff-version: 1.2.0\nversion: "0.2.0"\ndate-released: "2026-07-25"\n',
+    changelog: changelog.replace("[0.1.0]", "[0.2.0]")
+  });
+  const unreceiptedRefused = runEvidence(declaredButUnreceipted.root, ["--static-dir", "out"]);
+  assert.notEqual(unreceiptedRefused.status, 0, "citing an unreceipted version must be refused");
+  assert.match(
+    unreceiptedRefused.stderr,
+    /must declare the most recent receipted release \(0\.1\.0\), not the declared version 0\.2\.0/
+  );
 
   const wrongChangelog = await makeFixture(t, {
     policy: releasedPolicy(),
