@@ -484,16 +484,33 @@ test("calibration docs never assert a corpus size the corpus contradicts", () =>
   }
   assert.ok(actualR2Runs > 0, "corpus probe found no r2 runs; the guard would be vacuous");
 
-  const present = /\b(?:corpus|it)\s+(?:currently\s+)?(?:holds|contains)\s+(?:only\s+)?([a-z0-9,]+)\s+r2\s+runs/gi;
+  // The docs write these sentences with an adverb between subject and verb
+  // ("it now holds"), markdown emphasis on the number ("**126"), and would
+  // legitimately comma-group a four-digit count. The first version of this
+  // regex allowed none of those, so it matched ZERO sentences in the committed
+  // docs and passed no matter what they claimed. The verbs stay present-tense
+  // only: "held" must never match, because past-tense framing of the
+  // superseded premise is how the correction itself is written.
+  const present =
+    /\b(?:corpus|it)\s+(?:(?:now|currently|today)\s+)?(?:holds|contains)\s+(?:only\s+)?[*_]{0,3}([a-z0-9,]+)[*_]{0,3}\s+r2\s+runs/gi;
+  let presentTenseClaims = 0;
   for (const doc of ["calibration-cname-uncloaking-design.md", "calibration-findings.md"]) {
     const text = readFileSync(path.join(process.cwd(), "docs", doc), "utf8");
     for (const match of text.matchAll(present)) {
+      presentTenseClaims += 1;
       const claimed = Number(match[1].replaceAll(",", ""));
       assert.ok(
         Number.isFinite(claimed) && claimed === actualR2Runs,
         `${doc} claims the corpus holds ${match[1]} r2 runs; it holds ${actualR2Runs}. ` +
-          `State a superseded premise in the past tense instead.`
+          `State the count in digits matching the corpus, or state a superseded premise in the past tense.`
       );
     }
   }
+  // Without this, a wording drift that blinds the regex reads as a clean pass,
+  // which is exactly how the first version shipped inert.
+  assert.ok(
+    presentTenseClaims > 0,
+    "the guard matched no present-tense corpus-size sentence in either calibration doc; " +
+      "its regex no longer sees the docs' own phrasing"
+  );
 });
