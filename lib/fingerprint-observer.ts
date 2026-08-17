@@ -83,8 +83,12 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     stackTraceLimit?: number;
   };
   const errorCaptureStackTrace = StackError.captureStackTrace;
+  // Deep enough that ordinary synchronous framework wrappers keep the real
+  // registrant inside the capture, still bounded so one registration cannot
+  // allocate an arbitrarily deep stack. A chain that saturates this bound
+  // without resolving attribution records coverage loss, never a clean read.
   const observerStackTraceLimit = mathMax(
-    32,
+    64,
     typeof StackError.stackTraceLimit === "number" ? StackError.stackTraceLimit : 0
   );
   const maxTrackedCanvases = 256;
@@ -1097,8 +1101,10 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     const stackLines = reflectApply(stringSplit, stack, ["\n"]) as string[];
     let nearestOrigin: string | null = null;
     let thirdPartyOrigin: string | null = null;
+    let frameLineCount = 0;
     for (let index = 0; index < stackLines.length; index += 1) {
       const line = stackLines[index];
+      if (reflectApply(stringIncludes, line, ["    at "]) as boolean) frameLineCount += 1;
       if (
         typeof errorCaptureStackTrace !== "function" &&
         ((reflectApply(stringIncludes, line, ["wrappedAddEventListener"]) as boolean) ||
@@ -1139,10 +1145,21 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       }
     }
 
+    if (thirdPartyOrigin !== null) {
+      return { coverageAvailable: true, origin: thirdPartyOrigin };
+    }
+    // No third-party frame inside a capture that saturated the observer's
+    // bound: the walk exhausted the captured frames without resolving
+    // attribution, and the registrant may sit beyond the truncation point. A
+    // wrapper chain deeper than the bound must read as bounded coverage, never
+    // as a clean first-party registration.
+    if (frameLineCount >= observerStackTraceLimit) {
+      return { coverageAvailable: false, origin: null };
+    }
     // A healthy stack may contain only non-HTTP frames in harnesses or browser
     // internals. That is unattributed, not evidence that stack capture itself
     // was disabled.
-    return { coverageAvailable: true, origin: thirdPartyOrigin ?? nearestOrigin };
+    return { coverageAvailable: true, origin: nearestOrigin };
   };
 
   const isThirdPartyOrigin = (origin: string | null): origin is string => {
