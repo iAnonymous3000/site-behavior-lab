@@ -202,7 +202,7 @@ is indistinguishable from zero under any mapping.
 
 The retained lesson is the one below, not the arithmetic above it: the expected
 outcome belongs in the preregistration, because
-because it is the design's most likely failure mode and stating it in advance is
+it is the design's most likely failure mode and stating it in advance is
 what stops a later ceremony from being quietly retried until one passes. The
 ops document is explicit that a failed, cancelled or duplicated attempt remains
 in the server history and makes the ceremony ineligible: the study is one shot,
