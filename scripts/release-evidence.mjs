@@ -2,7 +2,7 @@
 
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
-import { constants, realpathSync } from "node:fs";
+import { constants, existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { lstat, open, readFile, readdir, unlink } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -124,6 +124,37 @@ export async function buildReleaseEvidence({
   return evidence;
 }
 
+/**
+ * The most recent release that actually has an archived receipt.
+ *
+ * A receipt is the canonical record that a release happened: it exists only
+ * after the tag ceremony completes. A version merely DECLARED in
+ * release-policy.json has not necessarily been tagged, promoted, or receipted.
+ */
+function latestReceiptedVersion(root) {
+  const dir = path.join(root, "docs", "release-receipts");
+  const versions = readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .filter((name) => existsSync(path.join(dir, name, "release-receipt.json")))
+    // Release candidates are not releases anything should be cited as.
+    .filter((name) => !name.includes("-"));
+  if (versions.length === 0) throw new Error("no archived release receipt exists to cite");
+  const key = (v) => v.split(".").map((part) => Number(part).toString().padStart(6, "0")).join(".");
+  return versions.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0)).at(-1);
+}
+
+function receiptedReleaseDate(root, version) {
+  const receipt = JSON.parse(
+    readFileSync(path.join(root, "docs", "release-receipts", version, "release-receipt.json"), "utf8")
+  );
+  const date = receipt.releaseDate ?? receipt.release?.releaseDate;
+  if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new Error(`release receipt for ${version} carries no usable releaseDate`);
+  }
+  return date;
+}
+
 async function releaseMetadata(root) {
   const packageManifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
   const packageLock = JSON.parse(await readFile(path.join(root, "package-lock.json"), "utf8"));
@@ -194,20 +225,34 @@ async function releaseMetadata(root) {
   if (packageLock?.version !== policy.version || packageLock?.packages?.[""]?.version !== policy.version) {
     throw new Error("package-lock.json root versions must match release-policy.json exactly");
   }
+  // CITATION.cff cites the most recent RECEIPTED release, not the declared one.
+  //
+  // Citation tooling reads this file standalone: it never sees RELEASE.md's
+  // declare-then-tag window, so a version declared but not yet tagged and
+  // receipted reads as a release that exists. 0.5.0 sat declared for five days
+  // with no tag, no GitHub release and no receipt, and this check REQUIRED
+  // CITATION.cff to assert it -- making the standalone overclaim mandatory
+  // rather than accidental. Two sibling guards in lib/ enforced the same
+  // coupling and now follow the receipt too.
+  const receiptedVersion = latestReceiptedVersion(root);
   const citationVersions = [...citation.matchAll(/^version:\s*["']?([^"'\s]+)["']?\s*$/gm)].map(
     (match) => match[1]
   );
-  if (citationVersions.length !== 1 || citationVersions[0] !== policy.version) {
-    throw new Error("CITATION.cff must declare exactly the release-policy.json version");
+  if (citationVersions.length !== 1 || citationVersions[0] !== receiptedVersion) {
+    throw new Error(
+      `CITATION.cff must declare the most recent receipted release (${receiptedVersion}), not the declared version ${policy.version}`
+    );
   }
   const citationDates = [...citation.matchAll(/^date-released:\s*["']?([0-9]{4}-[0-9]{2}-[0-9]{2})["']?\s*$/gm)].map(
     (match) => match[1]
   );
-  if (!released && citation.match(/^date-released:/m)) {
-    throw new Error("Development CITATION.cff must not claim a release date");
-  }
-  if (released && (citationDates.length !== 1 || citationDates[0] !== policy.releaseDate)) {
-    throw new Error("A released CITATION.cff must carry exactly the policy's release date");
+  // The date follows the receipt for the same reason the version does: the
+  // receipt is the canonical record of a release that actually happened.
+  const receiptedDate = receiptedReleaseDate(root, receiptedVersion);
+  if (citationDates.length !== 1 || citationDates[0] !== receiptedDate) {
+    throw new Error(
+      `CITATION.cff must carry the receipted release date for ${receiptedVersion} (${receiptedDate})`
+    );
   }
   // Ongoing work always has somewhere to go, in both states.
   const unreleasedSections = [...changelog.matchAll(/^## Unreleased\s*$/gm)];
