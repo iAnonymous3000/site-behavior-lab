@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { cpSync } from "node:fs";
+import { cpSync, existsSync, readFileSync } from "node:fs";
 import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -66,7 +66,31 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   assert.deepEqual(manifest.engines, { node: "24.14.1", npm: "11.11.0" });
   assert.equal(lock.packages[""].packageManager, manifest.packageManager);
   assert.deepEqual(lock.packages[""].engines, manifest.engines);
-  assert.match(citation, new RegExp(`^version: "${policy.version}"$`, "m"));
+  // CITATION.cff tracks the last version that actually EXISTS as a tagged,
+  // receipted release, not the declared one. Coupling it to policy.version
+  // forced a standalone overclaim during the declare-then-tag window: citation
+  // tooling reads this file alone, without RELEASE.md's sequence or this
+  // policy, so it would assert a release date for a version with no tag and no
+  // receipt. It catches up in the tag step.
+  const citedVersion = citation.match(/^version: "([^"]+)"$/m)?.[1];
+  assert.ok(citedVersion, "CITATION.cff must cite a version");
+  if (existsSync(path.join(process.cwd(), "docs", "release-receipts", policy.version))) {
+    assert.equal(
+      citedVersion,
+      policy.version,
+      "once the receipt is archived, CITATION.cff must cite the released version"
+    );
+  } else {
+    assert.notEqual(
+      citedVersion,
+      policy.version,
+      `CITATION.cff must not cite ${policy.version} before its receipt exists`
+    );
+    assert.ok(
+      existsSync(path.join(process.cwd(), "docs", "release-receipts", citedVersion)),
+      `CITATION.cff cites ${citedVersion}, which has no archived receipt either`
+    );
+  }
   // Ongoing work always has a home, in either state.
   assert.equal((changelog.match(/^## Unreleased$/gm) ?? []).length, 1);
   assert.match(releaseGuide, /RELEASE_MEASUREMENT_BINDING_SHA256/);
@@ -80,7 +104,20 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   );
   const datedForVersion = new RegExp(`^## \\[?${policy.version.replace(/\./g, "\\.")}\\]?\\s+-\\s*(\\d{4}-\\d{2}-\\d{2})$`, "m");
   if (policy.status === "released") {
-    assert.match(citation, new RegExp(`^date-released: "${policy.releaseDate}"$`, "m"));
+    // Same reason as the version above: the citation date follows the RECEIPT,
+    // not the declaration. During the declare-then-tag window it still carries
+    // the last actually-released date, and the guard below proves that date
+    // belongs to a version whose receipt exists.
+    if (existsSync(path.join(process.cwd(), "docs", "release-receipts", policy.version))) {
+      assert.match(citation, new RegExp(`^date-released: "${policy.releaseDate}"$`, "m"));
+    } else {
+      assert.doesNotMatch(
+        citation,
+        new RegExp(`^date-released: "${policy.releaseDate}"$`, "m"),
+        `CITATION.cff must not carry ${policy.version}'s date before its receipt exists`
+      );
+      assert.match(citation, /^date-released: "\d{4}-\d{2}-\d{2}"$/m);
+    }
     const dated = changelog.match(datedForVersion);
     assert.notEqual(dated, null, "a released changelog must carry its dated section");
     assert.equal(dated![1], policy.releaseDate);
@@ -2235,4 +2272,61 @@ test("the approved-release-actor step executes as a real shell gate", { skip: ho
   assert.equal(run("alice,bob", "alice", "bob").status, 1);
   assert.equal(run("alice", "mallory", "mallory").status, 1);
   assert.equal(run("", "alice", "alice").status, 1);
+});
+
+test("a declared release with no archived receipt must say so in the policy", () => {
+  // REGRESSION. `status: "released"` has been true for 0.5.0 since 2026-08-11
+  // with no v0.5.0 tag and no receipt under docs/release-receipts/. That window
+  // is legitimate -- RELEASE.md declares the version at step 1 and creates the
+  // tag at step 4 -- but it was unbounded and nothing observed it. The v0.2.0
+  // reconciliation on 2026-07-29 treated the identical state as a
+  // misrepresentation, so the project has already decided this matters.
+  //
+  // This does not impose a deadline; picking one is an operator decision. It
+  // requires the state to be DECLARED, so a release that stalls is visible in
+  // the policy itself rather than inferable only by noticing a missing tag.
+  const policy = JSON.parse(
+    readFileSync(path.join(process.cwd(), "release-policy.json"), "utf8")
+  ) as {
+    status: string;
+    version: string;
+    tagPending?: { declaredAt?: string; note?: string };
+  };
+  if (policy.status !== "released") return;
+
+  const receiptDir = path.join(process.cwd(), "docs", "release-receipts", policy.version);
+  const receiptArchived = existsSync(receiptDir);
+
+  if (receiptArchived) {
+    assert.equal(
+      policy.tagPending,
+      undefined,
+      `${policy.version} has an archived receipt, so tagPending must be removed`
+    );
+    return;
+  }
+
+  assert.ok(
+    policy.tagPending?.declaredAt,
+    `release-policy.json declares ${policy.version} released, but no receipt exists at ` +
+      `docs/release-receipts/${policy.version}. Either complete the tag sequence or record ` +
+      `tagPending.declaredAt so the open window is explicit.`
+  );
+  assert.match(
+    policy.tagPending.declaredAt,
+    /^\d{4}-\d{2}-\d{2}$/,
+    "tagPending.declaredAt must be an ISO date"
+  );
+
+  // CITATION.cff is consumed STANDALONE by citation tooling, which never sees
+  // RELEASE.md's hedge or this policy. It must not assert a release date for a
+  // version that has no tag and no receipt.
+  const citation = readFileSync(path.join(process.cwd(), "CITATION.cff"), "utf8");
+  const citedVersion = citation.match(/^version:\s*"?([^"\n]+)"?/m)?.[1];
+  assert.notEqual(
+    citedVersion,
+    policy.version,
+    `CITATION.cff cites ${policy.version} as released while its tag and receipt do not exist. ` +
+      `Citation tooling reads this file alone, so the claim stands unqualified.`
+  );
 });

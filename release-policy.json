@@ -5,5 +5,9 @@
   "releaseTag": "v0.5.0",
   "releaseDate": "2026-08-11",
   "stablePublicApi": false,
-  "npmPublication": "disabled"
+  "npmPublication": "disabled",
+  "tagPending": {
+    "declaredAt": "2026-08-11",
+    "note": "status:released is declared at RELEASE.md step 1; the tag is created at step 4. Until the governance carrier lands and Cut Release Tag runs, no v0.5.0 tag or release receipt exists. This field makes that window explicit so it cannot pass silently."
+  }
 }
