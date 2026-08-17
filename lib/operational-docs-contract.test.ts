@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
@@ -456,4 +456,44 @@ test("the README does not describe Access-protected Pages previews as public", (
   assert.doesNotMatch(readme, /preview deployments are (?:currently )?enabled and public/i);
   assert.doesNotMatch(readme, /public by default/i);
   assert.match(readme, /preview deployments[\s\S]{0,60}Access-protected/i);
+});
+
+test("calibration docs never assert a corpus size the corpus contradicts", () => {
+  // REGRESSION. Both calibration docs stated "the committed corpus holds six r2
+  // runs, all clean" and the design doc derived ceremony survival odds from it.
+  // The corpus refreshed at #144 one day after those docs landed, to 126 r2 runs
+  // with 73 censored, and #159/#161 built on the new corpus without correcting
+  // the sizing surface. Nothing read these docs, so nothing noticed.
+  //
+  // Present-tense claims only: describing the historical premise is how the
+  // correction itself is written, and must stay allowed.
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  let actualR2Runs = 0;
+  for (const file of readdirSync(reportsDir)) {
+    if (!file.endsWith(".json") || file.includes("provenance")) continue;
+    let wire: Record<string, unknown>;
+    try {
+      wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
+    } catch {
+      continue;
+    }
+    for (const arm of ["run", "baseline", "variant"]) {
+      const run = wire[arm] as { qualityFacts?: unknown; quality?: { byFamily?: unknown } } | undefined;
+      if (run?.qualityFacts && run.quality?.byFamily) actualR2Runs += 1;
+    }
+  }
+  assert.ok(actualR2Runs > 0, "corpus probe found no r2 runs; the guard would be vacuous");
+
+  const present = /\b(?:corpus|it)\s+(?:currently\s+)?(?:holds|contains)\s+(?:only\s+)?([a-z0-9,]+)\s+r2\s+runs/gi;
+  for (const doc of ["calibration-cname-uncloaking-design.md", "calibration-findings.md"]) {
+    const text = readFileSync(path.join(process.cwd(), "docs", doc), "utf8");
+    for (const match of text.matchAll(present)) {
+      const claimed = Number(match[1].replaceAll(",", ""));
+      assert.ok(
+        Number.isFinite(claimed) && claimed === actualR2Runs,
+        `${doc} claims the corpus holds ${match[1]} r2 runs; it holds ${actualR2Runs}. ` +
+          `State a superseded premise in the past tense instead.`
+      );
+    }
+  }
 });
