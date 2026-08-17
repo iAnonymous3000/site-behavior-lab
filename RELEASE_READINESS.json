@@ -112,7 +112,6 @@
         "operator-attestation",
         "release-tag-governance-receipt",
         "release-policy-finalization",
-        "citation-finalization",
         "changelog-finalization"
       ]
     },
