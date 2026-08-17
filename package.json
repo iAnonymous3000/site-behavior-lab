@@ -146,7 +146,7 @@
     "@axe-core/playwright": "4.12.1",
     "@cloudflare/containers": "^0.3.7",
     "@cloudflare/workers-types": "^5.20260804.1",
-    "@types/node": "^24.13.3",
+    "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "ajv": "8.20.0",
