@@ -187,7 +187,8 @@ denominator. It is the zero-censoring rule meeting the open web.
 
 **This section's premise is superseded.** It was written when the committed
 corpus held six r2 runs, all clean, so per-case reliability was unmeasured and
-the survival figures below were the best available. The corpus refreshed at #144
+the ceremony survival odds it originally stated were derived from assumed
+per-case reliability figures, not from data. The corpus refreshed at #144
 one day later: it now holds **126 r2 runs, 73 of them carrying capture-loss
 censoring**, and
 [research/calibration-censoring](../research/calibration-censoring/README.md)
