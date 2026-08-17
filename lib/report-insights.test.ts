@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
 
@@ -9,6 +11,7 @@ import {
   isTrackingTrackerMatch,
   isUnclassifiedEntity,
   respondedTrackerEntityNames,
+  shieldsFilterMatchDetail,
   shieldsRunMeasurement,
   trackerEntitySummaries,
   trackerOwnershipBreakdown,
@@ -166,6 +169,74 @@ test("Shields display facts follow engine readback instead of configured mode", 
       verificationFacts: null
     }),
     { kind: "engine-blocked", count: 7, origin: "legacy-derived", evaluated: null }
+  );
+});
+
+test("a legacy filter-matches grid line states no ratio over the retained total", () => {
+  // REGRESSION, live on 662 committed report pages through the metric grid
+  // (screen and print/PDF both render it via report-renderer). The legacy
+  // line read "classification reported over {retained total} requests",
+  // pairing the v1 wire counter with a population the engine never saw --
+  // the same two-population conflation the card and headline refuse, and 50
+  // of those pages simultaneously rendered the headline sentence denying
+  // that any ratio can be stated. A v1 wire records no evaluated count, so
+  // the line must carry no denominator, and no number at all: the tile's
+  // value already shows the counter.
+  //
+  // Both measurements go through the real producer, not hand-built objects,
+  // so a producer change flows into what this guard checks.
+  const legacy = shieldsRunMeasurement({
+    counts: { shieldsBlockedRequests: 8 },
+    conditions: { adblockActive: true, shieldsMode: "classification" },
+    verificationFacts: null
+  });
+  assert.ok(legacy && legacy.origin === "legacy-derived" && legacy.kind === "filter-matches");
+  const legacyDetail = shieldsFilterMatchDetail(legacy);
+  assert.match(legacyDetail, /no engine readback recorded/);
+  assert.doesNotMatch(
+    legacyDetail,
+    /\d|\bover\b|\bof\b/,
+    "a v1 wire supports no denominator; the legacy line must state no count and no ratio"
+  );
+
+  // The recorded branch pins the grouped literal against fixture digits that
+  // differ by construction (2416 vs "2,416"), so a formatter regression or a
+  // swapped population cannot agree with the fixture.
+  const recorded = shieldsRunMeasurement({
+    counts: { shieldsBlockedRequests: 0 },
+    conditions: { adblockActive: true, shieldsMode: "classification" },
+    verificationFacts: {
+      shields: {
+        engineLoaded: true,
+        applied: false,
+        requestsEvaluated: 2416,
+        requestsMatched: 1204,
+        requestsActuallyBlocked: 0
+      }
+    }
+  });
+  assert.ok(recorded && recorded.origin === "recorded" && recorded.kind === "filter-matches");
+  assert.equal(
+    shieldsFilterMatchDetail(recorded),
+    "verified over 2,416 requests the engine evaluated"
+  );
+});
+
+test("the metric grid renders its filter-matches detail through the shared builder", () => {
+  // The grid was the third surface to restate this measurement's copy and
+  // the only one still pairing the count with the retained total after
+  // the card and headline were corrected. Binding the component to the one
+  // builder makes the next drift a compile error or a red here, not a
+  // silent third opinion on the same page.
+  const overview = readFileSync(
+    path.join(process.cwd(), "app", "_components", "report-overview.tsx"),
+    "utf8"
+  );
+  assert.match(overview, /detail: shieldsFilterMatchDetail\(shieldsMeasurement\)/);
+  assert.doesNotMatch(
+    overview,
+    /classification reported over|the engine evaluated/,
+    "the filter-matches detail line must come from shieldsFilterMatchDetail, not an inline restatement"
   );
 });
 
