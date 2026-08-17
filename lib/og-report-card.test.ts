@@ -130,8 +130,50 @@ test("an over-long subhead drops its secondary observation, never its qualificat
   const primary =
     "An advertising pixel on shop.example attached populated personal-identifier fields (external ID) to the events it reported. " +
     "These fields exist to match a visit to a known person; the scanner records only that they were filled, never their values, so what they contained is not verified.";
-  const secondary =
-    " It also looks like keyboard-input listeners were registered through a call chain that included a cross-site script and 4 browser-fingerprinting heuristics matched.";
+  // The secondary clause comes from the real headline builder, never from a
+  // hand-inlined copy of its compiled string: a view whose primary story
+  // outranks listener coverage while an input-monitoring detection is present
+  // makes the builder append the extras clause, and slicing off the builder's
+  // own subheadPrimaryClaim recovers exactly what it appended. Inlining the
+  // sentence here let the extras copy revert to the accusative form while
+  // every test stayed green.
+  // The unmutated fixture: the stable over-limit view's count overrides make
+  // the comparison story win, and comparison branches deliberately never
+  // append the extras clause, so the slice below would be empty there.
+  const extrasView = toReportView({ schemaVersion: 2, schemaRevision: 2, report: makeShieldsInterventionReportV2R2() });
+  for (const run of extrasView.runs) {
+    run.evidence.fingerprintDetections.push({
+      kind: "input-monitoring",
+      heuristic: "input-listener-coverage-v1",
+      count: 1,
+      evidence: {
+        eventTypes: ["input", "keydown"],
+        listenerTargets: ["input"],
+        thirdPartyOrigins: ["https://recorder.example.net"],
+        totalListenerCalls: 4
+      }
+    });
+    for (let index = 0; index < 6; index += 1) {
+      const id = 9000 + run.evidence.requests.length;
+      run.evidence.requests.push({
+        id,
+        url: `https://fixture.invalid/request-${id}`,
+        domain: "google-analytics.com",
+        method: "GET",
+        resourceType: "script",
+        status: 200,
+        thirdParty: true,
+        tracker: { domain: "google-analytics.com", entity: "Google", category: "analytics", confidence: "curated" },
+        startedAtMs: id
+      });
+    }
+  }
+  const extrasHeadline = buildReportHeadline(extrasView);
+  assert.notEqual(extrasHeadline.semantic.story, "listener-coverage");
+  const secondary = extrasHeadline.subhead.slice(extrasHeadline.subheadPrimaryClaim.length);
+  assert.match(secondary, /^ It also looks like /);
+  assert.match(secondary, /call chain that included a cross-site script/);
+  assert.doesNotMatch(secondary, /(cross-site|third-party) script registered/i);
   const headline = {
     ...buildReportHeadline(view),
     subhead: `${primary}${secondary}`,

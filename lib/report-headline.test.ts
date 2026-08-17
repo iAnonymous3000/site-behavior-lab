@@ -522,6 +522,36 @@ test("cross-site input monitoring keeps the probe headline with listener wording
   assert.match(headline.subhead, /call chain that included a cross-site script/);
 });
 
+test("the secondary extras clause states chain attribution through the real builder", () => {
+  // The extras clause is a different compiled string from the listener-coverage
+  // primary subhead, so a revert of that one push() to the old accusative copy
+  // ("a cross-site script registered listeners on keyboard input") is invisible
+  // to every guard that only exercises the primary branch or hand-inlines the
+  // expected sentence. Drive the branch itself: a catalogued-tracker story wins
+  // the headline, and the input-monitoring signal must surface as the appended
+  // "It also looks like ..." clause with chain wording.
+  const result = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [makeTrackerDomain("google-analytics.com", 6, "Google", "analytics")],
+    thirdPartyRequests: 6,
+    thirdPartyDomains: 1,
+    fingerprintDetections: [makeInputMonitoringDetection(["https://recorder.example.net"])]
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.notEqual(headline.semantic.story, "listener-coverage");
+  const secondary = headline.subhead.slice(headline.subheadPrimaryClaim.length);
+  // The clause must exist (an empty slice means the fixture stopped triggering
+  // the branch and every assertion below would pass vacuously).
+  assert.match(secondary, /^ It also looks like /);
+  assert.match(
+    secondary,
+    /keyboard-input listeners were registered through a call chain that included a cross-site script/
+  );
+  // Chain attribution only: never the accusative registrant claim.
+  assert.doesNotMatch(secondary, /(cross-site|third-party) script registered/i);
+});
+
 test("surfaces browser probing when fingerprinting matches without catalogued trackers", () => {
   const result = makeResult({
     firstPartyDomain: "fp.example",
