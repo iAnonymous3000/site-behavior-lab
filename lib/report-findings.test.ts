@@ -39,6 +39,7 @@ import {
   viewFromV2
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
+import { formatCount } from "./text-format";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
@@ -2984,55 +2985,136 @@ test("the Shields match ratio is denominated by what the engine evaluated", () =
   // SELECTED, NOT HARDCODED. The first version read one report id and pinned
   // 11/31/55. Committed reports are pruned by age and count, so that guard was
   // scheduled to die as ENOENT -- and the whole point of it is to outlive the
-  // corpus it reads. It now selects every wire where the two populations
-  // actually differ, asserts the selection is non-empty so an empty corpus
-  // fails rather than passes, and checks all of them.
+  // corpus it reads. It now selects every wire whose lead arm distinguishes
+  // the two populations, asserts the selection is non-empty so an empty
+  // corpus fails rather than passes, and checks all of them.
+  //
+  // THE LEAD ARM, NOT THE FIRST DIVERGENT ARM. The card renders exactly one
+  // arm, the one displayRunView leads with, so expecting any other arm's
+  // numbers in its title is a false red on a correct page: when this was
+  // fixed, a committed comparison already carried a divergent variant arm
+  // the card never shows, applied:true, whose simulated title states
+  // the blocked count with no denominator; when such an arm leads, the only
+  // wrong shape is borrowing the retained total, so that is all we forbid.
+  // Legacy-derived measurements (no verificationFacts) record no evaluated
+  // count and state the count alone, so there is no ratio to check; they are
+  // skipped.
+  //
+  // Titles format counts through formatCount ("en-US" grouping), so expected
+  // numbers must go through the same formatter: a raw-digit regex on a
+  // four-digit count matches nothing ("1,000" is not "1000"), turning the
+  // positive assertion into a false red and the negative one into a no-op;
+  // when this was fixed, four committed arms already retained exactly 1,000
+  // requests. The grouping itself is pinned against literals by the sibling
+  // test below, so reusing the formatter here cannot hide a formatter
+  // regression.
   const reportsDir = path.join(process.cwd(), "public", "reports");
-  const divergent: { file: string; evaluated: number; retained: number; matched: number }[] = [];
+  let divergentLeadArms = 0;
   for (const file of readdirSync(reportsDir)) {
     if (!file.endsWith(".json") || file.includes("provenance") || file === "index.json") continue;
-    let wire: Record<string, unknown>;
+    let wire: Record<string, any>;
     try {
       wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
     } catch {
       continue;
     }
     if (wire.schemaVersion !== 2) continue;
-    for (const arm of ["run", "baseline", "variant"] as const) {
-      const candidate = (wire as Record<string, any>)[arm];
-      const shields = candidate?.verificationFacts?.shields;
-      if (!shields || typeof shields.requestsEvaluated !== "number") continue;
-      const retained = candidate?.summary?.counts?.totalRequests;
-      if (typeof retained !== "number") continue;
-      if (shields.requestsMatched <= 0) continue;
-      if (shields.requestsEvaluated === retained) continue;
-      divergent.push({
-        file,
-        evaluated: shields.requestsEvaluated,
-        retained,
-        matched: shields.requestsMatched
-      });
-      break;
+    const view = viewFromV2(
+      wire as Parameters<typeof viewFromV2>[0],
+      wire.schemaRevision === 1 ? 1 : 2
+    );
+    const lead = displayRunView(view);
+    const shields = lead.verificationFacts?.shields;
+    if (!shields || !shields.engineLoaded || shields.requestsEvaluated === 0) continue;
+    const matched = shields.applied ? shields.requestsActuallyBlocked : shields.requestsMatched;
+    if (matched <= 0) continue;
+    const retained = lead.counts.totalRequests;
+    // A failed-load report renders no shields card at all; that is not this
+    // guard's subject, and the non-empty assertion below still catches a
+    // corpus where the card never renders anywhere.
+    const card = buildFindings(view, null).find((finding) => finding.id === "shields-blocked");
+    if (!card) continue;
+    if (shields.applied) {
+      assert.doesNotMatch(
+        card.title,
+        new RegExp(`of ${formatCount(retained)}\\b`),
+        `${file}: a simulated block count states no denominator, and must never borrow the ${retained} retained`
+      );
+      continue;
     }
-  }
-
-  assert.ok(
-    divergent.length > 0,
-    "no committed wire distinguishes evaluated from retained; this guard would be vacuous"
-  );
-
-  for (const { file, evaluated, retained, matched } of divergent) {
-    const wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
-    const card = byId(buildFindings(viewFromV2(wire, wire.schemaRevision === 1 ? 1 : 2), null), "shields-blocked");
+    if (shields.requestsEvaluated === retained) continue;
+    divergentLeadArms += 1;
     assert.match(
       card.title,
-      new RegExp(`\\b${evaluated}\\b[^.]*the engine evaluated`),
-      `${file}: must divide by the ${evaluated} evaluated, not the ${retained} retained`
+      new RegExp(`\\b${formatCount(shields.requestsEvaluated)} (?:retained )?requests?\\b[^.]*the engine evaluated`),
+      `${file}: must divide by the ${shields.requestsEvaluated} evaluated, not the ${retained} retained`
     );
     assert.doesNotMatch(
       card.title,
-      new RegExp(`${matched} of ${retained}\\b`),
+      new RegExp(`\\b${formatCount(matched)} of ${formatCount(retained)}\\b`),
       `${file}: the retained total must never be the match denominator`
     );
   }
+
+  assert.ok(
+    divergentLeadArms > 0,
+    "no committed wire's lead arm distinguishes evaluated from retained; this guard would be vacuous"
+  );
+});
+
+test("Shields ratio counts publish with en-US grouping, never raw digits", () => {
+  // The corpus guard above reuses formatCount for its expected numbers, and
+  // committed evaluated counts may never reach four digits (none had when
+  // this was written), so only a synthetic wire dependably pins the grouped
+  // form against literals. Without this,
+  // a formatter regression to raw digits would agree with itself in the
+  // corpus guard and pass. The fixture's raw digits (2416) and the expected
+  // literal ("2,416") deliberately differ, so the assertion cannot agree
+  // with the fixture by construction.
+  const wire = makePublicSingleReportV2R2();
+  wire.run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 2416,
+      requestsMatched: 1204,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+  wire.run.summary = {
+    ...wire.run.summary,
+    counts: { ...wire.run.summary.counts, totalRequests: 3000, shieldsBlockedRequests: 1204 }
+  };
+  const card = byId(buildFindings(viewFromV2(wire, 2), null), "shields-blocked");
+  assert.match(card.title, /\b1,204 of 2,416 requests the engine evaluated/);
+  assert.doesNotMatch(card.title, /\b(?:1204|2416)\b/, "counts must group thousands, never print raw digits");
+  assert.doesNotMatch(card.title, /\bof 3,000\b/, "the retained total must never be the match denominator");
+
+  // The applied:true lead arm the corpus cannot currently exercise: the
+  // simulated title states the blocked count alone.
+  const simulated = makePublicSingleReportV2R2();
+  simulated.run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: true,
+      requestsEvaluated: 2416,
+      requestsMatched: 0,
+      requestsActuallyBlocked: 1204,
+      phaseId: 0
+    }
+  };
+  simulated.run.summary = {
+    ...simulated.run.summary,
+    counts: { ...simulated.run.summary.counts, totalRequests: 3000, shieldsBlockedRequests: 1204 }
+  };
+  const simulatedCard = byId(buildFindings(viewFromV2(simulated, 2), null), "shields-blocked");
+  assert.match(simulatedCard.title, /blocking engine stopped 1,204 /);
+  assert.doesNotMatch(
+    simulatedCard.title,
+    /\bof\b/,
+    "a simulated block count states no denominator at all"
+  );
 });
