@@ -10,7 +10,8 @@ export default async function Home() {
     await loadCorpusOverview();
   // The hero's category medians must be the SAME numbers the reader finds on
   // /directory/ and on each /categories/<id>/ page. Those pages publish one
-  // cohort per category (the largest), while a corpus-wide rollup mixes a
+  // cohort per category (chosen by the shared newest-evidence rule in
+  // `selectPrimaryCorpusCohort`, not by size), while a corpus-wide rollup mixes a
   // different site set, so deriving the hero from anything else publishes two
   // different medians under one label.
   const categoryPages = buildCategoryEvidencePages(entries);

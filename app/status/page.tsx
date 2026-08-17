@@ -31,13 +31,34 @@ export default async function StatusPage() {
   // The card's own sentence reports `siteCount`, which counts only the
   // aggregate cohort. Dating it from any eligible row would certify the
   // freshness of the aggregates using a report those aggregates exclude, so
-  // the timestamp is scoped to the same cohort the number describes.
+  // the timestamp is scoped to the same cohort the number describes. That
+  // scope is stated in the copy, and eligible evidence newer than this
+  // cohort's is disclosed with its own derived date: without it, this card
+  // and the directory can date the corpus three days apart on one build.
   const aggregateCohortId = overview.aggregateCohort?.id ?? null;
-  const latestEligibleEvidence = overview.entries
-    .filter((entry) => entryEligibleForCorpusRollups(entry) && entry.corpusCohort.id === aggregateCohortId)
-    .map((entry) => entry.scannedAt)
-    .filter((value) => Number.isFinite(Date.parse(value)))
-    .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
+  const eligibleEntries = overview.entries.filter(
+    (entry) => entryEligibleForCorpusRollups(entry) && Number.isFinite(Date.parse(entry.scannedAt))
+  );
+  const newestEligibleScannedAt = (entries: typeof eligibleEntries): string | null =>
+    entries
+      .map((entry) => entry.scannedAt)
+      .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
+  const latestAggregateEvidence = newestEligibleScannedAt(
+    eligibleEntries.filter((entry) => entry.corpusCohort.id === aggregateCohortId)
+  );
+  const latestEligibleEvidence = newestEligibleScannedAt(eligibleEntries);
+  const newerEligibleOutsideAggregate =
+    latestEligibleEvidence !== null &&
+    (latestAggregateEvidence === null ||
+      Date.parse(latestEligibleEvidence) > Date.parse(latestAggregateEvidence));
+  // "Most committed pages rank against a different cohort than this one" is a
+  // corpus-state fact, not a timeless one: one generation flip or one large
+  // refresh can invert it. Derive it from the same entries the card counts so
+  // corpus churn changes the sentence instead of falsifying it.
+  const committedPagesOnAggregateCohort = overview.entries.filter(
+    (entry) => entry.corpusCohort.id === aggregateCohortId
+  ).length;
+  const mostPagesRankElsewhere = committedPagesOnAggregateCohort * 2 < overview.entries.length;
   // Category medians are published one cohort per category and can land on
   // several cohorts during a methodology migration, so the aggregate cohort
   // above is not the whole published corpus. The homepage counts them from
@@ -76,16 +97,17 @@ export default async function StatusPage() {
         <div className="status-card-grid">
           <article className="status-card">
             <div className="status-heading-row">
-              <h3>Latest eligible corpus evidence</h3>
-              <StatusFreshness timestamp={latestEligibleEvidence} maxAgeMs={PUBLIC_STATUS_MAX_CORPUS_AGE_MS} />
+              <h3>Latest aggregate-cohort evidence</h3>
+              <StatusFreshness timestamp={latestAggregateEvidence} maxAgeMs={PUBLIC_STATUS_MAX_CORPUS_AGE_MS} />
             </div>
-            <p className="status-value">{formatUtc(latestEligibleEvidence)}</p>
+            <p className="status-value">{formatUtc(latestAggregateEvidence)}</p>
             <p>
-              {overview.siteCount.toLocaleString()} distinct sites make up the largest measurement cohort, the one this
-              page&apos;s aggregates describe; {overview.coverageSiteCount.toLocaleString()} sites have at least one
+              {overview.siteCount.toLocaleString()} distinct sites make up the measurement cohort this
+              page&apos;s aggregates describe, and the date above is the newest eligible evidence inside that same
+              cohort; {overview.coverageSiteCount.toLocaleString()} sites have at least one
               successful load.
             </p>
-            <p className="status-note">This is not the cohort every report page uses. Each report ranks against its own exact cohort, and most committed pages use a different and older one than this: a page compares only against scans that share its schema revision, methodology, tracker catalog, role taxonomy, metric contract, producer and requested-GPC state. Where no cohort reaches fifty sites, that page falls back to fixed thresholds instead. {scanRankingSentence} Each percentile card names its own denominator, and the <a href="/methodology/#corpus">methodology</a> states the rule. {categoryCohortCount > 1 ? `Category medians are published one cohort per category and span ${categoryCohortCount} cohorts in total, so no single cohort backs every published aggregate.` : "Category medians are published one cohort per category, and today that is this same cohort."} Current means no more than eight days old. It does not mean every site was refreshed in that window. A site that loaded but whose evidence was cut short, by a request cap or a censored family, is counted as covered and never as measured, so the two numbers differ by more than failed loads. Nearly all committed corpus reports are frozen schema v1 from the disclosed fallback collection lane; the <a href="/methodology/#corpus">methodology</a> states what v1 evidence can and cannot support.</p>
+            <p className="status-note">{newerEligibleOutsideAggregate ? `Eligible evidence as new as ${formatUtc(latestEligibleEvidence)} sits in cohorts this aggregate excludes; the date above deliberately covers the aggregate cohort only.` : latestAggregateEvidence !== null ? "Today the aggregate cohort also holds the newest eligible evidence in the committed corpus." : "Today no committed report is eligible for these aggregates."} This is not the cohort every report page uses. Each report ranks against its own exact cohort{mostPagesRankElsewhere ? ", and most committed pages carry a different one than this" : ""}: a page compares only against scans that share its schema revision, methodology, tracker catalog, role taxonomy, metric contract, producer and requested-GPC state. Where no cohort reaches fifty sites, that page falls back to fixed thresholds instead. {scanRankingSentence} Each percentile card names its own denominator, and the <a href="/methodology/#corpus">methodology</a> states the rule. {categoryCohortCount > 1 ? `Category medians are published one cohort per category and span ${categoryCohortCount} cohorts in total, so no single cohort backs every published aggregate.` : "Category medians are published one cohort per category, and today that is this same cohort."} Current means no more than eight days old. It does not mean every site was refreshed in that window. A site that loaded but whose evidence was cut short, by a request cap or a censored family, is counted as covered and never as measured, so the two numbers differ by more than failed loads. Nearly all committed corpus reports are frozen schema v1 from the disclosed fallback collection lane; the <a href="/methodology/#corpus">methodology</a> states what v1 evidence can and cannot support.</p>
           </article>
 
           <article className="status-card">
