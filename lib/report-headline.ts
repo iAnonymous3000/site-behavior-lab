@@ -788,10 +788,16 @@ export function buildReportHeadline(
         : `${shieldsCount} in this visit matched Brave Shields filter lists.`,
       shieldsMeasurement.kind === "engine-blocked"
         ? `This was a block simulation in the scanner's browser, not a live Brave-browser visit. The count covers requests the engine directly stopped; follow-on requests that never started are separate.`
-        : `${shieldsCount} matched while loading normally, out of ${retainedCountLabel(
-            run.counts.totalRequests,
-            requestState
-          )}${retained} requests. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`,
+        : shieldsMeasurement.evaluated === null
+          ? `${shieldsCount} matched while loading normally. This run records no evaluated-request count, so no match ratio is stated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`
+          : // Denominated by what the engine EVALUATED, not by the retained
+            // request total. The two are different populations, and this text
+            // also reaches JSON-LD and the social card, so the pairing was
+            // published off-site as well.
+            `${shieldsCount} matched while loading normally, out of ${retainedCountLabel(
+              shieldsMeasurement.evaluated,
+              requestState
+            )}${retained} requests the engine evaluated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`,
       stats,
       undefined,
       { story: "shields", assertedClaims: ["shields-blocked"] }

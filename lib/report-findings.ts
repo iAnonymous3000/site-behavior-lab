@@ -1690,12 +1690,24 @@ export function buildFindings(
       "requests",
       requestState
     );
-    const totalPhrase = retainedCountPhrase(
-      run.counts.totalRequests,
-      "request",
-      "requests",
-      requestState
-    );
+    // The DENOMINATOR is the population the engine evaluated, never the
+    // retained request total. `count` is a counter over evaluated requests, so
+    // pairing it with the retained total describes two populations as one: the
+    // committed google.com report evaluated 31 requests, matched 11 and
+    // retained 55, and this card published "11 of 55". khanacademy published
+    // "4 of 154" against 216 evaluated -- more than the denominator. #132 fixed
+    // exactly this in the metric grid and PDF, so the same page already says
+    // "verified over N requests the engine evaluated" below a card that
+    // disagreed with it.
+    //
+    // A legacy v1 run records no evaluated count (`evaluated: null`). There is
+    // no honest ratio to state there, so those runs state the count alone
+    // rather than borrowing a denominator that measures something else.
+    const evaluated = shieldsMeasurement.evaluated;
+    const evaluatedPhrase =
+      evaluated === null
+        ? null
+        : retainedCountPhrase(evaluated, "request", "requests", requestState);
     findings.unshift({
       id: "shields-blocked",
       icon: "shield-check",
@@ -1704,12 +1716,14 @@ export function buildFindings(
         blocked > 0
           ? simulated
             ? `Brave's blocking engine stopped ${blockedPhrase} in this visit`
-            : requestState === "complete"
-              ? `${blocked.toLocaleString("en-US")} of ${plural(
-                  run.counts.totalRequests,
-                  "request"
-                )} matched Brave Shields filter lists`
-              : `${blockedPhrase} out of ${totalPhrase} matched Brave Shields filter lists`
+            : evaluatedPhrase === null
+              ? `${blockedPhrase} matched Brave Shields filter lists`
+              : requestState === "complete"
+                ? `${blocked.toLocaleString("en-US")} of ${plural(
+                    evaluated as number,
+                    "request"
+                  )} the engine evaluated matched Brave Shields filter lists`
+                : `${blockedPhrase} out of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
           : scopedAbsenceTitle(
               facts,
               "shields-blocked",
