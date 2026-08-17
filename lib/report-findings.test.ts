@@ -9,6 +9,7 @@ import {
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import { buildReportFacts } from "./report-facts";
 import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { HEADLINE_PLATFORMS, isTrackingTrackerMatch } from "./report-insights";
@@ -3008,8 +3009,21 @@ test("the Shields match ratio is denominated by what the engine evaluated", () =
   // requests. The grouping itself is pinned against literals by the sibling
   // test below, so reusing the formatter here cannot hide a formatter
   // regression.
+  //
+  // THE DENOMINATOR IS EXACT, EVEN CENSORED. requestsEvaluated is a
+  // route-time counter over the engine's own classifier calls; capture
+  // censoring truncates the retained rows the NUMERATOR is recounted from,
+  // never this counter. The first version of the fix rendered the denominator
+  // through the numerator's hedge, publishing "at least N retained requests
+  // the engine evaluated" for an exact non-retained-row count on every
+  // censored page, while the metric grid printed the same number exactly, and
+  // this guard's `(?:retained )?` tolerance passed both. The qualifier is now
+  // forbidden in the denominator position, and censored divergent lead arms
+  // are counted separately so the censored branch cannot silently go
+  // unexercised.
   const reportsDir = path.join(process.cwd(), "public", "reports");
   let divergentLeadArms = 0;
+  let censoredDivergentLeadArms = 0;
   for (const file of readdirSync(reportsDir)) {
     if (!file.endsWith(".json") || file.includes("provenance") || file === "index.json") continue;
     let wire: Record<string, any>;
@@ -3044,10 +3058,21 @@ test("the Shields match ratio is denominated by what the engine evaluated", () =
     }
     if (shields.requestsEvaluated === retained) continue;
     divergentLeadArms += 1;
+    if (buildReportFacts(view).display.evidence.requests.state === "censored") {
+      censoredDivergentLeadArms += 1;
+    }
     assert.match(
       card.title,
-      new RegExp(`\\b${formatCount(shields.requestsEvaluated)} (?:retained )?requests?\\b[^.]*the engine evaluated`),
-      `${file}: must divide by the ${shields.requestsEvaluated} evaluated, not the ${retained} retained`
+      new RegExp(`\\bof ${formatCount(shields.requestsEvaluated)} requests? the engine evaluated`),
+      `${file}: must divide by the ${shields.requestsEvaluated} evaluated, exactly and unqualified, not the ${retained} retained`
+    );
+    // The token immediately before "the engine evaluated" is the denominator.
+    // It must never carry the retained-rows hedge: that qualifier belongs to
+    // the numerator, which is recounted from retained rows, and only there.
+    assert.doesNotMatch(
+      card.title,
+      /retained requests? the engine evaluated|(?:at least |≥)[\d,]+ requests? the engine evaluated/,
+      `${file}: the evaluated denominator is an exact route-time counter, never a retained-row count`
     );
     assert.doesNotMatch(
       card.title,
@@ -3059,6 +3084,10 @@ test("the Shields match ratio is denominated by what the engine evaluated", () =
   assert.ok(
     divergentLeadArms > 0,
     "no committed wire's lead arm distinguishes evaluated from retained; this guard would be vacuous"
+  );
+  assert.ok(
+    censoredDivergentLeadArms > 0,
+    "no committed divergent lead arm is censored; the hedged-denominator assertions would be vacuous"
   );
 });
 
@@ -3116,5 +3145,50 @@ test("Shields ratio counts publish with en-US grouping, never raw digits", () =>
     simulatedCard.title,
     /\bof\b/,
     "a simulated block count states no denominator at all"
+  );
+});
+
+test("a censored run hedges only the Shields numerator, never the evaluated denominator", () => {
+  // The numerator is recounted from retained request rows, so on a censored
+  // run it is a floor and the "at least ... retained" hedge is honest there.
+  // The denominator is the engine's own route-time evaluation counter, which
+  // request-capture censoring cannot truncate, so it is stated exactly:
+  // hedging it published "at least N retained requests the engine evaluated"
+  // about a count that is neither a floor nor a count of retained rows, while
+  // the metric grid printed the same number exactly on the same page. The
+  // fixture's raw digits (2416) and the expected literal ("2,416") differ by
+  // construction, and the retained total (3000) differs from both counts.
+  const wire = makePublicSingleReportV2R2();
+  wire.run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 2416,
+      requestsMatched: 1204,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+  wire.run.summary = {
+    ...wire.run.summary,
+    counts: { ...wire.run.summary.counts, totalRequests: 3000, shieldsBlockedRequests: 1204 }
+  };
+  const view = viewFromV2(wire, 2);
+  const run = view.runs[0];
+  run.quality.byFamily = {
+    ...(run.quality.byFamily ?? {}),
+    requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] }
+  };
+  const card = byId(buildFindings(view, null), "shields-blocked");
+  assert.match(
+    card.title,
+    /at least 1,204 retained requests out of 2,416 requests the engine evaluated/,
+    "the numerator keeps its retained-floor hedge and the denominator stays exact"
+  );
+  assert.doesNotMatch(
+    card.title,
+    /retained requests? the engine evaluated|(?:at least |≥)2,416/,
+    "the evaluated denominator must never inherit the capture-loss hedge"
   );
 });

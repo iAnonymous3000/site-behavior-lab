@@ -1703,11 +1703,17 @@ export function buildFindings(
     // A legacy v1 run records no evaluated count (`evaluated: null`). There is
     // no honest ratio to state there, so those runs state the count alone
     // rather than borrowing a denominator that measures something else.
+    //
+    // The evaluated count is stated EXACTLY even on a censored run. It is a
+    // route-time counter over the engine's own classifier calls, frozen at the
+    // passive boundary; request-capture censoring truncates the retained rows
+    // the classification-mode NUMERATOR is recounted from, never this counter.
+    // So the numerator keeps its "at least ... retained" hedge while the
+    // denominator carries no qualifier: hedging it as a retained-row count
+    // described the wrong population and contradicted the metric grid, which
+    // prints the same number exactly on the same page.
     const evaluated = shieldsMeasurement.evaluated;
-    const evaluatedPhrase =
-      evaluated === null
-        ? null
-        : retainedCountPhrase(evaluated, "request", "requests", requestState);
+    const evaluatedPhrase = evaluated === null ? null : plural(evaluated, "request");
     findings.unshift({
       id: "shields-blocked",
       icon: "shield-check",
@@ -1719,10 +1725,7 @@ export function buildFindings(
             : evaluatedPhrase === null
               ? `${blockedPhrase} matched Brave Shields filter lists`
               : requestState === "complete"
-                ? `${blocked.toLocaleString("en-US")} of ${plural(
-                    evaluated as number,
-                    "request"
-                  )} the engine evaluated matched Brave Shields filter lists`
+                ? `${blocked.toLocaleString("en-US")} of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
                 : `${blockedPhrase} out of ${evaluatedPhrase} the engine evaluated matched Brave Shields filter lists`
           : scopedAbsenceTitle(
               facts,

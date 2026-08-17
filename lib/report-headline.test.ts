@@ -23,6 +23,50 @@ import {
   type ScanResult
 } from "./types";
 
+test("a censored run's Shields subhead states the evaluated denominator exactly", () => {
+  // Latent-branch guard: no committed report currently reaches the Shields
+  // headline, so only a synthetic wire pins this copy. The numerator is
+  // recounted from retained request rows and keeps the censoring hedge; the
+  // evaluated count is the engine's own route-time counter, which
+  // request-capture censoring cannot truncate, so it must never render as a
+  // "retained" floor. The fixture's raw digits (2416) and the expected
+  // literal ("2,416") differ by construction, and the retained total (3000)
+  // differs from both counts.
+  const wire = makePublicSingleReportV2R2();
+  wire.run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 2416,
+      requestsMatched: 1204,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+  wire.run.summary = {
+    ...wire.run.summary,
+    counts: { ...wire.run.summary.counts, totalRequests: 3000, shieldsBlockedRequests: 1204 }
+  };
+  const view = viewFromV2(wire, 2);
+  const run = view.runs[0];
+  run.quality.byFamily = {
+    ...(run.quality.byFamily ?? {}),
+    requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] }
+  };
+  const headline = buildReportHeadline(view);
+  assert.match(
+    headline.subhead,
+    /at least 1,204 retained requests matched while loading normally, out of 2,416 requests the engine evaluated\./,
+    "the numerator keeps its retained-floor hedge and the denominator stays exact"
+  );
+  assert.doesNotMatch(
+    headline.subhead,
+    /retained (?:before request capture stopped )?requests the engine evaluated|(?:at least |≥)2,416/,
+    "the evaluated denominator must never inherit the capture-loss hedge"
+  );
+});
+
 test("only inline data-URI screenshots are displayable; uploaded URLs never render", () => {
   const png =
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";

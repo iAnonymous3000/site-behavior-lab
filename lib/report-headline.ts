@@ -774,7 +774,6 @@ export function buildReportHeadline(
 
   const shieldsMeasurement = facts.signals.shields.measurement;
   if (shieldsMeasurement && shieldsMeasurement.count > 0) {
-    const retained = requestState === "censored" ? " retained before request capture stopped" : "";
     const shieldsCount = retainedCountPhrase(
       shieldsMeasurement.count,
       "request",
@@ -793,11 +792,15 @@ export function buildReportHeadline(
           : // Denominated by what the engine EVALUATED, not by the retained
             // request total. The two are different populations, and this text
             // also reaches JSON-LD and the social card, so the pairing was
-            // published off-site as well.
-            `${shieldsCount} matched while loading normally, out of ${retainedCountLabel(
+            // published off-site as well. The evaluated count is stated
+            // exactly even on a censored run: it is a route-time counter over
+            // the engine's own classifier calls, and request-capture censoring
+            // truncates the retained rows the numerator is recounted from,
+            // never this counter, so only the numerator carries the hedge.
+            `${shieldsCount} matched while loading normally, out of ${plural(
               shieldsMeasurement.evaluated,
-              requestState
-            )}${retained} requests the engine evaluated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`,
+              "request"
+            )} the engine evaluated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`,
       stats,
       undefined,
       { story: "shields", assertedClaims: ["shields-blocked"] }
