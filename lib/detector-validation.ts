@@ -101,6 +101,15 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
       "A wrapper chain that saturates the bounded stack capture without resolving attribution records fingerprint coverage loss instead of a clean, complete read."
   },
   {
+    detector: "fingerprint-heuristics",
+    kind: "positive",
+    environment: "real-chromium",
+    file: "lib/fingerprint-observer.test.ts",
+    testName: "two third-party origins in one registration chain attribute the chain instead of censoring the frame",
+    verifies:
+      "A deferred registration whose bounded call chain contains two distinct third-party origins keeps the frame readable and records a detection naming both chain origins."
+  },
+  {
     detector: "keystroke-exfiltration",
     kind: "positive",
     environment: "unit",
