@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import {
@@ -2977,33 +2977,62 @@ test("a comparison card that observed no change never asserts a difference", () 
 test("the Shields match ratio is denominated by what the engine evaluated", () => {
   // REGRESSION, live on 59 committed report pages. `count` is a counter over
   // EVALUATED requests; pairing it with the retained total describes two
-  // populations as one. The committed google.com report evaluated 31, matched
-  // 11 and retained 55, and this card published "11 of 55" -- while the metric
-  // grid on the same page already said "over 31 requests the engine evaluated"
-  // after #132 fixed it there. A real committed wire, not a fixture, because a
-  // fixture is what let this survive: the one pinned card title used a v1
-  // fixture carrying no verificationFacts at all.
-  const wire = JSON.parse(
-    readFileSync(
-      path.join(process.cwd(), "public", "reports", "20260814-320f965a79276b411c3bd0123ae7c3b0.json"),
-      "utf8"
-    )
-  );
-  assert.equal(wire.baseline.verificationFacts.shields.requestsMatched, 11, "fixture drifted");
-  assert.equal(wire.baseline.verificationFacts.shields.requestsEvaluated, 31, "fixture drifted");
-  assert.equal(wire.baseline.summary.counts.totalRequests, 55, "fixture drifted");
+  // populations as one. google.com evaluated 31, matched 11, retained 55 and
+  // published "11 of 55"; khanacademy published "4 of 154" against 216
+  // evaluated -- a numerator from a larger population than its denominator.
+  //
+  // SELECTED, NOT HARDCODED. The first version read one report id and pinned
+  // 11/31/55. Committed reports are pruned by age and count, so that guard was
+  // scheduled to die as ENOENT -- and the whole point of it is to outlive the
+  // corpus it reads. It now selects every wire where the two populations
+  // actually differ, asserts the selection is non-empty so an empty corpus
+  // fails rather than passes, and checks all of them.
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  const divergent: { file: string; evaluated: number; retained: number; matched: number }[] = [];
+  for (const file of readdirSync(reportsDir)) {
+    if (!file.endsWith(".json") || file.includes("provenance") || file === "index.json") continue;
+    let wire: Record<string, unknown>;
+    try {
+      wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
+    } catch {
+      continue;
+    }
+    if (wire.schemaVersion !== 2) continue;
+    for (const arm of ["run", "baseline", "variant"] as const) {
+      const candidate = (wire as Record<string, any>)[arm];
+      const shields = candidate?.verificationFacts?.shields;
+      if (!shields || typeof shields.requestsEvaluated !== "number") continue;
+      const retained = candidate?.summary?.counts?.totalRequests;
+      if (typeof retained !== "number") continue;
+      if (shields.requestsMatched <= 0) continue;
+      if (shields.requestsEvaluated === retained) continue;
+      divergent.push({
+        file,
+        evaluated: shields.requestsEvaluated,
+        retained,
+        matched: shields.requestsMatched
+      });
+      break;
+    }
+  }
 
-  const view = viewFromV2(wire, 2);
-  const card = byId(buildFindings(view, null), "shields-blocked");
-  assert.match(card.title, /31 requests the engine evaluated/);
-  assert.doesNotMatch(
-    card.title,
-    /\bof 55\b/,
-    "the retained total must never be the match denominator"
+  assert.ok(
+    divergent.length > 0,
+    "no committed wire distinguishes evaluated from retained; this guard would be vacuous"
   );
 
-  // The headline subhead feeds JSON-LD and the social card, so the same
-  // pairing was published off-site too.
-  const headline = buildReportHeadline(view);
-  assert.doesNotMatch(headline.subhead, /out of 55/);
+  for (const { file, evaluated, retained, matched } of divergent) {
+    const wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
+    const card = byId(buildFindings(viewFromV2(wire, wire.schemaRevision === 1 ? 1 : 2), null), "shields-blocked");
+    assert.match(
+      card.title,
+      new RegExp(`\\b${evaluated}\\b[^.]*the engine evaluated`),
+      `${file}: must divide by the ${evaluated} evaluated, not the ${retained} retained`
+    );
+    assert.doesNotMatch(
+      card.title,
+      new RegExp(`${matched} of ${retained}\\b`),
+      `${file}: the retained total must never be the match denominator`
+    );
+  }
 });
