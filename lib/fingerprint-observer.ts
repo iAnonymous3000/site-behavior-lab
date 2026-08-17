@@ -84,7 +84,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   };
   const errorCaptureStackTrace = StackError.captureStackTrace;
   const observerStackTraceLimit = mathMax(
-    10,
+    32,
     typeof StackError.stackTraceLimit === "number" ? StackError.stackTraceLimit : 0
   );
   const maxTrackedCanvases = 256;
@@ -1095,6 +1095,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     }
 
     const stackLines = reflectApply(stringSplit, stack, ["\n"]) as string[];
+    let nearestOrigin: string | null = null;
+    let thirdPartyOrigin: string | null = null;
     for (let index = 0; index < stackLines.length; index += 1) {
       const line = stackLines[index];
       if (
@@ -1114,7 +1116,24 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       try {
         const parsed = new UrlConstructor(rawUrl);
         const origin = trustedUrlValue(parsed, urlOriginGetter, "origin");
-        if (origin !== "") return { coverageAvailable: true, origin };
+        if (origin === "") continue;
+        // Frameworks such as Zone.js wrap addEventListener synchronously. The
+        // nearest stack frame is then the first-party framework wrapper, while
+        // the script that registered the listener can appear farther up the
+        // same bounded stack. Recover one unambiguous third-party origin so a
+        // first-party wrapper cannot mask it; retain the nearest origin as the
+        // first-party answer when the whole captured chain is same-site.
+        if (nearestOrigin === null) nearestOrigin = origin;
+        if (isThirdPartyOrigin(origin)) {
+          if (thirdPartyOrigin !== null && thirdPartyOrigin !== origin) {
+            // Two different third parties in one wrapped call chain make the
+            // registrant ambiguous. Preserve the existing fail-closed rule for
+            // that adversarial shape instead of crediting whichever one is
+            // nearest to the observer.
+            return { coverageAvailable: false, origin: null };
+          }
+          thirdPartyOrigin = origin;
+        }
       } catch {
         /* keep looking */
       }
@@ -1123,7 +1142,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     // A healthy stack may contain only non-HTTP frames in harnesses or browser
     // internals. That is unattributed, not evidence that stack capture itself
     // was disabled.
-    return { coverageAvailable: true, origin: null };
+    return { coverageAvailable: true, origin: thirdPartyOrigin ?? nearestOrigin };
   };
 
   const isThirdPartyOrigin = (origin: string | null): origin is string => {
@@ -1158,16 +1177,6 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     state.thirdPartyListenerCalls += 1;
   };
 
-  const observerOwnsAddEventListener = (wrapper: Function) => {
-    if (!eventTargetPrototype) return false;
-    try {
-      const descriptor = objectGetOwnPropertyDescriptor(eventTargetPrototype, "addEventListener");
-      return Boolean(descriptor) && descriptor?.value === wrapper;
-    } catch {
-      return false;
-    }
-  };
-
   const recordListenerCoverage = (eventTypeValue: unknown, target: unknown, skipUntil?: Function) => {
     if (typeof eventTypeValue !== "string") return;
     if (eventTypeValue.length > 32) return;
@@ -1177,17 +1186,10 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     if (!sessionRecordingEvent && !inputMonitoringEvent) return;
     const targetType = classifyListenerTarget(target);
     const activeScriptOrigin = currentScriptOrigin();
-    // Without a current script the origin comes from the stack, whose nearest
-    // frame below the observer is whatever called the observer's wrapper. If the
-    // page has replaced EventTarget.prototype.addEventListener above the
-    // observer, that nearest frame is the replacement rather than the script
-    // that asked for the listener, and every later registration would be
-    // credited to it. Record coverage loss instead of publishing the nearest
-    // frame as an attribution.
-    if (!activeScriptOrigin && skipUntil && !observerOwnsAddEventListener(skipUntil)) {
-      observerCoverageLost = true;
-      return;
-    }
+    // Without a current script the origin comes from the bounded stack. The
+    // stack reader looks past synchronous first-party wrappers and prefers a
+    // third-party caller when one is present. A wrapper replacing the prototype
+    // is therefore not itself evidence loss; an unreadable stack still is.
     const stackAttribution = activeScriptOrigin
       ? { coverageAvailable: true, origin: activeScriptOrigin }
       : scriptOriginFromStack(skipUntil);

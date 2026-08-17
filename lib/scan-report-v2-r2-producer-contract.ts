@@ -252,6 +252,9 @@ export const HISTORICAL_NODE_R2_2026_08_04_METHODOLOGY_VERSION =
 /** Exact method carried by the 2026-08-14 corpus before byte/count budget identities split. */
 export const HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v1+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
+/** Exact method carried by node-detectors-v4 immediately before PDF-policy support. */
+export const HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
 export const HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
@@ -423,6 +426,15 @@ export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   fetchedAt: "2026-08-15T05:18:29.332Z",
   manifestDigest: "83cbcffc98c65083d7bd08e7c0224dfbb4360ba52a2c39a3345ca671051eb5c6",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+/** Frozen copy of the list snapshot published by the closing v4 detector epoch. */
+export const HISTORICAL_R2_LISTS_2026_08_15_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-08-15T05:18:29.332Z",
+  manifestDigest: "83cbcffc98c65083d7bd08e7c0224dfbb4360ba52a2c39a3345ca671051eb5c6",
+  engineVersion: "adblock-rust-0.13.2"
 } satisfies NonNullable<Toolchain["adblock"]>);
 
 export const PAGEGRAPH_R2_DETECTOR_VERSION = "pagegraph-import-unsupported@1" as const;
@@ -700,40 +712,30 @@ function nodeTuple(
 
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !==
-    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION ||
+    HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION ||
   String(DETECTOR_REGISTRY_VERSION) !==
-    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_VERSION ||
-  DETECTOR_REGISTRY_DIGEST !== HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_REGISTRY_VERSION ||
+  DETECTOR_REGISTRY_DIGEST !== HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
   canonicalJson(ACTIVE_DETECTOR_VERSIONS) !==
-    canonicalJson(HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_DETECTOR_VERSIONS) ||
+    canonicalJson(HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_VERSIONS) ||
   canonicalJson(ACTIVE_SERVICE_ROLE_TAXONOMY) !==
-    canonicalJson(HISTORICAL_ACCOUNTABILITY_V1_FIELDS.serviceRoleTaxonomy);
+    canonicalJson(HISTORICAL_SERVICE_ROLE_V1_FIELDS.serviceRoleTaxonomy);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v4-6c78-tldts7410-active-lists-2026-08-11",
+        "node-v5-6c78-tldts7410-active-lists-2026-08-15",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v4-6c78-tldts7410-active-no-adblock",
+        "node-v5-6c78-tldts7410-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         null
-      ),
-      // Closed: the 2026-08-14 corpus refresh published 60 reports under this
-      // snapshot before Brave's rules moved again the same day. Same producer
-      // in every other respect, so only the list identity differs.
-      nodeTuple(
-        "node-v4-6c78-tldts7410-lists-2026-08-14",
-        NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
-        HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
-        ACTIVE_NODE_FIELDS,
-        HISTORICAL_R2_LISTS_2026_08_14_ADBLOCK_IDENTITY
       )
     ])
   : Object.freeze([]);
@@ -940,6 +942,27 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_NODE_R2_2026_08_04_METHODOLOGY_VERSION,
     HISTORICAL_SERVICE_ROLE_V1_FIELDS,
     HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-6c78-tldts7410-lists-2026-08-14",
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    HISTORICAL_R2_LISTS_2026_08_14_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-6c78-tldts7410-lists-2026-08-15",
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    HISTORICAL_R2_LISTS_2026_08_15_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v4-6c78-tldts7410-no-adblock",
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    null
   ),
   ...ACTIVE_NODE_TUPLES
 ]);

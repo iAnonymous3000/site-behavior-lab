@@ -87,8 +87,8 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     kind: "adversarial",
     environment: "real-chromium",
     file: "lib/fingerprint-observer.test.ts",
-    testName: "fingerprintObserverInitScript survives hostile page prototype poisoning in real Chromium",
-    verifies: "Evidence collection survives page-controlled intrinsic tampering in Chromium."
+    testName: "first-party addEventListener wrappers do not hide a deferred third-party registrant",
+    verifies: "A first-party framework wrapper neither censors the frame nor hides the deferred third-party registrant."
   },
   {
     detector: "keystroke-exfiltration",
@@ -189,10 +189,10 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
   {
     detector: "privacy-policy",
     kind: "positive",
-    environment: "unit",
-    file: "lib/privacy-policy.test.ts",
-    testName: "extractPolicyClaims matches first-person testable statements with quotes",
-    verifies: "Narrow first-person claims are extracted with the supporting sentence."
+    environment: "real-chromium",
+    file: "lib/scanner.test.ts",
+    testName: "a direct PDF privacy policy completes through the bounded scan proxy",
+    verifies: "A direct PDF policy is fetched through the SSRF proxy and produces a complete cross-check."
   },
   {
     detector: "privacy-policy",

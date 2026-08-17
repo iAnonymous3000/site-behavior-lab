@@ -355,6 +355,65 @@ test("fingerprintObserverInitScript uses currentScript or explicit coverage loss
   }
 });
 
+test("first-party addEventListener wrappers do not hide a deferred third-party registrant", async () => {
+  // Angular's Zone.js saves the observer-installed method, replaces the
+  // prototype, and later calls the saved method from its own first-party
+  // wrapper. SpaceX uses this shape. The old guard invalidated the whole frame
+  // before reading a healthy stack; merely deleting that guard would instead
+  // credit every registration to the first-party wrapper. The bounded stack
+  // walk must keep looking and recover the real third-party caller.
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({
+        body:
+          '<input id="field">' +
+          '<script src="https://example.com/zone.js"></script>' +
+          '<script src="https://recorder.example.net/recorder.js"></script>' +
+          '<script>setTimeout(() => window.registerRecorder(), 0)</script>',
+        contentType: "text/html"
+      })
+    );
+    await page.route("https://example.com/zone.js", (route) =>
+      route.fulfill({
+        body:
+          "const observerAdd = EventTarget.prototype.addEventListener;" +
+          "EventTarget.prototype.addEventListener = function zoneAdd(...args) {" +
+          "  return observerAdd.apply(this, args);" +
+          "};",
+        contentType: "text/javascript"
+      })
+    );
+    await page.route("https://recorder.example.net/recorder.js", (route) =>
+      route.fulfill({
+        body:
+          "window.registerRecorder = function registerRecorder() {" +
+          '  const field = document.querySelector("#field");' +
+          '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
+          "};",
+        contentType: "text/javascript"
+      })
+    );
+
+    await page.goto("https://example.com/");
+    await page.waitForTimeout(50);
+    const coverage = await collectFingerprintObservationsWithCoverage(page.frames());
+
+    assert.equal(coverage.attemptedFrames, 1);
+    assert.equal(coverage.readableFrames, 1);
+    assert.equal(coverage.observations.detections[0]?.kind, "input-monitoring");
+    assert.deepEqual(
+      coverage.observations.detections[0]?.evidence.thirdPartyOrigins,
+      ["https://recorder.example.net"]
+    );
+  } finally {
+    await browser.close();
+  }
+});
+
 test("fingerprintObserverInitScript coerces DOMString inputs once in real Chromium", async () => {
   const browser = await chromium.launch({ headless: true });
   try {

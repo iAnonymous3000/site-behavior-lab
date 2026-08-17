@@ -1651,7 +1651,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@4",
+      version: "policy-text-cross-check@5",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1677,7 +1677,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     );
     assert.equal(zillow.result.summary.status, 403);
     assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@4",
+      version: "policy-text-cross-check@5",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1699,7 +1699,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       options
     );
     assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@4",
+      version: "policy-text-cross-check@5",
       status: "skipped",
       reason: "evidence-cap-reached"
     });
@@ -1771,7 +1771,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@4",
+      version: "policy-text-cross-check@5",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2255,7 +2255,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
       }
     );
     assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@1",
+      version: "fingerprint-observer@2",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -2348,7 +2348,7 @@ test("passive fingerprint loss remains causal when the consent snapshot is later
     assert.deepEqual(
       staged.measurement.detectors["fingerprint-heuristics"],
       {
-        version: "fingerprint-observer@1",
+        version: "fingerprint-observer@2",
         status: "partial",
         reason: "scan-failed",
         phaseId: consentPhase.phaseId
@@ -2655,6 +2655,95 @@ test("excluded privacy-policy traffic cannot censor the main visit's request evi
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }
 });
+
+test("a direct PDF privacy policy completes through the bounded scan proxy", { timeout: 20_000 }, async () => {
+  const policyText =
+    "Privacy Policy. We collect information and use cookies for analytics and advertising. ".repeat(12);
+  const policyPdf = policyPdfFixture(policyText);
+  const upstream = createServer((request, response) => {
+    if (request.url === "/privacy-policy.pdf") {
+      response.writeHead(200, {
+        "content-length": policyPdf.byteLength,
+        "content-type": "application/pdf"
+      });
+      response.end(policyPdf);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end('<!doctype html><title>PDF policy</title><a href="/privacy-policy.pdf">Privacy Policy</a>');
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result, measurement: staged } = await scanSiteWithMeasurement(
+      { url: "http://policy-pdf.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.ok(result.privacyPolicy, "the PDF policy produced a stored cross-check summary");
+    assert.ok((result.privacyPolicy?.policyTextLength ?? 0) >= 500);
+    assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
+      version: "policy-text-cross-check@5",
+      status: "complete",
+      phaseId: 2
+    });
+    assert.equal(
+      staged!.measurement.qualityFacts.captureLoss.some((loss) => loss.detail === "policy-visit"),
+      false
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+function policyPdfFixture(text: string): Buffer {
+  const textCommands = (text.match(/.{1,60}(?:\s|$)/g) ?? [text])
+    .map((line) => line.replaceAll("\\", "\\\\").replaceAll("(", "\\(").replaceAll(")", "\\)"))
+    .map((line) => `(${line}) Tj\n0 -14 Td`)
+    .join("\n");
+  const content = `BT\n/F1 12 Tf\n72 720 Td\n${textCommands}\nET\n`;
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+    `<< /Length ${Buffer.byteLength(content, "latin1")} >>\nstream\n${content}endstream`
+  ];
+  const parts: Buffer[] = [Buffer.from("%PDF-1.4\n%\xd3\xeb\xe9\xe1\n", "latin1")];
+  const offsets = [0];
+  let byteLength = parts[0].byteLength;
+  objects.forEach((object, index) => {
+    offsets.push(byteLength);
+    const bytes = Buffer.from(`${index + 1} 0 obj\n${object}\nendobj\n`, "latin1");
+    parts.push(bytes);
+    byteLength += bytes.byteLength;
+  });
+  const xrefOffset = byteLength;
+  parts.push(
+    Buffer.from(
+      [
+        `xref\n0 ${objects.length + 1}\n`,
+        "0000000000 65535 f \n",
+        ...offsets.slice(1).map((offset) => `${offset.toString().padStart(10, "0")} 00000 n \n`),
+        `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`
+      ].join(""),
+      "latin1"
+    )
+  );
+  return Buffer.concat(parts);
+}
 
 test("excluded post-consent reload traffic cannot exhaust retained proxy evidence", { timeout: 30_000 }, async () => {
   let documentHits = 0;

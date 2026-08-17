@@ -6,6 +6,7 @@ import {
   DETECTOR_OBLIGATION_TARGET_REGISTRIES,
   DETECTOR_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   detectorObligationViolations,
   type DetectorObligationRule
 } from "./detector-obligations";
@@ -33,7 +34,7 @@ const EPOCH = {
   detectorRegistryDigest: DETECTOR_REGISTRY_DIGEST
 } as const;
 
-test("the obligation contract keeps both accountability registry epochs active", () => {
+test("the obligation contract keeps every accountability registry epoch active", () => {
   assert.deepEqual(DETECTOR_OBLIGATION_TARGET_REGISTRIES, [
     {
       detectorRegistryVersion: "node-detectors-v3",
@@ -42,13 +43,21 @@ test("the obligation contract keeps both accountability registry epochs active",
     {
       detectorRegistryVersion: "node-detectors-v4",
       detectorRegistryDigest: "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
+    },
+    {
+      detectorRegistryVersion: "node-detectors-v5",
+      detectorRegistryDigest: "65547960bf03ca7d6d7b8279aa8b5ffed3a995bed2f36a64535d4179743ce204"
     }
   ]);
   assert.equal(
     DETECTOR_OBLIGATION_TARGET_REGISTRIES[0],
     HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY
   );
-  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[1], DETECTOR_OBLIGATION_TARGET_REGISTRY);
+  assert.equal(
+    DETECTOR_OBLIGATION_TARGET_REGISTRIES[1],
+    HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY
+  );
+  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[2], DETECTOR_OBLIGATION_TARGET_REGISTRY);
   assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
 });
 
