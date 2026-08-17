@@ -216,13 +216,15 @@ function wilsonBounds(k, n, z = 1.96) {
 function rateRow(label, items, predicate) {
   const k = items.filter(predicate).length, n = items.length;
   const w = wilson(k, n);
-  const c = clusterInterval(items, predicate, (r) => `${r.scanDate}|${r.build}`);
+  const c = clusterInterval(items, predicate, clusterKey);
   // Print the cluster count on EVERY row, not only when the bootstrap refused
   // to run. The boundary promises the count is visible so the interval's
-  // weakness is visible with it, and the rows that most need it are exactly the
-  // ones where the bootstrap DID run: the pooled rows resample 3 clusters, one
-  // of which holds 120 of 126 runs. Printing it only in the too-few branch hid
-  // it from every row whose number a reader might actually use.
+  // weakness is visible with it, and the rows that most need it are exactly
+  // the ones where the bootstrap DID run: the pooled rows are the only ones
+  // with enough clusters to resample, while a single cluster dominates the
+  // pool (the CLUSTER STRUCTURE section records the exact split). Printing it
+  // only in the too-few branch hid it from every row whose number a reader
+  // might actually use.
   const clustered =
     c.lo === null
       ? `too few clusters (${c.clusters})`
@@ -239,6 +241,18 @@ assertCanonicalConstants(root);
 const runs = loadRuns();
 const arm = runs.filter(inCnameArm);
 
+/** One bootstrap cluster: a scan date on a build. */
+const clusterKey = (r) => `${r.scanDate}|${r.build}`;
+const countBy = (items, keyOf) => {
+  const counts = new Map();
+  for (const item of items) {
+    const key = keyOf(item);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
+};
+const armClusterCount = countBy(arm, clusterKey).size;
+
 const out = [];
 const say = (line = "") => { out.push(line); console.log(line); };
 
@@ -247,6 +261,24 @@ say(`development evidence -- NOT frame-selection evidence`);
 say(`generated from ${runs.length} r2 runs; primary analysis restricted to the declared CNAME arm`);
 say(`CNAME arm = device ${CNAME_ARM.device} / GPC ${CNAME_ARM.gpcEnabled} / consent ${CNAME_ARM.consentMode}`);
 say(`arm runs: ${arm.length}   off-arm (supplementary only): ${runs.length - arm.length}`);
+say();
+
+// The non-i.i.d. boundary's own numbers, emitted with the findings so the
+// README can scope its prose to this artifact instead of hand-maintaining
+// counts that only a corpus refresh can change. The guard in
+// scripts/calibration-censoring-simulation-lib.test.mjs holds the README's
+// boundary paragraph to this section, so both go stale together with --check.
+say(`CLUSTER STRUCTURE -- failures cluster by scan date and build`);
+{
+  const scanDateCount = countBy(runs, (r) => r.scanDate).size;
+  const buildCounts = countBy(runs, (r) => r.build);
+  const clusterCount = countBy(runs, clusterKey).size;
+  say(`  scan dates: ${scanDateCount}   builds: ${buildCounts.size}   scan-date x build clusters: ${clusterCount}`);
+  [...buildCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .forEach(([build, count]) => say(`  build ${build}  ${String(count).padStart(4)} of ${runs.length} runs`));
+  say(`  CNAME arm clusters: ${armClusterCount}`);
+}
 say();
 
 say(`PRIMARY -- CNAME ARM ONLY (n=${arm.length})`);
@@ -406,7 +438,9 @@ for (const point of OPERATING_POINTS) {
 say(`  SCOREABILITY IS ITSELF ESTIMATED. The rows above use the arm's point`);
 say(`  estimate ${pct(usableB)} for CNAME-scoreable. The endpoint below is a`);
 say(`  PER-CASE WILSON BOUND and therefore an iid-only diagnostic: this arm has`);
-say(`  two clusters, so it is NOT a defensible design lower bound, only an`);
+// Derived, not hand-written: the hardcoded "two" would go stale silently the
+// first time the corpus refresh changed the arm's date-and-build structure.
+say(`  ${armClusterCount} clusters, so it is NOT a defensible design lower bound, only an`);
 say(`  indication that sizing on the point estimate assumes what is not pinned down.`);
 {
   const lower = wilsonBounds(arm.filter(cnameScoreable).length, arm.length).lo;
