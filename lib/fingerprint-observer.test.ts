@@ -414,6 +414,89 @@ test("first-party addEventListener wrappers do not hide a deferred third-party r
   }
 });
 
+// Shared page shape for the depth-bound cases: a first-party wrapper pads the
+// synchronous call chain by `padDepth` frames before delegating to the
+// observer-installed addEventListener, and a third-party recorder registers
+// input listeners in a deferred task (currentScript null, stack-only
+// attribution). Only the pad depth varies.
+async function coverageWithPaddedWrapper(padDepth: number) {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({
+        body:
+          '<input id="field">' +
+          '<script src="https://example.com/wrapper.js"></script>' +
+          '<script src="https://recorder.example.net/recorder.js"></script>' +
+          '<script>setTimeout(() => window.registerRecorder(), 0)</script>',
+        contentType: "text/html"
+      })
+    );
+    await page.route("https://example.com/wrapper.js", (route) =>
+      route.fulfill({
+        body:
+          "const observerAdd = EventTarget.prototype.addEventListener;" +
+          "function pad(target, args, depth) {" +
+          "  if (depth > 0) return pad(target, args, depth - 1);" +
+          "  return observerAdd.apply(target, args);" +
+          "}" +
+          "EventTarget.prototype.addEventListener = function deepAdd(...args) {" +
+          `  return pad(this, args, ${padDepth});` +
+          "};",
+        contentType: "text/javascript"
+      })
+    );
+    await page.route("https://recorder.example.net/recorder.js", (route) =>
+      route.fulfill({
+        body:
+          "window.registerRecorder = function registerRecorder() {" +
+          '  const field = document.querySelector("#field");' +
+          '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
+          "};",
+        contentType: "text/javascript"
+      })
+    );
+
+    await page.goto("https://example.com/");
+    await page.waitForTimeout(50);
+    return await collectFingerprintObservationsWithCoverage(page.frames());
+  } finally {
+    await browser.close();
+  }
+}
+
+test("a first-party wrapper deep in the bounded stack still yields the third-party registrant", async () => {
+  // Forty pad frames defeated the previous 32-frame capture: the registrant
+  // fell past the truncation point and the frame read clean and complete with
+  // zero detections. The raised bound keeps the registrant inside the capture,
+  // so this exact page now produces the detection instead of a clean read.
+  const coverage = await coverageWithPaddedWrapper(40);
+  assert.equal(coverage.attemptedFrames, 1);
+  assert.equal(coverage.readableFrames, 1);
+  assert.equal(coverage.observations.detections[0]?.kind, "input-monitoring");
+  assert.deepEqual(
+    coverage.observations.detections[0]?.evidence.thirdPartyOrigins,
+    ["https://recorder.example.net"]
+  );
+});
+
+test("a wrapper chain deeper than the stack bound records coverage loss instead of a clean read", async () => {
+  // One hundred pad frames exceed the observer's raised bound, so the capture
+  // saturates with first-party frames and the third-party registrant is
+  // structurally invisible. The honest wire outcome is a bounded read: the
+  // frame must report no snapshot (readableFrames 0), which the scanner
+  // publishes as partial fingerprint coverage with capture loss. A clean
+  // complete read here would let any page hide a registrant behind a deep
+  // first-party wrapper.
+  const coverage = await coverageWithPaddedWrapper(100);
+  assert.equal(coverage.attemptedFrames, 1);
+  assert.equal(coverage.readableFrames, 0);
+  assert.deepEqual(coverage.observations.detections, []);
+});
+
 test("fingerprintObserverInitScript coerces DOMString inputs once in real Chromium", async () => {
   const browser = await chromium.launch({ headless: true });
   try {

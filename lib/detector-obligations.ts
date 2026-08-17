@@ -31,14 +31,25 @@ export const HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY = Objec
   detectorRegistryDigest: "100de91713270067dff4f5ecebeea61d330982c7a5aa33395bae3dd604adedd2"
 });
 
-export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
+/**
+ * The single-day epoch that completed framework-wrapped visits and direct PDF
+ * policies (fingerprint-observer@2). Closed when bounded-stack attribution
+ * honesty revised the fingerprint observer to @3.
+ */
+export const HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
   detectorRegistryVersion: "node-detectors-v5",
   detectorRegistryDigest: "65547960bf03ca7d6d7b8279aa8b5ffed3a995bed2f36a64535d4179743ce204"
+});
+
+export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
+  detectorRegistryVersion: "node-detectors-v6",
+  detectorRegistryDigest: "81866718b36e35239f0418cc543eee845660e686849da1b816d937a601c1528b"
 });
 
 export const DETECTOR_OBLIGATION_TARGET_REGISTRIES = Object.freeze([
   HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   DETECTOR_OBLIGATION_TARGET_REGISTRY
 ]);
 

@@ -88,7 +88,17 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     environment: "real-chromium",
     file: "lib/fingerprint-observer.test.ts",
     testName: "first-party addEventListener wrappers do not hide a deferred third-party registrant",
-    verifies: "A first-party framework wrapper neither censors the frame nor hides the deferred third-party registrant."
+    verifies:
+      "A synchronous first-party wrapper whose call chain fits the bounded stack capture neither censors the frame nor hides the deferred third-party registrant it delegates for."
+  },
+  {
+    detector: "fingerprint-heuristics",
+    kind: "adversarial",
+    environment: "real-chromium",
+    file: "lib/fingerprint-observer.test.ts",
+    testName: "a wrapper chain deeper than the stack bound records coverage loss instead of a clean read",
+    verifies:
+      "A wrapper chain that saturates the bounded stack capture without resolving attribution records fingerprint coverage loss instead of a clean, complete read."
   },
   {
     detector: "keystroke-exfiltration",
