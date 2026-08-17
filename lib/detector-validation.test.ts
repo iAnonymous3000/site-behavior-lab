@@ -13,9 +13,19 @@ import {
 
 test("public detector validation manifest is complete and mechanically valid", () => {
   assert.deepEqual(validateDetectorValidationManifest(DETECTOR_VALIDATION_FIXTURES), []);
-  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 19);
+  assert.equal(DETECTOR_VALIDATION_FIXTURES.length, 20);
   assert.equal(detectorValidationRows().length, DETECTOR_IDS.length);
-  assert.equal(detectorValidationRows().every((row) => row.positiveCases === 1), true);
+  // fingerprint-heuristics carries a second positive case: the two-vendor
+  // chain fixture proving multi-origin chains detect instead of censoring.
+  assert.equal(detectorValidationRows().every((row) => row.positiveCases >= 1), true);
+  assert.equal(
+    detectorValidationRows().find((row) => row.detector === "fingerprint-heuristics")?.positiveCases,
+    2
+  );
+  assert.equal(
+    detectorValidationRows().filter((row) => row.detector !== "fingerprint-heuristics").every((row) => row.positiveCases === 1),
+    true
+  );
   assert.equal(detectorValidationRows().every((row) => row.negativeCases === 1), true);
   // fingerprint-heuristics carries a second adversarial case: the depth-bound
   // coverage-loss fixture that pairs with the wrapper-delegation fixture.
@@ -28,7 +38,7 @@ test("public detector validation manifest is complete and mechanically valid", (
     detectorValidationRows().filter((row) => row.detector !== "fingerprint-heuristics").every((row) => row.adversarialCases === 1),
     true
   );
-  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 4);
+  assert.equal(detectorValidationRows().reduce((sum, row) => sum + row.realChromiumCases, 0), 5);
 });
 
 test("every public validation case points to an exact source-controlled test", () => {

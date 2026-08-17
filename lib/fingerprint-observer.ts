@@ -998,7 +998,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     }
   };
 
-  const scriptOriginFromStack = (skipUntil?: Function): { coverageAvailable: boolean; origin: string | null } => {
+  const scriptOriginFromStack = (skipUntil?: Function): { coverageAvailable: boolean; origins: string[] } => {
     const previousPrepareStackTraceDescriptor = objectGetOwnPropertyDescriptor(StackError, "prepareStackTrace");
     const previousStackTraceLimitDescriptor = objectGetOwnPropertyDescriptor(StackError, "stackTraceLimit");
     let prepareStackTraceNeutralized = false;
@@ -1095,12 +1095,12 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     }
 
     if (!prepareStackTraceNeutralized || !stackTraceLimitUsable || stack === "") {
-      return { coverageAvailable: false, origin: null };
+      return { coverageAvailable: false, origins: [] };
     }
 
     const stackLines = reflectApply(stringSplit, stack, ["\n"]) as string[];
     let nearestOrigin: string | null = null;
-    let thirdPartyOrigin: string | null = null;
+    const chainThirdPartyOrigins: string[] = [];
     let frameLineCount = 0;
     for (let index = 0; index < stackLines.length; index += 1) {
       const line = stackLines[index];
@@ -1126,27 +1126,30 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
         // Frameworks such as Zone.js wrap addEventListener synchronously. The
         // nearest stack frame is then the first-party framework wrapper, while
         // the script that registered the listener can appear farther up the
-        // same bounded stack. Recover one unambiguous third-party origin so a
-        // first-party wrapper cannot mask it; retain the nearest origin as the
+        // same bounded stack. Record EVERY distinct third-party origin in the
+        // captured chain: the published claim is chain presence, not sole
+        // registrant, so a vendor delegating through a helper on a second CDN
+        // (two third parties in one benign chain) is a detection naming both
+        // origins, never censored coverage. Retain the nearest origin as the
         // first-party answer when the whole captured chain is same-site.
         if (nearestOrigin === null) nearestOrigin = origin;
         if (isThirdPartyOrigin(origin)) {
-          if (thirdPartyOrigin !== null && thirdPartyOrigin !== origin) {
-            // Two different third parties in one wrapped call chain make the
-            // registrant ambiguous. Preserve the existing fail-closed rule for
-            // that adversarial shape instead of crediting whichever one is
-            // nearest to the observer.
-            return { coverageAvailable: false, origin: null };
+          let alreadyRecorded = false;
+          for (let seen = 0; seen < chainThirdPartyOrigins.length; seen += 1) {
+            if (chainThirdPartyOrigins[seen] === origin) {
+              alreadyRecorded = true;
+              break;
+            }
           }
-          thirdPartyOrigin = origin;
+          if (!alreadyRecorded) safeArrayAppend(chainThirdPartyOrigins, origin);
         }
       } catch {
         /* keep looking */
       }
     }
 
-    if (thirdPartyOrigin !== null) {
-      return { coverageAvailable: true, origin: thirdPartyOrigin };
+    if (chainThirdPartyOrigins.length > 0) {
+      return { coverageAvailable: true, origins: chainThirdPartyOrigins };
     }
     // No third-party frame inside a capture that saturated the observer's
     // bound: the walk exhausted the captured frames without resolving
@@ -1154,12 +1157,12 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     // wrapper chain deeper than the bound must read as bounded coverage, never
     // as a clean first-party registration.
     if (frameLineCount >= observerStackTraceLimit) {
-      return { coverageAvailable: false, origin: null };
+      return { coverageAvailable: false, origins: [] };
     }
     // A healthy stack may contain only non-HTTP frames in harnesses or browser
     // internals. That is unattributed, not evidence that stack capture itself
     // was disabled.
-    return { coverageAvailable: true, origin: nearestOrigin };
+    return { coverageAvailable: true, origins: nearestOrigin === null ? [] : [nearestOrigin] };
   };
 
   const isThirdPartyOrigin = (origin: string | null): origin is string => {
@@ -1178,19 +1181,25 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     }
   };
 
-  const recordCoverage = (state: ListenerCoverageState, eventType: string, targetType: string, thirdPartyOrigin: string | null) => {
+  const recordCoverage = (state: ListenerCoverageState, eventType: string, targetType: string, thirdPartyOrigins: string[]) => {
     safeSetAdd(state.eventTypes, eventType);
     safeSetAdd(state.listenerTargets, targetType);
     state.totalListenerCalls += 1;
 
-    if (!thirdPartyOrigin) return;
-    if (thirdPartyOrigin.length > maxRetainedScriptOriginLength) {
-      observerCoverageLost = true;
-      return;
+    if (thirdPartyOrigins.length === 0) return;
+    for (let index = 0; index < thirdPartyOrigins.length; index += 1) {
+      if (thirdPartyOrigins[index].length > maxRetainedScriptOriginLength) {
+        observerCoverageLost = true;
+        return;
+      }
     }
     safeSetAdd(state.thirdPartyEventTypes, eventType);
     safeSetAdd(state.thirdPartyListenerTargets, targetType);
-    addBoundedUniqueString(state.thirdPartyOrigins, thirdPartyOrigin, maxUniqueThirdPartyOrigins);
+    for (let index = 0; index < thirdPartyOrigins.length; index += 1) {
+      addBoundedUniqueString(state.thirdPartyOrigins, thirdPartyOrigins[index], maxUniqueThirdPartyOrigins);
+    }
+    // One registration call, however many chain origins it recorded: the
+    // thresholds count listener registrations, not origins.
     state.thirdPartyListenerCalls += 1;
   };
 
@@ -1203,26 +1212,30 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     if (!sessionRecordingEvent && !inputMonitoringEvent) return;
     const targetType = classifyListenerTarget(target);
     const activeScriptOrigin = currentScriptOrigin();
-    // Without a current script the origin comes from the bounded stack. The
-    // stack reader looks past synchronous first-party wrappers and prefers a
-    // third-party caller when one is present. A wrapper replacing the prototype
-    // is therefore not itself evidence loss; an unreadable stack still is.
+    // Without a current script the origins come from the bounded stack. The
+    // stack reader looks past synchronous first-party wrappers and records
+    // every distinct third-party origin present in the captured chain. A
+    // wrapper replacing the prototype is therefore not itself evidence loss;
+    // an unreadable stack still is.
     const stackAttribution = activeScriptOrigin
-      ? { coverageAvailable: true, origin: activeScriptOrigin }
+      ? { coverageAvailable: true, origins: [activeScriptOrigin] }
       : scriptOriginFromStack(skipUntil);
     if (!stackAttribution.coverageAvailable) {
       observerCoverageLost = true;
       return;
     }
-    const scriptOrigin = stackAttribution.origin;
-    const thirdPartyOrigin = isThirdPartyOrigin(scriptOrigin) ? scriptOrigin : null;
+    const chainThirdPartyOrigins: string[] = [];
+    for (let index = 0; index < stackAttribution.origins.length; index += 1) {
+      const origin = stackAttribution.origins[index];
+      if (isThirdPartyOrigin(origin)) safeArrayAppend(chainThirdPartyOrigins, origin);
+    }
 
     if (sessionRecordingEvent) {
-      recordCoverage(sessionRecordingState, eventType, targetType, thirdPartyOrigin);
+      recordCoverage(sessionRecordingState, eventType, targetType, chainThirdPartyOrigins);
     }
 
     if (inputMonitoringEvent) {
-      recordCoverage(inputMonitoringState, eventType, targetType, thirdPartyOrigin);
+      recordCoverage(inputMonitoringState, eventType, targetType, chainThirdPartyOrigins);
     }
   };
 
