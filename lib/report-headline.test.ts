@@ -508,13 +508,18 @@ test("cross-site input monitoring keeps the probe headline with listener wording
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /registered a third-party interaction-monitoring signal/);
+  assert.match(headline.headline, /matched an interaction-monitoring signal involving a cross-site script/);
   assert.equal(headline.semantic.story, "listener-coverage");
   // The evidence is listener registration, not observed capture, so the
   // wording must not say the script "watched" input.
-  assert.match(headline.subhead, /registered listeners that could observe typing-related input/);
+  assert.match(headline.subhead, /[Ll]isteners that could observe typing-related input were registered/);
   assert.doesNotMatch(headline.headline, /fingerprint-like browser API/);
   assert.doesNotMatch(headline.subhead, /watched/);
+  // Chain attribution only: a first-party registrant delegating through a
+  // third-party helper produces identical wire evidence, so the copy must not
+  // say the cross-site script registered the listeners.
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /(cross-site|third-party) script registered/i);
+  assert.match(headline.subhead, /call chain that included a cross-site script/);
 });
 
 test("surfaces browser probing when fingerprinting matches without catalogued trackers", () => {

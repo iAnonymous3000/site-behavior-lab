@@ -1152,20 +1152,25 @@ export function buildFindings(
     // attributed. When same-site origins were filtered out of that set, the
     // total still covers them, so binding it to the narrowed names would
     // credit calls to third parties that did not make them.
+    // "With X in the registration call chain", never "from X": stack
+    // attribution records the origins present in the bounded call chain of the
+    // registration, and a third-party helper on that chain produces the same
+    // wire evidence as a third-party registrant. The wire does not say which
+    // script asked for the listener.
     const listenerNote = (
       entry: CrossSiteListenerDetection | undefined,
-      noun: "third-party interaction listener" | "third-party input listener"
+      noun: "interaction-listener registration" | "input-listener registration"
     ): string => {
       if (!entry) return "";
       const names = humanList(entry.detection.evidence.thirdPartyOrigins.map(displayPublicUrl));
       const calls = entry.detection.evidence.totalListenerCalls;
       return entry.originsNarrowed
-        ? `${plural(calls, noun.replace("third-party ", ""))} attributed across ${names} and same-site origins the probe could not separate`
-        : `${plural(calls, noun)} from ${names}`;
+        ? `${plural(calls, noun)} attributed across ${names} and same-site origins the probe could not separate`
+        : `${plural(calls, noun)} with ${names} in the registration call chain`;
     };
     const behaviorNotes = [
-      listenerNote(sessionRecordingDetection, "third-party interaction listener"),
-      listenerNote(inputMonitoringDetection, "third-party input listener"),
+      listenerNote(sessionRecordingDetection, "interaction-listener registration"),
+      listenerNote(inputMonitoringDetection, "input-listener registration"),
       sessionReplayNames.length > 0 ? `known session-replay vendor(s): ${humanList(sessionReplayNames)}` : ""
     ].filter(Boolean);
     const replayCorroborated = Boolean(sessionRecordingDetection && sessionReplayNames.length > 0);
@@ -1180,27 +1185,32 @@ export function buildFindings(
       id: "session-recording-input-monitoring",
       icon: "eye",
       level: replayCorroborated ? "warn" : "info",
+      // "Involving", never "registered by": the recorded fact is a third-party
+      // origin in the registration call chain, which first-party code can
+      // produce by registering its own listeners through a synchronous
+      // third-party helper. Attributing registration to the third party would
+      // publish an accusation the wire does not support.
       title: inputMonitoringDetection
-        ? "Third-party input monitoring signal matched"
+        ? "Input-monitoring signal involving a third-party script"
         : replayCorroborated
           ? "Session-recording signal matched a known vendor"
           : sessionRecordingDetection
-            ? "Third-party interaction monitoring signal matched"
+            ? "Interaction-monitoring signal involving a third-party script"
             : "Session-replay vendor observed",
       lead: inputMonitoringDetection
-        ? "A third-party script registered listener coverage that could observe typing-related input events."
+        ? "Listener coverage that could observe typing-related input events was registered through call chains that included a third-party script."
         : replayCorroborated
-          ? "The page registered broad third-party interaction listeners and contacted a known session-replay service."
+          ? "The page registered broad interaction listeners through call chains that included a third-party script, and contacted a known session-replay service."
           : sessionRecordingDetection
             ? sessionCategories.length > 0
-              ? `A third-party script registered broad ${humanList(
+              ? `Broad ${humanList(
                   sessionCategories,
                   LISTENER_EVENT_CATEGORIES.length
-                )} listener coverage during the visit.`
-              : "A third-party script registered broad interaction listener coverage during the visit."
+                )} listener coverage was registered during the visit through call chains that included a third-party script.`
+              : "Broad interaction listener coverage was registered during the visit through call chains that included a third-party script."
             : `${humanList(sessionReplayNames)} appeared in the request log.`,
       detail:
-        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows a script was positioned to observe interaction, not that anything was transmitted. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected); treat this card as a review prompt rather than proof.",
+        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain; a third-party origin in that chain does not by itself establish that the third-party script registered the listener, because first-party code can register its own listeners through a third-party helper. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected); treat this card as a review prompt rather than proof.",
       evidence: humanList(behaviorNotes, 4),
       claim: findingClaim(facts, "session-recording-input-monitoring", "presence")
     });
