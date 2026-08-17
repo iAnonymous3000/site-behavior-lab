@@ -7,6 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
 import { runFixtureGit } from "./git-fixture";
+import { receiptFollowingCandidateCitationViolation } from "./measurement-candidate-binding";
 
 const ROOT = process.cwd();
 const RELEASE_SCRIPT = path.join(ROOT, "scripts", "release-evidence.mjs");
@@ -1640,6 +1641,47 @@ test("the development-state citation contract and the producer agree on one tree
   const refused = runEvidence(dateless.root, ["--static-dir", "out"]);
   assert.notEqual(refused.status, 0);
   assert.match(refused.stderr, /must carry the receipted release date/);
+});
+
+test("the 1.0 candidate binding and the producer accept one candidate-shaped tree", { skip: hostToolchainSkip }, async (t) => {
+  // lib/measurement-candidate-binding.ts used to require the 1.0 candidate's
+  // CITATION.cff to name 1.0.0 with no date-released line, while this
+  // producer, running in the required app and docker gates at that same
+  // commit, refuses any citation that is not the most recent receipted
+  // release with its receipted date. The accepted sets were disjoint: no
+  // CI-green candidate commit could satisfy the binding, so the decided 1.0
+  // finalization chronology was unreachable. Run the real producer AND the
+  // binding's exported candidate-citation contract against one identical
+  // candidate-shaped tree, in acceptance and in refusal, so the two gates
+  // can never diverge again.
+  const candidateShape = {
+    policyVersion: "1.0.0",
+    packageVersion: "1.0.0",
+    receiptedVersion: "0.5.0",
+    receiptedDate: "2026-08-11",
+    citation: 'cff-version: 1.2.0\nversion: "0.5.0"\ndate-released: "2026-08-11"\n',
+    changelog: "# Changelog\n\n## Unreleased\n\n## [1.0.0] - UNRELEASED\n"
+  };
+  const fixture = await makeFixture(t, candidateShape);
+  await assertReceiptFollowingCitation(fixture.root);
+  const accepted = runEvidence(fixture.root, ["--static-dir", "out"]);
+  assert.equal(accepted.status, 0, accepted.stderr);
+  const citationBytes = await readFile(path.join(fixture.root, "CITATION.cff"), "utf8");
+  assert.equal(receiptFollowingCandidateCitationViolation(citationBytes), null);
+
+  // Both gates refuse the binding's retired candidate shape on the same tree.
+  const retired = 'cff-version: 1.2.0\nversion: "1.0.0"\n';
+  assert.match(
+    receiptFollowingCandidateCitationViolation(retired) ?? "",
+    /never the unreceipted 1\.0\.0/
+  );
+  const retiredFixture = await makeFixture(t, { ...candidateShape, citation: retired });
+  const refused = runEvidence(retiredFixture.root, ["--static-dir", "out"]);
+  assert.notEqual(refused.status, 0);
+  assert.match(
+    refused.stderr,
+    /must declare the most recent receipted release \(0\.5\.0\), not the declared version 1\.0\.0/
+  );
 });
 
 test("the release runbook regenerates the supply-chain input its own version bump rewrites", async () => {
