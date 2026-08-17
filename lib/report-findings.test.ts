@@ -656,9 +656,14 @@ test("adds a Shields-block card only when ad-block is active", () => {
   };
   const blocked = byId(buildFindings(viewFromV1Report(withAdblock), null), "shields-blocked");
   assert.equal(blocked.level, "warn");
+  // A legacy v1 run records no evaluated-request count, so there is no honest
+  // denominator to state. It used to borrow the retained total ("12 of 25"),
+  // which is the same two-population conflation the r2 path had -- v1 simply
+  // lacks the recorded evidence to prove it. The count stands alone instead.
   // Classification mode: the number is filter-list MATCHES on a normal load,
   // never presented as a measured block.
-  assert.match(blocked.title, /12 of 25 requests matched Brave Shields filter lists/);
+  assert.match(blocked.title, /^12 requests matched Brave Shields filter lists$/);
+  assert.doesNotMatch(blocked.title, /of 25/, "v1 records no evaluated count to divide by");
   assert.doesNotMatch(blocked.title, /would block/);
   assert.doesNotMatch(blocked.detail, /requests LOADED/);
   assert.match(blocked.detail, /were not blocked by the scanner/);
@@ -2967,4 +2972,38 @@ test("a comparison card that observed no change never asserts a difference", () 
     asserted += 1;
   }
   assert.equal(asserted, flatPairs.length, "every fixture must reach the assertions");
+});
+
+test("the Shields match ratio is denominated by what the engine evaluated", () => {
+  // REGRESSION, live on 59 committed report pages. `count` is a counter over
+  // EVALUATED requests; pairing it with the retained total describes two
+  // populations as one. The committed google.com report evaluated 31, matched
+  // 11 and retained 55, and this card published "11 of 55" -- while the metric
+  // grid on the same page already said "over 31 requests the engine evaluated"
+  // after #132 fixed it there. A real committed wire, not a fixture, because a
+  // fixture is what let this survive: the one pinned card title used a v1
+  // fixture carrying no verificationFacts at all.
+  const wire = JSON.parse(
+    readFileSync(
+      path.join(process.cwd(), "public", "reports", "20260814-320f965a79276b411c3bd0123ae7c3b0.json"),
+      "utf8"
+    )
+  );
+  assert.equal(wire.baseline.verificationFacts.shields.requestsMatched, 11, "fixture drifted");
+  assert.equal(wire.baseline.verificationFacts.shields.requestsEvaluated, 31, "fixture drifted");
+  assert.equal(wire.baseline.summary.counts.totalRequests, 55, "fixture drifted");
+
+  const view = viewFromV2(wire, 2);
+  const card = byId(buildFindings(view, null), "shields-blocked");
+  assert.match(card.title, /31 requests the engine evaluated/);
+  assert.doesNotMatch(
+    card.title,
+    /\bof 55\b/,
+    "the retained total must never be the match denominator"
+  );
+
+  // The headline subhead feeds JSON-LD and the social card, so the same
+  // pairing was published off-site too.
+  const headline = buildReportHeadline(view);
+  assert.doesNotMatch(headline.subhead, /out of 55/);
 });
