@@ -30,6 +30,7 @@ import {
   HISTORICAL_NODE_R2_V4_TRACKER_CATALOG,
   HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION,
   HISTORICAL_DETECTOR_V5_NODE_R2_METHODOLOGY_VERSION,
+  HISTORICAL_DETECTOR_V6_NODE_R2_METHODOLOGY_VERSION,
   HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
   HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
   HISTORICAL_PAGEGRAPH_R2_DETECTOR_REGISTRY_VERSION,
@@ -144,8 +145,10 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-6c78-tldts7410-no-adblock",
       "node-v5-6c78-tldts7410-lists-2026-08-15",
       "node-v5-6c78-tldts7410-no-adblock",
-      "node-v6-6c78-tldts7410-active-lists-2026-08-15",
-      "node-v6-6c78-tldts7410-active-no-adblock"
+      "node-v6-6c78-tldts7410-lists-2026-08-15",
+      "node-v6-6c78-tldts7410-no-adblock",
+      "node-v6-gpc-worker-v2-6c78-tldts7410-active-lists-2026-08-15",
+      "node-v6-gpc-worker-v2-6c78-tldts7410-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -213,7 +216,7 @@ test("Node producer rows are complete, immutable, and individually replayable", 
   assert.equal(activeAccountability?.phaseOmissionContractVersion, "phase-omission-v2");
   assert.match(
     activeAccountability?.methodologyVersion ?? "",
-    /\+detector-accountability-v1\+service-role-taxonomy-v1$/
+    /\+detector-accountability-v1\+service-role-taxonomy-v1\+gpc-worker-application-v2$/
   );
   assert.deepEqual(activeAccountability?.detectorObligations, {
     version: "detector-obligations-v1",
@@ -299,8 +302,11 @@ test("the detector-v6 identity preserves the v4 resource-budget rows and the clo
   const detectorV5 = NODE_R2_PRODUCER_TUPLES.find(
     (tuple) => tuple.id === "node-v5-6c78-tldts7410-lists-2026-08-15"
   );
+  const detectorV6 = NODE_R2_PRODUCER_TUPLES.find(
+    (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
+  );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v6-6c78-tldts7410-active-lists-2026-08-15"
+    (tuple) => tuple.id === "node-v6-gpc-worker-v2-6c78-tldts7410-active-lists-2026-08-15"
   );
   assert.equal(historical?.methodologyVersion, HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION);
   assert.equal(
@@ -308,15 +314,49 @@ test("the detector-v6 identity preserves the v4 resource-budget rows and the clo
     HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION
   );
   assert.equal(detectorV5?.methodologyVersion, HISTORICAL_DETECTOR_V5_NODE_R2_METHODOLOGY_VERSION);
+  assert.equal(detectorV6?.methodologyVersion, HISTORICAL_DETECTOR_V6_NODE_R2_METHODOLOGY_VERSION);
   assert.equal(active?.methodologyVersion, NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION);
   // Three registries, three epochs: the v5 row pins the fingerprint-observer@2
   // identity that ran for one day, and the active row must not alias either
-  // closed registry.
+  // OLDER closed registry.
   assert.equal(detectorV5?.detectorRegistry.version, "node-detectors-v5");
   assert.equal(detectorV5?.detectorVersions["fingerprint-heuristics"], "fingerprint-observer@2");
   assert.notDeepEqual(detectorV5?.detectorRegistry, detectorV4?.detectorRegistry);
   assert.notDeepEqual(active?.detectorRegistry, detectorV4?.detectorRegistry);
   assert.notDeepEqual(active?.detectorRegistry, detectorV5?.detectorRegistry);
+});
+
+test("the gpc-worker-application revision closes the v6 rows and separates them by methodology alone", () => {
+  const closedV6 = NODE_R2_PRODUCER_TUPLES.find(
+    (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
+  );
+  const active = NODE_R2_PRODUCER_TUPLES.find(
+    (tuple) => tuple.id === "node-v6-gpc-worker-v2-6c78-tldts7410-active-lists-2026-08-15"
+  );
+  assert.notEqual(closedV6, undefined);
+  assert.notEqual(active, undefined);
+  if (closedV6 === undefined || active === undefined) return;
+
+  // No detector's semantics moved with the worker-application revision, so
+  // the registry and detector versions are deliberately shared; the ONLY
+  // separator is the methodology component, and the closed literal must
+  // never gain it.
+  assert.deepEqual(active.detectorRegistry, closedV6.detectorRegistry);
+  assert.deepEqual(active.detectorVersions, closedV6.detectorVersions);
+  assert.equal(closedV6.detectorRegistry.version, "node-detectors-v6");
+  assert.match(active.methodologyVersion, /\+gpc-worker-application-v2$/);
+  assert.doesNotMatch(closedV6.methodologyVersion, /gpc-worker-application/);
+  assert.notEqual(active.methodologyVersion, closedV6.methodologyVersion);
+
+  // Both epochs replay exactly.
+  assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(closedV6)));
+  assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(active)));
+
+  // The v1 mechanism was never a named component: a wire claiming one is an
+  // unreviewed producer, not a member of either epoch.
+  const namedV1 = runForTuple(closedV6);
+  namedV1.provenance.methodologyVersion = `${closedV6.methodologyVersion}+gpc-worker-application-v1`;
+  assert.throws(() => assertR2ProducerContract(namedV1), R2ProducerContractError);
 });
 
 test("pre-accountability and active accountability fields cannot be mixed", () => {
