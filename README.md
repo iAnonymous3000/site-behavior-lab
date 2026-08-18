@@ -503,7 +503,7 @@ If the server has `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` set, pass the same value
 
 ## Important Limitations
 
-### Which workers run, and which the scanner blocks
+### Which workers run, and how the GPC signal reaches them
 
 The Node scanner blocks Service Worker registration so Service Worker fetches
 cannot evade Playwright routing or the report recorder. That is a deliberate
@@ -511,19 +511,24 @@ containment choice and can make the visit differ from a normal returning-user
 session. Dedicated Web Worker requests are recorded; SharedWorker traffic
 beyond the entry script is not, and no WebSocket activity is.
 
-A **GPC-enabled visit refuses one more kind of worker**, and only that visit
-does. The refusal is by SCRIPT URL, not by worker class: it applies to both
-`Worker` and `SharedWorker`. To expose `navigator.globalPrivacyControl` inside a
-worker, the scanner has to instrument the worker's source before its first
-statement, which Playwright routing cannot do for a `blob:` or `data:` script
-URL. Rewrapping such a worker would change its URL, origin, CSP, and module
-base, so the scanner refuses it instead: the constructor throws
-`NotSupportedError` and that worker never runs. A run where this happened says
-so in its warnings and marks its request evidence incomplete. Because the
-instrumentation is installed only on the GPC-on arm, this is an intervention
-present in one arm of a GPC comparison and absent from the other; read a
-difference on a site that builds either kind of worker from a `blob:` URL with
-that in mind.
+A **GPC-enabled visit runs every worker the site asks for**, any script URL
+(`http(s):`, `blob:`, and `data:` alike), and delivers the signal into each
+dedicated worker's own realm rather than rewriting or refusing the worker. The
+scanner attaches a DevTools session to the measured page only, pauses each
+dedicated worker (including workers spawned by other workers) before its first
+statement, installs `navigator.globalPrivacyControl` inside the worker realm,
+and reads the property back in the same evaluation. A worker counts as carrying
+the signal only when that readback from inside its own realm returned `true`;
+delivery is never inferred from the injection having been attempted. A worker
+the scanner could not attest this way still runs untouched, and the run says so
+in its warnings and marks its request evidence incomplete. `SharedWorker` is
+the standing case: Chromium does not expose shared workers to a page-scoped
+DevTools session, so on a GPC-enabled visit a shared worker's realm never
+carries the signal (its network requests still carry the `Sec-GPC: 1` header),
+and every such construction is disclosed as unverified. The baseline arm gets
+no DevTools session, no pause, and no injection, so for verified workers a GPC
+comparison differs between arms only in the signal itself; an unverified worker
+is the remaining one-arm asymmetry and is always disclosed.
 
 ### What one report covers
 
@@ -559,7 +564,7 @@ Consent comparison mode runs one visit that clicks the banner's accept-all choic
 
 ### The Brave Shields block simulation
 
-The simulation uses Brave's own ad-block engine (the open-source [`adblock`](https://github.com/brave/adblock-rust) Rust crate, compiled to WASM) with the `default_enabled` lists from Brave's filter-list catalog. Under the Node scanner's `shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2` base methodology (production r2 reports record the full extended identity, this base plus the phase-kernel, boundary-state, consent, budget, proxy-traffic, service-worker-block, accountability, and ServiceRole-taxonomy suffixes, in `provenance.methodologyVersion`), each route-evaluated request is matched with its actual HTTP method against the document that initiated it: an ordinary subresource uses its requesting frame, a subframe navigation uses the parent document, and a non-HTTP inherited frame such as `about:blank` walks to its nearest HTTP(S) ancestor. Main-frame navigations are deliberately neither blocked nor counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. The source URL is used transiently by the engine and never added to the public v1 report. It matches network requests only: it does not apply cosmetic/element-hiding rules (CNAME cloaking is handled by the separate DNS step described above, not the block simulation), and the lists are a pinned snapshot, so blocked counts are a close lower-bound approximation of Brave's default Shields rather than a guarantee of identical behavior in a live Brave browser.
+The simulation uses Brave's own ad-block engine (the open-source [`adblock`](https://github.com/brave/adblock-rust) Rust crate, compiled to WASM) with the `default_enabled` lists from Brave's filter-list catalog. Under the Node scanner's `shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2` base methodology (production r2 reports record the full extended identity, this base plus the phase-kernel, boundary-state, consent, budget, proxy-traffic, service-worker-block, accountability, ServiceRole-taxonomy, and GPC worker-application suffixes, in `provenance.methodologyVersion`), each route-evaluated request is matched with its actual HTTP method against the document that initiated it: an ordinary subresource uses its requesting frame, a subframe navigation uses the parent document, and a non-HTTP inherited frame such as `about:blank` walks to its nearest HTTP(S) ancestor. Main-frame navigations are deliberately neither blocked nor counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. The source URL is used transiently by the engine and never added to the public v1 report. It matches network requests only: it does not apply cosmetic/element-hiding rules (CNAME cloaking is handled by the separate DNS step described above, not the block simulation), and the lists are a pinned snapshot, so blocked counts are a close lower-bound approximation of Brave's default Shields rather than a guarantee of identical behavior in a live Brave browser.
 
 ### What a result does not generalize to
 
