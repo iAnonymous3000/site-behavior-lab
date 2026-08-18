@@ -11,6 +11,7 @@ import {
   type Response
 } from "playwright";
 import { randomBytes } from "node:crypto";
+import { createServer as createNetServer } from "node:net";
 import { isDeepStrictEqual } from "node:util";
 import { Client, ProxyAgent, request as requestThroughProxy } from "undici";
 import { findTrackerMatch } from "./tracker-catalog";
@@ -159,10 +160,15 @@ import {
 import {
   createGpcWorkerInjectionSession,
   GPC_WORKER_CAPTURE_LOSS_WARNING,
-  GpcWorkerInjectionError,
+  gpcWorkerCaptureLossCount,
   installGlobalPrivacyControlWithWorkerRegistration,
   type GpcWorkerInjectionCheckpoint
 } from "./gpc-injection";
+import {
+  devtoolsBrowserWebSocketUrl,
+  GpcWorkerVerificationSession,
+  openDevtoolsBrowserChannel
+} from "./gpc-worker-verification";
 
 export { scannerEgressLabel, scannerEgressRegion } from "./scanner-egress";
 export { MAX_RECORDED_REQUESTS, NON_HTTP_WARNING_EXAMPLE_LIMIT, ScanRequestBudget, ScanWarningCollector } from "./scan-runtime";
@@ -247,12 +253,13 @@ const NAVIGATION_TIMEOUT_MS = 30_000;
 const NETWORK_IDLE_TIMEOUT_MS = 8_000;
 const MAX_SCAN_DURATION_MS = 45_000;
 /**
- * Held back from every GPC worker-script fetch so its route handler can finish
- * and leave the in-flight set before the scan deadline. The evidence boundary
- * waits for those handlers, and a handler still running when the deadline
- * lands rejects the whole visit instead of publishing what it measured.
+ * Backstop for draining in-flight worker handshakes at the evidence boundary.
+ * Each handshake has its own shorter watchdog inside the verification
+ * session, so this bound is reached only when the DevTools transport stops
+ * answering entirely; the unfinished handshakes are then already terminal
+ * unverified states and the boundary proceeds with that disclosure.
  */
-const GPC_WORKER_ROUTE_SETTLE_MARGIN_MS = 1_000;
+const GPC_WORKER_HANDSHAKE_SETTLE_BACKSTOP_MS = 4_000;
 // Active keystroke-exfiltration probe: how many fields to type into, the minimum
 // time budget needed to bother, and how long to watch for the sentinel leaving.
 export const MAX_PROBE_FIELDS = 8;
@@ -316,6 +323,15 @@ const MAX_POLICY_PAGE_REQUESTS = 150;
 export const MAX_POLICY_TEXT_CHARS = 400_000;
 let sharedBrowser: Browser | null = null;
 let browserLaunchPromise: Promise<Browser> | null = null;
+/**
+ * Loopback DevTools port of the shared browser, present in BOTH arms as a
+ * launch flag and used by none of the baseline arm's code. Only the GPC arm
+ * opens a client against it, to deliver and verify the worker signal
+ * (lib/gpc-worker-verification.ts). Reserved per launch because the port must
+ * be known before Chromium starts; a lost bind race fails that one launch,
+ * which is not cached, and the next scan reserves a fresh port.
+ */
+let sharedBrowserDevtoolsPort: number | null = null;
 
 /**
  * Chromium flags every scan browser launches with. WebRTC must not carry
@@ -433,42 +449,49 @@ export function retainedScanEvidenceDiagnostics(
     const beforeGpc = before.gpcWorker.diagnostics;
     const afterGpc = after.gpcWorker.diagnostics;
     const finalGpc = final.gpcWorker.diagnostics;
-    const ambiguousWorkerRequestCount = retainedMonotonicCount(
-      beforeGpc.ambiguousWorkerRequestCount,
-      afterGpc.ambiguousWorkerRequestCount,
-      finalGpc.ambiguousWorkerRequestCount
-    );
-    const beforePendingIds = new Set(before.gpcWorker.pendingWorkerRegistrationIds);
-    const excludedPendingIds = new Set(
-      after.gpcWorker.pendingWorkerRegistrationIds.filter((registrationId) => !beforePendingIds.has(registrationId))
-    );
-    const pendingWorkerRegistrationIds = final.gpcWorker.pendingWorkerRegistrationIds.filter(
-      (registrationId) => !excludedPendingIds.has(registrationId)
-    );
-    const pendingWorkerRegistrationCount = pendingWorkerRegistrationIds.length;
-    const transformFailureCount = retainedMonotonicCount(
-      beforeGpc.transformFailureCount,
-      afterGpc.transformFailureCount,
-      finalGpc.transformFailureCount
-    );
-    const unsupportedWorkerCount = retainedMonotonicCount(
-      beforeGpc.unsupportedWorkerCount,
-      afterGpc.unsupportedWorkerCount,
-      finalGpc.unsupportedWorkerCount
-    );
+    // Every raw counter is monotone, so each is bracketed independently and
+    // the disclosed loss is recomputed from the retained raw counters through
+    // the same single definition the live checkpoint uses. Recomputing (rather
+    // than bracketing captureLossCount itself) matters because the loss holds
+    // a max() over counter differences: a worker constructed and attached on
+    // opposite sides of the excluded interval must not double-count.
+    const retainedCounters = {
+      dedicatedWorkerConstructionCount: retainedMonotonicCount(
+        beforeGpc.dedicatedWorkerConstructionCount,
+        afterGpc.dedicatedWorkerConstructionCount,
+        finalGpc.dedicatedWorkerConstructionCount
+      ),
+      sharedWorkerConstructionCount: retainedMonotonicCount(
+        beforeGpc.sharedWorkerConstructionCount,
+        afterGpc.sharedWorkerConstructionCount,
+        finalGpc.sharedWorkerConstructionCount
+      ),
+      attachedDedicatedWorkerCount: retainedMonotonicCount(
+        beforeGpc.attachedDedicatedWorkerCount,
+        afterGpc.attachedDedicatedWorkerCount,
+        finalGpc.attachedDedicatedWorkerCount
+      ),
+      attachedSharedWorkerCount: retainedMonotonicCount(
+        beforeGpc.attachedSharedWorkerCount,
+        afterGpc.attachedSharedWorkerCount,
+        finalGpc.attachedSharedWorkerCount
+      ),
+      verifiedWorkerCount: retainedMonotonicCount(
+        beforeGpc.verifiedWorkerCount,
+        afterGpc.verifiedWorkerCount,
+        finalGpc.verifiedWorkerCount
+      ),
+      unverifiedAttachedWorkerCount: retainedMonotonicCount(
+        beforeGpc.unverifiedAttachedWorkerCount,
+        afterGpc.unverifiedAttachedWorkerCount,
+        finalGpc.unverifiedAttachedWorkerCount
+      )
+    };
     gpcWorker = {
       diagnostics: {
-        ambiguousWorkerRequestCount,
-        captureLossCount:
-          ambiguousWorkerRequestCount +
-          pendingWorkerRegistrationCount +
-          transformFailureCount +
-          unsupportedWorkerCount,
-        pendingWorkerRegistrationCount,
-        transformFailureCount,
-        unsupportedWorkerCount
-      },
-      pendingWorkerRegistrationIds
+        ...retainedCounters,
+        captureLossCount: gpcWorkerCaptureLossCount(retainedCounters)
+      }
     };
   }
 
@@ -735,15 +758,10 @@ export async function scanSiteWithMeasurement(
   const verificationFlagOn = consentVerificationEnabled();
   const consentShadowRootCapability = randomBytes(32).toString("hex");
   const boundedPageCollectorKey = createBoundedPageCollectorKey();
-  const gpcWorkerInjection = payload.gpcEnabled
-    ? createGpcWorkerInjectionSession({
-        // Leave the caller room to fulfill the route and settle it before the
-        // scan deadline: an in-flight handler AT the deadline discards a
-        // measurement that had otherwise finished.
-        routeFetchTimeoutMs: () =>
-          MAX_SCAN_DURATION_MS - (Date.now() - started) - GPC_WORKER_ROUTE_SETTLE_MARGIN_MS
-      })
-    : null;
+  const gpcWorkerInjection = payload.gpcEnabled ? createGpcWorkerInjectionSession() : null;
+  // Established after the measured page exists; declared here so the abort
+  // handler and the final cleanup can both reach it.
+  let gpcWorkerVerification: GpcWorkerVerificationSession | null = null;
   let context: BrowserContext | null = null;
   const scanProxy = await withScanTimeoutDisposing(
     () =>
@@ -759,6 +777,9 @@ export async function scanSiteWithMeasurement(
   const closeOnAbort = () => {
     // Abort handlers cannot await, but closing both resources immediately
     // rejects in-flight Playwright work and tears down pending proxy connects.
+    // Closing the DevTools client detaches it, which resumes any worker still
+    // paused for a handshake.
+    gpcWorkerVerification?.close();
     void context?.close().catch(() => undefined);
     void scanProxy.close().catch(() => undefined);
   };
@@ -846,9 +867,9 @@ export async function scanSiteWithMeasurement(
 
     if (gpcWorkerInjection) {
       // Scope the registration wrapper to the measured page and its child
-      // frames. Popups and the later out-of-evidence policy page do not share
-      // this page-local route transformer, so they must not create tickets in
-      // the measured session.
+      // frames. Popups and the later out-of-evidence policy page are outside
+      // the measured session, so their constructions must not enter its
+      // worker accounting.
       await withScanTimeout(
         page.addInitScript(
           installGlobalPrivacyControlWithWorkerRegistration,
@@ -856,6 +877,23 @@ export async function scanSiteWithMeasurement(
         ),
         started
       );
+      // Worker signal delivery and verification: attach the scanner's own
+      // DevTools client to this page target, pause every worker of the page at
+      // start, install GPC inside the worker realm, and read it back before
+      // release (lib/gpc-worker-verification.ts). Best effort to ESTABLISH,
+      // never to account: when any step here fails the scan proceeds, and the
+      // construction counts registered above turn every worker of this visit
+      // into disclosed capture loss instead of a silently unverified realm.
+      try {
+        gpcWorkerVerification = await withScanTimeout(
+          establishGpcWorkerVerification(context, page),
+          started
+        );
+        const verification = gpcWorkerVerification;
+        gpcWorkerInjection.setVerificationDiagnosticsSource(() => verification.diagnostics());
+      } catch {
+        gpcWorkerVerification = null;
+      }
     }
     // Read environment metadata from the pristine about:blank page before any
     // target script can shadow Navigator getters. The configured locale is
@@ -935,20 +973,6 @@ export async function scanSiteWithMeasurement(
         });
         if (decision.shieldsMatched !== undefined) {
           shieldsMatches.set(request, decision.shieldsMatched);
-        }
-
-        if (decision.action === "continue" && gpcWorkerInjection) {
-          try {
-            const fulfillment = await gpcWorkerInjection.buildRouteFulfillment(route);
-            if (fulfillment) {
-              await route.fulfill(fulfillment);
-              return;
-            }
-          } catch (error) {
-            if (!(error instanceof GpcWorkerInjectionError)) throw error;
-            await route.abort().catch(() => undefined);
-            return;
-          }
         }
 
         if (decision.action === "continue") {
@@ -2303,6 +2327,22 @@ export async function scanSiteWithMeasurement(
     page.off("request", recordRequest);
     page.off("response", recordResponse);
     measurementKernel.endPhase();
+    // Drain in-flight worker handshakes before freezing the evidence
+    // diagnostics, so every attached worker reads as a terminal verified or
+    // unverified fact rather than an indeterminate in-flight one. Bounded by
+    // the remaining scan budget and a fixed backstop; each handshake also has
+    // its own watchdog inside the session.
+    if (gpcWorkerVerification) {
+      await gpcWorkerVerification.settle(
+        Math.max(
+          0,
+          Math.min(
+            GPC_WORKER_HANDSHAKE_SETTLE_BACKSTOP_MS,
+            MAX_SCAN_DURATION_MS - (Date.now() - started)
+          )
+        )
+      );
+    }
     // Freeze every request-quality producer at the same boundary as retained
     // request evidence. The bracketed post-choice reload delta is excluded,
     // while later active-probe changes remain retained; the policy visit below
@@ -2815,6 +2855,9 @@ export async function scanSiteWithMeasurement(
     );
   } finally {
     options.signal?.removeEventListener("abort", closeOnAbort);
+    // Detaching the DevTools client resumes any worker still paused for a
+    // handshake, so no worker outlives the scan suspended.
+    gpcWorkerVerification?.close();
     const contextToClose = context;
     await runScannerCleanupWithinDeadline([
       ...(contextToClose
@@ -3245,12 +3288,21 @@ async function getSharedBrowser(): Promise<Browser> {
   // the env to "1" only after verifying a deployed scan succeeds with it. The
   // container process itself runs as a non-root user either way (Dockerfile).
   browserLaunchPromise ??= withScannerOperationDeadline<Browser>(
-    () => chromium.launch({
+    async () => {
+      // The DevTools endpoint must exist at launch time (Chromium binds it
+      // during startup), so a free loopback port is reserved first and handed
+      // to the launch flag. Loopback only: Chromium binds remote debugging on
+      // 127.0.0.1 by default.
+      const devtoolsPort = await reserveLoopbackPort();
+      const browser = await chromium.launch({
         headless: true,
-        args: [...SCAN_CHROMIUM_LAUNCH_ARGS],
+        args: [...SCAN_CHROMIUM_LAUNCH_ARGS, `--remote-debugging-port=${devtoolsPort}`],
         chromiumSandbox: chromiumSandboxEnabled(),
         env: browserProcessEnvironment()
-      }),
+      });
+      sharedBrowserDevtoolsPort = devtoolsPort;
+      return browser;
+    },
     {
       label: "Chromium launch",
       timeoutMs: SCANNER_OPERATION_TIMEOUT_MS,
@@ -3269,6 +3321,7 @@ async function getSharedBrowser(): Promise<Browser> {
         if (sharedBrowser === browser) {
           sharedBrowser = null;
           browserLaunchPromise = null;
+          sharedBrowserDevtoolsPort = null;
         }
       });
       return browser;
@@ -3285,10 +3338,70 @@ async function getSharedBrowser(): Promise<Browser> {
   return browserLaunchPromise;
 }
 
+/**
+ * Open the GPC arm's worker verification channel against the measured page.
+ *
+ * The page's target id comes from Playwright's own CDP session, so the
+ * DevTools client attaches to exactly this page: the baseline arm and any
+ * concurrent scan's page are never attached. Throws when any step is
+ * unavailable; the caller records that as full worker-verification loss
+ * rather than failing the scan.
+ */
+async function establishGpcWorkerVerification(
+  context: BrowserContext,
+  page: Page
+): Promise<GpcWorkerVerificationSession> {
+  const devtoolsPort = sharedBrowserDevtoolsPort;
+  if (devtoolsPort === null) {
+    throw new Error("The shared browser exposes no DevTools port for worker verification.");
+  }
+  const targetSession = await context.newCDPSession(page);
+  let pageTargetId: string;
+  try {
+    const info = (await targetSession.send("Target.getTargetInfo")) as {
+      targetInfo?: { targetId?: unknown };
+    };
+    const targetId = info.targetInfo?.targetId;
+    if (typeof targetId !== "string" || targetId.length === 0) {
+      throw new Error("The measured page target id was unavailable.");
+    }
+    pageTargetId = targetId;
+  } finally {
+    await targetSession.detach().catch(() => undefined);
+  }
+  const wsUrl = await devtoolsBrowserWebSocketUrl(devtoolsPort);
+  const channel = await openDevtoolsBrowserChannel(wsUrl);
+  const session = new GpcWorkerVerificationSession(channel);
+  try {
+    await session.attachToPage(pageTargetId);
+  } catch (error) {
+    session.close();
+    throw error;
+  }
+  return session;
+}
+
+/** Reserve a free loopback TCP port by binding and immediately releasing it. */
+async function reserveLoopbackPort(): Promise<number> {
+  return new Promise<number>((resolve, reject) => {
+    const server = createNetServer();
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const bound = server.address();
+      const port = bound && typeof bound === "object" ? bound.port : null;
+      server.close(() => {
+        if (port === null) reject(new Error("No loopback port could be reserved."));
+        else resolve(port);
+      });
+    });
+  });
+}
+
 export async function closeSharedBrowserForTests(): Promise<void> {
   const browser = sharedBrowser;
   sharedBrowser = null;
   browserLaunchPromise = null;
+  sharedBrowserDevtoolsPort = null;
   if (browser) {
     await runScannerCleanupWithinDeadline([
       { label: "shared Chromium test cleanup", run: () => browser.close() }

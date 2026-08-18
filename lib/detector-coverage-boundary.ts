@@ -73,6 +73,7 @@ export const COVERAGE_BOUNDARY_SOURCES: readonly string[] = [
   "lib/consent-verification.ts",
   "lib/fingerprint-observer.ts",
   "lib/gpc-injection.ts",
+  "lib/gpc-worker-verification.ts",
   "lib/keystroke-exfiltration.ts",
   "lib/scan-runtime.ts",
   "lib/scanner.ts"
