@@ -2,7 +2,7 @@
 
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
-import { constants, realpathSync } from "node:fs";
+import { constants, existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { lstat, open, readFile, readdir, unlink } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -124,6 +124,66 @@ export async function buildReleaseEvidence({
   return evidence;
 }
 
+/**
+ * Which archived release CITATION.cff must cite, given the set of receipted
+ * versions and the version release-policy.json currently declares.
+ *
+ * The declared version wins the moment its own receipt exists, release
+ * candidate or stable: once the archive records that the release happened,
+ * the citation must advance to it, and an rc rehearsal whose receipt is
+ * archived while the policy still names it (the recorded 0.4.0-rc.1 state)
+ * is cited as itself, not as an older stable release. Before that receipt
+ * exists, the newest stable receipt is the release that actually happened;
+ * 0.4.0-rc.1 has a receipt and is not what this repository should be cited
+ * as while 0.4.0 exists. A project whose only receipts are candidates has
+ * genuinely shipped nothing else, and citing the newest candidate is then
+ * honest -- refusing would be the false claim.
+ *
+ * Exported because the release workflow's isolated attest job enforces the
+ * same contract but must never execute candidate code, so it carries a
+ * byte-identical copy of this function; lib/release-evidence.test.ts
+ * cross-asserts the two texts. Keep the body self-contained and comment-free.
+ */
+export function selectCitedReceiptedVersion(receiptedVersions, policyVersion) {
+  const versions = [...new Set(receiptedVersions)];
+  if (versions.length === 0) return null;
+  if (versions.includes(policyVersion)) return policyVersion;
+  const stable = versions.filter((name) => !name.includes("-"));
+  const candidates = stable.length > 0 ? stable : versions;
+  const key = (version) =>
+    version.split(".").map((part) => Number(part).toString().padStart(6, "0")).join(".");
+  return candidates.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0)).at(-1);
+}
+
+/**
+ * The release CITATION.cff must cite right now.
+ *
+ * A receipt is the canonical record that a release happened: it exists only
+ * after the tag ceremony completes. A version merely DECLARED in
+ * release-policy.json has not necessarily been tagged, promoted, or receipted.
+ */
+function latestReceiptedVersion(root, policyVersion) {
+  const dir = path.join(root, "docs", "release-receipts");
+  const versions = readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .filter((name) => existsSync(path.join(dir, name, "release-receipt.json")));
+  const selected = selectCitedReceiptedVersion(versions, policyVersion);
+  if (selected === null) throw new Error("no archived release receipt exists to cite");
+  return selected;
+}
+
+function receiptedReleaseDate(root, version) {
+  const receipt = JSON.parse(
+    readFileSync(path.join(root, "docs", "release-receipts", version, "release-receipt.json"), "utf8")
+  );
+  const date = receipt.releaseDate ?? receipt.release?.releaseDate;
+  if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new Error(`release receipt for ${version} carries no usable releaseDate`);
+  }
+  return date;
+}
+
 async function releaseMetadata(root) {
   const packageManifest = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
   const packageLock = JSON.parse(await readFile(path.join(root, "package-lock.json"), "utf8"));
@@ -194,20 +254,35 @@ async function releaseMetadata(root) {
   if (packageLock?.version !== policy.version || packageLock?.packages?.[""]?.version !== policy.version) {
     throw new Error("package-lock.json root versions must match release-policy.json exactly");
   }
+  // CITATION.cff cites the most recent RECEIPTED release, not the declared one.
+  //
+  // Citation tooling reads this file standalone: it never sees RELEASE.md's
+  // declare-then-tag window, so a version declared but not yet tagged and
+  // receipted reads as a release that exists. 0.5.0 sat declared for five days
+  // with no tag, no GitHub release and no receipt, and this check REQUIRED
+  // CITATION.cff to assert it -- making the standalone overclaim mandatory
+  // rather than accidental. Two sibling guards in lib/ enforced the same
+  // coupling and now follow the receipt too.
+  const receiptedVersion = latestReceiptedVersion(root, policy.version);
   const citationVersions = [...citation.matchAll(/^version:\s*["']?([^"'\s]+)["']?\s*$/gm)].map(
     (match) => match[1]
   );
-  if (citationVersions.length !== 1 || citationVersions[0] !== policy.version) {
-    throw new Error("CITATION.cff must declare exactly the release-policy.json version");
+  if (citationVersions.length !== 1 || citationVersions[0] !== receiptedVersion) {
+    throw new Error(
+      `CITATION.cff must declare the most recent receipted release (${receiptedVersion})` +
+        (receiptedVersion === policy.version ? "" : `, not the declared version ${policy.version}`)
+    );
   }
   const citationDates = [...citation.matchAll(/^date-released:\s*["']?([0-9]{4}-[0-9]{2}-[0-9]{2})["']?\s*$/gm)].map(
     (match) => match[1]
   );
-  if (!released && citation.match(/^date-released:/m)) {
-    throw new Error("Development CITATION.cff must not claim a release date");
-  }
-  if (released && (citationDates.length !== 1 || citationDates[0] !== policy.releaseDate)) {
-    throw new Error("A released CITATION.cff must carry exactly the policy's release date");
+  // The date follows the receipt for the same reason the version does: the
+  // receipt is the canonical record of a release that actually happened.
+  const receiptedDate = receiptedReleaseDate(root, receiptedVersion);
+  if (citationDates.length !== 1 || citationDates[0] !== receiptedDate) {
+    throw new Error(
+      `CITATION.cff must carry the receipted release date for ${receiptedVersion} (${receiptedDate})`
+    );
   }
   // Ongoing work always has somewhere to go, in both states.
   const unreleasedSections = [...changelog.matchAll(/^## Unreleased\s*$/gm)];

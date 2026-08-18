@@ -664,6 +664,24 @@ jobs:
             safe="$(printf '%s' "$path" | tr '/.' '__')"
             gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${RELEASE_SHA}" > "$context/content-${safe}.json"
           done
+          # The citation contract follows the archived receipts, so hand the
+          # validator every receipt the release SHA carries; it re-runs the
+          # selection itself against this listing.
+          gh api "repos/${GITHUB_REPOSITORY}/contents/docs/release-receipts?ref=${RELEASE_SHA}" \
+            > "$context/release-receipts.json"
+          node -e '
+            const listing = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+            for (const entry of Array.isArray(listing) ? listing : []) {
+              if (entry?.type === "dir" && typeof entry.name === "string") console.log(entry.name);
+            }
+          ' "$context/release-receipts.json" | while IFS= read -r version; do
+            case "$version" in
+              *[!0-9A-Za-z.-]*|"") echo "::error title=Release refused::Unexpected release-receipt directory name"; exit 1;;
+            esac
+            receipt_path="docs/release-receipts/${version}/release-receipt.json"
+            safe="$(printf '%s' "$receipt_path" | tr '/.' '__')"
+            gh api "repos/${GITHUB_REPOSITORY}/contents/${receipt_path}?ref=${RELEASE_SHA}" > "$context/content-${safe}.json"
+          done
           gh api \
             --paginate \
             --slurp \
@@ -926,19 +944,64 @@ jobs:
           const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
           const versionPattern = escapeRegex(process.env.RELEASE_VERSION);
           const datePattern = escapeRegex(policy.releaseDate);
-          const citation = content("CITATION.cff").toString("utf8");
           const changelog = content("CHANGELOG.md").toString("utf8");
-          const citationVersions = citation.match(new RegExp(`^version:\\s*["']?${versionPattern}["']?\\s*$`, "gm")) ?? [];
-          const citationDates = citation.match(new RegExp(`^date-released:\\s*["']?${datePattern}["']?\\s*$`, "gm")) ?? [];
           const releaseSections =
             changelog.match(new RegExp(`^## \\[${versionPattern}\\] - ${datePattern}\\s*$`, "gm")) ?? [];
+          if (releaseSections.length !== 1 || !/^## Unreleased\s*$/m.test(changelog)) {
+            fail("Changelog metadata does not identify exactly this release.");
+          }
+
+          // CITATION.cff follows the archived receipts, never the declaration:
+          // the receipt for RELEASE_VERSION is produced by this very workflow,
+          // so at the ceremony SHA it cannot exist yet and the citation still
+          // names the most recent receipted release (RELEASE.md advances it
+          // only after archival). Requiring RELEASE_VERSION here made every
+          // honest ceremony unattestable: a lagging citation failed this gate
+          // while an advanced one failed the release-evidence gate prepare
+          // runs at the same SHA. scripts/release-evidence.mjs owns the
+          // selection rule and prepare already enforced it at this SHA; this
+          // isolated job must not execute candidate code, so it carries a
+          // copy of the exported selector that lib/release-evidence.test.ts
+          // cross-asserts byte-for-byte against the script.
+          function selectCitedReceiptedVersion(receiptedVersions, policyVersion) {
+            const versions = [...new Set(receiptedVersions)];
+            if (versions.length === 0) return null;
+            if (versions.includes(policyVersion)) return policyVersion;
+            const stable = versions.filter((name) => !name.includes("-"));
+            const candidates = stable.length > 0 ? stable : versions;
+            const key = (version) =>
+              version.split(".").map((part) => Number(part).toString().padStart(6, "0")).join(".");
+            return candidates.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0)).at(-1);
+          }
+          const receiptListing = json("release-receipts.json");
+          const receiptedVersions = (Array.isArray(receiptListing) ? receiptListing : [])
+            .filter((entry) => entry?.type === "dir" && typeof entry?.name === "string")
+            .map((entry) => entry.name);
+          const citedVersion = selectCitedReceiptedVersion(receiptedVersions, process.env.RELEASE_VERSION);
+          if (citedVersion === null) {
+            fail("No archived release receipt exists at the release SHA for CITATION.cff to cite.");
+          }
+          const citedReceipt = JSON.parse(
+            content(`docs/release-receipts/${citedVersion}/release-receipt.json`).toString("utf8")
+          );
+          const citedDate = citedReceipt?.releaseDate ?? citedReceipt?.release?.releaseDate;
+          if (typeof citedDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(citedDate)) {
+            fail(`The archived release receipt for ${citedVersion} carries no usable release date.`);
+          }
+          const citation = content("CITATION.cff").toString("utf8");
+          const citationVersions = [...citation.matchAll(/^version:\s*["']?([^"'\s]+)["']?\s*$/gm)].map(
+            (match) => match[1]
+          );
+          const citationDates = [...citation.matchAll(/^date-released:\s*["']?([0-9]{4}-[0-9]{2}-[0-9]{2})["']?\s*$/gm)].map(
+            (match) => match[1]
+          );
           if (
             citationVersions.length !== 1 ||
+            citationVersions[0] !== citedVersion ||
             citationDates.length !== 1 ||
-            releaseSections.length !== 1 ||
-            !/^## Unreleased\s*$/m.test(changelog)
+            citationDates[0] !== citedDate
           ) {
-            fail("Citation and changelog metadata do not identify exactly this release.");
+            fail(`CITATION.cff must cite the most recent receipted release (${citedVersion}, ${citedDate}).`);
           }
 
           const required = JSON.parse(content(".github/required-ci-jobs.json").toString("utf8"));

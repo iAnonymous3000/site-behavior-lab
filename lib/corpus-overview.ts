@@ -22,7 +22,9 @@ import {
 } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportBundles } from "./static-report-files";
+import type { ComparisonHistoryEra } from "./comparison-history-copy";
 import {
+  comparisonHistoryKeyEra,
   comparisonHistoryPairingKey,
   computeComparableSinceLastScan,
   type SinceLastScan
@@ -159,6 +161,13 @@ export type DirectoryEntry = {
    * The filter-list snapshot date may differ; this is a descriptive raw/catalog delta, never a Shields delta.
    */
   sinceLastScan?: SinceLastScan;
+  /**
+   * Schema era of the passive-history key that produced `sinceLastScan` (v1
+   * wire vs v2/r2), present exactly when `sinceLastScan` is. The site profile
+   * states the pairing rule per era, because the two eras hold different
+   * things constant and one flat sentence misdescribed every v1 pair.
+   */
+  comparisonHistoryEra?: ComparisonHistoryEra;
 };
 
 type CorpusExportMetadata = Pick<
@@ -348,9 +357,21 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   const deltas = computeComparableSinceLastScan(
     measuredLoaded.map(({ entry, comparisonHistoryKey }) => ({ ...entry, comparisonHistoryKey }))
   );
+  // The era travels with the delta so the profile note can state the identity
+  // rule the pairing actually applied; a paired entry always has a key.
+  const historyEras = new Map(
+    measuredLoaded.map(({ entry, comparisonHistoryKey }) => [
+      entry.id,
+      comparisonHistoryKeyEra(comparisonHistoryKey)
+    ])
+  );
   for (const entry of entries) {
     const delta = deltas.get(entry.id);
-    if (delta) entry.sinceLastScan = delta;
+    if (delta) {
+      entry.sinceLastScan = delta;
+      const era = historyEras.get(entry.id);
+      if (era) entry.comparisonHistoryEra = era;
+    }
   }
 
   // Current behavior and Shields-pair evidence have different freshness

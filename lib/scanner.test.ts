@@ -2255,7 +2255,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
       }
     );
     assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@2",
+      version: "fingerprint-observer@3",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -2348,7 +2348,7 @@ test("passive fingerprint loss remains causal when the consent snapshot is later
     assert.deepEqual(
       staged.measurement.detectors["fingerprint-heuristics"],
       {
-        version: "fingerprint-observer@2",
+        version: "fingerprint-observer@3",
         status: "partial",
         reason: "scan-failed",
         phaseId: consentPhase.phaseId

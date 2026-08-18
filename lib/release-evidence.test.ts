@@ -1,16 +1,20 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { cpSync } from "node:fs";
+import { cpSync, existsSync, readFileSync, readdirSync } from "node:fs";
 import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
 import { runFixtureGit } from "./git-fixture";
+import { receiptFollowingCandidateCitationViolation } from "./measurement-candidate-binding";
 
 const ROOT = process.cwd();
 const RELEASE_SCRIPT = path.join(ROOT, "scripts", "release-evidence.mjs");
 const PROVENANCE_SCRIPT = path.join(ROOT, "scripts", "static-deployment-provenance.mjs");
+
+const hasArchivedReleaseReceipt = (version: string): boolean =>
+  existsSync(path.join(ROOT, "docs", "release-receipts", version, "release-receipt.json"));
 
 type StaticDeploymentProvenance = {
   buildDeploymentReceipt(
@@ -22,6 +26,79 @@ type StaticDeploymentProvenance = {
 /** The receipt producer itself, so fixtures never restate the published shape. */
 const staticDeploymentProvenance = (): Promise<StaticDeploymentProvenance> =>
   import(PROVENANCE_SCRIPT) as Promise<StaticDeploymentProvenance>;
+
+type ReleaseEvidenceModule = {
+  selectCitedReceiptedVersion(receiptedVersions: string[], policyVersion: string): string | null;
+};
+
+/** The release producer itself, so expectations never restate its selection rule. */
+const releaseEvidenceModule = (): Promise<ReleaseEvidenceModule> =>
+  import(RELEASE_SCRIPT) as Promise<ReleaseEvidenceModule>;
+
+/**
+ * The one receipt-following citation contract, executed against any repo-shaped
+ * tree. CITATION.cff must cite exactly the release the producer's own exported
+ * selector picks from the archived receipts, with that receipt's recorded
+ * date, in the development state as well as the released one; the changelog's
+ * dated section still follows the POLICY, because the declaration is what
+ * moves it. The repository-state test and the fixture pair-test both run this
+ * helper, and the pair-test runs the real producer against the identical tree,
+ * so the unit expectation and scripts/release-evidence.mjs can only move
+ * together.
+ */
+async function assertReceiptFollowingCitation(root: string): Promise<void> {
+  const policy = JSON.parse(await readFile(path.join(root, "release-policy.json"), "utf8")) as {
+    status: string;
+    version: string;
+    releaseDate: string | null;
+  };
+  const citation = await readFile(path.join(root, "CITATION.cff"), "utf8");
+  const changelog = await readFile(path.join(root, "CHANGELOG.md"), "utf8");
+  const receiptsDir = path.join(root, "docs", "release-receipts");
+  const { selectCitedReceiptedVersion } = await releaseEvidenceModule();
+  const receipted = readdirSync(receiptsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .filter((name) => existsSync(path.join(receiptsDir, name, "release-receipt.json")));
+  const expectedCited = selectCitedReceiptedVersion(receipted, policy.version);
+  assert.ok(expectedCited, "at least one archived release receipt must exist to cite");
+  const citedVersions = [...citation.matchAll(/^version: "([^"]+)"$/gm)].map((match) => match[1]);
+  assert.deepEqual(
+    citedVersions,
+    [expectedCited],
+    `CITATION.cff must cite exactly the most recent receipted release (${expectedCited})`
+  );
+  const receipt = JSON.parse(
+    readFileSync(path.join(receiptsDir, expectedCited, "release-receipt.json"), "utf8")
+  ) as { releaseDate?: string; release?: { releaseDate?: string } };
+  const expectedDate = receipt.releaseDate ?? receipt.release?.releaseDate;
+  assert.match(
+    expectedDate ?? "",
+    /^\d{4}-\d{2}-\d{2}$/,
+    `the archived receipt for ${expectedCited} must carry a usable release date`
+  );
+  const citedDates = [...citation.matchAll(/^date-released: "(\d{4}-\d{2}-\d{2})"$/gm)].map(
+    (match) => match[1]
+  );
+  assert.deepEqual(
+    citedDates,
+    [expectedDate],
+    "CITATION.cff must carry exactly the cited receipt's recorded release date, in development too"
+  );
+  // Ongoing work always has a home, in either state.
+  assert.equal((changelog.match(/^## Unreleased$/gm) ?? []).length, 1);
+  const datedForVersion = new RegExp(
+    `^## \\[?${policy.version.replace(/\./g, "\\.")}\\]?\\s+-\\s*(\\d{4}-\\d{2}-\\d{2})$`,
+    "m"
+  );
+  if (policy.status === "released") {
+    const dated = changelog.match(datedForVersion);
+    assert.notEqual(dated, null, "a released changelog must carry its dated section");
+    assert.equal(dated![1], policy.releaseDate);
+  } else {
+    assert.doesNotMatch(changelog, datedForVersion);
+  }
+}
 
 // scripts/release-evidence.mjs is a host-only release tool: it refuses to run
 // under any runtime other than the declared repository toolchain, by design.
@@ -39,8 +116,6 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   const manifest = JSON.parse(await source("package.json"));
   const lock = JSON.parse(await source("package-lock.json"));
   const policy = JSON.parse(await source("release-policy.json"));
-  const citation = await source("CITATION.cff");
-  const changelog = await source("CHANGELOG.md");
   const releaseGuide = await source("RELEASE.md");
 
   // Pre-1.0 milestone releases: a tag marks a reviewed, CI-green, promoted
@@ -66,9 +141,19 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
   assert.deepEqual(manifest.engines, { node: "24.14.1", npm: "11.11.0" });
   assert.equal(lock.packages[""].packageManager, manifest.packageManager);
   assert.deepEqual(lock.packages[""].engines, manifest.engines);
-  assert.match(citation, new RegExp(`^version: "${policy.version}"$`, "m"));
-  // Ongoing work always has a home, in either state.
-  assert.equal((changelog.match(/^## Unreleased$/gm) ?? []).length, 1);
+  // CITATION.cff tracks the last version that actually EXISTS as a tagged,
+  // receipted release, not the declared one. Coupling it to policy.version
+  // forced a standalone overclaim during the declare-then-tag window: citation
+  // tooling reads this file alone, without RELEASE.md's sequence or this
+  // policy, so it would assert a release date for a version with no tag and no
+  // receipt. It catches up once the receipt is archived. The expectation is
+  // the same helper the fixture pair-test runs together with the real
+  // producer, and it selects through the producer's own exported rule, so
+  // this test can no longer hold a private contract the producer refuses:
+  // its old development branch demanded NO date-released line while the
+  // producer demanded the receipted date unconditionally, which would have
+  // made CI unsatisfiable on the first routine flip to status development.
+  await assertReceiptFollowingCitation(ROOT);
   assert.match(releaseGuide, /RELEASE_MEASUREMENT_BINDING_SHA256/);
   assert.match(
     releaseGuide,
@@ -78,16 +163,6 @@ test("repository metadata truthfully describes the governed 0.x and exact 1.0 li
     releaseGuide,
     /digest printed by candidate CI[\s\S]*is not sufficient authority/
   );
-  const datedForVersion = new RegExp(`^## \\[?${policy.version.replace(/\./g, "\\.")}\\]?\\s+-\\s*(\\d{4}-\\d{2}-\\d{2})$`, "m");
-  if (policy.status === "released") {
-    assert.match(citation, new RegExp(`^date-released: "${policy.releaseDate}"$`, "m"));
-    const dated = changelog.match(datedForVersion);
-    assert.notEqual(dated, null, "a released changelog must carry its dated section");
-    assert.equal(dated![1], policy.releaseDate);
-  } else {
-    assert.doesNotMatch(citation, /^date-released:/m);
-    assert.doesNotMatch(changelog, datedForVersion);
-  }
   assert.equal(manifest.scripts["release:evidence"], "node scripts/release-evidence.mjs");
   assert.match(
     releaseGuide,
@@ -628,9 +703,36 @@ async function makeFixture(
     policy?: Record<string, unknown>;
     citation?: string;
     changelog?: string;
+    /**
+     * The release the fixture has an archived receipt for.
+     *
+     * CITATION.cff is checked against the most recent RECEIPTED release, not
+     * the declared one, so every fixture needs a receipt the way a real
+     * repository always has one. Defaults to the citation's own version so the
+     * common case is consistent without each test restating it.
+     */
+    receiptedVersion?: string | null;
+    receiptedDate?: string;
+    /**
+     * Extra archived receipts beyond the primary one, for selection-order
+     * cases (a stable receipt beside an rc receipt, a closed rc line beside
+     * its final stable release).
+     */
+    additionalReceipts?: Array<{ version: string; date: string }>;
   } = {}
 ) {
   const root = await mkdtemp(path.join(os.tmpdir(), "site-behavior-lab-release-evidence-"));
+  // A real repository always carries at least one archived receipt, and the
+  // citation coupling reads it. Pass receiptedVersion: null to build the
+  // no-receipt tree deliberately.
+  const receiptedVersion =
+    options.receiptedVersion === undefined ? options.packageVersion ?? "0.1.0" : options.receiptedVersion;
+  // Default the receipt's date to the fixture's own declared release date, so a
+  // test that supplies a released policy and a matching CITATION stays
+  // self-consistent without restating the date a third time.
+  const policyReleaseDate =
+    typeof options.policy?.releaseDate === "string" ? options.policy.releaseDate : null;
+  const receiptedDate = options.receiptedDate ?? policyReleaseDate ?? "2026-01-01";
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(path.join(root, "scripts"), { recursive: true });
   await copyFile(RELEASE_SCRIPT, path.join(root, "scripts", "release-evidence.mjs"));
@@ -678,9 +780,25 @@ async function makeFixture(
   );
   await writeFile(
     path.join(root, "CITATION.cff"),
-    options.citation ?? 'cff-version: 1.2.0\nversion: "0.1.0"\n'
+    options.citation ??
+      `cff-version: 1.2.0\nversion: "${receiptedVersion ?? "0.1.0"}"\ndate-released: "${receiptedDate}"\n`
   );
   await writeFile(path.join(root, "CHANGELOG.md"), options.changelog ?? "# Changelog\n\n## Unreleased\n");
+  const receipts = [
+    ...(receiptedVersion === null ? [] : [{ version: receiptedVersion, date: receiptedDate }]),
+    ...(options.additionalReceipts ?? [])
+  ];
+  for (const receipt of receipts) {
+    await mkdir(path.join(root, "docs", "release-receipts", receipt.version), { recursive: true });
+    await writeFile(
+      path.join(root, "docs", "release-receipts", receipt.version, "release-receipt.json"),
+      `${JSON.stringify({
+        version: receipt.version,
+        releaseDate: receipt.date,
+        artifacts: []
+      })}\n`
+    );
+  }
   await writeFile(path.join(root, "Dockerfile"), "FROM scratch\n");
   await writeFile(path.join(root, "wrangler.container.jsonc"), "{}\n");
 
@@ -1319,7 +1437,12 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
     assert.match(refused.stderr, pattern);
   }
 
-  // The dated evidence must agree with the policy, in both files.
+  // The dated evidence must agree with the RECEIPT, in both files.
+  //
+  // This previously required CITATION.cff to carry the POLICY's release date,
+  // which is what made the standalone overclaim mandatory: a version declared
+  // but not yet tagged or receipted had to be cited as released. Citation
+  // tooling reads this file alone and never sees the declare-then-tag window.
   const wrongCitation = await makeFixture(t, {
     policy: releasedPolicy(),
     citation: 'cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-01-01"\n',
@@ -1327,7 +1450,24 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
   });
   const citationRefused = runEvidence(wrongCitation.root, ["--static-dir", "out"]);
   assert.notEqual(citationRefused.status, 0);
-  assert.match(citationRefused.stderr, /released CITATION\.cff must carry exactly the policy's release date/);
+  assert.match(citationRefused.stderr, /CITATION\.cff must carry the receipted release date/);
+
+  // And the inverse, which is the defect this replaced: citing a version that
+  // is declared but has no receipt must be refused, not required.
+  const declaredButUnreceipted = await makeFixture(t, {
+    policy: releasedPolicy({ version: "0.2.0", releaseTag: "v0.2.0" }),
+    packageVersion: "0.2.0",
+    receiptedVersion: "0.1.0",
+    receiptedDate: "2026-07-25",
+    citation: 'cff-version: 1.2.0\nversion: "0.2.0"\ndate-released: "2026-07-25"\n',
+    changelog: changelog.replace("[0.1.0]", "[0.2.0]")
+  });
+  const unreceiptedRefused = runEvidence(declaredButUnreceipted.root, ["--static-dir", "out"]);
+  assert.notEqual(unreceiptedRefused.status, 0, "citing an unreceipted version must be refused");
+  assert.match(
+    unreceiptedRefused.stderr,
+    /must declare the most recent receipted release \(0\.1\.0\), not the declared version 0\.2\.0/
+  );
 
   const wrongChangelog = await makeFixture(t, {
     policy: releasedPolicy(),
@@ -1344,6 +1484,204 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
   const strayRefused = runEvidence(strayTag.root, ["--static-dir", "out"]);
   assert.notEqual(strayRefused.status, 0);
   assert.match(strayRefused.stderr, /Release tag set for 0\.1\.0 must be exactly v0\.1\.0/);
+});
+
+test("the cited release follows the receipts through rc rehearsals and their close", { skip: hostToolchainSkip }, async (t) => {
+  const releasedPolicy = (version: string, releaseDate: string) => ({
+    schemaVersion: 2,
+    status: "released",
+    version,
+    releaseTag: `v${version}`,
+    releaseDate,
+    stablePublicApi: false,
+    npmPublication: "disabled"
+  });
+  const cite = (version: string, date: string) =>
+    `cff-version: 1.2.0\nversion: "${version}"\ndate-released: "${date}"\n`;
+  const log = (version: string, date: string) =>
+    `# Changelog\n\n## Unreleased\n\n## [${version}] - ${date}\n`;
+
+  // The four receipt states a governed line passes through. The producer used
+  // to prefer stable receipts unconditionally, so an rc rehearsal whose own
+  // receipt was archived while the policy still named it (the recorded
+  // 0.4.0-rc.1 state, required again before 1.0) could not cite anything the
+  // repository-state guard would also accept.
+  type MatrixState = {
+    name: string;
+    options: Parameters<typeof makeFixture>[1] & {
+      policy: { version: string };
+      receiptedVersion: string;
+    };
+    expectedCited: string;
+    wrongCitation: string;
+  };
+  const states: MatrixState[] = [
+    {
+      // The ordinary ceremony window: 0.2.0 declared, only 0.1.0 receipted.
+      name: "stable-only",
+      options: {
+        policy: releasedPolicy("0.2.0", "2026-02-10"),
+        packageVersion: "0.2.0",
+        receiptedVersion: "0.1.0",
+        receiptedDate: "2026-01-01",
+        citation: cite("0.1.0", "2026-01-01"),
+        changelog: log("0.2.0", "2026-02-10")
+      },
+      expectedCited: "0.1.0",
+      // Citing the declared-but-unreceipted version is the old overclaim.
+      wrongCitation: cite("0.2.0", "2026-02-10")
+    },
+    {
+      // A project whose only receipt is a candidate cites the candidate.
+      name: "rc-only",
+      options: {
+        policy: releasedPolicy("0.2.0", "2026-02-10"),
+        packageVersion: "0.2.0",
+        receiptedVersion: "0.1.0-rc.1",
+        receiptedDate: "2026-01-02",
+        citation: cite("0.1.0-rc.1", "2026-01-02"),
+        changelog: log("0.2.0", "2026-02-10")
+      },
+      expectedCited: "0.1.0-rc.1",
+      wrongCitation: cite("0.2.0", "2026-02-10")
+    },
+    {
+      // The rehearsal state: the policy names the rc, its receipt is archived,
+      // and an older stable receipt exists beside it. The rc is the release
+      // that happened, so it is what gets cited; the stable-first rule made
+      // this state satisfy neither the producer nor the repository guard.
+      name: "rc-receipted-as-policy",
+      options: {
+        policy: releasedPolicy("0.2.0-rc.1", "2026-02-01"),
+        packageVersion: "0.2.0-rc.1",
+        receiptedVersion: "0.2.0-rc.1",
+        receiptedDate: "2026-02-01",
+        additionalReceipts: [{ version: "0.1.0", date: "2026-01-01" }],
+        citation: cite("0.2.0-rc.1", "2026-02-01"),
+        changelog: log("0.2.0-rc.1", "2026-02-01")
+      },
+      expectedCited: "0.2.0-rc.1",
+      // The stable-first answer, which the fix retires.
+      wrongCitation: cite("0.1.0", "2026-01-01")
+    },
+    {
+      // The rc line closed: the final stable release is receipted and cited.
+      name: "post-close-stable",
+      options: {
+        policy: releasedPolicy("0.2.0", "2026-02-10"),
+        packageVersion: "0.2.0",
+        receiptedVersion: "0.2.0",
+        receiptedDate: "2026-02-10",
+        additionalReceipts: [{ version: "0.2.0-rc.1", date: "2026-02-01" }],
+        citation: cite("0.2.0", "2026-02-10"),
+        changelog: log("0.2.0", "2026-02-10")
+      },
+      expectedCited: "0.2.0",
+      wrongCitation: cite("0.2.0-rc.1", "2026-02-01")
+    }
+  ];
+
+  const { selectCitedReceiptedVersion } = await releaseEvidenceModule();
+  for (const state of states) {
+    const receiptedVersions = [
+      state.options.receiptedVersion,
+      ...(state.options.additionalReceipts ?? []).map((receipt) => receipt.version)
+    ];
+    assert.equal(
+      selectCitedReceiptedVersion(receiptedVersions, state.options.policy.version),
+      state.expectedCited,
+      state.name
+    );
+
+    const fixture = await makeFixture(t, state.options);
+    await assertReceiptFollowingCitation(fixture.root);
+    const accepted = runEvidence(fixture.root, ["--static-dir", "out"]);
+    assert.equal(accepted.status, 0, `${state.name}: ${accepted.stderr}`);
+
+    // Mutation in the other direction: the same tree citing any other release
+    // must refuse, so the acceptance above cannot come from a vacuous check.
+    const wrongFixture = await makeFixture(t, { ...state.options, citation: state.wrongCitation });
+    const refused = runEvidence(wrongFixture.root, ["--static-dir", "out"]);
+    assert.notEqual(refused.status, 0, `${state.name} must refuse ${state.wrongCitation}`);
+    assert.match(refused.stderr, /must declare the most recent receipted release/, state.name);
+  }
+
+  // The date is bound to the cited receipt, not just any well-formed date.
+  const wrongDate = await makeFixture(t, {
+    ...states[0].options,
+    citation: cite("0.1.0", "2026-01-05")
+  });
+  const dateRefused = runEvidence(wrongDate.root, ["--static-dir", "out"]);
+  assert.notEqual(dateRefused.status, 0);
+  assert.match(dateRefused.stderr, /must carry the receipted release date/);
+});
+
+test("the development-state citation contract and the producer agree on one tree", { skip: hostToolchainSkip }, async (t) => {
+  // The routine post-release flip: status development while the receipt for
+  // the last release exists and CITATION.cff cites it WITH its date. The unit
+  // expectation used to demand no date-released line in development while the
+  // producer demanded the receipted date unconditionally, so the first flip
+  // to development made CI unsatisfiable and each half still passed its own
+  // fixtures. Run BOTH halves against one identical tree so the pair can
+  // never silently diverge again.
+  const fixture = await makeFixture(t);
+  await assertReceiptFollowingCitation(fixture.root);
+  const accepted = runEvidence(fixture.root, ["--static-dir", "out"]);
+  assert.equal(accepted.status, 0, accepted.stderr);
+
+  // And both halves refuse the same dateless tree, so neither can drift back
+  // to the old development contract alone.
+  const dateless = await makeFixture(t, {
+    citation: 'cff-version: 1.2.0\nversion: "0.1.0"\n'
+  });
+  await assert.rejects(
+    () => assertReceiptFollowingCitation(dateless.root),
+    /recorded release date/
+  );
+  const refused = runEvidence(dateless.root, ["--static-dir", "out"]);
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /must carry the receipted release date/);
+});
+
+test("the 1.0 candidate binding and the producer accept one candidate-shaped tree", { skip: hostToolchainSkip }, async (t) => {
+  // lib/measurement-candidate-binding.ts used to require the 1.0 candidate's
+  // CITATION.cff to name 1.0.0 with no date-released line, while this
+  // producer, running in the required app and docker gates at that same
+  // commit, refuses any citation that is not the most recent receipted
+  // release with its receipted date. The accepted sets were disjoint: no
+  // CI-green candidate commit could satisfy the binding, so the decided 1.0
+  // finalization chronology was unreachable. Run the real producer AND the
+  // binding's exported candidate-citation contract against one identical
+  // candidate-shaped tree, in acceptance and in refusal, so the two gates
+  // can never diverge again.
+  const candidateShape = {
+    policyVersion: "1.0.0",
+    packageVersion: "1.0.0",
+    receiptedVersion: "0.5.0",
+    receiptedDate: "2026-08-11",
+    citation: 'cff-version: 1.2.0\nversion: "0.5.0"\ndate-released: "2026-08-11"\n',
+    changelog: "# Changelog\n\n## Unreleased\n\n## [1.0.0] - UNRELEASED\n"
+  };
+  const fixture = await makeFixture(t, candidateShape);
+  await assertReceiptFollowingCitation(fixture.root);
+  const accepted = runEvidence(fixture.root, ["--static-dir", "out"]);
+  assert.equal(accepted.status, 0, accepted.stderr);
+  const citationBytes = await readFile(path.join(fixture.root, "CITATION.cff"), "utf8");
+  assert.equal(receiptFollowingCandidateCitationViolation(citationBytes), null);
+
+  // Both gates refuse the binding's retired candidate shape on the same tree.
+  const retired = 'cff-version: 1.2.0\nversion: "1.0.0"\n';
+  assert.match(
+    receiptFollowingCandidateCitationViolation(retired) ?? "",
+    /never the unreceipted 1\.0\.0/
+  );
+  const retiredFixture = await makeFixture(t, { ...candidateShape, citation: retired });
+  const refused = runEvidence(retiredFixture.root, ["--static-dir", "out"]);
+  assert.notEqual(refused.status, 0);
+  assert.match(
+    refused.stderr,
+    /must declare the most recent receipted release \(0\.5\.0\), not the declared version 1\.0\.0/
+  );
 });
 
 test("the release runbook regenerates the supply-chain input its own version bump rewrites", async () => {
@@ -1431,11 +1769,20 @@ type AttestContext = {
  * a real fixture and a real producer run, never hand-written, so a producer or
  * gate change shows up here instead of being restated.
  */
-async function attestContext(t: TestContext): Promise<AttestContext> {
+async function attestContext(
+  t: TestContext,
+  options: {
+    fixture?: Parameters<typeof makeFixture>[1];
+    /** The dispatched version; defaults to the released fixture's 0.1.0. */
+    releaseVersion?: string;
+  } = {}
+): Promise<AttestContext> {
+  const releaseVersion = options.releaseVersion ?? "0.1.0";
   const fixture = await makeFixture(t, {
     policy: RELEASED_POLICY,
     citation: RELEASED_CITATION,
-    changelog: RELEASED_CHANGELOG
+    changelog: RELEASED_CHANGELOG,
+    ...options.fixture
   });
   const governanceReceiptSha256 = "a".repeat(64);
   const produced = runEvidence(fixture.root, [
@@ -1490,6 +1837,20 @@ async function attestContext(t: TestContext): Promise<AttestContext> {
     "release-policy.json"
   ])) {
     await writeFileContent(repositoryPath, fixture.root);
+  }
+  // The citation gate re-runs the receipt selection itself, so hand it the
+  // same directory listing and receipt bytes the read-back step fetches,
+  // derived from the fixture's real archive rather than restated.
+  const receiptsDir = path.join(fixture.root, "docs", "release-receipts");
+  const archivedVersions = readdirSync(receiptsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+  await writeContext(
+    "release-receipts.json",
+    archivedVersions.map((name) => ({ type: "dir", name }))
+  );
+  for (const name of archivedVersions) {
+    await writeFileContent(`docs/release-receipts/${name}/release-receipt.json`, fixture.root);
   }
 
   const digest = createHash("sha256").update(receiptBytes).digest("hex");
@@ -1547,8 +1908,8 @@ async function attestContext(t: TestContext): Promise<AttestContext> {
       STATIC_ARTIFACT_ID: "12",
       RELEASE_SHA: fixture.commit,
       REQUESTED_SHA: fixture.commit,
-      RELEASE_VERSION: "0.1.0",
-      RELEASE_TAG: "v0.1.0",
+      RELEASE_VERSION: releaseVersion,
+      RELEASE_TAG: `v${releaseVersion}`,
       RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: governanceReceiptSha256
     }
   };
@@ -1715,6 +2076,95 @@ test("the validator refuses wrong handoff, CI, source, and policy facts", { skip
       content: Buffer.from(`${JSON.stringify({ ...policy, status: "development" }, null, 2)}\n`).toString("base64")
     });
   }, /exact source|released|policy/i);
+});
+
+test("the attest citation selector is the producer's exported selector, byte for byte", async () => {
+  // The isolated attest job may never execute candidate code (its guard above
+  // bans checkout and npm outright), so it carries a copy of
+  // selectCitedReceiptedVersion instead of importing it. A copy is the
+  // contract-restatement defect class, so pin it to the export's exact
+  // source text: a change to either side that does not move the other
+  // fails here.
+  const { selectCitedReceiptedVersion } = await releaseEvidenceModule();
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+  const normalize = (text: string) => text.replace(/\s+/g, " ").trim();
+  assert.ok(
+    normalize(controller).includes(normalize(selectCitedReceiptedVersion.toString())),
+    "the validator must carry the exported selector's exact text"
+  );
+});
+
+test("the validator accepts the ceremony-window citation and refuses the declared one", { skip: hostToolchainSkip }, async (t) => {
+  const controller = releaseValidatorController(await source(".github/workflows/release.yml"));
+  // The shape every honest ceremony has: 0.2.0 declared released in the
+  // policy while only 0.1.0 is receipted, so CITATION.cff still cites 0.1.0.
+  // The old gate required the citation to carry 0.2.0 with its date, which
+  // the release-evidence gate refuses at the same SHA, and the receipt only
+  // exists after this very workflow succeeds, so no tree could satisfy both
+  // and no release could ever be attested again.
+  const ceremony = {
+    releaseVersion: "0.2.0",
+    fixture: {
+      policy: {
+        ...RELEASED_POLICY,
+        version: "0.2.0",
+        releaseTag: "v0.2.0",
+        releaseDate: "2026-02-10"
+      },
+      packageVersion: "0.2.0",
+      receiptedVersion: "0.1.0",
+      receiptedDate: "2026-01-01",
+      citation: 'cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-01-01"\n',
+      changelog: "# Changelog\n\n## Unreleased\n\n## [0.2.0] - 2026-02-10\n"
+    }
+  };
+  const accepted = runValidator(controller, await attestContext(t, ceremony));
+  assert.equal(accepted.status, 0, `${accepted.stderr}${accepted.stdout}`);
+
+  const encodedCitation = (text: string) => ({
+    type: "file",
+    encoding: "base64",
+    content: Buffer.from(text).toString("base64")
+  });
+
+  // Citing the declared version before its receipt exists is the standalone
+  // overclaim the receipt-following contract retired; the validator must
+  // refuse it rather than require it.
+  const advanced = await attestContext(t, ceremony);
+  await advanced.writeContext(
+    "content-CITATION_cff.json",
+    encodedCitation('cff-version: 1.2.0\nversion: "0.2.0"\ndate-released: "2026-02-10"\n')
+  );
+  const advancedRefused = runValidator(controller, advanced);
+  assert.equal(advancedRefused.status, 1, advancedRefused.stdout);
+  assert.match(
+    advancedRefused.stderr,
+    /must cite the most recent receipted release \(0\.1\.0, 2026-01-01\)/
+  );
+
+  // Post-archival replay: the default context is the state after the receipt
+  // for the policy's own version is archived and the citation has advanced.
+  // The same check passes there because the selector now prefers the declared
+  // version once its receipt exists; a date differing from that receipt still
+  // refuses.
+  const postArchival = await attestContext(t);
+  await postArchival.writeContext(
+    "content-CITATION_cff.json",
+    encodedCitation('cff-version: 1.2.0\nversion: "0.1.0"\ndate-released: "2026-07-26"\n')
+  );
+  const dateRefused = runValidator(controller, postArchival);
+  assert.equal(dateRefused.status, 1, dateRefused.stdout);
+  assert.match(
+    dateRefused.stderr,
+    /must cite the most recent receipted release \(0\.1\.0, 2026-07-25\)/
+  );
+
+  // An empty archive cannot satisfy the citation contract at all.
+  const noReceipts = await attestContext(t);
+  await noReceipts.writeContext("release-receipts.json", []);
+  const emptyRefused = runValidator(controller, noReceipts);
+  assert.equal(emptyRefused.status, 1, emptyRefused.stdout);
+  assert.match(emptyRefused.stderr, /No archived release receipt exists at the release SHA/);
 });
 
 type TagReconciliationContext = {
@@ -2235,4 +2685,60 @@ test("the approved-release-actor step executes as a real shell gate", { skip: ho
   assert.equal(run("alice,bob", "alice", "bob").status, 1);
   assert.equal(run("alice", "mallory", "mallory").status, 1);
   assert.equal(run("", "alice", "alice").status, 1);
+});
+
+test("a declared release with no archived receipt must say so in the policy", () => {
+  // REGRESSION. `status: "released"` has been true for 0.5.0 since 2026-08-11
+  // with no v0.5.0 tag and no receipt under docs/release-receipts/. That window
+  // is legitimate -- RELEASE.md declares the version at step 1 and creates the
+  // tag at step 4 -- but it was unbounded and nothing observed it. The v0.2.0
+  // reconciliation on 2026-07-29 treated the identical state as a
+  // misrepresentation, so the project has already decided this matters.
+  //
+  // This does not impose a deadline; picking one is an operator decision. It
+  // requires the state to be DECLARED, so a release that stalls is visible in
+  // the policy itself rather than inferable only by noticing a missing tag.
+  const policy = JSON.parse(
+    readFileSync(path.join(process.cwd(), "release-policy.json"), "utf8")
+  ) as {
+    status: string;
+    version: string;
+    tagPending?: { declaredAt?: string; note?: string };
+  };
+  if (policy.status !== "released") return;
+
+  const receiptArchived = hasArchivedReleaseReceipt(policy.version);
+
+  if (receiptArchived) {
+    assert.equal(
+      policy.tagPending,
+      undefined,
+      `${policy.version} has an archived receipt, so tagPending must be removed`
+    );
+    return;
+  }
+
+  assert.ok(
+    policy.tagPending?.declaredAt,
+    `release-policy.json declares ${policy.version} released, but no receipt exists at ` +
+      `docs/release-receipts/${policy.version}. Either complete the tag sequence or record ` +
+      `tagPending.declaredAt so the open window is explicit.`
+  );
+  assert.match(
+    policy.tagPending.declaredAt,
+    /^\d{4}-\d{2}-\d{2}$/,
+    "tagPending.declaredAt must be an ISO date"
+  );
+
+  // CITATION.cff is consumed STANDALONE by citation tooling, which never sees
+  // RELEASE.md's hedge or this policy. It must not assert a release date for a
+  // version that has no tag and no receipt.
+  const citation = readFileSync(path.join(process.cwd(), "CITATION.cff"), "utf8");
+  const citedVersion = citation.match(/^version:\s*"?([^"\n]+)"?/m)?.[1];
+  assert.notEqual(
+    citedVersion,
+    policy.version,
+    `CITATION.cff cites ${policy.version} as released while its tag and receipt do not exist. ` +
+      `Citation tooling reads this file alone, so the claim stands unqualified.`
+  );
 });

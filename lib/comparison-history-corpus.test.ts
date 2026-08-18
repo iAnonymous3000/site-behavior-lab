@@ -46,6 +46,9 @@ test("every committed passive-history cohort exposes a safe loaded pair", () => 
   if (files.length === 0) return;
 
   const visits: CorpusVisit[] = [];
+  let v1Reports = 0;
+  let r2Reports = 0;
+  let r2HistoryEligible = 0;
   for (const name of files) {
     const persisted = JSON.parse(readFileSync(path.join(reportsDir, name), "utf8")) as ScanReport;
     // Exercise the current public-redaction policy even while a corpus
@@ -55,7 +58,18 @@ test("every committed passive-history cohort exposes a safe loaded pair", () => 
     const raw = persisted.schemaVersion === 1 ? redactScanReportV1(persisted).report : persisted;
     const read = readStoredScanReport(raw);
     assert.equal(read.ok, true, `reader rejected committed report ${name}`);
-    if (!read.ok || read.stored.schemaVersion !== 1) continue;
+    if (!read.ok) continue;
+    if (read.stored.schemaVersion !== 1) {
+      // This suite covers the v1 era only. Say so, and make the silence
+      // self-limiting: the moment an r2 report becomes history-eligible, the
+      // assertion below fails and forces coverage to be written rather than
+      // letting the skip quietly widen into the era that replaced v1.
+      r2Reports += 1;
+      const cohort = comparisonHistoryCohortForStoredReport(read.stored, toReportView(read.stored));
+      if (cohort !== null) r2HistoryEligible += 1;
+      continue;
+    }
+    v1Reports += 1;
 
     const stored = read.stored;
     const view = toReportView(stored);
@@ -112,6 +126,24 @@ test("every committed passive-history cohort exposes a safe loaded pair", () => 
       expectedEligibleCohorts.push([newest[0].id, newest[1].id]);
     }
   }
+  // WHAT THIS SUITE ACTUALLY COVERS. Its name promises production-cohort
+  // protection; its body reads v1 only. Record the split so the scope is a
+  // measured fact rather than a comment, and fail the moment an r2 report
+  // becomes history-eligible without coverage being written for it.
+  //
+  // Today no committed r2 report qualifies: 57 of 63 lack
+  // `conditions.egress.region`, which the r2 identity hard-requires, and 6 are
+  // requests-censored. So extending this loop to r2 would add zero assertions
+  // and read as coverage. The honest form is to assert the emptiness and let it
+  // break when operators configure the region.
+  assert.ok(v1Reports > 0, "no v1 report was exercised; this suite would be vacuous");
+  assert.equal(
+    r2HistoryEligible,
+    0,
+    `${r2HistoryEligible} of ${r2Reports} r2 reports now form a history cohort, and this suite still ` +
+      `only asserts over v1. Extend it to the r2 era rather than relaxing this number.`
+  );
+
   assert.ok(
     expectedEligibleCohorts.length > 0,
     "the committed corpus should expose at least one independently eligible passive-history cohort"

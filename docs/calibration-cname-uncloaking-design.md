@@ -183,14 +183,27 @@ consistent by construction:
 ## The honest expected outcome
 
 With N = 350 and a pre-qualified pool, the dominant risk is no longer the
-denominator. It is the zero-censoring rule meeting the open web. Per-case
-capture reliability is **unmeasured**: the committed corpus contains only six
-r2 runs, all clean, which supports no estimate at all. At 99.5% reliability a
-350-case ceremony survives about one time in six; at 99.9%, about seven times in
-ten.
+denominator. It is the zero-censoring rule meeting the open web.
 
-That number should be written into the preregistration as the expected outcome,
-because it is the design's most likely failure mode and stating it in advance is
+**This section's premise is superseded.** It was written when the committed
+corpus held six r2 runs, all clean, so per-case reliability was unmeasured and
+the ceremony survival odds it originally stated were derived from assumed
+per-case reliability figures, not from data. The corpus refreshed at #144
+one day later: it now holds **126 r2 runs, 73 of them carrying capture-loss
+censoring**, and
+[research/calibration-censoring](../research/calibration-censoring/README.md)
+measures the declared arm's all-family zero-loss rate at **44.3%**.
+
+At that rate a zero-censoring ceremony is not a long shot, it is not a study at
+all, which is what the decision package concluded. No survival probability
+should be written into the preregistration from a single per-case figure either:
+failures cluster by batch and build, so an i.i.d. exponent is not defensible.
+The nearest measured analogue is the 88.5% CNAME-scoreable rate, and 0.885^350
+is indistinguishable from zero under any mapping.
+
+The retained lesson is the one below, not the arithmetic above it: the expected
+outcome belongs in the preregistration, because
+it is the design's most likely failure mode and stating it in advance is
 what stops a later ceremony from being quietly retried until one passes. The
 ops document is explicit that a failed, cancelled or duplicated attempt remains
 in the server history and makes the ceremony ineligible: the study is one shot,

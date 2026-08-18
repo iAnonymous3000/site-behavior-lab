@@ -23,6 +23,50 @@ import {
   type ScanResult
 } from "./types";
 
+test("a censored run's Shields subhead states the evaluated denominator exactly", () => {
+  // Latent-branch guard: no committed report currently reaches the Shields
+  // headline, so only a synthetic wire pins this copy. The numerator is
+  // recounted from retained request rows and keeps the censoring hedge; the
+  // evaluated count is the engine's own route-time counter, which
+  // request-capture censoring cannot truncate, so it must never render as a
+  // "retained" floor. The fixture's raw digits (2416) and the expected
+  // literal ("2,416") differ by construction, and the retained total (3000)
+  // differs from both counts.
+  const wire = makePublicSingleReportV2R2();
+  wire.run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 2416,
+      requestsMatched: 1204,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+  wire.run.summary = {
+    ...wire.run.summary,
+    counts: { ...wire.run.summary.counts, totalRequests: 3000, shieldsBlockedRequests: 1204 }
+  };
+  const view = viewFromV2(wire, 2);
+  const run = view.runs[0];
+  run.quality.byFamily = {
+    ...(run.quality.byFamily ?? {}),
+    requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] }
+  };
+  const headline = buildReportHeadline(view);
+  assert.match(
+    headline.subhead,
+    /at least 1,204 retained requests matched while loading normally, out of 2,416 requests the engine evaluated\./,
+    "the numerator keeps its retained-floor hedge and the denominator stays exact"
+  );
+  assert.doesNotMatch(
+    headline.subhead,
+    /retained (?:before request capture stopped )?requests the engine evaluated|(?:at least |≥)2,416/,
+    "the evaluated denominator must never inherit the capture-loss hedge"
+  );
+});
+
 test("only inline data-URI screenshots are displayable; uploaded URLs never render", () => {
   const png =
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
@@ -508,13 +552,48 @@ test("cross-site input monitoring keeps the probe headline with listener wording
   });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.match(headline.headline, /registered a third-party interaction-monitoring signal/);
+  assert.match(headline.headline, /matched an interaction-monitoring signal involving a cross-site script/);
   assert.equal(headline.semantic.story, "listener-coverage");
   // The evidence is listener registration, not observed capture, so the
   // wording must not say the script "watched" input.
-  assert.match(headline.subhead, /registered listeners that could observe typing-related input/);
+  assert.match(headline.subhead, /[Ll]isteners that could observe typing-related input were registered/);
   assert.doesNotMatch(headline.headline, /fingerprint-like browser API/);
   assert.doesNotMatch(headline.subhead, /watched/);
+  // Chain attribution only: a first-party registrant delegating through a
+  // third-party helper produces identical wire evidence, so the copy must not
+  // say the cross-site script registered the listeners.
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /(cross-site|third-party) script registered/i);
+  assert.match(headline.subhead, /call chain that included a cross-site script/);
+});
+
+test("the secondary extras clause states chain attribution through the real builder", () => {
+  // The extras clause is a different compiled string from the listener-coverage
+  // primary subhead, so a revert of that one push() to the old accusative copy
+  // ("a cross-site script registered listeners on keyboard input") is invisible
+  // to every guard that only exercises the primary branch or hand-inlines the
+  // expected sentence. Drive the branch itself: a catalogued-tracker story wins
+  // the headline, and the input-monitoring signal must surface as the appended
+  // "It also looks like ..." clause with chain wording.
+  const result = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [makeTrackerDomain("google-analytics.com", 6, "Google", "analytics")],
+    thirdPartyRequests: 6,
+    thirdPartyDomains: 1,
+    fingerprintDetections: [makeInputMonitoringDetection(["https://recorder.example.net"])]
+  });
+
+  const headline = buildReportHeadline(viewFromV1Report(result));
+  assert.notEqual(headline.semantic.story, "listener-coverage");
+  const secondary = headline.subhead.slice(headline.subheadPrimaryClaim.length);
+  // The clause must exist (an empty slice means the fixture stopped triggering
+  // the branch and every assertion below would pass vacuously).
+  assert.match(secondary, /^ It also looks like /);
+  assert.match(
+    secondary,
+    /keyboard-input listeners were registered through a call chain that included a cross-site script/
+  );
+  // Chain attribution only: never the accusative registrant claim.
+  assert.doesNotMatch(secondary, /(cross-site|third-party) script registered/i);
 });
 
 test("surfaces browser probing when fingerprinting matches without catalogued trackers", () => {
