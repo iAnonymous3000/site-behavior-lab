@@ -4,10 +4,10 @@
   "notice": "Rows are created unreviewed by scripts/third-party-reviews.mjs --sync. A human review fills reviewer, reviewedAt, determinedLicense, and obligations, and sets status to reviewed. A version bump is a new row and re-enters review.",
   "reviews": [
     {
-      "key": "npm:@axe-core/playwright@4.12.1",
+      "key": "npm:@axe-core/playwright@4.13.0",
       "ecosystem": "npm",
       "name": "@axe-core/playwright",
-      "version": "4.12.1",
+      "version": "4.13.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MPL-2.0",
@@ -74,10 +74,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-darwin-64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-darwin-64@1.20260811.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-darwin-64",
-      "version": "1.20260801.1",
+      "version": "1.20260811.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -102,10 +102,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-darwin-arm64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-darwin-arm64@1.20260811.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-darwin-arm64",
-      "version": "1.20260801.1",
+      "version": "1.20260811.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -130,10 +130,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-linux-64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-linux-64@1.20260811.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-linux-64",
-      "version": "1.20260801.1",
+      "version": "1.20260811.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -158,10 +158,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-linux-arm64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-linux-arm64@1.20260811.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-linux-arm64",
-      "version": "1.20260801.1",
+      "version": "1.20260811.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -186,10 +186,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workerd-windows-64@1.20260801.1",
+      "key": "npm:@cloudflare/workerd-windows-64@1.20260811.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workerd-windows-64",
-      "version": "1.20260801.1",
+      "version": "1.20260811.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -200,10 +200,10 @@
       "notes": null
     },
     {
-      "key": "npm:@cloudflare/workers-types@5.20260804.1",
+      "key": "npm:@cloudflare/workers-types@5.20260814.1",
       "ecosystem": "npm",
       "name": "@cloudflare/workers-types",
-      "version": "5.20260804.1",
+      "version": "5.20260814.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
@@ -1194,10 +1194,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/env@16.2.12",
+      "key": "npm:@next/env@16.3.1",
       "ecosystem": "npm",
       "name": "@next/env",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1208,10 +1208,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-darwin-arm64@16.2.12",
+      "key": "npm:@next/swc-darwin-arm64@16.3.1",
       "ecosystem": "npm",
       "name": "@next/swc-darwin-arm64",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1222,10 +1222,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-darwin-x64@16.2.12",
+      "key": "npm:@next/swc-darwin-x64@16.3.1",
       "ecosystem": "npm",
       "name": "@next/swc-darwin-x64",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1236,10 +1236,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-arm64-gnu@16.2.12",
+      "key": "npm:@next/swc-linux-arm64-gnu@16.3.1",
       "ecosystem": "npm",
       "name": "@next/swc-linux-arm64-gnu",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1250,10 +1250,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-arm64-musl@16.2.12",
+      "key": "npm:@next/swc-linux-arm64-musl@16.3.1",
       "ecosystem": "npm",
       "name": "@next/swc-linux-arm64-musl",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1264,10 +1264,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-x64-gnu@16.2.12",
+      "key": "npm:@next/swc-linux-x64-gnu@16.3.1",
       "ecosystem": "npm",
       "name": "@next/swc-linux-x64-gnu",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1278,10 +1278,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-x64-musl@16.2.12",
+      "key": "npm:@next/swc-linux-x64-musl@16.3.1",
       "ecosystem": "npm",
       "name": "@next/swc-linux-x64-musl",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1292,10 +1292,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-win32-arm64-msvc@16.2.12",
+      "key": "npm:@next/swc-win32-arm64-msvc@16.3.1",
       "ecosystem": "npm",
       "name": "@next/swc-win32-arm64-msvc",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1306,10 +1306,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-win32-x64-msvc@16.2.12",
+      "key": "npm:@next/swc-win32-x64-msvc@16.3.1",
       "ecosystem": "npm",
       "name": "@next/swc-win32-x64-msvc",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1390,10 +1390,10 @@
       "notes": null
     },
     {
-      "key": "npm:@swc/helpers@0.5.15",
+      "key": "npm:@swc/helpers@0.5.23",
       "ecosystem": "npm",
       "name": "@swc/helpers",
-      "version": "0.5.15",
+      "version": "0.5.23",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -1488,10 +1488,10 @@
       "notes": null
     },
     {
-      "key": "npm:axe-core@4.12.1",
+      "key": "npm:axe-core@4.13.0",
       "ecosystem": "npm",
       "name": "axe-core",
-      "version": "4.12.1",
+      "version": "4.13.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MPL-2.0",
@@ -1796,10 +1796,10 @@
       "notes": null
     },
     {
-      "key": "npm:lucide-react@1.30.0",
+      "key": "npm:lucide-react@1.31.0",
       "ecosystem": "npm",
       "name": "lucide-react",
-      "version": "1.30.0",
+      "version": "1.31.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "ISC",
@@ -1824,10 +1824,10 @@
       "notes": null
     },
     {
-      "key": "npm:miniflare@5.20260801.1-alpha",
+      "key": "npm:miniflare@5.20260811.1-alpha",
       "ecosystem": "npm",
       "name": "miniflare",
-      "version": "5.20260801.1-alpha",
+      "version": "5.20260811.1-alpha",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1880,10 +1880,10 @@
       "notes": null
     },
     {
-      "key": "npm:next@16.2.12",
+      "key": "npm:next@16.3.1",
       "ecosystem": "npm",
       "name": "next",
-      "version": "16.2.12",
+      "version": "16.3.1",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2286,10 +2286,10 @@
       "notes": null
     },
     {
-      "key": "npm:workerd@1.20260801.1",
+      "key": "npm:workerd@1.20260811.1",
       "ecosystem": "npm",
       "name": "workerd",
-      "version": "1.20260801.1",
+      "version": "1.20260811.1",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -2300,10 +2300,10 @@
       "notes": null
     },
     {
-      "key": "npm:wrangler@4.120.0",
+      "key": "npm:wrangler@4.123.0",
       "ecosystem": "npm",
       "name": "wrangler",
-      "version": "4.120.0",
+      "version": "4.123.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
