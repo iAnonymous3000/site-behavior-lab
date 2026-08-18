@@ -2230,10 +2230,10 @@
       "notes": null
     },
     {
-      "key": "npm:undici@7.29.0",
+      "key": "npm:undici@8.10.0",
       "ecosystem": "npm",
       "name": "undici",
-      "version": "7.29.0",
+      "version": "8.10.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
