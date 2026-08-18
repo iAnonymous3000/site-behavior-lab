@@ -885,9 +885,15 @@ export async function scanSiteWithMeasurement(
       // construction counts registered above turn every worker of this visit
       // into disclosed capture loss instead of a silently unverified realm.
       try {
-        gpcWorkerVerification = await withScanTimeout(
-          establishGpcWorkerVerification(context, page),
-          started
+        // Disposing on a lost deadline race: an establish that materializes
+        // after the scan deadline must close its DevTools socket rather than
+        // leak it for the shared browser's lifetime.
+        const establishedContext = context;
+        gpcWorkerVerification = await withScanTimeoutDisposing(
+          () => establishGpcWorkerVerification(establishedContext, page),
+          started,
+          (session) => session.close(),
+          options.signal
         );
         const verification = gpcWorkerVerification;
         gpcWorkerInjection.setVerificationDiagnosticsSource(() => verification.diagnostics());
