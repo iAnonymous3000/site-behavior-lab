@@ -717,10 +717,12 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     uploadBytes: number;
     uploadLoss: number;
     requestLoss: number;
-    ambiguous: number;
-    transform: number;
-    unsupported: number;
-    pendingIds: number[];
+    constructedDedicated: number;
+    constructedShared: number;
+    attachedDedicated: number;
+    attachedShared: number;
+    verified: number;
+    unverifiedAttached: number;
   }): ScanEvidenceDiagnostics => ({
     proxy: {
       invalidUpstreamResponseCount: input.invalid,
@@ -784,13 +786,17 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     },
     gpcWorker: {
       diagnostics: {
-        ambiguousWorkerRequestCount: input.ambiguous,
-        captureLossCount: input.ambiguous + input.transform + input.unsupported + input.pendingIds.length,
-        pendingWorkerRegistrationCount: input.pendingIds.length,
-        transformFailureCount: input.transform,
-        unsupportedWorkerCount: input.unsupported
-      },
-      pendingWorkerRegistrationIds: input.pendingIds
+        dedicatedWorkerConstructionCount: input.constructedDedicated,
+        sharedWorkerConstructionCount: input.constructedShared,
+        attachedDedicatedWorkerCount: input.attachedDedicated,
+        attachedSharedWorkerCount: input.attachedShared,
+        verifiedWorkerCount: input.verified,
+        unverifiedAttachedWorkerCount: input.unverifiedAttached,
+        captureLossCount:
+          input.unverifiedAttached +
+          Math.max(0, input.constructedDedicated - input.attachedDedicated) +
+          Math.max(0, input.constructedShared - input.attachedShared)
+      }
     }
   });
 
@@ -804,10 +810,12 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     uploadBytes: 5,
     uploadLoss: 0,
     requestLoss: 1,
-    ambiguous: 1,
-    transform: 0,
-    unsupported: 0,
-    pendingIds: [1]
+    constructedDedicated: 2,
+    constructedShared: 1,
+    attachedDedicated: 1,
+    attachedShared: 0,
+    verified: 1,
+    unverifiedAttached: 0
   });
   const after = snapshot({
     invalid: 4,
@@ -819,10 +827,12 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     uploadBytes: 20,
     uploadLoss: 2,
     requestLoss: 5,
-    ambiguous: 3,
-    transform: 2,
-    unsupported: 1,
-    pendingIds: [2, 3]
+    constructedDedicated: 4,
+    constructedShared: 2,
+    attachedDedicated: 2,
+    attachedShared: 0,
+    verified: 1,
+    unverifiedAttached: 1
   });
   const final = snapshot({
     invalid: 6,
@@ -834,10 +844,12 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     uploadBytes: 25,
     uploadLoss: 2,
     requestLoss: 8,
-    ambiguous: 4,
-    transform: 4,
-    unsupported: 1,
-    pendingIds: [2, 3, 4]
+    constructedDedicated: 5,
+    constructedShared: 2,
+    attachedDedicated: 3,
+    attachedShared: 0,
+    verified: 2,
+    unverifiedAttached: 1
   });
 
   const retained = retainedScanEvidenceDiagnostics(final, { before, after });
@@ -855,15 +867,20 @@ test("retained scanner diagnostics subtract reload loss while keeping later acti
     captureLoss: true,
     captureLossCount: 4
   });
+  // Retained raw counters bracket the excluded interval independently, then
+  // the loss is recomputed through the shared definition: worker constructions
+  // and attaches that happened only inside the excluded reload disappear
+  // together instead of leaving a phantom construction-minus-attach gap.
   assert.deepEqual(retained.gpcWorker, {
     diagnostics: {
-      ambiguousWorkerRequestCount: 2,
-      captureLossCount: 5,
-      pendingWorkerRegistrationCount: 1,
-      transformFailureCount: 2,
-      unsupportedWorkerCount: 0
-    },
-    pendingWorkerRegistrationIds: [4]
+      dedicatedWorkerConstructionCount: 3,
+      sharedWorkerConstructionCount: 1,
+      attachedDedicatedWorkerCount: 2,
+      attachedSharedWorkerCount: 0,
+      verifiedWorkerCount: 2,
+      unverifiedAttachedWorkerCount: 0,
+      captureLossCount: 2
+    }
   });
 });
 
