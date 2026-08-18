@@ -214,6 +214,56 @@ test("a stalled handshake is concluded unverified by the watchdog and a late rea
   assert.equal(session.diagnostics().unverifiedAttachedWorkerCount, 1);
 });
 
+test("a worker still mid-handshake when the settle backstop expires is swept into the unverified accounting, terminally", async () => {
+  let releaseEvaluate: ((value: Record<string, unknown>) => void) | null = null;
+  let signalEvaluateRequested: (() => void) | null = null;
+  const evaluateRequested = new Promise<void>((resolve) => {
+    signalEvaluateRequested = resolve;
+  });
+  const scripted = scriptedChannel((command) => {
+    if (command.method === "Target.attachToTarget") return { sessionId: "page-session" };
+    if (command.method === "Runtime.evaluate") {
+      signalEvaluateRequested!();
+      return new Promise<Record<string, unknown>>((resolve) => {
+        releaseEvaluate = resolve;
+      });
+    }
+    return {};
+  });
+  // The watchdog is deliberately beyond this test's horizon: only the
+  // post-settle sweep can conclude this worker, so the assertions pin the
+  // sweep itself. No real timing race: a zero backstop returns immediately,
+  // with the worker attached and no terminal record on file.
+  const session = new GpcWorkerVerificationSession(scripted.channel, { handshakeTimeoutMs: 60_000 });
+  await session.attachToPage("page-target-id");
+  scripted.emit(workerAttachEvent("worker-session"));
+  await session.settle(0);
+
+  assert.deepEqual(
+    session.diagnostics(),
+    {
+      attachedDedicatedWorkerCount: 1,
+      attachedSharedWorkerCount: 0,
+      verifiedWorkerCount: 0,
+      unverifiedAttachedWorkerCount: 1
+    },
+    "an attached worker the backstop cut short must be recorded as unverified, never as zero loss"
+  );
+
+  // Testimony arriving after the sweep must not flip the frozen record,
+  // decrement the disclosed loss, or count the worker a second time.
+  await evaluateRequested;
+  assert.notEqual(releaseEvaluate, null);
+  releaseEvaluate!({ result: { value: true } });
+  await session.settle(1_000);
+  assert.deepEqual(session.diagnostics(), {
+    attachedDedicatedWorkerCount: 1,
+    attachedSharedWorkerCount: 0,
+    verifiedWorkerCount: 0,
+    unverifiedAttachedWorkerCount: 1
+  });
+});
+
 test("auxiliary targets are recursed into and released without entering worker accounting", async () => {
   const scripted = scriptedChannel((command) =>
     command.method === "Target.attachToTarget" ? { sessionId: "page-session" } : {}

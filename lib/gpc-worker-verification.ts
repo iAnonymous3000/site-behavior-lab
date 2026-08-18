@@ -83,6 +83,8 @@ export class GpcWorkerVerificationSession {
   private readonly channel: GpcWorkerCdpChannel;
   private readonly handshakeTimeoutMs: number;
   private readonly inFlight = new Set<Promise<void>>();
+  /** Attached workers whose handshake has not reached a terminal record yet. */
+  private readonly openRecords = new Set<WorkerHandshakeRecord>();
   private attachedDedicatedWorkerCount = 0;
   private attachedSharedWorkerCount = 0;
   private verifiedWorkerCount = 0;
@@ -124,7 +126,11 @@ export class GpcWorkerVerificationSession {
    * Wait until every observed worker handshake reached a terminal state. Each
    * handshake is individually bounded by its watchdog, so this resolves within
    * one handshake timeout of the last attach; `timeoutMs` is a final backstop
-   * against a transport that stops answering entirely.
+   * against a transport that stops answering entirely. On return every
+   * attached worker holds a terminal record: a handshake the backstop cut
+   * short is swept into the unverified accounting rather than left
+   * indeterminate, because callers freeze the counters right after this call
+   * and an attached worker with no terminal record would read as zero loss.
    */
   async settle(timeoutMs: number): Promise<void> {
     const deadline = Date.now() + Math.max(0, timeoutMs);
@@ -136,6 +142,15 @@ export class GpcWorkerVerificationSession {
         Promise.allSettled([...this.inFlight]),
         new Promise<void>((resolve) => setTimeout(resolve, Math.min(100, Math.max(1, deadline - Date.now()))))
       ]);
+    }
+    // An attached worker still mid-handshake here is unattested: record it as
+    // unverified now, terminally. `concludeWorker`'s settled guard makes this
+    // sweep the worker's one terminal state, so a handshake completing later
+    // can neither flip the frozen record nor count the worker twice. The
+    // worker itself is still released by its own watchdog, by its evaluate
+    // settling, or by close(); the sweep only makes the accounting honest.
+    for (const record of [...this.openRecords]) {
+      this.concludeWorker(record, false);
     }
   }
 
@@ -188,6 +203,7 @@ export class GpcWorkerVerificationSession {
     else this.attachedSharedWorkerCount += 1;
 
     const record: WorkerHandshakeRecord = { settled: false };
+    this.openRecords.add(record);
     const watchdog = setTimeout(() => {
       // The worker must not stay paused past the handshake bound. Force the
       // terminal unverified state first so a late evaluate result cannot
@@ -219,6 +235,7 @@ export class GpcWorkerVerificationSession {
   private concludeWorker(record: WorkerHandshakeRecord, verified: boolean): void {
     if (record.settled) return;
     record.settled = true;
+    this.openRecords.delete(record);
     if (verified) this.verifiedWorkerCount += 1;
     else this.unverifiedAttachedWorkerCount += 1;
   }
