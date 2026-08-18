@@ -343,7 +343,16 @@ test("real Chromium: all six worker shapes attest and observe GPC while an unatt
     server.once("error", reject);
     server.listen(0, "127.0.0.1", resolve);
   });
-  t.after(() => new Promise<void>((resolve) => server.close(() => resolve())));
+  // closeAllConnections first: Chromium holds keep-alive sockets, and a plain
+  // close() would wait on them if browser teardown ever stalls, wedging the
+  // whole serial suite rather than failing one test.
+  t.after(
+    () =>
+      new Promise<void>((resolve) => {
+        server.closeAllConnections();
+        server.close(() => resolve());
+      })
+  );
   const address = server.address();
   assert.ok(address && typeof address === "object");
 
@@ -361,13 +370,18 @@ test("real Chromium: all six worker shapes attest and observe GPC while an unatt
     args: [`--remote-debugging-port=${devtoolsPort}`]
   });
   t.after(() => browser.close());
-  const context = await browser.newContext();
-  t.after(() => context.close());
+  // Two CONTEXTS, not two pages in one: the untouched arm must share nothing
+  // with the attached page beyond the browser process, exactly like the
+  // scanner's two arms.
+  const verifiedContext = await browser.newContext();
+  t.after(() => verifiedContext.close());
+  const untouchedContext = await browser.newContext();
+  t.after(() => untouchedContext.close());
 
-  const verifiedPage = await context.newPage();
-  const untouchedPage = await context.newPage();
+  const verifiedPage = await verifiedContext.newPage();
+  const untouchedPage = await untouchedContext.newPage();
 
-  const targetSession = await context.newCDPSession(verifiedPage);
+  const targetSession = await verifiedContext.newCDPSession(verifiedPage);
   const info = (await targetSession.send("Target.getTargetInfo")) as {
     targetInfo: { targetId: string };
   };
@@ -393,10 +407,10 @@ test("real Chromium: all six worker shapes attest and observe GPC while an unatt
       .map((beacon) => beacon.split("?")[0])
       .sort();
 
-  await Promise.all([
-    verifiedPage.goto(`http://127.0.0.1:${address.port}/?arm=verified`),
-    untouchedPage.goto(`http://127.0.0.1:${address.port}/?arm=untouched`)
-  ]);
+  // Sequential and explicitly bounded: an unbounded parallel pair was the one
+  // await in this test a wedged navigation could park forever.
+  await verifiedPage.goto(`http://127.0.0.1:${address.port}/?arm=verified`, { timeout: 10_000 });
+  await untouchedPage.goto(`http://127.0.0.1:${address.port}/?arm=untouched`, { timeout: 10_000 });
   const deadline = Date.now() + 15_000;
   while (
     (beaconNames("verified").length < 6 || beaconNames("untouched").length < 6) &&
