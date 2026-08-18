@@ -414,6 +414,152 @@ test("first-party addEventListener wrappers do not hide a deferred third-party r
   }
 });
 
+// Shared page shape for the depth-bound cases: a first-party wrapper pads the
+// synchronous call chain by `padDepth` frames before delegating to the
+// observer-installed addEventListener, and a third-party recorder registers
+// input listeners in a deferred task (currentScript null, stack-only
+// attribution). Only the pad depth varies.
+async function coverageWithPaddedWrapper(padDepth: number) {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({
+        body:
+          '<input id="field">' +
+          '<script src="https://example.com/wrapper.js"></script>' +
+          '<script src="https://recorder.example.net/recorder.js"></script>' +
+          '<script>setTimeout(() => window.registerRecorder(), 0)</script>',
+        contentType: "text/html"
+      })
+    );
+    await page.route("https://example.com/wrapper.js", (route) =>
+      route.fulfill({
+        body:
+          "const observerAdd = EventTarget.prototype.addEventListener;" +
+          "function pad(target, args, depth) {" +
+          "  if (depth > 0) return pad(target, args, depth - 1);" +
+          "  return observerAdd.apply(target, args);" +
+          "}" +
+          "EventTarget.prototype.addEventListener = function deepAdd(...args) {" +
+          `  return pad(this, args, ${padDepth});` +
+          "};",
+        contentType: "text/javascript"
+      })
+    );
+    await page.route("https://recorder.example.net/recorder.js", (route) =>
+      route.fulfill({
+        body:
+          "window.registerRecorder = function registerRecorder() {" +
+          '  const field = document.querySelector("#field");' +
+          '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
+          "};",
+        contentType: "text/javascript"
+      })
+    );
+
+    await page.goto("https://example.com/");
+    await page.waitForTimeout(50);
+    return await collectFingerprintObservationsWithCoverage(page.frames());
+  } finally {
+    await browser.close();
+  }
+}
+
+test("a first-party wrapper deep in the bounded stack still yields the third-party registrant", async () => {
+  // Forty pad frames defeated the previous 32-frame capture: the registrant
+  // fell past the truncation point and the frame read clean and complete with
+  // zero detections. The raised bound keeps the registrant inside the capture,
+  // so this exact page now produces the detection instead of a clean read.
+  const coverage = await coverageWithPaddedWrapper(40);
+  assert.equal(coverage.attemptedFrames, 1);
+  assert.equal(coverage.readableFrames, 1);
+  assert.equal(coverage.observations.detections[0]?.kind, "input-monitoring");
+  assert.deepEqual(
+    coverage.observations.detections[0]?.evidence.thirdPartyOrigins,
+    ["https://recorder.example.net"]
+  );
+});
+
+test("a wrapper chain deeper than the stack bound records coverage loss instead of a clean read", async () => {
+  // One hundred pad frames exceed the observer's raised bound, so the capture
+  // saturates with first-party frames and the third-party registrant is
+  // structurally invisible. The honest wire outcome is a bounded read: the
+  // frame must report no snapshot (readableFrames 0); on this single-frame
+  // page the scanner publishes that as failed fingerprint coverage with
+  // capture loss (partial only when other frames stay readable). A clean
+  // complete read here would let any page hide a registrant behind a deep
+  // first-party wrapper.
+  const coverage = await coverageWithPaddedWrapper(100);
+  assert.equal(coverage.attemptedFrames, 1);
+  assert.equal(coverage.readableFrames, 0);
+  assert.deepEqual(coverage.observations.detections, []);
+});
+
+test("two third-party origins in one registration chain attribute the chain instead of censoring the frame", async () => {
+  // The common cross-vendor shape: one vendor registers input listeners
+  // through a one-line helper served from a second CDN, deferred via
+  // setTimeout so currentScript is null and only the bounded stack remains.
+  // Both third-party origins sit in one captured chain. The published claim
+  // is chain presence, not sole registrant, so the honest outcome is a
+  // readable frame and a detection naming BOTH origins; censoring the whole
+  // frame here would turn a benign, attributable page into coverage loss.
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    const page = await context.newPage();
+    await page.route("https://example.com/**", (route) =>
+      route.fulfill({
+        body:
+          '<input id="field">' +
+          '<script src="https://cdn.helperlib.net/helper.js"></script>' +
+          '<script src="https://recorder.example.net/recorder.js"></script>' +
+          "<script>setTimeout(() => window.registerRecorder(), 0)</script>",
+        contentType: "text/html"
+      })
+    );
+    await page.route("https://cdn.helperlib.net/helper.js", (route) =>
+      route.fulfill({
+        body: "window.on = function on(el, type, fn) { el.addEventListener(type, fn); };",
+        contentType: "text/javascript"
+      })
+    );
+    await page.route("https://recorder.example.net/recorder.js", (route) =>
+      route.fulfill({
+        body:
+          "window.registerRecorder = function registerRecorder() {" +
+          '  const field = document.querySelector("#field");' +
+          '  ["input","keydown","change","paste"].forEach(type => window.on(field, type, () => undefined));' +
+          "};",
+        contentType: "text/javascript"
+      })
+    );
+
+    await page.goto("https://example.com/");
+    await page.waitForTimeout(100);
+    const coverage = await collectFingerprintObservationsWithCoverage(page.frames());
+
+    assert.equal(coverage.attemptedFrames, 1);
+    assert.equal(coverage.readableFrames, 1);
+    assert.equal(coverage.observations.detections[0]?.kind, "input-monitoring");
+    // Both chain origins, not whichever one the walk met first: crediting a
+    // single origin either accuses the helper CDN alone or hides it entirely.
+    assert.deepEqual(
+      coverage.observations.detections[0]?.evidence.thirdPartyOrigins,
+      ["https://cdn.helperlib.net", "https://recorder.example.net"]
+    );
+    // Four registration calls, each with a two-origin chain: the published
+    // count stays a count of addEventListener CALLS, never of chain origins.
+    const evidence = coverage.observations.detections[0]?.evidence as { totalListenerCalls: number };
+    assert.equal(evidence.totalListenerCalls, 4);
+  } finally {
+    await browser.close();
+  }
+});
+
 test("fingerprintObserverInitScript coerces DOMString inputs once in real Chromium", async () => {
   const browser = await chromium.launch({ headless: true });
   try {
@@ -941,7 +1087,7 @@ test("fingerprintObserverInitScript withholds subframe listener coverage from th
   }
 });
 
-test("fingerprintObserverInitScript records coverage loss when the page wraps addEventListener above the observer", () => {
+test("fingerprintObserverInitScript records both chain origins when a third-party agent wraps addEventListener above the observer", () => {
   const harness = installInteractionHarness();
   try {
     fingerprintObserverInitScript();
@@ -950,8 +1096,11 @@ test("fingerprintObserverInitScript records coverage loss when the page wraps ad
     };
     const observerWrapper = eventTarget.prototype.addEventListener;
     // A RUM or error agent instruments EventTarget.prototype.addEventListener
-    // after the observer. Every stack the observer captures now leads to that
-    // agent, so the site's own listeners would be published under its name.
+    // after the observer, so every captured chain contains its origin as well
+    // as the registrant's. The published claim is chain presence, never sole
+    // registrant, so two distinct third-party origins in one chain are a
+    // detection naming both, not censored coverage: the agent really is in
+    // every registration call chain it forwards.
     const createPageWrapper = Function(
       "wrapped",
       "return function pageAddEventListener(...args) { return wrapped.apply(this, args); };\n//# sourceURL=https://rum.example.org/agent.js"
@@ -976,7 +1125,15 @@ test("fingerprintObserverInitScript records coverage loss when the page wraps ad
       input.addEventListener("paste", () => undefined);
     });
 
-    assert.equal(readRawSnapshot(harness.window), null);
+    const snapshot = readSnapshot(harness.window);
+    const kinds = snapshot.detections.map((detection) => detection.kind).sort();
+    assert.deepEqual(kinds, ["input-monitoring", "session-recording"]);
+    for (const detection of snapshot.detections) {
+      assert.deepEqual(
+        (detection.evidence as { thirdPartyOrigins: string[] }).thirdPartyOrigins,
+        ["https://recorder.example.net", "https://rum.example.org"]
+      );
+    }
   } finally {
     harness.restore();
   }

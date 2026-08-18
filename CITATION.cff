@@ -8,8 +8,13 @@ abstract: "Evidence-first web transparency tooling for reproducible, privacy-red
 repository-code: "https://github.com/iAnonymous3000/site-behavior-lab"
 url: "https://sitebehavior.org"
 license: "AGPL-3.0-or-later"
-version: "0.5.0"
-date-released: "2026-08-11"
+# Cites the most recent version that actually exists as a tagged, receipted
+# release. This file is consumed STANDALONE by citation tooling, which never
+# sees RELEASE.md's declare-then-tag sequence or release-policy.json, so it must
+# not assert a release date for a version whose tag and receipt do not yet
+# exist. Advance this in the tag step, not the declaration step.
+version: "0.4.0"
+date-released: "2026-08-01"
 keywords:
   - web transparency
   - privacy

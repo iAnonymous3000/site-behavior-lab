@@ -255,6 +255,28 @@ export const HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION =
 /** Exact method carried by node-detectors-v4 immediately before PDF-policy support. */
 export const HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION =
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
+/**
+ * Exact producer epoch of node-detectors-v5 (fingerprint-observer@2), the
+ * single-day epoch that completed framework-wrapped visits and direct PDF
+ * policies. Closed when bounded-stack attribution honesty revised the
+ * fingerprint observer to @3: same methodology components as the v4 closing
+ * row and the active epoch, so the method string matches both, and only the
+ * detector registry and detector versions separate these rows. Every value is
+ * a pinned literal per this file's closed-epoch rule.
+ */
+export const HISTORICAL_DETECTOR_V5_NODE_R2_METHODOLOGY_VERSION =
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1";
+export const HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_REGISTRY_VERSION = "node-detectors-v5";
+export const HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_REGISTRY_DIGEST =
+  "65547960bf03ca7d6d7b8279aa8b5ffed3a995bed2f36a64535d4179743ce204";
+export const HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_VERSIONS = Object.freeze({
+  "fingerprint-heuristics": "fingerprint-observer@2",
+  "keystroke-exfiltration": "synthetic-sentinel@3",
+  "cname-uncloaking": "dns-cname-chain@4",
+  "pixel-events": "pixel-request-decoder@3",
+  "consent-banner": "consent-control-and-state@2",
+  "privacy-policy": "policy-text-cross-check@5"
+} satisfies Readonly<Record<DetectorId, string>>);
 export const HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
@@ -673,6 +695,20 @@ const HISTORICAL_SERVICE_ROLE_V1_FIELDS: NodeTupleFields = Object.freeze({
   publicLimits: HISTORICAL_NODE_R2_PUBLIC_LIMITS_V1,
   phaseOmissionContractVersion: "phase-omission-v2"
 });
+const HISTORICAL_DETECTOR_V5_REGISTRY = Object.freeze({
+  version: HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_REGISTRY_VERSION,
+  digest: HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_REGISTRY_DIGEST
+});
+const HISTORICAL_DETECTOR_V5_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: HISTORICAL_DETECTOR_V5_REGISTRY,
+  detectorVersions: HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_VERSIONS,
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_OBLIGATIONS,
+  serviceRoleTaxonomy: HISTORICAL_SERVICE_ROLE_V1_NODE_R2_SERVICE_ROLE_TAXONOMY,
+  trackerCatalog: HISTORICAL_R2_2026_08_TRACKER_CATALOG,
+  publicLimits: HISTORICAL_NODE_R2_PUBLIC_LIMITS_V1,
+  phaseOmissionContractVersion: "phase-omission-v2"
+});
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -712,26 +748,26 @@ function nodeTuple(
 
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !==
-    HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION ||
+    HISTORICAL_DETECTOR_V5_NODE_R2_METHODOLOGY_VERSION ||
   String(DETECTOR_REGISTRY_VERSION) !==
-    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_REGISTRY_VERSION ||
-  DETECTOR_REGISTRY_DIGEST !== HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
+    HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_REGISTRY_VERSION ||
+  DETECTOR_REGISTRY_DIGEST !== HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
   canonicalJson(ACTIVE_DETECTOR_VERSIONS) !==
-    canonicalJson(HISTORICAL_SERVICE_ROLE_V1_NODE_R2_DETECTOR_VERSIONS) ||
+    canonicalJson(HISTORICAL_DETECTOR_V5_NODE_R2_DETECTOR_VERSIONS) ||
   canonicalJson(ACTIVE_SERVICE_ROLE_TAXONOMY) !==
-    canonicalJson(HISTORICAL_SERVICE_ROLE_V1_FIELDS.serviceRoleTaxonomy);
+    canonicalJson(HISTORICAL_DETECTOR_V5_FIELDS.serviceRoleTaxonomy);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v5-6c78-tldts7410-active-lists-2026-08-15",
+        "node-v6-6c78-tldts7410-active-lists-2026-08-15",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v5-6c78-tldts7410-active-no-adblock",
+        "node-v6-6c78-tldts7410-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -962,6 +998,25 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
     HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION,
     HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    null
+  ),
+  // Closed: node-detectors-v5 was the deployed producer for a single day
+  // (2026-08-16 to 2026-08-17) before fingerprint-observer@3 revised stack
+  // attribution. The committed corpus holds no v5 report, but live scans could
+  // publish under it during that window, so its rows stay replayable rather
+  // than orphaning whatever that day produced.
+  nodeTuple(
+    "node-v5-6c78-tldts7410-lists-2026-08-15",
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_DETECTOR_V5_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_DETECTOR_V5_FIELDS,
+    HISTORICAL_R2_LISTS_2026_08_15_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v5-6c78-tldts7410-no-adblock",
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_DETECTOR_V5_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_DETECTOR_V5_FIELDS,
     null
   ),
   ...ACTIVE_NODE_TUPLES

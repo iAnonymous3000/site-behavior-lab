@@ -7,6 +7,7 @@ import {
   DETECTOR_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY,
+  HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY,
   detectorObligationViolations,
   type DetectorObligationRule
 } from "./detector-obligations";
@@ -47,6 +48,10 @@ test("the obligation contract keeps every accountability registry epoch active",
     {
       detectorRegistryVersion: "node-detectors-v5",
       detectorRegistryDigest: "65547960bf03ca7d6d7b8279aa8b5ffed3a995bed2f36a64535d4179743ce204"
+    },
+    {
+      detectorRegistryVersion: "node-detectors-v6",
+      detectorRegistryDigest: "81866718b36e35239f0418cc543eee845660e686849da1b816d937a601c1528b"
     }
   ]);
   assert.equal(
@@ -57,7 +62,11 @@ test("the obligation contract keeps every accountability registry epoch active",
     DETECTOR_OBLIGATION_TARGET_REGISTRIES[1],
     HISTORICAL_SERVICE_ROLE_DETECTOR_OBLIGATION_TARGET_REGISTRY
   );
-  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[2], DETECTOR_OBLIGATION_TARGET_REGISTRY);
+  assert.equal(
+    DETECTOR_OBLIGATION_TARGET_REGISTRIES[2],
+    HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY
+  );
+  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[3], DETECTOR_OBLIGATION_TARGET_REGISTRY);
   assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
 });
 

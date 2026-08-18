@@ -357,7 +357,6 @@ test("one verified candidate covers the complete fixed post-freeze evidence carr
       "operator-attestation",
       "release-tag-governance-receipt",
       "release-policy-finalization",
-      "citation-finalization",
       "changelog-finalization"
     ])
   );
@@ -1725,6 +1724,72 @@ test("release finalization cannot be rewritten transiently and restored", (t) =>
   );
 });
 
+test("release finalization follows the receipt-following citation chronology", async (t) => {
+  // The retired contract demanded the candidate CITATION.cff name 1.0.0 with
+  // no date-released, a state the release-evidence CI gate refuses (no 1.0.0
+  // receipt can exist before the tag), so no CI-green candidate could satisfy
+  // this verifier. The candidate now cites the latest receipted release with
+  // its date, and the citation may not move through finalization at all.
+  await t.test("the retired candidate shape, citing the unreceipted 1.0.0, refuses", (child) => {
+    const fixture = makeFixture(child, {
+      candidateCitation:
+        'cff-version: 1.2.0\ntitle: "Site Behavior Lab"\nversion: "1.0.0"\n'
+    });
+    assert.throws(
+      () => inspectFixture(fixture.root),
+      /must cite the most recent receipted release/
+    );
+  });
+
+  await t.test("a candidate citation without its receipted date refuses", (child) => {
+    const fixture = makeFixture(child, {
+      candidateCitation:
+        'cff-version: 1.2.0\ntitle: "Site Behavior Lab"\nversion: "0.5.0"\n'
+    });
+    assert.throws(
+      () => inspectFixture(fixture.root),
+      /exactly one receipted date-released line/
+    );
+  });
+
+  await t.test("a carrier that advances the citation to 1.0.0 refuses", (child) => {
+    const fixture = makeFixture(child);
+    writeFileSync(
+      path.join(fixture.root, "CITATION.cff"),
+      'cff-version: 1.2.0\ntitle: "Site Behavior Lab"\nversion: "1.0.0"\ndate-released: "2026-08-01"\n'
+    );
+    commitAll(fixture.root, "advance citation at finalization");
+    assert.throws(
+      () => inspectFixture(fixture.root),
+      /CITATION\.cff must stay byte-identical through release finalization/
+    );
+  });
+
+  await t.test("a finalized policy hiding the open declare-then-tag window refuses", (child) => {
+    const fixture = makeFixture(child, { declareThenTagWindow: "omitted" });
+    assert.throws(
+      () => inspectFixture(fixture.root),
+      /released release-policy\.json must contain exactly/
+    );
+  });
+
+  await t.test("a malformed declare-then-tag window refuses", (child) => {
+    const fixture = makeFixture(child, { declareThenTagWindow: "malformed" });
+    assert.throws(
+      () => inspectFixture(fixture.root),
+      /declare the open declare-then-tag window as tagPending\.declaredAt/
+    );
+  });
+
+  await t.test("a policy finalization without the changelog half refuses", (child) => {
+    const fixture = makeFixture(child, { omitChangelogFinalization: true });
+    assert.throws(
+      () => inspectFixture(fixture.root),
+      /release finalization must enumerate release-policy\.json and CHANGELOG\.md together/
+    );
+  });
+});
+
 test("only the three exact generated aggregates may be modified", async (t) => {
   await t.test("generated index category cannot name arbitrary JSON", (child) => {
     const fixture = makeFixture(child);
@@ -2108,6 +2173,9 @@ function makeFixture(
     omitLabelCoordinateEvidence?: boolean;
     omitStagingTargetManifestBinding?: boolean;
     postReplayRunnerEnvironmentEdit?: "persistent" | "transient";
+    candidateCitation?: string;
+    declareThenTagWindow?: "omitted" | "malformed";
+    omitChangelogFinalization?: boolean;
   } = {}
 ): Fixture {
   const root = mkdtempSync(path.join(tmpdir(), "sbl-measurement-binding-"));
@@ -2182,9 +2250,13 @@ function makeFixture(
     stablePublicApi: false,
     npmPublication: "disabled"
   });
+  // Receipt-following: the candidate cites the most recent RECEIPTED release
+  // with that receipt's date; 1.0.0 is declared by release-policy.json and
+  // CHANGELOG.md alone until its own receipt lands, after the tag.
   writeFileSync(
     path.join(root, "CITATION.cff"),
-    'cff-version: 1.2.0\ntitle: "Site Behavior Lab"\nversion: "1.0.0"\n'
+    options.candidateCitation ??
+      'cff-version: 1.2.0\ntitle: "Site Behavior Lab"\nversion: "0.5.0"\ndate-released: "2026-07-15"\n'
   );
   writeFileSync(
     path.join(root, "CHANGELOG.md"),
@@ -2567,7 +2639,11 @@ RUN test "$(node --version)" = "v24.18.0"
           candidate,
           studyId,
           includeAaStudy,
-          includeLabelCoordinate
+          includeLabelCoordinate,
+          {
+            declareThenTagWindow: options.declareThenTagWindow,
+            omitChangelog: options.omitChangelogFinalization
+          }
         )
       : [];
   if (options.includeBinding === false && includeLabelCoordinate) {
@@ -3330,7 +3406,11 @@ function createEvidence(
   candidate: string,
   studyId: string,
   includeAaStudy: boolean = true,
-  includeLabelCoordinate: boolean = true
+  includeLabelCoordinate: boolean = true,
+  finalization: {
+    declareThenTagWindow?: "omitted" | "malformed";
+    omitChangelog?: boolean;
+  } = {}
 ): EvidenceJson[] {
   const reportId = "20260801-0123456789abcdef0123456789abcdef";
   const aaStudyRoot = "research/aa-studies/final-repeatability";
@@ -3586,24 +3666,35 @@ function createEvidence(
         releaseTag: "v1.0.0",
         releaseDate: "2026-08-01",
         stablePublicApi: false,
-        npmPublication: "disabled"
+        npmPublication: "disabled",
+        // The receipt that closes the declare-then-tag window cannot exist
+        // before the tag, so the finalized policy must still declare it open.
+        // CITATION.cff is deliberately absent here: it stays byte-identical
+        // through finalization and advances only after the receipt lands.
+        ...(finalization.declareThenTagWindow === "omitted"
+          ? {}
+          : {
+              tagPending: {
+                declaredAt:
+                  finalization.declareThenTagWindow === "malformed"
+                    ? "August 1st, 2026"
+                    : "2026-08-01"
+              }
+            })
       },
       change: "release-finalization"
     },
-    {
-      category: "citation-finalization",
-      path: "CITATION.cff",
-      value:
-        'cff-version: 1.2.0\ntitle: "Site Behavior Lab"\nversion: "1.0.0"\ndate-released: "2026-08-01"\n',
-      change: "release-finalization"
-    },
-    {
-      category: "changelog-finalization",
-      path: "CHANGELOG.md",
-      value:
-        "# Changelog\n\n## Unreleased\n\n## [1.0.0] - 2026-08-01\n\nFinal release notes.\n",
-      change: "release-finalization"
-    }
+    ...(finalization.omitChangelog === true
+      ? []
+      : ([
+          {
+            category: "changelog-finalization",
+            path: "CHANGELOG.md",
+            value:
+              "# Changelog\n\n## Unreleased\n\n## [1.0.0] - 2026-08-01\n\nFinal release notes.\n",
+            change: "release-finalization"
+          }
+        ] as const))
   ];
   for (const gateId of [
     "egress-backstop",

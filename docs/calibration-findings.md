@@ -125,11 +125,20 @@ drafted 400-case `cname-uncloaking` frame had about a 99% chance of missing the
 positive floor are in
 [calibration-cname-uncloaking-design.md](calibration-cname-uncloaking-design.md).
 
-One input is simply unknown: per-case capture reliability under the release-grade
-arm. The committed corpus holds six r2 runs, all clean, which supports no
-estimate. Until a pre-qualification sweep measures it, the survival probability
-of any ceremony is a guess, and the preregistration should say so rather than
-imply a number.
+One input was unknown when this was written: per-case capture reliability under
+the release-grade arm. The committed corpus then held six r2 runs, all clean,
+which supported no estimate.
+
+**That is no longer the corpus.** Since #144 it holds **126 r2 runs, 73 carrying
+capture-loss censoring**, and
+[research/calibration-censoring](../research/calibration-censoring/README.md)
+measures the declared arm at **44.3% all-family zero-loss** and **88.5%
+CNAME-scoreable**. Reliability is no longer the unmeasured input; it is measured,
+and it rules out a zero-censoring ceremony rather than making one a gamble.
+
+What remains true is the warning: no single survival probability should be
+implied in the preregistration. Failures cluster by batch and build, so no
+i.i.d. exponent over a per-case rate is defensible from this corpus.
 
 ---
 
