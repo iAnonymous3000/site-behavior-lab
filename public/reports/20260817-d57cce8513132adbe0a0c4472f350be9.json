@@ -1,0 +1,5700 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.duolingo.com/",
+  "scannedAt": "2026-08-17T06:04:30.767Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 10542,
+      "firstPartyDomain": "www.duolingo.com",
+      "totalRequests": 150,
+      "thirdPartyRequests": 135,
+      "knownTrackerRequests": 15,
+      "thirdPartyDomains": 18,
+      "cookies": 18,
+      "thirdPartyCookies": 2,
+      "storageEntries": 5,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 28
+    },
+    "conditions": {
+      "requestedUrl": "https://www.duolingo.com/",
+      "finalUrl": "https://www.duolingo.com/",
+      "scannedAt": "2026-08-17T06:04:20.199Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.duolingo.com/",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 40
+      },
+      {
+        "id": 2,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 284
+      },
+      {
+        "id": 3,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 285
+      },
+      {
+        "id": 4,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 285
+      },
+      {
+        "id": 5,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 285
+      },
+      {
+        "id": 6,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 318
+      },
+      {
+        "id": 7,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 320
+      },
+      {
+        "id": 8,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 320
+      },
+      {
+        "id": 9,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 320
+      },
+      {
+        "id": 10,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 11,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 12,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 13,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 14,
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 16,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 380
+      },
+      {
+        "id": 17,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 381
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 403
+      },
+      {
+        "id": 19,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 415
+      },
+      {
+        "id": 20,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 742
+      },
+      {
+        "id": 21,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 742
+      },
+      {
+        "id": 22,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 743
+      },
+      {
+        "id": 23,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 743
+      },
+      {
+        "id": 24,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 745
+      },
+      {
+        "id": 25,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 745
+      },
+      {
+        "id": 26,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 745
+      },
+      {
+        "id": 27,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 746
+      },
+      {
+        "id": 28,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 748
+      },
+      {
+        "id": 29,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 749
+      },
+      {
+        "id": 30,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 749
+      },
+      {
+        "id": 31,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 749
+      },
+      {
+        "id": 32,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 750
+      },
+      {
+        "id": 33,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 34,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 752
+      },
+      {
+        "id": 35,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 36,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 37,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 38,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 39,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 755
+      },
+      {
+        "id": 40,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 755
+      },
+      {
+        "id": 41,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 755
+      },
+      {
+        "id": 42,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 756
+      },
+      {
+        "id": 43,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 756
+      },
+      {
+        "id": 44,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 756
+      },
+      {
+        "id": 45,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 46,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 47,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 48,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 49,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 50,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 759
+      },
+      {
+        "id": 51,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 759
+      },
+      {
+        "id": 52,
+        "url": "https://accounts.google.com/{seg}/{seg}",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 759
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.duolingo.com/{n}/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 760
+      },
+      {
+        "id": 54,
+        "url": "https://www.duolingo.com/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 760
+      },
+      {
+        "id": 55,
+        "url": "https://www.duolingo.com/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 767
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 768
+      },
+      {
+        "id": 57,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 58,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 59,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 60,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 61,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 62,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 63,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 64,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 771
+      },
+      {
+        "id": 65,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 771
+      },
+      {
+        "id": 66,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 771
+      },
+      {
+        "id": 67,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 772
+      },
+      {
+        "id": 68,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 772
+      },
+      {
+        "id": 69,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 773
+      },
+      {
+        "id": 70,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 773
+      },
+      {
+        "id": 71,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 773
+      },
+      {
+        "id": 72,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 774
+      },
+      {
+        "id": 73,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 774
+      },
+      {
+        "id": 74,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 775
+      },
+      {
+        "id": 75,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 775
+      },
+      {
+        "id": 76,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 775
+      },
+      {
+        "id": 77,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 776
+      },
+      {
+        "id": 78,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 776
+      },
+      {
+        "id": 79,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 776
+      },
+      {
+        "id": 80,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 81,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 82,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 83,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 84,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 85,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 86,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 779
+      },
+      {
+        "id": 87,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 779
+      },
+      {
+        "id": 88,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 779
+      },
+      {
+        "id": 89,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 780
+      },
+      {
+        "id": 90,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 780
+      },
+      {
+        "id": 91,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 780
+      },
+      {
+        "id": 92,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 781
+      },
+      {
+        "id": 93,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 781
+      },
+      {
+        "id": 94,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 781
+      },
+      {
+        "id": 95,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 781
+      },
+      {
+        "id": 96,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 787
+      },
+      {
+        "id": 97,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 98,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 99,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 100,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 101,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 102,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 790
+      },
+      {
+        "id": 103,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 790
+      },
+      {
+        "id": 104,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 790
+      },
+      {
+        "id": 105,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 791
+      },
+      {
+        "id": 106,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 791
+      },
+      {
+        "id": 107,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 108,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 792
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 792
+      },
+      {
+        "id": 111,
+        "url": "https://www.duolingo.com/api/{n}/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 793
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 793
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 793
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 793
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 793
+      },
+      {
+        "id": 116,
+        "url": "https://www.duolingo.com/{seg}/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 793
+      },
+      {
+        "id": 117,
+        "url": "https://www.duolingo.com/{seg}/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 799
+      },
+      {
+        "id": 118,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 799
+      },
+      {
+        "id": 119,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 813
+      },
+      {
+        "id": 120,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 926
+      },
+      {
+        "id": 121,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1129
+      },
+      {
+        "id": 122,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1130
+      },
+      {
+        "id": 123,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 1249
+      },
+      {
+        "id": 124,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?hl=&v=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1394
+      },
+      {
+        "id": 125,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1406
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1406
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.duolingo.com/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1422
+      },
+      {
+        "id": 128,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1446
+      },
+      {
+        "id": 129,
+        "url": "https://accounts.google.com/{seg}/{seg}",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://accounts.google.com/{seg}/{seg}",
+          "initiatorDomain": "accounts.google.com"
+        },
+        "startedAtMs": 1768
+      },
+      {
+        "id": 130,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1794
+      },
+      {
+        "id": 131,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1796
+      },
+      {
+        "id": 132,
+        "url": "https://www.google-analytics.com/{seg}",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1797
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.facebook.net/{seg}/{seg}",
+        "domain": "{label}.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1800
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.tupsrv.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tupsrv.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1800
+      },
+      {
+        "id": 135,
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2054
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&%5Bredacted%5D=&tid=&cid=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2055
+      },
+      {
+        "id": 137,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2156
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2157
+      },
+      {
+        "id": 139,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2157
+      },
+      {
+        "id": 140,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2158
+      },
+      {
+        "id": 141,
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2159
+      },
+      {
+        "id": 142,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&t=&cid=&tid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google-analytics.com/{seg}",
+          "initiatorDomain": "www.google-analytics.com"
+        },
+        "startedAtMs": 2183
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=",
+        "domain": "{label}.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.facebook.net/{seg}/{seg}",
+          "initiatorDomain": "{label}.facebook.net"
+        },
+        "startedAtMs": 2255
+      },
+      {
+        "id": 144,
+        "url": "https://analytics.tupsrv.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "analytics.tupsrv.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.tupsrv.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.tupsrv.com"
+        },
+        "startedAtMs": 2263
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.tupsrv.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tupsrv.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2265
+      },
+      {
+        "id": 146,
+        "url": "https://www.googleadservices.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.googleadservices.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2363
+      },
+      {
+        "id": 147,
+        "url": "https://{label}.media.net/{seg}?%5Bredacted%5D=&type=",
+        "domain": "{label}.media.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "media.net",
+          "entity": "Media.net",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 2366
+      },
+      {
+        "id": 148,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2371
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.tupsrv.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tupsrv.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 2487
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2491
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          200
+        ],
+        "resourceTypes": [
+          "ping",
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.media.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "media.net",
+          "entity": "Media.net",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "requests": 96,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "font",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "www.recaptcha.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.tupsrv.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          302,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "analytics.tupsrv.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.duolingo.com",
+        "requests": 9,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          404,
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.duolingo.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".tupsrv.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbp",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2362
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 10
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.tupsrv.com/",
+            "https://d35aaqx5ub95lt.cloudfront.net/",
+            "https://www.googletagmanager.com/",
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 35
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "documentElement",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.tupsrv.com/",
+            "https://cdn.cookielaw.org/",
+            "https://{label}.facebook.net/",
+            "https://d35aaqx5ub95lt.cloudfront.net/",
+            "https://www.googletagmanager.com/",
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 96
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.duolingo.com/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google",
+        "Meta"
+      ],
+      "unmentionedEntities": [
+        "Media.net"
+      ],
+      "policyTextLength": 35073
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The page did not reach network idle before the scan window ended.",
+      "Read the site's privacy policy (https://www.duolingo.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 10510,
+      "firstPartyDomain": "www.duolingo.com",
+      "totalRequests": 116,
+      "thirdPartyRequests": 109,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 6,
+      "cookies": 9,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 24
+    },
+    "conditions": {
+      "requestedUrl": "https://www.duolingo.com/",
+      "finalUrl": "https://www.duolingo.com/",
+      "scannedAt": "2026-08-17T06:04:30.767Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.duolingo.com/",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 53
+      },
+      {
+        "id": 2,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 308
+      },
+      {
+        "id": 3,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 308
+      },
+      {
+        "id": 4,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 308
+      },
+      {
+        "id": 5,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 308
+      },
+      {
+        "id": 6,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 332
+      },
+      {
+        "id": 7,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 338
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 342
+      },
+      {
+        "id": 9,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 343
+      },
+      {
+        "id": 10,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 11,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 12,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 13,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 14,
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 348
+      },
+      {
+        "id": 15,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 16,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 355
+      },
+      {
+        "id": 19,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 401
+      },
+      {
+        "id": 20,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 745
+      },
+      {
+        "id": 21,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 747
+      },
+      {
+        "id": 22,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 747
+      },
+      {
+        "id": 23,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 748
+      },
+      {
+        "id": 24,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 748
+      },
+      {
+        "id": 25,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 750
+      },
+      {
+        "id": 26,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 750
+      },
+      {
+        "id": 27,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 29,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 751
+      },
+      {
+        "id": 30,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 752
+      },
+      {
+        "id": 31,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 752
+      },
+      {
+        "id": 32,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 752
+      },
+      {
+        "id": 33,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 34,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 35,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 36,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 37,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 754
+      },
+      {
+        "id": 38,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 760
+      },
+      {
+        "id": 39,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 761
+      },
+      {
+        "id": 40,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 761
+      },
+      {
+        "id": 41,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 761
+      },
+      {
+        "id": 42,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 762
+      },
+      {
+        "id": 43,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 762
+      },
+      {
+        "id": 44,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 762
+      },
+      {
+        "id": 45,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 763
+      },
+      {
+        "id": 46,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 763
+      },
+      {
+        "id": 47,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 763
+      },
+      {
+        "id": 48,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 764
+      },
+      {
+        "id": 49,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 764
+      },
+      {
+        "id": 50,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 765
+      },
+      {
+        "id": 51,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 765
+      },
+      {
+        "id": 52,
+        "url": "https://accounts.google.com/{seg}/{seg}",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 765
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.duolingo.com/{n}/{seg}",
+        "domain": "{label}.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 765
+      },
+      {
+        "id": 54,
+        "url": "https://www.duolingo.com/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 766
+      },
+      {
+        "id": 55,
+        "url": "https://www.duolingo.com/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 766
+      },
+      {
+        "id": 57,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 766
+      },
+      {
+        "id": 58,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 767
+      },
+      {
+        "id": 59,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 767
+      },
+      {
+        "id": 60,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 61,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 62,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 63,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 64,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 65,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 66,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 67,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 770
+      },
+      {
+        "id": 68,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 69,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 70,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 778
+      },
+      {
+        "id": 71,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 779
+      },
+      {
+        "id": 72,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 780
+      },
+      {
+        "id": 73,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 780
+      },
+      {
+        "id": 74,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 781
+      },
+      {
+        "id": 75,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 781
+      },
+      {
+        "id": 76,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 781
+      },
+      {
+        "id": 77,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 782
+      },
+      {
+        "id": 78,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 782
+      },
+      {
+        "id": 79,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 783
+      },
+      {
+        "id": 80,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 783
+      },
+      {
+        "id": 81,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 783
+      },
+      {
+        "id": 82,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 784
+      },
+      {
+        "id": 83,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 784
+      },
+      {
+        "id": 84,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 785
+      },
+      {
+        "id": 85,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 786
+      },
+      {
+        "id": 86,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 787
+      },
+      {
+        "id": 87,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 787
+      },
+      {
+        "id": 88,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 89,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 90,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 91,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 92,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 93,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 790
+      },
+      {
+        "id": 94,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 790
+      },
+      {
+        "id": 95,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 791
+      },
+      {
+        "id": 96,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 791
+      },
+      {
+        "id": 97,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 791
+      },
+      {
+        "id": 98,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 99,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 100,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 101,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 793
+      },
+      {
+        "id": 102,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 793
+      },
+      {
+        "id": 103,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 793
+      },
+      {
+        "id": 104,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 794
+      },
+      {
+        "id": 105,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 794
+      },
+      {
+        "id": 106,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 794
+      },
+      {
+        "id": 107,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 794
+      },
+      {
+        "id": 108,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 800
+      },
+      {
+        "id": 111,
+        "url": "https://www.duolingo.com/api/{n}/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 801
+      },
+      {
+        "id": 116,
+        "url": "https://www.duolingo.com/{seg}/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 802
+      },
+      {
+        "id": 117,
+        "url": "https://www.duolingo.com/{seg}/{seg}/{seg}",
+        "domain": "www.duolingo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}",
+          "initiatorDomain": "d35aaqx5ub95lt.cloudfront.net"
+        },
+        "startedAtMs": 802
+      },
+      {
+        "id": 118,
+        "url": "https://d35aaqx5ub95lt.cloudfront.net/{seg}/{seg}/{seg}",
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.duolingo.com/",
+          "initiatorDomain": "www.duolingo.com"
+        },
+        "startedAtMs": 803
+      },
+      {
+        "id": 119,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 919
+      },
+      {
+        "id": 120,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1126
+      },
+      {
+        "id": 121,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1126
+      },
+      {
+        "id": 122,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?hl=&v=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1409
+      },
+      {
+        "id": 123,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1425
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1426
+      },
+      {
+        "id": 125,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1452
+      },
+      {
+        "id": 126,
+        "url": "https://accounts.google.com/{seg}/{seg}",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://accounts.google.com/{seg}/{seg}",
+          "initiatorDomain": "accounts.google.com"
+        },
+        "startedAtMs": 1689
+      }
+    ],
+    "domains": [
+      {
+        "domain": "d35aaqx5ub95lt.cloudfront.net",
+        "requests": 96,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "font",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "www.recaptcha.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "www.duolingo.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.duolingo.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          404
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.duolingo.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2362
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://d35aaqx5ub95lt.cloudfront.net/",
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 33
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://d35aaqx5ub95lt.cloudfront.net/",
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 84
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.duolingo.com/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 35073
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended.",
+      "Read the site's privacy policy (https://www.duolingo.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 150,
+      "after": 116,
+      "delta": -34
+    },
+    "thirdPartyRequests": {
+      "before": 135,
+      "after": 109,
+      "delta": -26
+    },
+    "knownTrackerRequests": {
+      "before": 15,
+      "after": 0,
+      "delta": -15
+    },
+    "thirdPartyDomains": {
+      "before": 18,
+      "after": 6,
+      "delta": -12
+    },
+    "cookies": {
+      "before": 18,
+      "after": 9,
+      "delta": -9
+    },
+    "thirdPartyCookies": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "storageEntries": {
+      "before": 5,
+      "after": 1,
+      "delta": -4
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.tupsrv.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.media.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "media.net",
+          "entity": "Media.net",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.tupsrv.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 12,
+        "domains": 6
+      },
+      {
+        "entity": "Meta",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Media.net",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".tupsrv.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_fbp",
+        "domain": ".duolingo.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".duolingo.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".duolingo.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".duolingo.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".duolingo.com",
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".duolingo.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.facebook.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "cdn.cookielaw.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.tupsrv.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.tupsrv.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.tupsrv.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.google-analytics.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googleadservices.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googleadservices.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "d35aaqx5ub95lt.cloudfront.net",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 28,
+      "after": 24,
+      "delta": -4
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: Read the site's privacy policy (https://www.duolingo.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The page did not reach network idle before the scan window ended.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.duolingo.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260817-d57cce8513132adbe0a0c4472f350be9",
+    "path": "/reports/20260817-d57cce8513132adbe0a0c4472f350be9/",
+    "jsonPath": "/reports/20260817-d57cce8513132adbe0a0c4472f350be9.json"
+  }
+}
