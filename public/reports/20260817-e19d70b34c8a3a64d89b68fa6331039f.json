@@ -1,0 +1,4499 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.eharmony.com/",
+  "scannedAt": "2026-08-17T06:03:40.976Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5884,
+      "firstPartyDomain": "www.eharmony.com",
+      "totalRequests": 114,
+      "thirdPartyRequests": 56,
+      "knownTrackerRequests": 20,
+      "thirdPartyDomains": 18,
+      "cookies": 31,
+      "thirdPartyCookies": 8,
+      "storageEntries": 7,
+      "fingerprintEvents": 544,
+      "shieldsBlockedRequests": 50
+    },
+    "conditions": {
+      "requestedUrl": "https://www.eharmony.com/",
+      "finalUrl": "https://www.eharmony.com/",
+      "scannedAt": "2026-08-17T06:03:35.054Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.eharmony.com/",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 41
+      },
+      {
+        "id": 2,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 121
+      },
+      {
+        "id": 3,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 4,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 5,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 6,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 7,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 8,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 9,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 10,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 124
+      },
+      {
+        "id": 11,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 124
+      },
+      {
+        "id": 12,
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
+        "domain": "static.cloudflareinsights.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 125
+      },
+      {
+        "id": 13,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 152
+      },
+      {
+        "id": 14,
+        "url": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 152
+      },
+      {
+        "id": 15,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 16,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 191
+      },
+      {
+        "id": 17,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 192
+      },
+      {
+        "id": 18,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 193
+      },
+      {
+        "id": 19,
+        "url": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 193
+      },
+      {
+        "id": 20,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 21,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 22,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 23,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 195
+      },
+      {
+        "id": 24,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 195
+      },
+      {
+        "id": 25,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 234
+      },
+      {
+        "id": 26,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 235
+      },
+      {
+        "id": 27,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 236
+      },
+      {
+        "id": 28,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 237
+      },
+      {
+        "id": 29,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 240
+      },
+      {
+        "id": 30,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 241
+      },
+      {
+        "id": 31,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 241
+      },
+      {
+        "id": 32,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 33,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 34,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 243
+      },
+      {
+        "id": 35,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 243
+      },
+      {
+        "id": 36,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 243
+      },
+      {
+        "id": 37,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 318
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 319
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.instana.io/{seg}",
+        "domain": "{label}.instana.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 40,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 41,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 42,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 43,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 46,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 387
+      },
+      {
+        "id": 48,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 389
+      },
+      {
+        "id": 49,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 390
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.iesnare.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.iesnare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 392
+      },
+      {
+        "id": 51,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 421
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?lang=",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.cloudflare.com"
+        },
+        "startedAtMs": 422
+      },
+      {
+        "id": 53,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 530
+      },
+      {
+        "id": 54,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 562
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.usercentrics.eu"
+        },
+        "startedAtMs": 590
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.iesnare.com/{seg}/{seg}",
+        "domain": "{label}.iesnare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.iesnare.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.iesnare.com"
+        },
+        "startedAtMs": 676
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.api.{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}",
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.usercentrics.eu"
+        },
+        "startedAtMs": 697
+      },
+      {
+        "id": 58,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 745
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 783
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.usercentrics.eu"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.api.{label}.{label}.usercentrics.eu/{seg}/{n}/{seg}/en/us/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 815
+      },
+      {
+        "id": 62,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 830
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.usercentrics.eu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.usercentrics.eu/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.usercentrics.eu"
+        },
+        "startedAtMs": 965
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.{label}.{label}.usercentrics.eu/{seg}/{seg}/{n}",
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 201,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 993
+      },
+      {
+        "id": 65,
+        "url": "https://www.eharmony.com/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 993
+      },
+      {
+        "id": 66,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 994
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.eharmony.com/{seg}",
+        "domain": "{label}.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 1033
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.eharmony.com/{seg}",
+        "domain": "{label}.eharmony.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 1035
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.liadm.com/{seg}",
+        "domain": "{label}.liadm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 1119
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 401,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1134
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1136
+      },
+      {
+        "id": 72,
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
+        "domain": "static.cloudflareinsights.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1181
+      },
+      {
+        "id": 73,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1186
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.eharmony.com/{seg}",
+        "domain": "{label}.eharmony.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.eharmony.com/{seg}",
+          "initiatorDomain": "{label}.eharmony.com"
+        },
+        "startedAtMs": 1188
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.bing.com/{seg}",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.eharmony.com/{seg}",
+          "initiatorDomain": "{label}.eharmony.com"
+        },
+        "startedAtMs": 1193
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.facebook.net/{seg}/{seg}",
+        "domain": "{label}.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.eharmony.com/{seg}",
+          "initiatorDomain": "{label}.eharmony.com"
+        },
+        "startedAtMs": 1193
+      },
+      {
+        "id": 77,
+        "url": "https://cdn.taboola.com/{seg}/{seg}/{n}/{seg}",
+        "domain": "cdn.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.eharmony.com/{seg}",
+          "initiatorDomain": "{label}.eharmony.com"
+        },
+        "startedAtMs": 1194
+      },
+      {
+        "id": 78,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1275
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.bing.com/{seg}",
+          "initiatorDomain": "{label}.bing.com"
+        },
+        "startedAtMs": 1305
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.taboola.com/{n}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.taboola.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.taboola.com/{seg}/{seg}/{n}/{seg}",
+          "initiatorDomain": "cdn.taboola.com"
+        },
+        "startedAtMs": 1335
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.adxcel-ec2.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adxcel-ec2.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.eharmony.com/{seg}",
+          "initiatorDomain": "{label}.eharmony.com"
+        },
+        "startedAtMs": 1336
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.facebook.net/{seg}/{seg}/{n}?v=&%5Bredacted%5D=",
+        "domain": "{label}.facebook.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.facebook.net/{seg}/{seg}",
+          "initiatorDomain": "{label}.facebook.net"
+        },
+        "startedAtMs": 1431
+      },
+      {
+        "id": 83,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 1532
+      },
+      {
+        "id": 84,
+        "url": "https://www.googletagmanager.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 1534
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.bing.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.bing.com"
+        },
+        "startedAtMs": 1605
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.bing.com/{seg}/{n}?%5Bredacted%5D=&ver=&msclkid=",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.eharmony.com/{seg}",
+          "initiatorDomain": "{label}.eharmony.com"
+        },
+        "startedAtMs": 1607
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.liadm.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 1681
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.eharmony.com/{seg}/{seg}",
+        "domain": "{label}.eharmony.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://static.cloudflareinsights.com/{seg}/{seg}",
+          "initiatorDomain": "static.cloudflareinsights.com"
+        },
+        "startedAtMs": 1686
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.bing.com/{seg}/{seg}/{seg}/{n}",
+          "initiatorDomain": "{label}.bing.com"
+        },
+        "startedAtMs": 1686
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.eharmony.com/{seg}/{seg}",
+        "domain": "{label}.eharmony.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://static.cloudflareinsights.com/{seg}/{seg}",
+          "initiatorDomain": "static.cloudflareinsights.com"
+        },
+        "startedAtMs": 1765
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1787
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 1890
+      },
+      {
+        "id": 93,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 1890
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 1894
+      },
+      {
+        "id": 95,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 1895
+      },
+      {
+        "id": 96,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 1896
+      },
+      {
+        "id": 97,
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 1897
+      },
+      {
+        "id": 98,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 1897
+      },
+      {
+        "id": 99,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 1898
+      },
+      {
+        "id": 100,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 1901
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.bing.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.bing.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.bing.com"
+        },
+        "startedAtMs": 1906
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.liadm.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.liadm.com/{seg}",
+          "initiatorDomain": "{label}.liadm.com"
+        },
+        "startedAtMs": 1907
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.liadm.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "startedAtMs": 1962
+      },
+      {
+        "id": 104,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1967
+      },
+      {
+        "id": 105,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1969
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.eharmony.com/{seg}",
+        "domain": "{label}.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2035
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=&ref=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2129
+      },
+      {
+        "id": 108,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&ref=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2129
+      },
+      {
+        "id": 109,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2130
+      },
+      {
+        "id": 110,
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2131
+      },
+      {
+        "id": 111,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&ref=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2164
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2383
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.liadm.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.liadm.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2384
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.instana.io/",
+        "domain": "{label}.instana.io",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.instana.io/{seg}",
+          "initiatorDomain": "{label}.instana.io"
+        },
+        "startedAtMs": 2841
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.bing.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "image",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.cloudflareinsights.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.taboola.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.cloudflare.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200,
+          401
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.usercentrics.eu",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.liadm.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.instana.io",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "ping"
+        ]
+      },
+      {
+        "domain": "{label}.iesnare.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          201
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.cloudflare.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.adxcel-ec2.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.eharmony.com",
+        "requests": 52,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          302,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "font",
+          "script",
+          "image",
+          "ping",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.eharmony.com",
+        "requests": 6,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr",
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".liadm.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".taboola.com",
+        "path": "/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".taboola.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".taboola.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "{label}.iesnare.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "cf_clearance",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_fbp",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 44
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 40
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 366
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 332
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 44
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 576
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.createDynamicsCompressor",
+        "count": 4
+      },
+      {
+        "api": "audio.OfflineAudioContext.createOscillator",
+        "count": 4
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 5
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 1
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 516
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 3
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "audio-fingerprinting",
+        "heuristic": "audio-rendering-v1",
+        "count": 2,
+        "evidence": {
+          "apis": [
+            "audio.OfflineAudioContext.createDynamicsCompressor",
+            "audio.OfflineAudioContext.createOscillator",
+            "audio.OfflineAudioContext.startRendering"
+          ],
+          "offlineRenderCalls": 5,
+          "oscillatorCalls": 4,
+          "compressorCalls": 4,
+          "analyserCalls": 0
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 516,
+          "maxDistinctFonts": 6,
+          "maxDistinctTextSamples": 43,
+          "maxTextLength": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.instana.io/",
+            "https://{label}.iesnare.com/",
+            "https://static.cloudflareinsights.com/"
+          ],
+          "totalListenerCalls": 5
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "scroll",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.instana.io/",
+            "https://{label}.iesnare.com/",
+            "https://static.cloudflareinsights.com/",
+            "https://{label}.{label}.usercentrics.eu/"
+          ],
+          "totalListenerCalls": 41
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 72,
+          "readPixelsCalls": 2
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 1,
+          "createOfferCalls": 1,
+          "setLocalDescriptionCalls": 1
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.eharmony.com/{seg}",
+      "claims": [],
+      "mentionedEntities": [
+        "Google",
+        "Meta"
+      ],
+      "unmentionedEntities": [
+        "Microsoft",
+        "Cloudflare",
+        "Taboola"
+      ],
+      "policyTextLength": 61678
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://www.eharmony.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4511,
+      "firstPartyDomain": "www.eharmony.com",
+      "totalRequests": 55,
+      "thirdPartyRequests": 8,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 5,
+      "thirdPartyCookies": 0,
+      "storageEntries": 2,
+      "fingerprintEvents": 280,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.eharmony.com/",
+      "finalUrl": "https://www.eharmony.com/",
+      "scannedAt": "2026-08-17T06:03:40.976Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.eharmony.com/",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 55
+      },
+      {
+        "id": 2,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 108
+      },
+      {
+        "id": 3,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 109
+      },
+      {
+        "id": 4,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 110
+      },
+      {
+        "id": 5,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 6,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 7,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 8,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 9,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 10,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 11,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 13,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 143
+      },
+      {
+        "id": 14,
+        "url": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 15,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 161
+      },
+      {
+        "id": 16,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 172
+      },
+      {
+        "id": 17,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 173
+      },
+      {
+        "id": 18,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 174
+      },
+      {
+        "id": 19,
+        "url": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 174
+      },
+      {
+        "id": 20,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 21,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 22,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 23,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 24,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 25,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 215
+      },
+      {
+        "id": 26,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 215
+      },
+      {
+        "id": 27,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 217
+      },
+      {
+        "id": 28,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 29,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 30,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 31,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 32,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 33,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 222
+      },
+      {
+        "id": 34,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 222
+      },
+      {
+        "id": 35,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 223
+      },
+      {
+        "id": 36,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{n}/{n}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 223
+      },
+      {
+        "id": 37,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 293
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 294
+      },
+      {
+        "id": 40,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 41,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 42,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 348
+      },
+      {
+        "id": 43,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 348
+      },
+      {
+        "id": 46,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 350
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 361
+      },
+      {
+        "id": 48,
+        "url": "https://www.eharmony.com/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/static/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 367
+      },
+      {
+        "id": 49,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 369
+      },
+      {
+        "id": 51,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 393
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?lang=",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.cloudflare.com"
+        },
+        "startedAtMs": 401
+      },
+      {
+        "id": 53,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 498
+      },
+      {
+        "id": 54,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 515
+      },
+      {
+        "id": 55,
+        "url": "https://www.eharmony.com/{seg}/{seg}/{seg}",
+        "domain": "www.eharmony.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.eharmony.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.eharmony.com"
+        },
+        "startedAtMs": 670
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 710
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1215
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 401,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1219
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1652
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2104
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.cloudflare.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200,
+          401
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.cloudflare.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.eharmony.com",
+        "requests": 47,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "font",
+          "script",
+          "image",
+          "ping",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "cf_clearance",
+        "domain": ".eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.eharmony.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "www.eharmony.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 44
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.createDynamicsCompressor",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.createOscillator",
+        "count": 3
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 4
+      },
+      {
+        "api": "canvas.getImageData",
+        "count": 1
+      },
+      {
+        "api": "canvas.measureText",
+        "count": 258
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl.readPixels",
+        "count": 2
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "audio-fingerprinting",
+        "heuristic": "audio-rendering-v1",
+        "count": 2,
+        "evidence": {
+          "apis": [
+            "audio.OfflineAudioContext.createDynamicsCompressor",
+            "audio.OfflineAudioContext.createOscillator",
+            "audio.OfflineAudioContext.startRendering"
+          ],
+          "offlineRenderCalls": 4,
+          "oscillatorCalls": 3,
+          "compressorCalls": 3,
+          "analyserCalls": 0
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 258,
+          "maxDistinctFonts": 6,
+          "maxDistinctTextSamples": 43,
+          "maxTextLength": 2
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 72,
+          "readPixelsCalls": 2
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 1,
+          "createOfferCalls": 1,
+          "setLocalDescriptionCalls": 1
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.eharmony.com/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 61681
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://www.eharmony.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 114,
+      "after": 55,
+      "delta": -59
+    },
+    "thirdPartyRequests": {
+      "before": 56,
+      "after": 8,
+      "delta": -48
+    },
+    "knownTrackerRequests": {
+      "before": 20,
+      "after": 0,
+      "delta": -20
+    },
+    "thirdPartyDomains": {
+      "before": 18,
+      "after": 2,
+      "delta": -16
+    },
+    "cookies": {
+      "before": 31,
+      "after": 5,
+      "delta": -26
+    },
+    "thirdPartyCookies": {
+      "before": 8,
+      "after": 0,
+      "delta": -8
+    },
+    "storageEntries": {
+      "before": 7,
+      "after": 2,
+      "delta": -5
+    },
+    "fingerprintEvents": {
+      "before": 544,
+      "after": 280,
+      "delta": -264
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google.com",
+        "requests": 10,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 6,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.eharmony.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.usercentrics.eu",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.liadm.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.iesnare.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.instana.io",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "static.cloudflareinsights.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.{label}.usercentrics.eu",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adxcel-ec2.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 8,
+        "domains": 3
+      },
+      {
+        "entity": "Microsoft",
+        "requests": 6,
+        "domains": 1
+      },
+      {
+        "entity": "Cloudflare",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Meta",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Taboola",
+        "requests": 2,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".bing.com",
+        "thirdParty": true
+      },
+      {
+        "name": "IDE",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".liadm.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".taboola.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".taboola.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": "{label}.iesnare.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_fbp",
+        "domain": ".eharmony.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".eharmony.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetsid",
+        "domain": ".eharmony.com",
+        "thirdParty": false
+      },
+      {
+        "name": "_uetvid",
+        "domain": ".eharmony.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.eharmony.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "tracker": null,
+        "initiator": "{label}.instana.io",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.bing.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.usercentrics.eu",
+        "requests": 3,
+        "tracker": null,
+        "initiator": "{label}.{label}.usercentrics.eu",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.usercentrics.eu",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "www.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "{label}.bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.adxcel-ec2.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.{label}.usercentrics.eu",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.api.{label}.{label}.usercentrics.eu",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.instana.io",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.facebook.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.facebook.net",
+          "entity": "Meta",
+          "category": "social / advertising pixel",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.facebook.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.iesnare.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.iesnare.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.iesnare.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.instana.io",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.instana.io",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.instana.io",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.liadm.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.liadm.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.instana.io",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.liadm.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.liadm.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "initiator": "cdn.taboola.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.instana.io",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.taboola.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "taboola.com",
+          "entity": "Taboola",
+          "category": "advertising / recommendations",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.eharmony.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 50,
+      "after": 5,
+      "delta": -45
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://www.eharmony.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.eharmony.com/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260817-e19d70b34c8a3a64d89b68fa6331039f",
+    "path": "/reports/20260817-e19d70b34c8a3a64d89b68fa6331039f/",
+    "jsonPath": "/reports/20260817-e19d70b34c8a3a64d89b68fa6331039f.json"
+  }
+}

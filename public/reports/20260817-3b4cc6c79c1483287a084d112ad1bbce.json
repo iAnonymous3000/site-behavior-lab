@@ -1,0 +1,2052 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.irs.gov/",
+  "scannedAt": "2026-08-17T06:16:24.462Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6472,
+      "firstPartyDomain": "www.irs.gov",
+      "totalRequests": 50,
+      "thirdPartyRequests": 15,
+      "knownTrackerRequests": 6,
+      "thirdPartyDomains": 5,
+      "cookies": 6,
+      "thirdPartyCookies": 0,
+      "storageEntries": 5,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 9
+    },
+    "conditions": {
+      "requestedUrl": "https://www.irs.gov/",
+      "finalUrl": "https://www.irs.gov/",
+      "scannedAt": "2026-08-17T06:16:17.981Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.irs.gov/",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 49
+      },
+      {
+        "id": 2,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 3,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 4,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 5,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 6,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 103
+      },
+      {
+        "id": 7,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 103
+      },
+      {
+        "id": 8,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 103
+      },
+      {
+        "id": 9,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 150
+      },
+      {
+        "id": 10,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 151
+      },
+      {
+        "id": 11,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 156
+      },
+      {
+        "id": 12,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 158
+      },
+      {
+        "id": 13,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 159
+      },
+      {
+        "id": 14,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 159
+      },
+      {
+        "id": 15,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 160
+      },
+      {
+        "id": 16,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 161
+      },
+      {
+        "id": 17,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 161
+      },
+      {
+        "id": 18,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 161
+      },
+      {
+        "id": 19,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 162
+      },
+      {
+        "id": 20,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 162
+      },
+      {
+        "id": 21,
+        "url": "https://static.addtoany.com/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 162
+      },
+      {
+        "id": 22,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 163
+      },
+      {
+        "id": 23,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 169
+      },
+      {
+        "id": 24,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 203
+      },
+      {
+        "id": 25,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 204
+      },
+      {
+        "id": 26,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 204
+      },
+      {
+        "id": 27,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 205
+      },
+      {
+        "id": 28,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 206
+      },
+      {
+        "id": 29,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 207
+      },
+      {
+        "id": 30,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 207
+      },
+      {
+        "id": 31,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 32,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 33,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 34,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 209
+      },
+      {
+        "id": 35,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 209
+      },
+      {
+        "id": 36,
+        "url": "https://static.addtoany.com/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.addtoany.com/{seg}/{seg}",
+          "initiatorDomain": "static.addtoany.com"
+        },
+        "startedAtMs": 318
+      },
+      {
+        "id": 37,
+        "url": "https://static.addtoany.com/{seg}/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.addtoany.com/{seg}/{seg}",
+          "initiatorDomain": "static.addtoany.com"
+        },
+        "startedAtMs": 393
+      },
+      {
+        "id": 38,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 394
+      },
+      {
+        "id": 39,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 394
+      },
+      {
+        "id": 40,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 471
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 471
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.digitalgov.gov/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 472
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.digitalgov.gov/{seg}",
+          "initiatorDomain": "{label}.digitalgov.gov"
+        },
+        "startedAtMs": 510
+      },
+      {
+        "id": 44,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.digitalgov.gov/{seg}",
+          "initiatorDomain": "{label}.digitalgov.gov"
+        },
+        "startedAtMs": 511
+      },
+      {
+        "id": 45,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 512
+      },
+      {
+        "id": 46,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 608
+      },
+      {
+        "id": 47,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 682
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.medallia.com"
+        },
+        "startedAtMs": 731
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.medallia.com/{seg}/{n}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.medallia.com"
+        },
+        "startedAtMs": 757
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.{label}.medallia.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.medallia.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 779
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.addtoany.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.irs.gov",
+        "requests": 35,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 17
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "mousedown",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.digitalgov.gov/",
+            "https://static.addtoany.com/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 16
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.irs.gov/{seg}/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [
+        "Google"
+      ],
+      "policyTextLength": 56699
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.irs.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5651,
+      "firstPartyDomain": "www.irs.gov",
+      "totalRequests": 36,
+      "thirdPartyRequests": 3,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 3,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.irs.gov/",
+      "finalUrl": "https://www.irs.gov/",
+      "scannedAt": "2026-08-17T06:16:24.462Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.irs.gov/",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 42
+      },
+      {
+        "id": 2,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 107
+      },
+      {
+        "id": 3,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 108
+      },
+      {
+        "id": 4,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 108
+      },
+      {
+        "id": 7,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 109
+      },
+      {
+        "id": 8,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 109
+      },
+      {
+        "id": 9,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 162
+      },
+      {
+        "id": 10,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 163
+      },
+      {
+        "id": 11,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 12,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 13,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 14,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 15,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 16,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 17,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 18,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 19,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 20,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 21,
+        "url": "https://static.addtoany.com/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 22,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 23,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 24,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 25,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 203
+      },
+      {
+        "id": 26,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 204
+      },
+      {
+        "id": 27,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 205
+      },
+      {
+        "id": 28,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 206
+      },
+      {
+        "id": 29,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 206
+      },
+      {
+        "id": 30,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 207
+      },
+      {
+        "id": 31,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 207
+      },
+      {
+        "id": 32,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 207
+      },
+      {
+        "id": 33,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 34,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 35,
+        "url": "https://static.addtoany.com/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.addtoany.com/{seg}/{seg}",
+          "initiatorDomain": "static.addtoany.com"
+        },
+        "startedAtMs": 290
+      },
+      {
+        "id": 36,
+        "url": "https://static.addtoany.com/{seg}/{seg}/{seg}",
+        "domain": "static.addtoany.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.addtoany.com/{seg}/{seg}",
+          "initiatorDomain": "static.addtoany.com"
+        },
+        "startedAtMs": 382
+      },
+      {
+        "id": 37,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 385
+      },
+      {
+        "id": 38,
+        "url": "https://www.irs.gov/{seg}/{seg}/{seg}",
+        "domain": "www.irs.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.irs.gov/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.irs.gov"
+        },
+        "startedAtMs": 385
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.addtoany.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.irs.gov",
+        "requests": 33,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".irs.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.irs.gov/{seg}/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 56699
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.irs.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 50,
+      "after": 36,
+      "delta": -14
+    },
+    "thirdPartyRequests": {
+      "before": 15,
+      "after": 3,
+      "delta": -12
+    },
+    "knownTrackerRequests": {
+      "before": 6,
+      "after": 0,
+      "delta": -6
+    },
+    "thirdPartyDomains": {
+      "before": 5,
+      "after": 1,
+      "delta": -4
+    },
+    "cookies": {
+      "before": 6,
+      "after": 3,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 4,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 6,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".irs.gov",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.{label}.medallia.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.medallia.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.digitalgov.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.irs.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.digitalgov.gov",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 9,
+      "after": 2,
+      "delta": -7
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Read the site's privacy policy (https://www.irs.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.irs.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260817-3b4cc6c79c1483287a084d112ad1bbce",
+    "path": "/reports/20260817-3b4cc6c79c1483287a084d112ad1bbce/",
+    "jsonPath": "/reports/20260817-3b4cc6c79c1483287a084d112ad1bbce.json"
+  }
+}
