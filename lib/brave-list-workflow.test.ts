@@ -75,6 +75,30 @@ test("Brave-list refresh can publish only a reviewed proposal branch", () => {
   );
 });
 
+test("Playwright installation is bounded and retries exactly once", () => {
+  // Run 32161287520 reached the hosted Ubuntu mirror, then emitted nothing for
+  // six hours until GitHub cancelled the job. A list refresh must fail loudly
+  // on that external dependency instead of consuming the platform maximum.
+  const installStart = refreshJob.indexOf("- name: Install Playwright Chromium");
+  const fetchStart = refreshJob.indexOf("- name: Fetch Brave default filter lists", installStart);
+  const installSteps = refreshJob.slice(installStart, fetchStart);
+
+  assert.ok(installStart >= 0 && fetchStart > installStart, "browser install must precede list fetch");
+  assert.match(
+    installSteps,
+    /- name: Install Playwright Chromium[\s\S]*?id: install_chromium[\s\S]*?continue-on-error: true[\s\S]*?timeout-minutes: 10[\s\S]*?run: npx playwright install --with-deps chromium/
+  );
+  assert.match(
+    installSteps,
+    /- name: Retry Playwright Chromium installation once[\s\S]*?if: steps\.install_chromium\.outcome == 'failure'[\s\S]*?timeout-minutes: 10[\s\S]*?run: npx playwright install --with-deps chromium/
+  );
+  assert.equal(
+    (installSteps.match(/run: npx playwright install --with-deps chromium/g) ?? []).length,
+    2,
+    "the refresh must attempt the browser install once and retry it once"
+  );
+});
+
 test("a policy refusal to open the proposal PR does not discard a validated refresh", () => {
   // "Allow GitHub Actions to create and approve pull requests" is off by
   // default, so gh pr create fails with a GraphQL policy refusal AFTER the
