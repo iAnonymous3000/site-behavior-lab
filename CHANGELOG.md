@@ -9,6 +9,25 @@ public API or a 1.0 release.
 
 Work landing after the 0.5.0 milestone. Nothing here is released.
 
+### Added
+
+- The published coverage boundary now names two request-log surfaces this
+  scanner does not instrument: what a site declares in its response headers,
+  and which redirect led to which, in which frame. Both entries state what a
+  report does carry, because the near misses are what a reader would otherwise
+  mistake for the missing fact: cookie records expose flags a `Set-Cookie`
+  header set, the bounded privacy-policy fetch reads `Content-Length` and
+  `Location` without retaining either, and a redirect hop is published as its
+  own request row with no frame identifier and no link to the hop it led to.
+  Neither entry names absent identifiers, because `lib/scanner.ts` and
+  `lib/scan-runtime.ts` are themselves boundary sources and a pinned token
+  would fix an identifier this project's own code may legitimately use later,
+  so both rest on review and the catalog page marks them as such. The heading
+  for not-instrumented entries no longer says every one of them is held by a
+  test, which was already untrue of four shipped entries. No detector, report
+  field, or capture path changed, and no admitted public string or
+  normalization identity moved.
+
 ### Changed
 
 - A GPC-enabled visit now runs every Web Worker the site asks for and delivers
