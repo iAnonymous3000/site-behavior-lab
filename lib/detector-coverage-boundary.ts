@@ -162,6 +162,20 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
       "A live scan records the initiator URL that Chromium reported for a request, and nothing stronger. That is attribution, not causation: a script in an initiator position may itself have been told what to fetch by another script, and a parser-initiated request names the document rather than the markup that referenced it. Two kinds of row carry no attribution at all and are not distinguished from each other in the log: requests Chromium reported no initiator for, and requests whose URL was fetched from more than one initiator during the same visit, where nothing in the recorded evidence says which row belongs to which. Reports adapted from Brave PageGraph carry an instrumented causal graph instead, and say so."
   },
   {
+    id: "response-header-policy-declarations",
+    label: "What a site declares in its response headers",
+    reason: "not-instrumented",
+    explanation:
+      "A live scan records each request's URL and domain, its method and resource type, the status the response returned, and when it started. It keeps no response header, so a site's Referrer-Policy, Permissions-Policy, Content-Security-Policy, and Clear-Site-Data declarations are absent from every report. The claim is scoped to the headers themselves on purpose, because what a header declared can still reach a report by another route: a report's cookie records carry each cookie's HttpOnly, Secure, SameSite, path, and session flags, and HttpOnly can only have come from a Set-Cookie header, while the others can equally be a browser default or set from script and a report does not distinguish. The separate bounded privacy-policy fetch reads two response headers, Content-Length to enforce its byte ceiling and Location to follow a redirect, and retains neither, though the address a Location redirect resolved to is the policy URL a report names. Silence about a site's response headers means they were never kept, not that the site sent none."
+  },
+  {
+    id: "navigation-hop-attribution",
+    label: "Which redirect led to which, and in which frame",
+    reason: "not-instrumented",
+    explanation:
+      "A live scan records each redirect hop it captured as its own row, with that row's URL, status, and start time, and a report's conditions name the address the visit requested and the address it recorded as final. Hops can also be missing: recording stops at a fixed request cap, and a request aborted before it loaded, by Shields block simulation or by the private-address guard, is removed from the log entirely, so two adjacent rows need not have been adjacent in time. No row carries a frame identifier or a link to the hop it led to. The visit consults frame identity as it runs, but none of that reaches a row, so neither the ids, which are recording order, nor the start times establish that one row redirected to another. Two published fields come close without closing the gap: the initiator URL Chromium reported, which for a parser-initiated request names the requesting document rather than a frame, and the third-party flag, which is not computed against the row's own hop, so the first hop of a site's own navigation can be published as third-party. A redirect chain read off a report is therefore an inference a reader draws, not a fact the visit recorded: other than the addresses its conditions name, nothing marks which rows were that navigation's hops, and a third-party document load is recorded in the same shape as a navigation hop."
+  },
+  {
     id: "device-sensors",
     label: "Device motion, orientation, and ambient sensors",
     reason: "not-instrumented",
@@ -380,7 +394,7 @@ export const COVERAGE_BOUNDARY_REASON_COPY: Readonly<
   "not-instrumented": {
     label: "Not instrumented",
     meaning:
-      "A browser surface this scanner could observe and currently does not. These are the entries that could become coverage; each one is held to its claim by a test that reads the scanner source."
+      "A browser surface this scanner could observe and currently does not. These are the entries that could become coverage. Where the claim is API-shaped, a test reads the scanner source and holds it there; the rest are marked on each card as resting on review."
   },
   declined: {
     label: "Declined",
