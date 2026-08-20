@@ -19,6 +19,7 @@ import path from "node:path";
 import packageManifest from "../package.json";
 import braveListManifest from "./adblock-wasm/brave-default-filters.meta.json";
 import { canonicalJson } from "./canonical-json";
+import { evaluateDetectorCausalInputs } from "./detector-causal-inputs";
 import {
   analyzeDetectorCalibrationStudy,
   detectorCalibrationMeasurementCondition,
@@ -5530,6 +5531,37 @@ function verifyCalibrationRetainedArtifactBindings(
         !artifacts.has(calibrationArtifactKey("detector-observation", caseId)),
         `${caseLabel} censored case cannot retain a completed private detector observation`
       );
+      // Censoring is recomputed too, or closing under-censoring alone would
+      // leave a study free to drop any inconvenient case and still verify.
+      //
+      // The oracle is this file's OWN scoring function, so the verifier and the
+      // producer cannot disagree about what a scorable case looks like: if the
+      // retained report reproduces a prediction, nothing about it supports a
+      // censoring, whatever reason the attempt recorded.
+      //
+      // WHAT THIS STILL DOES NOT CLOSE, stated because the earlier version of
+      // this comment enumerated its exclusions as though the list were
+      // complete. A censored case may legitimately retain NO source report
+      // (`scripts/calibration-study-acquire.mjs` emits that shape from its
+      // outer catch, and the assembler permits it), and this block cannot run
+      // on one. So selective censoring is narrowed to cases that kept a report,
+      // not eliminated. `consent-banner` is excluded outright: its prediction
+      // needs the process-local calibration result, so no retained public
+      // report reproduces either its value or its censoring.
+      if (sourceRun !== null && detector !== "consent-banner") {
+        let reproducesPrediction = false;
+        try {
+          calibrationPredictionFromReportRun(sourceRun, detector, caseLabel);
+          reproducesPrediction = true;
+        } catch {
+          // Not scorable, which is what a censoring asserts. This is the
+          // expected path for a truthfully censored case.
+        }
+        requireValue(
+          !reproducesPrediction,
+          `${caseLabel} retained source report reproduces a scorable prediction, so it does not support censoring this case`
+        );
+      }
     } else {
       throw new Error(`${caseLabel}.outcome must be complete or censored`);
     }
@@ -5561,6 +5593,16 @@ function calibrationPredictionFromReportRun(
   requireValue(
     ledger.status === "complete",
     `${label} source report detector ledger is not complete`
+  );
+  // Recomputed here, not inherited from the producer. A stage that finished
+  // over a truncated input still reports `complete`, so a case scored as a
+  // usable prediction must independently prove its causal evidence whole.
+  const causalInputs = evaluateDetectorCausalInputs(run, detector);
+  requireValue(
+    causalInputs.complete,
+    `${label} source report cannot support a scored prediction: ${
+      causalInputs.complete ? "" : causalInputs.cause
+    }`
   );
   const evidence = requiredRecord(
     run.evidence,

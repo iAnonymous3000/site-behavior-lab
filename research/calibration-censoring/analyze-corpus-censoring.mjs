@@ -39,6 +39,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  assertDiscriminatorMatchesProduct,
+  normalizeHistoricalLossDetail
+} from "./historical-loss-detail.mjs";
+import {
   METRIC_DENOMINATOR,
   POLICIES,
   simulatePolicy
@@ -86,6 +90,9 @@ function assertCanonicalConstants(repoRoot) {
   if (!same) {
     throw new Error(`evidence family list drifted from EVIDENCE_FAMILIES: ${JSON.stringify(declared)}`);
   }
+  // Pinned in its own module, which the driver and its test both read, so the
+  // restatement cannot drift from the product rule it mirrors.
+  assertDiscriminatorMatchesProduct(repoRoot);
 }
 
 /**
@@ -127,7 +134,11 @@ function loadRuns() {
 
 const facts = (r) => r.run.qualityFacts;
 const fam = (r) => r.run.quality.byFamily;
-const losses = (r) => (Array.isArray(facts(r).captureLoss) ? facts(r).captureLoss : []);
+const runWarnings = (r) => (Array.isArray(r.run?.warnings) ? r.run.warnings : []);
+
+const rawLosses = (r) => (Array.isArray(facts(r).captureLoss) ? facts(r).captureLoss : []);
+const losses = (r) =>
+  rawLosses(r).map((l) => normalizeHistoricalLossDetail(l, runWarnings(r)));
 const ledger = (r, d) => r.run.detectors?.[d];
 
 const inCnameArm = (r) =>

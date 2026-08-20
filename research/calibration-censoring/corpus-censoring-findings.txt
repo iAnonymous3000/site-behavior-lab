@@ -37,12 +37,13 @@ CAPTURE-LOSS REASONS (CNAME arm)
     6  detector-output/keystroke-probe/dropped
     6  detector-output/policy-visit/dropped
     6  detector-output/policy-link-candidates/truncated
-    5  requests/request-capture/cap
+    4  requests/request-capture/cap
     3  detector-output/policy-visit/cap
     2  detector-output/keystroke-probe-capture/truncated
     1  detector-output/keystroke-probe/cap
     1  detector-output/cname-lookups/cap
     1  requests/proxy-traffic/cap
+    1  requests/response-bytes/cap
     1  requests/public-request-unregistrable-hosts/dropped
     1  storage/storage-snapshot/truncated
 

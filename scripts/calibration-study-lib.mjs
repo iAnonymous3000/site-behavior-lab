@@ -227,6 +227,7 @@ let sharedCanonicalSerializer;
 let sharedMeasurementBindingContract;
 let sharedDetectorCalibrationContract;
 let sharedR2EvaluatorContract;
+let sharedDetectorCausalInputsContract;
 
 function measurementBindingContract() {
   if (sharedMeasurementBindingContract === undefined) {
@@ -301,6 +302,34 @@ export function calibrationMeasurementCondition(detector) {
       detector
     )
   );
+}
+
+function detectorCausalInputsContract() {
+  if (sharedDetectorCausalInputsContract === undefined) {
+    for (const candidate of [
+      "../dist/schema/lib/detector-causal-inputs.js",
+      "../.unit-test-dist/lib/detector-causal-inputs.js"
+    ]) {
+      try {
+        const loaded = requireFromCalibrationStudy(candidate);
+        if (
+          typeof loaded.evaluateDetectorCausalInputs === "function" &&
+          isRecord(loaded.DETECTOR_CAUSAL_INPUTS)
+        ) {
+          sharedDetectorCausalInputsContract = loaded;
+          break;
+        }
+      } catch {
+        // The launcher compiles the canonical contract before producer use.
+      }
+    }
+  }
+  if (sharedDetectorCausalInputsContract === undefined) {
+    throw new Error(
+      "The shared detector causal-input contract is unavailable; build dist/schema before using the calibration producer."
+    );
+  }
+  return sharedDetectorCausalInputsContract;
 }
 
 function r2EvaluatorContract() {
@@ -1206,6 +1235,24 @@ export function detectorPredictionFromRun(run, detector) {
   }
   if (ledger.status !== "complete") {
     return { outcome: "censored", reason: "eligibility-criteria-not-met" };
+  }
+  // A finished stage is not a whole prediction: a censored requests family cuts
+  // the candidate hosts cname-uncloaking never saw, while its ledger still
+  // reads complete. Fails closed, including on a run with no family ledger.
+  //
+  // The reason is `capture-failed` because the four allowed reasons are pinned
+  // byte-for-byte in the candidate-resident policy artifact, and this scope
+  // does not move that digest. The cost is real and is recorded here rather
+  // than discovered later: the attempt artifact cannot distinguish "the page
+  // never loaded" from "the recording cap ate the candidate set". That second
+  // signal lives in the retained source report's captureLoss ledger, which is
+  // what the binding verifier recomputes from.
+  const causalInputs = detectorCausalInputsContract().evaluateDetectorCausalInputs(
+    run,
+    detector
+  );
+  if (!causalInputs.complete) {
+    return { outcome: "censored", reason: "capture-failed" };
   }
   const evidence = run.evidence;
   require(isRecord(evidence), "scan run evidence must be an object");
