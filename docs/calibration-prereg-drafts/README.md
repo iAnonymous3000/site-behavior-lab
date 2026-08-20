@@ -48,19 +48,35 @@ In dependency order:
 
 ## The zero-censoring arithmetic, stated plainly
 
-The approved policy makes any censored case fatal to the whole study, and
-release-grade dispatch requires at least 400 cases with every marginal
-denominator (reference present, reference absent, predicted detected,
-predicted not detected) at 100 or more. The pilot lost 37.5 percent of
-attempts to capture failure on consumer retail sites.
+The approved policy makes any censored case fatal to the whole study. Every
+marginal denominator (reference present, reference absent, predicted detected,
+predicted not detected) must reach 100 on the labeled data, which sets a
+**structural floor of 200 planned cases**. Not 400: those four class minimums
+are two partitions of the same N, so 100 in each of four classes needs 200
+cases, and summing all four counts every case twice. `structuralMinimumCasesFor`
+in `scripts/calibration-study-lib.mjs` is the enforced floor, and the arithmetic
+is worked through in
+[calibration-study-operations.md](../calibration-study-operations.md). The pilot
+lost 37.5 percent of attempts to capture failure on consumer retail sites.
 
-Two consequences that shape every draft here:
+**That floor is not a sample size.** It says only that fewer cases cannot fill
+the four classes; it never says a design of that size is adequate. Real sizing
+is power-derived per study from the detector's prevalence and the recall it must
+tolerate, and is argued in that study's own preregistration. For a rare-positive
+detector the honest number sits far above the floor: the CNAME design sizes
+N ~ 350 so that `referencePresent` is expected near 175, because
+`predictedDetected` is roughly recall times `referencePresent`. An earlier
+version of this page fixed every study at 400 and called that the optimal frame.
+It was neither the structural floor nor a power calculation, and it rejected
+designs this project's own power analysis justifies, including the CNAME study
+described here.
+
+One consequence that shapes every draft here:
 
 - **Plan the minimum, not a margin.** Extra cases cannot replace failures
   (substitution is forbidden) and every planned case must complete, so each
-  additional case only adds another chance to kill the study. The optimal
-  frame is exactly 400 cases drawn from the most reliably scannable sites
-  available.
+  additional case beyond the power-derived N only adds another chance to kill
+  the study. Draw the frame from the most reliably scannable sites available.
 - **Reliability screening is the whole game.** The frame must be built from
   sites with demonstrated repeated successful automated visits under the
   exact measurement condition. The weekly corpus already measures this for

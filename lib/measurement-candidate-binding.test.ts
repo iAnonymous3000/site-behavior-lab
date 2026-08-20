@@ -21,6 +21,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test, type TestContext } from "node:test";
 import { canonicalJson } from "./canonical-json";
+import { EVIDENCE_FAMILIES } from "./scan-report-v2";
 import { removeFixtureTree, runFixtureGit } from "./git-fixture";
 import {
   inspectMeasurementCandidateBinding,
@@ -71,7 +72,8 @@ import {
   type DetectorCalibrationRuntimeIdentity,
   type DetectorCalibrationStudy,
   type DetectorCalibrationStudyV2,
-  type DetectorCalibrationStudyV3
+  type DetectorCalibrationStudyV3,
+  type DetectorCalibrationCensorReason
 } from "./detector-calibration";
 import { committedCalibrationStudyAnalyses } from "./detector-calibration-source";
 import { NODE_PLAYWRIGHT_VERSION } from "./legacy-methodology";
@@ -1903,6 +1905,53 @@ test("calibration preregistration and retained raw artifacts are byte-verified",
     }
   );
 
+  await t.test(
+    "a complete case cannot be scored from a run whose causal inputs were cut",
+    (child) => {
+      const fixture = makeFixture(child, {
+        censorRequestsInSourceReport: true
+      });
+      assert.throws(
+        () => inspectFixture(fixture.root),
+        /cannot support a scored prediction: requests evidence is censored/
+      );
+    }
+  );
+
+  await t.test(
+    "a censoring must not be contradicted by the report it retained",
+    (child) => {
+      // The other direction. Closing under-censoring alone would leave a study
+      // free to drop any inconvenient case and still verify.
+      const fixture = makeFixture(child, {
+        includeCensoredCase: true,
+        censoredCaseRetainsCleanSourceReport: true
+      });
+      assert.throws(
+        () => inspectFixture(fixture.root),
+        /reproduces a scorable prediction, so it does not support censoring this case/
+      );
+    }
+  );
+
+  await t.test(
+    "the same refusal covers an eligibility censoring, not only a capture one",
+    (child) => {
+      // The earlier version of this guard was scoped to capture-failed, which
+      // is the MINORITY reason on the committed arm. Recomputing through the
+      // scoring function covers every reason uniformly, and this pins that.
+      const fixture = makeFixture(child, {
+        includeCensoredCase: true,
+        censoredCaseRetainsCleanSourceReport: true,
+        censoredCaseReason: "eligibility-criteria-not-met"
+      });
+      assert.throws(
+        () => inspectFixture(fixture.root),
+        /reproduces a scorable prediction, so it does not support censoring this case/
+      );
+    }
+  );
+
   await t.test("censored attempts are retained and digest-bound", (child) => {
     const fixture = makeFixture(child, { includeCensoredCase: true });
     const inspected = inspectFixture(fixture.root);
@@ -2167,6 +2216,9 @@ function makeFixture(
     shortDurableSoak?: boolean;
     adequateCalibrationStudy?: boolean;
     unverifiedPixelConsent?: boolean;
+    censorRequestsInSourceReport?: boolean;
+    censoredCaseRetainsCleanSourceReport?: boolean;
+    censoredCaseReason?: DetectorCalibrationCensorReason;
     deferCalibrationGate?: boolean;
     includeAaStudy?: boolean;
     deferAaStudyGate?: boolean;
@@ -2662,7 +2714,8 @@ RUN test "$(node --version)" = "v24.18.0"
     studyId,
     design,
     options.includeCensoredCase === true,
-    options.adequateCalibrationStudy === true
+    options.adequateCalibrationStudy === true,
+    options.censoredCaseReason ?? "capture-failed"
   );
   if (options.includeCalibrationStudy !== false) {
     writeFileSync(
@@ -2681,7 +2734,9 @@ RUN test "$(node --version)" = "v24.18.0"
       root,
       studyValue,
       artifactManifestPath,
-      options.unverifiedPixelConsent === true
+      options.unverifiedPixelConsent === true,
+      options.censorRequestsInSourceReport === true,
+      options.censoredCaseRetainsCleanSourceReport === true
     );
     createCalibrationLabelsManifest(
       root,
@@ -4050,7 +4105,8 @@ function study(
   studyId: string,
   design: DetectorCalibrationStudyV2["design"],
   includeCensoredCase: boolean,
-  adequate: boolean
+  adequate: boolean,
+  censoredCaseReason: DetectorCalibrationCensorReason = "capture-failed"
 ): DetectorCalibrationStudyV3 {
   if (adequate) {
     const cases = [
@@ -4118,7 +4174,7 @@ function study(
         ? {
             caseId: "absent",
             outcome: "censored",
-            reason: "capture-failed",
+            reason: censoredCaseReason,
             conditionDigest: calibrationConditionDigest(
               "pixel-events-final-candidate",
               "absent"
@@ -4224,7 +4280,8 @@ function calibrationReferenceEvidenceDigest(
 
 function calibrationSourceReport(
   prediction: "detected" | "not-detected",
-  unverifiedPixelConsent: boolean = false
+  unverifiedPixelConsent: boolean = false,
+  censorRequests: boolean = false
 ) {
   return {
     schemaVersion: 2,
@@ -4236,7 +4293,37 @@ function calibrationSourceReport(
         gpc: false,
         consent: "accept-all"
       },
-      quality: { run: { outcome: "complete" } },
+      // A real v2 run always carries both. The fixture used to emit
+      // `quality.run` alone, so a causal-input rule written with optional
+      // chaining would have passed this suite by construction.
+      quality: {
+        run: { outcome: "complete" },
+        byFamily: Object.fromEntries(
+          EVIDENCE_FAMILIES.map((family) => [
+            family,
+            family === "requests" && censorRequests
+              ? { outcome: "censored", reasons: ["capture-loss:cap"] }
+              : { outcome: "complete", reasons: [] }
+          ])
+        )
+      },
+      qualityFacts: {
+        status: 200,
+        botWallTitleMatched: false,
+        navigationSettled: true,
+        budgetsExhausted: censorRequests ? ["request-capture"] : [],
+        captureLoss: censorRequests
+          ? [
+              {
+                family: "requests",
+                phaseId: null,
+                kind: "cap",
+                count: 42,
+                detail: "request-capture"
+              }
+            ]
+          : []
+      },
       detectors: {
         "pixel-events": { status: "complete", phaseId: 0 }
       },
@@ -4286,7 +4373,9 @@ function createCalibrationArtifacts(
   root: string,
   studyValue: DetectorCalibrationStudyV3,
   artifactManifestPath: string,
-  unverifiedPixelConsent: boolean = false
+  unverifiedPixelConsent: boolean = false,
+  censorRequests: boolean = false,
+  censoredCaseRetainsCleanSourceReport: boolean = false
 ): void {
   const artifacts: Array<{
     role:
@@ -4350,7 +4439,13 @@ function createCalibrationArtifacts(
           conditionDigest: calibrationCase.conditionDigest,
           outcome: "censored",
           reason: calibrationCase.reason,
-          sourceReportSha256: null,
+          sourceReportSha256: censoredCaseRetainsCleanSourceReport
+            ? addArtifact(
+                calibrationCase.caseId,
+                "source-report",
+                calibrationSourceReport("not-detected", false, false)
+              )
+            : null,
           recordedAt: "2026-08-01T00:06:00.000Z"
         }
       );
@@ -4358,7 +4453,8 @@ function createCalibrationArtifacts(
     }
     const sourceReport = calibrationSourceReport(
       calibrationCase.prediction.value,
-      unverifiedPixelConsent
+      unverifiedPixelConsent,
+      censorRequests
     );
     const sourceReportDigest = addArtifact(
       calibrationCase.caseId,
