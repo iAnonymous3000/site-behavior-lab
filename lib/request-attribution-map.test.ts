@@ -7,6 +7,7 @@ import {
   buildRequestAttributionMap,
   MAX_DRAWN_ATTRIBUTION_EDGES,
   requestAttributionActor,
+  requestMatchesAttributionPair,
   type RequestAttributionMapInput,
   type RequestAttributionMapModel
 } from "./request-attribution-map";
@@ -79,6 +80,8 @@ test("the model resolves the same actor precedence and role vocabulary as the re
       source: "script.example",
       dest: "third-1.example",
       requests: 1,
+      requestsLabel: "1",
+      requestsPhrase: "1 request",
       tracker: false,
       role: "script"
     }
@@ -248,10 +251,205 @@ test("edge aggregation is deterministic, preserves mixed roles, and discloses th
     source: "actor.example",
     dest: "shared.example",
     requests: 2,
+    requestsLabel: "2",
+    requestsPhrase: "2 requests",
     tracker: false,
     role: "mixed"
   });
   assert.equal(map.coverage.attributedRequests, rows.length);
+});
+
+/**
+ * The defect this pins: the map drew exact per-edge counts while the coverage
+ * block directly above it printed floors from the same censored run. Formatting
+ * in the model rather than the renderer is what keeps the drawn figure, the
+ * spoken figure and the printed figure from disagreeing.
+ */
+test("a censored capture states every drawn count as a floor, never as an exact figure", () => {
+  // Two rows on ONE host, so they aggregate into a single edge and a single
+  // destination and both counts read 2.
+  const rows: NetworkRequestRecord[] = [
+    request(1, { provenance: { scriptDomain: "script.example" } }),
+    request(2, {
+      domain: "third-1.example",
+      url: "https://third-1.example/second",
+      provenance: { scriptDomain: "script.example" }
+    })
+  ];
+  const censored = drawn(
+    buildRequestAttributionMap({
+      ...input(rows),
+      evidenceState: "censored"
+    })
+  );
+  assert.equal(censored.edges[0].requestsLabel, "≥2");
+  assert.equal(censored.edges[0].requestsPhrase, "at least 2 retained requests");
+  assert.equal(censored.destinations[0].requestsLabel, "≥2");
+  assert.equal(censored.destinations[0].requestsPhrase, "at least 2 retained requests");
+
+  // The same rows on a complete capture must NOT hedge, or the floor language
+  // stops meaning anything.
+  const complete = drawn(buildRequestAttributionMap(input(rows)));
+  assert.equal(complete.edges[0].requestsLabel, "2");
+  assert.equal(complete.edges[0].requestsPhrase, "2 requests");
+});
+
+/**
+ * The drill-down contract, pinned to a real committed report rather than to a
+ * fixture that would agree by construction.
+ *
+ * `20260814-469dd801...` is AP News. Its baseline arm draws 12 edges out of 368
+ * recorded paths with a CENSORED request family, which is exactly the shape a
+ * reader meets: a long tail, company grouping, a host that is both a source and
+ * a destination, and counts that are floors.
+ *
+ * Named explicitly instead of "whichever report sorts first", because a guard
+ * pinned to a corpus accident silently stops testing what it claims to when the
+ * corpus moves. If this report is ever retired, this test fails loudly and
+ * should be re-pinned deliberately.
+ */
+const AP_REPORT_ID = "20260814-469dd801c3015de7d2d2f04ed56ec14c";
+
+function apNewsArm(arm: "baseline" | "variant") {
+  const file = path.join(process.cwd(), "public", "reports", `${AP_REPORT_ID}.json`);
+  assert.ok(
+    readdirSync(path.join(process.cwd(), "public", "reports")).includes(
+      `${AP_REPORT_ID}.json`
+    ),
+    `the pinned attribution report ${AP_REPORT_ID} is gone; re-pin this guard deliberately rather than deleting it`
+  );
+  const report = JSON.parse(readFileSync(file, "utf8")) as Record<string, any>;
+  const run = report[arm];
+  assert.ok(run, `${AP_REPORT_ID} has no ${arm} arm`);
+  const requests = run.evidence.requests as NetworkRequestRecord[];
+  const model = buildRequestAttributionMap({
+    requests,
+    totalRequests: run.summary.counts.totalRequests,
+    thirdPartyRequests: run.summary.counts.thirdPartyRequests,
+    automation: "playwright-chromium",
+    evidenceState:
+      run.quality.byFamily.requests.outcome === "censored" ? "censored" : "complete"
+  });
+  return { model: drawn(model), requests };
+}
+
+function selected(
+  requests: readonly NetworkRequestRecord[],
+  model: RequestAttributionMapModel,
+  actor: string,
+  destination: string
+): number {
+  return requests.filter((request) =>
+    requestMatchesAttributionPair(
+      request,
+      { actor, destination },
+      model.destinationByHost
+    )
+  ).length;
+}
+
+test("a drawn edge and the rows it was summed from are the same set", () => {
+  const { model, requests } = apNewsArm("baseline");
+  assert.equal(model.totalEdges, 368);
+  assert.equal(model.edges.length, MAX_DRAWN_ATTRIBUTION_EDGES);
+
+  const edge = model.edges.find(
+    (candidate) =>
+      candidate.source === "apnews.com" && candidate.dest === "*.primis.tech"
+  );
+  assert.ok(edge, "the pinned edge is no longer drawn; re-pin deliberately");
+  assert.equal(edge.requests, 22);
+  assert.equal(edge.requestsLabel, "≥22", "this arm's request family is censored");
+  assert.equal(selected(requests, model, "apnews.com", "*.primis.tech"), 22);
+});
+
+/**
+ * Why the pair is structural and not a text search. On this report a needle
+ * naming the destination matches every row INITIATED by that host as well, and
+ * a needle naming the actor matches most of the capture.
+ */
+test("a text needle cannot stand in for edge membership", () => {
+  const { model, requests } = apNewsArm("baseline");
+  const textMatches = (needle: string) =>
+    requests.filter((request) =>
+      JSON.stringify(request).toLowerCase().includes(needle)
+    ).length;
+  assert.equal(selected(requests, model, "apnews.com", "*.primis.tech"), 22);
+  assert.ok(
+    textMatches("primis.tech") > 22,
+    "a destination needle should over-match, which is the reason this predicate exists"
+  );
+  assert.ok(textMatches("apnews.com") > 200, "an actor needle matches most of the capture");
+});
+
+/**
+ * The case that closes the "just label the link by one endpoint" escape: one
+ * host is drawn as a source node AND a destination node, including a self-loop,
+ * so a single-endpoint filter is undecidable between three drawn edges.
+ */
+test("a host that is both a source and a destination keeps its edges distinct", () => {
+  const { model, requests } = apNewsArm("baseline");
+  for (const [actor, destination, expected] of [
+    ["www.dianomi.com", "www.dianomi.com", 72],
+    ["apnews.com", "www.dianomi.com", 22],
+    ["www.dianomi.com", "*.dianomi.com", 18]
+  ] as const) {
+    const edge = model.edges.find(
+      (candidate) => candidate.source === actor && candidate.dest === destination
+    );
+    assert.ok(edge, `${actor} -> ${destination} is no longer drawn`);
+    assert.equal(edge.requests, expected);
+    assert.equal(selected(requests, model, actor, destination), expected);
+  }
+});
+
+/**
+ * Company grouping: several raw hosts share one destination node, so membership
+ * cannot be decided by the node label alone.
+ */
+test("a destination node spanning several hosts selects every one of them", () => {
+  const { model, requests } = apNewsArm("variant");
+  const edge = model.edges.find((candidate) => candidate.dest === "Equativ");
+  assert.ok(edge, "the pinned grouped destination is no longer drawn");
+  assert.equal(selected(requests, model, edge.source, "Equativ"), edge.requests);
+  const hosts = [...model.destinationByHost.entries()]
+    .filter(([, label]) => label === "Equativ")
+    .map(([host]) => host);
+  assert.ok(
+    hosts.length > 1,
+    "this guard is only meaningful while the node really spans several hosts"
+  );
+  assert.ok(
+    !hosts.includes("Equativ"),
+    "the node label is a company name, not a host, so a label-equals-host filter would select nothing"
+  );
+});
+
+/**
+ * The cap is a drawing limit, not a measurement. A destination node's total
+ * sums only the edges that were drawn, so it must not be presented as the
+ * host's full retained volume.
+ */
+test("node totals describe the drawn subgraph only", () => {
+  const { model, requests } = apNewsArm("baseline");
+  const destination = model.destinations.find(
+    (candidate) => candidate.label === "*.primis.tech"
+  );
+  assert.ok(destination);
+  const drawnToNode = model.edges
+    .filter((edge) => edge.dest === destination.label)
+    .reduce((total, edge) => total + edge.requests, 0);
+  assert.equal(destination.requests, drawnToNode);
+
+  const everyRetainedRow = requests.filter(
+    (request) =>
+      request.thirdParty &&
+      (model.destinationByHost.get(request.domain) ?? "") === destination.label
+  ).length;
+  assert.ok(
+    everyRetainedRow > destination.requests,
+    "the pinned report should have rows this node does not draw, which is why a node may not offer a drill-down"
+  );
 });
 
 test("every committed run reconciles through the attribution model", () => {
@@ -443,6 +641,12 @@ test("conflicting entity names on one public host fall back deterministically to
   assert.ok(reversed && reversed.kind === "map");
   assert.deepEqual(forward.destinations, reversed.destinations);
   assert.deepEqual(forward.destinations, [
-    { label: "*.example.com", requests: 2, tracker: true }
+    {
+      label: "*.example.com",
+      requests: 2,
+      requestsLabel: "2",
+      requestsPhrase: "2 requests",
+      tracker: true
+    }
   ]);
 });

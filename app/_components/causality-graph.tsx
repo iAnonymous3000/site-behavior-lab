@@ -161,7 +161,7 @@ function CausalityGraph({
                     strokeWidth={strokeWidth}
                     fill="none"
                   >
-                    <title>{`${edge.source} to ${edge.dest}: ${plural(edge.requests, "request")}`}</title>
+                    <title>{`${edge.source} to ${edge.dest}: ${edge.requestsPhrase}`}</title>
                   </path>
                 );
               })}
@@ -190,7 +190,7 @@ function CausalityGraph({
                       {truncateMiddle(dest.label)}
                     </text>
                     <text x={rightX + 12} y={y + 34} className="causal-node-detail">
-                      {plural(dest.requests, "request")}
+                      {dest.requestsLabel} {dest.requests === 1 ? "request" : "requests"}
                     </text>
                   </g>
                 );
@@ -215,7 +215,7 @@ function CausalityGraph({
           <ol className="visually-hidden print-text-equivalent">
             {edges.map((edge) => (
               <li key={`${edge.source}->${edge.dest}-text`}>
-                {plural(edge.requests, "request")} to {edge.dest}
+                {edge.requestsPhrase} to {edge.dest}
                 {edge.tracker ? ", a catalogued service" : ""}, recorded as {actorPhrase(edge.role)} {edge.source}.
               </li>
             ))}

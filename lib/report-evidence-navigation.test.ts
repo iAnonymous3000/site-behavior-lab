@@ -162,3 +162,54 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
   assert.match(renderer, /document\.addEventListener\("click", selectRepeatedLinkedEvidenceArm\)/);
   assert.match(renderer, /aria-label="Supporting report evidence"/);
 });
+
+/**
+ * The pair is the drill-down's identity, so its round trip and its refusals are
+ * pinned. A half-specified pair degrading into a one-sided filter is the exact
+ * over-count this field exists to replace.
+ */
+test("an attribution pair round-trips, and a half-specified one is refused", () => {
+  const target = {
+    section: "requests" as const,
+    arm: "baseline" as const,
+    pair: { actor: "apnews.com", destination: "*.primis.tech" }
+  };
+  const hash = buildEvidenceHash(target);
+  assert.match(hash, /actor=apnews.com/);
+  assert.match(hash, /destination=/);
+  assert.deepEqual(parseEvidenceHash(hash), target);
+
+  assert.equal(
+    parseEvidenceHash("#evidence=requests&actor=apnews.com")?.pair,
+    undefined,
+    "an actor with no destination must not become a one-sided filter"
+  );
+  assert.equal(
+    parseEvidenceHash("#evidence=requests&destination=*.primis.tech")?.pair,
+    undefined,
+    "a destination with no actor must not become a one-sided filter"
+  );
+  assert.equal(
+    parseEvidenceHash("#evidence=requests&actor=%20&destination=x")?.pair,
+    undefined,
+    "whitespace is not an endpoint"
+  );
+
+  // The pair is a requests-section concept; the domains board has no edges.
+  assert.equal(
+    buildEvidenceHash({
+      section: "domains",
+      pair: { actor: "a.example", destination: "b.example" }
+    }).includes("actor="),
+    false
+  );
+
+  // Fragment-controlled values stay bounded, like query.
+  const long = "a".repeat(900);
+  const parsed = parseEvidenceHash(
+    `#evidence=requests&actor=${long}&destination=${long}`
+  );
+  assert.equal(parsed?.pair?.actor.length, 500);
+  assert.equal(parsed?.pair?.destination.length, 500);
+});
+
