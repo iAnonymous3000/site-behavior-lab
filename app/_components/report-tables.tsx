@@ -31,6 +31,10 @@ import {
   type EvidenceSection,
   type EvidenceTarget
 } from "@/lib/report-evidence-navigation";
+import {
+  attributionDestinationByHost,
+  requestMatchesAttributionPair
+} from "@/lib/request-attribution-map";
 import type {
   CookieRecord,
   DomainSummary,
@@ -223,6 +227,21 @@ function RequestTable({
   const [resourceFilter, setResourceFilter] = useState("all");
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const evidenceTarget = useEvidenceTarget("requests");
+  /**
+   * An attribution drill-down selects the rows one drawn edge was summed from.
+   *
+   * Structural, never a text needle: the free-text filter below ORs one needle
+   * across eight fields including the provenance text, so a needle naming a
+   * destination also matches every row INITIATED by that host, and one host can
+   * be both endpoints of different drawn edges. The predicate and the host
+   * resolution both come from the map's own module so this table and the
+   * diagram cannot disagree about which rows an edge covers.
+   */
+  const attributionPair = evidenceTarget?.pair ?? null;
+  const destinationByHost = useMemo(
+    () => attributionDestinationByHost(requests),
+    [requests]
+  );
 
   const resourceTypes = useMemo(
     () => Array.from(new Set(requests.map((request) => request.resourceType))).sort((a, b) => a.localeCompare(b)),
@@ -232,6 +251,12 @@ function RequestTable({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return requests.filter((request) => {
+      if (
+        attributionPair &&
+        !requestMatchesAttributionPair(request, attributionPair, destinationByHost)
+      ) {
+        return false;
+      }
       if (!requestMatchesSignalFilter(request, signalFilter)) return false;
       if (!requestMatchesStatusFilter(request, statusFilter)) return false;
       if (resourceFilter !== "all" && request.resourceType !== resourceFilter) return false;
@@ -247,15 +272,34 @@ function RequestTable({
         request.tracker?.category.toLowerCase().includes(q)
       );
     });
-  }, [requests, query, resourceFilter, signalFilter, statusFilter]);
+  }, [
+    attributionPair,
+    destinationByHost,
+    requests,
+    query,
+    resourceFilter,
+    signalFilter,
+    statusFilter
+  ]);
 
   const shown = filtered.slice(0, printComplete ? PRINT_ROW_CAPS.requests : REQUEST_SCREEN_ROW_CAP);
-  const filtersActive = signalFilter !== "all" || statusFilter !== "all" || resourceFilter !== "all" || query.trim() !== "";
+  const filtersActive =
+    signalFilter !== "all" ||
+    statusFilter !== "all" ||
+    resourceFilter !== "all" ||
+    query.trim() !== "" ||
+    attributionPair !== null;
   function resetFilters() {
     setQuery("");
     setSignalFilter("all");
     setStatusFilter("all");
     setResourceFilter("all");
+    // The attribution pair lives in the fragment, not in local state, so
+    // clearing the controls without clearing it would leave a filter the reader
+    // can see the effect of and cannot switch off.
+    if (attributionPair && typeof window !== "undefined") {
+      window.location.hash = "#evidence=requests";
+    }
   }
   useEffect(() => {
     if (!evidenceTarget) return;
@@ -348,6 +392,32 @@ function RequestTable({
           </select>
         </label>
       </div>
+        {/* The one filter with no control of its own. A query, a signal chip, a
+            status and a resource all render their own state, so a reader can
+            see they are set and unset them. An attribution pair arrives in the
+            fragment from the map and had no visible presence at all, so a
+            successful drill-down left the log filtered with nothing on screen
+            saying so and nothing to press: the reader had to edit the URL. It
+            renders whether or not rows survived, because an empty result is
+            exactly when knowing why matters most.
+
+            ABOVE THE TABLE, not after it. The drill-down link scrolls to the top
+            of the log, so a label rendered below the rows arrives off-screen:
+            measured at 360px it sat roughly 3,845px below the fold, which is a
+            label the arriving reader cannot see and a control they cannot
+            reach. Placement is the feature here, not decoration. */}
+        {attributionPair && (
+          <p className="attribution-active-filter">
+            <span>
+              Showing only the rows behind one attribution path:{" "}
+              <strong>{attributionPair.actor}</strong> to{" "}
+              <strong>{attributionPair.destination}</strong>.
+            </span>{" "}
+            <button type="button" className="change-list-toggle" onClick={resetFilters}>
+              Clear filters
+            </button>
+          </p>
+        )}
       <div
         className={`table-wrap request-table${hasPhases ? " has-phase-column" : ""}`}
         role="region"

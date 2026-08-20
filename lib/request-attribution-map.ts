@@ -275,28 +275,7 @@ export function buildRequestAttributionMap(
    * Totals reconcile either way, so the corpus gate cannot catch this: only the
    * destination count and the drawn picture are affected.
    */
-  const entitiesByHost = new Map<string, Set<string>>();
-  for (const request of input.requests) {
-    if (!request.thirdParty) continue;
-    const entity = request.tracker?.entity;
-    if (!entity) continue;
-    const entities = entitiesByHost.get(request.domain) ?? new Set<string>();
-    entities.add(entity);
-    entitiesByHost.set(request.domain, entities);
-  }
-  const destinationByHost = new Map<string, string>();
-  for (const request of input.requests) {
-    if (!request.thirdParty || destinationByHost.has(request.domain)) continue;
-    const entities = entitiesByHost.get(request.domain);
-    // A public redaction can collapse raw subdomains. If that ever leaves two
-    // entity names on one public host, choosing the first or last would make
-    // the map depend on request order. The host is the only honest common
-    // identity in that case.
-    destinationByHost.set(
-      request.domain,
-      entities?.size === 1 ? [...entities][0] : displayHost(request.domain)
-    );
-  }
+  const destinationByHost = attributionDestinationByHost(input.requests);
 
   // Accumulated without the formatted counts: the label and phrase are derived
   // once, after aggregation and capping, so a partially summed edge can never
@@ -428,6 +407,42 @@ export function buildRequestAttributionMap(
  * Mirrors the accumulation loop above skip for skip: not third-party, or no
  * single recorded actor, and the row was never summed into any edge.
  */
+/**
+ * Raw retained host to the destination node it is drawn under.
+ *
+ * Exported so the request log can decide edge membership by calling the same
+ * resolution the map drew with, rather than restating it. Kept in this module
+ * because the reasoning above about per-host versus per-request entity
+ * resolution belongs with it.
+ */
+export function attributionDestinationByHost(
+  requests: readonly NetworkRequestRecord[]
+): Map<string, string> {
+  const entitiesByHost = new Map<string, Set<string>>();
+  for (const request of requests) {
+    if (!request.thirdParty) continue;
+    const entity = request.tracker?.entity;
+    if (!entity) continue;
+    const entities = entitiesByHost.get(request.domain) ?? new Set<string>();
+    entities.add(entity);
+    entitiesByHost.set(request.domain, entities);
+  }
+  const destinationByHost = new Map<string, string>();
+  for (const request of requests) {
+    if (!request.thirdParty || destinationByHost.has(request.domain)) continue;
+    const entities = entitiesByHost.get(request.domain);
+    // A public redaction can collapse raw subdomains. If that ever leaves two
+    // entity names on one public host, choosing the first or last would make
+    // the map depend on request order. The host is the only honest common
+    // identity in that case.
+    destinationByHost.set(
+      request.domain,
+      entities?.size === 1 ? [...entities][0] : displayHost(request.domain)
+    );
+  }
+  return destinationByHost;
+}
+
 export function requestMatchesAttributionPair(
   request: NetworkRequestRecord,
   pair: { actor: string; destination: string },

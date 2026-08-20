@@ -225,6 +225,7 @@ export function ReportRenderer({
           <CausalityGraph
             run={displayedRun}
             requestEvidenceState={displayedFacts.evidence.requests.state}
+            arm={arms ? displayedArmLabel : undefined}
           />
           <MetricGrid facts={displayedFacts} />
           <TrafficViz facts={displayedFacts} />
