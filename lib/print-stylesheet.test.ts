@@ -59,6 +59,9 @@ const FIXTURE_BODY = `<body>
       <p class="muted disclosure-lazy-note" id="lazynote">Open the request log to render its rows.</p>
       <button class="change-list-toggle" id="difftoggle" type="button">Show all 14</button>
       <section class="causal-graph">
+        <button class="attribution-focus-toggle" id="mapfocus" type="button">Focus map</button>
+        <ul class="attribution-edge-list" id="mapedges"><li><button type="button">a.example to b.example</button></li></ul>
+        <div class="attribution-selection" id="mapselection" role="status">a.example to b.example</div>
         <h3 class="visually-hidden print-text-equivalent" id="mapheading">Relationships shown in the attribution map</h3>
         <ol class="visually-hidden print-text-equivalent" id="maplist"><li>3 requests to example.test</li></ol>
       </section>
@@ -121,6 +124,9 @@ const PROBED_IDS = [
   "logbody",
   "lazynote",
   "difftoggle",
+  "mapfocus",
+  "mapedges",
+  "mapselection",
   "mapheading",
   "maplist",
   "receiptlinks",
@@ -214,6 +220,12 @@ test("controls and screen-reader scaffolding stay off paper", () => {
   assert.equal(visible.receiptlinks, false, "link buttons carry no text on paper");
   assert.equal(visible.footerlinks, false, "footer navigation is not evidence");
   assert.equal(visible.armswitcher, false, "the arm switcher is a control; its print-only replacement carries the fact");
+  // The attribution map's interactive layer. Its relationship list, which is
+  // marked print-text-equivalent, is what carries those relationships onto
+  // paper, so hiding the controls loses no evidence.
+  assert.equal(visible.mapfocus, false, "the focus toggle is a control");
+  assert.equal(visible.mapedges, false, "the edge buttons are controls");
+  assert.equal(visible.mapselection, false, "the selection detail is a live region");
 
   // The exemption must be opt-in. If .visually-hidden were simply revealed,
   // these two would print as body copy.
