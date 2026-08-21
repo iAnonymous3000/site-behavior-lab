@@ -216,6 +216,16 @@ rediscovering this:
 above.** It is left unmodified so this artifact stays reproducible as published.
 A repaired collector belongs to the next study, under its own preregistration.
 
+> **Editing `scripts/repeatability-run.mjs` requires updating this section in
+> the same commit.** The paragraph above is a claim about that file's current
+> contents, so any change to it silently makes this published artifact false,
+> including a change that fixes one of the defects named in the correction.
+> That is not the expected resolution: this study's preregistration makes
+> findings the next study and never a patch to this one. Study 2 is already
+> declared, and it writes no collector at all, adopting the existing attempt
+> ledger instead. See
+> [`research/repeatability-2/PREREGISTRATION.md`](../repeatability-2/PREREGISTRATION.md).
+
 ```bash
 npx tsc -p tsconfig.test.json --outDir .unit-test-dist
 SITE_BEHAVIOR_LAB_BUILD_COMMIT=$(git rev-parse HEAD) \
