@@ -122,10 +122,11 @@ study 1's conditions unchanged, so the two studies remain comparable.
   complete, and collection may not begin, until it is committed together with
   the screening pass that produced it: which URLs were screened, when, and which
   were rejected for refusing automation. A frame assembled after seeing any
-  result from this study voids the declaration. The CI frame at `public/scanner-fidelity-sites.json` is
-  **not** used: it holds ten targets chosen to exercise scanner invariants,
-  including deliberately quiet sites, which is a different sampling purpose.
-- **Frame size:** 100 URLs, carried forward under study 1's rule, that a prior
+  result from this study voids the declaration. The CI frame at
+  `public/scanner-fidelity-sites.json` is **not** used: ten targets cannot carry
+  any of the measures declared below, and those targets were chosen to exercise
+  scanner invariants rather than to sample anything.
+- **Frame size:** 120 URLs, carried forward under study 1's rule, that a prior
   screening pass observed serving an honest automated browser. As in study 1,
   this excludes sites that refuse automation, so the result describes
   repeatability **on pages this scanner can measure at all** and must never be
@@ -133,20 +134,38 @@ study 1's conditions unchanged, so the two studies remain comparable.
 - **Repeats:** k = 3, back to back. `SCANNER_FIDELITY_REPETITIONS` accepts 1
   through 5; k = 3 is study 1's value, kept for comparability, and 5 is the
   design ceiling if a future study wants more.
-- **Expected cost:** study 1 averaged 12.0 s per scan over 60 scans. 100 targets
-  at k = 3 is 300 scans, roughly 60 minutes serial.
+- **Expected cost:** study 1 averaged 12.0 s per scan over 60 scans. 120 targets
+  at k = 3 is 360 scans, roughly 72 minutes serial.
 
-**Why 100 and not 20.** Study 1 could not carry a detector agreement rate at
-n = 20: 19/20 has a 95% Wilson interval of [0.76, 0.99], and even a clean 17/17
-gives [0.82, 1.00]. At n = 100, perfect agreement gives a lower bound of 0.963.
-The frame is sized to the interval the study intends to publish, before
-collection, rather than reporting whatever interval the frame happened to
-support.
+**Why the frame is 120 and the target is 80.** Study 1 could not carry a
+detector agreement rate at n = 20: 19/20 has a 95% Wilson interval of
+[0.76, 0.99], and even a clean 17/17 gives [0.82, 1.00]. At n = 80, perfect
+agreement gives a lower bound of 0.954; at n = 100, 0.963. The **eligible**
+denominator is what carries the interval, and it is not the frame size. Study 1
+conflated the two by having no mechanism that could exclude anything.
 
-**Minimum denominator.** The detector agreement measure is published only if at
-least 60 targets are eligible. Below that the agreement result is reported as
-its raw fraction with its interval and explicitly not as a rate. The spread
-distributions publish at whatever denominator survives, always stated.
+**Attrition assumption, declared as a planning figure and not as a claim.** The
+frame is sized at 120 to target at least 80 eligible targets, assuming roughly
+30% attrition from frame to eligible. Two figures inform that assumption, and
+neither is an open-web rate:
+
+- Study 1's saturation screen removed 3 of 20 (15%) on request-cap grounds
+  alone, before any refusal or censoring was counted.
+- `RELEASE_READINESS.json` records a pilot capture failure of 37.5% in its
+  `calibrationCensoringPolicy.methodologicalAssessment`. That is a pilot figure
+  from a different study design, cited here only to keep the planning assumption
+  from being optimistic. It is not quoted as a completion probability.
+
+If attrition runs materially worse than assumed, the honest outcome is a study
+that reports a smaller denominator. Topping the frame up mid-collection, or
+after seeing a result, voids the declaration.
+
+**Minimum denominator.** The detector agreement measure is published as a rate
+only if at least 60 targets are eligible. Below that it is published as its raw
+fraction with its interval and explicitly not as a rate. The spread
+distributions publish at whatever denominator survives, always stated. The
+eligible denominator and the full exclusion ledger are published in every case,
+including the case where the study cannot support its intended measure.
 
 ## Measures
 
@@ -190,10 +209,14 @@ land, and be reviewed, **before collection begins**:
 > own capture was cut must be distinguishable from one that ran fully and found
 > nothing, which study 1 could not do.
 
-The privacy argument for the extension, to be reviewed on its own terms: both
-additions are already public facts in every published report, and the
-observation already carries a list of third-party domains, which is
-substantially more disclosive than a cookie count and a detector status.
+**The privacy argument below is a proposal, not a settled position.** The
+observation is deliberately privacy-reduced and feeds a published fidelity
+receipt, so whoever owns that posture decides, not this document. The argument
+offered for review: both additions are already public facts in every published
+report, and the observation already carries a list of third-party domains, which
+is substantially more disclosive than a cookie count and a detector status. If
+that argument is rejected, measures 5 and 6 are dropped and this document is
+amended to say so **before** collection, with the narrowing recorded.
 
 Collection begins only after that change lands. A change to the instrument
 **during** collection is an identity violation, not a threshold failure, and
