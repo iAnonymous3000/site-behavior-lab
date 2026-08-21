@@ -200,11 +200,15 @@ rediscovering this:
   detections array. A detector that reports `partial` because its own capture
   was cut is currently indistinguishable here from one that ran fully and found
   nothing.
-- Eligibility decided by the repo's own canonical predicates rather than by a
-  hand-written string match. `runHitRequestRecordingCap` and
-  `familyCensoredOnRun` (`lib/scan-report-views.ts`) are the tested ones, and
-  they need the v2 report that `scanSiteWithMeasurement` produces, not the
-  frozen-v1 `ScanResult` this collector asked for.
+- Eligibility decided by a tested predicate this repository already owns,
+  rather than by a hand-written string match. Study 2 settled on
+  `classifyObservation` (`scripts/scanner-fidelity-study-lib.mjs`), which reads
+  the producer's structured `quality.byFamily.requests.outcome` instead of
+  matching any warning text; `runHitRequestRecordingCap` and
+  `familyCensoredOnRun` (`lib/scan-report-views.ts`) are the reader-facing
+  equivalents. Every one of them needs the v2 report, not the frozen-v1
+  `ScanResult` this collector asked for. See
+  [`research/repeatability-2/PREREGISTRATION.md`](../repeatability-2/PREREGISTRATION.md).
 
 ## Reproduce
 
