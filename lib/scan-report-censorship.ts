@@ -61,11 +61,30 @@ function requestRecordingLimitFromWarnings(warnings: readonly string[]): number 
 }
 
 /**
+ * Own-property lookup only, matching `pixelCatalogFor` in
+ * lib/redact-scan-report-v1.ts. A plain object literal resolves inherited
+ * Object.prototype members, so a key of "constructor", "toString", or
+ * "valueOf" returns a truthy Function that walks straight past a `if (mapped)`
+ * guard or defeats a `?? fallback`, and then renders its source text into
+ * reader-facing prose.
+ *
+ * Report validation closes both vocabularies this is used for today
+ * (`isQualityReasons` pins the base reasons and their two prefixes;
+ * `only(byFamily, EVIDENCE_FAMILIES)` pins the family keys), so this is not a
+ * live hole. It is here because the pixel catalog had the identical shape,
+ * proved reachable from imported and uploaded reports, and was fixed without
+ * the pattern reaching the two remaining literal-keyed lookups on report data.
+ */
+function ownNote(table: Readonly<Record<string, string>>, key: string): string | undefined {
+  return Object.hasOwn(table, key) ? table[key] : undefined;
+}
+
+/**
  * Open producer vocabularies never reach the page as raw slugs. Precise first-
  * party capture-loss details are rendered below from their semantic registry.
  */
 function qualityReasonNote(run: RunView, reason: string): string {
-  const mapped = QUALITY_REASON_NOTES[reason];
+  const mapped = ownNote(QUALITY_REASON_NOTES, reason);
   if (mapped) return mapped;
   const budget = reason.startsWith("budget-exhausted:") ? reason.slice("budget-exhausted:".length) : null;
   if (budget === RESPONSE_BYTE_CAPTURE_LOSS_DETAIL) {
@@ -165,7 +184,7 @@ export function runCensorshipNotes(run: RunView): string[] {
         continue;
       }
       notes.push(
-        `${EVIDENCE_FAMILY_LABELS[family] ?? "recorded"} evidence was censored before completion${
+        `${ownNote(EVIDENCE_FAMILY_LABELS, family) ?? "recorded"} evidence was censored before completion${
           censoredFamilyDetailNote(run, family) || " — the producer recorded incomplete collection"
         }`
       );
