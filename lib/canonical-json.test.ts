@@ -20,6 +20,33 @@ test("strings normalize to NFC so byte-different composed forms digest identical
   assert.equal(canonicalJson({ v: composed }), canonicalJson({ v: decomposed }));
 });
 
+test("object keys must already be NFC; colliding and non-normalized keys are refused", () => {
+  const composed = "caf\u00e9";
+  const decomposed = "cafe\u0301";
+  assert.notEqual(composed, decomposed);
+  assert.equal(decomposed.normalize("NFC"), composed);
+
+  // COLLISION. Two distinct own properties that normalize to one member name.
+  // Normalizing at emit produced an object carrying that name twice, which
+  // parseStrictJson rejects on the way back in, so the digest was taken over
+  // bytes nothing could reparse.
+  assert.throws(
+    () => canonicalJson({ [composed]: 1, [decomposed]: 2 }),
+    /object key is not NFC-normalized/
+  );
+
+  // ORDER. A non-NFC key alone is refused too: keys sorted before
+  // normalization and emitted after it, so this key sorted under one string
+  // and emitted as another, and two objects with identical logical content
+  // digested differently depending on which form the caller happened to hold.
+  assert.throws(() => canonicalJson({ [decomposed]: 1 }), /object key is not NFC-normalized/);
+
+  // Already-NFC keys are unaffected, non-ASCII included, and what canonicalJson
+  // accepts always reparses to the same members it was given.
+  assert.equal(canonicalJson({ [composed]: 1 }), `{"${composed}":1}`);
+  assert.deepEqual(JSON.parse(canonicalJson({ [composed]: 1, b: 2 })), { [composed]: 1, b: 2 });
+});
+
 test("undefined members are omitted; an absent and an undefined field digest identically", () => {
   assert.equal(canonicalJson({ a: 1, b: undefined }), canonicalJson({ a: 1 }));
 });
