@@ -143,7 +143,25 @@ function clientKeyFromHeaders(headers: Pick<Headers, "get">): string {
     .map((part) => part.trim())
     .filter(Boolean);
 
-  return forwardedFor?.[0] || "local";
+  // RIGHTMOST, not leftmost. Each proxy APPENDS the address of the peer it
+  // received from, so the last entry is the only one written by the nearest
+  // trusted hop; every entry to its left was supplied by something further out
+  // and is client-controlled. Reading the leftmost entry meant a client could
+  // send its own `X-Forwarded-For`, have the trusted proxy append the real
+  // address after it, and still be quota-identified by the value it chose,
+  // rotating it to bypass every limit here and, at MAX_CONCURRENT_SCANS = 2,
+  // to deny scanning to everyone else.
+  //
+  // The deployment docs already require a proxy "that controls forwarding
+  // headers", and Cloudflare production strips and rewrites them
+  // (cloudflare/container-worker.ts), so neither was exposed. The gap was a
+  // self-host behind a proxy that APPENDS rather than replaces, which is the
+  // default for most reverse proxies and reads to an operator as trusted.
+  //
+  // With more than one trusted hop this identifies the inner proxy and
+  // collapses clients into one bucket. That is over-restrictive, not a bypass,
+  // and it is the correct direction to fail.
+  return forwardedFor?.[forwardedFor.length - 1] || "local";
 }
 
 export async function acquireScanSlot(queueTimeoutMs = QUEUE_TIMEOUT_MS, signal?: AbortSignal): Promise<() => void> {
