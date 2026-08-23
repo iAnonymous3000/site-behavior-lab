@@ -222,7 +222,9 @@ test("the summary lower-bounds detector-input readiness from load facts only", (
     (() => {
       const report = soundReport();
       report.run.quality.byFamily.fingerprinting = { outcome: "censored" };
-      report.run.qualityFacts.captureLoss = [{ detail: "fingerprint-observer" }];
+      report.run.qualityFacts.captureLoss = [
+        { family: "fingerprinting", kind: "dropped", count: 1, detail: "fingerprint-observer" }
+      ];
       return report;
     })(),
     { pass: 1, observedAt }

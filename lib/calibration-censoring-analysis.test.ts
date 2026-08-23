@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { wilson95 } from "./detector-calibration";
+import { buildRates, wilson95 } from "./detector-calibration";
 import {
   CENSORING_ANALYSIS_VERSION,
   CENSORING_RATE_IDS,
   MAX_ENVELOPE_ASSIGNMENTS,
   analyzeCensoring,
   censoringCasesFromStudyV3Rows,
+  censoringRateCells,
   evaluatePublication,
   type CensoringAnalysisCase,
   type CensoringRateId
@@ -95,7 +96,10 @@ test("the composition enumeration equals brute-force per-row assignment", () => 
     ...repeat(1, () => scored("absent", "detected")),
     refUnknown("detected"),
     refUnknown("not-detected"),
+    refUnknown("not-detected"),
     predUnknown("present"),
+    predUnknown("absent"),
+    predUnknown("absent"),
     bothUnknown(),
     bothUnknown()
   ];
@@ -223,6 +227,93 @@ test("an uncertain reference never strengthens a margin: uncertainty cannot beco
   });
 });
 
+test("guaranteed margins are the realizable minimum with every unknown class present", () => {
+  // The adversarial review proved a mutation adding bothUnknown into a margin
+  // survived the earlier suite, because no margin fixture carried both-unknown
+  // rows. This one carries all five unknown classes with distinct counts, so
+  // any class leaking into any margin changes some expected number.
+  const cases = [
+    ...repeat(7, () => scored("present", "detected")),
+    ...repeat(3, () => scored("present", "not-detected")),
+    ...repeat(6, () => scored("absent", "not-detected")),
+    ...repeat(2, () => scored("absent", "detected")),
+    ...repeat(4, () => refUnknown("detected")),
+    ...repeat(5, () => refUnknown("not-detected")),
+    ...repeat(2, () => predUnknown("present")),
+    ...repeat(3, () => predUnknown("absent")),
+    ...repeat(6, () => bothUnknown())
+  ];
+  const analysis = analyze(cases);
+  // A both-unknown row is a proven member of NO margin; a one-side-known row
+  // is a proven member of its known side's margins only.
+  assert.deepEqual(analysis.policyC.guaranteedMargins, {
+    referencePresent: 7 + 3 + 2,
+    referenceAbsent: 6 + 2 + 3,
+    predictedDetected: 7 + 2 + 4,
+    predictedNotDetected: 3 + 6 + 5
+  });
+  // And each guaranteed margin is realizable as an exact minimum: an
+  // assignment sending every unknown AWAY from the margin achieves it, which
+  // the definition must never undercount or overcount.
+  const minimalRefPresent =
+    analysis.policyC.knownCells.tp +
+    analysis.policyC.knownCells.fn +
+    analysis.policyC.unknowns.predictionUnknownReferencePresent;
+  assert.equal(analysis.policyC.guaranteedMargins.referencePresent, minimalRefPresent);
+});
+
+test("the analyzer's rate cells equal detector-calibration's buildRates, id by id", () => {
+  // The seven-rate contract has one authority. buildRates is the shipping
+  // analyzer's definition; this proves the envelope analyzer computes the
+  // same cells for every id, on matrices including empty-denominator shapes.
+  const matrices = [
+    { truePositive: 30, falsePositive: 4, trueNegative: 40, falseNegative: 5 },
+    { truePositive: 0, falsePositive: 0, trueNegative: 7, falseNegative: 0 },
+    { truePositive: 1, falsePositive: 1, trueNegative: 1, falseNegative: 1 },
+    { truePositive: 0, falsePositive: 3, trueNegative: 0, falseNegative: 2 }
+  ];
+  for (const matrix of matrices) {
+    const reference = buildRates(matrix, false);
+    for (const id of CENSORING_RATE_IDS) {
+      const cells = censoringRateCells(id, {
+        tp: matrix.truePositive,
+        fp: matrix.falsePositive,
+        tn: matrix.trueNegative,
+        fn: matrix.falseNegative
+      });
+      assert.equal(cells.numerator, reference[id].numerator, `${id} numerator`);
+      assert.equal(cells.denominator, reference[id].denominator, `${id} denominator`);
+    }
+  }
+});
+
+test("loss reasons are carried, conserved, and can never disappear", () => {
+  const cases = [
+    ...repeat(5, () => scored("present", "detected")),
+    ...repeat(5, () => scored("absent", "not-detected")),
+    { caseId: id(), kind: "reference-unknown", prediction: "detected", reason: "reference-label-uncertain" },
+    { caseId: id(), kind: "both-unknown", reason: "capture-failed" },
+    { caseId: id(), kind: "both-unknown", reason: "capture-failed" },
+    { caseId: id(), kind: "both-unknown" }
+  ] as CensoringAnalysisCase[];
+  const analysis = analyze(cases);
+  assert.deepEqual(analysis.policyB.coverage.lossReasons, {
+    "capture-failed": 2,
+    "reference-label-uncertain": 1,
+    unrecorded: 1
+  });
+  const reasonTotal = Object.values(analysis.policyB.coverage.lossReasons).reduce(
+    (sum, count) => sum + count,
+    0
+  );
+  assert.equal(
+    reasonTotal,
+    analysis.policyB.coverage.referenceUnknown +
+      analysis.policyB.coverage.predictionUnknown +
+      analysis.policyB.coverage.bothUnknown
+  );
+});
+
 test("a realizable empty denominator disables the width claim for that rate", () => {
   // No scored absent case at all: under the assignment sending the unknown to
   // TP, specificity's denominator is empty. The rate must say so rather than
@@ -267,7 +358,8 @@ test("policy B is scope-tagged, coverage-accounted, and can never satisfy the ga
     analyzedCases: 16,
     referenceUnknown: 1,
     predictionUnknown: 1,
-    bothUnknown: 1
+    bothUnknown: 1,
+    lossReasons: { unrecorded: 3 }
   });
 });
 
@@ -347,8 +439,9 @@ test("the v3 projector maps every censored row to both-unknown, inventing nothin
     { caseId: "a", kind: "scored", reference: "present", prediction: "detected" },
     // A v3 censored row records no prediction, so even reference-label-uncertain
     // cannot become reference-unknown-with-known-prediction until the item-3
-    // wire revision exists. The projector must not invent the prediction.
-    { caseId: "b", kind: "both-unknown" },
-    { caseId: "c", kind: "both-unknown" }
+    // wire revision exists. The projector must not invent the prediction, and
+    // it must not discard the reason the row already carries.
+    { caseId: "b", kind: "both-unknown", reason: "capture-failed" },
+    { caseId: "c", kind: "both-unknown", reason: "reference-label-uncertain" }
   ]);
 });

@@ -32,6 +32,18 @@ export const POLICY_C_ID = "bounded-censoring-with-sensitivity-analysis";
 export const POLICY_B_ID = "detector-scoped-complete-case";
 
 /**
+ * The closed inference-scope vocabulary. A C primary carries the population
+ * claim (target-population, or the synthetic-positive population for the
+ * keystroke lab arm); policy B always and only carries
+ * scoreable-subpopulation, whether primary (rule conformance) or secondary.
+ * The analyzer deliberately emits no C scope of its own
+ * (lib/calibration-censoring-analysis.ts): the claim attaches from this
+ * table at wiring time, so this vocabulary is the single authority.
+ */
+export const C_PRIMARY_SCOPES = Object.freeze(["target-population", "synthetic-positive-population"]);
+export const B_SCOPE = "scoreable-subpopulation";
+
+/**
  * Publication profiles. The decision reframes the historical four-margin
  * minimum as a profile for TWO-CLASS ACCURACY, never a universal definition of
  * evidence; each estimand binds its own minimums without weakening a claimed
@@ -46,7 +58,10 @@ export const PUBLICATION_PROFILES = Object.freeze({
     minimumPerClaimedClass: 100,
     confidence: "wilson-score-95",
     maxWorstCaseHalfWidth: 0.1,
-    preregistrationMustSupply: Object.freeze(["detector-specific power calculation"])
+    preregistrationMustSupply: Object.freeze([
+      "detector-specific power calculation",
+      "the claimed rates the study publishes (evaluatePublication's claimedRates)"
+    ])
   }),
   "sensitivity-only": Object.freeze({
     id: "sensitivity-only",
@@ -55,7 +70,10 @@ export const PUBLICATION_PROFILES = Object.freeze({
     minimumPerClaimedClass: 100,
     confidence: "wilson-score-95",
     maxWorstCaseHalfWidth: 0.1,
-    preregistrationMustSupply: Object.freeze(["power calculation for sensitivity"])
+    preregistrationMustSupply: Object.freeze([
+      "power calculation for sensitivity",
+      "the claimed rates the study publishes (evaluatePublication's claimedRates)"
+    ])
   }),
   "rule-conformance-strata": Object.freeze({
     id: "rule-conformance-strata",
@@ -178,6 +196,12 @@ export function validateDetectorPolicyAssignments(assignments = DETECTOR_POLICY_
       `${detector} needs a result type`
     );
     require(isRecord(entry.primary), `${detector} needs a primary analysis`);
+    for (const key of Object.keys(entry.primary)) {
+      require(
+        key === "policy" || key === "inferenceScope",
+        `${detector} primary carries unexpected field "${key}"`
+      );
+    }
     require(
       entry.primary.policy in POLICIES,
       `${detector} primary policy "${entry.primary.policy}" is not a canonical policy id`
@@ -186,14 +210,40 @@ export function validateDetectorPolicyAssignments(assignments = DETECTOR_POLICY_
       entry.primary.policy !== "zero-censoring",
       `${detector} must not run under superseded policy A`
     );
+    // The scope vocabulary is closed PER POLICY, both directions: a C primary
+    // must carry a population claim and never the B scope (widening a C
+    // primary to scoreable-subpopulation is the rescue by another name), and
+    // a B primary must carry exactly the B scope and never a population claim
+    // (a target-population B primary is the rescue outright).
+    if (entry.primary.policy === POLICY_C_ID) {
+      require(
+        C_PRIMARY_SCOPES.includes(entry.primary.inferenceScope),
+        `${detector} C primary scope "${entry.primary.inferenceScope}" is not a population claim`
+      );
+    } else {
+      require(
+        entry.primary.policy === POLICY_B_ID,
+        `${detector} primary must be policy C or policy B`
+      );
+      require(
+        entry.primary.inferenceScope === B_SCOPE,
+        `${detector} B primary must carry exactly the ${B_SCOPE} scope; a population-claiming B is the rescue the decision forbids`
+      );
+    }
     if (entry.secondary !== null) {
       require(isRecord(entry.secondary), `${detector} secondary must be null or a record`);
+      for (const key of Object.keys(entry.secondary)) {
+        require(
+          key === "policy" || key === "inferenceScope",
+          `${detector} secondary carries unexpected field "${key}"`
+        );
+      }
       require(
         entry.secondary.policy === POLICY_B_ID,
         `${detector} secondary must be the scope-tagged policy B`
       );
       require(
-        entry.secondary.inferenceScope === "scoreable-subpopulation",
+        entry.secondary.inferenceScope === B_SCOPE,
         `${detector} secondary must carry the scoreable-subpopulation scope tag`
       );
     }

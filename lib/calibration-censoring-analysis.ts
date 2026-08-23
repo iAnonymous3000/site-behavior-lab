@@ -15,7 +15,8 @@
  * study schema itself, because the current v3 wire cannot yet represent a
  * case whose prediction survived while its reference is uncertain (a censored
  * v3 row carries no prediction). The projector for v3 rows below maps every
- * censored row to both-unknown accordingly; the item-3 pipeline work gives
+ * censored row to both-unknown accordingly, CARRYING its censor reason so the
+ * policy-B loss-reason contract can be met; the item-3 pipeline work gives
  * the richer kinds their producers.
  *
  * CONSERVATION. Every planned case must be accounted for exactly once, and a
@@ -26,7 +27,11 @@
  * censoring would launder them into the envelope.
  */
 
-import { wilson95 } from "./detector-calibration";
+import {
+  DETECTOR_CALIBRATION_RATE_IDS,
+  wilson95,
+  type DetectorCalibrationRateId
+} from "./detector-calibration";
 
 export const CENSORING_ANALYSIS_VERSION = "calibration-censoring-analysis-v1";
 
@@ -47,31 +52,27 @@ export type CensoringAnalysisCase =
       reference: "present" | "absent";
       prediction: "detected" | "not-detected";
     }
-  | { caseId: string; kind: "reference-unknown"; prediction: "detected" | "not-detected" }
-  | { caseId: string; kind: "prediction-unknown"; reference: "present" | "absent" }
-  | { caseId: string; kind: "both-unknown" }
+  | {
+      caseId: string;
+      kind: "reference-unknown";
+      prediction: "detected" | "not-detected";
+      reason?: string;
+    }
+  | { caseId: string; kind: "prediction-unknown"; reference: "present" | "absent"; reason?: string }
+  | { caseId: string; kind: "both-unknown"; reason?: string }
   | { caseId: string; kind: "fatal"; violation: string };
 
-export type CensoringRateId =
-  | "sensitivity"
-  | "specificity"
-  | "precision"
-  | "negativePredictiveValue"
-  | "accuracy"
-  | "falsePositiveRate"
-  | "falseNegativeRate";
+/**
+ * The rate contract is detector-calibration's, aliased rather than restated:
+ * the adversarial review found this module introducing the repo's top defect
+ * class (one contract in four files) and the alias plus the buildRates
+ * binding test close the TS side of it.
+ */
+export type CensoringRateId = DetectorCalibrationRateId;
 
-export const CENSORING_RATE_IDS: readonly CensoringRateId[] = [
-  "sensitivity",
-  "specificity",
-  "precision",
-  "negativePredictiveValue",
-  "accuracy",
-  "falsePositiveRate",
-  "falseNegativeRate"
-];
+export const CENSORING_RATE_IDS: readonly CensoringRateId[] = DETECTOR_CALIBRATION_RATE_IDS;
 
-type Cells = { tp: number; fp: number; tn: number; fn: number };
+export type Cells = { tp: number; fp: number; tn: number; fn: number };
 
 /**
  * One rate's envelope over every realizable assignment: the lowest Wilson
@@ -91,7 +92,15 @@ export type CensoringRateEnvelope = {
 
 export type PolicyCAnalysis = {
   policy: "bounded-censoring-with-sensitivity-analysis";
-  inferenceScope: "declared-population";
+  /**
+   * Deliberately NO inference-scope field here. The population a C envelope
+   * describes is a per-detector claim owned by the assignments table
+   * (scripts/calibration-policy-assignments.mjs), and the adversarial review
+   * found this module and that table already disagreeing on the vocabulary
+   * for the same field name. The analyzer states structure; the claim
+   * attaches at wiring time from the table. policyB's tag stays because it
+   * is structural: complete cases only IS the scoreable subpopulation.
+   */
   knownCells: Cells;
   unknowns: {
     referenceUnknownPredictedDetected: number;
@@ -127,6 +136,13 @@ export type PolicyBAnalysis = {
     referenceUnknown: number;
     predictionUnknown: number;
     bothUnknown: number;
+    /**
+     * Loss reasons beside the counts, per the decision's policy-B contract.
+     * Keyed by the producer's reason token; an unknown case without a reason
+     * counts under "unrecorded". The counts here must sum to the unknown
+     * total, which the analyzer asserts, so a reason can never disappear.
+     */
+    lossReasons: Record<string, number>;
   };
   cells: Cells;
   rates: Record<
@@ -165,7 +181,11 @@ function compositionsOfBoth(total: number): number {
   return ((total + 1) * (total + 2) * (total + 3)) / 6;
 }
 
-function rateOf(id: CensoringRateId, cells: Cells): { numerator: number; denominator: number } {
+/** Exported for the binding test proving these cells equal buildRates'. */
+export function censoringRateCells(
+  id: CensoringRateId,
+  cells: Cells
+): { numerator: number; denominator: number } {
   switch (id) {
     case "sensitivity":
       return { numerator: cells.tp, denominator: cells.tp + cells.fn };
@@ -215,7 +235,7 @@ export function censoringCasesFromStudyV3Rows(
         prediction: row.prediction.value
       };
     }
-    return { caseId: row.caseId, kind: "both-unknown" };
+    return { caseId: row.caseId, kind: "both-unknown", reason: row.reason };
   });
 }
 
@@ -251,6 +271,11 @@ export function analyzeCensoring(input: {
   }
 
   const known: Cells = { tp: 0, fp: 0, tn: 0, fn: 0 };
+  const lossReasons: Record<string, number> = {};
+  const recordReason = (reason: string | undefined) => {
+    const key = reason === undefined || reason.length === 0 ? "unrecorded" : reason;
+    lossReasons[key] = (lossReasons[key] ?? 0) + 1;
+  };
   let refUnknownDetected = 0;
   let refUnknownNotDetected = 0;
   let predUnknownPresent = 0;
@@ -264,12 +289,15 @@ export function analyzeCensoring(input: {
       } else if (entry.prediction === "detected") known.fp += 1;
       else known.tn += 1;
     } else if (entry.kind === "reference-unknown") {
+      recordReason(entry.reason);
       if (entry.prediction === "detected") refUnknownDetected += 1;
       else refUnknownNotDetected += 1;
     } else if (entry.kind === "prediction-unknown") {
+      recordReason(entry.reason);
       if (entry.reference === "present") predUnknownPresent += 1;
       else predUnknownAbsent += 1;
     } else if (entry.kind === "both-unknown") {
+      recordReason(entry.reason);
       bothUnknown += 1;
     }
   }
@@ -309,7 +337,7 @@ export function analyzeCensoring(input: {
   );
   const consider = (cells: Cells) => {
     for (const id of CENSORING_RATE_IDS) {
-      const { numerator, denominator } = rateOf(id, cells);
+      const { numerator, denominator } = censoringRateCells(id, cells);
       const accumulator = accumulators.get(id)!;
       if (denominator === 0) {
         accumulator.denominatorCanBeEmpty = true;
@@ -385,7 +413,7 @@ export function analyzeCensoring(input: {
   // Policy B: scored cases only, plainly labeled.
   const bRates = Object.fromEntries(
     CENSORING_RATE_IDS.map((id) => {
-      const { numerator, denominator } = rateOf(id, known);
+      const { numerator, denominator } = censoringRateCells(id, known);
       return [
         id,
         {
@@ -398,6 +426,18 @@ export function analyzeCensoring(input: {
     })
   ) as PolicyBAnalysis["rates"];
 
+  const unknownTotal =
+    refUnknownDetected + refUnknownNotDetected + predUnknownPresent + predUnknownAbsent + bothUnknown;
+  const reasonTotal = Object.values(lossReasons).reduce((sum, count) => sum + count, 0);
+  if (reasonTotal !== unknownTotal) {
+    fail(
+      `loss-reason conservation failure: ${reasonTotal} reasons recorded against ${unknownTotal} unknown cases; a reason can never disappear`
+    );
+  }
+  const conservedLossReasons = Object.fromEntries(
+    Object.entries(lossReasons).sort(([a], [b]) => a.localeCompare(b))
+  );
+
   return {
     analysisVersion: CENSORING_ANALYSIS_VERSION,
     plannedCases,
@@ -409,7 +449,6 @@ export function analyzeCensoring(input: {
     },
     policyC: {
       policy: "bounded-censoring-with-sensitivity-analysis",
-      inferenceScope: "declared-population",
       knownCells: known,
       unknowns: {
         referenceUnknownPredictedDetected: refUnknownDetected,
@@ -436,7 +475,8 @@ export function analyzeCensoring(input: {
         analyzedCases: scored,
         referenceUnknown: refUnknownDetected + refUnknownNotDetected,
         predictionUnknown: predUnknownPresent + predUnknownAbsent,
-        bothUnknown
+        bothUnknown,
+        lossReasons: conservedLossReasons
       },
       cells: known,
       rates: bRates

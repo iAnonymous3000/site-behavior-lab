@@ -3,27 +3,33 @@
 How each study's N cases get chosen, screened, and frozen. N is
 detector-specific and comes from the study's own prevalence and recall
 arithmetic, never from the preflight floor: the CNAME design sizes N ~ 350 so
-that E[referencePresent] ~ 175. Under the
-approved zero-censoring policy one failed case kills a study, so the frame
-is an exercise in reliability engineering first and sampling second.
+that E[referencePresent] ~ 175. The zero-censoring rule that made one failed
+case kill a study is superseded for new studies by the step-3 decision
+(../calibration-censoring-policy-decision.md): policy C conserves lossy cases
+in an adversarial envelope, so the frame is sampling first, with reliability
+screening serving the envelope's width rather than a survival lottery. No
+frame size is approved until the fresh multi-cluster sweep establishes a
+defensible detector-input loss bound.
 
 ## The reliability sweep
 
 Before any frame freezes, every candidate site is visited twice under the
 exact measurement condition of its study (desktop, GPC off, observe or
 accept-all), at least 48 hours apart, from the controlled runner's egress.
-A candidate joins the eligible pool only if both visits completed: page
-loaded, no bot wall, subject verified, no capture-loss censoring. The sweep
-reuses the featured-scan machinery with a dedicated catalog file and
-publishes nothing.
+A candidate joins the eligible pool only if both visits were bare-load valid:
+page loaded, no bot wall, subject verified, ledgers consistent. A censored
+evidence family does NOT disqualify (see the validity/readiness split below);
+it is reported in the receipt diagnostics for sizing. The sweep runs through
+`npm run calibration:reliability-sweep` and publishes nothing.
 
 Two sweep passes are the floor, not a guarantee. The pilot's 37.5 percent
 failure was on unscreened consumer retail; screened pools should do far
-better, but the residual risk that a screened site fails on acquisition day
-is the risk the zero-censoring policy chose to carry. Minimizing it means:
-frame exactly N (never more; substitution is forbidden and every planned
-case must complete), draw from the most reliable screened candidates, and
-schedule acquisition close to the second sweep pass.
+better. Under policy C an acquisition-day failure censors a case into the
+envelope instead of killing the study, but every censored case still widens
+the published bounds, so the discipline stands for a different reason: frame
+exactly N (substitution remains forbidden and every planned attempt stays
+conserved), draw from reliable screened candidates, and schedule acquisition
+close to the second sweep pass.
 
 ## Pool composition per study
 
@@ -117,8 +123,10 @@ than at the process that holds the reports.
 **Sizing note.** This draft originally fixed every study at 400 cases, which predates the arithmetic in
 [../calibration-cname-uncloaking-design.md](../calibration-cname-uncloaking-design.md).
 For a rare-positive detector a 400-case draw from a ~0.20 pool misses the
-100-positive floor about 99% of the time, and enlarging the frame makes
-zero-censoring survival worse, not better. Size from the pool's base rate.
+100-positive floor about 99% of the time. (The original sizing note also
+weighed zero-censoring survival, which compounds in N; under policy C the
+corresponding cost is envelope width, which likewise grows with censored
+count.) Size from the pool's base rate.
 
 It also had no structural basis. The preflight derived 400 by summing the four
 class minimums, but those are two partitions of the same N, so the structural
