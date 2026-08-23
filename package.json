@@ -79,7 +79,7 @@
     "test:calibration-ceremony": "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs scripts/calibration-assemble-custody-lib.test.mjs",
     "test:calibration-censoring-artifact": "node research/calibration-censoring/analyze-corpus-censoring.mjs --check",
     "test:calibration-censoring-lib": "node --test research/calibration-censoring/historical-loss-detail.test.mjs",
-    "test:calibration-tools": "node --test scripts/calibration-cname-reference-lib.test.mjs scripts/calibration-frame-lib.test.mjs scripts/calibration-reliability-sweep-lib.test.mjs scripts/calibration-censoring-simulation-lib.test.mjs scripts/calibration-reliability-sweep-run-lib.test.mjs scripts/calibration-policy-assignments.test.mjs scripts/calibration-v4-labels-lib.test.mjs",
+    "test:calibration-tools": "node --test scripts/calibration-cname-reference-lib.test.mjs scripts/calibration-frame-lib.test.mjs scripts/calibration-reliability-sweep-lib.test.mjs scripts/calibration-censoring-simulation-lib.test.mjs scripts/calibration-reliability-sweep-run-lib.test.mjs scripts/calibration-policy-assignments.test.mjs scripts/calibration-v4-labels-lib.test.mjs scripts/cluster-interval-lib.test.mjs",
     "test:aa-producer": "node --test scripts/aa-study-producer-lib.test.mjs",
     "test:pdf-reader": "node --test scripts/pdf-text-lib.test.mjs",
     "test:featured-taxonomy": "node --test scripts/run-featured-scans-taxonomy.test.mjs",

@@ -5,14 +5,18 @@ import {
   EXPECTED_EVIDENCE_FAMILIES
 } from "./calibration-reliability-sweep-lib.mjs";
 import {
-  assembleReceiptFromPasses,
-  assertPassesConsistent,
+  SWEEP_BOUND_MINIMUM_ROUNDS,
+  SWEEP_PASS_ARTIFACT_KIND,
+  assembleReceiptFromRounds,
+  assertRoundsConsistent,
   buildPassArtifact,
+  computeClusterLossBound,
   parseCandidateSet,
   summarizeSweepOutcomes,
-  validatePassArtifact,
-  SWEEP_PASS_ARTIFACT_KIND
+  validatePassArtifact
 } from "./calibration-reliability-sweep-run-lib.mjs";
+import { serializeReliabilitySweepReceipt } from "./calibration-reliability-sweep-lib.mjs";
+import { clusterInterval } from "./cluster-interval-lib.mjs";
 
 const CANDIDATE_BYTES = `${JSON.stringify(
   {
@@ -148,69 +152,135 @@ test("a persisted pass artifact is re-validated field by field on read-back", ()
   assert.throws(() => validatePassArtifact(edited, 1), /not a bare-load field/);
 });
 
-test("identity or condition drift between passes refuses assembly as two sweeps", () => {
-  const first = passArtifact(1, "2026-08-23T01:00:00.000Z");
-  const second = passArtifact(2, "2026-08-25T02:00:00.000Z");
-  assertPassesConsistent(first, second);
+test("identity or condition drift between rounds refuses assembly as two sweeps", () => {
+  const rounds = [
+    passArtifact(1, "2026-08-23T01:00:00.000Z"),
+    passArtifact(2, "2026-08-25T02:00:00.000Z"),
+    passArtifact(3, "2026-08-26T03:00:00.000Z")
+  ];
+  assertRoundsConsistent(rounds);
 
-  const otherBuild = JSON.parse(JSON.stringify(second));
-  otherBuild.identity.buildCommit = "b".repeat(40);
-  assert.throws(() => assertPassesConsistent(first, otherBuild), /buildCommit changed/);
+  // Drift on ANY later round is refused, not only round 2: the review of the
+  // two-pass model demanded exactly this generalization.
+  const otherBuild = JSON.parse(JSON.stringify(rounds));
+  otherBuild[2].identity.buildCommit = "b".repeat(40);
+  assert.throws(() => assertRoundsConsistent(otherBuild), /buildCommit changed/);
 
-  const otherCondition = JSON.parse(JSON.stringify(second));
-  otherCondition.measurementCondition.gpcEnabled = true;
-  assert.throws(() => assertPassesConsistent(first, otherCondition), /gpcEnabled changed/);
+  const otherCondition = JSON.parse(JSON.stringify(rounds));
+  otherCondition[1].measurementCondition.gpcEnabled = true;
+  assert.throws(() => assertRoundsConsistent(otherCondition), /gpcEnabled changed/);
+
+  // Rounds must be contiguous from 1 and disjoint sessions 24h apart.
+  assert.throws(
+    () => assertRoundsConsistent([rounds[0], passArtifact(3, "2026-08-25T02:00:00.000Z")]),
+    /contiguous rounds starting at 1/
+  );
+  assert.throws(
+    () =>
+      assertRoundsConsistent([
+        passArtifact(1, "2026-08-23T01:00:00.000Z"),
+        passArtifact(2, "2026-08-23T05:00:00.000Z")
+      ]),
+    /disjoint sessions/
+  );
 });
 
-test("receipt assembly binds sources, requires whole passes, and honors the 48h separation", () => {
+test("receipt assembly binds sources per round, requires whole rounds, and honors both separations", () => {
   const first = passArtifact(1, "2026-08-23T01:00:00.000Z");
   const second = passArtifact(2, "2026-08-25T02:00:00.000Z");
-  const firstBytes = JSON.stringify(first);
-  const secondBytes = JSON.stringify(second);
+  const third = passArtifact(3, "2026-08-26T03:00:00.000Z");
+  const entry = (artifact) => ({ artifact, bytes: JSON.stringify(artifact) });
 
-  const receipt = assembleReceiptFromPasses({
-    first,
-    second,
-    firstArtifactBytes: firstBytes,
-    secondArtifactBytes: secondBytes,
+  const receipt = assembleReceiptFromRounds({
+    rounds: [entry(first), entry(second), entry(third)],
     candidateSetBytes: CANDIDATE_BYTES,
-    sweptAt: "2026-08-25T03:00:00.000Z"
+    sweptAt: "2026-08-26T04:00:00.000Z"
   });
   assert.equal(receipt.observedCandidates, 2);
   assert.equal(receipt.eligibleCandidates, 2);
   assert.deepEqual(Object.keys(receipt.sourceDigests).sort(), [
     "candidate-set",
-    "pass-1-artifact",
-    "pass-2-artifact"
+    "round-1-artifact",
+    "round-2-artifact",
+    "round-3-artifact"
   ]);
 
-  // Under 48 hours the candidates are observed but not eligible.
-  const tooSoon = passArtifact(2, "2026-08-23T05:00:00.000Z");
-  const tooSoonReceipt = assembleReceiptFromPasses({
-    first,
-    second: tooSoon,
-    firstArtifactBytes: firstBytes,
-    secondArtifactBytes: JSON.stringify(tooSoon),
+  // Between 24h and 48h: the session-disjoint rule admits the round, and the
+  // eligibility pair still refuses the candidate. The two separations are
+  // different rules with different owners.
+  const thirtyHours = passArtifact(2, "2026-08-24T07:00:00.000Z");
+  const windowReceipt = assembleReceiptFromRounds({
+    rounds: [entry(first), entry(thirtyHours)],
     candidateSetBytes: CANDIDATE_BYTES,
     sweptAt: "2026-08-25T03:00:00.000Z"
   });
-  assert.equal(tooSoonReceipt.eligibleCandidates, 0);
+  assert.equal(windowReceipt.eligibleCandidates, 0);
 
-  // A pass missing a candidate is a partial pass, re-run rather than assembled.
+  // A round missing a candidate is a partial round, re-run rather than assembled.
   const partial = JSON.parse(JSON.stringify(second));
   partial.outcomes = partial.outcomes.slice(0, 1);
   assert.throws(
     () =>
-      assembleReceiptFromPasses({
-        first,
-        second: validatePassArtifact(partial, 2),
-        firstArtifactBytes: firstBytes,
-        secondArtifactBytes: JSON.stringify(partial),
+      assembleReceiptFromRounds({
+        rounds: [entry(first), entry(validatePassArtifact(partial, 2))],
         candidateSetBytes: CANDIDATE_BYTES,
         sweptAt: "2026-08-25T03:00:00.000Z"
       }),
-    /partial pass is re-run/
+    /partial round is re-run/
   );
+});
+
+test("the loss bound is cluster-aware and fail-closed: too few rounds is a refusal, never an iid interval", () => {
+  const entry = (artifact) => ({ artifact, bytes: JSON.stringify(artifact) });
+  const at = [
+    "2026-08-23T01:00:00.000Z",
+    "2026-08-25T02:00:00.000Z",
+    "2026-08-26T03:00:00.000Z",
+    "2026-08-27T04:00:00.000Z",
+    "2026-08-28T05:00:00.000Z"
+  ];
+  const rounds = at.map((when, index) => passArtifact(index + 1, when));
+  const receipt = assembleReceiptFromRounds({
+    rounds: rounds.map(entry),
+    candidateSetBytes: CANDIDATE_BYTES,
+    sweptAt: "2026-08-28T06:00:00.000Z"
+  });
+  const receiptBytes = serializeReliabilitySweepReceipt(receipt);
+  const bound = computeClusterLossBound({ receipt, receiptBytes });
+
+  assert.equal(bound.rounds, 5);
+  assert.equal(bound.method.algorithm, "cluster-bootstrap");
+  assert.equal(bound.method.clusterUnit, "collection-round");
+  assert.equal(bound.method.minimumClusters, SWEEP_BOUND_MINIMUM_ROUNDS);
+  // Every fixture outcome is fully complete, so the bound is exactly [1, 1],
+  // and it must EQUAL the shared implementation applied to the same items:
+  // one algorithm, one home, provably.
+  const outcomes = receipt.cases.flatMap((c) => c.passes);
+  const reference = clusterInterval(outcomes, () => true, (o) => o.pass);
+  assert.equal(bound.bounds.allFamiliesComplete.lo, reference.lo);
+  assert.equal(bound.bounds.allFamiliesComplete.hi, reference.hi);
+  assert.deepEqual(Object.keys(bound.bounds.censoredByFamily).length, 6);
+
+  // NO iid vocabulary anywhere in the artifact: a Wilson interval here is the
+  // substitution the censoring analysis's record refuses.
+  const serialized = JSON.stringify(bound);
+  assert.equal(/wilson|interval95/i.test(serialized), false);
+
+  // Below the preregistered minimum: a refusal that names the remedy.
+  const three = assembleReceiptFromRounds({
+    rounds: rounds.slice(0, 3).map(entry),
+    candidateSetBytes: CANDIDATE_BYTES,
+    sweptAt: "2026-08-26T04:00:00.000Z"
+  });
+  assert.throws(
+    () =>
+      computeClusterLossBound({
+        receipt: three,
+        receiptBytes: serializeReliabilitySweepReceipt(three)
+      }),
+    /preregistered minimum is 4.*never substitute an iid interval/
+  );
+  assert.equal(SWEEP_BOUND_MINIMUM_ROUNDS, 4);
 });
 
 test("the summary lower-bounds detector-input readiness from load facts only", () => {

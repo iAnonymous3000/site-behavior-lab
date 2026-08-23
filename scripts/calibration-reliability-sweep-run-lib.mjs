@@ -23,16 +23,37 @@
  */
 
 import {
+  EXPECTED_EVIDENCE_FAMILIES,
+  MAX_SWEEP_ROUNDS,
+  SWEEP_MINIMUM_ROUND_SEPARATION_MS,
   allEvidenceFamiliesComplete,
   assertBareLoadOnly,
   bareLoadValid,
   buildReliabilitySweepReceipt
 } from "./calibration-reliability-sweep-lib.mjs";
+import {
+  CLUSTER_BOOTSTRAP_ITERATIONS,
+  CLUSTER_BOOTSTRAP_SEED,
+  clusterInterval
+} from "./cluster-interval-lib.mjs";
 import { sha256Hex } from "./scanner-fidelity-study-lib.mjs";
 
 export const SWEEP_PASS_ARTIFACT_KIND =
   "site-behavior-calibration-reliability-sweep-pass";
-export const SWEEP_PASS_ARTIFACT_VERSION = 2;
+export const SWEEP_PASS_ARTIFACT_VERSION = 3;
+
+/**
+ * The preregistered fail-closed minimum for the loss bound
+ * (docs/reliability-sweep-cluster-design.md): four usable rounds, one above
+ * the bootstrap implementation's own hard floor of three. Below it the bound
+ * command REFUSES; it never substitutes an iid interval, because a per-case
+ * Wilson endpoint over clustered failures is a diagnostic, not a design
+ * bound, by the censoring analysis's own record.
+ */
+export const SWEEP_BOUND_MINIMUM_ROUNDS = 4;
+export const SWEEP_LOSS_BOUND_KIND =
+  "site-behavior-calibration-reliability-loss-bound";
+export const SWEEP_LOSS_BOUND_VERSION = 1;
 
 const CASE_ID = /^[a-z0-9][a-z0-9._-]{0,99}$/;
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
@@ -153,7 +174,10 @@ export function buildPassArtifact({
     typeof studyId === "string" && studyId.length > 0,
     "pass artifact requires a study id"
   );
-  require(pass === 1 || pass === 2, "pass artifact requires pass 1 or 2");
+  require(
+    Number.isSafeInteger(pass) && pass >= 1 && pass <= MAX_SWEEP_ROUNDS,
+    `pass artifact requires a round from 1 to ${MAX_SWEEP_ROUNDS}`
+  );
   require(
     typeof candidateSetDigest === "string" && /^[0-9a-f]{64}$/.test(candidateSetDigest),
     "pass artifact requires the candidate-set digest it swept"
@@ -224,23 +248,51 @@ export function validatePassArtifact(value, expectedPass) {
  * be recorded as if it never happened; refuse instead. Two builds, two egress
  * points, or two conditions are two sweeps.
  */
-export function assertPassesConsistent(first, second) {
-  require(first.pass === 1 && second.pass === 2, "receipt assembly needs pass 1 then pass 2");
-  require(first.studyId === second.studyId, "passes belong to different studies");
+export function assertRoundsConsistent(artifacts) {
   require(
-    first.candidateSetDigest === second.candidateSetDigest,
-    "passes swept different candidate sets"
+    Array.isArray(artifacts) && artifacts.length >= 2,
+    "receipt assembly needs at least the two eligibility rounds"
   );
-  for (const field of IDENTITY_FIELDS) {
+  for (const [index, artifact] of artifacts.entries()) {
     require(
-      first.identity[field] === second.identity[field],
-      `pass identity ${field} changed between passes; that is two sweeps, not one`
+      artifact.pass === index + 1,
+      `receipt assembly needs contiguous rounds starting at 1; position ${index + 1} carries round ${artifact.pass}`
     );
   }
-  for (const field of CONDITION_FIELDS) {
+  const first = artifacts[0];
+  for (const artifact of artifacts.slice(1)) {
+    require(artifact.studyId === first.studyId, "rounds belong to different studies");
     require(
-      first.measurementCondition[field] === second.measurementCondition[field],
-      `measurement condition ${field} changed between passes; that is two sweeps, not one`
+      artifact.candidateSetDigest === first.candidateSetDigest,
+      "rounds swept different candidate sets"
+    );
+    for (const field of IDENTITY_FIELDS) {
+      require(
+        artifact.identity[field] === first.identity[field],
+        `round identity ${field} changed between rounds; that is two sweeps, not one`
+      );
+    }
+    for (const field of CONDITION_FIELDS) {
+      require(
+        artifact.measurementCondition[field] === first.measurementCondition[field],
+        `measurement condition ${field} changed between rounds; that is two sweeps, not one`
+      );
+    }
+  }
+  // Rounds are DISJOINT sessions in chronological order, each at least the
+  // minimum separation after the previous round's last observation. Cluster
+  // independence is temporal: two rounds an hour apart mostly re-measure one
+  // web state, which is the two-cluster diagnosis by another route.
+  for (let index = 1; index < artifacts.length; index += 1) {
+    const previousMax = Math.max(
+      ...artifacts[index - 1].outcomes.map((outcome) => Date.parse(outcome.observedAt))
+    );
+    const currentMin = Math.min(
+      ...artifacts[index].outcomes.map((outcome) => Date.parse(outcome.observedAt))
+    );
+    require(
+      currentMin - previousMax >= SWEEP_MINIMUM_ROUND_SEPARATION_MS,
+      `round ${index + 1} begins ${currentMin - previousMax}ms after round ${index} ended; rounds are disjoint sessions at least ${SWEEP_MINIMUM_ROUND_SEPARATION_MS}ms apart`
     );
   }
 }
@@ -251,35 +303,37 @@ export function assertPassesConsistent(first, second) {
  * of both pass artifacts, so a re-derivation can prove which inputs produced
  * it.
  */
-export function assembleReceiptFromPasses({
-  first,
-  second,
-  firstArtifactBytes,
-  secondArtifactBytes,
-  candidateSetBytes,
-  sweptAt
-}) {
-  assertPassesConsistent(first, second);
+export function assembleReceiptFromRounds({ rounds, candidateSetBytes, sweptAt }) {
+  require(Array.isArray(rounds) && rounds.length >= 2, "assembly needs at least two rounds");
+  for (const entry of rounds) {
+    require(
+      isRecord(entry) && isRecord(entry.artifact) && typeof entry.bytes === "string",
+      "each round entry needs { artifact, bytes }"
+    );
+  }
+  const artifacts = rounds.map((entry) => entry.artifact);
+  assertRoundsConsistent(artifacts);
+  const first = artifacts[0];
   const candidateSet = parseCandidateSet(candidateSetBytes);
   require(
     candidateSet.studyId === first.studyId,
-    "candidate set study id does not match the pass artifacts"
+    "candidate set study id does not match the round artifacts"
   );
   require(
     candidateSet.candidateSetDigest === first.candidateSetDigest,
-    "candidate set bytes do not match the digest the passes swept"
+    "candidate set bytes do not match the digest the rounds swept"
   );
   const expected = new Set(candidateSet.candidates.map((entry) => entry.caseId));
-  for (const artifact of [first, second]) {
+  for (const artifact of artifacts) {
     for (const outcome of artifact.outcomes) {
       require(
         expected.has(outcome.caseId),
-        `pass ${artifact.pass} carries outcome for unknown case ${outcome.caseId}`
+        `round ${artifact.pass} carries outcome for unknown case ${outcome.caseId}`
       );
     }
     require(
       artifact.outcomes.length === expected.size,
-      `pass ${artifact.pass} observed ${artifact.outcomes.length} of ${expected.size} candidates; a partial pass is re-run, never assembled`
+      `round ${artifact.pass} observed ${artifact.outcomes.length} of ${expected.size} candidates; a partial round is re-run, never assembled`
     );
   }
   require(
@@ -291,13 +345,12 @@ export function assembleReceiptFromPasses({
     sweptAt,
     measurementCondition: first.measurementCondition,
     candidateSetDigest: first.candidateSetDigest,
-    sourceDigests: {
-      "candidate-set": candidateSet.candidateSetDigest,
-      "pass-1-artifact": sha256Hex(firstArtifactBytes),
-      "pass-2-artifact": sha256Hex(secondArtifactBytes)
-    },
+    sourceDigests: Object.fromEntries([
+      ["candidate-set", candidateSet.candidateSetDigest],
+      ...rounds.map((entry) => [`round-${entry.artifact.pass}-artifact`, sha256Hex(entry.bytes)])
+    ]),
     identity: first.identity,
-    outcomes: [...first.outcomes, ...second.outcomes]
+    outcomes: artifacts.flatMap((artifact) => artifact.outcomes)
   });
 }
 
@@ -337,5 +390,76 @@ export function summarizeSweepOutcomes(outcomes) {
     familyCensorCounts: Object.fromEntries(
       Object.entries(familyCensorCounts).sort(([a], [b]) => a.localeCompare(b))
     )
+  };
+}
+
+/**
+ * THE CLUSTER-AWARE LOSS BOUND (docs/reliability-sweep-cluster-design.md).
+ * Cluster unit: the collection round. Method: the repository's one
+ * cluster-bootstrap implementation, shared with the censoring analysis.
+ *
+ * FAIL-CLOSED, NEVER IID. Below the preregistered minimum of
+ * SWEEP_BOUND_MINIMUM_ROUNDS usable rounds this THROWS. It does not return a
+ * Wilson interval, a wider interval, or a partial artifact: a per-case
+ * interval over clustered failures is an iid-only diagnostic, and emitting
+ * one here is exactly the substitution the censoring analysis's own record
+ * refuses. The remedy for too few clusters is more rounds, not a different
+ * formula.
+ */
+export function computeClusterLossBound({ receipt, receiptBytes }) {
+  require(isRecord(receipt), "loss bound requires the assembled receipt");
+  require(typeof receiptBytes === "string" && receiptBytes.length > 0, "loss bound requires the receipt bytes");
+  require(Array.isArray(receipt.cases), "loss bound requires receipt cases");
+  const outcomes = receipt.cases.flatMap((entry) => entry.passes);
+  for (const outcome of outcomes) assertBareLoadOnly(outcome, "loss bound input");
+  const rounds = new Set(outcomes.map((outcome) => outcome.pass));
+  require(
+    rounds.size >= SWEEP_BOUND_MINIMUM_ROUNDS,
+    `the receipt holds ${rounds.size} collection round(s); the preregistered minimum is ${SWEEP_BOUND_MINIMUM_ROUNDS}, and below it there is NO bound: collect more rounds, never substitute an iid interval`
+  );
+
+  const keyOf = (outcome) => outcome.pass;
+  const boundFor = (predicate, label) => {
+    const interval = clusterInterval(outcomes, predicate, keyOf);
+    require(
+      interval.lo !== null && interval.hi !== null,
+      `${label}: the cluster bootstrap refused ${interval.clusters} cluster(s)`
+    );
+    return { lo: interval.lo, hi: interval.hi };
+  };
+
+  const censoredByFamily = Object.fromEntries(
+    EXPECTED_EVIDENCE_FAMILIES.map((family) => [
+      family,
+      boundFor((outcome) => outcome.censoredFamilies.includes(family), `censored ${family}`)
+    ])
+  );
+
+  return {
+    kind: SWEEP_LOSS_BOUND_KIND,
+    boundVersion: SWEEP_LOSS_BOUND_VERSION,
+    studyId: receipt.studyId,
+    candidateSetDigest: receipt.candidateSetDigest,
+    identity: receipt.identity,
+    measurementCondition: receipt.measurementCondition,
+    rounds: rounds.size,
+    observations: outcomes.length,
+    method: {
+      algorithm: "cluster-bootstrap",
+      clusterUnit: "collection-round",
+      iterations: CLUSTER_BOOTSTRAP_ITERATIONS,
+      seed: CLUSTER_BOOTSTRAP_SEED,
+      percentiles: [0.025, 0.975],
+      minimumClusters: SWEEP_BOUND_MINIMUM_ROUNDS
+    },
+    bounds: {
+      bareLoadValid: boundFor((outcome) => bareLoadValid(outcome), "bare-load valid"),
+      allFamiliesComplete: boundFor(
+        (outcome) => allEvidenceFamiliesComplete(outcome),
+        "all families complete"
+      ),
+      censoredByFamily
+    },
+    receiptSha256: sha256Hex(receiptBytes)
   };
 }

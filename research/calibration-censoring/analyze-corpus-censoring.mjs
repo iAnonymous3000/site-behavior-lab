@@ -48,6 +48,7 @@ import {
   simulatePolicy
 } from "../../scripts/calibration-censoring-simulation-lib.mjs";
 
+import { clusterInterval } from "../../scripts/cluster-interval-lib.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const reportsDir = path.join(root, "public", "reports");
 
@@ -189,29 +190,10 @@ const wilson = (k, n, z = 1.96) => {
   return { lo: Math.max(0, c - h), hi: Math.min(1, c + h), half: h };
 };
 
-function clusterInterval(items, predicate, keyOf, iterations = 4000) {
-  const clusters = new Map();
-  for (const item of items) {
-    const key = keyOf(item);
-    if (!clusters.has(key)) clusters.set(key, []);
-    clusters.get(key).push(item);
-  }
-  const pool = [...clusters.values()];
-  if (pool.length < 3) return { lo: null, hi: null, clusters: pool.length };
-  let seed = 20260816;
-  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
-  const rates = [];
-  for (let i = 0; i < iterations; i++) {
-    let k = 0, n = 0;
-    for (let c = 0; c < pool.length; c++) {
-      const picked = pool[Math.floor(rnd() * pool.length)];
-      for (const item of picked) { n++; if (predicate(item)) k++; }
-    }
-    if (n > 0) rates.push(k / n);
-  }
-  rates.sort((a, b) => a - b);
-  return { lo: rates[Math.floor(rates.length * 0.025)], hi: rates[Math.floor(rates.length * 0.975)], clusters: pool.length };
-}
+// Extracted to scripts/cluster-interval-lib.mjs so the reliability sweep's
+// loss bound uses the identical method; the byte-exact reproduction of the
+// committed findings below is the proof the extraction changed nothing.
+// (imported at the top of this file)
 
 const pct = (x) => (x === null ? "n/a" : `${(x * 100).toFixed(1)}%`);
 

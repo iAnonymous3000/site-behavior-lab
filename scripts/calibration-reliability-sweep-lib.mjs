@@ -149,8 +149,8 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     "bare-load outcome requires a case id"
   );
   require(
-    pass === 1 || pass === 2,
-    "bare-load outcome requires an explicit sweep pass number (1 or 2)"
+    Number.isSafeInteger(pass) && pass >= 1 && pass <= MAX_SWEEP_ROUNDS,
+    `bare-load outcome requires an explicit sweep round number (1 to ${MAX_SWEEP_ROUNDS})`
   );
   require(
     typeof observedAt === "string" && ISO_UTC.test(observedAt),
@@ -342,6 +342,17 @@ export function allEvidenceFamiliesComplete(outcome) {
 }
 
 export const SWEEP_MINIMUM_PASS_SEPARATION_MS = 48 * 60 * 60 * 1000;
+
+/**
+ * Multi-round collection (docs/reliability-sweep-cluster-design.md). Rounds 1
+ * and 2 remain the ELIGIBILITY pair; rounds 3 and up exist so the loss bound
+ * has independent time clusters, because the censoring analysis refuses
+ * cluster bootstrapping below three clusters and calls two clusters an
+ * iid-only diagnostic, never a design bound. Consecutive rounds are disjoint
+ * sessions at least this far apart.
+ */
+export const SWEEP_MINIMUM_ROUND_SEPARATION_MS = 24 * 60 * 60 * 1000;
+export const MAX_SWEEP_ROUNDS = 12;
 
 /**
  * A candidate joins the eligible pool only if BOTH passes were bare-load
