@@ -24,6 +24,44 @@ export const CANDIDATE_UNIVERSE_KIND =
   "site-behavior-calibration-candidate-universe";
 export const CANDIDATE_UNIVERSE_VERSION = 1;
 
+const SHA256 = /^[0-9a-f]{64}$/;
+const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
+
+/**
+ * The structured source manifest: free-text provenance cannot prove a list
+ * was externally sourced, so the manifest requires a provider, the
+ * provider's PERMANENT id for the exact snapshot (a Tranco list id, an
+ * archived URL, a versioned dataset DOI), the retrieval URL and instant, the
+ * declared population scope, and the sha256 of the exact bytes retrieved.
+ * The builder refuses a manifest whose digest does not match the supplied
+ * bytes, so the claim "these bytes are that snapshot" is checkable by anyone
+ * who re-fetches the permanent id.
+ */
+export function validateSourceManifest(manifest, sourceBytes) {
+  require(
+    typeof manifest === "object" && manifest !== null && !Array.isArray(manifest),
+    "source manifest must be a record"
+  );
+  const allowed = ["provider", "permanentId", "url", "retrievedAt", "scope", "sha256"];
+  for (const key of Object.keys(manifest)) {
+    require(allowed.includes(key), `source manifest carries unexpected field "${key}"`);
+  }
+  for (const field of allowed) {
+    require(
+      typeof manifest[field] === "string" && manifest[field].length > 0,
+      `source manifest needs ${field}`
+    );
+  }
+  require(/^https:\/\//.test(manifest.url), "source manifest url must be https");
+  require(ISO_UTC.test(manifest.retrievedAt), "source manifest retrievedAt must be ISO-8601 UTC");
+  require(SHA256.test(manifest.sha256), "source manifest sha256 must be a sha256");
+  require(
+    manifest.sha256 === sha256Hex(sourceBytes),
+    "source manifest sha256 does not match the supplied source bytes; the bytes are not the named snapshot"
+  );
+  return manifest;
+}
+
 function require(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -67,16 +105,13 @@ export function buildCandidateUniverse(options) {
   // argument must not silently become one.
   for (const key of Object.keys(options)) {
     require(
-      ["studyId", "sourceBytes", "sourceDescription", "exclusions", "poolSize"].includes(key),
+      ["studyId", "sourceBytes", "sourceManifest", "exclusions", "poolSize"].includes(key),
       `universe options carry unexpected field "${key}"`
     );
   }
-  const { studyId, sourceBytes, sourceDescription, exclusions, poolSize } = options;
+  const { studyId, sourceBytes, sourceManifest, exclusions, poolSize } = options;
   require(typeof studyId === "string" && studyId.length > 0, "universe needs a studyId");
-  require(
-    typeof sourceDescription === "string" && sourceDescription.length > 0,
-    "universe needs a source description naming where the external list came from"
-  );
+  validateSourceManifest(sourceManifest, sourceBytes);
   require(
     Number.isSafeInteger(poolSize) && poolSize >= 600,
     "universe pool size must be at least 600 (frame-construction: a pool of 600 or more for CNAME at N ~ 350)"
@@ -113,7 +148,7 @@ export function buildCandidateUniverse(options) {
     kind: CANDIDATE_UNIVERSE_KIND,
     version: CANDIDATE_UNIVERSE_VERSION,
     studyId,
-    sourceDescription,
+    sourceManifest: { ...sourceManifest },
     sourceSha256,
     sourceDomains: domains.length,
     poolSize,

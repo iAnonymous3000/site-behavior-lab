@@ -497,10 +497,18 @@ export function buildReliabilitySweepReceipt({
         familyCensorCounts[family] = (familyCensorCounts[family] ?? 0) + 1;
       }
     }
+    // The diagnostic is about the ELIGIBILITY PAIR, rounds 1 and 2, whatever
+    // additional sizing rounds exist: requiring exactly two passes made this
+    // silently zero on every multi-round sweep, which would have fed the
+    // frame producer a false all-lossy readiness picture.
+    const pairOne = entry.passes.find((pass) => pass.pass === 1);
+    const pairTwo = entry.passes.find((pass) => pass.pass === 2);
     if (
       entry.eligible &&
-      entry.passes.length === 2 &&
-      entry.passes.every((pass) => allEvidenceFamiliesComplete(pass))
+      pairOne !== undefined &&
+      pairTwo !== undefined &&
+      allEvidenceFamiliesComplete(pairOne) &&
+      allEvidenceFamiliesComplete(pairTwo)
     ) {
       allFamiliesCompleteBothPasses += 1;
     }

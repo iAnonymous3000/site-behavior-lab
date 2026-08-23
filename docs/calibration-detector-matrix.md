@@ -167,7 +167,10 @@ zero-censoring for losses in families (detector-output, fingerprinting,
 storage) that a DNS-chain reference never touches.
 
 **Estimand under missingness.** Complete-case sensitivity/specificity/PPV/NPV
-against the independent reference on the declared high-prevalence pool;
+against the independent reference on the draft's then-declared
+high-prevalence pool (a population later withdrawn in the step-5 correction:
+no base rate is assumed until independently justified, and the lookup cap is
+an instrument disclosure, never a population boundary);
 scoreable-case-conditional versions of the same; condition-invariance across
 consent arms (already measured descriptively: 64 hosts, zero gained).
 

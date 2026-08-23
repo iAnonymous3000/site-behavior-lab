@@ -5,8 +5,12 @@
  * rules; docs/reliability-sweep-cluster-design.md the design).
  *
  *   node scripts/calibration-candidate-universe-build.mjs \
- *     <study-id> <external-source.txt> "<source description>" <pool-size> \
+ *     <study-id> <external-source.txt> <source-manifest.json> <pool-size> \
  *     <candidates-out.json> <provenance-out.json>
+ *
+ * The manifest names the provider, its PERMANENT snapshot id, the retrieval
+ * url and instant, the declared scope, and the sha256 of the exact bytes;
+ * the build refuses bytes that do not hash to the manifest's digest.
  *
  * The exclusion set is derived HERE, from every repository surface that
  * carries a development-visited domain, and is applied only to REMOVE.
@@ -88,11 +92,11 @@ export function deriveDevelopmentCorpusExclusions() {
   return [...domains].sort();
 }
 
-const [, , studyId, sourcePath, sourceDescription, poolSizeRaw, candidatesOut, provenanceOut] =
+const [, , studyId, sourcePath, manifestPath, poolSizeRaw, candidatesOut, provenanceOut] =
   process.argv;
-if (!studyId || !sourcePath || !sourceDescription || !poolSizeRaw || !candidatesOut || !provenanceOut) {
+if (!studyId || !sourcePath || !manifestPath || !poolSizeRaw || !candidatesOut || !provenanceOut) {
   console.error(
-    "usage: calibration-candidate-universe-build.mjs <study-id> <source.txt> <description> <pool-size> <candidates-out.json> <provenance-out.json>"
+    "usage: calibration-candidate-universe-build.mjs <study-id> <source.txt> <source-manifest.json> <pool-size> <candidates-out.json> <provenance-out.json>"
   );
   process.exit(1);
 }
@@ -101,7 +105,7 @@ const exclusions = deriveDevelopmentCorpusExclusions();
 const { candidateSetBytes, provenance } = buildCandidateUniverse({
   studyId,
   sourceBytes: readFileSync(sourcePath, "utf8"),
-  sourceDescription,
+  sourceManifest: JSON.parse(readFileSync(manifestPath, "utf8")),
   exclusions,
   poolSize: Number(poolSizeRaw)
 });

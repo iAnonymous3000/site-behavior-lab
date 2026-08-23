@@ -1,10 +1,24 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { createHash } from "node:crypto";
 import {
   CANDIDATE_UNIVERSE_KIND,
   buildCandidateUniverse,
-  parseExternalSourceList
+  parseExternalSourceList,
+  validateSourceManifest
 } from "./calibration-candidate-universe-lib.mjs";
+
+function manifestFor(sourceBytes, overrides = {}) {
+  return {
+    provider: "tranco-list.eu",
+    permanentId: "Z417G",
+    url: "https://tranco-list.eu/list/Z417G/1000000",
+    retrievedAt: "2026-08-23T00:00:00.000Z",
+    scope: "finance and news publishers, externally categorized",
+    sha256: createHash("sha256").update(sourceBytes).digest("hex"),
+    ...overrides
+  };
+}
 
 function sourceOf(count, prefix = "site") {
   return Array.from({ length: count }, (_, index) => `${prefix}-${index}.example`).join("\n") + "\n";
@@ -28,7 +42,7 @@ test("repository data may only exclude: the removed domains are the emitted proo
   const { candidateSet, provenance } = buildCandidateUniverse({
     studyId: "cname-observe-sweep-1",
     sourceBytes: source,
-    sourceDescription: "synthetic fixture list",
+    sourceManifest: manifestFor(source),
     exclusions: excluded,
     poolSize: 600
   });
@@ -54,7 +68,7 @@ test("a short source fails closed: supply a longer list, never relax an exclusio
       buildCandidateUniverse({
         studyId: "s",
         sourceBytes: sourceOf(650),
-        sourceDescription: "fixture",
+        sourceManifest: manifestFor(sourceOf(650)),
         exclusions: Array.from({ length: 60 }, (_, index) => `site-${index}.example`),
         poolSize: 600
       }),
@@ -66,7 +80,7 @@ test("a short source fails closed: supply a longer list, never relax an exclusio
       buildCandidateUniverse({
         studyId: "s",
         sourceBytes: sourceOf(700),
-        sourceDescription: "fixture",
+        sourceManifest: manifestFor(sourceOf(700)),
         exclusions: [],
         poolSize: 350
       }),
@@ -82,7 +96,7 @@ test("the builder has no ranking or admission argument: only exclusion enters fr
       buildCandidateUniverse({
         studyId: "s",
         sourceBytes: sourceOf(700),
-        sourceDescription: "fixture",
+        sourceManifest: manifestFor(sourceOf(700)),
         exclusions: [],
         poolSize: 600,
         preferredSites: ["site-1.example"]
@@ -90,4 +104,41 @@ test("the builder has no ranking or admission argument: only exclusion enters fr
     /unexpected|preferredSites/,
     "an unknown argument must not silently become a ranking channel"
   );
+});
+
+test("the manifest binds the bytes to a permanent external snapshot, or refuses", () => {
+  const source = sourceOf(700);
+  // A digest that does not match the supplied bytes is not that snapshot.
+  assert.throws(
+    () =>
+      buildCandidateUniverse({
+        studyId: "s",
+        sourceBytes: source,
+        sourceManifest: manifestFor(source, { sha256: "a".repeat(64) }),
+        exclusions: [],
+        poolSize: 600
+      }),
+    /does not match the supplied source bytes/
+  );
+  // Free text cannot stand in for the structured fields.
+  assert.throws(
+    () => validateSourceManifest({ description: "downloaded from somewhere" }, source),
+    /unexpected field "description"/
+  );
+  for (const missing of ["provider", "permanentId", "url", "retrievedAt", "scope", "sha256"]) {
+    const manifest = manifestFor(source);
+    delete manifest[missing];
+    assert.throws(() => validateSourceManifest(manifest, source), new RegExp(`needs ${missing}`));
+  }
+  // The provenance embeds the manifest verbatim, so an auditor can re-fetch
+  // the permanent id and compare digests.
+  const { provenance } = buildCandidateUniverse({
+    studyId: "s",
+    sourceBytes: source,
+    sourceManifest: manifestFor(source),
+    exclusions: [],
+    poolSize: 600
+  });
+  assert.equal(provenance.sourceManifest.permanentId, "Z417G");
+  assert.equal(provenance.sourceManifest.sha256, provenance.sourceSha256);
 });

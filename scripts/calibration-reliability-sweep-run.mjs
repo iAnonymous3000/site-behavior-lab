@@ -31,8 +31,9 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { readResponseTextWithinLimit } from "./http-response.mjs";
 import { bareLoadOutcome } from "./calibration-reliability-sweep-lib.mjs";
 import {
-  assembleReceiptFromPasses,
+  assembleReceiptFromRounds,
   buildPassArtifact,
+  computeClusterLossBound,
   parseCandidateSet,
   summarizeSweepOutcomes,
   validatePassArtifact
@@ -145,41 +146,63 @@ async function collect(pass, candidatesPath, outPath) {
   );
 }
 
-function receipt(candidatesPath, firstPath, secondPath, outPath) {
+function receipt(candidatesPath, roundPaths, outPath) {
   const candidateSetBytes = readFileSync(candidatesPath, "utf8");
-  const firstArtifactBytes = readFileSync(firstPath, "utf8");
-  const secondArtifactBytes = readFileSync(secondPath, "utf8");
-  const first = validatePassArtifact(JSON.parse(firstArtifactBytes), 1);
-  const second = validatePassArtifact(JSON.parse(secondArtifactBytes), 2);
-  const assembled = assembleReceiptFromPasses({
-    first,
-    second,
-    firstArtifactBytes,
-    secondArtifactBytes,
+  const rounds = roundPaths.map((roundPath, index) => {
+    const bytes = readFileSync(roundPath, "utf8");
+    return { artifact: validatePassArtifact(JSON.parse(bytes), index + 1), bytes };
+  });
+  const assembled = assembleReceiptFromRounds({
+    rounds,
     candidateSetBytes,
     sweptAt: new Date().toISOString()
   });
   writeFileSync(outPath, serializeReliabilitySweepReceipt(assembled));
   console.log(
-    `receipt: ${assembled.observedCandidates} candidates, ${assembled.eligibleCandidates} eligible (${(100 * assembled.eligibleFraction).toFixed(1)}%)`
+    `receipt: ${rounds.length} rounds, ${assembled.observedCandidates} candidates, ${assembled.eligibleCandidates} eligible (${(100 * assembled.eligibleFraction).toFixed(1)}%)`
+  );
+  console.log(`written to ${outPath}`);
+}
+
+function bound(receiptPath, outPath) {
+  const receiptBytes = readFileSync(receiptPath, "utf8");
+  const artifact = computeClusterLossBound({
+    receipt: JSON.parse(receiptBytes),
+    receiptBytes
+  });
+  writeFileSync(outPath, `${JSON.stringify(artifact, null, 2)}\n`);
+  console.log(
+    `loss bound over ${artifact.rounds} rounds: all-families-complete [${artifact.bounds.allFamiliesComplete.lo.toFixed(3)}, ${artifact.bounds.allFamiliesComplete.hi.toFixed(3)}]`
+  );
+  console.log(
+    "cluster-bootstrap percentiles; the frame producer sizes from this artifact and nothing else"
   );
   console.log(`written to ${outPath}`);
 }
 
 const [, , command, ...rest] = process.argv;
 if (command === "collect") {
-  const [passRaw, candidatesPath, outPath] = rest;
-  const pass = Number(passRaw);
-  if ((pass !== 1 && pass !== 2) || !candidatesPath || !outPath) {
-    fail("usage: collect <1|2> <candidates.json> <out.json>");
+  const [roundRaw, candidatesPath, outPath] = rest;
+  const round = Number(roundRaw);
+  if (!Number.isSafeInteger(round) || round < 1 || round > 12 || !candidatesPath || !outPath) {
+    fail("usage: collect <round 1..12> <candidates.json> <out.json>");
   }
-  await collect(pass, candidatesPath, outPath);
+  await collect(round, candidatesPath, outPath);
 } else if (command === "receipt") {
-  const [candidatesPath, firstPath, secondPath, outPath] = rest;
-  if (!candidatesPath || !firstPath || !secondPath || !outPath) {
-    fail("usage: receipt <candidates.json> <pass1.json> <pass2.json> <out.json>");
+  if (rest.length < 4) {
+    fail("usage: receipt <candidates.json> <round1.json> [round2.json ...] <out.json>");
   }
-  receipt(candidatesPath, firstPath, secondPath, outPath);
+  const [candidatesPath, ...tail] = rest;
+  const outPath = tail.pop();
+  receipt(candidatesPath, tail, outPath);
+} else if (command === "bound") {
+  const [receiptPath, outPath] = rest;
+  if (!receiptPath || !outPath) {
+    fail("usage: bound <receipt.json> <bound-out.json>");
+  }
+  bound(receiptPath, outPath);
 } else {
-  fail("usage: calibration-reliability-sweep-run.mjs collect|receipt ...");
+  fail(
+    "usage: calibration-reliability-sweep-run.mjs collect <round 1..12> ... | receipt <candidates> <round1> [round2 ...] <out> | bound <receipt> <out>"
+  );
 }
