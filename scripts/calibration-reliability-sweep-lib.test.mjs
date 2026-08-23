@@ -414,6 +414,26 @@ test("receipt diagnostics count losses for real and condition readiness on eligi
     allFamiliesCompleteBothPasses: 1,
     familyCensorCounts: { fingerprinting: 1 }
   });
+
+  // With sizing rounds present, the pair diagnostic must still read rounds 1
+  // and 2 specifically: the exact-two-passes version was silently zero on
+  // every multi-round sweep.
+  const PASS_3 = "2026-08-19T02:00:00.000Z";
+  const multiRound = buildReliabilitySweepReceipt(
+    receiptArgs({
+      outcomes: [
+        project("case-a", soundReport(), 1, PASS_1),
+        project("case-a", soundReport(), 2, PASS_2),
+        project("case-a", soundReport({ quality: lossyLedger, qualityFacts: lossyFacts }), 3, PASS_3)
+      ]
+    })
+  );
+  assert.equal(
+    multiRound.diagnostics.allFamiliesCompleteBothPasses,
+    1,
+    "a lossy round 3 must not zero the rounds-1-and-2 pair diagnostic"
+  );
+  assert.deepEqual(multiRound.diagnostics.familyCensorCounts, { fingerprinting: 1 });
 });
 
 test("a candidate needs two bare-load-valid passes at least 48 hours apart", () => {

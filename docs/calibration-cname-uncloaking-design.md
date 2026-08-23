@@ -143,6 +143,14 @@ case, so ceremony survival decays exponentially in N:
 | 0.999 | 74.1% | 67.0% | 47.2% |
 | 0.9995 | 86.1% | 81.9% | 68.7% |
 
+SCOPE NOTE (step-5 correction): everything below conditions on an ASSUMED
+pool base rate of 0.50 that no independent evidence justifies, and on the
+superseded zero-censoring rule. The arithmetic stands as arithmetic; the
+assumption does not stand as a design input. The current draft assumes no
+base rate, sizes from the sweep's cluster-aware loss bound plus an
+independently justified prevalence estimate for the declared scope, and
+conserves cap-exceeding visits under policy C instead of excluding them.
+
 The positive floor needs about 100 successes; the censoring rule punishes every
 additional case. So the design should **raise the pool's base rate to lower N**,
 not raise N to reach the floor. A declared, deliberately high-prevalence
