@@ -118,8 +118,12 @@ catalog, Brave lists, Node, Playwright, Chromium, operating system,
 architecture, runner, and egress. A later change to a bound identity makes the
 study ineligible; it does not silently transfer old rates to new code.
 
-The release-grade custody-lane study schema is
-`/schemas/detector-calibration-study.v3.schema.json`. Published v1 and v2
+The study contract every COMMITTED study satisfies is
+`/schemas/detector-calibration-study.v3.schema.json`, and v3 remains the
+schema historical verification runs against. All NEW ceremonies use the v4
+side-separated contract at `/schemas/detector-calibration-study.v4.schema.json`
+(docs/calibration-v4-reference-architecture.md); its ceremony tooling lands
+before the first v4 ceremony. Published v1 and v2
 studies remain readable as historical evidence; their immutable schemas are
 not rewritten. V1 lacks a structured fixed measurement condition and remains
 ineligible for rate publication. V3 preserves v2's condition binding while

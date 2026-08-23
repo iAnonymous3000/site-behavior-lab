@@ -96,7 +96,7 @@ export const DETECTOR_CALIBRATION_V3_SCHEMA_SHA256 =
  * publication requires an explicit v5 revision.
  */
 export const DETECTOR_CALIBRATION_V4_SCHEMA_SHA256 =
-  "b273b058f51ace25ca9d4aabb61910dbec7a1050dcf4d3ef4f2e4c281c0f5538";
+  "18e925c5419de1233225ff66cd1c1f2800645c3b699f5405d811a05596e433e2";
 
 export function generateScanReportV2Schema() {
   const schema = createGenerator({

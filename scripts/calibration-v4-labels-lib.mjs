@@ -14,6 +14,8 @@
  * The v3 modules are untouched and keep validating historical artifacts.
  */
 
+import { sha256Hex } from "./scanner-fidelity-study-lib.mjs";
+
 export const V4_LABEL_BATCH_KIND =
   "site-behavior-detector-calibration-label-batch-source";
 export const V4_LABEL_BATCH_SCHEMA_VERSION = 2;
@@ -21,7 +23,14 @@ export const V4_ADJUDICATION_KIND =
   "site-behavior-detector-calibration-blind-tiebreaker-resolution";
 export const V4_ADJUDICATION_SCHEMA_VERSION = 2;
 export const V4_LABELS_MANIFEST_SCHEMA_VERSION = 4;
+export const V4_LABELS_MANIFEST_KIND =
+  "site-behavior-detector-calibration-labels-manifest";
 export const V4_FRAME_TASK_SCHEMA_VERSION = 1;
+export const V4_FRAME_TASK_KIND =
+  "site-behavior-detector-calibration-frame-tasks";
+export const V4_LABEL_ARTIFACT_KIND =
+  "site-behavior-detector-calibration-label";
+export const V4_LABEL_ARTIFACT_SCHEMA_VERSION = 2;
 
 export const V4_LABEL_VALUES = Object.freeze(["present", "absent", "uncertain"]);
 
@@ -49,10 +58,21 @@ function only(record, allowed, context) {
  */
 export function validateV4FrameTasks(value) {
   require(isRecord(value), "frame tasks must be a record");
-  only(value, ["schemaVersion", "referenceProtocolId", "cases"], "frame tasks");
+  only(
+    value,
+    ["schemaVersion", "artifactKind", "studyId", "detector", "candidateCommit", "referenceProtocolId", "cases"],
+    "frame tasks"
+  );
   require(
     value.schemaVersion === V4_FRAME_TASK_SCHEMA_VERSION,
     `frame tasks schemaVersion must be ${V4_FRAME_TASK_SCHEMA_VERSION}`
+  );
+  require(value.artifactKind === V4_FRAME_TASK_KIND, "frame tasks kind mismatch");
+  require(typeof value.studyId === "string" && value.studyId.length > 0, "frame tasks need a studyId");
+  require(typeof value.detector === "string" && value.detector.length > 0, "frame tasks need a detector");
+  require(
+    typeof value.candidateCommit === "string" && /^[0-9a-f]{40}$/.test(value.candidateCommit),
+    "frame tasks need the candidate commit"
   );
   require(
     typeof value.referenceProtocolId === "string" && value.referenceProtocolId.length > 0,
@@ -87,8 +107,9 @@ export function validateV4FrameTasks(value) {
  * and in frame order, exactly as v1 required, because a missing case is how a
  * label disappears.
  */
-export function validateV4LabelBatch(value, { frameCaseIds }) {
-  require(Array.isArray(frameCaseIds) && frameCaseIds.length > 0, "frame case ids are required");
+export function validateV4LabelBatch(value, { frame }) {
+  validateV4FrameTasks(frame);
+  const frameCaseIds = frame.cases.map((entry) => entry.caseId);
   require(isRecord(value), "label batch must be a record");
   only(
     value,
@@ -116,9 +137,25 @@ export function validateV4LabelBatch(value, { frameCaseIds }) {
     typeof value.candidateCommit === "string" && /^[0-9a-f]{40}$/.test(value.candidateCommit),
     "label batch needs the candidate commit"
   );
+  // The batch must be a statement about THIS frame: same study, same
+  // detector, same candidate, same protocol. Frame order alone binds none of
+  // that, and a batch labeled under a different protocol validating against
+  // this frame was the reviewed gap.
   require(
-    typeof value.referenceProtocolId === "string" && value.referenceProtocolId.length > 0,
-    "label batch needs the reference protocol id"
+    value.studyId === frame.studyId,
+    `label batch studyId ${value.studyId} does not match the frame's ${frame.studyId}`
+  );
+  require(
+    value.detector === frame.detector,
+    `label batch detector ${value.detector} does not match the frame's ${frame.detector}`
+  );
+  require(
+    value.candidateCommit === frame.candidateCommit,
+    "label batch candidate commit does not match the frame's"
+  );
+  require(
+    value.referenceProtocolId === frame.referenceProtocolId,
+    `label batch protocol ${value.referenceProtocolId} does not match the frame's ${frame.referenceProtocolId}`
   );
   require(Array.isArray(value.cases), "label batch needs cases");
   require(
@@ -225,6 +262,34 @@ export function buildV4AdjudicationArtifact({ studyId, detector, caseId, resolut
   };
 }
 
+/** Strict validator for a v4 adjudication artifact read back from disk. */
+export function validateV4AdjudicationArtifact(value) {
+  require(isRecord(value), "adjudication artifact must be a record");
+  only(
+    value,
+    ["schemaVersion", "artifactKind", "studyId", "detector", "caseId", "resolutionMethod", "tiebreakerId", "value"],
+    "adjudication artifact"
+  );
+  require(
+    value.schemaVersion === V4_ADJUDICATION_SCHEMA_VERSION,
+    `adjudication schemaVersion must be ${V4_ADJUDICATION_SCHEMA_VERSION}; v1 artifacts belong to the historical v3 pipeline`
+  );
+  require(value.artifactKind === V4_ADJUDICATION_KIND, "adjudication kind mismatch");
+  require(typeof value.studyId === "string" && value.studyId.length > 0, "adjudication needs a studyId");
+  require(typeof value.detector === "string" && value.detector.length > 0, "adjudication needs a detector");
+  require(typeof value.caseId === "string" && value.caseId.length > 0, "adjudication needs a caseId");
+  require(
+    value.resolutionMethod === "blind-precommitted-tiebreaker",
+    "adjudication resolution method mismatch"
+  );
+  require(
+    typeof value.tiebreakerId === "string" && value.tiebreakerId.length > 0,
+    "adjudication needs a tiebreakerId"
+  );
+  require(V4_LABEL_VALUES.includes(value.value), "adjudication value must be tri-state");
+  return value;
+}
+
 /**
  * The v4 labels manifest row for one case: every reviewer's own evidence
  * digest beside the label artifacts, so provenance survives per source.
@@ -249,8 +314,168 @@ export function buildV4LabelsManifestCase({ caseId, labelRecords, adjudicationSh
   );
   return {
     schemaVersion: V4_LABELS_MANIFEST_SCHEMA_VERSION,
+    artifactKind: V4_LABELS_MANIFEST_KIND,
     caseId,
     labels: labelRecords,
     adjudicationSha256
   };
+}
+
+/** Strict validator for a v4 labels-manifest row read back from disk. */
+export function validateV4LabelsManifestCase(value) {
+  require(isRecord(value), "manifest case must be a record");
+  only(
+    value,
+    ["schemaVersion", "artifactKind", "caseId", "labels", "adjudicationSha256"],
+    "manifest case"
+  );
+  require(
+    value.schemaVersion === V4_LABELS_MANIFEST_SCHEMA_VERSION,
+    `manifest schemaVersion must be ${V4_LABELS_MANIFEST_SCHEMA_VERSION}`
+  );
+  require(value.artifactKind === V4_LABELS_MANIFEST_KIND, "manifest kind mismatch");
+  // Re-run the builder over the stored fields so a hand-edited row fails the
+  // same checks a fresh one would.
+  return buildV4LabelsManifestCase({
+    caseId: value.caseId,
+    labelRecords: value.labels,
+    adjudicationSha256: value.adjudicationSha256
+  });
+}
+
+/**
+ * THE V4 ASSEMBLY BRIDGE: validated batches in, study-ready reference sides
+ * and their artifacts out. Pure and deterministic: canonical label and
+ * adjudication artifacts are built per case, digested, and threaded into the
+ * V4ReferenceLabelRecord / V4Adjudication shapes the study validator demands,
+ * so every digest the study schema requires has exactly one producer.
+ *
+ * What this deliberately is NOT: the ceremony's custody layer. Envelope
+ * sealing, authenticated artifact fetching, roster cross-binding, and the
+ * assemble CLI are ceremony-time tooling that reuses the existing custody
+ * machinery and lands before the first v4 ceremony; nothing in it can change
+ * a value this bridge produces, only refuse to produce one.
+ */
+export function assembleV4ReferenceCases({ frame, labelerBatches, tiebreakerBatch }) {
+  validateV4FrameTasks(frame);
+  require(
+    Array.isArray(labelerBatches) && labelerBatches.length >= 2,
+    "assembly needs at least two labeler batches"
+  );
+  const seen = new Set();
+  for (const entry of labelerBatches) {
+    require(isRecord(entry), "each labeler batch entry must be a record");
+    only(entry, ["labelerId", "batch"], "labeler batch entry");
+    require(
+      typeof entry.labelerId === "string" && entry.labelerId.length > 0,
+      "each labeler batch needs a labelerId"
+    );
+    require(!seen.has(entry.labelerId), `duplicate labeler ${entry.labelerId}`);
+    seen.add(entry.labelerId);
+    validateV4LabelBatch(entry.batch, { frame });
+    require(entry.batch.role === "labeler", `${entry.labelerId} batch role must be labeler`);
+  }
+  require(isRecord(tiebreakerBatch), "assembly needs the tiebreaker batch");
+  only(tiebreakerBatch, ["labelerId", "batch"], "tiebreaker batch entry");
+  require(
+    typeof tiebreakerBatch.labelerId === "string" && tiebreakerBatch.labelerId.length > 0,
+    "the tiebreaker batch needs a labelerId"
+  );
+  require(
+    !seen.has(tiebreakerBatch.labelerId),
+    "the tiebreaker must be distinct from the primary labelers"
+  );
+  validateV4LabelBatch(tiebreakerBatch.batch, { frame });
+  require(tiebreakerBatch.batch.role === "tiebreaker", "tiebreaker batch role must be tiebreaker");
+
+  const cases = new Map();
+  for (const [index, frameCase] of frame.cases.entries()) {
+    const labelArtifacts = [];
+    const labelRecords = [];
+    const manifestRecords = [];
+    const primaryValues = [];
+    for (const { labelerId, batch } of labelerBatches) {
+      const row = batch.cases[index];
+      const artifact = {
+        schemaVersion: V4_LABEL_ARTIFACT_SCHEMA_VERSION,
+        artifactKind: V4_LABEL_ARTIFACT_KIND,
+        studyId: frame.studyId,
+        detector: frame.detector,
+        caseId: frameCase.caseId,
+        labelerId,
+        value: row.value,
+        evidence: { sha256: row.evidence.sha256, provenance: row.evidence.provenance }
+      };
+      const labelSha256 = sha256Hex(`${JSON.stringify(artifact, null, 2)}\n`);
+      labelArtifacts.push({ labelerId, artifact, sha256: labelSha256 });
+      labelRecords.push({
+        labelerId,
+        value: row.value,
+        evidenceSha256: row.evidence.sha256,
+        evidenceProvenance: row.evidence.provenance,
+        labelArtifactDigest: labelSha256
+      });
+      manifestRecords.push({
+        labelerId,
+        labelSha256,
+        evidenceSha256: row.evidence.sha256,
+        evidenceProvenance: row.evidence.provenance
+      });
+      primaryValues.push({ labelerId, value: row.value });
+    }
+    const resolution = resolveV4ReferenceLabel({
+      labels: primaryValues,
+      tiebreaker: {
+        labelerId: tiebreakerBatch.labelerId,
+        value: tiebreakerBatch.batch.cases[index].value
+      }
+    });
+    const statusPart = resolutionToReferenceStatus(resolution);
+    let adjudication;
+    let adjudicationArtifact = null;
+    if (resolution.resolvedBy === "unanimous") {
+      adjudication = { status: "labelers-agreed", tiebreakerId: null, artifactDigest: null };
+    } else {
+      const artifact = buildV4AdjudicationArtifact({
+        studyId: frame.studyId,
+        detector: frame.detector,
+        caseId: frameCase.caseId,
+        resolution
+      });
+      const sha256 = sha256Hex(`${JSON.stringify(artifact, null, 2)}\n`);
+      adjudicationArtifact = { artifact, sha256 };
+      adjudication = {
+        status: "disagreement-resolved-by-blind-tiebreaker",
+        tiebreakerId: resolution.tiebreakerId,
+        artifactDigest: sha256,
+        // The value travels WITH the digest, so the study validator can bind
+        // the side to what the tiebreaker actually resolved.
+        value: resolution.value
+      };
+    }
+    const task = { protocolId: frame.referenceProtocolId, taskSha256: frameCase.taskSha256 };
+    const referenceSide =
+      statusPart.status === "known"
+        ? { status: "known", value: statusPart.value, task, labels: labelRecords, adjudication }
+        : {
+            status: "unknown",
+            reason: statusPart.reason,
+            task,
+            labels: labelRecords,
+            adjudication
+          };
+    cases.set(frameCase.caseId, {
+      referenceSide,
+      artifacts: {
+        labels: labelArtifacts,
+        adjudication: adjudicationArtifact,
+        manifestRow: buildV4LabelsManifestCase({
+          caseId: frameCase.caseId,
+          labelRecords: manifestRecords,
+          adjudicationSha256: adjudicationArtifact?.sha256 ?? null
+        })
+      }
+    });
+  }
+  return cases;
 }
