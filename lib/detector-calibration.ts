@@ -1290,7 +1290,12 @@ function rate(numerator: number, denominator: number, withInterval: boolean): De
   };
 }
 
-function wilson95(successes: number, denominator: number) {
+/**
+ * Exported for the censoring analyzer (lib/calibration-censoring-analysis.ts):
+ * one interval definition, never two. Additive export only; nothing about the
+ * computation or any analysis output changes.
+ */
+export function wilson95(successes: number, denominator: number) {
   const z = 1.959963984540054;
   const zSquared = z * z;
   const proportion = successes / denominator;
