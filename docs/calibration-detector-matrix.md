@@ -176,9 +176,10 @@ different visit at a different time through a different network, and scope
 alignment (contacted subdomains only, apex skipped) is by protocol rather than
 shared code.
 
-**Also recorded.** The prereg drafts still say a 12-host lookup cap; the
-shipping constant is MAX_CNAME_LOOKUPS = 10 (lib/scanner.ts:278). One of them
-must move before a frame is drawn.
+**Also recorded.** The prereg drafts said a 12-host lookup cap against the
+shipping MAX_CNAME_LOOKUPS = 10 (lib/scanner.ts:278); resolved during step 4
+by moving the drafts to 10, since a preregistration describes the instrument
+that ships.
 
 ### pixel-events
 

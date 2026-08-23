@@ -57,6 +57,7 @@ export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
   "budgetsExhausted",
   "familyLedgerReported",
   "familyLedgerComplete",
+  "ledgersConsistent",
   "censoredFamilies",
   "requestEvidenceComplete"
 ]);
@@ -178,6 +179,7 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     budgetsExhausted: 0,
     familyLedgerReported: false,
     familyLedgerComplete: false,
+    ledgersConsistent: false,
     censoredFamilies: [],
     requestEvidenceComplete: false
   };
@@ -250,6 +252,24 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     censoredFamilies: EXPECTED_EVIDENCE_FAMILIES.filter(
       (family) => byFamily[family]?.outcome === "censored"
     ),
+    // Per-family agreement between the two ledgers, in the one direction this
+    // module refuses: every RECORDED loss must name a family the derived
+    // ledger admits is censored. A loss against a family claiming complete is
+    // the reassuring-direction contradiction, whichever other families were
+    // censored; a loss entry whose family this module cannot recognize is
+    // unverifiable and fails closed. The inverse direction (a censored family
+    // with no recorded loss) is the HARSH direction and stays acceptable.
+    // Budget entries carry no family this module can attribute without
+    // semantic knowledge, so budgets keep the whole-run rule in the validity
+    // predicate below.
+    ledgersConsistent:
+      captureLoss !== null &&
+      captureLoss.every(
+        (loss) =>
+          typeof loss?.family === "string" &&
+          EXPECTED_EVIDENCE_FAMILIES.includes(loss.family) &&
+          byFamily[loss.family]?.outcome === "censored"
+      ),
     requestEvidenceComplete: byFamily.requests?.outcome === "complete"
   });
 }
@@ -287,16 +307,19 @@ export function bareLoadValid(outcome) {
     // not enough: it can say "complete" beside a recorded capture loss, and
     // nothing here validates that they agree.
     outcome.factsLedgerRecorded &&
-    // The two ledgers must not disagree in the reassuring direction. A
-    // recorded capture loss or exhausted budget beside a family ledger
-    // claiming everything completed is a contradiction this module cannot
-    // adjudicate, so the case is unverified. A loss beside a censored family
-    // is the CONSISTENT lossy shape and stays valid; only the reassuring
-    // combination is refused.
-    !(
-      outcome.familyLedgerComplete &&
-      (outcome.recordedCaptureLosses > 0 || outcome.budgetsExhausted > 0)
-    )
+    // The two ledgers must not disagree in the reassuring direction, checked
+    // PER FAMILY for recorded losses: a loss recorded against a family whose
+    // derived entry claims complete is refused even when some other family is
+    // censored (the adversarial review showed the whole-run version of this
+    // clause absolved exactly that shape). Budgets cannot be attributed to a
+    // family without semantic knowledge this module refuses to hold, so an
+    // exhausted budget is refused only in the fully reassuring case, beside a
+    // family ledger claiming everything completed; beside any censored family
+    // it is the conserved lossy shape and MUST stay valid, or the budget
+    // clause would quietly re-create the policy-A screen for budget-lossy
+    // sites.
+    outcome.ledgersConsistent &&
+    !(outcome.familyLedgerComplete && outcome.budgetsExhausted > 0)
   );
 }
 
@@ -448,10 +471,13 @@ export function buildReliabilitySweepReceipt({
 
   const eligible = cases.filter((entry) => entry.eligible).length;
   // Sizing diagnostics, derived from projected facts only. familyCensorCounts
-  // counts OUTCOMES (visits), not candidates, so a family lost on both passes
-  // of one candidate counts twice; allFamiliesCompleteBothPasses counts
-  // CANDIDATES whose every pass kept every family, the conservative
-  // detector-input readiness bound the step-3 decision sizes against.
+  // counts OUTCOMES (visits) across ALL candidates, eligible or not; extra
+  // losses from invalid passes inflate apparent loss, which errs conservative.
+  // allFamiliesCompleteBothPasses counts ELIGIBLE candidates whose every pass
+  // kept every family: the readiness numerator must be a subset of the pool
+  // the frame is drawn from, or a bot-walled site with clean ledgers inflates
+  // readiness against a pool it can never join (the anti-conservative
+  // direction the review flagged).
   const familyCensorCounts = {};
   let allFamiliesCompleteBothPasses = 0;
   for (const entry of cases) {
@@ -461,6 +487,7 @@ export function buildReliabilitySweepReceipt({
       }
     }
     if (
+      entry.eligible &&
       entry.passes.length === 2 &&
       entry.passes.every((pass) => allEvidenceFamiliesComplete(pass))
     ) {

@@ -303,11 +303,13 @@ export function assembleReceiptFromPasses({
 
 /**
  * The loss-bound summary for the frame producer, from projected facts only.
- * `allFamiliesComplete` (familyLedgerComplete with zero recorded losses and
- * zero exhausted budgets) lower-bounds every per-detector scoreable rate: a
+ * `allFamiliesComplete` lower-bounds every per-detector scoreable rate: a
  * case whose every family survived is scoreable for any detector, so sizing
- * against this rate is conservative for all of them without the sweep ever
- * learning which family a lossy case lost.
+ * against it is conservative for all of them. The summary DOES report which
+ * families were lost (familyCensorCounts): the step-3 decision sizes
+ * per-detector policies from per-family loss structure, and the
+ * anti-selection property lives at the eligibility boundary, not in
+ * blindness here.
  */
 export function summarizeSweepOutcomes(outcomes) {
   require(Array.isArray(outcomes) && outcomes.length > 0, "summary requires outcomes");

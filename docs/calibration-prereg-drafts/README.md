@@ -100,6 +100,12 @@ One consequence that shapes every draft here:
 Corpus evidence (574 reports, 108 hosts) says the six detectors are not
 equally studiable at the 100-per-class floor:
 
+The verdicts below are corpus-prevalence findings from step 1 and predate the
+step-3 dispositions (../calibration-censoring-policy-decision.md), which
+governs: `fingerprint-heuristics` and `privacy-policy` are HELD regardless of
+prevalence, and `pixel-events` proceeds as rule conformance only, not as an
+accuracy flagship.
+
 | Detector | Verdict | Corpus signal |
 |---|---|---|
 | `pixel-events` | **Feasible, flagship** | 8 positive hosts under passive observe; the accept-all arm is expected to fire far more widely on retail and media, which is exactly why the arm exists. Frame draws likely-positives from retail, news, and health commerce. |
