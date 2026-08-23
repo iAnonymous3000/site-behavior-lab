@@ -146,23 +146,35 @@ That separation is now enforced rather than remembered, in
 3. A source-reading guard asserts the module never names a detector evidence
    field or reaches into `run.evidence` at all.
 
-Soundness is fail-closed on every clause, which is the correction that mattered
+Validity is fail-closed on every clause, which is the correction that mattered
 most: an earlier version defaulted `navigationSettled`, the run outcome and
 request-evidence completeness to the PASSING value, so a report carrying nothing
 but a 200 came out sound. A candidate now needs positive evidence of a settled
-navigation, a verified subject, no bot wall, a complete run, and zero censored
-families -- the last because the approved zero-censoring policy means one
-censored family on acquisition day kills the study, so a candidate that censored
-anything during screening has already shown it carries that risk.
+navigation, a verified subject, no bot wall, a complete run, every family
+REPORTED, and ledgers that do not contradict each other in the reassuring
+direction.
 
-Eligibility is per CANDIDATE, not per visit: both passes must be sound and at
+Validity is deliberately SPLIT from input readiness under the step-3 censoring
+decision (docs/calibration-censoring-policy-decision.md). The superseded
+zero-censoring rule also required zero censored families at screening; policy C
+conserves such cases, so screening them out would re-create policy A at the
+frame boundary and select the frame on measurement difficulty. A censored
+family therefore no longer disqualifies a candidate: `bareLoadValid` decides
+eligibility, and `allEvidenceFamiliesComplete` survives only as the reported
+diagnostic that lower-bounds every per-detector scoreable rate.
+
+Eligibility is per CANDIDATE, not per visit: both passes must be bare-load valid and at
 least `SWEEP_MINIMUM_PASS_SEPARATION_MS` (48 hours) apart, matching the rule
 stated at the top of this section. Two visits an hour apart mostly re-measure
 one cache state.
 
-`censoredFamilyCount` is deliberately a count rather than a list of families:
-knowing that CNAME evidence specifically was censored is itself a weak signal
-about the detector, and the sweep has no need for it. The receipt carries no
+`censoredFamilies` carries family IDENTITY. An earlier revision kept only a
+count so the sweep could not even weakly hint at a detector; the step-3
+decision reverses that deliberately, because per-detector policies are sized
+from per-family loss structure. Predictions remain unrepresentable in the
+vocabulary, the array is closed by value as well as by key, and frame
+SELECTION still reads load validity only, so the anti-selection property
+holds at the boundary that matters. The receipt carries no
 pass/fail — whether the pool clears is a preregistered threshold a human
 applies, not something the producer decides. An unloadable case is recorded as a
 failed load rather than skipped, because silently dropping uncooperative sites

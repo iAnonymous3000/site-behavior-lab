@@ -112,7 +112,7 @@ async function collect(pass, candidatesPath, outPath) {
         );
       }
       console.log(
-        `${outcome.loaded ? "loaded" : "not-loaded"} status=${outcome.status} censoredFamilies=${outcome.censoredFamilyCount}`
+        `${outcome.loaded ? "loaded" : "not-loaded"} status=${outcome.status} censoredFamilies=${outcome.censoredFamilies.join(",") || "none"}`
       );
     } catch (error) {
       outcome = bareLoadOutcome(candidate.caseId, null, { pass, observedAt });
@@ -134,11 +134,12 @@ async function collect(pass, candidatesPath, outPath) {
   const summary = summarizeSweepOutcomes(outcomes);
   console.log(
     `\npass ${pass}: observed ${summary.observed}, loaded ${summary.loaded} (${(100 * summary.loadedFraction).toFixed(1)}%), ` +
-      `sound ${summary.sound} (${(100 * summary.soundFraction).toFixed(1)}%), ` +
+      `bare-load valid ${summary.valid} (${(100 * summary.validFraction).toFixed(1)}%), ` +
       `all-families-complete ${summary.allFamiliesComplete} (${(100 * summary.allFamiliesCompleteFraction).toFixed(1)}%)`
   );
+  console.log(`per-family censor counts: ${JSON.stringify(summary.familyCensorCounts)}`);
   console.log(
-    "the all-families-complete fraction is the conservative detector-input loss bound; sizing reads the receipt, not this console line"
+    "eligibility is bare-load validity; input losses are reported for sizing, never screened on. Sizing reads the receipt, not this console line"
   );
 }
 
