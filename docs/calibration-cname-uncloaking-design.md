@@ -86,7 +86,7 @@ That is a scope difference, not a detector error.
 ### The two declared recall ceilings
 
 The detector sees only subdomains contacted during one visit, and resolves at
-most `maxHosts` (12) of them. Both are already handled correctly and neither is
+most `maxHosts` of them (the scanner passes `MAX_CNAME_LOOKUPS = 10`, lib/scanner.ts; the library default of 12 is not what ships). Both are already handled correctly and neither is
 a hidden false-negative source:
 
 - Truncation sets the detector ledger to `partial` / `evidence-cap-reached`

@@ -42,13 +42,23 @@ In dependency order:
    attested proposal merges.
 5. **The freeze**. Preregistration and scaffold land BEFORE candidate C is
    frozen; the activation receipt, runner label, egress attestation, and
-   candidate must agree. The censoring-policy approval is already recorded in
-   `RELEASE_READINESS.json` (`complete-case-only-zero-censoring`,
-   digest-bound), so no further policy ceremony is needed.
+   candidate must agree. The manifest still records the
+   `complete-case-only-zero-censoring` approval, but the step-3 decision
+   (docs/calibration-censoring-policy-decision.md) supersedes that policy for
+   NEW studies: step 4 must implement the per-detector C/B artifact and a
+   named human must approve its exact bytes and digests before any new
+   acquisition or labeling. A further policy ceremony IS needed.
 
 ## The zero-censoring arithmetic, stated plainly
 
-The approved policy makes any censored case fatal to the whole study. Every
+SUPERSEDED FOR NEW STUDIES by the step-3 decision
+(docs/calibration-censoring-policy-decision.md): accuracy studies run policy C
+primary with scope-tagged policy B secondary, and no new study starts from the
+zero-censoring artifact. The arithmetic below is retained because it is
+correct about the policy it describes and it documents why that policy was
+superseded.
+
+The superseded policy makes any censored case fatal to the whole study. Every
 marginal denominator (reference present, reference absent, predicted detected,
 predicted not detected) must reach 100 on the labeled data, which sets a
 **structural floor of 200 planned cases**. Not 400: those four class minimums
