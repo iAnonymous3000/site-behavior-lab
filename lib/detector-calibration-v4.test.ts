@@ -171,7 +171,8 @@ test("adjudication must be what it claims: agreement is unanimity, a tiebreaker 
     adjudication: {
       status: "disagreement-resolved-by-blind-tiebreaker",
       tiebreakerId: "tiebreaker-1",
-      artifactDigest: sha("b")
+      artifactDigest: sha("b"),
+      value: "present"
     }
   });
   assert.ok(
@@ -188,7 +189,8 @@ test("adjudication must be what it claims: agreement is unanimity, a tiebreaker 
     adjudication: {
       status: "disagreement-resolved-by-blind-tiebreaker",
       tiebreakerId: "labeler-1",
-      artifactDigest: sha("b")
+      artifactDigest: sha("b"),
+      value: "present"
     }
   });
   assert.ok(
@@ -256,5 +258,94 @@ test("conservation holds through the guarded analyze step", () => {
   assert.throws(
     () => analyzeDetectorCalibrationStudyV4({ ...study, plannedCases: 3 }),
     /every planned attempt appears exactly once/
+  );
+});
+
+test("the tiebreaker's resolved value is bound to the side: the forged-uncertain path is refused", () => {
+  // The adversarial review reproduced this exact forgery against the earlier
+  // model: a digest-authentic adjudication that resolved "uncertain" beside a
+  // side recording known "absent" validated cleanly and scored. The value now
+  // travels with the digest and the validator requires agreement.
+  const forged = v4Case("f", KNOWN_DETECTED, {
+    status: "known",
+    value: "absent",
+    task: TASK,
+    labels: [label("labeler-1", "present"), label("labeler-2", "absent")],
+    adjudication: {
+      status: "disagreement-resolved-by-blind-tiebreaker",
+      tiebreakerId: "tiebreaker-1",
+      artifactDigest: sha("b"),
+      value: "uncertain"
+    }
+  } as unknown as DetectorCalibrationCaseV4["reference"]);
+  assert.ok(
+    detectorCalibrationV4CaseIssues(forged).some((issue) =>
+      /the resolution and the side must agree/.test(issue)
+    )
+  );
+  // The honest shapes validate: a tiebreaker-resolved known side...
+  const resolvedKnown = v4Case("k", KNOWN_DETECTED, {
+    status: "known",
+    value: "absent",
+    task: TASK,
+    labels: [label("labeler-1", "present"), label("labeler-2", "absent")],
+    adjudication: {
+      status: "disagreement-resolved-by-blind-tiebreaker",
+      tiebreakerId: "tiebreaker-1",
+      artifactDigest: sha("b"),
+      value: "absent"
+    }
+  });
+  assert.deepEqual(detectorCalibrationV4CaseIssues(resolvedKnown), []);
+  // ...and a tiebreaker-resolved uncertain side, whose adjudication must say
+  // exactly "uncertain".
+  const resolvedUncertain = v4Case("u", KNOWN_DETECTED, {
+    status: "unknown",
+    reason: "reference-label-uncertain",
+    task: TASK,
+    labels: [label("labeler-1", "present"), label("labeler-2", "absent")],
+    adjudication: {
+      status: "disagreement-resolved-by-blind-tiebreaker",
+      tiebreakerId: "tiebreaker-1",
+      artifactDigest: sha("b"),
+      value: "uncertain"
+    }
+  });
+  assert.deepEqual(detectorCalibrationV4CaseIssues(resolvedUncertain), []);
+});
+
+test("duplicate labelers, duplicate cases, and ungoverned detectors are refused", () => {
+  // The review deleted the duplicate-labeler guard and the study-level
+  // duplicate-case guard with the suite green; these pin them directly.
+  const duplicated = v4Case("dl", KNOWN_DETECTED, {
+    ...knownReference("present", [label("labeler-1", "present"), label("labeler-1", "present")])
+  });
+  assert.ok(
+    detectorCalibrationV4CaseIssues(duplicated).some((issue) => /duplicates labeler/.test(issue))
+  );
+  const single = v4Case("sl", KNOWN_DETECTED, {
+    ...knownReference("present", [label("labeler-1", "present")])
+  });
+  assert.ok(
+    detectorCalibrationV4CaseIssues(single).some((issue) =>
+      /at least two independent labeler records/.test(issue)
+    )
+  );
+  const study = v4Study([
+    v4Case("same", KNOWN_DETECTED, knownReference("present")),
+    v4Case("same", KNOWN_NOT, knownReference("absent"))
+  ]);
+  assert.ok(detectorCalibrationV4StudyIssues(study).some((issue) => /duplicate case same/.test(issue)));
+  assert.ok(
+    detectorCalibrationV4StudyIssues({
+      ...v4Study([v4Case("a", KNOWN_DETECTED, knownReference("present"))]),
+      detector: "not-a-detector"
+    }).some((issue) => /not a governed detector/.test(issue))
+  );
+  assert.ok(
+    detectorCalibrationV4StudyIssues({
+      ...v4Study([v4Case("a", KNOWN_DETECTED, knownReference("present"))]),
+      targetPopulation: ""
+    }).some((issue) => /target population/.test(issue))
   );
 });

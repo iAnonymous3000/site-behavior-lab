@@ -5,9 +5,20 @@
 - decidedBy: iAnonymous3000
 - decidedAt: 2026-08-23T07:21:30Z (operator direction, recorded verbatim below)
 - Completes step-4 item 3 of the censoring decision
-  ([calibration-censoring-policy-decision.md](calibration-censoring-policy-decision.md)).
-  The merge landing this architecture becomes the final step-4 SHA; sweep
-  pass 1 collects on it, and pass 2 on the identical SHA.
+  ([calibration-censoring-policy-decision.md](calibration-censoring-policy-decision.md))
+  in the sense that matters for the sweep and the analyzer: the schemas, the
+  tri-state merge, the adjudication representation with its value bound to
+  the side, the assembly bridge (validated batches to study-ready sides and
+  digested artifacts, `assembleV4ReferenceCases`), and the analyzer
+  projection, each mutation-tested. What deliberately remains for
+  ceremony-time tooling, before the first v4 ceremony and after the sweep:
+  envelope sealing and authenticated artifact fetching for v4 batches
+  (reusing the existing custody machinery), CLI wiring, task-byte
+  verification against `taskSha256`, and deep release/design identity
+  validation, none of which can change a value the bridge produces, only
+  refuse to produce one. The merge landing this architecture becomes the
+  final step-4 SHA; sweep pass 1 collects on it, and pass 2 on the identical
+  SHA.
 
 ## The circularity this removes
 
@@ -57,10 +68,10 @@ representation.
 |---|---|---|
 | study schema | `detector-calibration-study.v3.schema.json` (frozen) | `detector-calibration-study.v4.schema.json`, generated from `lib/detector-calibration-v4.ts`, sha-pinned |
 | case model | one `outcome` with a merged reference | side-separated `prediction` and `reference`, each `known` or `unknown` |
-| label batch | v1, binary value, frame-pinned shared evidence | v2, tri-state value, per-reviewer `{ sha256, provenance }` evidence |
-| adjudication artifact | v1, binary, must equal the frozen fact | v2, tri-state, the tiebreaker's own value |
-| labels manifest | v3 | v4, listing per-reviewer evidence digests |
-| frame case binding | `referenceEvidenceDigest` (a truth value's evidence) | `referenceTask` (a task, not an answer) |
+| label batch | v1, binary value, frame-pinned shared evidence | v2, tri-state value, per-reviewer `{ sha256, provenance }` evidence, bound to the frame's study/detector/candidate/protocol |
+| adjudication artifact | v1, binary, must equal the frozen fact | v2, tri-state, the tiebreaker's own value, with a strict validator; the value is also carried in the study-side adjudication record and bound to the side by the study validator |
+| labels manifest | v3 | v4, self-identifying kind, listing per-reviewer evidence digests, with a strict validator |
+| frame case binding | `referenceEvidenceDigest` (a truth value's evidence) | `referenceTask` (a task, not an answer), in a self-identifying, study-bound frame-tasks artifact |
 | custody trio | unchanged mechanically; v4 artifacts enter the same digest chain | |
 
 The prediction side's censor reasons are the scan-side three

@@ -31,6 +31,21 @@ test("the research model describes the current precommitted blind-tiebreaker con
   assert.doesNotMatch(calibration, /disagreement-adjudicated/);
   assert.doesNotMatch(calibration, /separately identified adjudicator/);
   assert.doesNotMatch(calibration, /label\/adjudicator identities/);
+  // The two-generation split must stay described on both surfaces: v3 as the
+  // committed/historical contract, v4 as the adopted forward contract. A doc
+  // declaring v3 "release-grade custody-lane" without the v4 sentence is the
+  // stale state the item-3 review flagged.
+  assert.match(calibration, /detector-calibration-study\.v4\.schema\.json/);
+  const operations = readFileSync(
+    path.join(process.cwd(), "docs", "calibration-study-operations.md"),
+    "utf8"
+  );
+  assert.match(operations, /All NEW ceremonies use the v4\s+side-separated contract/);
+  assert.match(operations, /detector-calibration-study\.v4\.schema\.json/);
+  assert.doesNotMatch(
+    operations,
+    /release-grade custody-lane study schema is\n`\/schemas\/detector-calibration-study\.v3/
+  );
 });
 
 test("the shared labeling protocol cannot widen the CNAME or consent plan", () => {

@@ -23,7 +23,7 @@ import type {
   DetectorCalibrationReleaseIdentity,
   DetectorCalibrationStudyV2
 } from "./detector-calibration";
-import type { DetectorId } from "./scan-report-v2";
+import { DETECTOR_IDS, type DetectorId } from "./scan-report-v2";
 import {
   analyzeCensoring,
   type CensoringAnalysis,
@@ -82,6 +82,16 @@ export type V4Adjudication =
       status: "disagreement-resolved-by-blind-tiebreaker";
       tiebreakerId: string;
       artifactDigest: string;
+      /**
+       * The tiebreaker's OWN resolved tri-state, bound to the side by the
+       * validator. Without this the record bound only a digest, and the
+       * adversarial review reproduced a digest-authentic "uncertain"
+       * adjudication sitting beside a known "absent" side: the exact
+       * uncertainty-becomes-absence path the architecture forbids. A known
+       * side requires equality with its value; the unknown side requires
+       * exactly "uncertain".
+       */
+      value: "present" | "absent" | "uncertain";
     };
 
 export type V4ReferenceSide =
@@ -263,7 +273,24 @@ function validateReferenceSide(issues: string[], side: unknown, context: string)
       );
     }
   } else if (adjudication.status === "disagreement-resolved-by-blind-tiebreaker") {
-    exactKeys(issues, adjudication, ["status", "tiebreakerId", "artifactDigest"], `${context} adjudication`);
+    exactKeys(
+      issues,
+      adjudication,
+      ["status", "tiebreakerId", "artifactDigest", "value"],
+      `${context} adjudication`
+    );
+    // Bind the recorded side to what the tiebreaker actually resolved. The
+    // digest authenticates the artifact; only this equality authenticates the
+    // TRANSFER of its value into the side.
+    const expected = status === "known" ? side.value : "uncertain";
+    if (adjudication.value !== expected) {
+      push(
+        issues,
+        `${context} tiebreaker resolved "${String(adjudication.value)}" but the side records ${
+          status === "known" ? `known "${String(side.value)}"` : "unknown"
+        }; the resolution and the side must agree`
+      );
+    }
     if (typeof adjudication.tiebreakerId !== "string" || adjudication.tiebreakerId.length === 0) {
       push(issues, `${context} tiebreaker adjudication needs a tiebreakerId`);
     } else if (labels.some((label) => label.labelerId === adjudication.tiebreakerId)) {
@@ -315,10 +342,12 @@ function validatePredictionSide(issues: string[], side: unknown, context: string
 }
 
 /**
- * Structural validation for a v4 study's cases. Release/design validation is
- * shared with v3 semantics at assembly time; this validator owns everything
- * the side separation introduces, and it REFUSES v3 rows: a case carrying
- * `outcome` is the merged model, not this one.
+ * Structural validation for a v4 study's cases. Deep release/design identity
+ * validation is deliberately deferred to the ceremony-wiring step that the
+ * censoring decision reserves for named-human approval (the schema enforces
+ * their shape meanwhile); this validator owns everything the side separation
+ * introduces, and it REFUSES v3 rows: a case carrying `outcome` is the merged
+ * model, not this one.
  */
 export function detectorCalibrationV4CaseIssues(input: unknown): string[] {
   const issues: string[] = [];
@@ -365,6 +394,12 @@ export function detectorCalibrationV4StudyIssues(input: unknown): string[] {
   );
   if (typeof input.studyId !== "string" || input.studyId.length === 0) {
     push(issues, "study needs a studyId");
+  }
+  if (!DETECTOR_IDS.includes(input.detector as DetectorId)) {
+    push(issues, `study detector "${String(input.detector)}" is not a governed detector`);
+  }
+  if (typeof input.targetPopulation !== "string" || input.targetPopulation.length === 0) {
+    push(issues, "study needs a target population");
   }
   if (!Number.isSafeInteger(input.plannedCases) || (input.plannedCases as number) <= 0) {
     push(issues, "study needs a positive plannedCases");

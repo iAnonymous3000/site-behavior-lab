@@ -558,12 +558,22 @@
             },
             "artifactDigest": {
               "type": "string"
+            },
+            "value": {
+              "type": "string",
+              "enum": [
+                "present",
+                "absent",
+                "uncertain"
+              ],
+              "description": "The tiebreaker's OWN resolved tri-state, bound to the side by the validator. Without this the record bound only a digest, and the adversarial review reproduced a digest-authentic \"uncertain\" adjudication sitting beside a known \"absent\" side: the exact uncertainty-becomes-absence path the architecture forbids. A known side requires equality with its value; the unknown side requires exactly \"uncertain\"."
             }
           },
           "required": [
             "status",
             "tiebreakerId",
-            "artifactDigest"
+            "artifactDigest",
+            "value"
           ],
           "additionalProperties": false
         }
