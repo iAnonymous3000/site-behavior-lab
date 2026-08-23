@@ -66,10 +66,26 @@ receipt binds the candidate set and every round artifact by digest; the
 bound artifact binds the receipt by digest and records the method
 parameters, so a stranger can recompute every number.
 
+## Prevalence and sizing
+
+The withdrawn 0.50 base-rate assumption is not replaced by another
+assumption. Prevalence for the declared scope is estimated from the
+PRECOMMITTED DISJOINT PILOT: a prefix slice of the same externally defined
+universe, carved by the universe builder before any collection, disjoint
+from the confirmatory pool by construction, and labeled by reviewers under
+the independent reference protocol, never by the detector. Frame size N then
+derives from the pilot's prevalence estimate, the sweep's loss bound, and
+the per-detector publication profile, with the derivation recorded in the
+study preregistration. FAIL CONDITION: a derived N larger than the swept
+eligible pool is infeasibility, and the remedy is a larger universe plus
+fresh sweep rounds over the enlarged set, never a relaxed exclusion, a
+reused pilot site, or a population narrowed to fit.
+
 ## What this design does not decide
 
 No frame size, no threshold on the bound's value, and no candidate set. The
 candidate universe is constructed independently of scanner results under the
-frame-construction rules, and whether the bounded loss supports any given N
-under the per-detector policies is the frame producer's preregistered
-arithmetic, taken against the bound artifact after collection.
+frame-construction rules, and whether the bounded loss and the pilot's
+prevalence estimate support any given N under the per-detector policies is
+the frame producer's preregistered arithmetic, taken against the bound
+artifact after collection.

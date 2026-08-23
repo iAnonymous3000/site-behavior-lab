@@ -1,20 +1,25 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
 import { createHash } from "node:crypto";
+import { test } from "node:test";
 import {
   CANDIDATE_UNIVERSE_KIND,
+  CANDIDATE_UNIVERSE_VERSION,
   buildCandidateUniverse,
   parseExternalSourceList,
   validateSourceManifest
 } from "./calibration-candidate-universe-lib.mjs";
 
+// Fixtures are HONEST about being fixtures: synthetic providers and ids,
+// never a real provider's name attached to bytes that are not that
+// provider's. The earlier suite labeled synthetic bytes as a real Tranco
+// snapshot with a finance/news scope string, which was exactly the
+// self-attestation hole the review flagged.
 function manifestFor(sourceBytes, overrides = {}) {
   return {
-    provider: "tranco-list.eu",
-    permanentId: "Z417G",
-    url: "https://tranco-list.eu/list/Z417G/1000000",
+    provider: "fixture-rank-provider",
+    permanentId: "FIXTURE-SNAPSHOT-1",
+    url: "https://ranks.fixture.example/list/FIXTURE-SNAPSHOT-1",
     retrievedAt: "2026-08-23T00:00:00.000Z",
-    scope: "finance and news publishers, externally categorized",
     sha256: createHash("sha256").update(sourceBytes).digest("hex"),
     ...overrides
   };
@@ -36,109 +41,145 @@ test("the source list parses in order, digested over exact bytes, refusing non-d
   assert.throws(() => parseExternalSourceList("not a domain line!\n"), /not a domain/);
 });
 
-test("repository data may only exclude: the removed domains are the emitted proof", () => {
+test("the manifest carries no scope string and refuses bytes that are not the named snapshot", () => {
+  const source = sourceOf(10);
+  const manifest = manifestFor(source);
+  assert.equal(validateSourceManifest(manifest, source), manifest);
+  // A typed scope was the self-attestation hole: refused as an unknown field.
+  assert.throws(
+    () => validateSourceManifest(manifestFor(source, { scope: "finance and news" }), source),
+    /unexpected field "scope"/
+  );
+  assert.throws(
+    () => validateSourceManifest(manifestFor(source, { sha256: "a".repeat(64) }), source),
+    /does not match the supplied source bytes/
+  );
+  for (const missing of ["provider", "permanentId", "url", "retrievedAt", "sha256"]) {
+    const broken = manifestFor(source);
+    delete broken[missing];
+    assert.throws(() => validateSourceManifest(broken, source), new RegExp(`needs ${missing}`));
+  }
+});
+
+test("a population scope exists only through a category source and its deterministic intersection", () => {
+  const base = sourceOf(40, "base");
+  // The category source holds every even-numbered base domain plus a stranger.
+  const category =
+    [...Array.from({ length: 20 }, (_, index) => `base-${index * 2}.example`), "not-in-base.example"].join(
+      "\n"
+    ) + "\n";
+  const { candidateSet, provenance } = buildCandidateUniverse({
+    studyId: "scoped-study",
+    base: { bytes: base, manifest: manifestFor(base) },
+    category: {
+      bytes: category,
+      manifest: manifestFor(category, { permanentId: "FIXTURE-CATEGORY-1" })
+    },
+    exclusions: ["base-2.example"],
+    poolSize: 10
+  });
+  // Base order preserved, category membership required, exclusion applied:
+  // 0, (2 excluded), 4, 6, ...
+  assert.deepEqual(
+    candidateSet.candidates.slice(0, 3).map((entry) => entry.caseId),
+    ["base-0.example", "base-4.example", "base-6.example"]
+  );
+  assert.equal(provenance.category.intersection, 20);
+  assert.equal(provenance.category.manifest.permanentId, "FIXTURE-CATEGORY-1");
+  // The population statement is GENERATED from the transformation, not typed.
+  assert.match(
+    provenance.population,
+    /intersected with category source fixture-rank-provider FIXTURE-CATEGORY-1/
+  );
+  assert.equal(provenance.version, CANDIDATE_UNIVERSE_VERSION);
+  assert.equal(CANDIDATE_UNIVERSE_VERSION, 2);
+  // A category member absent from the base can never be admitted.
+  assert.equal(
+    candidateSet.candidates.some((entry) => entry.caseId === "not-in-base.example"),
+    false
+  );
+  // Without a category source, the generated population claims only the
+  // provider's own ordering: no scope is available to assert.
+  const unscoped = buildCandidateUniverse({
+    studyId: "unscoped",
+    base: { bytes: base, manifest: manifestFor(base) },
+    exclusions: [],
+    poolSize: 10
+  });
+  assert.doesNotMatch(unscoped.provenance.population, /intersected/);
+  assert.equal(unscoped.provenance.category, null);
+});
+
+test("the prevalence pilot is a disjoint prefix, emitted separately with its own digest", () => {
+  const base = sourceOf(100);
+  const { candidateSet, pilotSet, pilotSetBytes, provenance } = buildCandidateUniverse({
+    studyId: "piloted-study",
+    base: { bytes: base, manifest: manifestFor(base) },
+    exclusions: ["site-1.example"],
+    poolSize: 60,
+    pilotSize: 20
+  });
+  assert.equal(pilotSet.candidates.length, 20);
+  assert.equal(candidateSet.candidates.length, 60);
+  assert.equal(pilotSet.studyId, "piloted-study-prevalence-pilot");
+  // Disjoint by construction: the pilot is the surviving prefix, the pool
+  // starts after it, and no domain appears in both.
+  assert.equal(pilotSet.candidates[0].caseId, "site-0.example");
+  const pilotIds = new Set(pilotSet.candidates.map((entry) => entry.caseId));
+  assert.equal(candidateSet.candidates.some((entry) => pilotIds.has(entry.caseId)), false);
+  assert.equal(provenance.pilotDisjointFromPool, true);
+  assert.equal(
+    provenance.pilotSetSha256,
+    createHash("sha256").update(pilotSetBytes).digest("hex")
+  );
+});
+
+test("repository data may only exclude, with the removed domains as emitted proof", () => {
   const source = sourceOf(700);
   const excluded = ["site-3.example", "site-500.example", "never-in-source.example"];
   const { candidateSet, provenance } = buildCandidateUniverse({
     studyId: "cname-observe-sweep-1",
-    sourceBytes: source,
-    sourceManifest: manifestFor(source),
+    base: { bytes: source, manifest: manifestFor(source) },
     exclusions: excluded,
     poolSize: 600
   });
   assert.equal(candidateSet.candidates.length, 600);
-  // Source order is the only ordering: the first survivors, in order.
   assert.equal(candidateSet.candidates[0].caseId, "site-0.example");
-  assert.equal(candidateSet.candidates[3].caseId, "site-4.example", "site-3 was excluded, order otherwise untouched");
-  // The proof half: exactly the source-present exclusions, in source order.
+  assert.equal(candidateSet.candidates[3].caseId, "site-4.example");
   assert.deepEqual(provenance.excludedDomains, ["site-3.example", "site-500.example"]);
   assert.equal(provenance.kind, CANDIDATE_UNIVERSE_KIND);
-  assert.equal(provenance.sourceDomains, 700);
-  assert.match(provenance.candidateSetSha256, /^[0-9a-f]{64}$/);
-  // No candidate is ever admitted from the exclusion machinery.
-  assert.equal(
-    candidateSet.candidates.some((entry) => entry.caseId === "never-in-source.example"),
-    false
-  );
+  assert.equal(provenance.attestation, "operator-attested-permanent-id");
 });
 
-test("a short source fails closed: supply a longer list, never relax an exclusion", () => {
+test("sizing carries no withdrawn-claim floor, and shortfalls fail closed", () => {
+  // The 600 floor was justified from the withdrawn N=350 at 0.50 prevalence;
+  // size is structural here and its justification lives in preregistration.
+  const small = buildCandidateUniverse({
+    studyId: "s",
+    base: { bytes: sourceOf(10), manifest: manifestFor(sourceOf(10)) },
+    exclusions: [],
+    poolSize: 5
+  });
+  assert.equal(small.candidateSet.candidates.length, 5);
   assert.throws(
     () =>
       buildCandidateUniverse({
         studyId: "s",
-        sourceBytes: sourceOf(650),
-        sourceManifest: manifestFor(sourceOf(650)),
-        exclusions: Array.from({ length: 60 }, (_, index) => `site-${index}.example`),
-        poolSize: 600
+        base: { bytes: sourceOf(50), manifest: manifestFor(sourceOf(50)) },
+        exclusions: Array.from({ length: 20 }, (_, index) => `site-${index}.example`),
+        poolSize: 40
       }),
     /supply a longer external list, never relax an exclusion/
   );
-  // And the 600 floor itself is the frame-construction pool rule.
   assert.throws(
     () =>
       buildCandidateUniverse({
         studyId: "s",
-        sourceBytes: sourceOf(700),
-        sourceManifest: manifestFor(sourceOf(700)),
+        base: { bytes: sourceOf(10), manifest: manifestFor(sourceOf(10)) },
         exclusions: [],
-        poolSize: 350
-      }),
-    /at least 600/
-  );
-});
-
-test("the builder has no ranking or admission argument: only exclusion enters from outside the source", () => {
-  // The signature is the independence guarantee, as with the v4 merge: there
-  // is no parameter through which scanner results could rank or admit.
-  assert.throws(
-    () =>
-      buildCandidateUniverse({
-        studyId: "s",
-        sourceBytes: sourceOf(700),
-        sourceManifest: manifestFor(sourceOf(700)),
-        exclusions: [],
-        poolSize: 600,
+        poolSize: 5,
         preferredSites: ["site-1.example"]
       }),
-    /unexpected|preferredSites/,
-    "an unknown argument must not silently become a ranking channel"
+    /unexpected field "preferredSites"/
   );
-});
-
-test("the manifest binds the bytes to a permanent external snapshot, or refuses", () => {
-  const source = sourceOf(700);
-  // A digest that does not match the supplied bytes is not that snapshot.
-  assert.throws(
-    () =>
-      buildCandidateUniverse({
-        studyId: "s",
-        sourceBytes: source,
-        sourceManifest: manifestFor(source, { sha256: "a".repeat(64) }),
-        exclusions: [],
-        poolSize: 600
-      }),
-    /does not match the supplied source bytes/
-  );
-  // Free text cannot stand in for the structured fields.
-  assert.throws(
-    () => validateSourceManifest({ description: "downloaded from somewhere" }, source),
-    /unexpected field "description"/
-  );
-  for (const missing of ["provider", "permanentId", "url", "retrievedAt", "scope", "sha256"]) {
-    const manifest = manifestFor(source);
-    delete manifest[missing];
-    assert.throws(() => validateSourceManifest(manifest, source), new RegExp(`needs ${missing}`));
-  }
-  // The provenance embeds the manifest verbatim, so an auditor can re-fetch
-  // the permanent id and compare digests.
-  const { provenance } = buildCandidateUniverse({
-    studyId: "s",
-    sourceBytes: source,
-    sourceManifest: manifestFor(source),
-    exclusions: [],
-    poolSize: 600
-  });
-  assert.equal(provenance.sourceManifest.permanentId, "Z417G");
-  assert.equal(provenance.sourceManifest.sha256, provenance.sourceSha256);
 });

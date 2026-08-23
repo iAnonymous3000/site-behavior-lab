@@ -6,6 +6,7 @@ import {
 } from "./calibration-reliability-sweep-lib.mjs";
 import {
   SWEEP_BOUND_MINIMUM_ROUNDS,
+  validateSweepReceipt,
   SWEEP_PASS_ARTIFACT_KIND,
   assembleReceiptFromRounds,
   assertRoundsConsistent,
@@ -316,4 +317,70 @@ test("the summary lower-bounds detector-input readiness from load facts only", (
 
 test("the pass artifact kind is pinned", () => {
   assert.equal(SWEEP_PASS_ARTIFACT_KIND, "site-behavior-calibration-reliability-sweep-pass");
+});
+
+test("the receipt validator reconstructs, so a tampered receipt cannot reach the bound", () => {
+  const entry = (artifact) => ({ artifact, bytes: JSON.stringify(artifact) });
+  const at = [
+    "2026-08-23T01:00:00.000Z",
+    "2026-08-25T02:00:00.000Z",
+    "2026-08-26T03:00:00.000Z",
+    "2026-08-27T04:00:00.000Z"
+  ];
+  const receipt = assembleReceiptFromRounds({
+    rounds: at.map((when, index) => entry(passArtifact(index + 1, when))),
+    candidateSetBytes: CANDIDATE_BYTES,
+    sweptAt: "2026-08-27T05:00:00.000Z"
+  });
+  const bytes = serializeReliabilitySweepReceipt(receipt);
+  assert.equal(validateSweepReceipt(receipt, bytes), receipt);
+
+  // Non-canonical bytes are refused even when they parse to the same object.
+  assert.throws(
+    () => validateSweepReceipt(receipt, bytes + "\n"),
+    /not the canonical serialization/
+  );
+  const canonical = (tampered) =>
+    validateSweepReceipt(tampered, serializeReliabilitySweepReceipt(tampered));
+  // Kind, identity, condition, candidate digest: each binding refuses.
+  assert.throws(() => canonical({ ...receipt, kind: "something-else" }), /kind mismatch/);
+  assert.throws(
+    () => canonical({ ...receipt, identity: { ...receipt.identity, buildCommit: "short" } }),
+    /full lowercase git sha/
+  );
+  assert.throws(
+    () =>
+      canonical({
+        ...receipt,
+        measurementCondition: { ...receipt.measurementCondition, gpcEnabled: "yes" }
+      }),
+    /condition requires/
+  );
+  assert.throws(
+    () => canonical({ ...receipt, candidateSetDigest: "nope" }),
+    /candidate-set digest/
+  );
+  // Source digests must match the rounds actually present, both directions.
+  const missingDigest = { ...receipt, sourceDigests: { ...receipt.sourceDigests } };
+  delete missingDigest.sourceDigests["round-4-artifact"];
+  assert.throws(() => canonical(missingDigest), /do not match the rounds present/);
+  const extraDigest = {
+    ...receipt,
+    sourceDigests: { ...receipt.sourceDigests, "round-9-artifact": "a".repeat(64) }
+  };
+  assert.throws(() => canonical(extraDigest), /do not match the rounds present/);
+  // Derived facts are RECOMPUTED: an upgraded eligibility flag, an inflated
+  // count, and a gutted diagnostic each fail reconstruction.
+  const upgraded = JSON.parse(JSON.stringify(receipt));
+  upgraded.cases[0].eligible = !upgraded.cases[0].eligible;
+  assert.throws(() => canonical(upgraded), /its passes derive/);
+  assert.throws(
+    () => canonical({ ...receipt, eligibleCandidates: receipt.eligibleCandidates + 1 }),
+    /eligibleCandidates mismatch/
+  );
+  const gutted = JSON.parse(JSON.stringify(receipt));
+  gutted.diagnostics.allFamiliesCompleteBothPasses = 0;
+  assert.throws(() => canonical(gutted), /do not reconstruct/);
+  // A smuggled top-level field is refused.
+  assert.throws(() => canonical({ ...receipt, note: "trust me" }), /unexpected field "note"/);
 });

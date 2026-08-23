@@ -23,13 +23,17 @@
  */
 
 import {
+  CALIBRATION_RELIABILITY_SWEEP_RECEIPT_KIND,
   EXPECTED_EVIDENCE_FAMILIES,
   MAX_SWEEP_ROUNDS,
+  SWEEP_MINIMUM_PASS_SEPARATION_MS,
   SWEEP_MINIMUM_ROUND_SEPARATION_MS,
   allEvidenceFamiliesComplete,
   assertBareLoadOnly,
   bareLoadValid,
-  buildReliabilitySweepReceipt
+  buildReliabilitySweepReceipt,
+  candidateEligible,
+  serializeReliabilitySweepReceipt
 } from "./calibration-reliability-sweep-lib.mjs";
 import {
   CLUSTER_BOOTSTRAP_ITERATIONS,
@@ -406,12 +410,125 @@ export function summarizeSweepOutcomes(outcomes) {
  * refuses. The remedy for too few clusters is more rounds, not a different
  * formula.
  */
+/**
+ * Strict receipt validation by RECONSTRUCTION: the receipt's derived facts
+ * (eligibility, counts, fractions, diagnostics) are recomputed from its own
+ * cases and required equal, its identity/condition/digest bindings are
+ * shape-checked, and the supplied bytes must be the canonical serialization
+ * of the parsed object. A hand-edited receipt that upgraded a candidate to
+ * eligible, inflated a diagnostic, or swapped its identity fails here, not
+ * inside a bound computation that would have laundered it.
+ */
+export function validateSweepReceipt(receipt, receiptBytes) {
+  require(isRecord(receipt), "receipt must be a record");
+  require(
+    typeof receiptBytes === "string" && serializeReliabilitySweepReceipt(receipt) === receiptBytes,
+    "receipt bytes are not the canonical serialization of the receipt"
+  );
+  only(
+    receipt,
+    new Set([
+      "kind",
+      "studyId",
+      "sweptAt",
+      "measurementCondition",
+      "candidateSetDigest",
+      "sourceDigests",
+      "identity",
+      "minimumPassSeparationMs",
+      "observedCandidates",
+      "eligibleCandidates",
+      "eligibleFraction",
+      "diagnostics",
+      "cases"
+    ]),
+    "receipt"
+  );
+  require(receipt.kind === CALIBRATION_RELIABILITY_SWEEP_RECEIPT_KIND, "receipt kind mismatch");
+  require(typeof receipt.studyId === "string" && receipt.studyId.length > 0, "receipt needs a studyId");
+  validateIdentity(receipt.identity, "receipt");
+  validateCondition(receipt.measurementCondition, "receipt");
+  require(
+    typeof receipt.candidateSetDigest === "string" && /^[0-9a-f]{64}$/.test(receipt.candidateSetDigest),
+    "receipt needs the candidate-set digest"
+  );
+  require(isRecord(receipt.sourceDigests), "receipt needs source digests");
+  require(
+    receipt.minimumPassSeparationMs === SWEEP_MINIMUM_PASS_SEPARATION_MS,
+    "receipt pass-separation constant mismatch"
+  );
+  require(Array.isArray(receipt.cases) && receipt.cases.length > 0, "receipt needs cases");
+
+  const rounds = new Set();
+  for (const entry of receipt.cases) {
+    require(isRecord(entry), "receipt case must be a record");
+    only(entry, new Set(["caseId", "eligible", "passes"]), "receipt case");
+    require(Array.isArray(entry.passes) && entry.passes.length > 0, `${entry.caseId} needs passes`);
+    for (const pass of entry.passes) {
+      assertBareLoadOnly(pass, "receipt case pass");
+      rounds.add(pass.pass);
+    }
+    // RECONSTRUCTION: eligibility is recomputed, never trusted.
+    require(
+      entry.eligible === candidateEligible(entry.passes),
+      `${entry.caseId} records eligible=${entry.eligible} but its passes derive ${candidateEligible(entry.passes)}`
+    );
+  }
+  // Every source-digest key must be the candidate set or a round present in
+  // the cases, and every round must have its artifact digest.
+  const expectedDigestKeys = new Set(["candidate-set", ...[...rounds].map((round) => `round-${round}-artifact`)]);
+  const presentKeys = new Set(Object.keys(receipt.sourceDigests));
+  require(
+    [...expectedDigestKeys].every((key) => presentKeys.has(key)) &&
+      [...presentKeys].every((key) => expectedDigestKeys.has(key)),
+    `receipt source digests [${[...presentKeys].sort().join(", ")}] do not match the rounds present [${[...expectedDigestKeys].sort().join(", ")}]`
+  );
+  for (const digest of Object.values(receipt.sourceDigests)) {
+    require(typeof digest === "string" && /^[0-9a-f]{64}$/.test(digest), "receipt source digest must be a sha256");
+  }
+  // Aggregate reconstruction.
+  const eligibleCount = receipt.cases.filter((entry) => entry.eligible).length;
+  require(receipt.observedCandidates === receipt.cases.length, "receipt observedCandidates mismatch");
+  require(receipt.eligibleCandidates === eligibleCount, "receipt eligibleCandidates mismatch");
+  require(
+    receipt.eligibleFraction === eligibleCount / receipt.cases.length,
+    "receipt eligibleFraction mismatch"
+  );
+  const familyCensorCounts = {};
+  let pairComplete = 0;
+  for (const entry of receipt.cases) {
+    for (const pass of entry.passes) {
+      for (const family of pass.censoredFamilies) {
+        familyCensorCounts[family] = (familyCensorCounts[family] ?? 0) + 1;
+      }
+    }
+    const pairOne = entry.passes.find((pass) => pass.pass === 1);
+    const pairTwo = entry.passes.find((pass) => pass.pass === 2);
+    if (
+      entry.eligible &&
+      pairOne !== undefined &&
+      pairTwo !== undefined &&
+      allEvidenceFamiliesComplete(pairOne) &&
+      allEvidenceFamiliesComplete(pairTwo)
+    ) {
+      pairComplete += 1;
+    }
+  }
+  require(
+    isRecord(receipt.diagnostics) &&
+      receipt.diagnostics.allFamiliesCompleteBothPasses === pairComplete &&
+      JSON.stringify(receipt.diagnostics.familyCensorCounts) ===
+        JSON.stringify(
+          Object.fromEntries(Object.entries(familyCensorCounts).sort(([a], [b]) => a.localeCompare(b)))
+        ),
+    "receipt diagnostics do not reconstruct from its own cases"
+  );
+  return receipt;
+}
+
 export function computeClusterLossBound({ receipt, receiptBytes }) {
-  require(isRecord(receipt), "loss bound requires the assembled receipt");
-  require(typeof receiptBytes === "string" && receiptBytes.length > 0, "loss bound requires the receipt bytes");
-  require(Array.isArray(receipt.cases), "loss bound requires receipt cases");
+  validateSweepReceipt(receipt, receiptBytes);
   const outcomes = receipt.cases.flatMap((entry) => entry.passes);
-  for (const outcome of outcomes) assertBareLoadOnly(outcome, "loss bound input");
   const rounds = new Set(outcomes.map((outcome) => outcome.pass));
   require(
     rounds.size >= SWEEP_BOUND_MINIMUM_ROUNDS,
