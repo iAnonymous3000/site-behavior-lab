@@ -15,22 +15,24 @@
  *     silently misattributed to both; the caller refuses it instead.
  *
  * The summary derived here reads projected load facts only. It exists to give
- * the frame producer the detector-input loss bound the step-3 decision
+ * the frame producer the detector-input loss structure the step-3 decision
  * requires: the all-family-complete rate lower-bounds every per-detector
- * scoreable rate, so it is conservative for sizing by construction and never
- * identifies which family was lost on which candidate.
+ * scoreable rate (conservative for sizing by construction), and the
+ * per-family censor counts size per-detector policies. Eligibility itself is
+ * bare-load validity only; input losses are reported, never screened on.
  */
 
 import {
+  allEvidenceFamiliesComplete,
   assertBareLoadOnly,
-  bareLoadPassSound,
+  bareLoadValid,
   buildReliabilitySweepReceipt
 } from "./calibration-reliability-sweep-lib.mjs";
 import { sha256Hex } from "./scanner-fidelity-study-lib.mjs";
 
 export const SWEEP_PASS_ARTIFACT_KIND =
   "site-behavior-calibration-reliability-sweep-pass";
-export const SWEEP_PASS_ARTIFACT_VERSION = 1;
+export const SWEEP_PASS_ARTIFACT_VERSION = 2;
 
 const CASE_ID = /^[a-z0-9][a-z0-9._-]{0,99}$/;
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
@@ -310,29 +312,28 @@ export function assembleReceiptFromPasses({
 export function summarizeSweepOutcomes(outcomes) {
   require(Array.isArray(outcomes) && outcomes.length > 0, "summary requires outcomes");
   let loaded = 0;
-  let sound = 0;
+  let valid = 0;
   let allFamiliesComplete = 0;
+  const familyCensorCounts = {};
   for (const outcome of outcomes) {
     assertBareLoadOnly(outcome, "summary input");
     if (outcome.loaded) loaded += 1;
-    if (bareLoadPassSound(outcome)) sound += 1;
-    if (
-      outcome.familyLedgerComplete &&
-      outcome.factsLedgerRecorded &&
-      outcome.recordedCaptureLosses === 0 &&
-      outcome.budgetsExhausted === 0 &&
-      outcome.censoredFamilyCount === 0
-    ) {
-      allFamiliesComplete += 1;
+    if (bareLoadValid(outcome)) valid += 1;
+    if (allEvidenceFamiliesComplete(outcome)) allFamiliesComplete += 1;
+    for (const family of outcome.censoredFamilies) {
+      familyCensorCounts[family] = (familyCensorCounts[family] ?? 0) + 1;
     }
   }
   return {
     observed: outcomes.length,
     loaded,
-    sound,
+    valid,
     allFamiliesComplete,
     loadedFraction: loaded / outcomes.length,
-    soundFraction: sound / outcomes.length,
-    allFamiliesCompleteFraction: allFamiliesComplete / outcomes.length
+    validFraction: valid / outcomes.length,
+    allFamiliesCompleteFraction: allFamiliesComplete / outcomes.length,
+    familyCensorCounts: Object.fromEntries(
+      Object.entries(familyCensorCounts).sort(([a], [b]) => a.localeCompare(b))
+    )
   };
 }

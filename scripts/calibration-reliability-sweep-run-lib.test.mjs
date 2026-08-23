@@ -230,10 +230,12 @@ test("the summary lower-bounds detector-input readiness from load facts only", (
   const summary = summarizeSweepOutcomes([sound, unverified, lossy]);
   assert.equal(summary.observed, 3);
   assert.equal(summary.loaded, 2);
-  assert.equal(summary.sound, 1);
-  // The lossy case loaded but lost a family; only the fully complete case
-  // enters the conservative bound.
+  // The step-3 split: the lossy case is bare-load VALID (it is conserved by
+  // policy C, so screening must not drop it) while only the fully complete
+  // case enters the conservative all-families bound.
+  assert.equal(summary.valid, 2);
   assert.equal(summary.allFamiliesComplete, 1);
+  assert.deepEqual(summary.familyCensorCounts, { fingerprinting: 1 });
   assert.throws(
     () => summarizeSweepOutcomes([{ ...sound, pixelEvents: [] }]),
     /not a bare-load field/
