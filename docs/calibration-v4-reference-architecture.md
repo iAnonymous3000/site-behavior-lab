@@ -16,9 +16,12 @@
   (reusing the existing custody machinery), CLI wiring, task-byte
   verification against `taskSha256`, and deep release/design identity
   validation, none of which can change a value the bridge produces, only
-  refuse to produce one. The merge landing this architecture becomes the
-  final step-4 SHA; sweep pass 1 collects on it, and pass 2 on the identical
-  SHA.
+  refuse to produce one. The final-collection-SHA
+  designation moved once more: the step-5 cluster-design amendment
+  ([reliability-sweep-cluster-design.md](reliability-sweep-cluster-design.md))
+  found the two-pass plan could not produce the decision's defensible loss
+  bound, so the merge landing THAT design is the collection SHA every sweep
+  round binds to.
 
 ## The circularity this removes
 

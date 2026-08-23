@@ -13,9 +13,13 @@ defensible detector-input loss bound.
 
 ## The reliability sweep
 
-Before any frame freezes, every candidate site is visited twice under the
-exact measurement condition of its study (desktop, GPC off, observe or
-accept-all), at least 48 hours apart, from the controlled runner's egress.
+Before any frame freezes, every candidate site is visited in at least five
+collection rounds under the exact measurement condition of its study, from
+the controlled runner's egress, on one collection SHA. Rounds are disjoint
+sessions at least 24 hours apart; rounds 1 and 2 are the eligibility pair,
+at least 48 hours apart, and the additional rounds exist so the loss bound
+has independent time clusters
+(docs/reliability-sweep-cluster-design.md).
 A candidate joins the eligible pool only if both visits were bare-load valid:
 page loaded, no bot wall, subject verified, ledgers consistent. A censored
 evidence family does NOT disqualify (see the validity/readiness split below);

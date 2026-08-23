@@ -3,13 +3,15 @@
  * Reliability-sweep driver: the caller the step-3 decision requires
  * (docs/calibration-censoring-policy-decision.md, step-4 item 4).
  *
- *   node scripts/calibration-reliability-sweep-run.mjs collect 1 \
- *     <candidates.json> <pass-1-out.json>
- *   ... at least 48 hours later, same build, same egress ...
- *   node scripts/calibration-reliability-sweep-run.mjs collect 2 \
- *     <candidates.json> <pass-2-out.json>
+ *   node scripts/calibration-reliability-sweep-run.mjs collect <round> \
+ *     <candidates.json> <round-N-out.json>
+ *   ... rounds are disjoint sessions at least 24h apart; rounds 1 and 2 are
+ *   the eligibility pair (48h apart); rounds 3 and up are the sizing clusters
+ *   the preregistered loss bound requires (minimum 4 usable) ...
  *   node scripts/calibration-reliability-sweep-run.mjs receipt \
- *     <candidates.json> <pass-1-out.json> <pass-2-out.json> <receipt-out.json>
+ *     <candidates.json> <round1.json> [round2.json ...] <receipt-out.json>
+ *   node scripts/calibration-reliability-sweep-run.mjs bound \
+ *     <receipt.json> <bound-out.json>
  *
  * Scans run through a locally running server's /api/scan, never through tsx
  * or an in-process import: the server is the producer whose r2 quality ledger

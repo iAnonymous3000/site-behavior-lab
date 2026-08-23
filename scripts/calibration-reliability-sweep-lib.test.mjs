@@ -721,13 +721,19 @@ test("a missing or unusable report is recorded as a failed pass, never skipped",
   assert.equal(bareLoadValid(missing), false);
 });
 
-test("the projection refuses an unlabelled pass or timestamp", () => {
-  // Without these the receipt cannot prove the 48-hour separation it claims.
-  assert.throws(() => bareLoadOutcome("case-a", soundReport(), {}), /explicit sweep pass number/);
+test("the projection refuses an unlabelled round or timestamp", () => {
+  // Without these the receipt cannot prove the separations it claims. Rounds
+  // above 2 are valid sizing clusters now; only out-of-range rounds refuse.
+  assert.throws(() => bareLoadOutcome("case-a", soundReport(), {}), /explicit sweep round number/);
   assert.throws(
-    () => bareLoadOutcome("case-a", soundReport(), { pass: 3, observedAt: PASS_1 }),
-    /explicit sweep pass number/
+    () => bareLoadOutcome("case-a", soundReport(), { pass: 0, observedAt: PASS_1 }),
+    /explicit sweep round number/
   );
+  assert.throws(
+    () => bareLoadOutcome("case-a", soundReport(), { pass: 13, observedAt: PASS_1 }),
+    /explicit sweep round number/
+  );
+  assert.equal(bareLoadOutcome("case-a", soundReport(), { pass: 3, observedAt: PASS_1 }).pass, 3);
   assert.throws(
     () => bareLoadOutcome("case-a", soundReport(), { pass: 1, observedAt: "yesterday" }),
     /ISO-8601 UTC observedAt/
