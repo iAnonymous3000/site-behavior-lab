@@ -6,7 +6,8 @@ import {
   PREREGISTERED_SIZING_ASSURANCE,
   assertFrameFeasible,
   binomialTailAtLeast,
-  deriveFrameSizeFromPilot
+  deriveFrameSizeFromPilot,
+  deriveFrameSizeFromPilotEnvelope
 } from "./calibration-pilot-sizing-lib.mjs";
 
 test("the binomial tail is exact at its anchors", () => {
@@ -91,4 +92,60 @@ test("an extreme pilot fails with the honest message, never a clamped answer", (
     () => deriveFrameSizeFromPilot({ pilotPresent: 100, pilotTotal: 100, minimumPerClass: 100 }),
     /cannot support this study's claimed classes/
   );
+});
+
+test("the uncertainty envelope reduces exactly to the point rule at zero uncertain and never below it", () => {
+  for (const present of [18, 50, 82]) {
+    const point = deriveFrameSizeFromPilot({ pilotPresent: present, pilotTotal: 100, minimumPerClass: 100 });
+    const envelope = deriveFrameSizeFromPilotEnvelope({
+      present,
+      absent: 100 - present,
+      uncertain: 0,
+      minimumPerClass: 100
+    });
+    assert.equal(envelope.derivedN, point.derivedN);
+    assert.deepEqual(envelope.interval95, point.interval95);
+  }
+  // Uncertainty can only demand MORE: each uncertain label widens the
+  // interval both ways, so the envelope N is monotonically at or above the
+  // point rule's N for the same present count.
+  const withUncertain = deriveFrameSizeFromPilotEnvelope({
+    present: 50,
+    absent: 40,
+    uncertain: 10,
+    minimumPerClass: 100
+  });
+  const without = deriveFrameSizeFromPilot({ pilotPresent: 50, pilotTotal: 100, minimumPerClass: 100 });
+  assert.ok(withUncertain.derivedN > without.derivedN);
+  assert.equal(withUncertain.derivedN, 390);
+  assert.equal(without.derivedN, 295);
+  assert.throws(
+    () => deriveFrameSizeFromPilotEnvelope({ present: 40, absent: 40, uncertain: 19, minimumPerClass: 100 }),
+    /preregistered minimum of 100/
+  );
+});
+
+test("the round-1 feasibility band: 18..82 present of 100 is NECESSARY at the optimistic 1,126 ceiling", () => {
+  // Round 1 of the reliability sweep (artifact sha256
+  // 7dfc91056e1f194ae2b53c6807d0c6ffe0064b58dbb3fce817ffe05dd81e00e3)
+  // observed 1,126 bare-load-valid cases of 2,262: the rounds-1/2 eligible
+  // pool can never exceed that ceiling. This band is the ZERO-UNCERTAIN
+  // boundary case and therefore necessary only: uncertain labels narrow it
+  // through the envelope. Outside the band the run stops and the universe
+  // is enlarged; never a relaxed rule.
+  const ceiling = 1126;
+  for (const [present, fits] of [[17, false], [18, true], [82, true], [83, false]]) {
+    const derived = deriveFrameSizeFromPilot({
+      pilotPresent: present,
+      pilotTotal: 100,
+      minimumPerClass: 100
+    });
+    assert.equal(
+      derived.derivedN <= ceiling,
+      fits,
+      `${present}/100 derives N=${derived.derivedN}, expected ${fits ? "within" : "beyond"} ${ceiling}`
+    );
+  }
+  assert.equal(deriveFrameSizeFromPilot({ pilotPresent: 18, pilotTotal: 100, minimumPerClass: 100 }).derivedN, 1053);
+  assert.equal(deriveFrameSizeFromPilot({ pilotPresent: 17, pilotTotal: 100, minimumPerClass: 100 }).derivedN, 1132);
 });

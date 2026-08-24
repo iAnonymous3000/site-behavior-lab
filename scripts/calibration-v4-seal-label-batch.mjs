@@ -13,7 +13,9 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { calibrationLabelPublicKeyIdentity } from "./calibration-label-source-envelope-lib.mjs";
+import { canonicalPrettyJson } from "./calibration-study-lib.mjs";
 import { parseV4FrameTasksBytes, sealV4LabelBatch } from "./calibration-v4-ceremony-lib.mjs";
+import { padV4LabelBatch } from "./calibration-v4-labels-lib.mjs";
 
 const USAGE =
   "usage: calibration-v4-seal-label-batch.mjs --role labeler|tiebreaker --actor <github-login> --public-key <pem> --frame-tasks <frame-tasks.json> --tasks-dir <dir> --input <batch.json> --output <envelope.json>";
@@ -63,8 +65,15 @@ for (const file of readdirSync(values.get("--tasks-dir"))) {
   );
 }
 const publicKeyPem = readFileSync(values.get("--public-key"), "utf8");
+// The reviewer authors the batch WITHOUT padding; the CLI fills the padding
+// field to the frame's fixed length and canonicalizes, changing no value.
+// An already-padded input is left exactly as supplied.
+const inputBatch = JSON.parse(readFileSync(values.get("--input"), "utf8"));
+const batchBytes = canonicalPrettyJson(
+  typeof inputBatch.padding === "string" ? inputBatch : padV4LabelBatch(inputBatch, frameTasks)
+);
 const sealed = sealV4LabelBatch({
-  batchBytes: readFileSync(values.get("--input"), "utf8"),
+  batchBytes,
   frameTasks,
   taskBytesByCaseId,
   role: values.get("--role"),

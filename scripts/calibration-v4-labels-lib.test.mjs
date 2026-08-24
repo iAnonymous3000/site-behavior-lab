@@ -4,6 +4,8 @@ import { test } from "node:test";
 import {
   V4_LABEL_BATCH_KIND,
   V4_LABEL_BATCH_SCHEMA_VERSION,
+  padV4LabelBatch,
+  v4PaddedBatchByteLength,
   assembleV4ReferenceCases,
   buildV4AdjudicationArtifact,
   buildV4LabelsManifestCase,
@@ -139,7 +141,7 @@ test("a v4 frame binds tasks and its study identity; anything answer-shaped is r
 });
 
 test("a v4 label batch is tri-state with per-reviewer evidence, bound to its frame's identity", () => {
-  const batch = {
+  const batch = padV4LabelBatch({
     schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
     artifactKind: V4_LABEL_BATCH_KIND,
     role: "labeler",
@@ -152,11 +154,71 @@ test("a v4 label batch is tri-state with per-reviewer evidence, bound to its fra
       { caseId: "alpha.example", value: "uncertain", evidence: { sha256: sha("1"), provenance: "har://labeler-a/1" } },
       { caseId: "beta.example", value: "absent", evidence: { sha256: sha("2"), provenance: "har://labeler-a/2" } }
     ]
-  };
+  }, FRAME);
   assert.equal(validateV4LabelBatch(batch, { frame: FRAME }), batch);
-  // Partial coverage is a disappearing label; refused.
+  // The padded length is the frame's one fixed target.
+  assert.equal(
+    Buffer.byteLength(`${JSON.stringify(batch, null, 2)}\n`),
+    v4PaddedBatchByteLength(FRAME)
+  );
+  // A batch with different values and provenance lengths pads to the SAME
+  // byte length: the ciphertext length channel is closed.
+  const opposite = padV4LabelBatch({
+    ...batch,
+    role: "tiebreaker",
+    cases: [
+      { caseId: "alpha.example", value: "absent", evidence: { sha256: sha("9"), provenance: "x" } },
+      { caseId: "beta.example", value: "present", evidence: { sha256: sha("8"), provenance: "y" } }
+    ]
+  }, FRAME);
+  assert.equal(
+    Buffer.byteLength(`${JSON.stringify(opposite, null, 2)}\n`),
+    Buffer.byteLength(`${JSON.stringify(batch, null, 2)}\n`)
+  );
+  // The field-wise MAXIMAL batch pads with the EMPTY string and validates.
+  const maximal = padV4LabelBatch({
+    ...batch,
+    role: "tiebreaker",
+    cases: FRAME.cases.map((entry) => ({
+      caseId: entry.caseId,
+      value: "uncertain",
+      evidence: { sha256: sha("e"), provenance: "x".repeat(200) }
+    }))
+  }, FRAME);
+  assert.equal(maximal.padding, "");
+  assert.equal(validateV4LabelBatch(maximal, { frame: FRAME }), maximal);
+  // Removing the padding (or shortening it) breaks the fixed length.
   assert.throws(
-    () => validateV4LabelBatch({ ...batch, cases: batch.cases.slice(0, 1) }, { frame: FRAME }),
+    () => validateV4LabelBatch({ ...batch, padding: batch.padding.slice(1) }, { frame: FRAME }),
+    /fixed padded length/
+  );
+  assert.throws(
+    () => validateV4LabelBatch({ ...batch, padding: "1".repeat(batch.padding.length) }, { frame: FRAME }),
+    /padding must be/
+  );
+  // Provenance beyond the bound (or with escaping characters) refuses.
+  assert.throws(
+    () =>
+      validateV4LabelBatch(
+        padV4LabelBatch({
+          ...batch,
+          cases: [
+            { caseId: "alpha.example", value: "absent", evidence: { sha256: sha("1"), provenance: "x".repeat(201) } },
+            batch.cases[1]
+          ]
+        }, FRAME),
+        { frame: FRAME }
+      ),
+    /provenance must be/
+  );
+  // Partial coverage is a disappearing label; refused.
+  // Re-padded so the length rule cannot mask the coverage rule.
+  assert.throws(
+    () =>
+      validateV4LabelBatch(
+        padV4LabelBatch({ ...batch, cases: batch.cases.slice(0, 1) }, FRAME),
+        { frame: FRAME }
+      ),
     /coverage is total/
   );
   // A batch labeled under a different protocol, study, or candidate is not a
@@ -198,20 +260,21 @@ test("a v4 label batch is tri-state with per-reviewer evidence, bound to its fra
       ),
     /frame order is binding/
   );
-  // Evidence must be the reviewer's own record, both halves.
+  // Evidence must be the reviewer's own record, both halves (re-padded so
+  // the length rule cannot mask the provenance rule).
   assert.throws(
     () =>
       validateV4LabelBatch(
-        {
+        padV4LabelBatch({
           ...batch,
           cases: [
             { caseId: "alpha.example", value: "present", evidence: { sha256: sha("1"), provenance: "" } },
             batch.cases[1]
           ]
-        },
+        }, FRAME),
         { frame: FRAME }
       ),
-    /needs provenance/
+    /provenance must be/
   );
 });
 
@@ -318,7 +381,7 @@ test("the adjudication and manifest validators refuse the other generation and h
 });
 
 test("the assembly bridge produces study-ready sides whose digests have one producer", () => {
-  const batchFor = (role, values, who) => ({
+  const batchFor = (role, values, who) => padV4LabelBatch({
     schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
     artifactKind: V4_LABEL_BATCH_KIND,
     role,
@@ -332,7 +395,7 @@ test("the assembly bridge produces study-ready sides whose digests have one prod
       value: values[index],
       evidence: { sha256: sha(String((index + 1) * (who + 1))), provenance: `har://${role}-${who}/${entry.caseId}` }
     }))
-  });
+  }, FRAME);
   const assembled = assembleV4ReferenceCases({
     frame: FRAME,
     labelerBatches: [

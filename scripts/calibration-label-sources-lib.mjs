@@ -347,7 +347,8 @@ export function validateCalibrationRosterCustodyRecord(roster, { studyId, candid
 export function validateCalibrationCommitmentSetCustody({
   commitments,
   acquisitionRunStartedAt,
-  acquisitionJobStartedAt
+  acquisitionJobStartedAt,
+  boundaryLabel = "the authenticated acquisition run and job start"
 }) {
   const labelCommitments = commitments.filter(
     (entry) => entry.commitment.role === "labeler"
@@ -377,7 +378,7 @@ export function validateCalibrationCommitmentSetCustody({
         Date.parse(acquisitionJobStartedAt)
     ) {
       throw new Error(
-        "every label and blind-tiebreaker ciphertext commitment must exist before the authenticated acquisition run and job start"
+        `every label and blind-tiebreaker ciphertext commitment must exist before ${boundaryLabel}`
       );
     }
     const sourceCommitment = canonicalizeCalibrationValue(
