@@ -52,7 +52,8 @@ import {
 import { CALIBRATION_LABEL_SEALING_ALGORITHM } from "./calibration-label-source-envelope-lib.mjs";
 import {
   PREREGISTERED_SIZING_ASSURANCE,
-  deriveFrameSizeFromPilotEnvelope
+  deriveFrameSizeFromPilotEnvelope,
+  requireSweptEligiblePoolCount
 } from "./calibration-pilot-sizing-lib.mjs";
 
 export const V4_REFERENCE_TASK_KIND =
@@ -538,6 +539,12 @@ export function buildV4PilotLabelingAuthorization({
       "every commitment must predate the labeling close it is authorized under"
     );
   }
+  for (const entry of commitments) {
+    require(
+      entry?.commitment?.keyId === keyId,
+      "every authorized commitment must be sealed under the authorization's own keyId; a mismatched key would defeat every reveal after the authorization is committed"
+    );
+  }
   const { authenticatedCommitments, commitmentSetSha256 } =
     describeAuthenticatedCalibrationCommitments(commitments);
   const authorization = {
@@ -609,6 +616,10 @@ export function validateV4PilotLabelingAuthorization(value) {
       "every authorized commitment must predate the labeling close"
     );
     require(SHA256.test(entry.ciphertextSha256 ?? ""), "authorized commitment needs ciphertextSha256");
+    require(
+      entry.keyId === value.labelSealingKey.keyId,
+      "every authorized commitment must be sealed under the authorization's own keyId; a mismatched key would defeat every reveal after the authorization is committed"
+    );
   }
   require(
     value.commitmentSetSha256 ===
@@ -648,6 +659,11 @@ export function revealAuthenticatedV4PilotLabelBatches({
     "pilot labeling authorization must be canonical serialized JSON"
   );
   const authorization = validateV4PilotLabelingAuthorization(parsedAuthorization);
+  // The artifact can prove a close was not moved BEFORE any authorized
+  // commitment (per-commitment chronology) and not into the FUTURE (the
+  // rule below); a close moved to a different PAST instant that still
+  // postdates every commitment is indistinguishable in-artifact, and the
+  // repository commit of the authorization is the protection against it.
   require(
     Date.parse(authorization.labelingClosedAt) <= Date.now(),
     "the authorized labeling close cannot postdate the reveal"
@@ -725,7 +741,16 @@ export function revealAuthenticatedV4PilotLabelBatches({
  * (resolveV4ReferenceLabel inside assembleV4ReferenceCases); this
  * function computes nothing and can only restate or refuse.
  */
-export function buildV4ResolvedLabelsArtifact({ frameTasks, labelerBatches, tiebreakerBatch }) {
+export function buildV4ResolvedLabelsArtifact({
+  frameTasks,
+  labelerBatches,
+  tiebreakerBatch,
+  commitmentSetSha256
+}) {
+  require(
+    SHA256.test(commitmentSetSha256 ?? ""),
+    "resolved labels need the authorized commitmentSetSha256 they were revealed under"
+  );
   const bridgeCases = assembleV4ReferenceCases({ frame: frameTasks, labelerBatches, tiebreakerBatch });
   const cases = frameTasks.cases.map((frameCase) => {
     const side = bridgeCases.get(frameCase.caseId).referenceSide;
@@ -748,6 +773,7 @@ export function buildV4ResolvedLabelsArtifact({ frameTasks, labelerBatches, tieb
     candidateCommit: frameTasks.candidateCommit,
     referenceProtocolId: frameTasks.referenceProtocolId,
     frameTasksSha256: sha256Hex(`${JSON.stringify(frameTasks, null, 2)}\n`),
+    commitmentSetSha256,
     cases
   };
   const text = canonicalPrettyJson(artifact);
@@ -764,6 +790,7 @@ export function validateV4ResolvedLabelsArtifact(value) {
     "candidateCommit",
     "referenceProtocolId",
     "frameTasksSha256",
+    "commitmentSetSha256",
     "cases"
   ];
   require(
@@ -779,6 +806,10 @@ export function validateV4ResolvedLabelsArtifact(value) {
   require(typeof value.detector === "string" && value.detector.length > 0, "resolved labels need a detector");
   require(/^[0-9a-f]{40}$/.test(value.candidateCommit ?? ""), "resolved labels need the candidate commit");
   require(SHA256.test(value.frameTasksSha256 ?? ""), "resolved labels need the frameTasksSha256");
+  require(
+    SHA256.test(value.commitmentSetSha256 ?? ""),
+    "resolved labels need the authorized commitmentSetSha256"
+  );
   require(Array.isArray(value.cases) && value.cases.length > 0, "resolved labels need cases");
   const seen = new Set();
   for (const [index, entry] of value.cases.entries()) {
@@ -853,13 +884,16 @@ export function computeV4PilotSizingArtifact({
   require(
     resolved.frameTasksSha256 === frameTasksSha256 &&
       resolved.studyId === frameTasks.studyId &&
-      resolved.detector === frameTasks.detector,
+      resolved.detector === frameTasks.detector &&
+      resolved.candidateCommit === frameTasks.candidateCommit &&
+      resolved.referenceProtocolId === frameTasks.referenceProtocolId,
     "resolved labels do not bind the supplied frame-tasks artifact"
   );
   requirePilotStudyId(resolved.studyId, "pilot sizing");
   require(
-    resolved.cases.length === frameTasks.cases.length,
-    "resolved labels must cover the frame exactly"
+    resolved.cases.length === frameTasks.cases.length &&
+      resolved.cases.every((entry, index) => entry.caseId === frameTasks.cases[index].caseId),
+    "resolved labels must cover the frame exactly, case for case in frame order"
   );
   let present = 0;
   let absent = 0;
@@ -894,7 +928,7 @@ export function computeV4PilotSizingArtifact({
       sweptEligiblePool === null
         ? null
         : {
-            sweptEligiblePool,
+            sweptEligiblePool: requireSweptEligiblePoolCount(sweptEligiblePool),
             feasible: derived.derivedN <= sweptEligiblePool
           }
   };

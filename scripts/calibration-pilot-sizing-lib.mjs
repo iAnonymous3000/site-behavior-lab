@@ -176,15 +176,21 @@ function deriveFromInterval({ lower, upper, minimumPerClass, assurance, pilot, p
  * pilot site, or a narrowed population, and this function offers no
  * parameter through which any of those could be expressed.
  */
+/** The one validation of a swept-pool count, shared by every consumer. */
+export function requireSweptEligiblePoolCount(sweptEligiblePool) {
+  require(
+    Number.isSafeInteger(sweptEligiblePool) && sweptEligiblePool >= 0,
+    "feasibility needs the swept eligible pool count"
+  );
+  return sweptEligiblePool;
+}
+
 export function assertFrameFeasible({ derivedN, sweptEligiblePool }) {
   require(
     Number.isSafeInteger(derivedN) && derivedN >= 1,
     "feasibility needs the derived frame size"
   );
-  require(
-    Number.isSafeInteger(sweptEligiblePool) && sweptEligiblePool >= 0,
-    "feasibility needs the swept eligible pool count"
-  );
+  requireSweptEligiblePoolCount(sweptEligiblePool);
   require(
     derivedN <= sweptEligiblePool,
     `derived N of ${derivedN} exceeds the swept eligible pool of ${sweptEligiblePool}: the study is INFEASIBLE at this pool; the remedy is a larger universe and fresh sweep rounds, never a relaxed exclusion, a reused pilot site, or a narrowed population`
