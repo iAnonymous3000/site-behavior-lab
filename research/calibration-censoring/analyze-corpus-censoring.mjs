@@ -48,7 +48,7 @@ import {
   simulatePolicy
 } from "../../scripts/calibration-censoring-simulation-lib.mjs";
 
-import { clusterInterval } from "../../scripts/cluster-interval-lib.mjs";
+import { clusterInterval, wilsonInterval } from "../../scripts/cluster-interval-lib.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const reportsDir = path.join(root, "public", "reports");
 
@@ -182,13 +182,9 @@ const cnameScoreable = (r) => cnameStageFinished(r) && cnameInputsComplete(r);
 /** Stage finished but inputs truncated: a prediction of unknown completeness. */
 const cnameIndeterminate = (r) => cnameStageFinished(r) && !cnameInputsComplete(r);
 
-const wilson = (k, n, z = 1.96) => {
-  if (n === 0) return { lo: 0, hi: 1, half: 0.5 };
-  const p = k / n, d = 1 + (z * z) / n;
-  const c = (p + (z * z) / (2 * n)) / d;
-  const h = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
-  return { lo: Math.max(0, c - h), hi: Math.min(1, c + h), half: h };
-};
+// Extracted to scripts/cluster-interval-lib.mjs beside clusterInterval; the
+// byte-exact findings reproduction below proves the extraction changed nothing.
+const wilson = wilsonInterval;
 
 // Extracted to scripts/cluster-interval-lib.mjs so the reliability sweep's
 // loss bound uses the identical method; the byte-exact reproduction of the

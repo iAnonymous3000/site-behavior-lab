@@ -307,7 +307,11 @@ export function assertRoundsConsistent(artifacts) {
  * of both pass artifacts, so a re-derivation can prove which inputs produced
  * it.
  */
-export function assembleReceiptFromRounds({ rounds, candidateSetBytes, sweptAt }) {
+export function assembleReceiptFromRounds(input) {
+  return buildReceiptForVerification(input);
+}
+
+function buildReceiptForVerification({ rounds, candidateSetBytes, sweptAt }) {
   require(Array.isArray(rounds) && rounds.length >= 2, "assembly needs at least two rounds");
   for (const entry of rounds) {
     require(
@@ -526,13 +530,62 @@ export function validateSweepReceipt(receipt, receiptBytes) {
   return receipt;
 }
 
-export function computeClusterLossBound({ receipt, receiptBytes }) {
-  validateSweepReceipt(receipt, receiptBytes);
-  const outcomes = receipt.cases.flatMap((entry) => entry.passes);
-  const rounds = new Set(outcomes.map((outcome) => outcome.pass));
+/**
+ * SOURCE-BACKED: the bound never trusts a receipt alone. It takes the
+ * candidate file and every round artifact, re-validates them, REASSEMBLES
+ * the receipt through assembleReceiptFromRounds (which enforces identity,
+ * condition, coverage, contiguity, and the 24-hour session-disjoint
+ * chronology), and requires byte equality with the supplied receipt before
+ * computing anything. The reviewed forgeries this closes: a canonical
+ * receipt whose round 3 sat one hour after round 2, and one whose
+ * candidate-set source digest disagreed with its candidateSetDigest; shape
+ * validation accepted both because digests were checked for form, not
+ * against bytes. Reassembly checks them against bytes by construction.
+ */
+export function computeClusterLossBound({ candidateSetBytes, roundEntries, receiptBytes }) {
   require(
-    rounds.size >= SWEEP_BOUND_MINIMUM_ROUNDS,
-    `the receipt holds ${rounds.size} collection round(s); the preregistered minimum is ${SWEEP_BOUND_MINIMUM_ROUNDS}, and below it there is NO bound: collect more rounds, never substitute an iid interval`
+    typeof candidateSetBytes === "string" && candidateSetBytes.length > 0,
+    "loss bound requires the candidate-set bytes"
+  );
+  require(
+    Array.isArray(roundEntries) && roundEntries.length >= 2,
+    "loss bound requires every round artifact's bytes"
+  );
+  require(
+    typeof receiptBytes === "string" && receiptBytes.length > 0,
+    "loss bound requires the receipt bytes"
+  );
+  let receipt;
+  try {
+    receipt = JSON.parse(receiptBytes);
+  } catch {
+    require(false, "receipt bytes are not JSON");
+  }
+  validateSweepReceipt(receipt, receiptBytes);
+  const rounds = roundEntries.map((entry, index) => {
+    require(
+      isRecord(entry) && typeof entry.bytes === "string",
+      "each round entry needs { bytes }"
+    );
+    return {
+      artifact: validatePassArtifact(JSON.parse(entry.bytes), index + 1),
+      bytes: entry.bytes
+    };
+  });
+  const reassembled = buildReceiptForVerification({
+    rounds,
+    candidateSetBytes,
+    sweptAt: receipt.sweptAt
+  });
+  require(
+    serializeReliabilitySweepReceipt(reassembled) === receiptBytes,
+    "the supplied receipt is not the assembly of the supplied candidate set and round artifacts; the bound computes only over what the sources actually say"
+  );
+  const outcomes = receipt.cases.flatMap((entry) => entry.passes);
+  const roundNumbers = new Set(outcomes.map((outcome) => outcome.pass));
+  require(
+    roundNumbers.size >= SWEEP_BOUND_MINIMUM_ROUNDS,
+    `the receipt holds ${roundNumbers.size} collection round(s); the preregistered minimum is ${SWEEP_BOUND_MINIMUM_ROUNDS}, and below it there is NO bound: collect more rounds, never substitute an iid interval`
   );
 
   const keyOf = (outcome) => outcome.pass;
@@ -559,7 +612,7 @@ export function computeClusterLossBound({ receipt, receiptBytes }) {
     candidateSetDigest: receipt.candidateSetDigest,
     identity: receipt.identity,
     measurementCondition: receipt.measurementCondition,
-    rounds: rounds.size,
+    rounds: roundNumbers.size,
     observations: outcomes.length,
     method: {
       algorithm: "cluster-bootstrap",

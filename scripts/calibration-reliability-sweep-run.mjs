@@ -11,7 +11,8 @@
  *   node scripts/calibration-reliability-sweep-run.mjs receipt \
  *     <candidates.json> <round1.json> [round2.json ...] <receipt-out.json>
  *   node scripts/calibration-reliability-sweep-run.mjs bound \
- *     <receipt.json> <bound-out.json>
+ *     <candidates.json> <round1.json> [round2.json ...] <receipt.json> \
+ *     <bound-out.json>
  *
  * Scans run through a locally running server's /api/scan, never through tsx
  * or an in-process import: the server is the producer whose r2 quality ledger
@@ -164,11 +165,11 @@ function receipt(candidatesPath, roundPaths, outPath) {
   console.log(`written to ${outPath}`);
 }
 
-function bound(receiptPath, outPath) {
-  const receiptBytes = readFileSync(receiptPath, "utf8");
+function bound(candidatesPath, roundPaths, receiptPath, outPath) {
   const artifact = computeClusterLossBound({
-    receipt: JSON.parse(receiptBytes),
-    receiptBytes
+    candidateSetBytes: readFileSync(candidatesPath, "utf8"),
+    roundEntries: roundPaths.map((roundPath) => ({ bytes: readFileSync(roundPath, "utf8") })),
+    receiptBytes: readFileSync(receiptPath, "utf8")
   });
   writeFileSync(outPath, `${JSON.stringify(artifact, null, 2)}\n`);
   console.log(
@@ -196,13 +197,17 @@ if (command === "collect") {
   const outPath = tail.pop();
   receipt(candidatesPath, tail, outPath);
 } else if (command === "bound") {
-  const [receiptPath, outPath] = rest;
-  if (!receiptPath || !outPath) {
-    fail("usage: bound <receipt.json> <bound-out.json>");
+  if (rest.length < 5) {
+    fail(
+      "usage: bound <candidates.json> <round1.json> [round2.json ...] <receipt.json> <bound-out.json>"
+    );
   }
-  bound(receiptPath, outPath);
+  const [candidatesPath, ...tail] = rest;
+  const outPath = tail.pop();
+  const receiptPath = tail.pop();
+  bound(candidatesPath, tail, receiptPath, outPath);
 } else {
   fail(
-    "usage: calibration-reliability-sweep-run.mjs collect <round 1..12> ... | receipt <candidates> <round1> [round2 ...] <out> | bound <receipt> <out>"
+    "usage: calibration-reliability-sweep-run.mjs collect <round 1..12> ... | receipt <candidates> <round1> [round2 ...] <out> | bound <candidates> <round1> [round2 ...] <receipt> <out>"
   );
 }

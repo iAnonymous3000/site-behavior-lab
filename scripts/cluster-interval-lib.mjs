@@ -46,3 +46,18 @@ export function clusterInterval(items, predicate, keyOf, iterations = CLUSTER_BO
   rates.sort((a, b) => a - b);
   return { lo: rates[Math.floor(rates.length * 0.025)], hi: rates[Math.floor(rates.length * 0.975)], clusters: pool.length };
 }
+
+/**
+ * The Wilson score interval, extracted verbatim from the censoring analysis
+ * (same byte-exact-reproduction proof as clusterInterval). z defaults to the
+ * analysis's 1.96; the TS analyzer's wilson95 keeps the higher-precision
+ * constant on its own side, and neither may fork silently: the censoring
+ * findings pin this one, the calibration tests pin that one.
+ */
+export const wilsonInterval = (k, n, z = 1.96) => {
+  if (n === 0) return { lo: 0, hi: 1, half: 0.5 };
+  const p = k / n, d = 1 + (z * z) / n;
+  const c = (p + (z * z) / (2 * n)) / d;
+  const h = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
+  return { lo: Math.max(0, c - h), hi: Math.min(1, c + h), half: h };
+};
