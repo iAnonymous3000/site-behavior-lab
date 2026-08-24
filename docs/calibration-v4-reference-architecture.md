@@ -140,11 +140,47 @@ adopted, with the custody machinery REUSED rather than restated:
   bytes → per-case taskSha256 → task bytes closes it.
 
 Recorded for the pilot runbook: reveal-side frame-tasks are read from the
-candidateCommit-pinned tree; GCM is unpadded, so a sealed tri-state batch's
-ciphertext length can leak its label distribution (consider fixed-length
-padding at seal time); a `referenceProtocolId` names exactly one frozen
-protocol byte sequence, and protocol drift is caught only by the deep
-design digests. Mutation obligations were re-run for the batch-shape change
+candidateCommit-pinned tree; a `referenceProtocolId` names exactly one
+frozen protocol byte sequence, and protocol drift is caught only by the
+deep design digests.
+
+## Pilot ceremony closure (landed)
+
+- **Fixed-length padding, RESOLVED**: GCM ciphertext length equals
+  plaintext length, so an unpadded tri-state batch leaks its label
+  distribution. v4 batches (schemaVersion 3) carry a required `padding`
+  field and must serialize to their frame's ONE fixed byte length
+  (`v4PaddedBatchByteLength`: the field-wise maximal template with role
+  "tiebreaker", every value "uncertain", every provenance at the 200-char
+  bound), enforced in `validateV4LabelBatch` and again byte-level at seal
+  (canonical plaintext bytes required). Both roles pad to one target, and
+  provenance is bounded printable ASCII without quotes or backslashes so
+  the target needs no escape analysis. This binds confirmatory batches
+  too, not only the pilot.
+- **Pilot identity and chronology**: the pilot has no acquisition event,
+  so both come from the repo-committed PILOT LABELING AUTHORIZATION
+  (`site-behavior-detector-calibration-pilot-labeling-authorization`),
+  produced at close time from authenticated-fetcher records and committed
+  at calibration/<pilotStudyId>/pilot-labeling-authorization.json BEFORE
+  any reveal. It carries the labeling-close instant and the authorized
+  14-field commitment projection; the reveal accepts neither as a free
+  parameter, so a moved close or substituted commitment self-defeats.
+- **Executable reveal**: `npm run calibration:v4-reveal` (key-free custody
+  first; the reveal key arrives only through
+  CALIBRATION_LABEL_REVEAL_PRIVATE_KEY after custody passes), emitting the
+  RESOLVED-LABELS artifact, a pure projection of the assembly bridge, plus
+  per-case adjudication artifacts.
+- **Canonical sizing producer**: `npm run calibration:v4-pilot-sizing`
+  consumes resolved labels and frame-tasks bytes only (no typed counts),
+  partitions cases into a CLOSED present/absent/uncertain vocabulary, and
+  derives N through the preregistered uncertainty envelope
+  (docs/reliability-sweep-cluster-design.md), recording feasibility
+  against a supplied swept pool for the preregistered fail condition.
+- Ceremony order: seal (`calibration:v4-seal-label-batch`, which pads an
+  unpadded reviewer batch) -> hosted commitments -> close
+  (`calibration:v4-pilot-close`) -> commit the authorization -> reveal ->
+  size. The whole pipeline is executed end to end by the ceremony suite's
+  spawn smoke test. Mutation obligations were re-run for the batch-shape change
 and the new surface: task digest deleted, seal-validation deleted,
 chronology deleted, uniqueness deleted, roster-equality made vacuous, key
 read before custody, content binding weakened to shape, evidence

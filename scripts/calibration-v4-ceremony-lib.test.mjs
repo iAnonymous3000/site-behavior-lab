@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash, generateKeyPairSync } from "node:crypto";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -16,13 +16,23 @@ import { canonicalPrettyJson, sha256Hex } from "./calibration-study-lib.mjs";
 import {
   V4_REFERENCE_TASK_KIND,
   buildV4FrameTasksArtifact,
+  buildV4PilotLabelingAuthorization,
+  buildV4ResolvedLabelsArtifact,
+  computeV4PilotSizingArtifact,
   deepValidateV4StudyIdentity,
   parseV4FrameTasksBytes,
   revealAuthenticatedV4LabelBatches,
+  revealAuthenticatedV4PilotLabelBatches,
   sealV4LabelBatch,
+  validateV4PilotLabelingAuthorization,
+  validateV4ResolvedLabelsArtifact,
   verifyV4TaskBytes
 } from "./calibration-v4-ceremony-lib.mjs";
-import { assembleV4ReferenceCases } from "./calibration-v4-labels-lib.mjs";
+import {
+  V4_LABEL_BATCH_SCHEMA_VERSION,
+  assembleV4ReferenceCases,
+  padV4LabelBatch
+} from "./calibration-v4-labels-lib.mjs";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 const requireFromHere = createRequire(import.meta.url);
@@ -52,8 +62,8 @@ function builtFrame(cases = [
 }
 
 function batchFor(built, role, values, who) {
-  return {
-    schemaVersion: 2,
+  return padV4LabelBatch({
+    schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
     artifactKind: "site-behavior-detector-calibration-label-batch-source",
     role,
     studyId: STUDY,
@@ -71,7 +81,7 @@ function batchFor(built, role, values, who) {
         provenance: `har://${who}/${entry.caseId}`
       }
     }))
-  };
+  }, built.frameTasks);
 }
 
 function commitmentEntryFor(built, role, values, actor, createdAt) {
@@ -288,6 +298,22 @@ test("sealing validates the batch and the tasks BEFORE encrypting, and round-tri
         keyId
       }),
     /frameTasksSha256 does not match the frame-tasks artifact/
+  );
+  // Non-canonical plaintext bytes refuse even when the parsed VALUE passes
+  // every check: the seal encrypts raw bytes, and formatting variance
+  // would reopen the ciphertext length channel the padding closed.
+  assert.throws(
+    () =>
+      sealV4LabelBatch({
+        batchBytes: JSON.stringify(JSON.parse(good), null, 4),
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        role: "labeler",
+        reviewerLogin: "alice",
+        publicKeyPem,
+        keyId
+      }),
+    /canonical serialized JSON/
   );
   // Tampered task bytes refuse the seal outright: never seal against
   // unverified tasks.
@@ -563,6 +589,300 @@ test("deep identity validation refuses release and design drift through ONE comp
   assert.deepEqual(unknown, ["unknown detector not-a-detector; no canonical measurement arm exists"]);
 });
 
+
+function pilotBuilt() {
+  return buildV4FrameTasksArtifact({
+    studyId: `${STUDY}-prevalence-pilot`,
+    detector: DETECTOR,
+    candidateCommit: CANDIDATE,
+    referenceProtocolId: PROTOCOL,
+    cases: [
+      { caseId: "pilot-alpha.example", url: "https://pilot-alpha.example/" },
+      { caseId: "pilot-beta.example", url: "https://pilot-beta.example/" },
+      { caseId: "pilot-gamma.example", url: "https://pilot-gamma.example/" }
+    ]
+  });
+}
+
+function pilotBatchFor(built, role, values, who) {
+  return padV4LabelBatch({
+    schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
+    artifactKind: "site-behavior-detector-calibration-label-batch-source",
+    role,
+    studyId: built.frameTasks.studyId,
+    detector: DETECTOR,
+    candidateCommit: CANDIDATE,
+    referenceProtocolId: PROTOCOL,
+    frameTasksSha256: built.frameTasksSha256,
+    cases: built.frameTasks.cases.map((entry, index) => ({
+      caseId: entry.caseId,
+      value: values[index],
+      evidence: {
+        sha256: sha(`${who}:${entry.caseId}`),
+        provenance: `har://${who}/${entry.caseId}`
+      }
+    }))
+  }, built.frameTasks);
+}
+
+function pilotCommitmentFor(built, role, values, actor, createdAt) {
+  const batchBytes = canonicalPrettyJson(pilotBatchFor(built, role, values, actor));
+  const sealed = sealV4LabelBatch({
+    batchBytes,
+    frameTasks: built.frameTasks,
+    taskBytesByCaseId: built.taskBytesByCaseId,
+    role,
+    reviewerLogin: actor,
+    publicKeyPem,
+    keyId
+  });
+  return {
+    metadata: {
+      actor,
+      artifactCreatedAt: createdAt,
+      runId: 5000 + actor.length,
+      runAttempt: 1,
+      headSha: "e".repeat(40),
+      artifactId: 6000 + actor.length,
+      artifactName: `site-behavior-calibration-label-commitment-${role}-${built.frameTasks.studyId}-1-1`,
+      archiveSha256: sha(`pilot-archive:${actor}`)
+    },
+    commitment: {
+      role,
+      source: {
+        commit: "f".repeat(40),
+        path: `calibration-labels/${built.frameTasks.studyId}/sources.json`,
+        actor
+      },
+      keyId,
+      envelopeSha256: sha256Hex(canonicalPrettyJson(sealed.envelope)),
+      envelope: sealed.envelope
+    }
+  };
+}
+
+const CLOSE = "2026-08-23T00:00:00.000Z";
+
+test("the pilot pipeline: close, reveal, resolve, and size from resolved labels only", () => {
+  const built = pilotBuilt();
+  const commitments = [
+    pilotCommitmentFor(built, "labeler", ["present", "absent", "uncertain"], "alice", BEFORE),
+    pilotCommitmentFor(built, "labeler", ["present", "absent", "absent"], "bob", BEFORE),
+    pilotCommitmentFor(built, "tiebreaker", ["present", "absent", "uncertain"], "carol", BEFORE)
+  ];
+  const closed = buildV4PilotLabelingAuthorization({
+    studyId: built.frameTasks.studyId,
+    detector: DETECTOR,
+    candidateCommit: CANDIDATE,
+    referenceProtocolId: PROTOCOL,
+    keyId,
+    frameTasksSha256: built.frameTasksSha256,
+    labelingClosedAt: CLOSE,
+    commitments
+  });
+  assert.equal(validateV4PilotLabelingAuthorization(closed.authorization), closed.authorization);
+
+  let keyReads = 0;
+  const revealed = revealAuthenticatedV4PilotLabelBatches({
+    authorizationBytes: closed.text,
+    commitments,
+    readPrivateKey: () => {
+      keyReads += 1;
+      return privateKeyPem;
+    },
+    candidate: {
+      studyId: built.frameTasks.studyId,
+      detector: DETECTOR,
+      labelSealingKey: { keyId }
+    },
+    candidateCommit: CANDIDATE,
+    frameTasks: built.frameTasks,
+    taskBytesByCaseId: built.taskBytesByCaseId
+  });
+  assert.equal(keyReads, 1);
+  assert.equal(revealed.labelerBatches.length, 2);
+  assert.equal(revealed.tiebreakerBatch.labelerId, "github-carol");
+
+  const resolved = buildV4ResolvedLabelsArtifact({
+    frameTasks: built.frameTasks,
+    labelerBatches: revealed.labelerBatches,
+    tiebreakerBatch: revealed.tiebreakerBatch
+  });
+  assert.equal(validateV4ResolvedLabelsArtifact(resolved.artifact), resolved.artifact);
+  // The unknown-reason vocabulary is CLOSED: a future reason must be
+  // adjudicated into the sizing rule before it can exist, or the sizing
+  // denominator would silently shrink.
+  assert.throws(
+    () =>
+      validateV4ResolvedLabelsArtifact({
+        ...resolved.artifact,
+        cases: resolved.artifact.cases.map((entry) =>
+          entry.status === "unknown" ? { ...entry, reason: "reference-capture-lost" } : entry
+        )
+      }),
+    /the closed vocabulary is exactly reference-label-uncertain/
+  );
+  // The artifact is a PURE projection of the bridge: unanimity stands, the
+  // disagreement resolves to the tiebreaker's own tri-state, and a resolved
+  // uncertain is UNKNOWN, never a class.
+  const byCase = new Map(resolved.artifact.cases.map((entry) => [entry.caseId, entry]));
+  assert.deepEqual(byCase.get("pilot-alpha.example"), {
+    caseId: "pilot-alpha.example",
+    status: "known",
+    value: "present",
+    resolvedBy: "unanimous",
+    tiebreakerId: null,
+    adjudicationSha256: null
+  });
+  assert.equal(byCase.get("pilot-beta.example").value, "absent");
+  const gamma = byCase.get("pilot-gamma.example");
+  assert.equal(gamma.status, "unknown");
+  assert.equal(gamma.reason, "reference-label-uncertain");
+  assert.equal(gamma.resolvedBy, "tiebreaker");
+  assert.match(gamma.adjudicationSha256, /^[0-9a-f]{64}$/);
+  // Direct-projection equality: rebuilding from the same batches is
+  // byte-identical, so resolution has exactly one home.
+  assert.equal(
+    buildV4ResolvedLabelsArtifact({
+      frameTasks: built.frameTasks,
+      labelerBatches: revealed.labelerBatches,
+      tiebreakerBatch: revealed.tiebreakerBatch
+    }).text,
+    resolved.text
+  );
+
+  // Sizing consumes ONLY the artifacts. Three cases is below the pilot
+  // minimum, so the producer must refuse: no prevalence estimate from a
+  // toy pilot.
+  assert.throws(
+    () =>
+      computeV4PilotSizingArtifact({
+        resolvedLabelsBytes: resolved.text,
+        frameTasksBytes: built.frameTasksBytes,
+        minimumPerClass: 100
+      }),
+    /preregistered minimum of 100/
+  );
+});
+
+test("pilot custody refusals: late commitments, substituted records, and free boundaries are impossible", () => {
+  const built = pilotBuilt();
+  const commitments = [
+    pilotCommitmentFor(built, "labeler", ["present", "absent", "absent"], "alice", BEFORE),
+    pilotCommitmentFor(built, "labeler", ["present", "absent", "absent"], "bob", BEFORE),
+    pilotCommitmentFor(built, "tiebreaker", ["present", "absent", "absent"], "carol", BEFORE)
+  ];
+  // A commitment AFTER the close cannot even be authorized.
+  const late = pilotCommitmentFor(built, "tiebreaker", ["present", "absent", "absent"], "carol", "2026-08-23T01:00:00.000Z");
+  assert.throws(
+    () =>
+      buildV4PilotLabelingAuthorization({
+        studyId: built.frameTasks.studyId,
+        detector: DETECTOR,
+        candidateCommit: CANDIDATE,
+        referenceProtocolId: PROTOCOL,
+        keyId,
+        frameTasksSha256: built.frameTasksSha256,
+        labelingClosedAt: CLOSE,
+        commitments: [commitments[0], commitments[1], late]
+      }),
+    /must predate the labeling close/
+  );
+  const closed = buildV4PilotLabelingAuthorization({
+    studyId: built.frameTasks.studyId,
+    detector: DETECTOR,
+    candidateCommit: CANDIDATE,
+    referenceProtocolId: PROTOCOL,
+    keyId,
+    frameTasksSha256: built.frameTasksSha256,
+    labelingClosedAt: CLOSE,
+    commitments
+  });
+  const reveal = (overrides) => {
+    let keyReads = 0;
+    try {
+      revealAuthenticatedV4PilotLabelBatches({
+        authorizationBytes: closed.text,
+        commitments,
+        readPrivateKey: () => {
+          keyReads += 1;
+          return privateKeyPem;
+        },
+        candidate: {
+          studyId: built.frameTasks.studyId,
+          detector: DETECTOR,
+          labelSealingKey: { keyId }
+        },
+        candidateCommit: CANDIDATE,
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        ...overrides
+      });
+      return { threw: null, keyReads };
+    } catch (error) {
+      return { threw: error.message, keyReads };
+    }
+  };
+  // A commitment sealed cleanly but AFTER the authorized close: the
+  // chronology refusal fires with the pilot boundary noun, key untouched.
+  const lateSet = [commitments[0], commitments[1], late];
+  const lateResult = reveal({ commitments: lateSet });
+  assert.match(lateResult.threw, /must exist before the authorized labeling close|do not exactly equal/);
+  assert.equal(lateResult.keyReads, 0);
+  // A substituted record that seals and authenticates but was never
+  // authorized: the revealed set must EXACTLY equal the authorization.
+  const substituted = [
+    commitments[0],
+    pilotCommitmentFor(built, "labeler", ["absent", "absent", "absent"], "mallory", BEFORE),
+    commitments[2]
+  ];
+  const substitution = reveal({ commitments: substituted });
+  assert.match(substitution.threw, /do not exactly equal the pre-acquisition authorized roster/);
+  assert.equal(substitution.keyReads, 0);
+  // A NaN-shaped createdAt cannot slip past the chronology comparison.
+  const nan = [
+    { ...commitments[0], metadata: { ...commitments[0].metadata, artifactCreatedAt: "not-a-time" } },
+    commitments[1],
+    commitments[2]
+  ];
+  const nanResult = reveal({ commitments: nan });
+  assert.match(nanResult.threw, /must be an ISO-8601 UTC instant/);
+  assert.equal(nanResult.keyReads, 0);
+  // A non-pilot studyId cannot enter the pilot path at all.
+  assert.throws(
+    () =>
+      buildV4PilotLabelingAuthorization({
+        studyId: STUDY,
+        detector: DETECTOR,
+        candidateCommit: CANDIDATE,
+        referenceProtocolId: PROTOCOL,
+        keyId,
+        frameTasksSha256: built.frameTasksSha256,
+        labelingClosedAt: CLOSE,
+        commitments
+      }),
+    /must name a prevalence pilot/
+  );
+  // A substituted entry inside the authorization itself fails the set's
+  // own digest: the authorization cannot disagree with itself.
+  const forged = {
+    ...closed.authorization,
+    authenticatedCommitments: closed.authorization.authenticatedCommitments.map((entry, index) =>
+      index === 0 ? { ...entry, actor: "mallory" } : entry
+    )
+  };
+  assert.throws(
+    () => validateV4PilotLabelingAuthorization(forged),
+    /does not match its own commitment set/
+  );
+  // A tampered authorization (moved close instant) fails its own set
+  // digest or canonicality before anything else.
+  const tampered = closed.text.replace(CLOSE, "2026-08-25T00:00:00.000Z");
+  const tamperedResult = reveal({ authorizationBytes: tampered });
+  assert.ok(tamperedResult.threw !== null);
+  assert.equal(tamperedResult.keyReads, 0);
+});
+
 test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks", () => {
   const root = mkdtempSync(path.join(tmpdir(), "v4-ceremony-"));
   const casesPath = path.join(root, "cases.json");
@@ -581,8 +901,12 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
     )}\n`
   );
   const outRoot = path.join(root, "frame");
-  const run = (args) =>
-    spawnSync(process.execPath, args, { cwd: path.join(moduleDir, ".."), encoding: "utf8" });
+  const run = (args, env = {}) =>
+    spawnSync(process.execPath, args, {
+      cwd: path.join(moduleDir, ".."),
+      encoding: "utf8",
+      env: { ...process.env, ...env }
+    });
   const build = run([
     "scripts/calibration-v4-frame-tasks.mjs",
     "build",
@@ -619,21 +943,26 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
   const batchPath = path.join(root, "batch.json");
   writeFileSync(
     batchPath,
-    canonicalPrettyJson({
-      schemaVersion: 2,
-      artifactKind: "site-behavior-detector-calibration-label-batch-source",
-      role: "labeler",
-      studyId: STUDY,
-      detector: DETECTOR,
-      candidateCommit: CANDIDATE,
-      referenceProtocolId: PROTOCOL,
-      frameTasksSha256,
-      cases: frameTasks.cases.map((entry) => ({
-        caseId: entry.caseId,
-        value: "uncertain",
-        evidence: { sha256: sha(`cli:${entry.caseId}`), provenance: `har://cli/${entry.caseId}` }
-      }))
-    })
+    canonicalPrettyJson(
+      padV4LabelBatch(
+        {
+          schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
+          artifactKind: "site-behavior-detector-calibration-label-batch-source",
+          role: "labeler",
+          studyId: STUDY,
+          detector: DETECTOR,
+          candidateCommit: CANDIDATE,
+          referenceProtocolId: PROTOCOL,
+          frameTasksSha256,
+          cases: frameTasks.cases.map((entry) => ({
+            caseId: entry.caseId,
+            value: "uncertain",
+            evidence: { sha256: sha(`cli:${entry.caseId}`), provenance: `har://cli/${entry.caseId}` }
+          }))
+        },
+        frameTasks
+      )
+    )
   );
   const sealOut = path.join(root, "sealed.json");
   const seal = run([
@@ -669,6 +998,164 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
   ]);
   assert.notEqual(failedCheck.status, 0);
   assert.match(failedCheck.stderr, /task bytes do not match/);
+  // FULL PILOT PIPELINE BY EXECUTION: a 100-case pilot frame, three padded
+  // sealed batches, close, reveal (env key), and sizing, all through the
+  // real CLIs.
+  const pilotRoot = mkdtempSync(path.join(tmpdir(), "v4-pilot-smoke-"));
+  const pilotStudy = `${STUDY}-prevalence-pilot`;
+  writeFileSync(
+    path.join(pilotRoot, "cases.json"),
+    `${JSON.stringify(
+      {
+        studyId: pilotStudy,
+        candidates: Array.from({ length: 100 }, (_, index) => ({
+          caseId: `pilot-${String(index + 1).padStart(4, "0")}.example`,
+          url: `https://pilot-${String(index + 1).padStart(4, "0")}.example/`
+        }))
+      },
+      null,
+      2
+    )}\n`
+  );
+  const pilotFrameRoot = path.join(pilotRoot, "frame");
+  assert.equal(
+    run([
+      "scripts/calibration-v4-frame-tasks.mjs",
+      "build",
+      "--study-id", pilotStudy,
+      "--detector", DETECTOR,
+      "--candidate-commit", CANDIDATE,
+      "--protocol-id", PROTOCOL,
+      "--cases", path.join(pilotRoot, "cases.json"),
+      "--output-root", pilotFrameRoot
+    ]).status,
+    0
+  );
+  const pilotFrame = JSON.parse(readFileSync(path.join(pilotFrameRoot, "frame-tasks.json"), "utf8"));
+  const pilotFrameSha = sha256Hex(readFileSync(path.join(pilotFrameRoot, "frame-tasks.json"), "utf8"));
+  const pilotKeyPath = path.join(pilotRoot, "public.pem");
+  writeFileSync(pilotKeyPath, publicKeyPem);
+  const commitDir = path.join(pilotRoot, "commitments");
+  const reviewers = [
+    ["labeler", "alice", 25],
+    ["labeler", "bob", 30],
+    ["tiebreaker", "carol", 25]
+  ];
+  for (const [index, [role, actor, presentCount]] of reviewers.entries()) {
+    // UNPADDED reviewer-authored batch: the seal CLI pads it.
+    const batchPath = path.join(pilotRoot, `${actor}.json`);
+    writeFileSync(
+      batchPath,
+      `${JSON.stringify(
+        {
+          schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
+          artifactKind: "site-behavior-detector-calibration-label-batch-source",
+          role,
+          studyId: pilotStudy,
+          detector: DETECTOR,
+          candidateCommit: CANDIDATE,
+          referenceProtocolId: PROTOCOL,
+          frameTasksSha256: pilotFrameSha,
+          cases: pilotFrame.cases.map((entry, caseIndex) => ({
+            caseId: entry.caseId,
+            value: caseIndex < presentCount ? "present" : caseIndex < 95 ? "absent" : "uncertain",
+            evidence: {
+              sha256: sha(`${actor}:${entry.caseId}`),
+              provenance: `har://${actor}/${entry.caseId}`
+            }
+          }))
+        },
+        null,
+        2
+      )}\n`
+    );
+    const sealedPath = path.join(pilotRoot, `${actor}-sealed.json`);
+    const sealRun = run([
+      "scripts/calibration-v4-seal-label-batch.mjs",
+      "--role", role,
+      "--actor", actor,
+      "--public-key", pilotKeyPath,
+      "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+      "--tasks-dir", path.join(pilotFrameRoot, "tasks"),
+      "--input", batchPath,
+      "--output", sealedPath
+    ]);
+    assert.equal(sealRun.status, 0, sealRun.stderr);
+    const envelope = JSON.parse(readFileSync(sealedPath, "utf8"));
+    mkdirSync(commitDir, { recursive: true });
+    writeFileSync(
+      path.join(commitDir, `${String(index).padStart(2, "0")}-${actor}.json`),
+      `${JSON.stringify(
+        {
+          metadata: {
+            actor,
+            artifactCreatedAt: BEFORE,
+            runId: 9000 + index,
+            runAttempt: 1,
+            headSha: "e".repeat(40),
+            artifactId: 9100 + index,
+            artifactName: `site-behavior-calibration-label-commitment-${role}-${pilotStudy}-1-1`,
+            archiveSha256: sha(`smoke-archive:${actor}`)
+          },
+          commitment: {
+            role,
+            source: { commit: "f".repeat(40), path: `calibration-labels/${pilotStudy}/sources.json`, actor },
+            keyId,
+            envelopeSha256: sha256Hex(canonicalPrettyJson(envelope)),
+            envelope
+          }
+        },
+        null,
+        2
+      )}\n`
+    );
+  }
+  const authDir = path.join(pilotRoot, "repo", "calibration", pilotStudy);
+  const authPath = path.join(authDir, "pilot-labeling-authorization.json");
+  const close = run([
+    "scripts/calibration-v4-pilot-close.mjs",
+    "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+    "--commitments-dir", commitDir,
+    "--key-id", keyId,
+    "--out", authPath
+  ]);
+  assert.equal(close.status, 0, close.stderr);
+  assert.match(close.stdout, /3 authorized commitments/);
+  const outDir = path.join(pilotRoot, "revealed");
+  const reveal = run(
+    [
+      "scripts/calibration-v4-reveal.mjs",
+      "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+      "--tasks-dir", path.join(pilotFrameRoot, "tasks"),
+      "--authorization", authPath,
+      "--commitments-dir", commitDir,
+      "--out-dir", outDir
+    ],
+    { CALIBRATION_LABEL_REVEAL_PRIVATE_KEY: privateKeyPem }
+  );
+  assert.equal(reveal.status, 0, reveal.stderr);
+  assert.match(reveal.stdout, /resolved 100 cases/);
+  // Disagreements (cases 25..29: alice absent vs bob present) resolved by
+  // carol with adjudication artifacts on disk.
+  assert.ok(readdirSync(path.join(outDir, "adjudications")).length > 0);
+  const sizing = run([
+    "scripts/calibration-v4-pilot-sizing.mjs",
+    "--resolved-labels", path.join(outDir, "resolved-labels.json"),
+    "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+    "--minimum-per-class", "100",
+    "--swept-eligible-pool", "1126",
+    "--out", path.join(pilotRoot, "pilot-sizing.json")
+  ]);
+  assert.equal(sizing.status, 0, sizing.stderr);
+  const sizingArtifact = JSON.parse(readFileSync(path.join(pilotRoot, "pilot-sizing.json"), "utf8"));
+  assert.equal(sizingArtifact.counts.total, 100);
+  assert.equal(
+    sizingArtifact.counts.present + sizingArtifact.counts.absent + sizingArtifact.counts.uncertain,
+    100
+  );
+  assert.equal(typeof sizingArtifact.derivedN, "number");
+  assert.equal(sizingArtifact.feasibility.sweptEligiblePool, 1126);
+
   const failedSeal = run([
     "scripts/calibration-v4-seal-label-batch.mjs",
     "--role",

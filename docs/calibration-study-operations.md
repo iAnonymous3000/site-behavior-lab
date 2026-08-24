@@ -128,9 +128,13 @@ tasks are produced and checked with `npm run calibration:v4-frame-tasks`,
 and v4 tri-state batches are sealed with
 `npm run calibration:v4-seal-label-batch`, which validates the batch
 against the frame-tasks artifact and verifies every task's bytes before
-anything is encrypted. The v4 reveal runs through
-`revealAuthenticatedV4LabelBatches`, whose CLI wrapper lands with the
-first v4 ceremony's runbook. Published v1 and v2
+anything is encrypted. The v4 PILOT reveal is executable:
+`npm run calibration:v4-reveal`, gated by the repo-committed pilot
+labeling authorization (`npm run calibration:v4-pilot-close` freezes the
+close instant and the authorized commitment set together), and
+`npm run calibration:v4-pilot-sizing` derives N from resolved labels
+only. The confirmatory (acquisition) reveal wrapper still lands with that
+ceremony's runbook. Published v1 and v2
 studies remain readable as historical evidence; their immutable schemas are
 not rewritten. V1 lacks a structured fixed measurement condition and remains
 ineligible for rate publication. V3 preserves v2's condition binding while

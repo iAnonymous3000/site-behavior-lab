@@ -80,6 +80,63 @@ export function deriveFrameSizeFromPilot({
     Number.isSafeInteger(pilotPresent) && pilotPresent >= 0 && pilotPresent <= pilotTotal,
     "pilot present-count must be an integer within the pilot"
   );
+  const interval = wilsonInterval(pilotPresent, pilotTotal, 1.96);
+  return deriveFromInterval({
+    lower: interval.lo,
+    upper: interval.hi,
+    minimumPerClass,
+    assurance,
+    pilot: { present: pilotPresent, total: pilotTotal },
+    pilotLabel: `${pilotPresent}/${pilotTotal}`
+  });
+}
+
+/**
+ * The uncertainty-aware variant, preregistered alongside the point rule:
+ * an UNCERTAIN resolved label can be either class, so the interval is the
+ * assignment envelope in the policy-C spirit: the lower endpoint treats
+ * every uncertain as absent (Wilson lower of present/total) and the upper
+ * endpoint treats every uncertain as present (Wilson upper of
+ * (present+uncertain)/total). With zero uncertain labels this reduces
+ * EXACTLY to deriveFrameSizeFromPilot. The derived N is monotonically at
+ * or above the point rule's, never below: uncertainty can only demand
+ * more, and the 18..82 present-count band is therefore a NECESSARY
+ * condition at any pool ceiling, not a sufficient one.
+ */
+export function deriveFrameSizeFromPilotEnvelope({
+  present,
+  absent,
+  uncertain,
+  minimumPerClass,
+  assurance = PREREGISTERED_SIZING_ASSURANCE
+}) {
+  for (const [name, value] of [
+    ["present", present],
+    ["absent", absent],
+    ["uncertain", uncertain]
+  ]) {
+    require(
+      Number.isSafeInteger(value) && value >= 0,
+      `pilot ${name} count must be a non-negative integer`
+    );
+  }
+  const total = present + absent + uncertain;
+  require(
+    total >= PREREGISTERED_PILOT_MINIMUM,
+    `pilot total must be at least the preregistered minimum of ${PREREGISTERED_PILOT_MINIMUM}`
+  );
+  return deriveFromInterval({
+    lower: wilsonInterval(present, total, 1.96).lo,
+    upper: wilsonInterval(present + uncertain, total, 1.96).hi,
+    minimumPerClass,
+    assurance,
+    pilot: { present, absent, uncertain, total },
+    pilotLabel: `${present} present, ${absent} absent, ${uncertain} uncertain of ${total}`
+  });
+}
+
+/** The one search: smallest N with both class floors at the assurance. */
+function deriveFromInterval({ lower, upper, minimumPerClass, assurance, pilot, pilotLabel }) {
   require(
     Number.isSafeInteger(minimumPerClass) && minimumPerClass >= 1,
     "the claimed-class minimum must be a positive integer"
@@ -88,17 +145,16 @@ export function deriveFrameSizeFromPilot({
     typeof assurance === "number" && assurance > 0 && assurance < 1,
     "assurance must be a probability strictly between 0 and 1"
   );
-  const interval = wilsonInterval(pilotPresent, pilotTotal, 1.96);
-  const presentRate = interval.lo;
-  const absentRate = 1 - interval.hi;
+  const presentRate = lower;
+  const absentRate = 1 - upper;
   for (let n = minimumPerClass; n <= SIZING_SEARCH_CEILING; n += 1) {
     const presentAssurance = binomialTailAtLeast(n, presentRate, minimumPerClass);
     const absentAssurance = binomialTailAtLeast(n, absentRate, minimumPerClass);
     if (presentAssurance >= assurance && absentAssurance >= assurance) {
       return {
         derivedN: n,
-        pilot: { present: pilotPresent, total: pilotTotal },
-        interval95: { lower: interval.lo, upper: interval.hi },
+        pilot,
+        interval95: { lower, upper },
         minimumPerClass,
         assurance,
         perClass: {
@@ -109,7 +165,7 @@ export function deriveFrameSizeFromPilot({
     }
   }
   throw new Error(
-    `no frame size at or below ${SIZING_SEARCH_CEILING} satisfies both reference classes at assurance ${assurance} from a pilot of ${pilotPresent}/${pilotTotal}; the population cannot support this study's claimed classes`
+    `no frame size at or below ${SIZING_SEARCH_CEILING} satisfies both reference classes at assurance ${assurance} from a pilot of ${pilotLabel}; the population cannot support this study's claimed classes`
   );
 }
 

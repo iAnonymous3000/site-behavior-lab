@@ -18,7 +18,7 @@ import { sha256Hex } from "./scanner-fidelity-study-lib.mjs";
 
 export const V4_LABEL_BATCH_KIND =
   "site-behavior-detector-calibration-label-batch-source";
-export const V4_LABEL_BATCH_SCHEMA_VERSION = 2;
+export const V4_LABEL_BATCH_SCHEMA_VERSION = 3;
 export const V4_ADJUDICATION_KIND =
   "site-behavior-detector-calibration-blind-tiebreaker-resolution";
 export const V4_ADJUDICATION_SCHEMA_VERSION = 2;
@@ -33,6 +33,15 @@ export const V4_LABEL_ARTIFACT_KIND =
 export const V4_LABEL_ARTIFACT_SCHEMA_VERSION = 2;
 
 export const V4_LABEL_VALUES = Object.freeze(["present", "absent", "uncertain"]);
+/**
+ * Reviewer provenance grammar: 1..200 printable-ASCII characters excluding
+ * `"` and `\`, so a provenance string's canonical-JSON serialization is
+ * exactly its raw length plus two quotes and the padded-batch target is
+ * computable without escape analysis.
+ */
+export const V4_PROVENANCE_MAX_LENGTH = 200;
+const V4_PROVENANCE_GRAMMAR = /^[\x20-\x21\x23-\x5b\x5d-\x7e]{1,200}$/;
+const V4_PADDING_GRAMMAR = /^0*$/;
 
 const SHA256 = /^[0-9a-f]{64}$/;
 
@@ -107,6 +116,63 @@ export function validateV4FrameTasks(value) {
  * and in frame order, exactly as v1 required, because a missing case is how a
  * label disappears.
  */
+/**
+ * The fixed sealed-batch length for one frame. AES-GCM ciphertext length
+ * equals plaintext length, so without padding a sealed batch's public
+ * ciphertext leaks its label distribution ("present" 7, "absent" 6,
+ * "uncertain" 9 bytes) and provenance lengths. Every batch for a frame
+ * must serialize to EXACTLY this many bytes: the length of a template
+ * batch that is field-wise maximal (role "tiebreaker", every value
+ * "uncertain", every provenance at V4_PROVENANCE_MAX_LENGTH, padding "").
+ * Every valid batch is field-wise at or below the template, so the
+ * deficit is never negative and the "0"-filled padding field makes up the
+ * difference exactly. Both roles pad to the one target, so length reveals
+ * neither values, provenance, nor role.
+ */
+export function v4PaddedBatchByteLength(frame) {
+  validateV4FrameTasks(frame);
+  return Buffer.byteLength(`${JSON.stringify(paddedBatchTemplate(frame), null, 2)}\n`);
+}
+
+function paddedBatchTemplate(frame) {
+  return {
+    schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
+    artifactKind: V4_LABEL_BATCH_KIND,
+    role: "tiebreaker",
+    studyId: frame.studyId,
+    detector: frame.detector,
+    candidateCommit: frame.candidateCommit,
+    referenceProtocolId: frame.referenceProtocolId,
+    frameTasksSha256: "0".repeat(64),
+    padding: "",
+    cases: frame.cases.map((entry) => ({
+      caseId: entry.caseId,
+      value: "uncertain",
+      evidence: {
+        sha256: "0".repeat(64),
+        provenance: "x".repeat(V4_PROVENANCE_MAX_LENGTH)
+      }
+    }))
+  };
+}
+
+/**
+ * Fill the padding field so the batch serializes to the frame's fixed
+ * length. Values are untouched; only padding changes. The maximal batch
+ * legitimately pads with the EMPTY string.
+ */
+export function padV4LabelBatch(batch, frame) {
+  require(isRecord(batch), "padV4LabelBatch needs a batch record");
+  const target = v4PaddedBatchByteLength(frame);
+  const zeroed = { ...batch, padding: "" };
+  const bare = Buffer.byteLength(`${JSON.stringify(zeroed, null, 2)}\n`);
+  require(
+    bare <= target,
+    `batch serializes to ${bare} bytes, above the frame's fixed target ${target}; no valid batch exceeds the field-wise maximal template`
+  );
+  return { ...zeroed, padding: "0".repeat(target - bare) };
+}
+
 export function validateV4LabelBatch(value, { frame }) {
   validateV4FrameTasks(frame);
   const frameCaseIds = frame.cases.map((entry) => entry.caseId);
@@ -122,13 +188,14 @@ export function validateV4LabelBatch(value, { frame }) {
       "candidateCommit",
       "referenceProtocolId",
       "frameTasksSha256",
+      "padding",
       "cases"
     ],
     "label batch"
   );
   require(
     value.schemaVersion === V4_LABEL_BATCH_SCHEMA_VERSION,
-    `label batch schemaVersion must be ${V4_LABEL_BATCH_SCHEMA_VERSION}; v1 batches belong to the historical v3 pipeline`
+    `label batch schemaVersion must be ${V4_LABEL_BATCH_SCHEMA_VERSION}; v1 batches belong to the historical v3 pipeline, and v2 predates the fixed-length padding requirement`
   );
   require(value.artifactKind === V4_LABEL_BATCH_KIND, "label batch kind mismatch");
   require(value.role === "labeler" || value.role === "tiebreaker", "label batch role must be labeler or tiebreaker");
@@ -170,6 +237,18 @@ export function validateV4LabelBatch(value, { frame }) {
       value.frameTasksSha256 === sha256Hex(`${JSON.stringify(frame, null, 2)}\n`),
     "label batch frameTasksSha256 does not match the frame-tasks artifact; a batch labels exactly one frame's tasks"
   );
+  // FIXED LENGTH: sealed ciphertext length equals plaintext length, so the
+  // batch must serialize to exactly the frame's one target or the public
+  // commitment leaks the label distribution. The empty padding string is
+  // legitimate: the field-wise maximal batch has zero deficit.
+  require(
+    typeof value.padding === "string" && V4_PADDING_GRAMMAR.test(value.padding),
+    'label batch padding must be a (possibly empty) string of "0"'
+  );
+  require(
+    Buffer.byteLength(`${JSON.stringify(value, null, 2)}\n`) === v4PaddedBatchByteLength(frame),
+    "label batch does not serialize to the frame's fixed padded length; an unpadded batch leaks its label distribution through ciphertext length"
+  );
   require(Array.isArray(value.cases), "label batch needs cases");
   require(
     value.cases.length === frameCaseIds.length,
@@ -194,8 +273,9 @@ export function validateV4LabelBatch(value, { frame }) {
       `${where} evidence needs the reviewer's own sha256`
     );
     require(
-      typeof entry.evidence.provenance === "string" && entry.evidence.provenance.length > 0,
-      `${where} evidence needs provenance`
+      typeof entry.evidence.provenance === "string" &&
+        V4_PROVENANCE_GRAMMAR.test(entry.evidence.provenance),
+      `${where} evidence provenance must be 1..${V4_PROVENANCE_MAX_LENGTH} printable ASCII characters without quotes or backslashes`
     );
   }
   return value;

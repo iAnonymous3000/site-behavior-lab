@@ -101,6 +101,29 @@ PRECOMMITTED DISJOINT PILOT, preregistered here in full:
   study preregistration's detector-specific power calculation against the
   sweep's loss bound.
 
+- **Uncertain pilot labels** (preregistered 2026-08-24, before any pilot
+  label exists): a resolved `uncertain` can be either class, so the
+  interval is the assignment envelope in the policy-C spirit:
+  the lower endpoint is the Wilson lower bound of present/total (every
+  uncertain treated as absent) and the upper endpoint is the Wilson upper
+  bound of (present+uncertain)/total (every uncertain treated as present),
+  implemented once as `deriveFrameSizeFromPilotEnvelope` sharing the point
+  rule's search. With zero uncertain labels this reduces exactly to the
+  rule above, and the envelope N is monotonically at or above the point
+  rule's N.
+- **Early feasibility gate** (recorded 2026-08-24 against round 1 of the
+  sweep, artifact sha256
+  `7dfc91056e1f194ae2b53c6807d0c6ffe0064b58dbb3fce817ffe05dd81e00e3`):
+  round 1 observed 1,126 bare-load-valid cases of
+  2,262, so the rounds-1/2 eligible pool can never exceed 1,126. At that
+  optimistic ceiling a 100-case pilot must resolve between 18 and 82
+  present labels for the reference-class rule to fit (18/100 derives
+  N=1053; 17/100 derives 1132). The band is the zero-uncertain boundary
+  and therefore NECESSARY only: uncertain labels narrow it through the
+  envelope, and round 2 sets the real ceiling. Outside the band the run
+  stops and the universe is enlarged; never a relaxed exclusion, a reused
+  pilot site, or a narrowed population.
+
 FAIL CONDITION (`assertFrameFeasible`): a derived N larger than the swept
 eligible pool is infeasibility, and the remedy is a larger universe plus
 fresh sweep rounds over the enlarged set, never a relaxed exclusion, a
