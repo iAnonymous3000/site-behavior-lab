@@ -121,6 +121,7 @@ export function validateV4LabelBatch(value, { frame }) {
       "detector",
       "candidateCommit",
       "referenceProtocolId",
+      "frameTasksSha256",
       "cases"
     ],
     "label batch"
@@ -156,6 +157,18 @@ export function validateV4LabelBatch(value, { frame }) {
   require(
     value.referenceProtocolId === frame.referenceProtocolId,
     `label batch protocol ${value.referenceProtocolId} does not match the frame's ${frame.referenceProtocolId}`
+  );
+  // CONTENT binding, not just identity binding: caseIds are positional
+  // (case-0001 onward), so two frames sharing studyId, detector, candidate,
+  // protocol, and count are indistinguishable by the checks above, and a
+  // batch sealed for one would replay verbatim against the other. The batch
+  // therefore states WHICH frame-tasks bytes it labels; equality is against
+  // the digest of the frame value's canonical serialization, which equals
+  // the artifact's byte digest because frame-tasks files are canonical.
+  require(
+    typeof value.frameTasksSha256 === "string" &&
+      value.frameTasksSha256 === sha256Hex(`${JSON.stringify(frame, null, 2)}\n`),
+    "label batch frameTasksSha256 does not match the frame-tasks artifact; a batch labels exactly one frame's tasks"
   );
   require(Array.isArray(value.cases), "label batch needs cases");
   require(
