@@ -17,6 +17,7 @@ import {
   V4_REFERENCE_TASK_KIND,
   buildV4FrameTasksArtifact,
   deepValidateV4StudyIdentity,
+  parseV4FrameTasksBytes,
   revealAuthenticatedV4LabelBatches,
   sealV4LabelBatch,
   verifyV4TaskBytes
@@ -142,6 +143,13 @@ test("frame tasks build canonically, bind by digest, and refuse non-subject URLs
   }
   // Determinism: the same inputs produce the same bytes.
   assert.equal(builtFrame().frameTasksSha256, built.frameTasksSha256);
+  // The file reader accepts only the canonical bytes: a re-serialized file
+  // whose value-derived digest would disagree with its byte digest refuses.
+  assert.equal(parseV4FrameTasksBytes(built.frameTasksBytes).studyId, STUDY);
+  assert.throws(
+    () => parseV4FrameTasksBytes(JSON.stringify(built.frameTasks)),
+    /not canonical serialized JSON/
+  );
   assert.throws(
     () => builtFrame([{ caseId: "case-0001", url: "http://insecure.example/" }]),
     /must use HTTPS/
@@ -158,6 +166,13 @@ test("frame tasks build canonically, bind by digest, and refuse non-subject URLs
       ]),
     /duplicate frame case/
   );
+  // caseIds become file names; anything path-shaped is refused.
+  for (const evil of ["../escape", "a/b", ".hidden", "a..b"]) {
+    assert.throws(
+      () => builtFrame([{ caseId: evil, url: "https://a.example/" }]),
+      /not a safe file-name token/
+    );
+  }
 });
 
 test("task-byte verification is exact: a flipped byte, a missing task, or a foreign identity refuses", () => {
@@ -413,6 +428,15 @@ test("reveal custody refusals fire BEFORE the key thunk is invoked", () => {
   const frameResult = reveal({ candidateCommit: "9".repeat(40) });
   assert.ok(frameResult.threw !== null);
   assert.equal(frameResult.keyReads, 0);
+
+  // An absent or malformed boundary would make every NaN comparison false
+  // and silently disable the chronology refusal: refused up front instead.
+  const missingBoundary = reveal({ acquisitionRunStartedAt: undefined });
+  assert.match(missingBoundary.threw, /must be an ISO-8601 UTC instant/);
+  assert.equal(missingBoundary.keyReads, 0);
+  const malformedBoundary = reveal({ acquisitionJobStartedAt: "yesterday" });
+  assert.match(malformedBoundary.threw, /must be an ISO-8601 UTC instant/);
+  assert.equal(malformedBoundary.keyReads, 0);
 });
 
 test("deep identity validation refuses release and design drift through ONE comparator home", () => {
@@ -484,14 +508,26 @@ test("deep identity validation refuses release and design drift through ONE comp
   // mutated release.buildCommit alone yields exactly one reason.
   assert.deepEqual(drifted, ["build-commit-mismatch"]);
   // Design drift, one reason per field.
-  const designDrift = deepValidateV4StudyIdentity(
-    {
-      study: { ...study, design: { ...design, referenceProtocolDigest: sha("other") } },
-      ...expectations
-    },
-    calibration
-  );
-  assert.deepEqual(designDrift, ["reference-protocol-digest-mismatch"]);
+  // EVERY design field drifts to exactly its own reason: deleting any one
+  // comparison in the validator fails one of these.
+  const designDrifts = [
+    [{ samplingFrameDigest: sha("other") }, "sampling-frame-digest-mismatch"],
+    [{ referenceProtocolDigest: sha("other") }, "reference-protocol-digest-mismatch"],
+    [{ adjudicationProtocolDigest: sha("other") }, "adjudication-protocol-digest-mismatch"],
+    [{ sampling: "census" }, "sampling-design-mismatch"],
+    [{ independentUnits: false }, "independent-units-mismatch"],
+    [{ predictionBlindedToReference: false }, "prediction-blinding-mismatch"],
+    [{ referenceBlindedToPrediction: false }, "reference-blinding-mismatch"]
+  ];
+  for (const [drift, reason] of designDrifts) {
+    assert.deepEqual(
+      deepValidateV4StudyIdentity(
+        { study: { ...study, design: { ...design, ...drift } }, ...expectations },
+        calibration
+      ),
+      [reason]
+    );
+  }
   const conditionDrift = deepValidateV4StudyIdentity(
     {
       study: {
