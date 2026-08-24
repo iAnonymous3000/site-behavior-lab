@@ -106,3 +106,59 @@ test("r2 history excludes unknown environment dimensions and request-censored vi
   });
   assert.equal(historyCohort(censored), null);
 });
+
+test("every dimension the r2 history identity claims to bind actually changes the key", () => {
+  // REGRESSION. Nothing pinned the composition: replacing `provenance.observer`
+  // and `toolchain.normalizationVersion` with a constant left the key unchanged
+  // and every suite that touches it still passed. Those are exactly the axes the
+  // identity-widening ledger governs, so a silent drop there is a retirement
+  // nobody records.
+  const base = makePublicSingleReportV2R2();
+  const baseline = historyCohort(base);
+  assert.ok(baseline, "the fixture must be history-eligible or this guard proves nothing");
+
+  // Each mutation touches ONE recorded dimension the identity claims to bind.
+  const bound: Array<[string, (report: ReturnType<typeof makePublicSingleReportV2R2>) => void]> = [
+    ["browser.name", (r) => { r.run.conditions.browser.name = "other-browser"; }],
+    ["browser.version", (r) => { r.run.conditions.browser.version = "999.0"; }],
+    ["locale", (r) => { r.run.conditions.locale = "fr-FR"; }],
+    ["language", (r) => { r.run.conditions.language = "fr"; }],
+    ["timezone", (r) => { r.run.conditions.timezone = "Europe/Paris"; }],
+    ["egress.label", (r) => { r.run.conditions.egress.label = "docker-smoke"; }],
+    ["egress.region", (r) => { r.run.conditions.egress.region = "elsewhere"; }],
+    ["automation", (r) => { r.run.conditions.automation = "external"; }],
+    ["methodologyVersion", (r) => { r.run.provenance.methodologyVersion = "other-methodology"; }],
+    ["observer", (r) => { r.run.provenance.observer = "browser-run-worker"; }],
+    ["normalizationVersion", (r) => { r.run.toolchain.normalizationVersion = "other-normalization"; }],
+    ["trackerCatalog.digest", (r) => { r.run.toolchain.trackerCatalog.digest = "f".repeat(64); }]
+  ];
+
+  for (const [label, mutate] of bound) {
+    const mutated = structuredClone(base);
+    mutate(mutated);
+    rebuildFingerprints(mutated);
+    assert.notEqual(
+      historyCohort(mutated),
+      baseline,
+      `${label} is named by the identity but does not change the key`
+    );
+  }
+
+  // The converse, and it is deliberate: the ad-block identity is NOT bound.
+  // The tracker-classification evaluator never reads it, so Brave-list source,
+  // count and snapshot may drift within one cohort. The site-history page must
+  // therefore not promise they are held constant.
+  const listMoved = structuredClone(base);
+  listMoved.run.toolchain.adblock = {
+    ...(listMoved.run.toolchain.adblock ?? {}),
+    source: "Brave default ad-block lists",
+    lists: 68,
+    manifestDigest: "a".repeat(64)
+  } as typeof listMoved.run.toolchain.adblock;
+  rebuildFingerprints(listMoved);
+  assert.equal(
+    historyCohort(listMoved),
+    baseline,
+    "the ad-block identity is deliberately outside this cohort; see the docblock"
+  );
+});

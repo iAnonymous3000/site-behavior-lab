@@ -1,6 +1,7 @@
 import {
   claimCountValue,
   retainedCountLabel,
+  retainedCountPhrase,
   type EvidenceState
 } from "./report-facts";
 import { displayHost } from "./text-format";
@@ -14,6 +15,19 @@ export type AttributionMapEdge = {
   source: string;
   dest: string;
   requests: number;
+  /**
+   * Compact retained count ("22", or ">=22" on a censored capture).
+   *
+   * Formatted HERE rather than at the renderer, for the reason the coverage
+   * fields above already give: a surface that spells its own count states an
+   * exact quantity from a capture that only supports a floor. The map drew
+   * these edges with raw counts while the coverage block three elements above
+   * printed floors from the same run.
+   */
+  requestsLabel: string;
+  /** Prose form of the same quantity, so a spoken or printed surface and the
+   * drawn one cannot disagree. */
+  requestsPhrase: string;
   tracker: boolean;
   role: AttributionActorRole;
 };
@@ -26,7 +40,12 @@ export type AttributionMapSource = {
 
 export type AttributionMapDestination = {
   label: string;
+  /** Sums the DRAWN edges only; see the note where these are built. */
   requests: number;
+  /** Compact retained count, formatted in the model. */
+  requestsLabel: string;
+  /** Prose form of the same quantity. */
+  requestsPhrase: string;
   tracker: boolean;
 };
 
@@ -71,6 +90,18 @@ export type RequestAttributionMapModel = {
   totalEdges: number;
   sources: AttributionMapSource[];
   destinations: AttributionMapDestination[];
+  /**
+   * Raw retained host to the destination NODE it was drawn under.
+   *
+   * Published so a second surface can decide membership by calling
+   * `requestMatchesAttributionPair` instead of re-deriving the rule. The
+   * mapping is one-to-many by design: several hosts of one company share a
+   * node, and a committed run draws `apps.smartadserver.com` and
+   * `{label}.smartadserver.com` as one "Equativ". Matching a node by its label
+   * alone would miss the second host, and matching by `tracker.entity` alone
+   * would miss the rows that carried no catalog match.
+   */
+  destinationByHost: ReadonlyMap<string, string>;
 };
 
 export type RequestAttributionMapInput = {
@@ -244,30 +275,13 @@ export function buildRequestAttributionMap(
    * Totals reconcile either way, so the corpus gate cannot catch this: only the
    * destination count and the drawn picture are affected.
    */
-  const entitiesByHost = new Map<string, Set<string>>();
-  for (const request of input.requests) {
-    if (!request.thirdParty) continue;
-    const entity = request.tracker?.entity;
-    if (!entity) continue;
-    const entities = entitiesByHost.get(request.domain) ?? new Set<string>();
-    entities.add(entity);
-    entitiesByHost.set(request.domain, entities);
-  }
-  const destinationByHost = new Map<string, string>();
-  for (const request of input.requests) {
-    if (!request.thirdParty || destinationByHost.has(request.domain)) continue;
-    const entities = entitiesByHost.get(request.domain);
-    // A public redaction can collapse raw subdomains. If that ever leaves two
-    // entity names on one public host, choosing the first or last would make
-    // the map depend on request order. The host is the only honest common
-    // identity in that case.
-    destinationByHost.set(
-      request.domain,
-      entities?.size === 1 ? [...entities][0] : displayHost(request.domain)
-    );
-  }
+  const destinationByHost = attributionDestinationByHost(input.requests);
 
-  const byPair = new Map<string, AttributionMapEdge>();
+  // Accumulated without the formatted counts: the label and phrase are derived
+  // once, after aggregation and capping, so a partially summed edge can never
+  // carry a count string that its final `requests` contradicts.
+  type AccumulatedEdge = Omit<AttributionMapEdge, "requestsLabel" | "requestsPhrase">;
+  const byPair = new Map<string, AccumulatedEdge>();
   let attributedRequests = 0;
   let notAttributableRequests = 0;
   for (const request of input.requests) {
@@ -301,13 +315,22 @@ export function buildRequestAttributionMap(
     });
   }
 
+  const countLabel = (value: number) =>
+    retainedCountLabel(value, input.evidenceState);
+  const countPhrase = (value: number) =>
+    retainedCountPhrase(value, "request", "requests", input.evidenceState);
+
   const allEdges = Array.from(byPair.values()).sort(
     (a, b) =>
       b.requests - a.requests ||
       a.source.localeCompare(b.source) ||
       a.dest.localeCompare(b.dest)
   );
-  const edges = allEdges.slice(0, MAX_DRAWN_ATTRIBUTION_EDGES);
+  const edges = allEdges.slice(0, MAX_DRAWN_ATTRIBUTION_EDGES).map((edge) => ({
+    ...edge,
+    requestsLabel: countLabel(edge.requests),
+    requestsPhrase: countPhrase(edge.requests)
+  }));
 
   // Node detail counts describe only the drawn subgraph. The omitted tail is
   // carried separately so the UI cannot present these as full-map totals.
@@ -336,11 +359,16 @@ export function buildRequestAttributionMap(
     role: sourceRole.get(domain) ?? "mixed",
     destinations: sourceReach.get(domain) ?? 0
   }));
-  const destinations = destinationOrder.map((label) => ({
-    label,
-    requests: destinationTotals.get(label) ?? 0,
-    tracker: destinationTracker.get(label) ?? false
-  }));
+  const destinations = destinationOrder.map((label) => {
+    const requests = destinationTotals.get(label) ?? 0;
+    return {
+      label,
+      requests,
+      requestsLabel: countLabel(requests),
+      requestsPhrase: countPhrase(requests),
+      tracker: destinationTracker.get(label) ?? false
+    };
+  });
 
   return {
     kind: "map",
@@ -354,6 +382,77 @@ export function buildRequestAttributionMap(
     edges,
     totalEdges: allEdges.length,
     sources,
-    destinations
+    destinations,
+    destinationByHost
   };
+}
+
+/**
+ * Is this retained row one of the rows an edge was drawn from?
+ *
+ * THE ONE MEMBERSHIP RULE. A drill-down from a drawn edge to the request log
+ * has to select exactly the rows that edge was summed from, or the map states a
+ * quantity the log then contradicts. The log's existing text search cannot do
+ * it: that filter ORs one needle across eight fields including the provenance
+ * text, so a needle naming a destination also matches every row INITIATED by
+ * that host. On a committed AP News report the edge `apnews.com` to
+ * `*.primis.tech` sums 22 rows, while a destination text search returns 41 and
+ * an actor text search returns 257.
+ *
+ * Nor can an edge be named by one endpoint. The same report draws
+ * `www.dianomi.com` as both a source node and a destination node, including a
+ * self-loop, so "rows involving www.dianomi.com" is undecidable between three
+ * drawn edges. Membership is the ordered pair or it is nothing.
+ *
+ * Mirrors the accumulation loop above skip for skip: not third-party, or no
+ * single recorded actor, and the row was never summed into any edge.
+ */
+/**
+ * Raw retained host to the destination node it is drawn under.
+ *
+ * Exported so the request log can decide edge membership by calling the same
+ * resolution the map drew with, rather than restating it. Kept in this module
+ * because the reasoning above about per-host versus per-request entity
+ * resolution belongs with it.
+ */
+export function attributionDestinationByHost(
+  requests: readonly NetworkRequestRecord[]
+): Map<string, string> {
+  const entitiesByHost = new Map<string, Set<string>>();
+  for (const request of requests) {
+    if (!request.thirdParty) continue;
+    const entity = request.tracker?.entity;
+    if (!entity) continue;
+    const entities = entitiesByHost.get(request.domain) ?? new Set<string>();
+    entities.add(entity);
+    entitiesByHost.set(request.domain, entities);
+  }
+  const destinationByHost = new Map<string, string>();
+  for (const request of requests) {
+    if (!request.thirdParty || destinationByHost.has(request.domain)) continue;
+    const entities = entitiesByHost.get(request.domain);
+    // A public redaction can collapse raw subdomains. If that ever leaves two
+    // entity names on one public host, choosing the first or last would make
+    // the map depend on request order. The host is the only honest common
+    // identity in that case.
+    destinationByHost.set(
+      request.domain,
+      entities?.size === 1 ? [...entities][0] : displayHost(request.domain)
+    );
+  }
+  return destinationByHost;
+}
+
+export function requestMatchesAttributionPair(
+  request: NetworkRequestRecord,
+  pair: { actor: string; destination: string },
+  destinationByHost: ReadonlyMap<string, string>
+): boolean {
+  if (!request.thirdParty) return false;
+  const actor = requestAttributionActor(request);
+  if (!actor) return false;
+  if (displayHost(actor.domain) !== pair.actor) return false;
+  const destination =
+    destinationByHost.get(request.domain) ?? displayHost(request.domain);
+  return destination === pair.destination;
 }

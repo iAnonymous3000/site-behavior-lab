@@ -39,11 +39,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  assertDiscriminatorMatchesProduct,
+  normalizeHistoricalLossDetail
+} from "./historical-loss-detail.mjs";
+import {
   METRIC_DENOMINATOR,
   POLICIES,
   simulatePolicy
 } from "../../scripts/calibration-censoring-simulation-lib.mjs";
 
+import { clusterInterval, wilsonInterval } from "../../scripts/cluster-interval-lib.mjs";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const reportsDir = path.join(root, "public", "reports");
 
@@ -86,6 +91,9 @@ function assertCanonicalConstants(repoRoot) {
   if (!same) {
     throw new Error(`evidence family list drifted from EVIDENCE_FAMILIES: ${JSON.stringify(declared)}`);
   }
+  // Pinned in its own module, which the driver and its test both read, so the
+  // restatement cannot drift from the product rule it mirrors.
+  assertDiscriminatorMatchesProduct(repoRoot);
 }
 
 /**
@@ -127,7 +135,11 @@ function loadRuns() {
 
 const facts = (r) => r.run.qualityFacts;
 const fam = (r) => r.run.quality.byFamily;
-const losses = (r) => (Array.isArray(facts(r).captureLoss) ? facts(r).captureLoss : []);
+const runWarnings = (r) => (Array.isArray(r.run?.warnings) ? r.run.warnings : []);
+
+const rawLosses = (r) => (Array.isArray(facts(r).captureLoss) ? facts(r).captureLoss : []);
+const losses = (r) =>
+  rawLosses(r).map((l) => normalizeHistoricalLossDetail(l, runWarnings(r)));
 const ledger = (r, d) => r.run.detectors?.[d];
 
 const inCnameArm = (r) =>
@@ -170,37 +182,14 @@ const cnameScoreable = (r) => cnameStageFinished(r) && cnameInputsComplete(r);
 /** Stage finished but inputs truncated: a prediction of unknown completeness. */
 const cnameIndeterminate = (r) => cnameStageFinished(r) && !cnameInputsComplete(r);
 
-const wilson = (k, n, z = 1.96) => {
-  if (n === 0) return { lo: 0, hi: 1, half: 0.5 };
-  const p = k / n, d = 1 + (z * z) / n;
-  const c = (p + (z * z) / (2 * n)) / d;
-  const h = (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
-  return { lo: Math.max(0, c - h), hi: Math.min(1, c + h), half: h };
-};
+// Extracted to scripts/cluster-interval-lib.mjs beside clusterInterval; the
+// byte-exact findings reproduction below proves the extraction changed nothing.
+const wilson = wilsonInterval;
 
-function clusterInterval(items, predicate, keyOf, iterations = 4000) {
-  const clusters = new Map();
-  for (const item of items) {
-    const key = keyOf(item);
-    if (!clusters.has(key)) clusters.set(key, []);
-    clusters.get(key).push(item);
-  }
-  const pool = [...clusters.values()];
-  if (pool.length < 3) return { lo: null, hi: null, clusters: pool.length };
-  let seed = 20260816;
-  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
-  const rates = [];
-  for (let i = 0; i < iterations; i++) {
-    let k = 0, n = 0;
-    for (let c = 0; c < pool.length; c++) {
-      const picked = pool[Math.floor(rnd() * pool.length)];
-      for (const item of picked) { n++; if (predicate(item)) k++; }
-    }
-    if (n > 0) rates.push(k / n);
-  }
-  rates.sort((a, b) => a - b);
-  return { lo: rates[Math.floor(rates.length * 0.025)], hi: rates[Math.floor(rates.length * 0.975)], clusters: pool.length };
-}
+// Extracted to scripts/cluster-interval-lib.mjs so the reliability sweep's
+// loss bound uses the identical method; the byte-exact reproduction of the
+// committed findings below is the proof the extraction changed nothing.
+// (imported at the top of this file)
 
 const pct = (x) => (x === null ? "n/a" : `${(x * 100).toFixed(1)}%`);
 
@@ -216,8 +205,19 @@ function wilsonBounds(k, n, z = 1.96) {
 function rateRow(label, items, predicate) {
   const k = items.filter(predicate).length, n = items.length;
   const w = wilson(k, n);
-  const c = clusterInterval(items, predicate, (r) => `${r.scanDate}|${r.build}`);
-  const clustered = c.lo === null ? `too few clusters (${c.clusters})` : `[${pct(c.lo)}, ${pct(c.hi)}]`;
+  const c = clusterInterval(items, predicate, clusterKey);
+  // Print the cluster count on EVERY row, not only when the bootstrap refused
+  // to run. The boundary promises the count is visible so the interval's
+  // weakness is visible with it, and the rows that most need it are exactly
+  // the ones where the bootstrap DID run: the pooled rows are the only ones
+  // with enough clusters to resample, while a single cluster dominates the
+  // pool (the CLUSTER STRUCTURE section records the exact split). Printing it
+  // only in the too-few branch hid it from every row whose number a reader
+  // might actually use.
+  const clustered =
+    c.lo === null
+      ? `too few clusters (${c.clusters})`
+      : `[${pct(c.lo)}, ${pct(c.hi)}] over ${c.clusters} clusters`;
   return `  ${label.padEnd(38)} ${String(k).padStart(3)}/${String(n).padEnd(4)} ${pct(k / n).padStart(6)}  Wilson [${pct(w.lo)}, ${pct(w.hi)}]  clustered ${clustered}`;
 }
 
@@ -230,6 +230,18 @@ assertCanonicalConstants(root);
 const runs = loadRuns();
 const arm = runs.filter(inCnameArm);
 
+/** One bootstrap cluster: a scan date on a build. */
+const clusterKey = (r) => `${r.scanDate}|${r.build}`;
+const countBy = (items, keyOf) => {
+  const counts = new Map();
+  for (const item of items) {
+    const key = keyOf(item);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
+};
+const armClusterCount = countBy(arm, clusterKey).size;
+
 const out = [];
 const say = (line = "") => { out.push(line); console.log(line); };
 
@@ -238,6 +250,24 @@ say(`development evidence -- NOT frame-selection evidence`);
 say(`generated from ${runs.length} r2 runs; primary analysis restricted to the declared CNAME arm`);
 say(`CNAME arm = device ${CNAME_ARM.device} / GPC ${CNAME_ARM.gpcEnabled} / consent ${CNAME_ARM.consentMode}`);
 say(`arm runs: ${arm.length}   off-arm (supplementary only): ${runs.length - arm.length}`);
+say();
+
+// The non-i.i.d. boundary's own numbers, emitted with the findings so the
+// README can scope its prose to this artifact instead of hand-maintaining
+// counts that only a corpus refresh can change. The guard in
+// scripts/calibration-censoring-simulation-lib.test.mjs holds the README's
+// boundary paragraph to this section, so both go stale together with --check.
+say(`CLUSTER STRUCTURE -- failures cluster by scan date and build`);
+{
+  const scanDateCount = countBy(runs, (r) => r.scanDate).size;
+  const buildCounts = countBy(runs, (r) => r.build);
+  const clusterCount = countBy(runs, clusterKey).size;
+  say(`  scan dates: ${scanDateCount}   builds: ${buildCounts.size}   scan-date x build clusters: ${clusterCount}`);
+  [...buildCounts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .forEach(([build, count]) => say(`  build ${build}  ${String(count).padStart(4)} of ${runs.length} runs`));
+  say(`  CNAME arm clusters: ${armClusterCount}`);
+}
 say();
 
 say(`PRIMARY -- CNAME ARM ONLY (n=${arm.length})`);
@@ -397,7 +427,9 @@ for (const point of OPERATING_POINTS) {
 say(`  SCOREABILITY IS ITSELF ESTIMATED. The rows above use the arm's point`);
 say(`  estimate ${pct(usableB)} for CNAME-scoreable. The endpoint below is a`);
 say(`  PER-CASE WILSON BOUND and therefore an iid-only diagnostic: this arm has`);
-say(`  two clusters, so it is NOT a defensible design lower bound, only an`);
+// Derived, not hand-written: the hardcoded "two" would go stale silently the
+// first time the corpus refresh changed the arm's date-and-build structure.
+say(`  ${armClusterCount} clusters, so it is NOT a defensible design lower bound, only an`);
 say(`  indication that sizing on the point estimate assumes what is not pinned down.`);
 {
   const lower = wilsonBounds(arm.filter(cnameScoreable).length, arm.length).lo;

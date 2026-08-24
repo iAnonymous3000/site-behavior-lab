@@ -1,9 +1,14 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { useId, useMemo, useState } from "react";
+import {
+  buildEvidenceHash,
+  type EvidenceArm
+} from "@/lib/report-evidence-navigation";
 import {
   buildRequestAttributionMap,
-  type AttributionActorRole
+  type AttributionActorRole,
+  type AttributionMapEdge
 } from "@/lib/request-attribution-map";
 import type { EvidenceState } from "@/lib/report-facts";
 import type { RunView } from "@/lib/scan-report-views";
@@ -31,14 +36,36 @@ function truncateMiddle(value: string, max = 30): string {
   return `${value.slice(0, keep)}…${value.slice(value.length - keep)}`;
 }
 
+/** One drawn edge's identity. Not a display string: see the module note on why
+ * a single endpoint cannot name an edge. */
+function edgeKey(edge: Pick<AttributionMapEdge, "source" | "dest">): string {
+  return `${edge.source}\u001f${edge.dest}`;
+}
+
 function CausalityGraph({
   run,
-  requestEvidenceState
+  requestEvidenceState,
+  arm
 }: {
   run: RunView;
   /** Canonical family state from buildRunFacts; never inferred in this component. */
   requestEvidenceState: EvidenceState;
+  /** Which arm the drill-down should open, on a comparison report. */
+  arm?: EvidenceArm;
 }) {
+  /**
+   * SELECTION LIVES HERE, AND THE SVG IS NOT THE CONTROL SURFACE.
+   *
+   * The diagram stays `aria-hidden` and presentation-only. The authoritative
+   * interactive layer is the list of native buttons below it: that is what a
+   * keyboard reaches, what a screen reader announces, and what carries the
+   * accessible name of each relationship. Clicking a path or a node sets the
+   * same state the buttons set, so pointer and keyboard drive one selection
+   * rather than two, and nothing is reachable by mouse that is unreachable
+   * otherwise.
+   */
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [focused, setFocused] = useState(false);
   const model = useMemo(
     () =>
       buildRequestAttributionMap({
@@ -72,6 +99,11 @@ function CausalityGraph({
   }
 
   const { coverage, destinations, edges, instrumented, sources, totalEdges } = model;
+  const selectedEdge = edges.find((edge) => edgeKey(edge) === selectedKey) ?? null;
+  const selecting = selectedEdge !== null;
+  const relatedToSelection = (source: string, dest: string) =>
+    selectedEdge !== null &&
+    (selectedEdge.source === source || selectedEdge.dest === dest);
 
   const colW = 250;
   const gap = 150;
@@ -93,9 +125,20 @@ function CausalityGraph({
   const destIndex = new Map(destinations.map((dest, index) => [dest.label, index]));
 
   return (
-    <section className="data-section causal-graph-card" id="causal-map">
+    <section
+      className={`data-section causal-graph-card${focused ? " is-focused" : ""}`}
+      id="causal-map"
+    >
       <div className="section-heading">
         <h2 id={headingId}>Request attribution map</h2>
+        <button
+          type="button"
+          className="attribution-focus-toggle"
+          aria-pressed={focused}
+          onClick={() => setFocused((value) => !value)}
+        >
+          {focused ? "Exit focus" : "Focus map"}
+        </button>
         <span className="muted">
           {instrumented
             ? "Which recorded actor each third-party request is attributed to, from the supplied PageGraph provenance. Asterisks mark subdomain labels hidden for privacy."
@@ -153,22 +196,43 @@ function CausalityGraph({
                 const x2 = rightX;
                 const mx = (x1 + x2) / 2;
                 const strokeWidth = 1.5 + (edge.requests / maxReq) * 5;
+                const key = edgeKey(edge);
+                const isSelected = key === selectedKey;
                 return (
                   <path
                     key={`${edge.source}->${edge.dest}`}
-                    className={`causal-edge${edge.tracker ? " causal-edge-tracker" : ""}`}
+                    className={`causal-edge${edge.tracker ? " causal-edge-tracker" : ""}${
+                      selecting ? (isSelected ? " is-selected" : " is-muted") : ""
+                    }`}
                     d={`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`}
                     strokeWidth={strokeWidth}
                     fill="none"
+                    onClick={() => setSelectedKey(isSelected ? null : key)}
                   >
-                    <title>{`${edge.source} to ${edge.dest}: ${plural(edge.requests, "request")}`}</title>
+                    <title>{`${edge.source} to ${edge.dest}: ${edge.requestsPhrase}`}</title>
                   </path>
                 );
               })}
+              {/* Nodes dim with the selection but do not take it. A node with
+                  several relationships has no single edge to select, and an
+                  earlier draft resolved that by selecting whichever edge came
+                  first in `edges`, which is arbitrary edge selection wearing a
+                  node's label. Selection stays edge-only, so every selectable
+                  thing has exactly one meaning and exactly one button in the
+                  control list below. True node selection, highlighting every
+                  incident path, is a real feature and needs its own controls in
+                  that list; it is deliberately not smuggled in here. */}
               {sources.map((source, index) => {
                 const y = columnY(sources.length, index) - nodeH / 2;
                 return (
-                  <g key={`s-${source.domain}`} className="causal-node causal-node-source">
+                  <g
+                    key={`s-${source.domain}`}
+                    className={`causal-node causal-node-source${
+                      selecting && !relatedToSelection(source.domain, "\u0000")
+                        ? " is-muted"
+                        : ""
+                    }`}
+                  >
                     <title>{source.domain}</title>
                     <rect x={0} y={y} width={colW} height={nodeH} rx={8} />
                     <text x={12} y={y + 18} className="causal-node-label">
@@ -183,19 +247,76 @@ function CausalityGraph({
               {destinations.map((dest, index) => {
                 const y = columnY(destinations.length, index) - nodeH / 2;
                 return (
-                  <g key={`d-${dest.label}`} className={`causal-node causal-node-dest${dest.tracker ? " causal-node-tracker" : ""}`}>
+                  <g
+                    key={`d-${dest.label}`}
+                    className={`causal-node causal-node-dest${dest.tracker ? " causal-node-tracker" : ""}${
+                      selecting && !relatedToSelection("\u0000", dest.label) ? " is-muted" : ""
+                    }`}
+                  >
                     <title>{dest.label}</title>
                     <rect x={rightX} y={y} width={colW} height={nodeH} rx={8} />
                     <text x={rightX + 12} y={y + 18} className="causal-node-label">
                       {truncateMiddle(dest.label)}
                     </text>
                     <text x={rightX + 12} y={y + 34} className="causal-node-detail">
-                      {plural(dest.requests, "request")}
+                      {dest.requestsLabel} {dest.requests === 1 ? "request" : "requests"}
                     </text>
                   </g>
                 );
               })}
             </svg>
+          </div>
+          <ul className="attribution-edge-list">
+            {edges.map((edge) => {
+              const key = edgeKey(edge);
+              const isSelected = key === selectedKey;
+              return (
+                <li key={`${edge.source}->${edge.dest}-control`}>
+                  <button
+                    type="button"
+                    className={`attribution-edge-control${isSelected ? " is-selected" : ""}`}
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedKey(isSelected ? null : key)}
+                  >
+                    <span className="attribution-edge-pair">
+                      {truncateMiddle(edge.source, 26)} to {truncateMiddle(edge.dest, 26)}
+                    </span>
+                    <span className="attribution-edge-meta">
+                      {edge.requestsPhrase} · {actorRoleLabel(edge.role)}
+                      {edge.tracker ? " · catalogued service" : ""}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="attribution-selection" role="status" aria-live="polite">
+            {selectedEdge ? (
+              <>
+                <p className="attribution-selection-detail">
+                  {selectedEdge.source} to {selectedEdge.dest} ·{" "}
+                  {selectedEdge.requestsPhrase} · {actorRoleLabel(selectedEdge.role)}
+                </p>
+                {/* The label carries no count on purpose. The quantity lives in
+                    the line above, where it is formatted as a floor on a
+                    censored capture; a link that restated it could contradict
+                    the rows it opens when the log's own screen cap applies. */}
+                <a
+                  className="glossary-link"
+                  href={buildEvidenceHash({
+                    section: "requests",
+                    ...(arm ? { arm } : {}),
+                    pair: { actor: selectedEdge.source, destination: selectedEdge.dest }
+                  })}
+                >
+                  Show these request rows
+                </a>
+              </>
+            ) : (
+              <p className="attribution-selection-detail muted">
+                Select a relationship to see its detail and open the rows behind it.
+              </p>
+            )}
           </div>
         </>
       ) : (
@@ -211,11 +332,21 @@ function CausalityGraph({
       )}
       {edges.length > 0 && (
         <>
-          <h3 className="visually-hidden print-text-equivalent">Relationships shown in the request attribution map</h3>
-          <ol className="visually-hidden print-text-equivalent">
+          {/* Kept verbatim as the PRINT text equivalent of a diagram that may not
+              survive the page width, which the print stylesheet opts in by name.
+              Now aria-hidden: the button list above carries the same
+              relationships as real controls, so leaving this exposed would read
+              every relationship to a screen reader twice. */}
+          <h3
+            className="visually-hidden print-text-equivalent"
+            aria-hidden="true"
+          >
+            Relationships shown in the request attribution map
+          </h3>
+          <ol className="visually-hidden print-text-equivalent" aria-hidden="true">
             {edges.map((edge) => (
               <li key={`${edge.source}->${edge.dest}-text`}>
-                {plural(edge.requests, "request")} to {edge.dest}
+                {edge.requestsPhrase} to {edge.dest}
                 {edge.tracker ? ", a catalogued service" : ""}, recorded as {actorPhrase(edge.role)} {edge.source}.
               </li>
             ))}

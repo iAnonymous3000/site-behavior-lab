@@ -26,11 +26,28 @@ export function renderedEvidenceArm(
   return headline.focusArm ?? (view.comparison?.temporalPair ? "variant" : "baseline");
 }
 
+/**
+ * One drawn attribution edge, as an ordered pair.
+ *
+ * Structural, because no single string identifies an edge. A committed report
+ * draws `www.dianomi.com` as both a source node and a destination node,
+ * including a self-loop, so naming one endpoint is undecidable between three
+ * drawn edges. Membership is decided by `requestMatchesAttributionPair`, never
+ * by the free-text query below, which ORs one needle across eight row fields
+ * and over-matches by design.
+ */
+export type EvidenceAttributionPair = {
+  actor: string;
+  destination: string;
+};
+
 export type EvidenceTarget = {
   section: EvidenceSection;
   arm?: EvidenceArm;
   query?: string;
   signal?: EvidenceRequestSignal;
+  /** Requests section only. Both endpoints or neither; see parseEvidenceHash. */
+  pair?: EvidenceAttributionPair;
 };
 
 export type DomainRequestDelta = {
@@ -71,6 +88,14 @@ export function buildEvidenceHash(target: EvidenceTarget): string {
   if (target.section === "requests" && target.signal && target.signal !== "all") {
     params.set("signal", target.signal);
   }
+  if (
+    target.section === "requests" &&
+    target.pair?.actor.trim() &&
+    target.pair.destination.trim()
+  ) {
+    params.set("actor", target.pair.actor.trim());
+    params.set("destination", target.pair.destination.trim());
+  }
   return `#${params.toString()}`;
 }
 
@@ -98,11 +123,25 @@ export function parseEvidenceHash(hash: string): EvidenceTarget | null {
     signalValue && REQUEST_SIGNALS.has(signalValue as EvidenceRequestSignal)
       ? (signalValue as EvidenceRequestSignal)
       : undefined;
+  // BOTH endpoints or neither. A half-specified pair must not degrade into a
+  // one-sided filter: that is precisely the over-matching selection the pair
+  // exists to replace, and it would arrive wearing the pair's exact-count
+  // label. Bounded like `query`, since a pasted fragment controls both values.
+  const actorValue = params.get("actor")?.trim() ?? "";
+  const destinationValue = params.get("destination")?.trim() ?? "";
+  const pair =
+    actorValue && destinationValue
+      ? {
+          actor: actorValue.slice(0, 500),
+          destination: destinationValue.slice(0, 500)
+        }
+      : undefined;
   return {
     section: validSection,
     ...(arm ? { arm } : {}),
     ...(query ? { query } : {}),
-    ...(signal && signal !== "all" ? { signal } : {})
+    ...(signal && signal !== "all" ? { signal } : {}),
+    ...(pair ? { pair } : {})
   };
 }
 

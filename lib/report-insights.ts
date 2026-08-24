@@ -10,7 +10,7 @@ import {
   isOperationalOnlyEntity as hasOperationalOnlyServiceRoles,
   isTrackingRelatedEntity as hasTrackingRelatedServiceRole
 } from "./service-role";
-import { displayPublicUrl, humanList, plural } from "./text-format";
+import { displayPublicUrl, formatCount, humanList, plural } from "./text-format";
 import type {
   DomainSummary,
   FingerprintDetectionSummary,
@@ -408,6 +408,28 @@ export function shieldsRunMeasurement(run: {
   };
 }
 
+/**
+ * The metric grid's detail line for a filter-matches measurement.
+ *
+ * A recorded run names the only honest denominator: the requests the engine
+ * evaluated, an exact route-time counter that request-capture censoring never
+ * truncates. A legacy v1 wire records no evaluated count, so no ratio can be
+ * stated at all: this line used to pair the v1 counter with the retained
+ * request total, the exact two-population conflation the docblock above
+ * rejects, on the same page whose headline can explicitly refuse to state a
+ * ratio. It now names the counter's provenance and what is missing, with no
+ * denominator.
+ *
+ * One builder feeds the grid so the card, the headline, and this line cannot
+ * drift apart again; the grid guard asserts against this function, not a
+ * restated copy.
+ */
+export function shieldsFilterMatchDetail(measurement: ShieldsRunMeasurement): string {
+  return measurement.origin === "recorded"
+    ? `verified over ${formatCount(measurement.evaluated)} requests the engine evaluated`
+    : "classification reported by this visit; no engine readback recorded";
+}
+
 export type GpcRunMeasurement = {
   configured: boolean;
   observed: boolean | null;
@@ -508,10 +530,14 @@ export function detectionEvidence(detection: FingerprintDetectionSummary): strin
   // The observer counts every addEventListener invocation and never wraps
   // removeEventListener, so this total is a count of registration CALLS, not of
   // listeners live at snapshot time: re-adding an identical handler is a DOM
-  // no-op that still increments, and a removed handler still counts.
-  return `${plural(detection.evidence.totalListenerCalls, "third-party addEventListener call")} from ${humanList(
+  // no-op that still increments, and a removed handler still counts. "With X
+  // in the registration call chain", never "from X": stack attribution records
+  // the origins present in the bounded call chain, and first-party code can
+  // register its own listeners through a third-party helper, so the wire
+  // cannot establish that the named script registered anything.
+  return `${plural(detection.evidence.totalListenerCalls, "addEventListener call")} with ${humanList(
     detection.evidence.thirdPartyOrigins.map(displayPublicUrl)
-  )} across ${humanList(detection.evidence.eventTypes)} on ${humanList(
+  )} in the registration call chain, across ${humanList(detection.evidence.eventTypes)} on ${humanList(
     detection.evidence.listenerTargets
   )}; repeat registrations of the same handler count separately and removals are not observed`;
 }

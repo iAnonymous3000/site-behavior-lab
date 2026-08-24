@@ -91,7 +91,18 @@ jobs:
       - name: Install Playwright Chromium
         # The unit suite includes real scanner regressions that launch the
         # pinned Playwright browser. npm ci installs the client package, not
-        # chromium_headless_shell itself.
+        # chromium_headless_shell itself. The hosted runner's Ubuntu mirror
+        # once stopped responding during install-deps and held this step until
+        # GitHub's six-hour job ceiling. Bound that external dependency and
+        # retry it once; a second failure stays job-red.
+        id: install_chromium
+        continue-on-error: true
+        timeout-minutes: 10
+        run: npx playwright install --with-deps chromium
+
+      - name: Retry Playwright Chromium installation once
+        if: steps.install_chromium.outcome == 'failure'
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
 
       - name: Fetch Brave default filter lists

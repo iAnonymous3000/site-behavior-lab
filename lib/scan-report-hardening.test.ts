@@ -28,7 +28,7 @@ import {
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-view";
-import { degradedRunNotice, runQualitySummary } from "./scan-report-censorship";
+import { degradedRunNotice, runCensorshipNotes, runQualitySummary } from "./scan-report-censorship";
 import { makeGpcInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { evaluateComparability, evaluateQuality } from "./scan-report-v2-evaluators";
 import {
@@ -1929,3 +1929,61 @@ function gpcPairV1(run: ScanResult) {
   variant.conditions = { ...variant.conditions, gpcEnabled: true };
   return createGpcComparisonReport(baseline, variant);
 }
+
+
+test("prototype-named quality reasons and evidence families never reach reader prose", () => {
+  // PRIMARY defense: validation closes both vocabularies, so neither shape can
+  // arrive on a stored or uploaded report at all.
+  for (const reason of ["constructor", "toString", "valueOf", "__proto__"]) {
+    const forgedReason = mutate(makePublicSingleReportV2(), (draft) => {
+      (draft as AnyRecord).run.quality.run.reasons = [reason];
+    });
+    assert.equal(
+      readStoredScanReport(forgedReason).ok,
+      false,
+      `"${reason}" must not validate as a quality reason`
+    );
+  }
+  const forgedFamily = mutate(makePublicSingleReportV2(), (draft) => {
+    (draft as AnyRecord).run.quality.byFamily.constructor = { outcome: "censored", reasons: [] };
+  });
+  assert.equal(readStoredScanReport(forgedFamily).ok, false);
+
+  // DEFENSE IN DEPTH, and the reason the lookups are own-property now: a plain
+  // object literal resolves inherited Object.prototype members, so a key of
+  // "constructor" returned a truthy Function that walked past `if (mapped)`
+  // and defeated `?? "recorded"`, rendering Object's source text into
+  // reader-facing prose. The pixel catalog had the identical shape and WAS
+  // reachable from uploads before it was fixed; these two were not converted
+  // with it. A view is forged directly here because validation above means no
+  // report can produce one.
+  const view = viewFromV2(makePublicSingleReportV2(), 2);
+  const forgedRun = {
+    ...view.runs[0],
+    quality: {
+      ...view.runs[0].quality,
+      reasons: ["constructor", "toString", "valueOf"],
+      byFamily: {
+        ...(view.runs[0].quality.byFamily ?? {}),
+        constructor: { outcome: "censored", reasons: [] },
+        toString: { outcome: "censored", reasons: [] }
+      }
+    }
+  } as unknown as Parameters<typeof runCensorshipNotes>[0];
+
+  const notes = runCensorshipNotes(forgedRun);
+  assert.equal(notes.length > 0, true, "the forged run must actually exercise both lookups");
+  for (const note of notes) {
+    assert.equal(
+      /function |\[native code\]|=> |prototype/.test(note),
+      false,
+      `prototype source text reached reader prose: ${note}`
+    );
+  }
+  // The family label must fall back rather than resolve Object.prototype.toString.
+  assert.equal(
+    notes.some((note) => note.startsWith("recorded evidence was censored")),
+    true,
+    "a prototype-named family must render through the fallback label"
+  );
+});

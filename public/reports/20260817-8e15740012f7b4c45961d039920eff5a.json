@@ -1,0 +1,6420 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.citi.com/",
+  "scannedAt": "2026-08-17T05:59:27.244Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 14322,
+      "firstPartyDomain": "www.citi.com",
+      "totalRequests": 170,
+      "thirdPartyRequests": 85,
+      "knownTrackerRequests": 24,
+      "thirdPartyDomains": 29,
+      "cookies": 56,
+      "thirdPartyCookies": 14,
+      "storageEntries": 38,
+      "fingerprintEvents": 19,
+      "shieldsBlockedRequests": 78
+    },
+    "conditions": {
+      "requestedUrl": "https://www.citi.com/",
+      "finalUrl": "https://www.citi.com/",
+      "scannedAt": "2026-08-17T05:59:12.896Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.citi.com/",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 42
+      },
+      {
+        "id": 2,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 110
+      },
+      {
+        "id": 3,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 4,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 5,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 113
+      },
+      {
+        "id": 6,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 113
+      },
+      {
+        "id": 7,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 114
+      },
+      {
+        "id": 8,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 114
+      },
+      {
+        "id": 9,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 114
+      },
+      {
+        "id": 10,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 114
+      },
+      {
+        "id": 11,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 115
+      },
+      {
+        "id": 12,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 115
+      },
+      {
+        "id": 13,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 115
+      },
+      {
+        "id": 14,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 115
+      },
+      {
+        "id": 15,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 16,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 143
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.rlcdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rlcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 143
+      },
+      {
+        "id": 18,
+        "url": "https://api.rlcdn.com/api/{seg}?%5Bredacted%5D=",
+        "domain": "api.rlcdn.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 237
+      },
+      {
+        "id": 19,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 364
+      },
+      {
+        "id": 20,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 544
+      },
+      {
+        "id": 21,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 547
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 568
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 569
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 569
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 600
+      },
+      {
+        "id": 26,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 601
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 697
+      },
+      {
+        "id": 28,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 698
+      },
+      {
+        "id": 29,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 719
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 725
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 741
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 745
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 745
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 746
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 746
+      },
+      {
+        "id": 36,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 974
+      },
+      {
+        "id": 37,
+        "url": "https://www.citi.com/{seg}/{seg}/api/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 975
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1092
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1093
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1256
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1371
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1372
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1381
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.demdex.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1384
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.everesttech.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.everesttech.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1387
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "PUT",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1437
+      },
+      {
+        "id": 47,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1494
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1499
+      },
+      {
+        "id": 49,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1527
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.rfihub.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rfihub.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1529
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1530
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.demdex.net/{seg}",
+        "domain": "{label}.demdex.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1530
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1555
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1556
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1557
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1559
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1559
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1560
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1560
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1637
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1638
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1638
+      },
+      {
+        "id": 63,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1988
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1999
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.b406929acabac9b095f124c81bdfcf57f.com"
+        },
+        "startedAtMs": 2064
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com"
+        },
+        "startedAtMs": 2070
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.c81358859121583b7adf2ace89cb39f44.com"
+        },
+        "startedAtMs": 2077
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2108
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2128
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2129
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2130
+      },
+      {
+        "id": 72,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2153
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.demdex.net/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.demdex.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2201
+      },
+      {
+        "id": 74,
+        "url": "https://cdn.gbqofs.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2213
+      },
+      {
+        "id": 75,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2228
+      },
+      {
+        "id": 76,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2234
+      },
+      {
+        "id": 77,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2378
+      },
+      {
+        "id": 78,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2379
+      },
+      {
+        "id": 79,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2381
+      },
+      {
+        "id": 80,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2381
+      },
+      {
+        "id": 81,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2381
+      },
+      {
+        "id": 82,
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2382
+      },
+      {
+        "id": 83,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2395
+      },
+      {
+        "id": 84,
+        "url": "https://cdn.gbqofs.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2401
+      },
+      {
+        "id": 85,
+        "url": "https://cdn.gbqofs.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2425
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2446
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2507
+      },
+      {
+        "id": 88,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2514
+      },
+      {
+        "id": 89,
+        "url": "https://cdn.gbqofs.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.gbqofs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2592
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.{label}.{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2607
+      },
+      {
+        "id": 91,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2669
+      },
+      {
+        "id": 92,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2723
+      },
+      {
+        "id": 93,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2781
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.tvpixel.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.tvpixel.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2812
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.rfihub.net/{seg}/{seg}",
+        "domain": "{label}.rfihub.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2813
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2816
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.rlcdn.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rlcdn.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2820
+      },
+      {
+        "id": 98,
+        "url": "https://ad.doubleclick.net/{seg}",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2825
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2828
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 2846
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2869
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2870
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2870
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2870
+      },
+      {
+        "id": 105,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2876
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2889
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2953
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.tvpixel.com/{seg}/{seg}",
+        "domain": "{label}.tvpixel.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2953
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2992
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 2992
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 3002
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.google.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.doubleclick.net/{seg}",
+          "initiatorDomain": "{label}.{label}.doubleclick.net"
+        },
+        "startedAtMs": 3045
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 3053
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.rfihub.com/{seg}?ver=&%5Bredacted%5D=",
+        "domain": "{label}.rfihub.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 3068
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.amazon-adsystem.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3075
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.scorecardresearch.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.scorecardresearch.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3089
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 3091
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 3155
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 3156
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "PUT",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3158
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 3197
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 3197
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 3197
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 3198
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 3198
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 3243
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3269
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3270
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3272
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3274
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3274
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3276
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3289
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3303
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.{label}.{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3303
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3503
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3716
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3723
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3724
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3739
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3758
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3787
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 3789
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3863
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3864
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3864
+      },
+      {
+        "id": 147,
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4000
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4501
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 6363
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 6364
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 6500
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.rezync.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rezync.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 7515
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 7533
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}?%5Bredacted%5D=&cid=",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 7533
+      },
+      {
+        "id": 155,
+        "url": "https://cdn.boomtrain.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.boomtrain.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 7639
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.api.zetaglobal.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.api.zetaglobal.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 7798
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.api.zetaglobal.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.api.zetaglobal.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 7981
+      },
+      {
+        "id": 158,
+        "url": "https://events.api.boomtrain.com/{seg}/{seg}",
+        "domain": "events.api.boomtrain.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 8070
+      },
+      {
+        "id": 159,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 8501
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 8866
+      },
+      {
+        "id": 161,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 9028
+      },
+      {
+        "id": 162,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 9034
+      },
+      {
+        "id": 163,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 9036
+      },
+      {
+        "id": 164,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 9162
+      },
+      {
+        "id": 165,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 9503
+      },
+      {
+        "id": 166,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 9535
+      },
+      {
+        "id": 167,
+        "url": "https://{label}.{label}.citi.com/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.citi.com/{seg}",
+          "initiatorDomain": "{label}.{label}.citi.com"
+        },
+        "startedAtMs": 9536
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 10501
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.{label}.ensighten.com/privacy/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 11366
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 11722
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "document",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.rlcdn.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.amazon-adsystem.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.scorecardresearch.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.ensighten.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.ensighten.com",
+        "requests": 9,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.gbqofs.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.online-metrix.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.rfihub.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.tvpixel.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.api.zetaglobal.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          302
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.rfihub.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.{label}.online-metrix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.rezync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.boomtrain.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "events.api.boomtrain.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.citi.com",
+        "requests": 33,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "image",
+          "document",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.citi.com",
+        "requests": 30,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "image",
+          "font",
+          "stylesheet",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.citi.com",
+        "requests": 21,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.{label}.citi.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".amazon-adsystem.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amazon-adsystem.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rezync.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rfihub.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rfihub.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rlcdn.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rlcdn.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".scorecardresearch.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".scorecardresearch.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".tvpixel.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.rezync.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.{label}.citi.com",
+        "path": "/{seg}/{seg}/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.{label}.citi.com",
+        "path": "/{seg}/{seg}/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.{label}.citi.com",
+        "path": "/{seg}/{seg}/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.{label}.citi.com",
+        "path": "/{seg}/{seg}/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.{label}.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 194
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 566
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 9
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 94
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 38
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 37
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 106
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 60
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 43
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 2524
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 71
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1282
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.createAnalyser",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 300,
+          "maxCanvasHeight": 150,
+          "maxDistinctTextCharacters": 92,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.gbqofs.com/",
+            "https://{label}.ensighten.com/"
+          ],
+          "totalListenerCalls": 9
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mouseup",
+            "pointerdown",
+            "pointerup",
+            "scroll",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.gbqofs.com/",
+            "https://{label}.ensighten.com/",
+            "https://{label}.qualtrics.com/"
+          ],
+          "totalListenerCalls": 32
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl2.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 101,
+          "readPixelsCalls": 1
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 1,
+          "createOfferCalls": 1,
+          "setLocalDescriptionCalls": 1
+        }
+      }
+    ],
+    "cnameCloaks": [
+      {
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.online-metrix.net",
+        "tracker": {
+          "domain": "online-metrix.net",
+          "entity": "online-metrix.net",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      },
+      {
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
+        "tracker": {
+          "domain": "we-stats.com",
+          "entity": "we-stats.com",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      },
+      {
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
+        "tracker": {
+          "domain": "we-stats.com",
+          "entity": "we-stats.com",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      },
+      {
+        "host": "{label}.citi.com",
+        "cname": "{label}.{label}.{label}.{label}.omtrdc.net",
+        "tracker": {
+          "domain": "omtrdc.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
+        "tracker": {
+          "domain": "we-stats.com",
+          "entity": "we-stats.com",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.citi.com/policies/{seg}",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "We have processes in place to honor the Global Privacy Control, a browser-based opt-out signal, at the device level when required by law."
+        }
+      ],
+      "mentionedEntities": [
+        "Google",
+        "Adobe",
+        "LiveRamp"
+      ],
+      "unmentionedEntities": [
+        "Amazon Ads",
+        "Comscore"
+      ],
+      "policyTextLength": 149835
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The page did not reach network idle before the scan window ended.",
+      "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Resolved 5 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.citi.com/policies/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 14266,
+      "firstPartyDomain": "www.citi.com",
+      "totalRequests": 60,
+      "thirdPartyRequests": 8,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 5,
+      "cookies": 22,
+      "thirdPartyCookies": 0,
+      "storageEntries": 22,
+      "fingerprintEvents": 19,
+      "shieldsBlockedRequests": 17
+    },
+    "conditions": {
+      "requestedUrl": "https://www.citi.com/",
+      "finalUrl": "https://www.citi.com/",
+      "scannedAt": "2026-08-17T05:59:27.244Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.citi.com/",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 82
+      },
+      {
+        "id": 2,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 3,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 4,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 5,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 6,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 7,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 8,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 9,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 10,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 11,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 12,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 13,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 14,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 169
+      },
+      {
+        "id": 16,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 19,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 384
+      },
+      {
+        "id": 20,
+        "url": "https://www.citi.com/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 563
+      },
+      {
+        "id": 21,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 565
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 587
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 588
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ensighten.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 619
+      },
+      {
+        "id": 26,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 619
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 722
+      },
+      {
+        "id": 28,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 724
+      },
+      {
+        "id": 29,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 743
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 748
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 761
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 763
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 763
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 765
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 765
+      },
+      {
+        "id": 36,
+        "url": "https://assets.adobedtm.com/{seg}/{seg}/{seg}",
+        "domain": "assets.adobedtm.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 812
+      },
+      {
+        "id": 37,
+        "url": "https://www.citi.com/{seg}/{seg}/api/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1016
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1140
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1275
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1383
+      },
+      {
+        "id": 45,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1477
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1479
+      },
+      {
+        "id": 47,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1510
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1512
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1599
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1600
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ensighten.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ensighten.com"
+        },
+        "startedAtMs": 1601
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 1957
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com"
+        },
+        "startedAtMs": 2021
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.c81358859121583b7adf2ace89cb39f44.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.c81358859121583b7adf2ace89cb39f44.com"
+        },
+        "startedAtMs": 2026
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.b406929acabac9b095f124c81bdfcf57f.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.b406929acabac9b095f124c81bdfcf57f.com"
+        },
+        "startedAtMs": 2032
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/{seg}/{seg}",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2074
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2145
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2146
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.citi.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.citi.com/",
+          "initiatorDomain": "www.citi.com"
+        },
+        "startedAtMs": 2146
+      },
+      {
+        "id": 63,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2172
+      },
+      {
+        "id": 64,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2204
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2484
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3480
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.{label}.citi.com/api/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3980
+      },
+      {
+        "id": 73,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 9055
+      },
+      {
+        "id": 74,
+        "url": "https://www.citi.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 201,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 9181
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 9481
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.{label}.citi.com/{seg}/{seg}",
+        "domain": "{label}.{label}.citi.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 10481
+      }
+    ],
+    "domains": [
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.a79ab95c1589a13f8a4cab612bc71f9f7.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.b406929acabac9b095f124c81bdfcf57f.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.c81358859121583b7adf2ace89cb39f44.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.ensighten.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.citi.com",
+        "requests": 28,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          201
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "image",
+          "font",
+          "stylesheet",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.citi.com",
+        "requests": 15,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "script",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.citi.com",
+        "requests": 9,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_abck",
+        "domain": ".citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.citi.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 194
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 566
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 9
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 32
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 106
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 60
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 2524
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 7
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 71
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1282
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 7
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.createAnalyser",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 4
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 2
+      },
+      {
+        "api": "webgl2.readPixels",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createDataChannel",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.createOffer",
+        "count": 1
+      },
+      {
+        "api": "webrtc.RTCPeerConnection.setLocalDescription",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 300,
+          "maxCanvasHeight": 150,
+          "maxDistinctTextCharacters": 92,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.ensighten.com/"
+          ],
+          "totalListenerCalls": 6
+        }
+      },
+      {
+        "kind": "webgl-fingerprinting",
+        "heuristic": "webgl-entropy-read-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "webgl2.readPixels"
+          ],
+          "parameters": [
+            "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+            "webgl2.getParameter.UNMASKED_RENDERER_WEBGL",
+            "webgl2.getParameter.UNMASKED_VENDOR_WEBGL"
+          ],
+          "getParameterCalls": 101,
+          "readPixelsCalls": 1
+        }
+      },
+      {
+        "kind": "webrtc-fingerprinting",
+        "heuristic": "webrtc-peerconnection-v1",
+        "count": 1,
+        "evidence": {
+          "constructorCalls": 1,
+          "createDataChannelCalls": 1,
+          "createOfferCalls": 1,
+          "setLocalDescriptionCalls": 1
+        }
+      }
+    ],
+    "cnameCloaks": [
+      {
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
+        "tracker": {
+          "domain": "we-stats.com",
+          "entity": "we-stats.com",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      },
+      {
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
+        "tracker": {
+          "domain": "we-stats.com",
+          "entity": "we-stats.com",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      },
+      {
+        "host": "{label}.{label}.citi.com",
+        "cname": "{label}.{label}.{label}.we-stats.com",
+        "tracker": {
+          "domain": "we-stats.com",
+          "entity": "we-stats.com",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.citi.com/policies/{seg}",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "We have processes in place to honor the Global Privacy Control, a browser-based opt-out signal, at the device level when required by law."
+        }
+      ],
+      "mentionedEntities": [
+        "Adobe"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 153832
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Resolved 3 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.citi.com/policies/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 170,
+      "after": 60,
+      "delta": -110
+    },
+    "thirdPartyRequests": {
+      "before": 85,
+      "after": 8,
+      "delta": -77
+    },
+    "knownTrackerRequests": {
+      "before": 24,
+      "after": 1,
+      "delta": -23
+    },
+    "thirdPartyDomains": {
+      "before": 29,
+      "after": 5,
+      "delta": -24
+    },
+    "cookies": {
+      "before": 56,
+      "after": 22,
+      "delta": -34
+    },
+    "thirdPartyCookies": {
+      "before": 14,
+      "after": 0,
+      "delta": -14
+    },
+    "storageEntries": {
+      "before": 38,
+      "after": 22,
+      "delta": -16
+    },
+    "fingerprintEvents": {
+      "before": 19,
+      "after": 19,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 11,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.ensighten.com",
+        "requests": 9,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 4,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.gbqofs.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.online-metrix.net",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.amazon-adsystem.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.api.zetaglobal.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.rfihub.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.rlcdn.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.scorecardresearch.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "scorecardresearch.com",
+          "entity": "Comscore",
+          "category": "audience measurement",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.tvpixel.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.{label}.citi.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.{label}.online-metrix.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.rezync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.rfihub.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.boomtrain.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "events.api.boomtrain.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 10,
+        "domains": 4
+      },
+      {
+        "entity": "LiveRamp",
+        "requests": 3,
+        "domains": 2
+      },
+      {
+        "entity": "Amazon Ads",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "Comscore",
+        "requests": 2,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amazon-adsystem.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".demdex.net",
+        "thirdParty": true
+      },
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rezync.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rfihub.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rlcdn.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".scorecardresearch.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".tvpixel.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.rezync.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.{label}.citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.{label}.citi.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.{label}.citi.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.ensighten.com",
+        "requests": 7,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 7,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "tracker": null,
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 4,
+        "tracker": null,
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.gbqofs.com",
+        "requests": 4,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 3,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.api.zetaglobal.net",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.online-metrix.net",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.{label}.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "assets.adobedtm.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "adobedtm.com",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.demdex.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "demdex.net",
+          "entity": "Adobe",
+          "category": "analytics / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.everesttech.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "{label}.google.com",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.{label}.doubleclick.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.rezync.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.rfihub.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.rfihub.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.rfihub.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.tvpixel.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.boomtrain.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.ensighten.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "events.api.boomtrain.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.citi.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 78,
+      "after": 17,
+      "delta": -61
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+    "No blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Resolved 5 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+    "No blocking: Read the site's privacy policy (https://www.citi.com/policies/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The page did not reach network idle before the scan window ended.",
+    "Brave-list blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Resolved 3 first-party subdomains that are CNAME aliases for third-party trackers (CNAME cloaking), which request-URL matching alone would miss.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.citi.com/policies/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260817-8e15740012f7b4c45961d039920eff5a",
+    "path": "/reports/20260817-8e15740012f7b4c45961d039920eff5a/",
+    "jsonPath": "/reports/20260817-8e15740012f7b4c45961d039920eff5a.json"
+  }
+}

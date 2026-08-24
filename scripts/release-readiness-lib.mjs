@@ -159,7 +159,6 @@ const REQUIRED_MEASUREMENT_EVIDENCE_CATEGORIES = Object.freeze([
   "operator-attestation",
   "release-tag-governance-receipt",
   "release-policy-finalization",
-  "citation-finalization",
   "changelog-finalization"
 ]);
 
@@ -1836,7 +1835,6 @@ function evaluateMeasurementCandidate(
       "measurement-freeze-receipt",
       "lifecycle-receipt",
       "release-policy-finalization",
-      "citation-finalization",
       "changelog-finalization"
     ];
     for (const category of exactOne) {

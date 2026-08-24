@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
 
@@ -9,13 +11,14 @@ import {
   isTrackingTrackerMatch,
   isUnclassifiedEntity,
   respondedTrackerEntityNames,
+  shieldsFilterMatchDetail,
   shieldsRunMeasurement,
   trackerEntitySummaries,
   trackerOwnershipBreakdown,
   trackerResponseQualification,
   trackingServiceRequests
 } from "./report-insights";
-import type { DomainSummary, NetworkRequestRecord, SessionRecordingDetectionSummary } from "./types";
+import type { DomainSummary, InputMonitoringDetectionSummary, NetworkRequestRecord, SessionRecordingDetectionSummary } from "./types";
 
 function requestRows(
   count: number,
@@ -166,6 +169,74 @@ test("Shields display facts follow engine readback instead of configured mode", 
       verificationFacts: null
     }),
     { kind: "engine-blocked", count: 7, origin: "legacy-derived", evaluated: null }
+  );
+});
+
+test("a legacy filter-matches grid line states no ratio over the retained total", () => {
+  // REGRESSION, live on 662 committed report pages through the metric grid
+  // (screen and print/PDF both render it via report-renderer). The legacy
+  // line read "classification reported over {retained total} requests",
+  // pairing the v1 wire counter with a population the engine never saw --
+  // the same two-population conflation the card and headline refuse, and 50
+  // of those pages simultaneously rendered the headline sentence denying
+  // that any ratio can be stated. A v1 wire records no evaluated count, so
+  // the line must carry no denominator, and no number at all: the tile's
+  // value already shows the counter.
+  //
+  // Both measurements go through the real producer, not hand-built objects,
+  // so a producer change flows into what this guard checks.
+  const legacy = shieldsRunMeasurement({
+    counts: { shieldsBlockedRequests: 8 },
+    conditions: { adblockActive: true, shieldsMode: "classification" },
+    verificationFacts: null
+  });
+  assert.ok(legacy && legacy.origin === "legacy-derived" && legacy.kind === "filter-matches");
+  const legacyDetail = shieldsFilterMatchDetail(legacy);
+  assert.match(legacyDetail, /no engine readback recorded/);
+  assert.doesNotMatch(
+    legacyDetail,
+    /\d|\bover\b|\bof\b/,
+    "a v1 wire supports no denominator; the legacy line must state no count and no ratio"
+  );
+
+  // The recorded branch pins the grouped literal against fixture digits that
+  // differ by construction (2416 vs "2,416"), so a formatter regression or a
+  // swapped population cannot agree with the fixture.
+  const recorded = shieldsRunMeasurement({
+    counts: { shieldsBlockedRequests: 0 },
+    conditions: { adblockActive: true, shieldsMode: "classification" },
+    verificationFacts: {
+      shields: {
+        engineLoaded: true,
+        applied: false,
+        requestsEvaluated: 2416,
+        requestsMatched: 1204,
+        requestsActuallyBlocked: 0
+      }
+    }
+  });
+  assert.ok(recorded && recorded.origin === "recorded" && recorded.kind === "filter-matches");
+  assert.equal(
+    shieldsFilterMatchDetail(recorded),
+    "verified over 2,416 requests the engine evaluated"
+  );
+});
+
+test("the metric grid renders its filter-matches detail through the shared builder", () => {
+  // The grid was the third surface to restate this measurement's copy and
+  // the only one still pairing the count with the retained total after
+  // the card and headline were corrected. Binding the component to the one
+  // builder makes the next drift a compile error or a red here, not a
+  // silent third opinion on the same page.
+  const overview = readFileSync(
+    path.join(process.cwd(), "app", "_components", "report-overview.tsx"),
+    "utf8"
+  );
+  assert.match(overview, /detail: shieldsFilterMatchDetail\(shieldsMeasurement\)/);
+  assert.doesNotMatch(
+    overview,
+    /classification reported over|the engine evaluated/,
+    "the filter-matches detail line must come from shieldsFilterMatchDetail, not an inline restatement"
   );
 });
 
@@ -359,7 +430,7 @@ test("listener-coverage evidence names addEventListener calls instead of live li
   };
 
   const rendered = detectionEvidence(detection);
-  assert.match(rendered, /20 third-party addEventListener calls/);
+  assert.match(rendered, /20 addEventListener calls with .+ in the registration call chain/);
   // The count must never be published with a bare "listener(s)" noun, which a
   // reader takes as the number of handlers live at snapshot time.
   assert.doesNotMatch(rendered, /\d+ third-party listeners?\b/);
@@ -369,7 +440,7 @@ test("listener-coverage evidence names addEventListener calls instead of live li
     ...detection,
     evidence: { ...detection.evidence, totalListenerCalls: 1 }
   });
-  assert.match(single, /1 third-party addEventListener call from/);
+  assert.match(single, /1 addEventListener call with .+ in the registration call chain/);
 
   const privacyReduced = detectionEvidence({
     ...detection,
@@ -380,4 +451,33 @@ test("listener-coverage evidence names addEventListener calls instead of live li
   });
   assert.match(privacyReduced, /https:\/\/static\.\*\.fbcdn\.net\/…/);
   assert.doesNotMatch(privacyReduced, /\{label\}|\{seg\}/);
+});
+
+test("listener-coverage evidence states chain presence, never that the third party made the calls", () => {
+  // Counterexample: a first-party registrant delegating through a helper CDN
+  // produces exactly this wire evidence, so the rendered line may claim only
+  // that the origins appeared in the registration call chain. The accusative
+  // "third-party addEventListener calls from X" states an act the wire cannot
+  // establish, and it contradicted the corrected listener-coverage card
+  // rendered on the same page.
+  const detection: InputMonitoringDetectionSummary = {
+    kind: "input-monitoring",
+    heuristic: "input-listener-coverage-v1",
+    count: 1,
+    evidence: {
+      eventTypes: ["input", "keydown"],
+      listenerTargets: ["input"],
+      thirdPartyOrigins: ["https://cdn.helperlib.net", "https://recorder.example.net"],
+      totalListenerCalls: 4
+    }
+  };
+
+  const rendered = detectionEvidence(detection);
+  // The chain claim, produced by the real builder over both chain origins.
+  assert.match(rendered, /4 addEventListener calls with .+ in the registration call chain/);
+  assert.match(rendered, /cdn\.helperlib\.net/);
+  assert.match(rendered, /recorder\.example\.net/);
+  // Never the accusative registrant claim, in either of its shapes.
+  assert.doesNotMatch(rendered, /third-party addEventListener call/);
+  assert.doesNotMatch(rendered, /calls? from /);
 });

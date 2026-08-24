@@ -192,7 +192,11 @@ export function buildReportHeadline(
 
   const extras: string[] = [];
   if (inputMonitoring) {
-    extras.push("a cross-site script registered listeners on keyboard input");
+    // Chain attribution, not registrant attribution: the wire records the
+    // origins in the bounded registration call chain, and a first-party
+    // registrant using a third-party helper is indistinguishable from a
+    // third-party registrant. Never say the cross-site script registered.
+    extras.push("keyboard-input listeners were registered through a call chain that included a cross-site script");
   } else if (sessionRecording || sessionReplay) {
     extras.push("a catalogued session-replay service appeared or broad interaction listeners were registered");
   }
@@ -735,13 +739,23 @@ export function buildReportHeadline(
   }
 
   if (sessionRecording || inputMonitoring) {
+    // The wire supports "a cross-site script appeared in the registration call
+    // chain", not "a cross-site script registered the listeners": a first-party
+    // registrant delegating through a third-party helper produces the same
+    // stack evidence. State the chain fact and leave the registrant open.
     const listenerDescription = inputMonitoring
-      ? "a cross-site script registered listeners that could observe typing-related input"
-      : "a cross-site script registered broad interaction listeners";
+      ? "listeners that could observe typing-related input were registered through a call chain that included a cross-site script"
+      : "broad interaction listeners were registered through a call chain that included a cross-site script";
+    // The full subhead can exceed the social-card bound when the incomplete
+    // clause applies; the compact restatement keeps the chain claim and its
+    // registrant qualification and drops only the fingerprinting-absence
+    // hedge, which it makes no claim to need.
+    const compactSubhead =
+      `${listenerDescription[0].toUpperCase()}${listenerDescription.slice(1)}; the evidence does not identify the registering script or show that input was transmitted.`;
     return finish(
       "info",
-      `${domain} registered a third-party interaction-monitoring signal.`,
-      `${listenerDescription[0].toUpperCase()}${listenerDescription.slice(1)}. Listener coverage shows that a script was positioned to observe interaction; it does not show that input was transmitted.${
+      `${domain} matched an interaction-monitoring signal involving a cross-site script.`,
+      `${listenerDescription[0].toUpperCase()}${listenerDescription.slice(1)}. Listener coverage shows the page was instrumented to observe interaction; it does not identify the registering script or show that input was transmitted.${
         fingerprintEvidenceIncomplete
           ? " Fingerprinting-heuristic evaluation was incomplete and is not treated as an absence."
           : ""
@@ -753,13 +767,13 @@ export function buildReportHeadline(
       {
         story: "listener-coverage",
         assertedClaims: ["session-recording-input-monitoring"]
-      }
+      },
+      compactSubhead
     );
   }
 
   const shieldsMeasurement = facts.signals.shields.measurement;
   if (shieldsMeasurement && shieldsMeasurement.count > 0) {
-    const retained = requestState === "censored" ? " retained before request capture stopped" : "";
     const shieldsCount = retainedCountPhrase(
       shieldsMeasurement.count,
       "request",
@@ -773,10 +787,20 @@ export function buildReportHeadline(
         : `${shieldsCount} in this visit matched Brave Shields filter lists.`,
       shieldsMeasurement.kind === "engine-blocked"
         ? `This was a block simulation in the scanner's browser, not a live Brave-browser visit. The count covers requests the engine directly stopped; follow-on requests that never started are separate.`
-        : `${shieldsCount} matched while loading normally, out of ${retainedCountLabel(
-            run.counts.totalRequests,
-            requestState
-          )}${retained} requests. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`,
+        : shieldsMeasurement.evaluated === null
+          ? `${shieldsCount} matched while loading normally. This run records no evaluated-request count, so no match ratio is stated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`
+          : // Denominated by what the engine EVALUATED, not by the retained
+            // request total. The two are different populations, and this text
+            // also reaches JSON-LD and the social card, so the pairing was
+            // published off-site as well. The evaluated count is stated
+            // exactly even on a censored run: it is a route-time counter over
+            // the engine's own classifier calls, and request-capture censoring
+            // truncates the retained rows the numerator is recounted from,
+            // never this counter, so only the numerator carries the hedge.
+            `${shieldsCount} matched while loading normally, out of ${plural(
+              shieldsMeasurement.evaluated,
+              "request"
+            )} the engine evaluated. Matching identifies traffic the lists would target; it does not establish the purpose or payload of an individual request.`,
       stats,
       undefined,
       { story: "shields", assertedClaims: ["shields-blocked"] }

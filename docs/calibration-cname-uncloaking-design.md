@@ -86,7 +86,7 @@ That is a scope difference, not a detector error.
 ### The two declared recall ceilings
 
 The detector sees only subdomains contacted during one visit, and resolves at
-most `maxHosts` (12) of them. Both are already handled correctly and neither is
+most `maxHosts` of them (the scanner passes `MAX_CNAME_LOOKUPS = 10`, lib/scanner.ts; the library default of 12 is not what ships). Both are already handled correctly and neither is
 a hidden false-negative source:
 
 - Truncation sets the detector ledger to `partial` / `evidence-cap-reached`
@@ -143,6 +143,14 @@ case, so ceremony survival decays exponentially in N:
 | 0.999 | 74.1% | 67.0% | 47.2% |
 | 0.9995 | 86.1% | 81.9% | 68.7% |
 
+SCOPE NOTE (step-5 correction): everything below conditions on an ASSUMED
+pool base rate of 0.50 that no independent evidence justifies, and on the
+superseded zero-censoring rule. The arithmetic stands as arithmetic; the
+assumption does not stand as a design input. The current draft assumes no
+base rate, sizes from the sweep's cluster-aware loss bound plus an
+independently justified prevalence estimate for the declared scope, and
+conserves cap-exceeding visits under policy C instead of excluding them.
+
 The positive floor needs about 100 successes; the censoring rule punishes every
 additional case. So the design should **raise the pool's base rate to lower N**,
 not raise N to reach the floor. A declared, deliberately high-prevalence
@@ -183,14 +191,27 @@ consistent by construction:
 ## The honest expected outcome
 
 With N = 350 and a pre-qualified pool, the dominant risk is no longer the
-denominator. It is the zero-censoring rule meeting the open web. Per-case
-capture reliability is **unmeasured**: the committed corpus contains only six
-r2 runs, all clean, which supports no estimate at all. At 99.5% reliability a
-350-case ceremony survives about one time in six; at 99.9%, about seven times in
-ten.
+denominator. It is the zero-censoring rule meeting the open web.
 
-That number should be written into the preregistration as the expected outcome,
-because it is the design's most likely failure mode and stating it in advance is
+**This section's premise is superseded.** It was written when the committed
+corpus held six r2 runs, all clean, so per-case reliability was unmeasured and
+the ceremony survival odds it originally stated were derived from assumed
+per-case reliability figures, not from data. The corpus refreshed at #144
+one day later: it now holds **126 r2 runs, 73 of them carrying capture-loss
+censoring**, and
+[research/calibration-censoring](../research/calibration-censoring/README.md)
+measures the declared arm's all-family zero-loss rate at **44.3%**.
+
+At that rate a zero-censoring ceremony is not a long shot, it is not a study at
+all, which is what the decision package concluded. No survival probability
+should be written into the preregistration from a single per-case figure either:
+failures cluster by batch and build, so an i.i.d. exponent is not defensible.
+The nearest measured analogue is the 88.5% CNAME-scoreable rate, and 0.885^350
+is indistinguishable from zero under any mapping.
+
+The retained lesson is the one below, not the arithmetic above it: the expected
+outcome belongs in the preregistration, because
+it is the design's most likely failure mode and stating it in advance is
 what stops a later ceremony from being quietly retried until one passes. The
 ops document is explicit that a failed, cancelled or duplicated attempt remains
 in the server history and makes the ceremony ineligible: the study is one shot,
