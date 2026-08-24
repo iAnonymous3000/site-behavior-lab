@@ -540,6 +540,85 @@ export function currentDetectorCalibrationReleaseIdentity(
 }
 
 /**
+ * The release-identity comparison, extracted verbatim from
+ * analyzeDetectorCalibrationStudy so the v4 deep-identity validation states
+ * the SAME contract by calling it: reason ORDER is part of the observable
+ * output, and both fail-closed availability arms (a missing expected build
+ * commit also skips the implementation-digest comparison) travel with the
+ * block. Refusal-only: reads its inputs, writes nothing.
+ */
+export function detectorCalibrationReleaseMismatchReasons(
+  release: DetectorCalibrationReleaseIdentity,
+  detector: DetectorId,
+  context?: DetectorCalibrationAnalysisContext
+): DetectorCalibrationIneligibilityReason[] {
+  const ineligibilityReasons: DetectorCalibrationIneligibilityReason[] = [];
+  const expectedBuildCommit = context
+    ? normalizedBuildCommit(context.expectedBuildCommit)
+    : recordedBuildCommit();
+  if (expectedBuildCommit === null) {
+    ineligibilityReasons.push("current-build-commit-unavailable");
+  } else {
+    if (release.buildCommit !== expectedBuildCommit) ineligibilityReasons.push("build-commit-mismatch");
+    const expectedImplementationDigest = detectorCalibrationImplementationDigest({
+      buildCommit: expectedBuildCommit,
+      detector,
+      detectorVersion: DETECTOR_VERSIONS[detector],
+      registryVersion: DETECTOR_REGISTRY_VERSION,
+      registryDigest: DETECTOR_REGISTRY_DIGEST
+    });
+    if (release.detectorImplementationDigest !== expectedImplementationDigest) {
+      ineligibilityReasons.push("detector-implementation-digest-mismatch");
+    }
+  }
+  const expectedRuntimeDigest =
+    context && typeof context.expectedRuntimeDigest === "string" && SHA256.test(context.expectedRuntimeDigest)
+      ? context.expectedRuntimeDigest
+      : null;
+  if (expectedRuntimeDigest === null) {
+    ineligibilityReasons.push("expected-runtime-identity-unavailable");
+  } else if (release.runtime.runtimeDigest !== expectedRuntimeDigest) {
+    ineligibilityReasons.push("runtime-identity-digest-mismatch");
+  }
+  if (release.detectorVersion !== DETECTOR_VERSIONS[detector]) {
+    ineligibilityReasons.push("detector-version-mismatch");
+  }
+  if (release.registryVersion !== DETECTOR_REGISTRY_VERSION) {
+    ineligibilityReasons.push("registry-version-mismatch");
+  }
+  if (release.registryDigest !== DETECTOR_REGISTRY_DIGEST) {
+    ineligibilityReasons.push("registry-digest-mismatch");
+  }
+  if (release.methodologyVersion !== NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) {
+    ineligibilityReasons.push("methodology-version-mismatch");
+  }
+  if (release.normalizationVersion !== NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) {
+    ineligibilityReasons.push("normalization-version-mismatch");
+  }
+  if (release.runtime.nodeVersion !== packageManifest.engines.node) {
+    ineligibilityReasons.push("node-version-mismatch");
+  }
+  if (release.runtime.playwrightVersion !== NODE_PLAYWRIGHT_VERSION) {
+    ineligibilityReasons.push("playwright-version-mismatch");
+  }
+  if (canonicalJson(release.trackerCatalog) !== canonicalJson(currentTrackerCatalogIdentity())) {
+    ineligibilityReasons.push("tracker-catalog-revision-mismatch");
+  }
+  // Compared without `fetchedAt`, through the same definition the producer
+  // tuple uses. A refetch of byte-identical lists is not a new revision, and
+  // treating it as one would retire an otherwise eligible study over a
+  // timestamp that says only when the download happened. A moved
+  // catalogCommit, manifestDigest, rulesDigest or engine still mismatches.
+  if (
+    canonicalJson(braveListMeasurementIdentity(release.braveLists as Record<string, unknown>)) !==
+    canonicalJson(braveListMeasurementIdentity(currentBraveListIdentity() as unknown as Record<string, unknown>))
+  ) {
+    ineligibilityReasons.push("brave-list-revision-mismatch");
+  }
+  return ineligibilityReasons;
+}
+
+/**
  * Analyze one externally supplied study. Any missing planned case, censored
  * outcome, stale detector identity, or absent reference class suppresses the
  * entire confusion matrix and all rates rather than estimating from a quiet
@@ -562,68 +641,9 @@ export function analyzeDetectorCalibrationStudy(
   if (study.schemaVersion === 1) {
     ineligibilityReasons.push("measurement-condition-unbound");
   }
-  const expectedBuildCommit = context
-    ? normalizedBuildCommit(context.expectedBuildCommit)
-    : recordedBuildCommit();
-  if (expectedBuildCommit === null) {
-    ineligibilityReasons.push("current-build-commit-unavailable");
-  } else {
-    if (study.release.buildCommit !== expectedBuildCommit) ineligibilityReasons.push("build-commit-mismatch");
-    const expectedImplementationDigest = detectorCalibrationImplementationDigest({
-      buildCommit: expectedBuildCommit,
-      detector: study.detector,
-      detectorVersion: DETECTOR_VERSIONS[study.detector],
-      registryVersion: DETECTOR_REGISTRY_VERSION,
-      registryDigest: DETECTOR_REGISTRY_DIGEST
-    });
-    if (study.release.detectorImplementationDigest !== expectedImplementationDigest) {
-      ineligibilityReasons.push("detector-implementation-digest-mismatch");
-    }
-  }
-  const expectedRuntimeDigest =
-    context && typeof context.expectedRuntimeDigest === "string" && SHA256.test(context.expectedRuntimeDigest)
-      ? context.expectedRuntimeDigest
-      : null;
-  if (expectedRuntimeDigest === null) {
-    ineligibilityReasons.push("expected-runtime-identity-unavailable");
-  } else if (study.release.runtime.runtimeDigest !== expectedRuntimeDigest) {
-    ineligibilityReasons.push("runtime-identity-digest-mismatch");
-  }
-  if (study.release.detectorVersion !== DETECTOR_VERSIONS[study.detector]) {
-    ineligibilityReasons.push("detector-version-mismatch");
-  }
-  if (study.release.registryVersion !== DETECTOR_REGISTRY_VERSION) {
-    ineligibilityReasons.push("registry-version-mismatch");
-  }
-  if (study.release.registryDigest !== DETECTOR_REGISTRY_DIGEST) {
-    ineligibilityReasons.push("registry-digest-mismatch");
-  }
-  if (study.release.methodologyVersion !== NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) {
-    ineligibilityReasons.push("methodology-version-mismatch");
-  }
-  if (study.release.normalizationVersion !== NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) {
-    ineligibilityReasons.push("normalization-version-mismatch");
-  }
-  if (study.release.runtime.nodeVersion !== packageManifest.engines.node) {
-    ineligibilityReasons.push("node-version-mismatch");
-  }
-  if (study.release.runtime.playwrightVersion !== NODE_PLAYWRIGHT_VERSION) {
-    ineligibilityReasons.push("playwright-version-mismatch");
-  }
-  if (canonicalJson(study.release.trackerCatalog) !== canonicalJson(currentTrackerCatalogIdentity())) {
-    ineligibilityReasons.push("tracker-catalog-revision-mismatch");
-  }
-  // Compared without `fetchedAt`, through the same definition the producer
-  // tuple uses. A refetch of byte-identical lists is not a new revision, and
-  // treating it as one would retire an otherwise eligible study over a
-  // timestamp that says only when the download happened. A moved
-  // catalogCommit, manifestDigest, rulesDigest or engine still mismatches.
-  if (
-    canonicalJson(braveListMeasurementIdentity(study.release.braveLists as Record<string, unknown>)) !==
-    canonicalJson(braveListMeasurementIdentity(currentBraveListIdentity() as unknown as Record<string, unknown>))
-  ) {
-    ineligibilityReasons.push("brave-list-revision-mismatch");
-  }
+  ineligibilityReasons.push(
+    ...detectorCalibrationReleaseMismatchReasons(study.release, study.detector, context)
+  );
   if (denominators.completeCases === 0) ineligibilityReasons.push("no-complete-cases");
   if (denominators.referencePresent === 0) ineligibilityReasons.push("missing-positive-reference-denominator");
   if (denominators.referenceAbsent === 0) ineligibilityReasons.push("missing-negative-reference-denominator");

@@ -98,3 +98,55 @@ Landed with the implementation, each verified by running the mutation:
    prediction value through projection.
 4. **v3/v4 separation**: each generation's validator refuses the other's
    rows; the v3 schema digests are untouched.
+
+## Ceremony tooling (landed)
+
+The five deferred items above are now implemented, each refusal-only as
+adopted, with the custody machinery REUSED rather than restated:
+
+- **Envelope sealing**: `sealV4LabelBatch`
+  (scripts/calibration-v4-ceremony-lib.mjs) validates the batch against the
+  frame (including content binding, below) and verifies every task's bytes
+  BEFORE sealing through the existing
+  `sealCalibrationLabelSourceEnvelope` with the existing 9-field identity;
+  CLI `npm run calibration:v4-seal-label-batch`.
+- **Authenticated fetching/reveal**: fetching reuses the
+  generation-agnostic `fetchAuthenticatedCalibrationLabelCommitments`
+  unchanged; `revealAuthenticatedV4LabelBatches` composes the custody rules
+  EXTRACTED from the v3 assembly (roster custody record, commitment-set
+  arity/chronology/uniqueness, revealed-set-equals-roster, per-entry
+  envelope open) and then validates each plaintext as a v4 batch. The v3
+  byte-identical-evidence and frozen-presence rules are deliberately
+  absent. The reveal key arrives as a THUNK invoked only after every
+  key-free custody check passes, preserving the reveal-key secrecy rule.
+- **Task-byte verification**: `buildV4FrameTasksArtifact` /
+  `verifyV4TaskBytes` produce and verify per-case reference-task files
+  against `taskSha256` over exact canonical bytes, with task identity
+  fields inside the digested bytes; CLI
+  `npm run calibration:v4-frame-tasks` (`build` and `check`).
+- **Deep release/design identity validation** , 
+  `deepValidateV4StudyIdentity` calls
+  `detectorCalibrationReleaseMismatchReasons`, extracted verbatim from the
+  v3 analyzer (lib/detector-calibration.ts) so the mismatch vocabulary,
+  reason order, fail-closed availability arms, and the fetchedAt-excluded
+  Brave-list comparison keep one home; the design half compares REQUIRED
+  caller-stated digests and derives the expected measurement condition from
+  the study's own detector through the one canonical-arm export. All four
+  pinned schema digests are unchanged by the extraction.
+- **Frame-content binding (review-driven)**: v4 batches carry a required
+  `frameTasksSha256`: caseIds are positional, so identity fields alone
+  cannot distinguish two frames, and a batch sealed for one frame would
+  otherwise replay against another. The digest chain batch → frame-tasks
+  bytes → per-case taskSha256 → task bytes closes it.
+
+Recorded for the pilot runbook: reveal-side frame-tasks are read from the
+candidateCommit-pinned tree; GCM is unpadded, so a sealed tri-state batch's
+ciphertext length can leak its label distribution (consider fixed-length
+padding at seal time); a `referenceProtocolId` names exactly one frozen
+protocol byte sequence, and protocol drift is caught only by the deep
+design digests. Mutation obligations were re-run for the batch-shape change
+and the new surface: task digest deleted, seal-validation deleted,
+chronology deleted, uniqueness deleted, roster-equality made vacuous, key
+read before custody, content binding weakened to shape, evidence
+byte-identity reintroduced, uncertain coerced to absent, and buildCommit
+comparison deleted, each fails its suite.
