@@ -19,10 +19,13 @@
  */
 
 import { sha256Hex } from "./scanner-fidelity-study-lib.mjs";
+import { PREREGISTERED_PILOT_MINIMUM } from "./calibration-pilot-sizing-lib.mjs";
+import { createHash } from "node:crypto";
 
 export const CANDIDATE_UNIVERSE_KIND =
   "site-behavior-calibration-candidate-universe";
-export const CANDIDATE_UNIVERSE_VERSION = 2;
+export const CANDIDATE_UNIVERSE_VERSION = 3;
+export const UNIVERSE_PARTITION_METHOD = "seeded-fisher-yates-sha256-v1";
 
 const SHA256 = /^[0-9a-f]{64}$/;
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
@@ -115,7 +118,7 @@ export function buildCandidateUniverse(options) {
       `universe options carry unexpected field "${key}"`
     );
   }
-  const { studyId, base, category = null, exclusions, poolSize, pilotSize = 0 } = options;
+  const { studyId, base, category = null, exclusions, poolSize, pilotSize } = options;
   require(typeof studyId === "string" && studyId.length > 0, "universe needs a studyId");
   require(
     typeof base === "object" && base !== null && typeof base.bytes === "string",
@@ -140,8 +143,8 @@ export function buildCandidateUniverse(options) {
     "universe pool size must be a positive integer, justified in the preregistration"
   );
   require(
-    Number.isSafeInteger(pilotSize) && pilotSize >= 0,
-    "pilot size must be a non-negative integer"
+    Number.isSafeInteger(pilotSize) && pilotSize >= PREREGISTERED_PILOT_MINIMUM,
+    `pilot size must be at least the preregistered minimum of ${PREREGISTERED_PILOT_MINIMUM}; a confirmatory universe without a pilot has no prevalence estimate and no sizing rule`
   );
   require(Array.isArray(exclusions), "universe needs the exclusion list (possibly empty, but stated)");
   const excluded = new Set();
@@ -171,32 +174,86 @@ export function buildCandidateUniverse(options) {
     };
   }
 
-  // The pilot is a DISJOINT PREFIX: the first pilotSize survivors, then the
-  // confirmatory pool from the survivors after them. Disjointness is by
-  // construction, so the prevalence pilot can never share a site with the
-  // confirmatory frame it sizes.
-  const pilot = [];
-  const candidates = [];
+  // ONE FIXED SAMPLING FRAME, then a deterministic, precommitted RANDOM
+  // partition into pilot and pool. A prefix pilot was the reviewed defect:
+  // popularity rank can correlate with CNAME deployment, so the first K
+  // survivors are not representative of the survivors after them. The frame
+  // is the first pilotSize + poolSize survivors in source order; MEMBERSHIP
+  // in the pilot is then decided by a seeded Fisher-Yates shuffle whose seed
+  // derives entirely from the committed inputs, so there is no free seed
+  // parameter through which a partition could be steered, and any auditor
+  // re-derives the identical split from the artifacts alone. Both sets are
+  // emitted in original source order; randomness decides membership only.
+  const frame = [];
   const excludedHits = [];
   for (const domain of domains) {
-    if (pilot.length + candidates.length === pilotSize + poolSize) break;
+    if (frame.length === pilotSize + poolSize) break;
     if (excluded.has(domain)) {
       excludedHits.push(domain);
       continue;
     }
-    const entry = { caseId: domain, url: `https://${domain}/` };
-    if (pilot.length < pilotSize) pilot.push(entry);
-    else candidates.push(entry);
+    frame.push(domain);
   }
   require(
-    candidates.length === poolSize && pilot.length === pilotSize,
-    `the source yields ${pilot.length} pilot and ${candidates.length} pool candidates of ${pilotSize}+${poolSize} requested after exclusions; supply a longer external list, never relax an exclusion`
+    frame.length === pilotSize + poolSize,
+    `the source yields only ${frame.length} of ${pilotSize + poolSize} frame candidates after exclusions; supply a longer external list, never relax an exclusion`
   );
+  const exclusionListSha256 = sha256Hex(JSON.stringify([...excluded].sort()));
+  const partitionSeed = sha256Hex(
+    [
+      `${CANDIDATE_UNIVERSE_KIND}-partition-v3`,
+      studyId,
+      sourceSha256,
+      categoryFacts === null ? "no-category" : categoryFacts.sha256,
+      exclusionListSha256,
+      String(pilotSize),
+      String(poolSize)
+    ].join("\u0000")
+  );
+  // Deterministic byte stream: sha256(seed || counter), consumed as unbiased
+  // bounded integers by rejection sampling.
+  let streamCounter = 0;
+  let streamBytes = Buffer.alloc(0);
+  let streamOffset = 0;
+  const nextByte = () => {
+    if (streamOffset === streamBytes.length) {
+      streamBytes = createHash("sha256")
+        .update(`${partitionSeed}:${streamCounter}`)
+        .digest();
+      streamCounter += 1;
+      streamOffset = 0;
+    }
+    const byte = streamBytes[streamOffset];
+    streamOffset += 1;
+    return byte;
+  };
+  const nextInt = (bound) => {
+    // Rejection sampling over 4-byte words keeps the draw unbiased.
+    const limit = Math.floor(0x100000000 / bound) * bound;
+    for (;;) {
+      const word =
+        nextByte() * 0x1000000 + nextByte() * 0x10000 + nextByte() * 0x100 + nextByte();
+      if (word < limit) return word % bound;
+    }
+  };
+  const indices = frame.map((_, index) => index);
+  for (let index = indices.length - 1; index > 0; index -= 1) {
+    const swap = nextInt(index + 1);
+    [indices[index], indices[swap]] = [indices[swap], indices[index]];
+  }
+  const pilotIndexSet = new Set(indices.slice(0, pilotSize));
+  const pilot = [];
+  const candidates = [];
+  frame.forEach((domain, index) => {
+    const entry = { caseId: domain, url: `https://${domain}/` };
+    if (pilotIndexSet.has(index)) pilot.push(entry);
+    else candidates.push(entry);
+  });
 
   const candidateSet = { studyId, candidates };
   const candidateSetBytes = `${JSON.stringify(candidateSet, null, 2)}\n`;
-  const pilotSet = pilotSize > 0 ? { studyId: `${studyId}-prevalence-pilot`, candidates: pilot } : null;
-  const pilotSetBytes = pilotSet === null ? null : `${JSON.stringify(pilotSet, null, 2)}\n`;
+  const pilotSet = { studyId: `${studyId}-prevalence-pilot`, candidates: pilot };
+  const pilotSetBytes = `${JSON.stringify(pilotSet, null, 2)}\n`;
   const provenance = {
     kind: CANDIDATE_UNIVERSE_KIND,
     version: CANDIDATE_UNIVERSE_VERSION,
@@ -215,8 +272,13 @@ export function buildCandidateUniverse(options) {
     poolSize,
     pilotSize,
     pilotDisjointFromPool: true,
+    partition: {
+      method: UNIVERSE_PARTITION_METHOD,
+      seedSha256: partitionSeed,
+      frameSize: frame.length
+    },
     candidateSetSha256: sha256Hex(candidateSetBytes),
-    pilotSetSha256: pilotSetBytes === null ? null : sha256Hex(pilotSetBytes),
+    pilotSetSha256: sha256Hex(pilotSetBytes),
     /**
      * The proof half: every development-corpus domain the scoped source
      * contained and this build removed, in source order. An auditor checks
@@ -224,7 +286,7 @@ export function buildCandidateUniverse(options) {
      * repository data did anything but remove.
      */
     excludedDomains: excludedHits,
-    exclusionListSha256: sha256Hex(JSON.stringify([...excluded].sort()))
+    exclusionListSha256
   };
   return { candidateSet, candidateSetBytes, pilotSet, pilotSetBytes, provenance };
 }

@@ -16,7 +16,7 @@ import {
   summarizeSweepOutcomes,
   validatePassArtifact
 } from "./calibration-reliability-sweep-run-lib.mjs";
-import { serializeReliabilitySweepReceipt } from "./calibration-reliability-sweep-lib.mjs";
+import { buildReliabilitySweepReceipt, serializeReliabilitySweepReceipt } from "./calibration-reliability-sweep-lib.mjs";
 import { clusterInterval } from "./cluster-interval-lib.mjs";
 
 const CANDIDATE_BYTES = `${JSON.stringify(
@@ -241,13 +241,18 @@ test("the loss bound is cluster-aware and fail-closed: too few rounds is a refus
     "2026-08-28T05:00:00.000Z"
   ];
   const rounds = at.map((when, index) => passArtifact(index + 1, when));
+  const roundEntriesOf = (list) => list.map((artifact) => ({ bytes: JSON.stringify(artifact) }));
   const receipt = assembleReceiptFromRounds({
     rounds: rounds.map(entry),
     candidateSetBytes: CANDIDATE_BYTES,
     sweptAt: "2026-08-28T06:00:00.000Z"
   });
   const receiptBytes = serializeReliabilitySweepReceipt(receipt);
-  const bound = computeClusterLossBound({ receipt, receiptBytes });
+  const bound = computeClusterLossBound({
+    candidateSetBytes: CANDIDATE_BYTES,
+    roundEntries: roundEntriesOf(rounds),
+    receiptBytes
+  });
 
   assert.equal(bound.rounds, 5);
   assert.equal(bound.method.algorithm, "cluster-bootstrap");
@@ -276,12 +281,84 @@ test("the loss bound is cluster-aware and fail-closed: too few rounds is a refus
   assert.throws(
     () =>
       computeClusterLossBound({
-        receipt: three,
+        candidateSetBytes: CANDIDATE_BYTES,
+        roundEntries: roundEntriesOf(rounds.slice(0, 3)),
         receiptBytes: serializeReliabilitySweepReceipt(three)
       }),
     /preregistered minimum is 4.*never substitute an iid interval/
   );
   assert.equal(SWEEP_BOUND_MINIMUM_ROUNDS, 4);
+});
+
+test("the bound computes only over what the sources actually say: the reviewed forgeries are refused", () => {
+  const entry = (artifact) => ({ artifact, bytes: JSON.stringify(artifact) });
+  const roundEntriesOf = (list) => list.map((artifact) => ({ bytes: JSON.stringify(artifact) }));
+  const honest = [
+    passArtifact(1, "2026-08-23T01:00:00.000Z"),
+    passArtifact(2, "2026-08-25T02:00:00.000Z"),
+    passArtifact(3, "2026-08-26T03:00:00.000Z"),
+    passArtifact(4, "2026-08-27T04:00:00.000Z")
+  ];
+
+  // FORGERY 1: round 3 one hour after round 2. Assembly refuses those
+  // artifacts outright, and a receipt CLAIMING them (built by bypassing
+  // assembly) cannot survive the bound's reassembly, because the same
+  // artifacts refuse to reassemble.
+  const oneHour = [
+    honest[0],
+    honest[1],
+    passArtifact(3, "2026-08-25T03:00:00.000Z"),
+    passArtifact(4, "2026-08-27T04:00:00.000Z")
+  ];
+  const forgedChronology = buildReliabilitySweepReceipt({
+    studyId: honest[0].studyId,
+    sweptAt: "2026-08-27T05:00:00.000Z",
+    measurementCondition: honest[0].measurementCondition,
+    candidateSetDigest: honest[0].candidateSetDigest,
+    sourceDigests: Object.fromEntries([
+      ["candidate-set", honest[0].candidateSetDigest],
+      ...oneHour.map((artifact) => [`round-${artifact.pass}-artifact`, "a".repeat(64)])
+    ]),
+    identity: honest[0].identity,
+    outcomes: oneHour.flatMap((artifact) => artifact.outcomes)
+  });
+  assert.throws(
+    () =>
+      computeClusterLossBound({
+        candidateSetBytes: CANDIDATE_BYTES,
+        roundEntries: roundEntriesOf(oneHour),
+        receiptBytes: serializeReliabilitySweepReceipt(forgedChronology)
+      }),
+    /disjoint sessions/
+  );
+
+  // FORGERY 2: a canonical receipt whose candidate-set source digest
+  // disagrees with its candidateSetDigest. Reassembly from the real
+  // candidate bytes produces the true digest pair, so byte equality fails.
+  const genuine = assembleReceiptFromRounds({
+    rounds: honest.map(entry),
+    candidateSetBytes: CANDIDATE_BYTES,
+    sweptAt: "2026-08-27T05:00:00.000Z"
+  });
+  const tampered = JSON.parse(serializeReliabilitySweepReceipt(genuine));
+  tampered.sourceDigests["candidate-set"] = "b".repeat(64);
+  assert.throws(
+    () =>
+      computeClusterLossBound({
+        candidateSetBytes: CANDIDATE_BYTES,
+        roundEntries: roundEntriesOf(honest),
+        receiptBytes: serializeReliabilitySweepReceipt(tampered)
+      }),
+    /not the assembly of the supplied candidate set and round artifacts/
+  );
+
+  // And the honest set still computes.
+  const artifact = computeClusterLossBound({
+    candidateSetBytes: CANDIDATE_BYTES,
+    roundEntries: roundEntriesOf(honest),
+    receiptBytes: serializeReliabilitySweepReceipt(genuine)
+  });
+  assert.equal(artifact.rounds, 4);
 });
 
 test("the summary lower-bounds detector-input readiness from load facts only", () => {

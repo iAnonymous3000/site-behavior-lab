@@ -52,7 +52,7 @@ test("the CLI actually launches: import errors and stale commands cannot hide be
   assert.equal(noArgs.status, 1);
   assert.match(noArgs.stderr, /collect <round 1\.\.12>/);
   assert.match(noArgs.stderr, /receipt <candidates> <round1> \[round2 \.\.\.\] <out>/);
-  assert.match(noArgs.stderr, /bound <receipt> <out>/);
+  assert.match(noArgs.stderr, /bound <candidates> <round1> \[round2 \.\.\.\] <receipt> <out>/);
   // The exact invocation that exposed the broken merge.
   const help = run(["--help"]);
   assert.equal(help.status, 1);
@@ -118,7 +118,7 @@ test("receipt and bound run end to end through the real process over five rounds
   assert.equal(receipt.diagnostics.allFamiliesCompleteBothPasses, 2);
 
   const boundPath = path.join(dir, "bound.json");
-  const boundRun = run(["bound", receiptPath, boundPath]);
+  const boundRun = run(["bound", candidatesPath, ...roundPaths, receiptPath, boundPath]);
   assert.equal(boundRun.status, 0, boundRun.stderr);
   assert.match(boundRun.stdout, /loss bound over 5 rounds/);
   const boundArtifact = readFileSync(boundPath, "utf8");
@@ -131,7 +131,13 @@ test("receipt and bound run end to end through the real process over five rounds
   const shortReceiptPath = path.join(dir, "short-receipt.json");
   const shortRun = run(["receipt", candidatesPath, ...roundPaths.slice(0, 3), shortReceiptPath]);
   assert.equal(shortRun.status, 0, shortRun.stderr);
-  const shortBound = run(["bound", shortReceiptPath, path.join(dir, "short-bound.json")]);
+  const shortBound = run([
+    "bound",
+    candidatesPath,
+    ...roundPaths.slice(0, 3),
+    shortReceiptPath,
+    path.join(dir, "short-bound.json")
+  ]);
   assert.equal(shortBound.status, 1);
   assert.match(shortBound.stderr, /preregistered minimum is 4/);
 });

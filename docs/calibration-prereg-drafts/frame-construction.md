@@ -41,10 +41,14 @@ Each pool must hold enough screened candidates that a simple random draw of
 the study's N plausibly clears every claimed-class minimum. N itself is NOT
 fixed in advance: it derives, before sealing, from the sweep's cluster-aware
 loss bound together with a prevalence estimate from the PRECOMMITTED DISJOINT
-PILOT (a prefix slice of the same universe, carved by the universe builder,
-whose sites are excluded from the confirmatory pool by construction and
+PILOT: a seeded RANDOM partition of the fixed sampling frame (never a
+prefix, which would confound prevalence with popularity rank), carved by the
+universe builder with a seed derived entirely from the committed inputs,
+its sites excluded from the confirmatory pool by construction and
 reviewer-labeled under the independent reference protocol, never the
-detector's own output). FAIL CONDITION: if the derived N exceeds the swept
+detector's own output. The exact pilot minimum, interval, and
+prevalence-to-N rule are preregistered in
+docs/reliability-sweep-cluster-design.md. FAIL CONDITION: if the derived N exceeds the swept
 eligible pool, the study is INFEASIBLE at that pool; the remedy is a larger
 universe and fresh sweep rounds over the enlarged set, never relaxing an
 exclusion, reusing pilot sites, or narrowing the claimed population to fit.

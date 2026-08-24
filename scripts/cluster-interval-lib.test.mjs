@@ -61,6 +61,11 @@ test("the research analysis imports this implementation rather than restating it
     path.join(moduleDir, "..", "research", "calibration-censoring", "analyze-corpus-censoring.mjs"),
     "utf8"
   );
-  assert.match(research, /import \{ clusterInterval \} from "\.\.\/\.\.\/scripts\/cluster-interval-lib\.mjs"/);
+  assert.match(
+    research,
+    /import \{ clusterInterval, wilsonInterval \} from "\.\.\/\.\.\/scripts\/cluster-interval-lib\.mjs"/
+  );
   assert.doesNotMatch(research, /function clusterInterval/);
+  // Wilson moved to the same home; the research script keeps only an alias.
+  assert.doesNotMatch(research, /function wilson(Interval)?\s*\(/);
 });

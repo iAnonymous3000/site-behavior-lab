@@ -8,14 +8,16 @@
  *     <base-source.txt> <base-manifest.json> <pool-size> \
  *     <candidates-out.json> <provenance-out.json> \
  *     [--category <category-source.txt> <category-manifest.json>] \
- *     [--pilot <pilot-size> <pilot-out.json>]
+ *     --pilot <pilot-size> <pilot-out.json>
  *
  * Each manifest names the provider, its PERMANENT snapshot id, the retrieval
  * url and instant, and the sha256 of the exact bytes; the build refuses
  * bytes that do not hash to the manifest's digest. A population scope exists
  * only through --category (base order intersected with the category
- * source's membership); there is no scope string to type. --pilot carves a
- * disjoint prefix for the precommitted prevalence pilot.
+ * source's membership); there is no scope string to type. --pilot is
+ * REQUIRED: it sizes the precommitted prevalence pilot, split from the fixed
+ * frame by a seeded random partition whose seed derives from the committed
+ * inputs, never a prefix and never a free parameter.
  *
  * The exclusion set is derived HERE, from every repository surface that
  * carries a development-visited domain, and is applied only to REMOVE.
@@ -114,7 +116,7 @@ for (let index = 0; index < argv.length; index += 1) {
 const [studyId, sourcePath, manifestPath, poolSizeRaw, candidatesOut, provenanceOut] = positional;
 if (!studyId || !sourcePath || !manifestPath || !poolSizeRaw || !candidatesOut || !provenanceOut) {
   console.error(
-    "usage: calibration-candidate-universe-build.mjs <study-id> <base.txt> <base-manifest.json> <pool-size> <candidates-out.json> <provenance-out.json> [--category <src> <manifest>] [--pilot <size> <out.json>]"
+    "usage: calibration-candidate-universe-build.mjs <study-id> <base.txt> <base-manifest.json> <pool-size> <candidates-out.json> <provenance-out.json> [--category <src> <manifest>] --pilot <size> <out.json>"
   );
   process.exit(1);
 }
@@ -122,8 +124,8 @@ if (flags.category !== null && (!flags.category.sourcePath || !flags.category.ma
   console.error("--category needs <category-source.txt> <category-manifest.json>");
   process.exit(1);
 }
-if (flags.pilot !== null && (!Number.isSafeInteger(flags.pilot.size) || !flags.pilot.outPath)) {
-  console.error("--pilot needs <pilot-size> <pilot-out.json>");
+if (flags.pilot === null || !Number.isSafeInteger(flags.pilot.size) || !flags.pilot.outPath) {
+  console.error("--pilot <pilot-size> <pilot-out.json> is required: a confirmatory universe without a pilot has no prevalence estimate");
   process.exit(1);
 }
 
@@ -143,13 +145,11 @@ const { candidateSetBytes, pilotSetBytes, provenance } = buildCandidateUniverse(
         },
   exclusions,
   poolSize: Number(poolSizeRaw),
-  pilotSize: flags.pilot?.size ?? 0
+  pilotSize: flags.pilot.size
 });
 writeFileSync(candidatesOut, candidateSetBytes);
 writeFileSync(provenanceOut, `${JSON.stringify(provenance, null, 2)}\n`);
-if (pilotSetBytes !== null && flags.pilot !== null) {
-  writeFileSync(flags.pilot.outPath, pilotSetBytes);
-}
+writeFileSync(flags.pilot.outPath, pilotSetBytes);
 console.log(
   `universe: ${provenance.poolSize} pool + ${provenance.pilotSize} pilot from ${provenance.sourceDomains} base domains` +
     (provenance.category === null ? "" : ` (${provenance.category.intersection} after category intersection)`) +

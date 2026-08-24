@@ -70,16 +70,42 @@ parameters, so a stranger can recompute every number.
 
 The withdrawn 0.50 base-rate assumption is not replaced by another
 assumption. Prevalence for the declared scope is estimated from the
-PRECOMMITTED DISJOINT PILOT: a prefix slice of the same externally defined
-universe, carved by the universe builder before any collection, disjoint
-from the confirmatory pool by construction, and labeled by reviewers under
-the independent reference protocol, never by the detector. Frame size N then
-derives from the pilot's prevalence estimate, the sweep's loss bound, and
-the per-detector publication profile, with the derivation recorded in the
-study preregistration. FAIL CONDITION: a derived N larger than the swept
+PRECOMMITTED DISJOINT PILOT, preregistered here in full:
+
+- **Partition, not prefix.** The universe builder fixes ONE sampling frame
+  (the first pilotSize + poolSize scoped survivors in source order) and
+  splits MEMBERSHIP by a seeded Fisher-Yates shuffle
+  (`seeded-fisher-yates-sha256-v1`). A prefix pilot would confound the
+  estimate with popularity rank, which can correlate with CNAME deployment.
+  The seed derives entirely from the committed inputs (study id, source and
+  category digests, exclusion-list digest, the two sizes), so there is no
+  free parameter through which a partition could be steered, and any auditor
+  re-derives the identical split from the artifacts alone. The provenance
+  records the method, seed, and frame size.
+- **Pilot size**: at least `PREREGISTERED_PILOT_MINIMUM` = 100, because the
+  Wilson 95% half-width at the worst case (p = 0.5) is 0.096 at n = 100,
+  inside the programme's 0.10 half-width convention. The builder refuses a
+  smaller pilot: no prevalence estimate, no universe.
+- **Labeling**: reviewers label the pilot under the independent reference
+  protocol, never the detector's own output; the pilot's sites are excluded
+  from the confirmatory pool by construction.
+- **The exact sizing rule** (`deriveFrameSizeFromPilot`,
+  scripts/calibration-pilot-sizing-lib.mjs): with [pLower, pUpper] the
+  pilot's Wilson 95% interval, N is the SMALLEST integer such that
+  P(Binomial(N, pLower) >= minimumPerClass) >= 0.99 AND
+  P(Binomial(N, 1 - pUpper) >= minimumPerClass) >= 0.99, computed with the
+  exact binomial tail. Both reference classes are guarded at their own
+  conservative endpoint; under the v4 side-separated model the reference
+  margins do not depend on scan-side completeness, so this rule converts
+  prevalence uncertainty alone, and the prediction-side margins remain the
+  study preregistration's detector-specific power calculation against the
+  sweep's loss bound.
+
+FAIL CONDITION (`assertFrameFeasible`): a derived N larger than the swept
 eligible pool is infeasibility, and the remedy is a larger universe plus
 fresh sweep rounds over the enlarged set, never a relaxed exclusion, a
-reused pilot site, or a population narrowed to fit.
+reused pilot site, or a population narrowed to fit. The function offers no
+parameter through which any of those could be expressed.
 
 ## What this design does not decide
 

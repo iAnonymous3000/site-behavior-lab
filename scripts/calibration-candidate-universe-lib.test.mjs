@@ -62,29 +62,31 @@ test("the manifest carries no scope string and refuses bytes that are not the na
 });
 
 test("a population scope exists only through a category source and its deterministic intersection", () => {
-  const base = sourceOf(40, "base");
+  const base = sourceOf(1200, "base");
   // The category source holds every even-numbered base domain plus a stranger.
   const category =
-    [...Array.from({ length: 20 }, (_, index) => `base-${index * 2}.example`), "not-in-base.example"].join(
+    [...Array.from({ length: 600 }, (_, index) => `base-${index * 2}.example`), "not-in-base.example"].join(
       "\n"
     ) + "\n";
-  const { candidateSet, provenance } = buildCandidateUniverse({
+  const { candidateSet, pilotSet, provenance } = buildCandidateUniverse({
     studyId: "scoped-study",
+    pilotSize: 100,
     base: { bytes: base, manifest: manifestFor(base) },
     category: {
       bytes: category,
       manifest: manifestFor(category, { permanentId: "FIXTURE-CATEGORY-1" })
     },
     exclusions: ["base-2.example"],
-    poolSize: 10
+    poolSize: 400
   });
-  // Base order preserved, category membership required, exclusion applied:
-  // 0, (2 excluded), 4, 6, ...
-  assert.deepEqual(
-    candidateSet.candidates.slice(0, 3).map((entry) => entry.caseId),
-    ["base-0.example", "base-4.example", "base-6.example"]
-  );
-  assert.equal(provenance.category.intersection, 20);
+  const all = [...pilotSet.candidates, ...candidateSet.candidates].map((entry) => entry.caseId);
+  // Category membership is required, the exclusion applied, base order is the
+  // frame order, and the frame is the first 500 scoped survivors.
+  assert.equal(all.length, 500);
+  assert.equal(all.every((domain) => /^base-\d*[02468]\.example$/.test(domain)), true);
+  assert.equal(all.includes("base-2.example"), false);
+  assert.equal(all.includes("not-in-base.example"), false);
+  assert.equal(provenance.category.intersection, 600);
   assert.equal(provenance.category.manifest.permanentId, "FIXTURE-CATEGORY-1");
   // The population statement is GENERATED from the transformation, not typed.
   assert.match(
@@ -92,45 +94,98 @@ test("a population scope exists only through a category source and its determini
     /intersected with category source fixture-rank-provider FIXTURE-CATEGORY-1/
   );
   assert.equal(provenance.version, CANDIDATE_UNIVERSE_VERSION);
-  assert.equal(CANDIDATE_UNIVERSE_VERSION, 2);
-  // A category member absent from the base can never be admitted.
-  assert.equal(
-    candidateSet.candidates.some((entry) => entry.caseId === "not-in-base.example"),
-    false
-  );
+  assert.equal(CANDIDATE_UNIVERSE_VERSION, 3);
   // Without a category source, the generated population claims only the
   // provider's own ordering: no scope is available to assert.
   const unscoped = buildCandidateUniverse({
     studyId: "unscoped",
+    pilotSize: 100,
     base: { bytes: base, manifest: manifestFor(base) },
     exclusions: [],
-    poolSize: 10
+    poolSize: 400
   });
   assert.doesNotMatch(unscoped.provenance.population, /intersected/);
   assert.equal(unscoped.provenance.category, null);
 });
 
-test("the prevalence pilot is a disjoint prefix, emitted separately with its own digest", () => {
-  const base = sourceOf(100);
-  const { candidateSet, pilotSet, pilotSetBytes, provenance } = buildCandidateUniverse({
-    studyId: "piloted-study",
-    base: { bytes: base, manifest: manifestFor(base) },
-    exclusions: ["site-1.example"],
-    poolSize: 60,
-    pilotSize: 20
-  });
-  assert.equal(pilotSet.candidates.length, 20);
-  assert.equal(candidateSet.candidates.length, 60);
+test("the pilot is a deterministic seeded RANDOM partition of the fixed frame, never a prefix", () => {
+  const base = sourceOf(700);
+  const build = () =>
+    buildCandidateUniverse({
+      studyId: "piloted-study",
+      base: { bytes: base, manifest: manifestFor(base) },
+      exclusions: ["site-1.example"],
+      poolSize: 400,
+      pilotSize: 100
+    });
+  const { candidateSet, pilotSet, pilotSetBytes, provenance } = build();
+  assert.equal(pilotSet.candidates.length, 100);
+  assert.equal(candidateSet.candidates.length, 400);
   assert.equal(pilotSet.studyId, "piloted-study-prevalence-pilot");
-  // Disjoint by construction: the pilot is the surviving prefix, the pool
-  // starts after it, and no domain appears in both.
-  assert.equal(pilotSet.candidates[0].caseId, "site-0.example");
+  // Disjoint membership over one fixed frame.
   const pilotIds = new Set(pilotSet.candidates.map((entry) => entry.caseId));
   assert.equal(candidateSet.candidates.some((entry) => pilotIds.has(entry.caseId)), false);
   assert.equal(provenance.pilotDisjointFromPool, true);
+  assert.equal(provenance.partition.method, "seeded-fisher-yates-sha256-v1");
+  assert.match(provenance.partition.seedSha256, /^[0-9a-f]{64}$/);
+  assert.equal(provenance.partition.frameSize, 500);
+  // NOT a prefix: popularity rank correlates with deployment, so the pilot
+  // must sample the whole frame. The first 100 frame survivors landing
+  // entirely in the pilot has probability C(400,0)/C(500,100), effectively
+  // zero; sampling both halves of the frame is the observable claim.
+  const frameFirstHalfInPilot = pilotSet.candidates.filter((entry) => {
+    const rank = Number(entry.caseId.match(/site-(\d+)\.example/)[1]);
+    return rank <= 260;
+  }).length;
+  assert.ok(
+    frameFirstHalfInPilot > 0 && frameFirstHalfInPilot < 100,
+    `the pilot must draw from across the frame, not a prefix (${frameFirstHalfInPilot} of 100 from the first half)`
+  );
+  // Deterministic: the same committed inputs derive the identical split.
+  const again = build();
+  assert.deepEqual(again.pilotSet, pilotSet);
+  assert.deepEqual(again.candidateSet, candidateSet);
+  // And the seed has NO free parameter: a different studyId is a different
+  // partition, so the seed cannot be shopped without changing the artifacts.
+  const other = buildCandidateUniverse({
+    studyId: "other-study",
+    base: { bytes: base, manifest: manifestFor(base) },
+    exclusions: ["site-1.example"],
+    poolSize: 400,
+    pilotSize: 100
+  });
+  assert.notDeepEqual(
+    other.pilotSet.candidates.map((entry) => entry.caseId),
+    pilotSet.candidates.map((entry) => entry.caseId)
+  );
   assert.equal(
     provenance.pilotSetSha256,
     createHash("sha256").update(pilotSetBytes).digest("hex")
+  );
+});
+
+test("a pilot below the preregistered minimum is refused: no prevalence estimate, no universe", () => {
+  const base = sourceOf(700);
+  assert.throws(
+    () =>
+      buildCandidateUniverse({
+        studyId: "s",
+        base: { bytes: base, manifest: manifestFor(base) },
+        exclusions: [],
+        poolSize: 400,
+        pilotSize: 0
+      }),
+    /preregistered minimum of 100/
+  );
+  assert.throws(
+    () =>
+      buildCandidateUniverse({
+        studyId: "s",
+        base: { bytes: base, manifest: manifestFor(base) },
+        exclusions: [],
+        poolSize: 400
+      }),
+    /preregistered minimum of 100/
   );
 });
 
@@ -139,13 +194,12 @@ test("repository data may only exclude, with the removed domains as emitted proo
   const excluded = ["site-3.example", "site-500.example", "never-in-source.example"];
   const { candidateSet, provenance } = buildCandidateUniverse({
     studyId: "cname-observe-sweep-1",
+    pilotSize: 100,
     base: { bytes: source, manifest: manifestFor(source) },
     exclusions: excluded,
-    poolSize: 600
+    poolSize: 500
   });
-  assert.equal(candidateSet.candidates.length, 600);
-  assert.equal(candidateSet.candidates[0].caseId, "site-0.example");
-  assert.equal(candidateSet.candidates[3].caseId, "site-4.example");
+  assert.equal(candidateSet.candidates.length, 500);
   assert.deepEqual(provenance.excludedDomains, ["site-3.example", "site-500.example"]);
   assert.equal(provenance.kind, CANDIDATE_UNIVERSE_KIND);
   assert.equal(provenance.attestation, "operator-attested-permanent-id");
@@ -153,10 +207,12 @@ test("repository data may only exclude, with the removed domains as emitted proo
 
 test("sizing carries no withdrawn-claim floor, and shortfalls fail closed", () => {
   // The 600 floor was justified from the withdrawn N=350 at 0.50 prevalence;
-  // size is structural here and its justification lives in preregistration.
+  // pool size is structural here and its justification lives in
+  // preregistration, while the PILOT keeps its preregistered floor.
   const small = buildCandidateUniverse({
     studyId: "s",
-    base: { bytes: sourceOf(10), manifest: manifestFor(sourceOf(10)) },
+    pilotSize: 100,
+    base: { bytes: sourceOf(150), manifest: manifestFor(sourceOf(150)) },
     exclusions: [],
     poolSize: 5
   });
@@ -165,8 +221,9 @@ test("sizing carries no withdrawn-claim floor, and shortfalls fail closed", () =
     () =>
       buildCandidateUniverse({
         studyId: "s",
-        base: { bytes: sourceOf(50), manifest: manifestFor(sourceOf(50)) },
-        exclusions: Array.from({ length: 20 }, (_, index) => `site-${index}.example`),
+        pilotSize: 100,
+        base: { bytes: sourceOf(120), manifest: manifestFor(sourceOf(120)) },
+        exclusions: Array.from({ length: 30 }, (_, index) => `site-${index}.example`),
         poolSize: 40
       }),
     /supply a longer external list, never relax an exclusion/
@@ -175,7 +232,8 @@ test("sizing carries no withdrawn-claim floor, and shortfalls fail closed", () =
     () =>
       buildCandidateUniverse({
         studyId: "s",
-        base: { bytes: sourceOf(10), manifest: manifestFor(sourceOf(10)) },
+        pilotSize: 100,
+        base: { bytes: sourceOf(150), manifest: manifestFor(sourceOf(150)) },
         exclusions: [],
         poolSize: 5,
         preferredSites: ["site-1.example"]
