@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { test } from "node:test";
 import {
   V4_LABEL_BATCH_KIND,
@@ -107,6 +108,9 @@ const FRAME = {
     { caseId: "beta.example", taskSha256: sha("b") }
   ]
 };
+const FRAME_TASKS_SHA256 = createHash("sha256")
+  .update(`${JSON.stringify(FRAME, null, 2)}\n`)
+  .digest("hex");
 
 test("a v4 frame binds tasks and its study identity; anything answer-shaped is refused by name", () => {
   const frame = FRAME;
@@ -143,6 +147,7 @@ test("a v4 label batch is tri-state with per-reviewer evidence, bound to its fra
     detector: "cname-uncloaking",
     candidateCommit: "a".repeat(40),
     referenceProtocolId: "cname-independent-v1",
+    frameTasksSha256: FRAME_TASKS_SHA256,
     cases: [
       { caseId: "alpha.example", value: "uncertain", evidence: { sha256: sha("1"), provenance: "har://labeler-a/1" } },
       { caseId: "beta.example", value: "absent", evidence: { sha256: sha("2"), provenance: "har://labeler-a/2" } }
@@ -167,6 +172,17 @@ test("a v4 label batch is tri-state with per-reviewer evidence, bound to its fra
   assert.throws(
     () => validateV4LabelBatch({ ...batch, candidateCommit: "b".repeat(40) }, { frame: FRAME }),
     /candidate commit does not match/
+  );
+  // Identity fields alone cannot distinguish two frames with positional
+  // caseIds; the CONTENT digest can, and a batch for other frame bytes is
+  // refused even when every identity field matches.
+  assert.throws(
+    () =>
+      validateV4LabelBatch(
+        { ...batch, frameTasksSha256: sha("other-frame-bytes") },
+        { frame: FRAME }
+      ),
+    /frameTasksSha256 does not match the frame-tasks artifact/
   );
   // v1 batches belong to the historical pipeline.
   assert.throws(
@@ -310,6 +326,7 @@ test("the assembly bridge produces study-ready sides whose digests have one prod
     detector: FRAME.detector,
     candidateCommit: FRAME.candidateCommit,
     referenceProtocolId: FRAME.referenceProtocolId,
+    frameTasksSha256: FRAME_TASKS_SHA256,
     cases: FRAME.cases.map((entry, index) => ({
       caseId: entry.caseId,
       value: values[index],

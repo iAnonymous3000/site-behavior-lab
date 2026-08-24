@@ -122,8 +122,15 @@ The study contract every COMMITTED study satisfies is
 `/schemas/detector-calibration-study.v3.schema.json`, and v3 remains the
 schema historical verification runs against. All NEW ceremonies use the v4
 side-separated contract at `/schemas/detector-calibration-study.v4.schema.json`
-(docs/calibration-v4-reference-architecture.md); its ceremony tooling lands
-before the first v4 ceremony. Published v1 and v2
+(docs/calibration-v4-reference-architecture.md); its ceremony tooling is
+landed (see that document's "Ceremony tooling (landed)" section): frame
+tasks are produced and checked with `npm run calibration:v4-frame-tasks`,
+and v4 tri-state batches are sealed with
+`npm run calibration:v4-seal-label-batch`, which validates the batch
+against the frame-tasks artifact and verifies every task's bytes before
+anything is encrypted. The v4 reveal runs through
+`revealAuthenticatedV4LabelBatches`, whose CLI wrapper lands with the
+first v4 ceremony's runbook. Published v1 and v2
 studies remain readable as historical evidence; their immutable schemas are
 not rewritten. V1 lacks a structured fixed measurement condition and remains
 ineligible for rate publication. V3 preserves v2's condition binding while
