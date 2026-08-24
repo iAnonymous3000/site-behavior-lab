@@ -1,0 +1,2296 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.amnesty.org/en",
+  "scannedAt": "2026-08-24T08:13:44.343Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4356,
+      "firstPartyDomain": "www.amnesty.org",
+      "totalRequests": 53,
+      "thirdPartyRequests": 15,
+      "knownTrackerRequests": 2,
+      "thirdPartyDomains": 9,
+      "cookies": 10,
+      "thirdPartyCookies": 2,
+      "storageEntries": 2,
+      "fingerprintEvents": 59,
+      "shieldsBlockedRequests": 8
+    },
+    "conditions": {
+      "requestedUrl": "https://www.amnesty.org/en",
+      "finalUrl": "https://www.amnesty.org/en",
+      "scannedAt": "2026-08-24T08:13:46.950Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.amnesty.org/en",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 53
+      },
+      {
+        "id": 2,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 196
+      },
+      {
+        "id": 3,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 4,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 5,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 6,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 7,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 8,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 9,
+        "url": "https://www.googletagmanager.com/{seg}?id=&ver=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 10,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 11,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 12,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 13,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 14,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 15,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 16,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 17,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 258
+      },
+      {
+        "id": 18,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 19,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 296
+      },
+      {
+        "id": 20,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 305
+      },
+      {
+        "id": 21,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 361
+      },
+      {
+        "id": 22,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 363
+      },
+      {
+        "id": 23,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 363
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.cdn.civiccomputing.com/{n}/{seg}?ver=",
+        "domain": "{label}.cdn.civiccomputing.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 363
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.stripe.com/{seg}/{seg}?ver=",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 363
+      },
+      {
+        "id": 26,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 27,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 28,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 29,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.infogram.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.infogram.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 366
+      },
+      {
+        "id": 31,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 397
+      },
+      {
+        "id": 32,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 397
+      },
+      {
+        "id": 33,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 398
+      },
+      {
+        "id": 34,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 398
+      },
+      {
+        "id": 35,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 398
+      },
+      {
+        "id": 36,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 399
+      },
+      {
+        "id": 37,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 399
+      },
+      {
+        "id": 38,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 399
+      },
+      {
+        "id": 39,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 400
+      },
+      {
+        "id": 40,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 400
+      },
+      {
+        "id": 41,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 401
+      },
+      {
+        "id": 42,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 402
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.civiccomputing.com/{seg}/{seg}?%5Bredacted%5D=&v=&format=",
+        "domain": "{label}.civiccomputing.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.cdn.civiccomputing.com/{n}/{seg}",
+          "initiatorDomain": "{label}.cdn.civiccomputing.com"
+        },
+        "startedAtMs": 685
+      },
+      {
+        "id": 44,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 706
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.pagesense.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.pagesense.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 707
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.zoho.eu/{seg}?type=",
+        "domain": "{label}.zoho.eu",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pagesense.io/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pagesense.io"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.pagesense.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.pagesense.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pagesense.io/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pagesense.io"
+        },
+        "startedAtMs": 777
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.zoho.eu/{seg}?%5Bredacted%5D=&type=",
+        "domain": "{label}.zoho.eu",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pagesense.io/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pagesense.io"
+        },
+        "startedAtMs": 898
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.stripe.com/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.stripe.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.stripe.com"
+        },
+        "startedAtMs": 1684
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.stripe.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.stripe.com"
+        },
+        "startedAtMs": 1700
+      },
+      {
+        "id": 51,
+        "url": "https://m.stripe.network/{seg}",
+        "domain": "m.stripe.network",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.stripe.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.stripe.com"
+        },
+        "startedAtMs": 1713
+      },
+      {
+        "id": 52,
+        "url": "https://m.stripe.network/{seg}",
+        "domain": "m.stripe.network",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://m.stripe.network/{seg}",
+          "initiatorDomain": "m.stripe.network"
+        },
+        "startedAtMs": 1755
+      },
+      {
+        "id": 53,
+        "url": "https://m.stripe.com/{n}",
+        "domain": "m.stripe.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://m.stripe.network/{seg}",
+          "initiatorDomain": "m.stripe.network"
+        },
+        "startedAtMs": 1855
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.stripe.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.pagesense.io",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.zoho.eu",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "m.stripe.network",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.cdn.civiccomputing.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.infogram.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.civiccomputing.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "m.stripe.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.amnesty.org",
+        "requests": 38,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": "m.stripe.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.zoho.eu",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amnesty.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".amnesty.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amnesty.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amnesty.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amnesty.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".www.amnesty.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.amnesty.org",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.amnesty.org",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 333
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 450
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "canvas.measureText",
+        "count": 58
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 400,
+          "maxCanvasHeight": 60,
+          "maxDistinctTextCharacters": 30,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1,
+        "evidence": {
+          "measureTextCalls": 58,
+          "maxDistinctFonts": 57,
+          "maxDistinctTextSamples": 1,
+          "maxTextLength": 13
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "mousedown",
+            "scroll",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.cdn.civiccomputing.com/",
+            "https://{label}.pagesense.io/",
+            "https://{label}.infogram.com/"
+          ],
+          "totalListenerCalls": 10
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.amnesty.org/en/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 39946
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://www.amnesty.org/en/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 2598,
+      "firstPartyDomain": "www.amnesty.org",
+      "totalRequests": 40,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 1,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.amnesty.org/en",
+      "finalUrl": "https://www.amnesty.org/en",
+      "scannedAt": "2026-08-24T08:13:44.343Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.amnesty.org/en",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 39
+      },
+      {
+        "id": 2,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 117
+      },
+      {
+        "id": 3,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 119
+      },
+      {
+        "id": 4,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 119
+      },
+      {
+        "id": 5,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 119
+      },
+      {
+        "id": 6,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 120
+      },
+      {
+        "id": 7,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 120
+      },
+      {
+        "id": 8,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 120
+      },
+      {
+        "id": 10,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 121
+      },
+      {
+        "id": 11,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 121
+      },
+      {
+        "id": 12,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 121
+      },
+      {
+        "id": 13,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 14,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 15,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 16,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 17,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 18,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 179
+      },
+      {
+        "id": 19,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 179
+      },
+      {
+        "id": 20,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 179
+      },
+      {
+        "id": 21,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 180
+      },
+      {
+        "id": 22,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 180
+      },
+      {
+        "id": 23,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 181
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.stripe.com/{seg}/{seg}?ver=",
+        "domain": "{label}.stripe.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 181
+      },
+      {
+        "id": 26,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 181
+      },
+      {
+        "id": 27,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 182
+      },
+      {
+        "id": 28,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 182
+      },
+      {
+        "id": 29,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 183
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.infogram.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.infogram.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 184
+      },
+      {
+        "id": 31,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 215
+      },
+      {
+        "id": 32,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 216
+      },
+      {
+        "id": 33,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 216
+      },
+      {
+        "id": 34,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 216
+      },
+      {
+        "id": 35,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 217
+      },
+      {
+        "id": 36,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 217
+      },
+      {
+        "id": 37,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 217
+      },
+      {
+        "id": 38,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 39,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 40,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 41,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 42,
+        "url": "https://www.amnesty.org/en/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.amnesty.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.amnesty.org/en",
+          "initiatorDomain": "www.amnesty.org"
+        },
+        "startedAtMs": 221
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.stripe.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.infogram.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.amnesty.org",
+        "requests": 38,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".www.amnesty.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.amnesty.org/en/privacy-policy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 39946
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://www.amnesty.org/en/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 53,
+      "after": 40,
+      "delta": -13
+    },
+    "thirdPartyRequests": {
+      "before": 15,
+      "after": 2,
+      "delta": -13
+    },
+    "knownTrackerRequests": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "thirdPartyDomains": {
+      "before": 9,
+      "after": 2,
+      "delta": -7
+    },
+    "cookies": {
+      "before": 10,
+      "after": 1,
+      "delta": -9
+    },
+    "thirdPartyCookies": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "storageEntries": {
+      "before": 2,
+      "after": 0,
+      "delta": -2
+    },
+    "fingerprintEvents": {
+      "before": 59,
+      "after": 0,
+      "delta": -59
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.pagesense.io",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.zoho.eu",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "m.stripe.network",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.cdn.civiccomputing.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.civiccomputing.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "m.stripe.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 2,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": "{label}.zoho.eu",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "m.stripe.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".amnesty.org",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".amnesty.org",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.amnesty.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1
+      },
+      {
+        "kind": "canvas-font-fingerprinting",
+        "heuristic": "canvas-font-probing-v1",
+        "count": 1
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.stripe.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.stripe.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.zoho.eu",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.pagesense.io",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.cdn.civiccomputing.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.amnesty.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.civiccomputing.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.cdn.civiccomputing.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.pagesense.io",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.pagesense.io",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.pagesense.io",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "m.stripe.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "m.stripe.network",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "m.stripe.network",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.stripe.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "m.stripe.network",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "m.stripe.network",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.amnesty.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 8,
+      "after": 2,
+      "delta": -6
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://www.amnesty.org/en/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.amnesty.org/en/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260824-1e747dbc086438ffd565faadf9ce40bd",
+    "path": "/reports/20260824-1e747dbc086438ffd565faadf9ce40bd/",
+    "jsonPath": "/reports/20260824-1e747dbc086438ffd565faadf9ce40bd.json"
+  }
+}
