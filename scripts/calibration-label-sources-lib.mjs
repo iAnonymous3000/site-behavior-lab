@@ -423,9 +423,12 @@ export function openCalibrationCommitmentEnvelope(entry, { privateKeyPem, candid
 }
 
 /**
- * The 14-field authenticated-commitment projection and its set digest, in
- * one home (the roster builder and both reveals must describe an identical
- * set identically or the equality below can never hold).
+ * The 14-field authenticated-commitment projection and its set digest for
+ * the reveal side. The roster builder's own projection
+ * (calibration-label-roster-lib.mjs) deliberately stays as it is and the
+ * two are cross-pinned by the producer suite, which builds a roster with
+ * the real builder and reveals it through this path; any divergence fails
+ * that suite, never a live ceremony.
  */
 export function describeAuthenticatedCalibrationCommitments(commitments) {
   const authenticatedCommitments = commitments.map((entry) => ({

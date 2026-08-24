@@ -13,8 +13,7 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { calibrationLabelPublicKeyIdentity } from "./calibration-label-source-envelope-lib.mjs";
-import { sealV4LabelBatch } from "./calibration-v4-ceremony-lib.mjs";
-import { validateV4FrameTasks } from "./calibration-v4-labels-lib.mjs";
+import { parseV4FrameTasksBytes, sealV4LabelBatch } from "./calibration-v4-ceremony-lib.mjs";
 
 const USAGE =
   "usage: calibration-v4-seal-label-batch.mjs --role labeler|tiebreaker --actor <github-login> --public-key <pem> --frame-tasks <frame-tasks.json> --tasks-dir <dir> --input <batch.json> --output <envelope.json>";
@@ -54,9 +53,7 @@ if (
   fail("calibration v4 seal arguments are malformed");
 }
 
-const frameTasks = validateV4FrameTasks(
-  JSON.parse(readFileSync(values.get("--frame-tasks"), "utf8"))
-);
+const frameTasks = parseV4FrameTasksBytes(readFileSync(values.get("--frame-tasks"), "utf8"));
 const taskBytesByCaseId = new Map();
 for (const file of readdirSync(values.get("--tasks-dir"))) {
   if (!file.endsWith(".json")) fail(`${file} in the tasks directory is not a task file`);

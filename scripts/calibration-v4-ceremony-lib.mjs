@@ -53,6 +53,7 @@ export const V4_REFERENCE_TASK_KIND =
 export const V4_REFERENCE_TASK_SCHEMA_VERSION = 1;
 
 const SHA256 = /^[0-9a-f]{64}$/;
+const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
 const REFERENCE_TASK_KEYS = [
   "schemaVersion",
   "artifactKind",
@@ -70,6 +71,18 @@ function require(condition, message) {
 
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * caseIds become file names (`tasks/<caseId>.json`), so the grammar refuses
+ * anything path-shaped: no separators, no leading dot, no ".." segment. The
+ * honest producers (domains, case-0001 style ids) all fit.
+ */
+function requireSafeCaseId(caseId, label) {
+  require(
+    typeof caseId === "string" && /^[a-z0-9][a-z0-9._-]{0,200}$/.test(caseId) && !caseId.includes(".."),
+    `${label} caseId is not a safe file-name token`
+  );
 }
 
 /**
@@ -95,6 +108,7 @@ export function buildV4FrameTasksArtifact({
       JSON.stringify(keys) === JSON.stringify(["caseId", "url"]),
       `frame-task case must carry exactly caseId and url, saw ${keys.join(", ")}`
     );
+    requireSafeCaseId(entry.caseId, "frame-task case");
     requireCalibrationSubjectUrl(entry.url, `${entry.caseId} reference task`);
     const task = {
       schemaVersion: V4_REFERENCE_TASK_SCHEMA_VERSION,
@@ -147,6 +161,7 @@ export function verifyV4TaskBytes({ frameTasks, taskBytesByCaseId }) {
     `task files cover ${taskBytesByCaseId.size} of ${frameTasks.cases.length} frame cases; coverage is exact`
   );
   for (const frameCase of frameTasks.cases) {
+    requireSafeCaseId(frameCase.caseId, "frame case");
     const bytes = taskBytesByCaseId.get(frameCase.caseId);
     require(
       typeof bytes === "string" && bytes.length > 0,
@@ -184,6 +199,27 @@ export function verifyV4TaskBytes({ frameTasks, taskBytesByCaseId }) {
     );
   }
   return frameTasks;
+}
+
+/**
+ * Read a frame-tasks FILE the way custody reads artifacts: strict JSON whose
+ * bytes are exactly the canonical serialization, validated as a frame-tasks
+ * artifact. Both CLIs read the file only through this, so a non-canonical
+ * file (whose value-derived digest would disagree with its byte digest) is
+ * refused before anything binds to it.
+ */
+export function parseV4FrameTasksBytes(bytes) {
+  let parsed;
+  try {
+    parsed = JSON.parse(bytes);
+  } catch {
+    throw new Error("frame-tasks file is not JSON");
+  }
+  require(
+    bytes === canonicalPrettyJson(parsed),
+    "frame-tasks file is not canonical serialized JSON"
+  );
+  return validateV4FrameTasks(parsed);
 }
 
 /**
@@ -262,6 +298,19 @@ export function revealAuthenticatedV4LabelBatches({
   acquisitionJobStartedAt
 }) {
   require(typeof readPrivateKey === "function", "the reveal key must arrive as a thunk");
+  // Date.parse of an absent or malformed boundary is NaN and every NaN
+  // comparison is false, which would make the chronology refusal silently
+  // unreachable; the v3 caller was shielded by CI-validated metadata, this
+  // exported surface is not.
+  for (const [name, value] of [
+    ["acquisitionRunStartedAt", acquisitionRunStartedAt],
+    ["acquisitionJobStartedAt", acquisitionJobStartedAt]
+  ]) {
+    require(
+      typeof value === "string" && ISO_INSTANT.test(value) && Number.isFinite(Date.parse(value)),
+      `${name} must be an ISO-8601 UTC instant; a malformed boundary would disable the chronology refusal`
+    );
+  }
   validateV4FrameTasks(frameTasks);
   require(
     frameTasks.studyId === candidate.studyId &&

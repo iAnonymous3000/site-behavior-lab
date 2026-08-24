@@ -17,9 +17,9 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   buildV4FrameTasksArtifact,
+  parseV4FrameTasksBytes,
   verifyV4TaskBytes
 } from "./calibration-v4-ceremony-lib.mjs";
-import { validateV4FrameTasks } from "./calibration-v4-labels-lib.mjs";
 
 const USAGE =
   "usage: calibration-v4-frame-tasks.mjs build --study-id <id> --detector <id> --candidate-commit <sha> --protocol-id <id> --cases <candidates.json> --output-root <dir> | check --frame-tasks <frame-tasks.json> --tasks-dir <dir>";
@@ -102,8 +102,7 @@ if (mode === "build") {
   );
 } else if (mode === "check") {
   const values = parseFlags(rest, new Set(["--frame-tasks", "--tasks-dir"]));
-  const bytes = readFileSync(values.get("--frame-tasks"), "utf8");
-  const frameTasks = validateV4FrameTasks(JSON.parse(bytes));
+  const frameTasks = parseV4FrameTasksBytes(readFileSync(values.get("--frame-tasks"), "utf8"));
   verifyV4TaskBytes({ frameTasks, taskBytesByCaseId: readTasksDir(values.get("--tasks-dir")) });
   console.log(`frame tasks verified: ${frameTasks.cases.length} cases match their task bytes`);
 } else {
