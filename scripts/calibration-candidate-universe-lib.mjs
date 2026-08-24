@@ -24,7 +24,7 @@ import { createHash } from "node:crypto";
 
 export const CANDIDATE_UNIVERSE_KIND =
   "site-behavior-calibration-candidate-universe";
-export const CANDIDATE_UNIVERSE_VERSION = 3;
+export const CANDIDATE_UNIVERSE_VERSION = 4;
 export const UNIVERSE_PARTITION_METHOD = "seeded-fisher-yates-sha256-v1";
 
 const SHA256 = /^[0-9a-f]{64}$/;
@@ -80,26 +80,65 @@ function require(condition, message) {
  * ignored, order preserved. The digest is over the exact bytes, so the
  * provenance names the file the operator supplied, not a normalization.
  */
+const DOMAIN_GRAMMAR = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
+
 export function parseExternalSourceList(bytes) {
   require(typeof bytes === "string" && bytes.length > 0, "source list requires the file's exact contents");
-  const domains = [];
-  const seen = new Set();
-  for (const rawLine of bytes.split("\n")) {
+  // Three shapes, decided by the first non-comment, non-blank line and by
+  // nothing else. A line whose lowercased form is exactly "domain" or starts
+  // with "domain," is a header: the file is a header-led CSV whose FIRST
+  // column is the domain and whose remaining columns are the provider's own
+  // annotations, never read. Otherwise every line is a bare domain or a
+  // "rank,domain" row (last field), exactly as before.
+  const lines = bytes.split("\n");
+  let headerCsv = false;
+  for (const rawLine of lines) {
     const line = rawLine.trim().toLowerCase();
     if (line.length === 0 || line.startsWith("#")) continue;
-    // Accept "rank,domain" CSV rows (the common published-list shape) or bare
-    // domains; anything else is refused rather than guessed at.
-    const field = line.includes(",") ? line.slice(line.lastIndexOf(",") + 1).trim() : line;
-    require(
-      /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(field),
-      `source list line is not a domain: "${rawLine.trim().slice(0, 80)}"`
-    );
+    headerCsv = line === "domain" || line.startsWith("domain,");
+    break;
+  }
+  const domains = [];
+  const seen = new Set();
+  const rejectedRows = [];
+  let sawHeader = false;
+  for (const [index, rawLine] of lines.entries()) {
+    const line = rawLine.trim().toLowerCase();
+    if (line.length === 0 || line.startsWith("#")) continue;
+    if (headerCsv && !sawHeader) {
+      sawHeader = true;
+      continue;
+    }
+    const field = headerCsv
+      ? line.slice(0, line.includes(",") ? line.indexOf(",") : line.length).trim()
+      : line.includes(",")
+        ? line.slice(line.lastIndexOf(",") + 1).trim()
+        : line;
+    if (!DOMAIN_GRAMMAR.test(field)) {
+      // Both CSV shapes are provider-published datasets, and real snapshots
+      // carry rows whose domain field is not a registrable https hostname
+      // (Tranco's "_wildcard_" artifacts, a category list's path-suffixed
+      // pages). Those rows are rejected by this closed grammar and RECORDED,
+      // never silently dropped and never repaired. A bare junk line still
+      // refuses the whole file: the bare shape carries nothing but domains,
+      // so junk means the bytes are not the claimed kind of list.
+      require(
+        headerCsv || line.includes(","),
+        `source list line is not a domain: "${rawLine.trim().slice(0, 80)}"`
+      );
+      rejectedRows.push({ line: index + 1, text: rawLine.trim().slice(0, 80) });
+      continue;
+    }
     if (seen.has(field)) continue;
     seen.add(field);
     domains.push(field);
   }
+  require(
+    rejectedRows.length <= 100,
+    `source list rejected ${rejectedRows.length} rows; the bytes are not a domain list`
+  );
   require(domains.length > 0, "source list holds no domains");
-  return { domains, sourceSha256: sha256Hex(bytes) };
+  return { domains, sourceSha256: sha256Hex(bytes), rejectedRows };
 }
 
 /**
@@ -155,7 +194,11 @@ export function buildCandidateUniverse(options) {
     );
     excluded.add(entry.toLowerCase());
   }
-  const { domains: baseDomains, sourceSha256 } = parseExternalSourceList(base.bytes);
+  const {
+    domains: baseDomains,
+    sourceSha256,
+    rejectedRows: baseRejectedRows
+  } = parseExternalSourceList(base.bytes);
 
   // A population scope exists only through the deterministic transformation:
   // base order, intersected with the category source's membership. There is
@@ -170,6 +213,8 @@ export function buildCandidateUniverse(options) {
       manifest: { ...category.manifest },
       sha256: parsedCategory.sourceSha256,
       domains: parsedCategory.domains.length,
+      /** Rows the closed grammar rejected, as emitted proof, never repaired. */
+      rejectedRows: parsedCategory.rejectedRows,
       intersection: domains.length
     };
   }
@@ -263,6 +308,7 @@ export function buildCandidateUniverse(options) {
     baseManifest: { ...base.manifest },
     sourceSha256,
     sourceDomains: baseDomains.length,
+    sourceRejectedRows: baseRejectedRows,
     category: categoryFacts,
     /** Generated, never typed: the population is the transformation. */
     population:

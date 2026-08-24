@@ -112,7 +112,7 @@ accuracy flagship.
 | `consent-banner` | **Feasible** | CMP evidence is pervasive across the corpus; both classes reachable. |
 | `fingerprint-heuristics` | **Feasible** | session-recording 509 and input-monitoring 464 detections corpus-wide; positives abundant, clean negatives available from the reference and open-source pools. |
 | `privacy-policy` | **Feasible** | policy summaries present on 683 v1 runs; both classes reachable. |
-| `cname-uncloaking` | **Feasible with care** | 15 positive hosts known (finance and news skew); reaching 100 reference-present cases requires a finance-heavy frame and confirms only at scan time. Rate the risk before committing a frame. |
+| `cname-uncloaking` | **Feasible with care** | 15 positive hosts known (finance and news skew); reaching 100 reference-present cases requires a category-scoped frame (the adopted scope is the pinned news category source) and confirms only at scan time. Rate the risk before committing a frame. |
 | `keystroke-exfiltration` | **Not feasible on the open web** | One positive host in the entire corpus (weather.gov, sentinel to an arcgis.com recipient). One hundred naturally occurring reference-present cases do not exist to be found. See the memo below before spending any ceremony on this detector. |
 
 ### The keystroke memo

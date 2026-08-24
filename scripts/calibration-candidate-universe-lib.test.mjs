@@ -38,7 +38,61 @@ test("the source list parses in order, digested over exact bytes, refusing non-d
     parsed.sourceSha256,
     "the digest names the exact bytes, not a normalization"
   );
+  assert.deepEqual(parsed.rejectedRows, [], "headerless shapes never skip: junk refuses the file");
   assert.throws(() => parseExternalSourceList("not a domain line!\n"), /not a domain/);
+  // A junk row inside a rank,domain file is a dataset artifact (real Tranco
+  // snapshots carry "_wildcard_" rows): rejected and RECORDED, never a
+  // silent drop and never a refusal of the provider's whole snapshot.
+  const withArtifact = parseExternalSourceList("1,alpha.example\n2,_wildcard_.ph\n3,beta.example\n");
+  assert.deepEqual(withArtifact.domains, ["alpha.example", "beta.example"]);
+  assert.deepEqual(withArtifact.rejectedRows, [{ line: 2, text: "2,_wildcard_.ph" }]);
+  // More than 100 rejected rows refuses the file: that is not a domain list
+  // with artifacts, it is some other dataset.
+  const notADomainList =
+    Array.from({ length: 101 }, (_, index) => `${index},value-${index}!`).join("\n") +
+    "\n1000,real.example\n";
+  assert.throws(() => parseExternalSourceList(notADomainList), /rejected 101 rows/);
+});
+
+test("a header-led CSV parses by FIRST column, rejecting and RECORDING junk rows", () => {
+  // The real shape this widening exists for (a category provider's own
+  // dataset): CRLF endings, a "domain,..." header, annotation columns that
+  // are often empty, path-suffixed rows that are pages rather than domains,
+  // and a duplicate. Domains are synthetic: fixtures never claim a real
+  // provider's bytes.
+  const bytes =
+    "domain,ideology,type\r\n" +
+    "alpha-news.example,,\r\n" +
+    "beta-news.example,0.33,\r\n" +
+    "gamma-news.example/section,,\r\n" +
+    "http:delta-news.example,,\r\n" +
+    "beta-news.example,0.33,national\r\n" +
+    "epsilon-news.example,,local\r\n";
+  const parsed = parseExternalSourceList(bytes);
+  assert.deepEqual(parsed.domains, [
+    "alpha-news.example",
+    "beta-news.example",
+    "epsilon-news.example"
+  ]);
+  // Rejected rows are emitted proof: line numbers in the file, bounded text,
+  // never a silent drop and never a repaired domain.
+  assert.deepEqual(parsed.rejectedRows, [
+    { line: 4, text: "gamma-news.example/section,," },
+    { line: 5, text: "http:delta-news.example,," }
+  ]);
+  // Header detection is the first non-comment line and nothing else: the
+  // same rows WITHOUT the header parse as rank,domain, where every last
+  // field fails the grammar, so the file refuses at the no-domains floor
+  // instead of quietly yielding first columns.
+  assert.throws(
+    () => parseExternalSourceList(bytes.split("\r\n").slice(1).join("\n")),
+    /holds no domains/
+  );
+  // The annotation columns are never read: a last-field parse would have
+  // returned ideology/type values, so their absence from domains is the
+  // first-column claim.
+  assert.equal(parsed.domains.includes("national"), false);
+  assert.throws(() => parseExternalSourceList("domain,type\n"), /holds no domains/);
 });
 
 test("the manifest carries no scope string and refuses bytes that are not the named snapshot", () => {
@@ -88,13 +142,15 @@ test("a population scope exists only through a category source and its determini
   assert.equal(all.includes("not-in-base.example"), false);
   assert.equal(provenance.category.intersection, 600);
   assert.equal(provenance.category.manifest.permanentId, "FIXTURE-CATEGORY-1");
+  assert.deepEqual(provenance.category.rejectedRows, []);
+  assert.deepEqual(provenance.sourceRejectedRows, []);
   // The population statement is GENERATED from the transformation, not typed.
   assert.match(
     provenance.population,
     /intersected with category source fixture-rank-provider FIXTURE-CATEGORY-1/
   );
   assert.equal(provenance.version, CANDIDATE_UNIVERSE_VERSION);
-  assert.equal(CANDIDATE_UNIVERSE_VERSION, 3);
+  assert.equal(CANDIDATE_UNIVERSE_VERSION, 4);
   // Without a category source, the generated population claims only the
   // provider's own ordering: no scope is available to assert.
   const unscoped = buildCandidateUniverse({
@@ -162,6 +218,29 @@ test("the pilot is a deterministic seeded RANDOM partition of the fixed frame, n
     provenance.pilotSetSha256,
     createHash("sha256").update(pilotSetBytes).digest("hex")
   );
+});
+
+test("a header-led category source's rejected rows surface in provenance", () => {
+  const base = sourceOf(1200, "base");
+  const category =
+    "domain,ideology,type\r\n" +
+    Array.from({ length: 300 }, (_, index) => `base-${index * 2}.example,,\r`).join("\n") +
+    "\nbase-4.example/politics,,\r\n";
+  const { provenance } = buildCandidateUniverse({
+    studyId: "scoped-study",
+    pilotSize: 100,
+    base: { bytes: base, manifest: manifestFor(base) },
+    category: {
+      bytes: category,
+      manifest: manifestFor(category, { permanentId: "FIXTURE-CATEGORY-2" })
+    },
+    exclusions: [],
+    poolSize: 150
+  });
+  assert.equal(provenance.category.domains, 300);
+  assert.deepEqual(provenance.category.rejectedRows, [
+    { line: 302, text: "base-4.example/politics,," }
+  ]);
 });
 
 test("a pilot below the preregistered minimum is refused: no prevalence estimate, no universe", () => {
