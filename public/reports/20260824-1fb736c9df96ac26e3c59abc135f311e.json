@@ -1,0 +1,2387 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://my.gov.au/",
+  "scannedAt": "2026-08-24T08:18:02.304Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 8583,
+      "firstPartyDomain": "my.gov.au",
+      "totalRequests": 63,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 3,
+      "thirdPartyCookies": 0,
+      "storageEntries": 5,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 3
+    },
+    "conditions": {
+      "requestedUrl": "https://my.gov.au/",
+      "finalUrl": "https://my.gov.au/",
+      "scannedAt": "2026-08-24T08:18:10.918Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://my.gov.au/",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 44
+      },
+      {
+        "id": 2,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 3,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 4,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 5,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 99
+      },
+      {
+        "id": 6,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 100
+      },
+      {
+        "id": 7,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 100
+      },
+      {
+        "id": 8,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 9,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 10,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 11,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 12,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 154
+      },
+      {
+        "id": 13,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 14,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 15,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 16,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 17,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 18,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 19,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 20,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 21,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 22,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 23,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 24,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 174
+      },
+      {
+        "id": 26,
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 227
+      },
+      {
+        "id": 27,
+        "url": "https://my.gov.au/en/about/help/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 230
+      },
+      {
+        "id": 28,
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 230
+      },
+      {
+        "id": 29,
+        "url": "https://my.gov.au/en/about/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 231
+      },
+      {
+        "id": 30,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 31,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 262
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.my.gov.au",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 314
+      },
+      {
+        "id": 33,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 336
+      },
+      {
+        "id": 34,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 338
+      },
+      {
+        "id": 35,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 36,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 37,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 38,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 443
+      },
+      {
+        "id": 39,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 443
+      },
+      {
+        "id": 40,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 444
+      },
+      {
+        "id": 41,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 445
+      },
+      {
+        "id": 42,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 448
+      },
+      {
+        "id": 43,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 449
+      },
+      {
+        "id": 44,
+        "url": "https://login.my.gov.au/{seg}/{seg}",
+        "domain": "login.my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 454
+      },
+      {
+        "id": 45,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 470
+      },
+      {
+        "id": 46,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 470
+      },
+      {
+        "id": 47,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 470
+      },
+      {
+        "id": 48,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 49,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 478
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.my.gov.au",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1167
+      },
+      {
+        "id": 51,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1426
+      },
+      {
+        "id": 52,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1427
+      },
+      {
+        "id": 53,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1427
+      },
+      {
+        "id": 54,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1427
+      },
+      {
+        "id": 55,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1428
+      },
+      {
+        "id": 56,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1428
+      },
+      {
+        "id": 57,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1428
+      },
+      {
+        "id": 58,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1429
+      },
+      {
+        "id": 59,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1458
+      },
+      {
+        "id": 60,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1474
+      },
+      {
+        "id": 61,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1475
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.my.gov.au",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1575
+      },
+      {
+        "id": 63,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1576
+      }
+    ],
+    "domains": [
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "my.gov.au",
+        "requests": 57,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.my.gov.au",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "fetch",
+          "ping"
+        ]
+      },
+      {
+        "domain": "login.my.gov.au",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".my.gov.au",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".my.gov.au",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".my.gov.au",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 110
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 214
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 6
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "cnameCloaks": [
+      {
+        "host": "{label}.my.gov.au",
+        "cname": "{label}.{label}.{label}.{label}.adobedc.net",
+        "tracker": {
+          "domain": "adobedc.net",
+          "entity": "adobedc.net",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The page did not reach network idle before the scan window ended.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 8608,
+      "firstPartyDomain": "my.gov.au",
+      "totalRequests": 60,
+      "thirdPartyRequests": 2,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 2,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 5,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 3
+    },
+    "conditions": {
+      "requestedUrl": "https://my.gov.au/",
+      "finalUrl": "https://my.gov.au/",
+      "scannedAt": "2026-08-24T08:18:02.304Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://my.gov.au/",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 47
+      },
+      {
+        "id": 2,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 109
+      },
+      {
+        "id": 3,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 4,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 5,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 6,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 7,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 8,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 113
+      },
+      {
+        "id": 9,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 113
+      },
+      {
+        "id": 10,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 113
+      },
+      {
+        "id": 11,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 114
+      },
+      {
+        "id": 12,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 158
+      },
+      {
+        "id": 13,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 162
+      },
+      {
+        "id": 14,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 172
+      },
+      {
+        "id": 15,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 173
+      },
+      {
+        "id": 16,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 17,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 18,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 19,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 20,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 21,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 22,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 23,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 24,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 26,
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 221
+      },
+      {
+        "id": 27,
+        "url": "https://my.gov.au/en/about/help/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 222
+      },
+      {
+        "id": 28,
+        "url": "https://my.gov.au/en/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 222
+      },
+      {
+        "id": 29,
+        "url": "https://my.gov.au/en/about/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 222
+      },
+      {
+        "id": 30,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 277
+      },
+      {
+        "id": 31,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 278
+      },
+      {
+        "id": 32,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 305
+      },
+      {
+        "id": 33,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 305
+      },
+      {
+        "id": 35,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 425
+      },
+      {
+        "id": 36,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 426
+      },
+      {
+        "id": 37,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 426
+      },
+      {
+        "id": 38,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 447
+      },
+      {
+        "id": 39,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 447
+      },
+      {
+        "id": 40,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 448
+      },
+      {
+        "id": 41,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 448
+      },
+      {
+        "id": 43,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 478
+      },
+      {
+        "id": 44,
+        "url": "https://login.my.gov.au/{seg}/{seg}",
+        "domain": "login.my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 484
+      },
+      {
+        "id": 46,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 503
+      },
+      {
+        "id": 47,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 504
+      },
+      {
+        "id": 48,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 504
+      },
+      {
+        "id": 49,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 504
+      },
+      {
+        "id": 50,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 506
+      },
+      {
+        "id": 51,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 517
+      },
+      {
+        "id": 52,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 518
+      },
+      {
+        "id": 53,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1426
+      },
+      {
+        "id": 54,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1426
+      },
+      {
+        "id": 55,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1427
+      },
+      {
+        "id": 56,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1427
+      },
+      {
+        "id": 57,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1428
+      },
+      {
+        "id": 58,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1428
+      },
+      {
+        "id": 59,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1429
+      },
+      {
+        "id": 60,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1429
+      },
+      {
+        "id": 61,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1459
+      },
+      {
+        "id": 62,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1473
+      },
+      {
+        "id": 63,
+        "url": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "my.gov.au",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://my.gov.au/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "my.gov.au"
+        },
+        "startedAtMs": 1474
+      }
+    ],
+    "domains": [
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "my.gov.au",
+        "requests": 57,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "login.my.gov.au",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 110
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 214
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 6
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 63,
+      "after": 60,
+      "delta": -3
+    },
+    "thirdPartyRequests": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 3,
+      "after": 0,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.my.gov.au",
+        "requests": 3,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".my.gov.au",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".my.gov.au",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The page did not reach network idle before the scan window ended."
+  ],
+  "share": {
+    "id": "20260824-1fb736c9df96ac26e3c59abc135f311e",
+    "path": "/reports/20260824-1fb736c9df96ac26e3c59abc135f311e/",
+    "jsonPath": "/reports/20260824-1fb736c9df96ac26e3c59abc135f311e.json"
+  }
+}

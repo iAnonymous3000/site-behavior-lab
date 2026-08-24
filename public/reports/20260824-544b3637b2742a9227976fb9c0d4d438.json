@@ -1,0 +1,1844 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://creativecommons.org/",
+  "scannedAt": "2026-08-24T08:13:09.042Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5943,
+      "firstPartyDomain": "creativecommons.org",
+      "totalRequests": 45,
+      "thirdPartyRequests": 10,
+      "knownTrackerRequests": 5,
+      "thirdPartyDomains": 5,
+      "cookies": 4,
+      "thirdPartyCookies": 1,
+      "storageEntries": 2,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 11
+    },
+    "conditions": {
+      "requestedUrl": "https://creativecommons.org/",
+      "finalUrl": "https://creativecommons.org/",
+      "scannedAt": "2026-08-24T08:13:15.059Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://creativecommons.org/",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 50
+      },
+      {
+        "id": 2,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 3,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 103
+      },
+      {
+        "id": 4,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 104
+      },
+      {
+        "id": 5,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 104
+      },
+      {
+        "id": 6,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 105
+      },
+      {
+        "id": 7,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 105
+      },
+      {
+        "id": 8,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 120
+      },
+      {
+        "id": 9,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 121
+      },
+      {
+        "id": 10,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 11,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 149
+      },
+      {
+        "id": 12,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 150
+      },
+      {
+        "id": 13,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 163
+      },
+      {
+        "id": 14,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 171
+      },
+      {
+        "id": 15,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 16,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 195
+      },
+      {
+        "id": 17,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 196
+      },
+      {
+        "id": 18,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 196
+      },
+      {
+        "id": 19,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 20,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 21,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 22,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 199
+      },
+      {
+        "id": 23,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 24,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 203
+      },
+      {
+        "id": 25,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 247
+      },
+      {
+        "id": 26,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 248
+      },
+      {
+        "id": 27,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 248
+      },
+      {
+        "id": 28,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 249
+      },
+      {
+        "id": 29,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 251
+      },
+      {
+        "id": 30,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 31,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 32,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 33,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 34,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 35,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 36,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 37,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 538
+      },
+      {
+        "id": 38,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 539
+      },
+      {
+        "id": 39,
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 539
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&%5Bredacted%5D=&tid=&cid=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 539
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 542
+      },
+      {
+        "id": 42,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 542
+      },
+      {
+        "id": 43,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 542
+      },
+      {
+        "id": 44,
+        "url": "https://ad.doubleclick.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "ad.doubleclick.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 543
+      },
+      {
+        "id": 45,
+        "url": "https://www.google.com/{seg}/{seg}/{n}?%5Bredacted%5D=&cid=",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 595
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          200
+        ],
+        "resourceTypes": [
+          "ping",
+          "script"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "creativecommons.org",
+        "requests": 35,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "other",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".creativecommons.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".creativecommons.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".creativecommons.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 277
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 69
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://creativecommons.org/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 27120
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://creativecommons.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6010,
+      "firstPartyDomain": "creativecommons.org",
+      "totalRequests": 34,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://creativecommons.org/",
+      "finalUrl": "https://creativecommons.org/",
+      "scannedAt": "2026-08-24T08:13:09.042Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://creativecommons.org/",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 46
+      },
+      {
+        "id": 2,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 110
+      },
+      {
+        "id": 3,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 110
+      },
+      {
+        "id": 4,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 6,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 7,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 8,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 9,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 134
+      },
+      {
+        "id": 10,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 11,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 12,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 13,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 180
+      },
+      {
+        "id": 14,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 184
+      },
+      {
+        "id": 15,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 191
+      },
+      {
+        "id": 16,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 192
+      },
+      {
+        "id": 17,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 193
+      },
+      {
+        "id": 19,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 193
+      },
+      {
+        "id": 20,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 193
+      },
+      {
+        "id": 21,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 22,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 23,
+        "url": "https://creativecommons.org/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 195
+      },
+      {
+        "id": 24,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 196
+      },
+      {
+        "id": 25,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 26,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 27,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 28,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 261
+      },
+      {
+        "id": 29,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 30,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 273
+      },
+      {
+        "id": 31,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 32,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 33,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 275
+      },
+      {
+        "id": 34,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 277
+      },
+      {
+        "id": 35,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 277
+      },
+      {
+        "id": 36,
+        "url": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "creativecommons.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://creativecommons.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "creativecommons.org"
+        },
+        "startedAtMs": 278
+      }
+    ],
+    "domains": [
+      {
+        "domain": "creativecommons.org",
+        "requests": 34,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "other",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 69
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://creativecommons.org/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 27120
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://creativecommons.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 45,
+      "after": 34,
+      "delta": -11
+    },
+    "thirdPartyRequests": {
+      "before": 10,
+      "after": 0,
+      "delta": -10
+    },
+    "knownTrackerRequests": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "thirdPartyDomains": {
+      "before": 5,
+      "after": 0,
+      "delta": -5
+    },
+    "cookies": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyCookies": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "storageEntries": {
+      "before": 2,
+      "after": 1,
+      "delta": -1
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.google.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 5,
+        "domains": 4
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "test_cookie",
+        "domain": ".doubleclick.net",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".creativecommons.org",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".creativecommons.org",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".creativecommons.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "www.google.com",
+        "requests": 4,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "creativecommons.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "creativecommons.org",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 11,
+      "after": 2,
+      "delta": -9
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Read the site's privacy policy (https://creativecommons.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://creativecommons.org/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260824-544b3637b2742a9227976fb9c0d4d438",
+    "path": "/reports/20260824-544b3637b2742a9227976fb9c0d4d438/",
+    "jsonPath": "/reports/20260824-544b3637b2742a9227976fb9c0d4d438.json"
+  }
+}
