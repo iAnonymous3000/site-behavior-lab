@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "9cb186c98fe37c17bb40d63dca9ea710cf91cdfa90783c40a7db4c6b6d206df6"
+      "sha256": "c99b4c16a8f3dab9a11cd3058096f112fcbe8de1a79326988918303007e58be1"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -1264,13 +1264,13 @@
     },
     {
       "name": "@types/node",
-      "version": "24.13.3",
+      "version": "26.2.0",
       "lockPath": "node_modules/@types/node",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.13.3.tgz",
-      "integrity": "sha512-Dh8vAsV36ig5wa9OX4pXvMc9D3Veibfw2wix0CUwYODLD8nkj9UsLjASr49nPg+2eKzxhBV+v7L8pXvT4e639Q==",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-26.2.0.tgz",
+      "integrity": "sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==",
       "developmentOnly": true,
       "optional": false
     },
@@ -1972,13 +1972,13 @@
     },
     {
       "name": "undici-types",
-      "version": "7.18.2",
+      "version": "8.3.0",
       "lockPath": "node_modules/undici-types",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-7.18.2.tgz",
-      "integrity": "sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==",
+      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-8.3.0.tgz",
+      "integrity": "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==",
       "developmentOnly": true,
       "optional": false
     },

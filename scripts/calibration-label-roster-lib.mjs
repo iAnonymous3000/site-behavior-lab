@@ -9,6 +9,7 @@ import {
   sha256Hex,
   validateCalibrationLabelCommitment
 } from "./calibration-study-lib.mjs";
+import { calibrationCommitmentCiphertextSha256 } from "./calibration-label-source-envelope-lib.mjs";
 import { readCalibrationSingleJsonArtifact } from "./calibration-study-archive-lib.mjs";
 
 export const CALIBRATION_LABEL_ROSTER_AUTHORIZATION_KIND =
@@ -189,13 +190,8 @@ export function authenticatedCalibrationCommitmentSummaries(input) {
 
     const sourceCommitment = canonicalizeCalibrationValue(commitment.source);
     const envelopeCommitment = commitment.envelopeSha256;
-    const ciphertextCommitment = sha256Hex(
-      [
-        commitment.envelope.encryptedKey,
-        commitment.envelope.iv,
-        commitment.envelope.ciphertext,
-        commitment.envelope.authTag
-      ].join("\u0000")
+    const ciphertextCommitment = calibrationCommitmentCiphertextSha256(
+      commitment.envelope
     );
     if (
       actors.has(metadata.actor) ||

@@ -1418,10 +1418,10 @@
       "notes": null
     },
     {
-      "key": "npm:@types/node@24.13.3",
+      "key": "npm:@types/node@26.2.0",
       "ecosystem": "npm",
       "name": "@types/node",
-      "version": "24.13.3",
+      "version": "26.2.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2244,10 +2244,10 @@
       "notes": null
     },
     {
-      "key": "npm:undici-types@7.18.2",
+      "key": "npm:undici-types@8.3.0",
       "ecosystem": "npm",
       "name": "undici-types",
-      "version": "7.18.2",
+      "version": "8.3.0",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "MIT",

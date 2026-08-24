@@ -171,6 +171,47 @@ export function validateCalibrationLabelSourceEnvelope(
   return value;
 }
 
+/**
+ * The ciphertext commitment digest, in its ONE home. Roster uniqueness,
+ * reveal uniqueness, and the authenticated-commitment projection all state
+ * "this exact ciphertext" through this function; a restated formula is how
+ * two sites drift apart while both stay green.
+ */
+export function calibrationCommitmentCiphertextSha256(envelope) {
+  return sha256Hex(
+    [envelope.encryptedKey, envelope.iv, envelope.ciphertext, envelope.authTag].join("\u0000")
+  );
+}
+
+/**
+ * The 9-field envelope identity in the exact key order the validator pins
+ * (the AAD is canonicalPrettyJson of this object, so insertion order is
+ * load-bearing). New code builds identities only through this; the frozen
+ * v3 restatements inside calibration-study-lib.mjs (validateIdentity
+ * callers) deliberately stay untouched and are not additional homes for
+ * NEW writers.
+ */
+export function buildCalibrationLabelEnvelopeIdentity({
+  studyId,
+  detector,
+  role,
+  candidateCommit,
+  reviewerLogin,
+  keyId
+}) {
+  return {
+    schemaVersion: 1,
+    artifactKind: CALIBRATION_LABEL_SOURCE_ENVELOPE_KIND,
+    studyId,
+    detector,
+    role,
+    candidateCommit,
+    reviewerLogin,
+    algorithm: CALIBRATION_LABEL_SEALING_ALGORITHM,
+    keyId
+  };
+}
+
 export function openCalibrationLabelSourceEnvelope(
   value,
   privateKeyPem,

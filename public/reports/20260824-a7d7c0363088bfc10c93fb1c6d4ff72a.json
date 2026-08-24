@@ -9,7 +9,7 @@
     "variant": "Brave-list blocking"
   },
   "requestedUrl": "https://www.starfall.com/",
-  "scannedAt": "2026-08-17T06:05:58.252Z",
+  "scannedAt": "2026-08-24T06:08:54.355Z",
   "device": "desktop",
   "baseline": {
     "ok": true,
@@ -18,7 +18,7 @@
     "summary": {
       "pageTitle": "",
       "status": 200,
-      "durationMs": 3453,
+      "durationMs": 4038,
       "firstPartyDomain": "www.starfall.com",
       "totalRequests": 21,
       "thirdPartyRequests": 0,
@@ -33,7 +33,7 @@
     "conditions": {
       "requestedUrl": "https://www.starfall.com/",
       "finalUrl": "https://www.starfall.com/{seg}",
-      "scannedAt": "2026-08-17T06:06:01.765Z",
+      "scannedAt": "2026-08-24T06:08:50.311Z",
       "chromiumVersion": "151.0.7922.34",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
       "timezone": "UTC",
@@ -77,7 +77,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 48
+        "startedAtMs": 46
       },
       {
         "id": 2,
@@ -88,7 +88,7 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 507
+        "startedAtMs": 629
       },
       {
         "id": 3,
@@ -104,7 +104,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 707
+        "startedAtMs": 873
       },
       {
         "id": 4,
@@ -120,7 +120,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 708
+        "startedAtMs": 874
       },
       {
         "id": 5,
@@ -136,7 +136,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 708
+        "startedAtMs": 874
       },
       {
         "id": 6,
@@ -152,7 +152,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 708
+        "startedAtMs": 874
       },
       {
         "id": 7,
@@ -168,7 +168,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 709
+        "startedAtMs": 874
       },
       {
         "id": 8,
@@ -184,7 +184,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 710
+        "startedAtMs": 875
       },
       {
         "id": 9,
@@ -200,7 +200,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 710
+        "startedAtMs": 875
       },
       {
         "id": 10,
@@ -216,7 +216,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 710
+        "startedAtMs": 875
       },
       {
         "id": 11,
@@ -232,7 +232,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 711
+        "startedAtMs": 875
       },
       {
         "id": 12,
@@ -248,7 +248,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 711
+        "startedAtMs": 875
       },
       {
         "id": 13,
@@ -264,7 +264,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 711
+        "startedAtMs": 876
       },
       {
         "id": 14,
@@ -280,7 +280,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 817
+        "startedAtMs": 1014
       },
       {
         "id": 15,
@@ -296,7 +296,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 818
+        "startedAtMs": 1075
       },
       {
         "id": 16,
@@ -312,7 +312,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 920
+        "startedAtMs": 1139
       },
       {
         "id": 17,
@@ -328,7 +328,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 922
+        "startedAtMs": 1156
       },
       {
         "id": 18,
@@ -344,7 +344,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 934
+        "startedAtMs": 1170
       },
       {
         "id": 19,
@@ -360,7 +360,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 935
+        "startedAtMs": 1171
       },
       {
         "id": 20,
@@ -376,7 +376,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 935
+        "startedAtMs": 1171
       },
       {
         "id": 21,
@@ -392,7 +392,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 936
+        "startedAtMs": 1171
       }
     ],
     "domains": [
@@ -461,7 +461,7 @@
     "summary": {
       "pageTitle": "",
       "status": 200,
-      "durationMs": 3507,
+      "durationMs": 3965,
       "firstPartyDomain": "www.starfall.com",
       "totalRequests": 21,
       "thirdPartyRequests": 0,
@@ -476,7 +476,7 @@
     "conditions": {
       "requestedUrl": "https://www.starfall.com/",
       "finalUrl": "https://www.starfall.com/{seg}",
-      "scannedAt": "2026-08-17T06:05:58.252Z",
+      "scannedAt": "2026-08-24T06:08:54.355Z",
       "chromiumVersion": "151.0.7922.34",
       "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
       "timezone": "UTC",
@@ -520,7 +520,7 @@
         "thirdParty": false,
         "tracker": null,
         "blockedByShields": false,
-        "startedAtMs": 41
+        "startedAtMs": 48
       },
       {
         "id": 2,
@@ -531,7 +531,7 @@
         "status": 200,
         "thirdParty": false,
         "tracker": null,
-        "startedAtMs": 411
+        "startedAtMs": 456
       },
       {
         "id": 3,
@@ -547,7 +547,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 558
+        "startedAtMs": 698
       },
       {
         "id": 4,
@@ -563,7 +563,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 559
+        "startedAtMs": 699
       },
       {
         "id": 5,
@@ -579,7 +579,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 560
+        "startedAtMs": 699
       },
       {
         "id": 6,
@@ -595,7 +595,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 560
+        "startedAtMs": 702
       },
       {
         "id": 7,
@@ -611,7 +611,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 560
+        "startedAtMs": 702
       },
       {
         "id": 8,
@@ -627,7 +627,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 561
+        "startedAtMs": 703
       },
       {
         "id": 9,
@@ -643,7 +643,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 561
+        "startedAtMs": 703
       },
       {
         "id": 10,
@@ -659,7 +659,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 561
+        "startedAtMs": 703
       },
       {
         "id": 11,
@@ -675,7 +675,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 562
+        "startedAtMs": 703
       },
       {
         "id": 12,
@@ -691,7 +691,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 596
+        "startedAtMs": 703
       },
       {
         "id": 13,
@@ -707,7 +707,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 597
+        "startedAtMs": 704
       },
       {
         "id": 14,
@@ -723,7 +723,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 699
+        "startedAtMs": 903
       },
       {
         "id": 15,
@@ -739,7 +739,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 742
+        "startedAtMs": 903
       },
       {
         "id": 16,
@@ -755,7 +755,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 791
+        "startedAtMs": 920
       },
       {
         "id": 17,
@@ -771,7 +771,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 807
+        "startedAtMs": 921
       },
       {
         "id": 18,
@@ -787,7 +787,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 820
+        "startedAtMs": 973
       },
       {
         "id": 19,
@@ -803,7 +803,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 820
+        "startedAtMs": 973
       },
       {
         "id": 20,
@@ -819,7 +819,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 821
+        "startedAtMs": 976
       },
       {
         "id": 21,
@@ -835,7 +835,7 @@
           "initiatorUrl": "https://www.starfall.com/{seg}/{seg}/{seg}/{seg}",
           "initiatorDomain": "www.starfall.com"
         },
-        "startedAtMs": 821
+        "startedAtMs": 976
       }
     ],
     "domains": [
@@ -959,7 +959,7 @@
   },
   "warnings": [
     "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
-    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
     "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
     "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
     "No blocking: Read the site's privacy policy (https://{label}.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
@@ -969,8 +969,8 @@
     "Brave-list blocking: Read the site's privacy policy (https://{label}.starfall.com/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
   ],
   "share": {
-    "id": "20260817-fe065bc9ff37d2e80d65e8cbef36319c",
-    "path": "/reports/20260817-fe065bc9ff37d2e80d65e8cbef36319c/",
-    "jsonPath": "/reports/20260817-fe065bc9ff37d2e80d65e8cbef36319c.json"
+    "id": "20260824-a7d7c0363088bfc10c93fb1c6d4ff72a",
+    "path": "/reports/20260824-a7d7c0363088bfc10c93fb1c6d4ff72a/",
+    "jsonPath": "/reports/20260824-a7d7c0363088bfc10c93fb1c6d4ff72a.json"
   }
 }

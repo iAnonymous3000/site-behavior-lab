@@ -14,6 +14,8 @@ import {
 import {
   CALIBRATION_LABEL_SEALING_ALGORITHM,
   CALIBRATION_LABEL_SOURCE_ENVELOPE_KIND,
+  buildCalibrationLabelEnvelopeIdentity,
+  calibrationCommitmentCiphertextSha256,
   openCalibrationLabelSourceEnvelope,
   validateCalibrationLabelSourceEnvelope
 } from "./calibration-label-source-envelope-lib.mjs";
@@ -298,61 +300,62 @@ export function fetchAuthenticatedCalibrationLabelCommitments(input) {
   });
 }
 
-export function assembleAuthenticatedCalibrationLabels(input) {
-  const roster = input.roster ?? null;
-  if (roster !== null) {
-    requireRecord(roster, "calibration label roster custody");
-    exactKeys(
-      roster,
-      [
-        "authorizationPath",
-        "authorizationSha256",
-        "selectionLedgerPath",
-        "selectionLedgerSha256",
-        "candidateCommit",
-        "carrierCommit",
-        "authenticatedCommitments",
-        "commitmentSetSha256"
-      ],
-      "calibration label roster custody"
-    );
-    const expectedRosterRoot =
-      `calibration/${input.candidate.studyId}`;
-    if (
-      roster.authorizationPath !==
-        `${expectedRosterRoot}/label-roster-authorization.json` ||
-      roster.selectionLedgerPath !==
-        `${expectedRosterRoot}/roster-selection-ledger.json` ||
-      !SHA256.test(roster.authorizationSha256) ||
-      !SHA256.test(roster.selectionLedgerSha256) ||
-      roster.candidateCommit !== input.candidateCommit ||
-      !FULL_SHA.test(roster.carrierCommit) ||
-      !Array.isArray(roster.authenticatedCommitments) ||
-      !SHA256.test(roster.commitmentSetSha256)
-    ) {
-      throw new Error(
-        "calibration label roster custody does not bind the fixed study paths, candidate, carrier, and hosted commitment set"
-      );
-    }
-  }
-  const retainedCaseIds = new Set(input.retainedCaseIds);
+/**
+ * GENERIC CUSTODY HELPERS, extracted verbatim from the v3 assembly so the
+ * v4 reveal can enforce the identical custody rules by CALLING them rather
+ * than restating them (the repo's top defect class is one contract in two
+ * homes). v3 behavior, error strings, and per-entry ordering are unchanged:
+ * assembleAuthenticatedCalibrationLabels below composes exactly these.
+ */
+export function validateCalibrationRosterCustodyRecord(roster, { studyId, candidateCommit }) {
+  requireRecord(roster, "calibration label roster custody");
+  exactKeys(
+    roster,
+    [
+      "authorizationPath",
+      "authorizationSha256",
+      "selectionLedgerPath",
+      "selectionLedgerSha256",
+      "candidateCommit",
+      "carrierCommit",
+      "authenticatedCommitments",
+      "commitmentSetSha256"
+    ],
+    "calibration label roster custody"
+  );
+  const expectedRosterRoot =
+    `calibration/${studyId}`;
   if (
-    retainedCaseIds.size !== input.retainedCaseIds.length ||
-    [...retainedCaseIds].some(
-      (caseId) => !input.candidate.frameById.has(caseId)
-    )
+    roster.authorizationPath !==
+      `${expectedRosterRoot}/label-roster-authorization.json` ||
+    roster.selectionLedgerPath !==
+      `${expectedRosterRoot}/roster-selection-ledger.json` ||
+    !SHA256.test(roster.authorizationSha256) ||
+    !SHA256.test(roster.selectionLedgerSha256) ||
+    roster.candidateCommit !== candidateCommit ||
+    !FULL_SHA.test(roster.carrierCommit) ||
+    !Array.isArray(roster.authenticatedCommitments) ||
+    !SHA256.test(roster.commitmentSetSha256)
   ) {
     throw new Error(
-      "retained calibration label case ids must be unique members of the frozen frame"
+      "calibration label roster custody does not bind the fixed study paths, candidate, carrier, and hosted commitment set"
     );
   }
-  const labelCommitments = input.commitments.filter(
+  return roster;
+}
+
+export function validateCalibrationCommitmentSetCustody({
+  commitments,
+  acquisitionRunStartedAt,
+  acquisitionJobStartedAt
+}) {
+  const labelCommitments = commitments.filter(
     (entry) => entry.commitment.role === "labeler"
   );
-  const tiebreakerCommitments = input.commitments.filter(
+  const tiebreakerCommitments = commitments.filter(
     (entry) => entry.commitment.role === "tiebreaker"
   );
-  const actors = input.commitments.map((entry) => entry.metadata.actor);
+  const actors = commitments.map((entry) => entry.metadata.actor);
   if (
     labelCommitments.length < 2 ||
     labelCommitments.length > 10 ||
@@ -366,12 +369,12 @@ export function assembleAuthenticatedCalibrationLabels(input) {
   const sourceCommitments = new Set();
   const envelopeCommitments = new Set();
   const ciphertextCommitments = new Set();
-  for (const entry of input.commitments) {
+  for (const entry of commitments) {
     if (
       Date.parse(entry.metadata.artifactCreatedAt) >=
-        Date.parse(input.acquisitionRunStartedAt) ||
+        Date.parse(acquisitionRunStartedAt) ||
       Date.parse(entry.metadata.artifactCreatedAt) >=
-        Date.parse(input.acquisitionJobStartedAt)
+        Date.parse(acquisitionJobStartedAt)
     ) {
       throw new Error(
         "every label and blind-tiebreaker ciphertext commitment must exist before the authenticated acquisition run and job start"
@@ -381,13 +384,8 @@ export function assembleAuthenticatedCalibrationLabels(input) {
       entry.commitment.source
     );
     const envelopeCommitment = entry.commitment.envelopeSha256;
-    const ciphertextCommitment = sha256Hex(
-      [
-        entry.commitment.envelope.encryptedKey,
-        entry.commitment.envelope.iv,
-        entry.commitment.envelope.ciphertext,
-        entry.commitment.envelope.authTag
-      ].join("\u0000")
+    const ciphertextCommitment = calibrationCommitmentCiphertextSha256(
+      entry.commitment.envelope
     );
     if (
       sourceCommitments.has(sourceCommitment) ||
@@ -402,22 +400,108 @@ export function assembleAuthenticatedCalibrationLabels(input) {
     envelopeCommitments.add(envelopeCommitment);
     ciphertextCommitments.add(ciphertextCommitment);
   }
-  const revealed = input.commitments.map((entry) => {
-    const opened = openCalibrationLabelSourceEnvelope(
-      entry.commitment.envelope,
-      input.privateKeyPem,
-      {
-        schemaVersion: 1,
-        artifactKind: CALIBRATION_LABEL_SOURCE_ENVELOPE_KIND,
-        studyId: input.candidate.studyId,
-        detector: input.candidate.detector,
-        role: entry.commitment.role,
-        candidateCommit: input.candidateCommit,
-        reviewerLogin: entry.metadata.actor,
-        algorithm: CALIBRATION_LABEL_SEALING_ALGORITHM,
-        keyId: input.candidate.labelSealingKey.keyId
-      }
+  return {
+    labelCommitments,
+    tiebreakerCommitments
+  };
+}
+
+/** Open ONE authenticated commitment's envelope against its expected identity. */
+export function openCalibrationCommitmentEnvelope(entry, { privateKeyPem, candidate, candidateCommit }) {
+  return openCalibrationLabelSourceEnvelope(
+    entry.commitment.envelope,
+    privateKeyPem,
+    buildCalibrationLabelEnvelopeIdentity({
+      studyId: candidate.studyId,
+      detector: candidate.detector,
+      role: entry.commitment.role,
+      candidateCommit,
+      reviewerLogin: entry.metadata.actor,
+      keyId: candidate.labelSealingKey.keyId
+    })
+  );
+}
+
+/**
+ * The 14-field authenticated-commitment projection and its set digest for
+ * the reveal side. The roster builder's own projection
+ * (calibration-label-roster-lib.mjs) deliberately stays as it is and the
+ * two are cross-pinned by the producer suite, which builds a roster with
+ * the real builder and reveals it through this path; any divergence fails
+ * that suite, never a live ceremony.
+ */
+export function describeAuthenticatedCalibrationCommitments(commitments) {
+  const authenticatedCommitments = commitments.map((entry) => ({
+    role: entry.commitment.role,
+    actor: entry.metadata.actor,
+    runId: entry.metadata.runId,
+    runAttempt: entry.metadata.runAttempt,
+    headSha: entry.metadata.headSha,
+    artifactId: entry.metadata.artifactId,
+    artifactName: entry.metadata.artifactName,
+    archiveSha256: entry.metadata.archiveSha256,
+    createdAt: entry.metadata.artifactCreatedAt,
+    source: entry.commitment.source,
+    algorithm: entry.commitment.envelope.algorithm,
+    keyId: entry.commitment.keyId,
+    envelopeSha256: entry.commitment.envelopeSha256,
+    ciphertextSha256: calibrationCommitmentCiphertextSha256(entry.commitment.envelope)
+  }));
+  const commitmentSetSha256 = sha256Hex(
+    `${canonicalizeCalibrationValue(authenticatedCommitments)}`
+  );
+  return { authenticatedCommitments, commitmentSetSha256 };
+}
+
+/** The revealed commitment set must EXACTLY equal the pre-acquisition roster. */
+export function assertRevealedCommitmentsEqualRoster({
+  authenticatedCommitments,
+  commitmentSetSha256,
+  roster
+}) {
+  if (
+    canonicalizeCalibrationValue(authenticatedCommitments) !==
+      canonicalizeCalibrationValue(
+        roster.authenticatedCommitments
+      ) ||
+    commitmentSetSha256 !== roster.commitmentSetSha256
+  ) {
+    throw new Error(
+      "revealed calibration commitments do not exactly equal the pre-acquisition authorized roster"
     );
+  }
+}
+
+export function assembleAuthenticatedCalibrationLabels(input) {
+  const roster = input.roster ?? null;
+  if (roster !== null) {
+    validateCalibrationRosterCustodyRecord(roster, {
+      studyId: input.candidate.studyId,
+      candidateCommit: input.candidateCommit
+    });
+  }
+  const retainedCaseIds = new Set(input.retainedCaseIds);
+  if (
+    retainedCaseIds.size !== input.retainedCaseIds.length ||
+    [...retainedCaseIds].some(
+      (caseId) => !input.candidate.frameById.has(caseId)
+    )
+  ) {
+    throw new Error(
+      "retained calibration label case ids must be unique members of the frozen frame"
+    );
+  }
+  validateCalibrationCommitmentSetCustody({
+    commitments: input.commitments,
+    acquisitionRunStartedAt: input.acquisitionRunStartedAt,
+    acquisitionJobStartedAt: input.acquisitionJobStartedAt
+  });
+  const revealed = input.commitments.map((entry) => {
+    const opened = openCalibrationCommitmentEnvelope(entry, {
+      privateKeyPem: input.privateKeyPem,
+      candidate: input.candidate,
+      candidateCommit: input.candidateCommit
+    });
     const source = validateCalibrationLabelSource(
       opened.value,
       input.candidate,
@@ -581,43 +665,14 @@ export function assembleAuthenticatedCalibrationLabels(input) {
     }
   }
   files.sort((left, right) => left.path.localeCompare(right.path));
-  const authenticatedCommitments = input.commitments.map((entry) => ({
-    role: entry.commitment.role,
-    actor: entry.metadata.actor,
-    runId: entry.metadata.runId,
-    runAttempt: entry.metadata.runAttempt,
-    headSha: entry.metadata.headSha,
-    artifactId: entry.metadata.artifactId,
-    artifactName: entry.metadata.artifactName,
-    archiveSha256: entry.metadata.archiveSha256,
-    createdAt: entry.metadata.artifactCreatedAt,
-    source: entry.commitment.source,
-    algorithm: entry.commitment.envelope.algorithm,
-    keyId: entry.commitment.keyId,
-    envelopeSha256: entry.commitment.envelopeSha256,
-    ciphertextSha256: sha256Hex(
-      [
-        entry.commitment.envelope.encryptedKey,
-        entry.commitment.envelope.iv,
-        entry.commitment.envelope.ciphertext,
-        entry.commitment.envelope.authTag
-      ].join("\u0000")
-    )
-  }));
-  const commitmentSetSha256 = sha256Hex(
-    `${canonicalizeCalibrationValue(authenticatedCommitments)}`
-  );
-  if (
-    roster !== null &&
-    (canonicalizeCalibrationValue(authenticatedCommitments) !==
-      canonicalizeCalibrationValue(
-        roster.authenticatedCommitments
-      ) ||
-      commitmentSetSha256 !== roster.commitmentSetSha256)
-  ) {
-    throw new Error(
-      "revealed calibration commitments do not exactly equal the pre-acquisition authorized roster"
-    );
+  const { authenticatedCommitments, commitmentSetSha256 } =
+    describeAuthenticatedCalibrationCommitments(input.commitments);
+  if (roster !== null) {
+    assertRevealedCommitmentsEqualRoster({
+      authenticatedCommitments,
+      commitmentSetSha256,
+      roster
+    });
   }
   const manifest = {
     schemaVersion: 3,

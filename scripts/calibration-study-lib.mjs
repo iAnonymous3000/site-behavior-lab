@@ -2851,16 +2851,26 @@ function selectionObject(value, studyId, detector, caseId) {
       value.caseId === caseId,
     `${caseId} selection identity is invalid`
   );
+  requireCalibrationSubjectUrl(value.url, `${caseId} selection`);
+  return value;
+}
+
+/**
+ * The one subject-URL rule: https, no embedded credentials, no fragment.
+ * Extracted from selectionObject so the v4 reference-task verifier states
+ * the SAME rule by calling it, never by restating it.
+ */
+export function requireCalibrationSubjectUrl(url, label) {
   let parsed;
   try {
-    parsed = new URL(value.url);
+    parsed = new URL(url);
   } catch {
-    throw new Error(`${caseId} selection URL is invalid`);
+    throw new Error(`${label} URL is invalid`);
   }
-  require(parsed.protocol === "https:", `${caseId} selection URL must use HTTPS`);
-  require(parsed.username === "" && parsed.password === "", `${caseId} selection URL cannot carry credentials`);
-  require(parsed.hash === "", `${caseId} selection URL cannot carry a fragment`);
-  return value;
+  require(parsed.protocol === "https:", `${label} URL must use HTTPS`);
+  require(parsed.username === "" && parsed.password === "", `${label} URL cannot carry credentials`);
+  require(parsed.hash === "", `${label} URL cannot carry a fragment`);
+  return parsed;
 }
 
 function conditionObject(
