@@ -706,8 +706,20 @@ test("the pilot pipeline: close, reveal, resolve, and size from resolved labels 
   const resolved = buildV4ResolvedLabelsArtifact({
     frameTasks: built.frameTasks,
     labelerBatches: revealed.labelerBatches,
-    tiebreakerBatch: revealed.tiebreakerBatch
+    tiebreakerBatch: revealed.tiebreakerBatch,
+    commitmentSetSha256: revealed.commitmentSetSha256
   });
+  assert.equal(resolved.artifact.commitmentSetSha256, revealed.commitmentSetSha256);
+  // Resolved labels without their authorizing set digest are unanchored.
+  assert.throws(
+    () =>
+      buildV4ResolvedLabelsArtifact({
+        frameTasks: built.frameTasks,
+        labelerBatches: revealed.labelerBatches,
+        tiebreakerBatch: revealed.tiebreakerBatch
+      }),
+    /need the authorized commitmentSetSha256/
+  );
   assert.equal(validateV4ResolvedLabelsArtifact(resolved.artifact), resolved.artifact);
   // The unknown-reason vocabulary is CLOSED: a future reason must be
   // adjudicated into the sizing rule before it can exist, or the sizing
@@ -746,9 +758,26 @@ test("the pilot pipeline: close, reveal, resolve, and size from resolved labels 
     buildV4ResolvedLabelsArtifact({
       frameTasks: built.frameTasks,
       labelerBatches: revealed.labelerBatches,
-      tiebreakerBatch: revealed.tiebreakerBatch
+      tiebreakerBatch: revealed.tiebreakerBatch,
+      commitmentSetSha256: revealed.commitmentSetSha256
     }).text,
     resolved.text
+  );
+
+  // The sizing producer binds case for case: an alien roster with the right
+  // COUNT but foreign caseIds refuses before anything is counted.
+  const alien = {
+    ...resolved.artifact,
+    cases: resolved.artifact.cases.map((entry, index) => ({ ...entry, caseId: `alien-${index}.example` }))
+  };
+  assert.throws(
+    () =>
+      computeV4PilotSizingArtifact({
+        resolvedLabelsBytes: `${JSON.stringify(alien, null, 2)}\n`,
+        frameTasksBytes: built.frameTasksBytes,
+        minimumPerClass: 100
+      }),
+    /case for case in frame order/
   );
 
   // Sizing consumes ONLY the artifacts. Three cases is below the pilot
@@ -875,12 +904,40 @@ test("pilot custody refusals: late commitments, substituted records, and free bo
     () => validateV4PilotLabelingAuthorization(forged),
     /does not match its own commitment set/
   );
-  // A tampered authorization (moved close instant) fails its own set
-  // digest or canonicality before anything else.
-  const tampered = closed.text.replace(CLOSE, "2026-08-25T00:00:00.000Z");
+  // A close moved BEFORE the authorized commitments is refused by the
+  // authorization's own per-commitment chronology, timelessly (a close
+  // moved to a LATER past instant is indistinguishable in-artifact by
+  // design; the repository commit of the authorization is the protection
+  // there, and the postdate rule covers future instants).
+  const tampered = closed.text.replace(CLOSE, "2026-08-21T00:00:00.000Z");
   const tamperedResult = reveal({ authorizationBytes: tampered });
-  assert.ok(tamperedResult.threw !== null);
+  assert.match(tamperedResult.threw, /must predate the labeling close/);
   assert.equal(tamperedResult.keyReads, 0);
+  // A close instant in the FUTURE relative to the reveal is refused by the
+  // postdate rule regardless of the run date.
+  const future = closed.text.replace(
+    CLOSE,
+    new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().replace(/\.\d{3}Z$/, ".000Z")
+  );
+  const futureResult = reveal({ authorizationBytes: future });
+  assert.ok(futureResult.threw !== null);
+  assert.equal(futureResult.keyReads, 0);
+  // A keyId that disagrees with the sealed commitments refuses at CLOSE
+  // time, key-free, before the authorization can ever be committed.
+  assert.throws(
+    () =>
+      buildV4PilotLabelingAuthorization({
+        studyId: built.frameTasks.studyId,
+        detector: DETECTOR,
+        candidateCommit: CANDIDATE,
+        referenceProtocolId: PROTOCOL,
+        keyId: sha("f"),
+        frameTasksSha256: built.frameTasksSha256,
+        labelingClosedAt: CLOSE,
+        commitments
+      }),
+    /sealed under the authorization's own keyId/
+  );
 });
 
 test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks", () => {
@@ -1148,13 +1205,23 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
   ]);
   assert.equal(sizing.status, 0, sizing.stderr);
   const sizingArtifact = JSON.parse(readFileSync(path.join(pilotRoot, "pilot-sizing.json"), "utf8"));
-  assert.equal(sizingArtifact.counts.total, 100);
-  assert.equal(
-    sizingArtifact.counts.present + sizingArtifact.counts.absent + sizingArtifact.counts.uncertain,
-    100
-  );
+  // Exact bin counts pinned to the constructed label distribution: alice 25
+  // present, bob 30 (disagreements on 25..29 tiebroken by carol to absent),
+  // unanimous uncertain on 95..99. A bin swap or merge changes these.
+  assert.deepEqual(sizingArtifact.counts, { present: 25, absent: 70, uncertain: 5, total: 100 });
   assert.equal(typeof sizingArtifact.derivedN, "number");
   assert.equal(sizingArtifact.feasibility.sweptEligiblePool, 1126);
+  // A nonsense pool refuses through the one validation home.
+  const badPool = run([
+    "scripts/calibration-v4-pilot-sizing.mjs",
+    "--resolved-labels", path.join(outDir, "resolved-labels.json"),
+    "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+    "--minimum-per-class", "100",
+    "--swept-eligible-pool", "-5",
+    "--out", path.join(pilotRoot, "pilot-sizing-bad.json")
+  ]);
+  assert.notEqual(badPool.status, 0);
+  assert.match(badPool.stderr, /swept eligible pool count/);
 
   const failedSeal = run([
     "scripts/calibration-v4-seal-label-batch.mjs",

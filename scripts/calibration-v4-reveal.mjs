@@ -65,7 +65,7 @@ if (
   )
 ) {
   fail(
-    `--authorization must be the repo-committed calibration/${frameTasks.studyId}/pilot-labeling-authorization.json; a relocated authorization has no commit anchor`
+    `--authorization must end with calibration/${frameTasks.studyId}/pilot-labeling-authorization.json. This is a naming-convention check only; the ANCHOR is the repository commit of that file, which the ceremony runbook verifies against the checkout before any reveal.`
   );
 }
 const authorizationBytes = readFileSync(values.get("--authorization"), "utf8");
@@ -105,7 +105,8 @@ const revealed = revealAuthenticatedV4PilotLabelBatches({
 const resolved = buildV4ResolvedLabelsArtifact({
   frameTasks,
   labelerBatches: revealed.labelerBatches,
-  tiebreakerBatch: revealed.tiebreakerBatch
+  tiebreakerBatch: revealed.tiebreakerBatch,
+  commitmentSetSha256: revealed.commitmentSetSha256
 });
 const outDir = values.get("--out-dir");
 mkdirSync(outDir, { recursive: true, mode: 0o700 });
