@@ -211,21 +211,29 @@ test("the Shields stat is denominated by requests the engine actually evaluated"
     overview.indexOf("icon: shieldsMeasurement.origin", overview.indexOf('label: "Matched Shields lists"'))
   );
   assert.ok(shields.length > 0, "the Shields stat block must still be findable");
+  // The detail line lives in one shared builder now; the stat must render
+  // through it (an inline restatement is how the legacy branch drifted), and
+  // the builder's recorded branch must denominate by the evaluated count.
   assert.match(
     shields,
-    /shieldsMeasurement\.evaluated/,
+    /shieldsFilterMatchDetail\(shieldsMeasurement\)/,
+    "the stat's detail must come from the shared builder"
+  );
+  const insights = source("lib/report-insights.ts");
+  assert.match(
+    insights,
+    /`verified over \$\{formatCount\(measurement\.evaluated\)\}/,
     "the recorded branch must use the evaluated count as its denominator"
   );
   // Discriminated on origin, so there is no unreachable "recorded but unknown
   // denominator" branch to write copy for.
-  assert.match(source("lib/report-insights.ts"), /\{ origin: "recorded"; evaluated: number \}/);
+  assert.match(insights, /\{ origin: "recorded"; evaluated: number \}/);
   assert.doesNotMatch(
     shields,
-    /verified classification of \$\{retainedCountLabel\(\s*run\.counts\.totalRequests/,
-    "the retained request total is the wrong population for a verified classification"
+    /retainedCountLabel\(\s*run\.counts\.totalRequests/,
+    "the retained request total is the wrong population for this stat's detail"
   );
   // The measurement must actually carry it, or the UI has nothing honest to use.
-  const insights = source("lib/report-insights.ts");
   assert.match(insights, /evaluated: facts\.requestsEvaluated/);
   assert.match(insights, /evaluated: null/, "a legacy-derived measurement records no evaluation");
 });

@@ -29,11 +29,17 @@
 /**
  * The complete vocabulary a sweep may observe. Load facts only.
  *
- * Every field here answers "did the page load, and was the visit sound enough
- * to label later" -- never "what did the detector find". `capturedFamilies` is
- * deliberately a COUNT of censored families rather than which ones: knowing
- * that cname evidence specifically was censored is a weak signal about the
- * detector, and the sweep has no need for it.
+ * Every field here answers "did the page load, and was the visit verified" or
+ * "which evidence families survived" -- never "what did the detector find".
+ * `censoredFamilies` carries family IDENTITY, not just a count. An earlier
+ * revision kept only the count so the sweep could not even weakly hint at a
+ * detector; the step-3 censoring decision
+ * (docs/calibration-censoring-policy-decision.md) reverses that deliberately:
+ * per-detector policies are sized from per-family loss structure, so the sweep
+ * must report WHICH input families are lossy. The anti-selection property
+ * moves to the eligibility boundary instead: `candidateEligible` reads load
+ * validity only, so the frame can never be selected on input completeness,
+ * and predictions remain unrepresentable in this vocabulary either way.
  */
 export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
   "caseId",
@@ -49,8 +55,10 @@ export const BARE_LOAD_OUTCOME_FIELDS = Object.freeze([
   "factsLedgerRecorded",
   "recordedCaptureLosses",
   "budgetsExhausted",
+  "familyLedgerReported",
   "familyLedgerComplete",
-  "censoredFamilyCount",
+  "ledgersConsistent",
+  "censoredFamilies",
   "requestEvidenceComplete"
 ]);
 
@@ -107,6 +115,24 @@ export function assertBareLoadOnly(outcome, context = "bare-load outcome") {
       `${context} carries "${key}", which is not a bare-load field; the reliability sweep must never observe detector output`
     );
   }
+  // The one array-valued field is closed by VALUE as well as by key: a
+  // hand-edited artifact must not be able to smuggle arbitrary strings
+  // (including detector names) through it, and the sorted-unique requirement
+  // keeps the persisted artifact canonical.
+  if ("censoredFamilies" in outcome) {
+    const families = outcome.censoredFamilies;
+    require(Array.isArray(families), `${context} censoredFamilies must be an array`);
+    for (let index = 0; index < families.length; index += 1) {
+      require(
+        EXPECTED_EVIDENCE_FAMILIES.includes(families[index]),
+        `${context} censoredFamilies carries "${families[index]}", which is not an evidence family`
+      );
+      require(
+        index === 0 || families[index - 1] < families[index],
+        `${context} censoredFamilies must be sorted and unique`
+      );
+    }
+  }
   return outcome;
 }
 
@@ -123,8 +149,8 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     "bare-load outcome requires a case id"
   );
   require(
-    pass === 1 || pass === 2,
-    "bare-load outcome requires an explicit sweep pass number (1 or 2)"
+    Number.isSafeInteger(pass) && pass >= 1 && pass <= MAX_SWEEP_ROUNDS,
+    `bare-load outcome requires an explicit sweep round number (1 to ${MAX_SWEEP_ROUNDS})`
   );
   require(
     typeof observedAt === "string" && ISO_UTC.test(observedAt),
@@ -151,8 +177,10 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     factsLedgerRecorded: false,
     recordedCaptureLosses: 0,
     budgetsExhausted: 0,
+    familyLedgerReported: false,
     familyLedgerComplete: false,
-    censoredFamilyCount: 0,
+    ledgersConsistent: false,
+    censoredFamilies: [],
     requestEvidenceComplete: false
   };
 
@@ -211,27 +239,56 @@ export function bareLoadOutcome(caseId, report, { pass, observedAt } = {}) {
     factsLedgerRecorded,
     recordedCaptureLosses: captureLoss === null ? 0 : captureLoss.length,
     budgetsExhausted: factsLedgerRecorded ? facts.budgetsExhausted.length : 0,
+    // Reported and complete are different statements: a producer that never
+    // spoke about a family is an unverified report (validity), while a
+    // producer that reported a family censored is a verified report with an
+    // input loss (readiness).
+    familyLedgerReported: EXPECTED_EVIDENCE_FAMILIES.every((family) =>
+      isRecord(byFamily[family])
+    ),
     familyLedgerComplete: EXPECTED_EVIDENCE_FAMILIES.every(
       (family) => byFamily[family]?.outcome === "complete"
     ),
-    censoredFamilyCount: families.filter((entry) => entry?.outcome === "censored").length,
+    censoredFamilies: EXPECTED_EVIDENCE_FAMILIES.filter(
+      (family) => byFamily[family]?.outcome === "censored"
+    ),
+    // Per-family agreement between the two ledgers, in the one direction this
+    // module refuses: every RECORDED loss must name a family the derived
+    // ledger admits is censored. A loss against a family claiming complete is
+    // the reassuring-direction contradiction, whichever other families were
+    // censored; a loss entry whose family this module cannot recognize is
+    // unverifiable and fails closed. The inverse direction (a censored family
+    // with no recorded loss) is the HARSH direction and stays acceptable.
+    // Budget entries carry no family this module can attribute without
+    // semantic knowledge, so budgets keep the whole-run rule in the validity
+    // predicate below.
+    ledgersConsistent:
+      captureLoss !== null &&
+      captureLoss.every(
+        (loss) =>
+          typeof loss?.family === "string" &&
+          EXPECTED_EVIDENCE_FAMILIES.includes(loss.family) &&
+          byFamily[loss.family]?.outcome === "censored"
+      ),
     requestEvidenceComplete: byFamily.requests?.outcome === "complete"
   });
 }
 
 /**
- * A case is sweep-eligible when the visit was sound enough that a later labeled
- * run is likely to be usable. This reads ONLY projected load facts.
- */
-/**
- * One pass is sound. Every clause demands exact positive evidence.
+ * BARE-LOAD VALIDITY: the visit happened, was verified, and produced a
+ * complete run whose producer spoke about every family. Every clause demands
+ * exact positive evidence. This is the eligibility predicate.
  *
- * `censoredFamilyCount === 0` is the approved zero-censoring policy, not
- * strictness for its own sake: one censored family on acquisition day kills the
- * study, so a candidate that censored anything during screening has already
- * shown it carries that risk.
+ * What is deliberately NOT here: input completeness. Under the step-3
+ * censoring decision, policy C conserves cases whose evidence families were
+ * lost, so screening a candidate out for a censored family would re-create
+ * policy A at the frame boundary AND bias the frame toward easy-to-measure
+ * sites, which is the exact selection-on-measurement-difficulty hazard that
+ * makes a B rate subpopulation-scoped. Input losses are REPORTED (see
+ * `allEvidenceFamiliesComplete` and the receipt diagnostics), never screened
+ * on.
  */
-export function bareLoadPassSound(outcome) {
+export function bareLoadValid(outcome) {
   assertBareLoadOnly(outcome, "eligibility input");
   return (
     outcome.loaded &&
@@ -242,27 +299,68 @@ export function bareLoadPassSound(outcome) {
     outcome.subjectVerified &&
     !outcome.botWalled &&
     outcome.runOutcome === "complete" &&
-    // Every expected family reported, and reported complete. A partial ledger
-    // is a producer that never spoke about the rest, not a clean run.
+    // Every expected family REPORTED (whatever its outcome). A partial ledger
+    // is a producer that never spoke about the rest: an unverified report,
+    // not a clean run with losses.
+    outcome.familyLedgerReported &&
+    // The recorded-facts ledger must exist. The derived family view alone is
+    // not enough: it can say "complete" beside a recorded capture loss, and
+    // nothing here validates that they agree.
+    outcome.factsLedgerRecorded &&
+    // The two ledgers must not disagree in the reassuring direction, checked
+    // PER FAMILY for recorded losses: a loss recorded against a family whose
+    // derived entry claims complete is refused even when some other family is
+    // censored (the adversarial review showed the whole-run version of this
+    // clause absolved exactly that shape). Budgets cannot be attributed to a
+    // family without semantic knowledge this module refuses to hold, so an
+    // exhausted budget is refused only in the fully reassuring case, beside a
+    // family ledger claiming everything completed; beside any censored family
+    // it is the conserved lossy shape and MUST stay valid, or the budget
+    // clause would quietly re-create the policy-A screen for budget-lossy
+    // sites.
+    outcome.ledgersConsistent &&
+    !(outcome.familyLedgerComplete && outcome.budgetsExhausted > 0)
+  );
+}
+
+/**
+ * DETECTOR-INPUT READINESS DIAGNOSTIC: every evidence family survived intact.
+ * This is the old zero-censoring soundness rule, retained as a reported
+ * statistic because it lower-bounds every per-detector scoreable rate; it is
+ * no longer an eligibility criterion anywhere.
+ */
+export function allEvidenceFamiliesComplete(outcome) {
+  assertBareLoadOnly(outcome, "readiness input");
+  return (
     outcome.familyLedgerComplete &&
-    // Both ledgers, and both must be present. The derived family view alone is
-    // not enough: it can say "complete" beside a recorded capture loss or an
-    // exhausted budget, and nothing here validates that they agree.
     outcome.factsLedgerRecorded &&
     outcome.recordedCaptureLosses === 0 &&
     outcome.budgetsExhausted === 0 &&
     outcome.requestEvidenceComplete &&
-    outcome.censoredFamilyCount === 0
+    outcome.censoredFamilies.length === 0
   );
 }
 
 export const SWEEP_MINIMUM_PASS_SEPARATION_MS = 48 * 60 * 60 * 1000;
 
 /**
- * A candidate joins the eligible pool only if BOTH passes were sound and they
- * are at least 48 hours apart, which is what the frame-construction draft
- * requires. A single sound visit says nothing about reliability; two visits an
- * hour apart mostly re-measure one cache state.
+ * Multi-round collection (docs/reliability-sweep-cluster-design.md). Rounds 1
+ * and 2 remain the ELIGIBILITY pair; rounds 3 and up exist so the loss bound
+ * has independent time clusters, because the censoring analysis refuses
+ * cluster bootstrapping below three clusters and calls two clusters an
+ * iid-only diagnostic, never a design bound. Consecutive rounds are disjoint
+ * sessions at least this far apart.
+ */
+export const SWEEP_MINIMUM_ROUND_SEPARATION_MS = 24 * 60 * 60 * 1000;
+export const MAX_SWEEP_ROUNDS = 12;
+
+/**
+ * A candidate joins the eligible pool only if BOTH passes were bare-load
+ * valid and they are at least 48 hours apart, which is what the
+ * frame-construction draft requires. A single valid visit says nothing about
+ * reliability; two visits an hour apart mostly re-measure one cache state.
+ * Input losses do not disqualify; they are reported in the receipt
+ * diagnostics for sizing.
  */
 export function candidateEligible(outcomes) {
   require(Array.isArray(outcomes), "candidate eligibility requires its pass outcomes");
@@ -275,7 +373,7 @@ export function candidateEligible(outcomes) {
   const first = passes.get(1);
   const second = passes.get(2);
   if (first === undefined || second === undefined) return false;
-  if (!bareLoadPassSound(first) || !bareLoadPassSound(second)) return false;
+  if (!bareLoadValid(first) || !bareLoadValid(second)) return false;
   // Directed, not absolute. `Math.abs` accepted pass 2 occurring 48 hours
   // BEFORE pass 1, which is not a screening interval at all -- it is two visits
   // labelled out of order, and it would let a candidate qualify on a
@@ -383,6 +481,38 @@ export function buildReliabilitySweepReceipt({
     }));
 
   const eligible = cases.filter((entry) => entry.eligible).length;
+  // Sizing diagnostics, derived from projected facts only. familyCensorCounts
+  // counts OUTCOMES (visits) across ALL candidates, eligible or not; extra
+  // losses from invalid passes inflate apparent loss, which errs conservative.
+  // allFamiliesCompleteBothPasses counts ELIGIBLE candidates whose every pass
+  // kept every family: the readiness numerator must be a subset of the pool
+  // the frame is drawn from, or a bot-walled site with clean ledgers inflates
+  // readiness against a pool it can never join (the anti-conservative
+  // direction the review flagged).
+  const familyCensorCounts = {};
+  let allFamiliesCompleteBothPasses = 0;
+  for (const entry of cases) {
+    for (const pass of entry.passes) {
+      for (const family of pass.censoredFamilies) {
+        familyCensorCounts[family] = (familyCensorCounts[family] ?? 0) + 1;
+      }
+    }
+    // The diagnostic is about the ELIGIBILITY PAIR, rounds 1 and 2, whatever
+    // additional sizing rounds exist: requiring exactly two passes made this
+    // silently zero on every multi-round sweep, which would have fed the
+    // frame producer a false all-lossy readiness picture.
+    const pairOne = entry.passes.find((pass) => pass.pass === 1);
+    const pairTwo = entry.passes.find((pass) => pass.pass === 2);
+    if (
+      entry.eligible &&
+      pairOne !== undefined &&
+      pairTwo !== undefined &&
+      allEvidenceFamiliesComplete(pairOne) &&
+      allEvidenceFamiliesComplete(pairTwo)
+    ) {
+      allFamiliesCompleteBothPasses += 1;
+    }
+  }
   const receipt = {
     kind: CALIBRATION_RELIABILITY_SWEEP_RECEIPT_KIND,
     studyId,
@@ -403,6 +533,12 @@ export function buildReliabilitySweepReceipt({
     // A rate, not a verdict. Whether the pool clears is a preregistered
     // threshold applied by a human, not something this producer decides.
     eligibleFraction: eligible / cases.length,
+    diagnostics: {
+      allFamiliesCompleteBothPasses,
+      familyCensorCounts: Object.fromEntries(
+        Object.entries(familyCensorCounts).sort(([a], [b]) => a.localeCompare(b))
+      )
+    },
     cases
   };
   for (const entry of receipt.cases) {

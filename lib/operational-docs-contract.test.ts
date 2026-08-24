@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
@@ -456,4 +456,61 @@ test("the README does not describe Access-protected Pages previews as public", (
   assert.doesNotMatch(readme, /preview deployments are (?:currently )?enabled and public/i);
   assert.doesNotMatch(readme, /public by default/i);
   assert.match(readme, /preview deployments[\s\S]{0,60}Access-protected/i);
+});
+
+test("calibration docs never assert a corpus size the corpus contradicts", () => {
+  // REGRESSION. Both calibration docs stated "the committed corpus holds six r2
+  // runs, all clean" and the design doc derived ceremony survival odds from it.
+  // The corpus refreshed at #144 one day after those docs landed, to 126 r2 runs
+  // with 73 censored, and #159/#161 built on the new corpus without correcting
+  // the sizing surface. Nothing read these docs, so nothing noticed.
+  //
+  // Present-tense claims only: describing the historical premise is how the
+  // correction itself is written, and must stay allowed.
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  let actualR2Runs = 0;
+  for (const file of readdirSync(reportsDir)) {
+    if (!file.endsWith(".json") || file.includes("provenance")) continue;
+    let wire: Record<string, unknown>;
+    try {
+      wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
+    } catch {
+      continue;
+    }
+    for (const arm of ["run", "baseline", "variant"]) {
+      const run = wire[arm] as { qualityFacts?: unknown; quality?: { byFamily?: unknown } } | undefined;
+      if (run?.qualityFacts && run.quality?.byFamily) actualR2Runs += 1;
+    }
+  }
+  assert.ok(actualR2Runs > 0, "corpus probe found no r2 runs; the guard would be vacuous");
+
+  // The docs write these sentences with an adverb between subject and verb
+  // ("it now holds"), markdown emphasis on the number ("**126"), and would
+  // legitimately comma-group a four-digit count. The first version of this
+  // regex allowed none of those, so it matched ZERO sentences in the committed
+  // docs and passed no matter what they claimed. The verbs stay present-tense
+  // only: "held" must never match, because past-tense framing of the
+  // superseded premise is how the correction itself is written.
+  const present =
+    /\b(?:corpus|it)\s+(?:(?:now|currently|today)\s+)?(?:holds|contains)\s+(?:only\s+)?[*_]{0,3}([a-z0-9,]+)[*_]{0,3}\s+r2\s+runs/gi;
+  let presentTenseClaims = 0;
+  for (const doc of ["calibration-cname-uncloaking-design.md", "calibration-findings.md"]) {
+    const text = readFileSync(path.join(process.cwd(), "docs", doc), "utf8");
+    for (const match of text.matchAll(present)) {
+      presentTenseClaims += 1;
+      const claimed = Number(match[1].replaceAll(",", ""));
+      assert.ok(
+        Number.isFinite(claimed) && claimed === actualR2Runs,
+        `${doc} claims the corpus holds ${match[1]} r2 runs; it holds ${actualR2Runs}. ` +
+          `State the count in digits matching the corpus, or state a superseded premise in the past tense.`
+      );
+    }
+  }
+  // Without this, a wording drift that blinds the regex reads as a clean pass,
+  // which is exactly how the first version shipped inert.
+  assert.ok(
+    presentTenseClaims > 0,
+    "the guard matched no present-tense corpus-size sentence in either calibration doc; " +
+      "its regex no longer sees the docs' own phrasing"
+  );
 });

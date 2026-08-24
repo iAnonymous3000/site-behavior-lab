@@ -345,6 +345,34 @@ test("acquisition inputs are set-equal to selection and condition and cannot exp
   );
 });
 
+/**
+ * A whole family ledger and an empty capture-loss list.
+ *
+ * Both fixture builders below used to emit `quality: { run: ... }` alone, with
+ * no `byFamily` and no `qualityFacts`, even though ScanReport v2 requires both
+ * on every run. A causal-input rule written with optional chaining would have
+ * read those absences as "nothing censored" and passed this suite by
+ * construction, which is exactly how the guard ships broken. The fixtures now
+ * carry what a real run carries, and one test below removes the ledger on
+ * purpose.
+ */
+function completeQuality(overrides = {}) {
+  return {
+    run: { outcome: "complete" },
+    byFamily: Object.fromEntries(
+      [
+        "requests",
+        "cookies",
+        "storage",
+        "fingerprinting",
+        "detector-output",
+        "consent-verification"
+      ].map((family) => [family, { outcome: "complete", reasons: [] }])
+    ),
+    ...overrides
+  };
+}
+
 test("persisted detector predictions derive from report facts, never labels or substitute signals", () => {
   const base = {
     conditions: { consent: "accept-all" },
@@ -353,7 +381,8 @@ test("persisted detector predictions derive from report facts, never labels or s
       { phaseId: 1, kind: "consent-interaction" },
       { phaseId: 2, kind: "post-choice-reload" }
     ],
-    quality: { run: { outcome: "complete" } },
+    quality: completeQuality(),
+    qualityFacts: { captureLoss: [] },
     detectors: Object.fromEntries(
       CALIBRATION_DETECTOR_IDS.map((detector) => [
         detector,
@@ -444,6 +473,102 @@ test("persisted detector predictions derive from report facts, never labels or s
       reason: "eligibility-criteria-not-met"
     },
     "producer-supplied verified/reload summaries cannot substitute for the canonical r2 derivation"
+  );
+});
+
+test("a prediction is censored when its own causal inputs were cut, and only then", () => {
+  const causalBase = {
+    conditions: { consent: "observe" },
+    phases: [{ phaseId: 0, kind: "passive-load" }],
+    quality: completeQuality(),
+    qualityFacts: { captureLoss: [] },
+    detectors: Object.fromEntries(
+      CALIBRATION_DETECTOR_IDS.map((detector) => [detector, { status: "complete" }])
+    ),
+    evidence: {
+      requests: [],
+      fingerprintDetections: [],
+      cnameCloaks: [],
+      pixelEvents: [],
+      privacyPolicy: { url: "https://example.com/privacy" }
+    }
+  };
+
+  // The control. Without it this suite cannot tell a correct guard from one
+  // that censors everything, and every assertion below would pass on a rule
+  // that always returns censored.
+  assert.deepEqual(
+    detectorPredictionFromRun(structuredClone(causalBase), "cname-uncloaking"),
+    { outcome: "complete", value: "not-detected" },
+    "a whole run must still score"
+  );
+
+  // A censored requests family cuts the candidate hosts before the detector
+  // runs, while its own ledger still reads complete. This is the 2026-08-14
+  // corpus shape: nasa.gov recorded a requests loss with a complete
+  // cname-uncloaking stage.
+  const cutRequests = structuredClone(causalBase);
+  cutRequests.quality.byFamily.requests = {
+    outcome: "censored",
+    reasons: ["capture-loss:cap"]
+  };
+  cutRequests.qualityFacts.captureLoss = [
+    { family: "requests", phaseId: null, kind: "cap", count: 42, detail: "request-capture" }
+  ];
+  assert.deepEqual(
+    detectorPredictionFromRun(cutRequests, "cname-uncloaking"),
+    { outcome: "censored", reason: "capture-failed" },
+    "a complete CNAME ledger over a truncated request log is not a prediction"
+  );
+
+  // The same run must leave an unrelated detector alone. `detector-output` is
+  // shared by every detector, so a family-level rule over it would censor this.
+  const unrelated = structuredClone(causalBase);
+  unrelated.quality.byFamily.storage = {
+    outcome: "censored",
+    reasons: ["capture-loss:cap"]
+  };
+  unrelated.quality.byFamily["detector-output"] = {
+    outcome: "censored",
+    reasons: ["capture-loss:dropped"]
+  };
+  unrelated.qualityFacts.captureLoss = [
+    { family: "storage", phaseId: null, kind: "cap", count: 1, detail: "storage-snapshot" },
+    { family: "detector-output", phaseId: 2, kind: "dropped", count: 1, detail: "policy-visit" }
+  ];
+  assert.deepEqual(
+    detectorPredictionFromRun(structuredClone(unrelated), "cname-uncloaking"),
+    { outcome: "complete", value: "not-detected" },
+    "storage and another detector's stage loss must not move a CNAME prediction"
+  );
+  assert.deepEqual(
+    detectorPredictionFromRun(structuredClone(unrelated), "fingerprint-heuristics"),
+    { outcome: "complete", value: "not-detected" },
+    "a policy-visit loss must not move a fingerprint prediction"
+  );
+  // ...while the detector that loss actually belongs to is censored by it.
+  assert.deepEqual(
+    detectorPredictionFromRun(structuredClone(unrelated), "privacy-policy"),
+    { outcome: "censored", reason: "capture-failed" },
+    "policy-visit is the privacy-policy stage's own loss"
+  );
+
+  // The case that fails if the rule is written with optional chaining.
+  // `quality.byFamily` is a required v2 field; a run without one is malformed,
+  // and malformed must not read as clean.
+  const noLedger = structuredClone(causalBase);
+  delete noLedger.quality.byFamily;
+  assert.deepEqual(
+    detectorPredictionFromRun(noLedger, "cname-uncloaking"),
+    { outcome: "censored", reason: "capture-failed" },
+    "a missing family ledger must fail closed"
+  );
+  const noFacts = structuredClone(causalBase);
+  delete noFacts.qualityFacts;
+  assert.deepEqual(
+    detectorPredictionFromRun(noFacts, "privacy-policy"),
+    { outcome: "censored", reason: "capture-failed" },
+    "a missing capture-loss ledger must fail closed"
   );
 });
 
@@ -1805,7 +1930,8 @@ function calibrationSourceReportText(detector, detected) {
         { phaseId: 1, kind: "consent-interaction" },
         { phaseId: 2, kind: "post-choice-reload" }
       ],
-      quality: { run: { outcome: "complete" } },
+      quality: completeQuality(),
+      qualityFacts: { captureLoss: [] },
       detectors: {
         [detector]: {
           version: "fixture@1",

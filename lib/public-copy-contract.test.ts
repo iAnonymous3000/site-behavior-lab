@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { loadCorpusOverview } from "./corpus-overview";
+import { entryEligibleForCorpusRollups, loadCorpusOverview } from "./corpus-overview";
 import { SITE_TRUST_LINKS } from "./site-navigation";
 import { buildCategoryEvidencePages } from "./directory-view";
 
@@ -221,14 +221,97 @@ test("the status card never claims one cohort backs every corpus aggregate while
   // The count is rendered, never restated as a literal that can go stale.
   assert.match(status, /span \$\{categoryCohortCount\} cohorts in total/);
 
-  // overview.siteCount counts one cohort and is only consumed by the report
-  // page's corpus comparison, so the card may only speak for that surface.
-  assert.match(status, /make up the corpus sample a report page\s+compares a scan against/);
-  assert.match(status, /the one measurement cohort behind that comparison/);
+  // overview.siteCount is the selectPrimaryCorpusCohort winner: newest
+  // eligible evidence within the benchmark generation, behind a site floor,
+  // a composition veto, and a measurement-line handoff, with size only a
+  // tiebreak. The winner can lawfully coexist with a larger cohort (the
+  // handoff and the 10% dropped-site allowance are designed to produce that
+  // state), so the card may not call it "the largest": that restates the
+  // exact selection rule the selector's own docblock rejects.
+  assert.doesNotMatch(status, /largest/i);
+  assert.match(status, /make up the measurement cohort this\s+page&apos;s aggregates describe/);
+  assert.match(status, /This is not the cohort every report page uses/);
+  assert.doesNotMatch(status, /the corpus sample a report page/);
+  assert.doesNotMatch(status, /the one measurement cohort behind that comparison/);
   assert.doesNotMatch(status, /cohort the corpus aggregates use/);
   assert.doesNotMatch(status, /qualify for corpus aggregates/);
 
+  // The card's date is deliberately scoped to the aggregate cohort: an
+  // excluded cohort's refresh must not re-green the aggregates' freshness
+  // badge. That scope is a fact about the date, so it must be stated next to
+  // the value, and eligible evidence newer than the cohort's must be
+  // disclosed from a derived date. An earlier rewrite deleted the one
+  // sentence carrying the scope while /directory rendered rows three days
+  // newer on the same build, so the disclosure is pinned to the derivation,
+  // not just to wording.
+  assert.match(status, /<h3>Latest aggregate-cohort evidence<\/h3>/);
+  assert.doesNotMatch(status, /Latest eligible corpus evidence/);
+  assert.match(
+    status,
+    /const latestAggregateEvidence = newestEligibleScannedAt\(\s*eligibleEntries\.filter\(\(entry\) => entry\.corpusCohort\.id === aggregateCohortId\)\s*\)/
+  );
+  assert.match(status, /const latestEligibleEvidence = newestEligibleScannedAt\(eligibleEntries\)/);
+  // Every "eligible" claim on the card flows through eligibleEntries, so the
+  // eligibility filter itself is load-bearing: without this pin, dropping
+  // entryEligibleForCorpusRollups from the filter moves the disclosure onto
+  // ineligible evidence while every derivation pin above stays green.
+  assert.match(
+    status,
+    /\(entry\) => entryEligibleForCorpusRollups\(entry\) && Number\.isFinite\(Date\.parse\(entry\.scannedAt\)\)/
+  );
+  assert.match(status, /Date\.parse\(latestEligibleEvidence\) > Date\.parse\(latestAggregateEvidence\)/);
+  assert.match(status, /StatusFreshness timestamp=\{latestAggregateEvidence\}/);
+  assert.match(status, /className="status-value">\{formatUtc\(latestAggregateEvidence\)\}/);
+  assert.match(status, /the date above is the newest eligible evidence inside that same\s+cohort/);
+  assert.match(
+    status,
+    /\{newerEligibleOutsideAggregate \? `Eligible evidence as new as \$\{formatUtc\(latestEligibleEvidence\)\} sits in cohorts this aggregate excludes; the date above deliberately covers the aggregate cohort only\.` : latestAggregateEvidence !== null \? "Today the aggregate cohort also holds the newest eligible evidence in the committed corpus\." : "Today no committed report is eligible for these aggregates\."\}/
+  );
+
+  // Whether most committed pages carry a cohort other than the aggregate's is
+  // corpus state, not a timeless fact: a generation flip or one large refresh
+  // inverts it with every guard green if the sentence is pinned prose. The
+  // page must derive the majority claim and render it conditionally.
+  assert.doesNotMatch(status, /a different and older one than this/);
+  assert.match(
+    status,
+    /const mostPagesRankElsewhere = committedPagesOnAggregateCohort \* 2 < overview\.entries\.length/
+  );
+  assert.match(
+    status,
+    /cohort\{mostPagesRankElsewhere \? ", and most committed pages carry a different one than this" : ""\}/
+  );
+
+  // What a scan run TODAY ranks against is a corpus-plus-epoch state, not a
+  // timeless fact. The page once pinned "no cohort exists yet, so it is ranked
+  // against fixed thresholds", which was true only in the gap after #158 moved
+  // the methodology past the newest refresh; one matched-epoch refresh made
+  // the fixed sentence false with every guard green. So the page must RENDER
+  // the derived sentence (currentScanRankingSentence, whose two branches are
+  // exercised against corpus fixtures in current-scan-cohort.test.ts) and may
+  // not restate either branch as prose of its own.
+  assert.match(status, /currentScanRankingSentence\(/);
+  assert.match(status, /\{scanRankingSentence\}/);
+  assert.doesNotMatch(status, /no cohort exists yet/);
+  assert.doesNotMatch(status, /ranked against fixed thresholds and not against this number/);
+  assert.doesNotMatch(status, /is ranked against its own committed/);
+
   const overview = await loadCorpusOverview();
+  // Selected by property, with the empty state asserted rather than silently
+  // vacuous: the card's fallback sentence ("no committed report is eligible")
+  // renders only when no aggregate date exists, so eligible evidence must
+  // imply a selected aggregate cohort or that fallback would be false.
+  const eligibleEntries = overview.entries.filter(
+    (entry) => entryEligibleForCorpusRollups(entry) && Number.isFinite(Date.parse(entry.scannedAt))
+  );
+  assert.ok(
+    eligibleEntries.length > 0,
+    "the committed corpus holds no eligible dated evidence; re-review the /status freshness copy before weakening this"
+  );
+  assert.ok(
+    overview.aggregateCohort !== null,
+    "eligible evidence exists but no aggregate cohort was selected; the /status fallback sentence would be false"
+  );
   const categoryCohortCount = new Set(
     buildCategoryEvidencePages(overview.entries).map((category) => category.cohort.id)
   ).size;

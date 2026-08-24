@@ -294,6 +294,17 @@ export type DetectorCalibrationRateId =
   | "falsePositiveRate"
   | "falseNegativeRate";
 
+/** Runtime twin of DetectorCalibrationRateId, exported so consumers share one list. */
+export const DETECTOR_CALIBRATION_RATE_IDS: readonly DetectorCalibrationRateId[] = [
+  "sensitivity",
+  "specificity",
+  "precision",
+  "negativePredictiveValue",
+  "accuracy",
+  "falsePositiveRate",
+  "falseNegativeRate"
+];
+
 export type DetectorCalibrationRate = {
   numerator: number;
   denominator: number;
@@ -1264,7 +1275,14 @@ function buildConfusionMatrix(complete: Array<Extract<DetectorCalibrationCase, {
   };
 }
 
-function buildRates(
+/**
+ * Exported additively for the censoring analyzer's binding test
+ * (lib/calibration-censoring-analysis.test.ts): the seven rate definitions
+ * must have one authority, and the test proves the envelope analyzer's cell
+ * arithmetic equals this function's, so the two cannot drift apart silently.
+ * No analysis output changes.
+ */
+export function buildRates(
   matrix: NonNullable<DetectorCalibrationAnalysis["confusionMatrix"]>,
   withIntervals: boolean
 ): Record<DetectorCalibrationRateId, DetectorCalibrationRate> {
@@ -1290,7 +1308,12 @@ function rate(numerator: number, denominator: number, withInterval: boolean): De
   };
 }
 
-function wilson95(successes: number, denominator: number) {
+/**
+ * Exported for the censoring analyzer (lib/calibration-censoring-analysis.ts):
+ * one interval definition, never two. Additive export only; nothing about the
+ * computation or any analysis output changes.
+ */
+export function wilson95(successes: number, denominator: number) {
   const z = 1.959963984540054;
   const zSquared = z * z;
   const proportion = successes / denominator;

@@ -47,12 +47,46 @@ test("clientKeyFromRequest can trust proxy-provided client headers explicitly", 
   });
   assert.equal(clientKeyFromRequest(realIpRequest), "192.0.2.30");
 
+  // RIGHTMOST. Each proxy appends the address of the peer it received from, so
+  // only the last entry was written by the nearest trusted hop. This assertion
+  // read "198.51.100.10" (the leftmost) and so pinned the bug below.
   const forwardedRequest = new Request("http://localhost/api/scan", {
     headers: {
       "x-forwarded-for": "198.51.100.10, 203.0.113.20"
     }
   });
-  assert.equal(clientKeyFromRequest(forwardedRequest), "198.51.100.10");
+  assert.equal(clientKeyFromRequest(forwardedRequest), "203.0.113.20");
+});
+
+test("a client cannot choose its own rate-limit identity through X-Forwarded-For", () => {
+  process.env[TRUST_PROXY_ENV] = "1";
+
+  // The shape a self-host sees behind a proxy that APPENDS rather than
+  // replaces, which is the default for most reverse proxies: whatever the
+  // client sent arrives first, and the trusted hop appends the address it
+  // actually observed. Reading leftmost let a client rotate the value freely
+  // and, at MAX_CONCURRENT_SCANS = 2, deny scanning to everyone else.
+  const realClient = "203.0.113.20";
+  const keys = new Set<string>();
+  for (const spoofed of ["198.51.100.10", "198.51.100.11", "not-an-ip", ""]) {
+    const request = new Request("http://localhost/api/scan", {
+      headers: { "x-forwarded-for": `${spoofed}, ${realClient}` }
+    });
+    keys.add(clientKeyFromRequest(request));
+  }
+  assert.deepEqual([...keys], [realClient], "a rotating client-supplied entry must not move the quota identity");
+
+  // A proxy that REPLACES the header is unaffected: one entry is both ends.
+  const replaced = new Request("http://localhost/api/scan", {
+    headers: { "x-forwarded-for": realClient }
+  });
+  assert.equal(clientKeyFromRequest(replaced), realClient);
+
+  // An all-empty header still falls back rather than keying on "".
+  const empty = new Request("http://localhost/api/scan", {
+    headers: { "x-forwarded-for": " , " }
+  });
+  assert.equal(clientKeyFromRequest(empty), "local");
 });
 
 test("assertRateLimit enforces the window and evicts stale client keys", () => {

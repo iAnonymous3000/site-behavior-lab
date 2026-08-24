@@ -18,12 +18,13 @@ import { sha256Hex } from "./sha256";
 export const CANONICALIZATION_VERSION = "canon-v1";
 
 /**
- * Canonical serialization. Objects sort keys lexicographically; strings are
- * NFC-normalized; `undefined` object members are omitted exactly as
- * JSON.stringify omits them (an absent field and an undefined field digest
- * identically); non-finite numbers and other non-JSON values are rejected
- * loudly rather than silently coerced, since a digest over coerced data would
- * "match" bytes that never existed.
+ * Canonical serialization. Objects sort keys lexicographically; string VALUES
+ * are NFC-normalized, while object KEYS must already be NFC and are refused
+ * otherwise (see the object branch); `undefined` object members are omitted
+ * exactly as JSON.stringify omits them (an absent field and an undefined field
+ * digest identically); non-finite numbers, non-NFC keys, and other non-JSON
+ * values are rejected loudly rather than silently coerced, since a digest over
+ * coerced data would "match" bytes that never existed.
  */
 export function canonicalJson(value: unknown): string {
   return serialize(value, []);
@@ -59,7 +60,39 @@ function serialize(value: unknown, path: string[]): string {
     const keys = Object.keys(record)
       .filter((key) => record[key] !== undefined)
       .sort();
-    const members = keys.map((key) => `${JSON.stringify(key.normalize("NFC"))}:${serialize(record[key], [...path, key])}`);
+    // Keys must ALREADY be NFC. Normalizing them here instead was silently
+    // fatal to the digest contract in two ways:
+    //
+    // 1. COLLISION. "caf\u00e9" and "cafe\u0301" are two distinct own
+    //    properties that normalize to one member name, so the canonical form
+    //    emitted that name twice. `parseStrictJson` rejects raw duplicate keys
+    //    naming exactly this threat, and a canonical form nothing can reparse
+    //    is not a form anything can verify a digest against.
+    // 2. ORDER. Keys were sorted BEFORE normalization and emitted AFTER it, so
+    //    a key whose NFC form differs sorted under one string and emitted as
+    //    another. Two objects with identical logical content then digest
+    //    differently depending on which normalization form the caller happened
+    //    to hold, which is the single thing canonicalization exists to prevent.
+    //
+    // Sorting on the normalized form would fix (2) and a post-normalization
+    // collision check would fix (1), but the first changes the emitted bytes
+    // for such keys and CANONICALIZATION_VERSION pins these rules: a rule
+    // change is canon-v2, never a silent redefinition of digests already
+    // stored under canon-v1. Refusing the input changes no output canon-v1
+    // ever produced correctly, and it needs only ONE check rather than two:
+    // NFC is idempotent, so once every key is required to equal its own
+    // normalization, two distinct keys can no longer collide under it.
+    //
+    // Nothing real is refused. Every object key in the published wire is a
+    // schema-fixed ASCII identifier (`byFamily` over EvidenceFamily,
+    // DetectorLedger over DetectorId, `perMetric` over MetricFamily), and NFC
+    // is the identity on ASCII.
+    for (const key of keys) {
+      if (key.normalize("NFC") !== key) {
+        rejectValue("object key is not NFC-normalized", [...path, key]);
+      }
+    }
+    const members = keys.map((key) => `${JSON.stringify(key)}:${serialize(record[key], [...path, key])}`);
     return `{${members.join(",")}}`;
   }
   return rejectValue(`unsupported ${type}`, path);

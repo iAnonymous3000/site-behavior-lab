@@ -7,9 +7,10 @@ import {
   BARE_LOAD_OUTCOME_FIELDS,
   EXPECTED_EVIDENCE_FAMILIES,
   SWEEP_MINIMUM_PASS_SEPARATION_MS,
+  allEvidenceFamiliesComplete,
   assertBareLoadOnly,
   bareLoadOutcome,
-  bareLoadPassSound,
+  bareLoadValid,
   buildReliabilitySweepReceipt,
   candidateEligible,
   serializeReliabilitySweepReceipt
@@ -101,6 +102,24 @@ test("a projection strips detector evidence from a report that has plenty", () =
   }
 });
 
+test("censoredFamilies is closed by value, not just by key", () => {
+  // A hand-edited pass artifact must not smuggle arbitrary strings (a detector
+  // name, a note, a prediction) through the one array-valued field.
+  const sound = project("case-v", soundReport(), 1, PASS_1);
+  assert.throws(
+    () => assertBareLoadOnly({ ...sound, censoredFamilies: ["cname-fired"] }),
+    /not an evidence family/
+  );
+  assert.throws(
+    () => assertBareLoadOnly({ ...sound, censoredFamilies: ["requests", "requests"] }),
+    /sorted and unique/
+  );
+  assert.throws(
+    () => assertBareLoadOnly({ ...sound, censoredFamilies: ["storage", "requests"] }),
+    /sorted and unique/
+  );
+});
+
 test("the projection refuses a widened field set instead of admitting it", () => {
   assert.throws(
     () => assertBareLoadOnly({ caseId: "case-a", loaded: true, cnameCloaks: [] }),
@@ -121,11 +140,13 @@ test("every soundness clause demands positive evidence and fails closed", () => 
   assert.equal(bare.botWalled, true);
   assert.equal(bare.runOutcome, "unavailable");
   assert.equal(bare.requestEvidenceComplete, false);
-  assert.equal(bareLoadPassSound(bare), false);
+  assert.equal(bareLoadValid(bare), false);
 
-  assert.equal(bareLoadPassSound(project("case-a", soundReport(), 1, PASS_1)), true);
+  const sound = project("case-a", soundReport(), 1, PASS_1);
+  assert.equal(bareLoadValid(sound), true);
+  assert.equal(allEvidenceFamiliesComplete(sound), true);
 
-  // Each clause independently sinks an otherwise-sound visit.
+  // Each clause independently sinks an otherwise-valid visit.
   const cases = [
     ["a 3xx-only status", { summary: { status: 500 } }],
     [
@@ -153,34 +174,269 @@ test("every soundness clause demands positive evidence and fails closed", () => 
     [
       "an incomplete run",
       { quality: { run: { outcome: "failed" }, byFamily: { requests: { outcome: "complete" } } } }
-    ],
-    [
-      "censored request evidence",
-      { quality: { run: { outcome: "complete" }, byFamily: { requests: { outcome: "censored" } } } }
-    ],
-    [
-      "any censored family at all",
-      {
-        quality: {
-          run: { outcome: "complete" },
-          byFamily: {
-            requests: { outcome: "complete" },
-            fingerprinting: { outcome: "censored" }
-          }
-        }
-      }
     ]
   ];
   for (const [label, override] of cases) {
     assert.equal(
-      bareLoadPassSound(project("case-a", soundReport(override), 1, PASS_1)),
+      bareLoadValid(project("case-a", soundReport(override), 1, PASS_1)),
       false,
-      `${label} must not be sound`
+      `${label} must not be valid`
     );
   }
 });
 
-test("a candidate needs two sound passes at least 48 hours apart", () => {
+test("input losses sink readiness, never validity: the step-3 split", () => {
+  // Under the superseded zero-censoring rule, a censored family disqualified a
+  // candidate at screening. Policy C conserves such cases, so screening them
+  // out would re-create policy A at the frame boundary AND select the frame on
+  // measurement difficulty. The projection therefore reports the loss and the
+  // eligibility predicate ignores it.
+  const fullLedger = (overrides) => ({
+    run: { outcome: "complete" },
+    byFamily: {
+      requests: { outcome: "complete", reasons: [] },
+      cookies: { outcome: "complete", reasons: [] },
+      storage: { outcome: "complete", reasons: [] },
+      fingerprinting: { outcome: "complete", reasons: [] },
+      "detector-output": { outcome: "complete", reasons: [] },
+      "consent-verification": { outcome: "complete", reasons: [] },
+      ...overrides
+    }
+  });
+  const lossy = project(
+    "case-l",
+    soundReport({
+      quality: fullLedger({ fingerprinting: { outcome: "censored", reasons: [] } }),
+      qualityFacts: {
+        status: 200,
+        navigationSettled: true,
+        botWallTitleMatched: false,
+        budgetsExhausted: [],
+        captureLoss: [{ family: "fingerprinting", kind: "dropped", count: 1, detail: "fingerprint-observer" }]
+      }
+    }),
+    1,
+    PASS_1
+  );
+  assert.equal(bareLoadValid(lossy), true, "a verified visit with an input loss is still valid");
+  assert.equal(allEvidenceFamiliesComplete(lossy), false);
+  assert.deepEqual(lossy.censoredFamilies, ["fingerprinting"]);
+
+  // Censored request evidence is the same story, and the flag still reports it.
+  const requestsLost = project(
+    "case-l2",
+    soundReport({ quality: fullLedger({ requests: { outcome: "censored", reasons: [] } }) }),
+    1,
+    PASS_1
+  );
+  assert.equal(bareLoadValid(requestsLost), true);
+  assert.equal(requestsLost.requestEvidenceComplete, false);
+  assert.deepEqual(requestsLost.censoredFamilies, ["requests"]);
+
+  // Two valid-but-lossy passes 48h apart ARE an eligible candidate now.
+  const p2 = project(
+    "case-l",
+    soundReport({
+      quality: fullLedger({ fingerprinting: { outcome: "censored", reasons: [] } })
+    }),
+    2,
+    PASS_2
+  );
+  assert.equal(candidateEligible([lossy, p2]), true);
+});
+
+test("ledger consistency is per family: one censored family absolves nothing else", () => {
+  // The adversarial review proved the whole-run version of this clause
+  // accepted a loss recorded against a COMPLETE-claiming family whenever any
+  // unrelated family was censored, publishing requestEvidenceComplete: true
+  // beside recorded request losses. The clause is per family now.
+  const ledger = (overrides) => ({
+    run: { outcome: "complete" },
+    byFamily: {
+      requests: { outcome: "complete", reasons: [] },
+      cookies: { outcome: "complete", reasons: [] },
+      storage: { outcome: "complete", reasons: [] },
+      fingerprinting: { outcome: "complete", reasons: [] },
+      "detector-output": { outcome: "complete", reasons: [] },
+      "consent-verification": { outcome: "complete", reasons: [] },
+      ...overrides
+    }
+  });
+  const facts = (captureLoss, budgetsExhausted = []) => ({
+    status: 200,
+    navigationSettled: true,
+    botWallTitleMatched: false,
+    budgetsExhausted,
+    captureLoss
+  });
+
+  // A requests loss beside complete requests, with cookies censored: refused.
+  const mixed = project(
+    "case-m",
+    soundReport({
+      quality: ledger({ cookies: { outcome: "censored", reasons: [] } }),
+      qualityFacts: facts([{ family: "requests", kind: "dropped", count: 1, detail: "request-capture" }])
+    }),
+    1,
+    PASS_1
+  );
+  assert.equal(mixed.ledgersConsistent, false);
+  assert.equal(bareLoadValid(mixed), false, "a loss against a complete-claiming family is refused per family");
+
+  // The same loss beside a CENSORED requests family: the consistent lossy shape.
+  const consistent = project(
+    "case-c",
+    soundReport({
+      quality: ledger({ requests: { outcome: "censored", reasons: [] } }),
+      qualityFacts: facts([{ family: "requests", kind: "dropped", count: 1, detail: "request-capture" }])
+    }),
+    1,
+    PASS_1
+  );
+  assert.equal(consistent.ledgersConsistent, true);
+  assert.equal(bareLoadValid(consistent), true);
+
+  // A loss entry whose family this module cannot recognize fails closed.
+  const unrecognizable = project(
+    "case-u",
+    soundReport({
+      quality: ledger({ requests: { outcome: "censored", reasons: [] } }),
+      qualityFacts: facts([{ kind: "dropped", count: 1, detail: "mystery" }])
+    }),
+    1,
+    PASS_1
+  );
+  assert.equal(unrecognizable.ledgersConsistent, false);
+  assert.equal(bareLoadValid(unrecognizable), false);
+});
+
+test("an exhausted budget beside a censored family stays valid: the screen must not return", () => {
+  // The review proved that re-adding a budgetsExhausted === 0 clause to
+  // validity passed the whole suite, silently re-creating the policy-A screen
+  // for budget-lossy (systematically tracker-dense) sites. This fixture pins
+  // the conserved shape so that mutation now fails.
+  const budgetLossy = project(
+    "case-b",
+    soundReport({
+      quality: {
+        run: { outcome: "complete" },
+        byFamily: {
+          requests: { outcome: "censored", reasons: [] },
+          cookies: { outcome: "complete", reasons: [] },
+          storage: { outcome: "complete", reasons: [] },
+          fingerprinting: { outcome: "complete", reasons: [] },
+          "detector-output": { outcome: "complete", reasons: [] },
+          "consent-verification": { outcome: "complete", reasons: [] }
+        }
+      },
+      qualityFacts: {
+        status: 200,
+        navigationSettled: true,
+        botWallTitleMatched: false,
+        budgetsExhausted: ["response-bytes"],
+        captureLoss: [{ family: "requests", kind: "cap", count: 12, detail: "request-capture" }]
+      }
+    }),
+    1,
+    PASS_1
+  );
+  assert.equal(bareLoadValid(budgetLossy), true, "a conserved budget-lossy case must stay eligible");
+  assert.equal(allEvidenceFamiliesComplete(budgetLossy), false);
+  // And the fully reassuring budget shape (all families claiming complete) is
+  // still refused, so the contradiction rule survives in the direction that
+  // matters.
+  const reassuring = project(
+    "case-r",
+    soundReport({
+      qualityFacts: {
+        status: 200,
+        navigationSettled: true,
+        botWallTitleMatched: false,
+        budgetsExhausted: ["response-bytes"],
+        captureLoss: []
+      }
+    }),
+    1,
+    PASS_1
+  );
+  assert.equal(bareLoadValid(reassuring), false);
+});
+
+test("receipt diagnostics count losses for real and condition readiness on eligibility", () => {
+  // The review gutted the receipt's accumulators (familyCensorCounts always
+  // empty; every() weakened to some()) with the suite green, because the only
+  // diagnostics fixture had zero censored families. This fixture makes every
+  // accumulator load-bearing.
+  const lossyLedger = {
+    run: { outcome: "complete" },
+    byFamily: {
+      requests: { outcome: "complete", reasons: [] },
+      cookies: { outcome: "complete", reasons: [] },
+      storage: { outcome: "complete", reasons: [] },
+      fingerprinting: { outcome: "censored", reasons: [] },
+      "detector-output": { outcome: "complete", reasons: [] },
+      "consent-verification": { outcome: "complete", reasons: [] }
+    }
+  };
+  const lossyFacts = {
+    status: 200,
+    navigationSettled: true,
+    botWallTitleMatched: false,
+    budgetsExhausted: [],
+    captureLoss: [{ family: "fingerprinting", kind: "dropped", count: 1, detail: "fingerprint-observer" }]
+  };
+  const botWalledFacts = {
+    status: 200,
+    navigationSettled: true,
+    botWallTitleMatched: true,
+    budgetsExhausted: [],
+    captureLoss: []
+  };
+  const receipt = buildReliabilitySweepReceipt(
+    receiptArgs({
+      outcomes: [
+        // complete-and-eligible: counts toward readiness.
+        project("case-a", soundReport(), 1, PASS_1),
+        project("case-a", soundReport(), 2, PASS_2),
+        // one lossy pass: eligible (losses are conserved) but NOT all-complete,
+        // so every() vs some() is decided here.
+        project("case-b", soundReport(), 1, PASS_1),
+        project("case-b", soundReport({ quality: lossyLedger, qualityFacts: lossyFacts }), 2, PASS_2),
+        // bot-walled with clean ledgers on both passes: all-complete but
+        // ineligible, so the eligibility condition is decided here.
+        project("case-w", soundReport({ qualityFacts: botWalledFacts }), 1, PASS_1),
+        project("case-w", soundReport({ qualityFacts: botWalledFacts }), 2, PASS_2)
+      ]
+    })
+  );
+  assert.equal(receipt.eligibleCandidates, 2, "lossy-but-valid case-b is eligible; bot-walled case-w is not");
+  assert.deepEqual(receipt.diagnostics, {
+    allFamiliesCompleteBothPasses: 1,
+    familyCensorCounts: { fingerprinting: 1 }
+  });
+
+  // With sizing rounds present, the pair diagnostic must still read rounds 1
+  // and 2 specifically: the exact-two-passes version was silently zero on
+  // every multi-round sweep.
+  const PASS_3 = "2026-08-19T02:00:00.000Z";
+  const multiRound = buildReliabilitySweepReceipt(
+    receiptArgs({
+      outcomes: [
+        project("case-a", soundReport(), 1, PASS_1),
+        project("case-a", soundReport(), 2, PASS_2),
+        project("case-a", soundReport({ quality: lossyLedger, qualityFacts: lossyFacts }), 3, PASS_3)
+      ]
+    })
+  );
+  assert.equal(
+    multiRound.diagnostics.allFamiliesCompleteBothPasses,
+    1,
+    "a lossy round 3 must not zero the rounds-1-and-2 pair diagnostic"
+  );
+  assert.deepEqual(multiRound.diagnostics.familyCensorCounts, { fingerprinting: 1 });
+});
+
+test("a candidate needs two bare-load-valid passes at least 48 hours apart", () => {
   const sound = (pass, at) => project("case-a", soundReport(), pass, at);
   assert.equal(candidateEligible([sound(1, PASS_1), sound(2, PASS_2)]), true);
 
@@ -224,7 +480,7 @@ test("canonical producer facts outrank warning prose", () => {
   });
   const outcome = project("case-w", botWalled, 1, PASS_1);
   assert.equal(outcome.botWalled, true, "the producer's own bot-wall verdict is the answer");
-  assert.equal(bareLoadPassSound(outcome), false);
+  assert.equal(bareLoadValid(outcome), false);
 
   // And the inverse: reassuring prose cannot rescue a recorded bot wall.
   const withCalmWarnings = soundReport({
@@ -237,7 +493,7 @@ test("canonical producer facts outrank warning prose", () => {
       captureLoss: []
     }
   });
-  assert.equal(bareLoadPassSound(project("case-w2", withCalmWarnings, 1, PASS_1)), false);
+  assert.equal(bareLoadValid(project("case-w2", withCalmWarnings, 1, PASS_1)), false);
 
   // An absent botWallTitleMatched is not a clean bill of health.
   const noVerdict = soundReport({
@@ -304,7 +560,7 @@ test("the recorded facts ledger is consulted, not just the derived family view",
       quality: { run: { outcome: "complete" }, byFamily: completeLedger }
     }
   });
-  const sound = (report) => bareLoadPassSound(project("case-f", report, 1, PASS_1));
+  const sound = (report) => bareLoadValid(project("case-f", report, 1, PASS_1));
 
   // 1. An absent captureLoss array is a MISSING ledger, not an empty one.
   const absentLedger = withFacts({
@@ -410,7 +666,7 @@ test("the summary and the recorded facts must agree about one visit", () => {
   });
   const outcome = project("case-s", disagreeing, 1, PASS_1);
   assert.equal(outcome.statusAgrees, false);
-  assert.equal(bareLoadPassSound(outcome), false, "a disagreement is unverified, not a 200");
+  assert.equal(bareLoadValid(outcome), false, "a disagreement is unverified, not a 200");
 
   // A recorded status that is simply absent is also a disagreement.
   const absent = soundReport({
@@ -426,10 +682,12 @@ test("the summary and the recorded facts must agree about one visit", () => {
   assert.equal(project("case-s3", soundReport(), 1, PASS_1).statusAgrees, true);
 });
 
-test("every expected evidence family must have reported complete", () => {
+test("every expected evidence family must have REPORTED; a silent family is invalid, not lossy", () => {
   // REGRESSION. A ledger carrying only `requests` is a producer that never
   // reported on the other five, not a clean run. Counting censored entries
-  // cannot see it: there is nothing there to count.
+  // cannot see it: there is nothing there to count. The step-3 split keeps
+  // this an INVALIDITY (unverified report), distinct from a censored family
+  // (verified report with an input loss).
   const partial = (families) =>
     soundReport({
       quality: {
@@ -441,22 +699,25 @@ test("every expected evidence family must have reported complete", () => {
     });
 
   const requestsOnly = project("case-p", partial(["requests"]), 1, PASS_1);
+  assert.equal(requestsOnly.familyLedgerReported, false);
   assert.equal(requestsOnly.familyLedgerComplete, false);
-  assert.equal(requestsOnly.censoredFamilyCount, 0, "the old rule saw nothing wrong here");
-  assert.equal(requestsOnly.requestEvidenceComplete, true, "and the old rule called it complete");
-  assert.equal(bareLoadPassSound(requestsOnly), false);
+  assert.deepEqual(requestsOnly.censoredFamilies, [], "a silent family is not a censored one");
+  assert.equal(requestsOnly.requestEvidenceComplete, true, "the one reported family did complete");
+  assert.equal(bareLoadValid(requestsOnly), false);
 
   // Every single omission is caught, not just a wholesale one.
   for (const omitted of EXPECTED_EVIDENCE_FAMILIES) {
     const rest = EXPECTED_EVIDENCE_FAMILIES.filter((family) => family !== omitted);
     assert.equal(
-      bareLoadPassSound(project("case-p", partial(rest), 1, PASS_1)),
+      bareLoadValid(project("case-p", partial(rest), 1, PASS_1)),
       false,
-      `a ledger missing ${omitted} must not be sound`
+      `a ledger missing ${omitted} must not be valid`
     );
   }
 
-  assert.equal(bareLoadPassSound(project("case-p", partial([...EXPECTED_EVIDENCE_FAMILIES]), 1, PASS_1)), true);
+  const full = project("case-p", partial([...EXPECTED_EVIDENCE_FAMILIES]), 1, PASS_1);
+  assert.equal(bareLoadValid(full), true);
+  assert.equal(allEvidenceFamiliesComplete(full), true);
 });
 
 test("the expected family list matches the schema that defines it", () => {
@@ -477,16 +738,22 @@ test("a missing or unusable report is recorded as a failed pass, never skipped",
   // happen to cooperate, which is the same selection hazard by another route.
   const missing = project("case-c", null, 1, PASS_1);
   assert.equal(missing.runOutcome, "unavailable");
-  assert.equal(bareLoadPassSound(missing), false);
+  assert.equal(bareLoadValid(missing), false);
 });
 
-test("the projection refuses an unlabelled pass or timestamp", () => {
-  // Without these the receipt cannot prove the 48-hour separation it claims.
-  assert.throws(() => bareLoadOutcome("case-a", soundReport(), {}), /explicit sweep pass number/);
+test("the projection refuses an unlabelled round or timestamp", () => {
+  // Without these the receipt cannot prove the separations it claims. Rounds
+  // above 2 are valid sizing clusters now; only out-of-range rounds refuse.
+  assert.throws(() => bareLoadOutcome("case-a", soundReport(), {}), /explicit sweep round number/);
   assert.throws(
-    () => bareLoadOutcome("case-a", soundReport(), { pass: 3, observedAt: PASS_1 }),
-    /explicit sweep pass number/
+    () => bareLoadOutcome("case-a", soundReport(), { pass: 0, observedAt: PASS_1 }),
+    /explicit sweep round number/
   );
+  assert.throws(
+    () => bareLoadOutcome("case-a", soundReport(), { pass: 13, observedAt: PASS_1 }),
+    /explicit sweep round number/
+  );
+  assert.equal(bareLoadOutcome("case-a", soundReport(), { pass: 3, observedAt: PASS_1 }).pass, 3);
   assert.throws(
     () => bareLoadOutcome("case-a", soundReport(), { pass: 1, observedAt: "yesterday" }),
     /ISO-8601 UTC observedAt/
@@ -520,6 +787,12 @@ test("the receipt binds the sweep to a candidate set, condition, and producer", 
   assert.equal(receipt.identity.runnerLabel, "controlled-self-hosted");
   assert.equal(receipt.minimumPassSeparationMs, SWEEP_MINIMUM_PASS_SEPARATION_MS);
   assert.deepEqual(receipt.cases.map((entry) => entry.caseId), ["case-a", "case-b", "case-c"]);
+  // The sizing diagnostics: both complete candidates kept every family on
+  // every pass; nothing censored anywhere in this fixture.
+  assert.deepEqual(receipt.diagnostics, {
+    allFamiliesCompleteBothPasses: 2,
+    familyCensorCounts: {}
+  });
 
   // No pass/fail: clearing the pool is a preregistered human threshold.
   assert.equal("cleared" in receipt, false);

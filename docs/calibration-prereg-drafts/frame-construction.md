@@ -3,33 +3,55 @@
 How each study's N cases get chosen, screened, and frozen. N is
 detector-specific and comes from the study's own prevalence and recall
 arithmetic, never from the preflight floor: the CNAME design sizes N ~ 350 so
-that E[referencePresent] ~ 175. Under the
-approved zero-censoring policy one failed case kills a study, so the frame
-is an exercise in reliability engineering first and sampling second.
+that E[referencePresent] ~ 175. The zero-censoring rule that made one failed
+case kill a study is superseded for new studies by the step-3 decision
+(../calibration-censoring-policy-decision.md): policy C conserves lossy cases
+in an adversarial envelope, so the frame is sampling first, with reliability
+screening serving the envelope's width rather than a survival lottery. No
+frame size is approved until the fresh multi-cluster sweep establishes a
+defensible detector-input loss bound.
 
 ## The reliability sweep
 
-Before any frame freezes, every candidate site is visited twice under the
-exact measurement condition of its study (desktop, GPC off, observe or
-accept-all), at least 48 hours apart, from the controlled runner's egress.
-A candidate joins the eligible pool only if both visits completed: page
-loaded, no bot wall, subject verified, no capture-loss censoring. The sweep
-reuses the featured-scan machinery with a dedicated catalog file and
-publishes nothing.
+Before any frame freezes, every candidate site is visited in at least five
+collection rounds under the exact measurement condition of its study, from
+the controlled runner's egress, on one collection SHA. Rounds are disjoint
+sessions at least 24 hours apart; rounds 1 and 2 are the eligibility pair,
+at least 48 hours apart, and the additional rounds exist so the loss bound
+has independent time clusters
+(docs/reliability-sweep-cluster-design.md).
+A candidate joins the eligible pool only if both visits were bare-load valid:
+page loaded, no bot wall, subject verified, ledgers consistent. A censored
+evidence family does NOT disqualify (see the validity/readiness split below);
+it is reported in the receipt diagnostics for sizing. The sweep runs through
+`npm run calibration:reliability-sweep` and publishes nothing.
 
 Two sweep passes are the floor, not a guarantee. The pilot's 37.5 percent
 failure was on unscreened consumer retail; screened pools should do far
-better, but the residual risk that a screened site fails on acquisition day
-is the risk the zero-censoring policy chose to carry. Minimizing it means:
-frame exactly N (never more; substitution is forbidden and every planned
-case must complete), draw from the most reliable screened candidates, and
-schedule acquisition close to the second sweep pass.
+better. Under policy C an acquisition-day failure censors a case into the
+envelope instead of killing the study, but every censored case still widens
+the published bounds, so the discipline stands for a different reason: frame
+exactly N (substitution remains forbidden and every planned attempt stays
+conserved), draw from reliable screened candidates, and schedule acquisition
+close to the second sweep pass.
 
 ## Pool composition per study
 
-Each pool must hold enough screened candidates that a simple random draw of the
-study's N plausibly clears every 100-minimum marginal denominator -- for CNAME
-at N ~ 350, a pool of 600 or more.
+Each pool must hold enough screened candidates that a simple random draw of
+the study's N plausibly clears every claimed-class minimum. N itself is NOT
+fixed in advance: it derives, before sealing, from the sweep's cluster-aware
+loss bound together with a prevalence estimate from the PRECOMMITTED DISJOINT
+PILOT: a seeded RANDOM partition of the fixed sampling frame (never a
+prefix, which would confound prevalence with popularity rank), carved by the
+universe builder with a seed derived entirely from the committed inputs,
+its sites excluded from the confirmatory pool by construction and
+reviewer-labeled under the independent reference protocol, never the
+detector's own output. The exact pilot minimum, interval, and
+prevalence-to-N rule are preregistered in
+docs/reliability-sweep-cluster-design.md. FAIL CONDITION: if the derived N exceeds the swept
+eligible pool, the study is INFEASIBLE at that pool; the remedy is a larger
+universe and fresh sweep rounds over the enlarged set, never relaxing an
+exclusion, reusing pilot sites, or narrowing the claimed population to fit.
 Strata inform pool COMPOSITION only; the draw itself is simple random from
 the whole pool, seeded by the SHA-256 of the committed preregistration, so
 nobody chooses cases after seeing anything.
@@ -117,8 +139,10 @@ than at the process that holds the reports.
 **Sizing note.** This draft originally fixed every study at 400 cases, which predates the arithmetic in
 [../calibration-cname-uncloaking-design.md](../calibration-cname-uncloaking-design.md).
 For a rare-positive detector a 400-case draw from a ~0.20 pool misses the
-100-positive floor about 99% of the time, and enlarging the frame makes
-zero-censoring survival worse, not better. Size from the pool's base rate.
+100-positive floor about 99% of the time. (The original sizing note also
+weighed zero-censoring survival, which compounds in N; under policy C the
+corresponding cost is envelope width, which likewise grows with censored
+count.) Size from the pool's base rate.
 
 It also had no structural basis. The preflight derived 400 by summing the four
 class minimums, but those are two partitions of the same N, so the structural
@@ -146,23 +170,35 @@ That separation is now enforced rather than remembered, in
 3. A source-reading guard asserts the module never names a detector evidence
    field or reaches into `run.evidence` at all.
 
-Soundness is fail-closed on every clause, which is the correction that mattered
+Validity is fail-closed on every clause, which is the correction that mattered
 most: an earlier version defaulted `navigationSettled`, the run outcome and
 request-evidence completeness to the PASSING value, so a report carrying nothing
 but a 200 came out sound. A candidate now needs positive evidence of a settled
-navigation, a verified subject, no bot wall, a complete run, and zero censored
-families -- the last because the approved zero-censoring policy means one
-censored family on acquisition day kills the study, so a candidate that censored
-anything during screening has already shown it carries that risk.
+navigation, a verified subject, no bot wall, a complete run, every family
+REPORTED, and ledgers that do not contradict each other in the reassuring
+direction.
 
-Eligibility is per CANDIDATE, not per visit: both passes must be sound and at
+Validity is deliberately SPLIT from input readiness under the step-3 censoring
+decision (docs/calibration-censoring-policy-decision.md). The superseded
+zero-censoring rule also required zero censored families at screening; policy C
+conserves such cases, so screening them out would re-create policy A at the
+frame boundary and select the frame on measurement difficulty. A censored
+family therefore no longer disqualifies a candidate: `bareLoadValid` decides
+eligibility, and `allEvidenceFamiliesComplete` survives only as the reported
+diagnostic that lower-bounds every per-detector scoreable rate.
+
+Eligibility is per CANDIDATE, not per visit: both passes must be bare-load valid and at
 least `SWEEP_MINIMUM_PASS_SEPARATION_MS` (48 hours) apart, matching the rule
 stated at the top of this section. Two visits an hour apart mostly re-measure
 one cache state.
 
-`censoredFamilyCount` is deliberately a count rather than a list of families:
-knowing that CNAME evidence specifically was censored is itself a weak signal
-about the detector, and the sweep has no need for it. The receipt carries no
+`censoredFamilies` carries family IDENTITY. An earlier revision kept only a
+count so the sweep could not even weakly hint at a detector; the step-3
+decision reverses that deliberately, because per-detector policies are sized
+from per-family loss structure. Predictions remain unrepresentable in the
+vocabulary, the array is closed by value as well as by key, and frame
+SELECTION still reads load validity only, so the anti-selection property
+holds at the boundary that matters. The receipt carries no
 pass/fail — whether the pool clears is a preregistered threshold a human
 applies, not something the producer decides. An unloadable case is recorded as a
 failed load rather than skipped, because silently dropping uncooperative sites

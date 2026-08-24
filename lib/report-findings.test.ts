@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import {
@@ -9,6 +9,7 @@ import {
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import { buildReportFacts } from "./report-facts";
 import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
 import { HEADLINE_PLATFORMS, isTrackingTrackerMatch } from "./report-insights";
@@ -39,6 +40,7 @@ import {
   viewFromV2
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
+import { formatCount } from "./text-format";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
@@ -656,9 +658,14 @@ test("adds a Shields-block card only when ad-block is active", () => {
   };
   const blocked = byId(buildFindings(viewFromV1Report(withAdblock), null), "shields-blocked");
   assert.equal(blocked.level, "warn");
+  // A legacy v1 run records no evaluated-request count, so there is no honest
+  // denominator to state. It used to borrow the retained total ("12 of 25"),
+  // which is the same two-population conflation the r2 path had -- v1 simply
+  // lacks the recorded evidence to prove it. The count stands alone instead.
   // Classification mode: the number is filter-list MATCHES on a normal load,
   // never presented as a measured block.
-  assert.match(blocked.title, /12 of 25 requests matched Brave Shields filter lists/);
+  assert.match(blocked.title, /^12 requests matched Brave Shields filter lists$/);
+  assert.doesNotMatch(blocked.title, /of 25/, "v1 records no evaluated count to divide by");
   assert.doesNotMatch(blocked.title, /would block/);
   assert.doesNotMatch(blocked.detail, /requests LOADED/);
   assert.match(blocked.detail, /were not blocked by the scanner/);
@@ -1525,14 +1532,17 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
   assert.match(mixedCard.evidence, /same-site origins the probe could not separate/);
   assert.doesNotMatch(mixedCard.evidence, /4 third-party input listeners from/);
 
-  // Nothing was filtered, so the direct attribution stands unqualified.
+  // Nothing was filtered, so the chain attribution stands unqualified. It is
+  // still a chain claim, never "listeners from" the named origin: the wire
+  // does not say which script registered.
   const crossSiteOnly = makeResult({
     firstPartyDomain: "www.shop.example",
     domains: [sameSiteDomain],
     fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://recorder.example.net"])]
   });
   const cleanCard = byId(buildFindings(viewFromV1Report(crossSiteOnly), null), "session-recording-input-monitoring");
-  assert.match(cleanCard.evidence, /4 third-party input listeners from/);
+  assert.match(cleanCard.evidence, /4 input-listener registrations with/);
+  assert.match(cleanCard.evidence, /in the registration call chain/);
   assert.doesNotMatch(cleanCard.evidence, /attributed across/);
 
   const privacyReducedOrigin = makeResult({
@@ -1546,6 +1556,43 @@ test("listener-coverage cards are restricted to cross-site origins", () => {
   );
   assert.match(privacyReducedCard.evidence, /https:\/\/static\.\*\.fbcdn\.net\/…/);
   assert.doesNotMatch(privacyReducedCard.evidence, /\{label\}|\{seg\}/);
+});
+
+test("a chain-attributed listener detection is never published as registered by a third party", () => {
+  // False-accusation counterexample. The producer's stack attribution prefers
+  // a third-party origin anywhere in the bounded registration call chain, so a
+  // FIRST-PARTY script that registers its own listeners through a synchronous
+  // third-party helper (a CDN utility that never calls addEventListener)
+  // produces exactly this wire evidence. The recorded fact is "a third-party
+  // origin appeared in the registration call chain"; the copy must claim that
+  // and no more.
+  const helperChain = makeResult({
+    firstPartyDomain: "www.shop.example",
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://cdn.example.net"])]
+  });
+  const card = byId(buildFindings(viewFromV1Report(helperChain), null), "session-recording-input-monitoring");
+  const copy = [card.title, card.lead, card.detail, card.evidence].join(" ");
+  // The accusation forms: "script registered listener(s)/broad ...". The
+  // detail's caveat legitimately contains "the third-party script registered
+  // the listener" inside an explicit negation, so the pattern pins the
+  // accusative object, not the words alone.
+  assert.doesNotMatch(copy, /(third-party|cross-site) script registered (listeners?\b|broad)/i);
+  assert.doesNotMatch(copy, /registered broad third-party/i);
+  assert.doesNotMatch(copy, /listeners? from /i);
+  assert.match(card.lead, /call chains that included a third-party script/);
+  assert.match(card.detail, /does not by itself establish that the third-party script registered the listener/);
+  // Not vacuous: the detection rendered and named the chain origin.
+  assert.match(card.evidence, /cdn\.example\.net/);
+
+  const sessionChain = makeResult({
+    firstPartyDomain: "www.shop.example",
+    fingerprintDetections: [makeListenerDetection("session-recording", ["https://cdn.example.net"])]
+  });
+  const sessionCard = byId(buildFindings(viewFromV1Report(sessionChain), null), "session-recording-input-monitoring");
+  const sessionCopy = [sessionCard.title, sessionCard.lead, sessionCard.detail, sessionCard.evidence].join(" ");
+  assert.doesNotMatch(sessionCopy, /(third-party|cross-site) script registered (listeners?\b|broad)/i);
+  assert.match(sessionCard.lead, /call chains that included a third-party script/);
+  assert.match(sessionCard.evidence, /cdn\.example\.net/);
 });
 
 test("the session-recording lead names only the event categories the detection recorded", () => {
@@ -1594,7 +1641,7 @@ test("the session-recording lead names only the event categories the detection r
   // An event set the category map does not cover names no category at all
   // rather than falling back to a list the visit did not support.
   const unmappedLead = leadFor(["gotpointercapture", "auxclick", "dblclick", "drag", "focusin"]);
-  assert.match(unmappedLead, /broad interaction listener coverage/);
+  assert.match(unmappedLead, /[Bb]road interaction listener coverage/);
   assert.doesNotMatch(unmappedLead, /scroll|visibility|keyboard/i);
 });
 
@@ -2927,4 +2974,221 @@ test("a comparison card that observed no change never asserts a difference", () 
     asserted += 1;
   }
   assert.equal(asserted, flatPairs.length, "every fixture must reach the assertions");
+});
+
+test("the Shields match ratio is denominated by what the engine evaluated", () => {
+  // REGRESSION, live on 59 committed report pages. `count` is a counter over
+  // EVALUATED requests; pairing it with the retained total describes two
+  // populations as one. google.com evaluated 31, matched 11, retained 55 and
+  // published "11 of 55"; khanacademy published "4 of 154" against 216
+  // evaluated -- a numerator from a larger population than its denominator.
+  //
+  // SELECTED, NOT HARDCODED. The first version read one report id and pinned
+  // 11/31/55. Committed reports are pruned by age and count, so that guard was
+  // scheduled to die as ENOENT -- and the whole point of it is to outlive the
+  // corpus it reads. It now selects every wire whose lead arm distinguishes
+  // the two populations, asserts the selection is non-empty so an empty
+  // corpus fails rather than passes, and checks all of them.
+  //
+  // THE LEAD ARM, NOT THE FIRST DIVERGENT ARM. The card renders exactly one
+  // arm, the one displayRunView leads with, so expecting any other arm's
+  // numbers in its title is a false red on a correct page: when this was
+  // fixed, a committed comparison already carried a divergent variant arm
+  // the card never shows, applied:true, whose simulated title states
+  // the blocked count with no denominator; when such an arm leads, the only
+  // wrong shape is borrowing the retained total, so that is all we forbid.
+  // Legacy-derived measurements (no verificationFacts) record no evaluated
+  // count and state the count alone, so there is no ratio to check; they are
+  // skipped.
+  //
+  // Titles format counts through formatCount ("en-US" grouping), so expected
+  // numbers must go through the same formatter: a raw-digit regex on a
+  // four-digit count matches nothing ("1,000" is not "1000"), turning the
+  // positive assertion into a false red and the negative one into a no-op;
+  // when this was fixed, four committed arms already retained exactly 1,000
+  // requests. The grouping itself is pinned against literals by the sibling
+  // test below, so reusing the formatter here cannot hide a formatter
+  // regression.
+  //
+  // THE DENOMINATOR IS EXACT, EVEN CENSORED. requestsEvaluated is a
+  // route-time counter over the engine's own classifier calls; capture
+  // censoring truncates the retained rows the NUMERATOR is recounted from,
+  // never this counter. The first version of the fix rendered the denominator
+  // through the numerator's hedge, publishing "at least N retained requests
+  // the engine evaluated" for an exact non-retained-row count on every
+  // censored page, while the metric grid printed the same number exactly, and
+  // this guard's `(?:retained )?` tolerance passed both. The qualifier is now
+  // forbidden in the denominator position, and censored divergent lead arms
+  // are counted separately so the censored branch cannot silently go
+  // unexercised.
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  let divergentLeadArms = 0;
+  let censoredDivergentLeadArms = 0;
+  for (const file of readdirSync(reportsDir)) {
+    if (!file.endsWith(".json") || file.includes("provenance") || file === "index.json") continue;
+    let wire: Record<string, any>;
+    try {
+      wire = JSON.parse(readFileSync(path.join(reportsDir, file), "utf8"));
+    } catch {
+      continue;
+    }
+    if (wire.schemaVersion !== 2) continue;
+    const view = viewFromV2(
+      wire as Parameters<typeof viewFromV2>[0],
+      wire.schemaRevision === 1 ? 1 : 2
+    );
+    const lead = displayRunView(view);
+    const shields = lead.verificationFacts?.shields;
+    if (!shields || !shields.engineLoaded || shields.requestsEvaluated === 0) continue;
+    const matched = shields.applied ? shields.requestsActuallyBlocked : shields.requestsMatched;
+    if (matched <= 0) continue;
+    const retained = lead.counts.totalRequests;
+    // A failed-load report renders no shields card at all; that is not this
+    // guard's subject, and the non-empty assertion below still catches a
+    // corpus where the card never renders anywhere.
+    const card = buildFindings(view, null).find((finding) => finding.id === "shields-blocked");
+    if (!card) continue;
+    if (shields.applied) {
+      assert.doesNotMatch(
+        card.title,
+        new RegExp(`of ${formatCount(retained)}\\b`),
+        `${file}: a simulated block count states no denominator, and must never borrow the ${retained} retained`
+      );
+      continue;
+    }
+    if (shields.requestsEvaluated === retained) continue;
+    divergentLeadArms += 1;
+    if (buildReportFacts(view).display.evidence.requests.state === "censored") {
+      censoredDivergentLeadArms += 1;
+    }
+    assert.match(
+      card.title,
+      new RegExp(`\\bof ${formatCount(shields.requestsEvaluated)} requests? the engine evaluated`),
+      `${file}: must divide by the ${shields.requestsEvaluated} evaluated, exactly and unqualified, not the ${retained} retained`
+    );
+    // The token immediately before "the engine evaluated" is the denominator.
+    // It must never carry the retained-rows hedge: that qualifier belongs to
+    // the numerator, which is recounted from retained rows, and only there.
+    assert.doesNotMatch(
+      card.title,
+      /retained requests? the engine evaluated|(?:at least |≥)[\d,]+ requests? the engine evaluated/,
+      `${file}: the evaluated denominator is an exact route-time counter, never a retained-row count`
+    );
+    assert.doesNotMatch(
+      card.title,
+      new RegExp(`\\b${formatCount(matched)} of ${formatCount(retained)}\\b`),
+      `${file}: the retained total must never be the match denominator`
+    );
+  }
+
+  assert.ok(
+    divergentLeadArms > 0,
+    "no committed wire's lead arm distinguishes evaluated from retained; this guard would be vacuous"
+  );
+  assert.ok(
+    censoredDivergentLeadArms > 0,
+    "no committed divergent lead arm is censored; the hedged-denominator assertions would be vacuous"
+  );
+});
+
+test("Shields ratio counts publish with en-US grouping, never raw digits", () => {
+  // The corpus guard above reuses formatCount for its expected numbers, and
+  // committed evaluated counts may never reach four digits (none had when
+  // this was written), so only a synthetic wire dependably pins the grouped
+  // form against literals. Without this,
+  // a formatter regression to raw digits would agree with itself in the
+  // corpus guard and pass. The fixture's raw digits (2416) and the expected
+  // literal ("2,416") deliberately differ, so the assertion cannot agree
+  // with the fixture by construction.
+  const wire = makePublicSingleReportV2R2();
+  wire.run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 2416,
+      requestsMatched: 1204,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+  wire.run.summary = {
+    ...wire.run.summary,
+    counts: { ...wire.run.summary.counts, totalRequests: 3000, shieldsBlockedRequests: 1204 }
+  };
+  const card = byId(buildFindings(viewFromV2(wire, 2), null), "shields-blocked");
+  assert.match(card.title, /\b1,204 of 2,416 requests the engine evaluated/);
+  assert.doesNotMatch(card.title, /\b(?:1204|2416)\b/, "counts must group thousands, never print raw digits");
+  assert.doesNotMatch(card.title, /\bof 3,000\b/, "the retained total must never be the match denominator");
+
+  // The applied:true lead arm the corpus cannot currently exercise: the
+  // simulated title states the blocked count alone.
+  const simulated = makePublicSingleReportV2R2();
+  simulated.run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: true,
+      requestsEvaluated: 2416,
+      requestsMatched: 0,
+      requestsActuallyBlocked: 1204,
+      phaseId: 0
+    }
+  };
+  simulated.run.summary = {
+    ...simulated.run.summary,
+    counts: { ...simulated.run.summary.counts, totalRequests: 3000, shieldsBlockedRequests: 1204 }
+  };
+  const simulatedCard = byId(buildFindings(viewFromV2(simulated, 2), null), "shields-blocked");
+  assert.match(simulatedCard.title, /blocking engine stopped 1,204 /);
+  assert.doesNotMatch(
+    simulatedCard.title,
+    /\bof\b/,
+    "a simulated block count states no denominator at all"
+  );
+});
+
+test("a censored run hedges only the Shields numerator, never the evaluated denominator", () => {
+  // The numerator is recounted from retained request rows, so on a censored
+  // run it is a floor and the "at least ... retained" hedge is honest there.
+  // The denominator is the engine's own route-time evaluation counter, which
+  // request-capture censoring cannot truncate, so it is stated exactly:
+  // hedging it published "at least N retained requests the engine evaluated"
+  // about a count that is neither a floor nor a count of retained rows, while
+  // the metric grid printed the same number exactly on the same page. The
+  // fixture's raw digits (2416) and the expected literal ("2,416") differ by
+  // construction, and the retained total (3000) differs from both counts.
+  const wire = makePublicSingleReportV2R2();
+  wire.run.verificationFacts = {
+    shields: {
+      method: "shields-engine-status@1",
+      engineLoaded: true,
+      applied: false,
+      requestsEvaluated: 2416,
+      requestsMatched: 1204,
+      requestsActuallyBlocked: 0,
+      phaseId: 0
+    }
+  };
+  wire.run.summary = {
+    ...wire.run.summary,
+    counts: { ...wire.run.summary.counts, totalRequests: 3000, shieldsBlockedRequests: 1204 }
+  };
+  const view = viewFromV2(wire, 2);
+  const run = view.runs[0];
+  run.quality.byFamily = {
+    ...(run.quality.byFamily ?? {}),
+    requests: { outcome: "censored", reasons: ["budget-exhausted:public-request-records"] }
+  };
+  const card = byId(buildFindings(view, null), "shields-blocked");
+  assert.match(
+    card.title,
+    /at least 1,204 retained requests out of 2,416 requests the engine evaluated/,
+    "the numerator keeps its retained-floor hedge and the denominator stays exact"
+  );
+  assert.doesNotMatch(
+    card.title,
+    /retained requests? the engine evaluated|(?:at least |≥)2,416/,
+    "the evaluated denominator must never inherit the capture-loss hedge"
+  );
 });

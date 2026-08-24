@@ -106,15 +106,17 @@ export default function MethodologyPage() {
           only, and trackers that load only after interaction or consent are not seen by a passive visit.
         </p>
         <p>
-          A visit that requests Global Privacy Control refuses one more kind of worker, and only that visit does.
-          The refusal is by script URL rather than by worker class: it applies to both <code>Worker</code> and{" "}
-          <code>SharedWorker</code>. Putting the signal inside a worker means instrumenting the worker&apos;s
-          script before its first statement, which cannot be done for a <code>blob:</code> or <code>data:</code>{" "}
-          script URL without changing that worker&apos;s URL, origin, and content-security context. Rather than
-          change what it is measuring, the scanner refuses it: the constructor throws and that worker never runs.
-          A visit where this happened says so in its warnings and marks its request evidence incomplete. It also
-          means a GPC comparison differs between its two visits in more than the GPC signal itself, on sites that
-          build either kind of worker from a <code>blob:</code> URL.
+          A visit that requests Global Privacy Control runs every worker the site asks for, whatever its script
+          URL, and puts the signal inside each dedicated worker&apos;s own execution context: the worker is paused
+          before its first statement over a DevTools session scoped to the measured page, the property is
+          installed inside the worker, and the same evaluation reads it back. Only that readback, testimony from
+          inside the worker itself, marks the worker as carrying the signal. A worker the scanner could not attest
+          this way still runs untouched; the visit then says so in its warnings and marks its request evidence
+          incomplete. <code>SharedWorker</code> is the standing case: the browser does not expose shared workers
+          to a page-scoped session, so their execution context never carries the signal even though their network
+          requests carry the <code>Sec-GPC</code> header, and every such construction is disclosed. For attested
+          workers a GPC comparison differs between its two visits in the signal alone; an unattested worker is the
+          remaining one-visit asymmetry, and it is always disclosed rather than silently passed.
         </p>
       </section>
 

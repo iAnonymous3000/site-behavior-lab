@@ -106,15 +106,34 @@ type ComparisonHistoryPairingIdentity = Omit<TemporalPairingIdentity, "temporalC
  * identity above, including the exact filter snapshot. The relaxed cohort is
  * produced only after success/cap/provenance checks and omits that one field.
  */
+const COMPARISON_HISTORY_KEY_PREFIX = {
+  v1: "comparison-history-key-v1|",
+  v2: "comparison-history-key-v2|"
+} as const;
+
 export function comparisonHistoryPairingKey(entry: ComparisonHistoryPairingIdentity): string | null {
   if (!entry.domain || !entry.comparisonHistoryCohort) return null;
   const kind = entry.reportType === "comparison" ? entry.comparisonType ?? "comparison" : "single";
   // Keep frozen v1 manifest keys stable while making r2 archive cohorts
   // visibly distinct. The cohort itself remains versioned as a second guard.
   const keyVersion = entry.comparisonHistoryCohort.startsWith("v2-r2-comparison-history:") ? "v2" : "v1";
-  return `comparison-history-key-${keyVersion}|${entry.comparisonHistoryCohort}|${entry.domain.toLowerCase()}|${kind}${
+  return `${COMPARISON_HISTORY_KEY_PREFIX[keyVersion]}${entry.comparisonHistoryCohort}|${entry.domain.toLowerCase()}|${kind}${
     entry.consentClicks ? `|${entry.consentClicks}` : ""
   }|${normalizedRouteKey(entry.requestedUrl)}|${normalizedRouteKey(entry.finalUrl)}`;
+}
+
+/**
+ * Schema era encoded in a versioned passive-history key, for surfaces that
+ * must describe the pairing rule the key actually applied (the site profile's
+ * "Comparable visits" note is era-conditional). Reads the same prefix table
+ * `comparisonHistoryPairingKey` writes, so it cannot disagree with the
+ * pairing itself.
+ */
+export function comparisonHistoryKeyEra(key: string | null): "v1" | "v2" | null {
+  if (key === null) return null;
+  if (key.startsWith(COMPARISON_HISTORY_KEY_PREFIX.v2)) return "v2";
+  if (key.startsWith(COMPARISON_HISTORY_KEY_PREFIX.v1)) return "v1";
+  return null;
 }
 
 /** Map of report id (the newest per site and kind) to its since-last-scan delta. */

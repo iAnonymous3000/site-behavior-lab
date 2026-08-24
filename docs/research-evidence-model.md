@@ -202,11 +202,15 @@ reviewed independently. Browser/runtime, first- and third-party, benign
 hard-negative, and adversarial cases should match the scope of the claim.
 Sample size and any subgroup analysis must be fixed before results are opened.
 
-The release-grade machine-readable study contract is published at
-`/schemas/detector-calibration-study.v3.schema.json`. The immutable v1 and v2
+Committed studies satisfy the machine-readable contract at
+`/schemas/detector-calibration-study.v3.schema.json`, which historical
+verification continues to run against. The adopted forward contract for all
+new ceremonies is the v4 side-separated schema at
+`/schemas/detector-calibration-study.v4.schema.json`
+(docs/calibration-v4-reference-architecture.md). The immutable v1 and v2
 schemas remain available for historical studies; v1 lacks the structured fixed
-measurement condition, and neither historical shape satisfies the current
-custody lane. JSON Schema enforces the v3 closed shape;
+measurement condition, and neither historical shape satisfies either current
+lane. JSON Schema enforces the v3 closed shape;
 `detectorCalibrationStudyIssues` additionally enforces bounded values, digest
 formats, unique labeler and blind-tiebreaker identities, canonical timestamps,
 digest recomputation, and the exact detector-specific desktop/GPC-disabled

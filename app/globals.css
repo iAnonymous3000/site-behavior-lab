@@ -3856,6 +3856,19 @@ a {
   padding: 14px;
 }
 
+.attribution-active-filter {
+  align-items: baseline;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+}
+
 .causal-graph-scroll {
   overflow-x: auto;
   padding: 16px;
@@ -3913,6 +3926,117 @@ a {
   fill: var(--text-subtle);
   font-size: 11px;
 }
+
+/* ---- Attribution map: focus, selection, drill-down ---- */
+
+/* Focus mode collapses the report grid to one column so the map can use the
+   full report width, and the sidebar flows below it. Done from the ancestor
+   with :has() rather than by hoisting the section out of .report-main, because
+   hoisting would change the reading order of the whole report permanently to
+   buy a mode that is off by default. A browser without :has() simply keeps the
+   compact layout, which is the pre-existing behaviour rather than a broken one. */
+.report-grid:has(.causal-graph-card.is-focused) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.attribution-focus-toggle {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-left: auto;
+  padding: 4px 10px;
+}
+
+.attribution-focus-toggle:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+  outline: none;
+}
+
+.attribution-edge-list {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+/* The authoritative control surface. The diagram above is aria-hidden, so these
+   carry the accessible name of every relationship as well as the interaction. */
+.attribution-edge-control {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.attribution-edge-control:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+  outline: none;
+}
+
+/* Selection is carried by border and background, never by colour alone, and the
+   contrast token is the same one the rest of the report uses for emphasis. */
+.attribution-edge-control.is-selected {
+  border-color: var(--accent);
+  border-width: 2px;
+  padding: 7px 9px;
+}
+
+.attribution-edge-pair {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.attribution-edge-meta {
+  color: var(--text-subtle);
+  font-size: 0.75rem;
+}
+
+.attribution-selection {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+  padding-top: 10px;
+}
+
+.attribution-selection-detail {
+  margin: 0 0 6px;
+}
+
+/* Fading unrelated paths is the point of selection, so the muted state must stay
+   legible rather than disappear: 0.35 on --border-strong still resolves above the
+   surface, and the selected path additionally gains width, so the distinction
+   survives for a reader who cannot separate the two by opacity. */
+.causal-edge.is-muted,
+.causal-node.is-muted {
+  opacity: 0.28;
+}
+
+.causal-edge.is-selected {
+  stroke: var(--accent);
+}
+
+.causal-edge,
+.causal-node {
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .causal-edge,
+  .causal-node {
+    transition: opacity 120ms ease-out;
+  }
+}
+
 
 .section-heading {
   align-items: center;
@@ -4655,6 +4779,20 @@ details[open] > summary .disclosure-chevron {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* The grid above is already one column at this width, so focusing cannot
+     widen anything: measured at 1024, the map is 976px both before and after
+     the toggle. A control that flips a class and moves nothing is a control
+     that lies about what it does, so it is hidden rather than left inert.
+
+     It lives in THIS block on purpose. The toggle is only meaningful while the
+     two-column rule applies, so the width that retires the sidebar is the width
+     that retires the toggle, and a single-sourced breakpoint cannot drift into
+     showing an inert control again. attribution-map-interaction.test.ts holds
+     the two rules together. */
+  .attribution-focus-toggle {
+    display: none;
+  }
+
   .controls-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -5111,6 +5249,11 @@ details[open] > summary .disclosure-chevron {
   .request-filter-chips,
   .section-tools,
   .filter-input,
+  /* The attribution map's controls. Its relationship list, marked
+     print-text-equivalent, is the text form that prints instead. */
+  .attribution-focus-toggle,
+  .attribution-edge-list,
+  .attribution-selection,
   .disclosure-chevron,
   .evidence-receipt-links,
   .arm-switcher {

@@ -39,6 +39,14 @@ const V3_SCHEMA_PATH = path.join(
 );
 const FROZEN_V3_SCHEMA_SHA256 =
   "abcbd56177ffcd2d609502251180806bf90b509c11720eae8a205e33d62188b3";
+const V4_SCHEMA_PATH = path.join(
+  ROOT,
+  "public",
+  "schemas",
+  "detector-calibration-study.v4.schema.json"
+);
+const FROZEN_V4_SCHEMA_SHA256 =
+  "18e925c5419de1233225ff66cd1c1f2800645c3b699f5405d811a05596e433e2";
 
 function generatedSchema(): Record<string, unknown> {
   const schema = createGenerator({
@@ -60,6 +68,20 @@ function generatedV2Schema(): Record<string, unknown> {
     topRef: true
   }).createSchema("DetectorCalibrationStudyV2");
   return { $id: DETECTOR_CALIBRATION_STUDY_V2_SCHEMA_ID, ...schema };
+}
+
+function generatedV4Schema(): Record<string, unknown> {
+  const schema = createGenerator({
+    path: path.join(ROOT, "lib", "detector-calibration-v4.ts"),
+    type: "DetectorCalibrationStudyV4",
+    skipTypeCheck: true,
+    additionalProperties: false,
+    topRef: true
+  }).createSchema("DetectorCalibrationStudyV4");
+  return {
+    $id: "https://sitebehavior.org/schemas/detector-calibration-study.v4.schema.json",
+    ...schema
+  };
 }
 
 function generatedV3Schema(): Record<string, unknown> {
@@ -298,3 +320,19 @@ function runtimeIdentity(): DetectorCalibrationRuntimeIdentity {
 function digest(value: string): string {
   return sha256Hex(value);
 }
+
+test("the v4 side-separated schema is committed, pinned, and generated from its own module", () => {
+  const bytes = readFileSync(V4_SCHEMA_PATH);
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), FROZEN_V4_SCHEMA_SHA256);
+  const committed = JSON.parse(bytes.toString("utf8"));
+  assert.deepEqual(committed, generatedV4Schema(), "run `npm run build:schema` and commit the result");
+  // The generations stay separate: the v4 schema never mentions a merged
+  // outcome or the frozen presence fact, and the frozen v3 digest is
+  // untouched by v4's existence.
+  const serialized = JSON.stringify(committed);
+  assert.equal(/-presence/.test(serialized), false, "no scanner-derived presence fact in v4");
+  assert.equal(
+    createHash("sha256").update(readFileSync(V3_SCHEMA_PATH)).digest("hex"),
+    FROZEN_V3_SCHEMA_SHA256
+  );
+});

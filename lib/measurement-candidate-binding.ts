@@ -19,6 +19,7 @@ import path from "node:path";
 import packageManifest from "../package.json";
 import braveListManifest from "./adblock-wasm/brave-default-filters.meta.json";
 import { canonicalJson } from "./canonical-json";
+import { evaluateDetectorCausalInputs } from "./detector-causal-inputs";
 import {
   analyzeDetectorCalibrationStudy,
   detectorCalibrationMeasurementCondition,
@@ -85,6 +86,52 @@ export const MEASUREMENT_IDENTITY_DIGEST_DOMAIN =
   "site-behavior-measurement-identity-v1";
 export const MEASUREMENT_CANDIDATE_REPOSITORY = "iAnonymous3000/site-behavior-lab";
 export const MEASUREMENT_CANDIDATE_TARGET_RELEASE = "1.0.0";
+
+/**
+ * The candidate CITATION.cff contract, in the shape the release-evidence CI
+ * gate can also accept.
+ *
+ * CITATION.cff follows the archived release receipt, never the declared
+ * version: the candidate tree (and the finalization carrier, unchanged) cites
+ * the most recent RECEIPTED release with that receipt's date, while 1.0.0 is
+ * declared by release-policy.json and CHANGELOG.md alone. A 1.0.0 receipt can
+ * exist only after the tag ceremony, so a candidate citing 1.0.0 with no date
+ * is a state scripts/release-evidence.mjs refuses in required CI; this
+ * verifier once demanded exactly that state, which made the decided 1.0
+ * finalization chronology unreachable. WHICH receipted release must be cited,
+ * and with which date, stays the release-evidence gate's contract; restating
+ * its selection rule here would be a second copy of one contract. This
+ * predicate pins only what the binding owns: the receipt-following shape, and
+ * that the citation never claims the unreceipted target release. Exported so
+ * the pair test in lib/release-evidence.test.ts can run this predicate and
+ * the real release-evidence gate against one candidate-shaped tree.
+ */
+export function receiptFollowingCandidateCitationViolation(
+  citation: string
+): string | null {
+  const versions = [
+    ...citation.matchAll(/^version:\s*["']?([^"'\s]+)["']?\s*$/gm)
+  ].map((match) => match[1]);
+  if (versions.length !== 1) {
+    return "candidate CITATION.cff must carry exactly one version line";
+  }
+  if (versions[0] === MEASUREMENT_CANDIDATE_TARGET_RELEASE) {
+    return (
+      "candidate CITATION.cff must cite the most recent receipted release, " +
+      `never the unreceipted ${MEASUREMENT_CANDIDATE_TARGET_RELEASE}`
+    );
+  }
+  const dates = [
+    ...citation.matchAll(
+      /^date-released:\s*["']?([0-9]{4}-[0-9]{2}-[0-9]{2})["']?\s*$/gm
+    )
+  ];
+  if (dates.length !== 1) {
+    return "candidate CITATION.cff must carry exactly one receipted date-released line";
+  }
+  return null;
+}
+
 export const MEASUREMENT_CANDIDATE_SIGNER_WORKFLOW =
   "iAnonymous3000/site-behavior-lab/.github/workflows/ci.yml";
 export const MEASUREMENT_AA_PRODUCER_WORKFLOW =
@@ -183,7 +230,6 @@ export type MeasurementEvidenceCategory =
   | "release-tag-governance-receipt"
   | "hosted-evidence-archive"
   | "release-policy-finalization"
-  | "citation-finalization"
   | "changelog-finalization";
 
 export type MeasurementEvidenceEntry = {
@@ -811,10 +857,10 @@ const EVIDENCE_PATH_POLICIES: Readonly<
     pattern: /^release-policy\.json$/,
     allowedChange: "release-finalization"
   },
-  "citation-finalization": {
-    pattern: /^CITATION\.cff$/,
-    allowedChange: "release-finalization"
-  },
+  // CITATION.cff is deliberately NOT finalization evidence. It follows the
+  // archived release receipt, never the declared version, so it stays
+  // byte-identical from candidate through carrier and advances to 1.0.0 only
+  // after that release's receipt is archived, outside this evidence window.
   "changelog-finalization": {
     pattern: /^CHANGELOG\.md$/,
     allowedChange: "release-finalization"
@@ -5485,6 +5531,37 @@ function verifyCalibrationRetainedArtifactBindings(
         !artifacts.has(calibrationArtifactKey("detector-observation", caseId)),
         `${caseLabel} censored case cannot retain a completed private detector observation`
       );
+      // Censoring is recomputed too, or closing under-censoring alone would
+      // leave a study free to drop any inconvenient case and still verify.
+      //
+      // The oracle is this file's OWN scoring function, so the verifier and the
+      // producer cannot disagree about what a scorable case looks like: if the
+      // retained report reproduces a prediction, nothing about it supports a
+      // censoring, whatever reason the attempt recorded.
+      //
+      // WHAT THIS STILL DOES NOT CLOSE, stated because the earlier version of
+      // this comment enumerated its exclusions as though the list were
+      // complete. A censored case may legitimately retain NO source report
+      // (`scripts/calibration-study-acquire.mjs` emits that shape from its
+      // outer catch, and the assembler permits it), and this block cannot run
+      // on one. So selective censoring is narrowed to cases that kept a report,
+      // not eliminated. `consent-banner` is excluded outright: its prediction
+      // needs the process-local calibration result, so no retained public
+      // report reproduces either its value or its censoring.
+      if (sourceRun !== null && detector !== "consent-banner") {
+        let reproducesPrediction = false;
+        try {
+          calibrationPredictionFromReportRun(sourceRun, detector, caseLabel);
+          reproducesPrediction = true;
+        } catch {
+          // Not scorable, which is what a censoring asserts. This is the
+          // expected path for a truthfully censored case.
+        }
+        requireValue(
+          !reproducesPrediction,
+          `${caseLabel} retained source report reproduces a scorable prediction, so it does not support censoring this case`
+        );
+      }
     } else {
       throw new Error(`${caseLabel}.outcome must be complete or censored`);
     }
@@ -5516,6 +5593,16 @@ function calibrationPredictionFromReportRun(
   requireValue(
     ledger.status === "complete",
     `${label} source report detector ledger is not complete`
+  );
+  // Recomputed here, not inherited from the producer. A stage that finished
+  // over a truncated input still reports `complete`, so a case scored as a
+  // usable prediction must independently prove its causal evidence whole.
+  const causalInputs = evaluateDetectorCausalInputs(run, detector);
+  requireValue(
+    causalInputs.complete,
+    `${label} source report cannot support a scored prediction: ${
+      causalInputs.complete ? "" : causalInputs.cause
+    }`
   );
   const evidence = requiredRecord(
     run.evidence,
@@ -7761,7 +7848,7 @@ function verifyCandidateCarrierDiff(
       ) &&
         finalizationCommits.size === 1 &&
         !finalizationCommits.has(undefined),
-      "release-policy.json, CITATION.cff, and CHANGELOG.md must be finalized exactly once in one atomic carrier commit"
+      "release-policy.json and CHANGELOG.md must be finalized exactly once in one atomic carrier commit"
     );
   }
   return {
@@ -7798,7 +7885,6 @@ function verifyEvidenceSets(evidence: MeasurementEvidenceEntry[]): void {
   );
   const finalizationCategories = [
     "release-policy-finalization",
-    "citation-finalization",
     "changelog-finalization"
   ] as const;
   const finalizationCount = finalizationCategories.filter(
@@ -7806,7 +7892,7 @@ function verifyEvidenceSets(evidence: MeasurementEvidenceEntry[]): void {
   ).length;
   requireValue(
     finalizationCount === 0 || finalizationCount === finalizationCategories.length,
-    "release finalization must enumerate release-policy.json, CITATION.cff, and CHANGELOG.md together"
+    "release finalization must enumerate release-policy.json and CHANGELOG.md together"
   );
 
   const reports = byCategory.get("featured-report") ?? new Set<string>();
@@ -8317,7 +8403,27 @@ function verifyReleaseFinalization(
     "npmPublication"
   ];
   requireExactKeys(candidatePolicy, policyKeys, "candidate release-policy.json");
-  requireExactKeys(releasedPolicy, policyKeys, "released release-policy.json");
+  // The finalized policy must still declare the open declare-then-tag window:
+  // every state this verifier can pass precedes the v1.0.0 tag, and the
+  // receipt that closes the window cannot exist before the tag.
+  requireExactKeys(
+    releasedPolicy,
+    [...policyKeys, "tagPending"],
+    "released release-policy.json"
+  );
+  const tagPending = requiredRecord(
+    releasedPolicy.tagPending,
+    "released release-policy.json tagPending"
+  );
+  requireValue(
+    Object.keys(tagPending).every(
+      (key) => key === "declaredAt" || key === "note"
+    ) &&
+      typeof tagPending.declaredAt === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(tagPending.declaredAt) &&
+      (tagPending.note === undefined || typeof tagPending.note === "string"),
+    "released release-policy.json must declare the open declare-then-tag window as tagPending.declaredAt"
+  );
   requireValue(
     candidatePolicy.schemaVersion === 2 &&
       candidatePolicy.status === "development" &&
@@ -8371,19 +8477,19 @@ function verifyReleaseFinalization(
     absoluteRepoPath(rootDir, "CITATION.cff"),
     "utf8"
   );
-  const citationVersion = 'version: "1.0.0"\n';
+  const citationViolation =
+    receiptFollowingCandidateCitationViolation(candidateCitation);
   requireValue(
-    candidateCitation.split(citationVersion).length === 2 &&
-      !candidateCitation.includes("date-released:"),
-    "candidate CITATION.cff must name 1.0.0 and carry no release date"
+    citationViolation === null,
+    citationViolation ?? "candidate CITATION.cff violates the receipt-following contract"
   );
-  const expectedCitation = candidateCitation.replace(
-    citationVersion,
-    `${citationVersion}date-released: "${releaseDate}"\n`
-  );
+  // The carrier-history walk would also refuse any CITATION.cff change as
+  // non-enumerated evidence; this direct check runs first, states the
+  // contract, and holds even if CITATION.cff is ever re-added to the
+  // permitted evidence set.
   requireValue(
-    releasedCitation === expectedCitation,
-    "CITATION.cff finalization may only add the release-policy date after version 1.0.0"
+    releasedCitation === candidateCitation,
+    "CITATION.cff must stay byte-identical through release finalization; it advances to 1.0.0 only after that receipt is archived"
   );
 
   const candidateChangelog = gitBlob(rootDir, candidateCommit, "CHANGELOG.md");

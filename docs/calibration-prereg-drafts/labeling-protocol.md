@@ -1,24 +1,28 @@
 # Reference labeling protocol (draft)
 
-What a labeler asserts, from what evidence, under what blinding. One
-protocol, six detectors, so every study's referenceProtocol string can point
-here and the definitions cannot drift apart between studies.
+What a labeler asserts, from what evidence, under what blinding. This document
+collects shared rules and detector-specific operational definitions, but each
+detector plan's `referenceProtocol` is authoritative. This document must not
+widen a plan's proposition or admit a reference source that its plan excludes.
 
 ## Ground rules, all detectors
 
-- A label is a property of the RECORDED EVIDENCE for one case, not of the
-  site in general. If the evidence bundle does not show it, the label is
-  absent, even when the labeler privately knows the site does it on other
-  days. Anything else breaks the blinding model.
-- Labelers see the blinded bundle only: distinct third-party requests (host,
-  path, method, count) and the per-detector evidence surfaces listed below.
-  Never the detector's prediction, never another labeler's work.
+- A label is a property of the preregistered reference evidence for one case,
+  not of the site in general. Most detectors use a blinded bundle derived from
+  the recorded visit. CNAME labelers instead produce their own independent
+  browser and DNS evidence under the protocol below. A labeler never substitutes
+  private knowledge about what the site did on another day.
+- Labelers see only the admissible evidence declared by that detector's plan.
+  They never see the detector's prediction or another labeler's work. CNAME
+  labelers must not see this scanner's recorded DNS chains, CNAME prediction,
+  or project tracker catalog.
 - Every labeler labels every case independently and seals their full-frame
   source to the study public key BEFORE acquisition runs. The tiebreaker
   actor seals theirs the same way, used only for disagreements.
-- Uncertain is not a label. The protocol's per-detector definition decides
-  every case; a labeler who cannot decide from the evidence labels absent,
-  because the reference claim is "the evidence shows X", not "X happened".
+- Uncertain is not an absent label. When the detector-specific protocol cannot
+  determine a reference value from its admissible evidence, the case is marked
+  not determined and censored as `reference-label-uncertain`; it is never
+  coerced to absent. A plan may be stricter, but not weaker, about uncertainty.
 - Two to ten distinct GitHub actors label; one additional distinct actor is
   the precommitted tiebreaker. Identities become public provenance. LLM
   labelers were pilot-only; published rates require human reference labels.
@@ -35,12 +39,17 @@ match is the definition. Otherwise ABSENT.
 
 ### consent-banner: label PRESENT when
 
-The bundle shows a consent offer: a request to a documented CMP loader host
-(OneTrust, Cookiebot, Usercentrics, TrustArc, Osano, Didomi, Quantcast, or
-the IAB TCF framework endpoints listed in the appendix), or the retained
-banner evidence records a visible consent surface. A consent-shaped first
-party dialog with no recorded CMP traffic counts only via the retained
-banner evidence, never inferred from page category. Otherwise ABSENT.
+The retained banner evidence records a consent banner or dialog rendered and
+visible in the page or one of its frames at observation time. A CMP loader
+request, a consent-framework endpoint, or CMP-shaped markup that never rendered
+a visible control is NOT PRESENT. A visible first-party consent dialog may be
+present without recorded CMP traffic; it is never inferred from page category.
+Otherwise ABSENT.
+
+This definition measures the implemented `banner-visibility@1` calibration
+seam only. It does not label the broader published finding, "A consent
+management platform was requested." Any rate from this protocol must name the
+visible-banner proposition it measured.
 
 ### fingerprint-heuristics: label PRESENT when
 
@@ -62,11 +71,20 @@ privacy. Otherwise ABSENT.
 
 ### cname-uncloaking: label PRESENT when
 
-The recorded DNS evidence shows a first-party subdomain whose CNAME chain
-terminates at a documented tracking vendor (appendix list drawn from the
-curated catalog's CNAME vendors), regardless of what the requests to it
-contained. A chain ending at a general CDN is ABSENT. A chain that stays
-within the first party is ABSENT.
+Without using any input produced by this scanner, the labeler uses their own
+browser capture of the case URL to enumerate contacted hostnames under the
+site's registrable domain, excluding only the registrable apex. They resolve
+each candidate's CNAME chain through a resolver they name. Label PRESENT when
+at least one chain reaches a host matched by an external, publicly published
+tracking-service list pinned by SHA-256 in the detector plan. Label ABSENT only
+when every candidate was resolved and no chain matched that list.
+
+If any candidate cannot be resolved, the reference is not determined and must
+not be labelled absent. This scanner's recorded DNS chains and this project's
+tracker catalog are inadmissible reference inputs: reusing either would reproduce
+the instrument's own resolver or classification errors and misstate agreement
+as accuracy. A fully resolved chain ending at a general CDN or remaining within
+the first party is absent under the pinned external definition.
 
 ### keystroke-exfiltration
 
@@ -75,7 +93,11 @@ the README before designing anything for this detector.
 
 ## Appendix status
 
-The endpoint and vendor lists referenced above must be frozen as part of
-each study's referenceProtocol before sealing, drawn from the curated
-catalog at the candidate commit so labels and catalog cannot disagree about
-what a vendor is. The frame tooling emits them alongside the case files.
+Every endpoint, vendor, or behavioral-definition source must be frozen by
+digest in the detector plan before sealing. CNAME is the explicit independence
+case: its tracking-service list must be external and publicly published, and
+must not be drawn from this project's curated catalog. A project-derived list
+used by another detector can support rule-conformance or vendor-agreement
+labeling only; it is not independent accuracy ground truth merely because it
+was frozen. The frame tooling emits the plan-authorized sources alongside the
+case files.

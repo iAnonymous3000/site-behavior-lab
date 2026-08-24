@@ -57,10 +57,14 @@ complete authenticated roster are authorized before acquisition starts.
 
 ## Non-negotiable ordering
 
-1. **Approve the policy.** `RELEASE_READINESS.json` must explicitly select
-   `complete-case-only-zero-censoring` and bind the exact candidate-resident
-   policy path, SHA-256, analyzer disposition digest, human approver, and
-   timestamp. Do this before acquisition and before giving work to labelers.
+1. **Approve the policy.** The step-3 decision
+   (docs/calibration-censoring-policy-decision.md) superseded
+   `complete-case-only-zero-censoring` for new studies: the per-detector C/B
+   policy artifact from step 4 is what `RELEASE_READINESS.json` must select
+   and digest-bind (path, SHA-256, analyzer disposition digest, human
+   approver, timestamp) before acquisition and before giving work to
+   labelers. Until that approval exists, no new study starts under either
+   policy.
 2. **Preregister before candidate C.** Create the plan, frame, shared policy,
    and preregistration; add every candidate input to
    `research/measurement-candidate/measurement-inputs.json`; then freeze the
@@ -114,8 +118,12 @@ catalog, Brave lists, Node, Playwright, Chromium, operating system,
 architecture, runner, and egress. A later change to a bound identity makes the
 study ineligible; it does not silently transfer old rates to new code.
 
-The release-grade custody-lane study schema is
-`/schemas/detector-calibration-study.v3.schema.json`. Published v1 and v2
+The study contract every COMMITTED study satisfies is
+`/schemas/detector-calibration-study.v3.schema.json`, and v3 remains the
+schema historical verification runs against. All NEW ceremonies use the v4
+side-separated contract at `/schemas/detector-calibration-study.v4.schema.json`
+(docs/calibration-v4-reference-architecture.md); its ceremony tooling lands
+before the first v4 ceremony. Published v1 and v2
 studies remain readable as historical evidence; their immutable schemas are
 not rewritten. V1 lacks a structured fixed measurement condition and remains
 ineligible for rate publication. V3 preserves v2's condition binding while
