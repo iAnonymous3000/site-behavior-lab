@@ -291,7 +291,7 @@ function readerValidSharedHostView(
   assert.equal(
     read.ok,
     true,
-    read.ok ? undefined : `reader rejected fixture: ${read.error}`
+    `reader rejected fixture: ${read.ok ? "" : read.error}`
   );
   if (!read.ok || read.stored.schemaVersion !== 1) {
     assert.fail("expected a reader-valid v1 report");
