@@ -291,17 +291,44 @@ test("the gate passes trivially when no pilot frame is committed", () => {
 test("the sealing PUBLIC key can be committed and the private half cannot", () => {
   // Found by rehearsing the ceremony: `*.pem` is ignored, so the operator's
   // step-1 `git add -A` skipped the sealing public key without a word and the
-  // carrier landed without the file every reviewer seals to. The carrier check
-  // caught it, but only after the commit existed.
-  const publicKey = "calibration/cname-uncloaking-2026-08-prevalence-pilot/label-sealing-public-key.pem";
-  const privateKey = "calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-label-reveal-private.pem";
-  const ignored = (repoPath) =>
-    spawnSync("git", ["-C", repoRoot, "check-ignore", "-q", repoPath], { encoding: "utf8" }).status === 0;
-  assert.equal(ignored(publicKey), false, "the sealing public key must be committable");
-  assert.equal(ignored(privateKey), true, "a private key in the study directory must stay ignored");
-  assert.equal(
-    ignored("calibration/cname-uncloaking-2026-08-prevalence-pilot/anything-else.pem"),
-    true,
-    "the exception must name one file, not admit pem files generally"
-  );
+  // carrier landed without the file every reviewer seals to.
+  //
+  // The committed .gitignore BYTES are exercised in a throwaway repository
+  // rather than against this checkout, because this suite also runs where the
+  // checkout is not a git work tree at all: the container build stage copies
+  // the tree without .git (.dockerignore excludes it) and runs `npm run
+  // check` there. Asking git about a non-repository fails for a reason that
+  // has nothing to do with ignore rules, and reading that as "not ignored"
+  // would have made this test answer a question it was not asked.
+  const root = mkdtempSync(path.join(tmpdir(), "pilot-gitignore-"));
+  try {
+    git(root, ["init", "--initial-branch", "main"]);
+    writeFileSync(
+      path.join(root, ".gitignore"),
+      readFileSync(path.join(repoRoot, ".gitignore"), "utf8")
+    );
+    const ignored = (repoPath) =>
+      spawnSync("git", ["-C", root, "check-ignore", "-q", repoPath], { encoding: "utf8" }).status === 0;
+    const study = "calibration/cname-uncloaking-2026-08-prevalence-pilot";
+    assert.equal(
+      ignored(`${study}/label-sealing-public-key.pem`),
+      false,
+      "the sealing public key must be committable"
+    );
+    assert.equal(
+      ignored(`${study}/pilot-label-reveal-private.pem`),
+      true,
+      "a private key in the study directory must stay ignored"
+    );
+    assert.equal(
+      ignored(`${study}/anything-else.pem`),
+      true,
+      "the exception must name one file, not admit pem files generally"
+    );
+    // The exception is scoped to calibration/: a public key elsewhere is not
+    // admitted by it.
+    assert.equal(ignored("label-sealing-public-key.pem"), true);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
