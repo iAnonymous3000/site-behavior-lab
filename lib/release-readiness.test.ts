@@ -237,7 +237,7 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   // calendar: this pins the evaluator over committed evidence, and staleness
   // enforcement is exercised by the synthetic tests below. Bump the instant
   // whenever new evidence lands.
-  const AS_OF = Date.parse("2026-08-03T00:00:00.000Z");
+  const AS_OF = Date.parse("2026-08-26T00:00:00.000Z");
   const result = evaluateReleaseReadiness(process.cwd(), AS_OF);
   assert.equal(result.ready, false);
   assert.deepEqual(result.manifestProblems, []);
