@@ -1023,6 +1023,153 @@ async function governedWorld(status) {
 
 
 
+
+test("the gate refuses artifact-vs-approval divergence and stale frames, at the lib level", async () => {
+  const { requireApprovedCensoringPolicyAssignments, requireFrameMatchesApprovedArtifact } =
+    await import("./calibration-v4-ceremony-lib.mjs");
+  const { buildCalibrationPolicyAssignmentsArtifact } = await import(
+    "./calibration-policy-artifact-lib.mjs"
+  );
+  const produced = buildCalibrationPolicyAssignmentsArtifact({
+    protocolBytes: PROTOCOL_BYTES,
+    trackerDefinition: FIXTURE_PINS.trackerDefinition,
+    publicSuffixDefinition: FIXTURE_PINS.publicSuffixDefinition
+  });
+  const root = mkdtempSync(path.join(tmpdir(), "v4-gate-divergence-"));
+  const artifactDir = path.join(root, "research", "measurement-candidate");
+  mkdirSync(artifactDir, { recursive: true });
+  const artifactPath = path.join(artifactDir, "calibration-censoring-policy-assignments.json");
+  writeFileSync(artifactPath, produced.text);
+  const writeDecision = (overrides = {}) =>
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      `${JSON.stringify(
+        {
+          decisions: {
+            calibrationCensoringPolicy: {
+              selected: "per-detector-censoring-assignments-v1",
+              policyArtifactPath:
+                "research/measurement-candidate/calibration-censoring-policy-assignments.json",
+              policyArtifactSha256: produced.policyArtifactSha256,
+              dispositionSha256: produced.dispositionSha256,
+              status: "approved",
+              decidedBy: "fixture-approver",
+              decidedAt: "2026-08-24T00:00:00.000Z",
+              ...overrides
+            }
+          }
+        },
+        null,
+        2
+      )}\n`
+    );
+  writeDecision();
+  assert.equal(
+    requireApprovedCensoringPolicyAssignments({ rootDir: root, detector: DETECTOR }).artifact.id,
+    "per-detector-censoring-assignments-v1"
+  );
+  // Committed artifact bytes swapped AFTER approval: labeling under bytes
+  // no named human approved refuses.
+  const tamperedArtifact = JSON.parse(produced.text);
+  tamperedArtifact.analyzerVersion = "calibration-censoring-analysis-v999";
+  writeFileSync(artifactPath, `${JSON.stringify(tamperedArtifact, null, 2)}\n`);
+  assert.throws(
+    () => requireApprovedCensoringPolicyAssignments({ rootDir: root, detector: DETECTOR }),
+    /do not match the approved digest/
+  );
+  writeFileSync(artifactPath, produced.text);
+  // A decision approving a DIFFERENT policy id refuses by name.
+  writeDecision({ selected: "some-other-policy" });
+  assert.throws(
+    () => requireApprovedCensoringPolicyAssignments({ rootDir: root, detector: DETECTOR }),
+    /approves a different policy/
+  );
+  writeDecision();
+  // A frame built under a superseded approval refuses at every consumer.
+  const currentFrame = buildV4FrameTasksArtifact({
+    studyId: STUDY,
+    detector: DETECTOR,
+    candidateCommit: CANDIDATE,
+    referenceProtocolId: produced.artifact.referenceProtocol.id,
+    referenceProtocolSha256: produced.artifact.referenceProtocol.sha256,
+    externalDefinitions: produced.artifact.detectors[DETECTOR].externalDefinitions,
+    cases: [{ caseId: "case-0001", url: "https://a.example/" }]
+  }).frameTasks;
+  assert.equal(
+    requireFrameMatchesApprovedArtifact(currentFrame, produced.artifact),
+    currentFrame
+  );
+  assert.throws(
+    () =>
+      requireFrameMatchesApprovedArtifact(
+        { ...currentFrame, referenceProtocolSha256: sha("9") },
+        produced.artifact
+      ),
+    /a frame built under a superseded approval must be rebuilt/
+  );
+  assert.throws(
+    () =>
+      requireFrameMatchesApprovedArtifact(
+        {
+          ...currentFrame,
+          externalDefinitions: {
+            ...currentFrame.externalDefinitions,
+            trackerDefinition: {
+              ...currentFrame.externalDefinitions.trackerDefinition,
+              sha256: sha("8")
+            }
+          }
+        },
+        produced.artifact
+      ),
+    /external definition pins do not equal the currently approved artifact/
+  );
+});
+
+test("every pilot CLI refuses under a pending decision, by EXECUTION", async () => {
+  const approvedWorld = await governedWorld("approved");
+  const pendingWorld = await governedWorld("pending-named-human-approval");
+  const spawnIn = (world, args) =>
+    spawnSync(process.execPath, [path.join(world.scriptsDir, args[0]), ...args.slice(1)], {
+      cwd: world.root,
+      encoding: "utf8"
+    });
+  writeFileSync(
+    path.join(approvedWorld.root, "cases.json"),
+    `${JSON.stringify({ studyId: `${STUDY}-prevalence-pilot`, candidates: [{ caseId: "case-0001", url: "https://a.example/" }] }, null, 2)}\n`
+  );
+  const frameRoot = path.join(approvedWorld.root, "frame");
+  const build = spawnIn(approvedWorld, [
+    "calibration-v4-frame-tasks.mjs",
+    "build",
+    "--study-id", `${STUDY}-prevalence-pilot`,
+    "--detector", DETECTOR,
+    "--candidate-commit", CANDIDATE,
+    "--protocol-id", "independent-labeling-protocol@1",
+    "--protocol-file", approvedWorld.protocolPath,
+    "--cases", path.join(approvedWorld.root, "cases.json"),
+    "--output-root", frameRoot
+  ]);
+  assert.equal(build.status, 0, build.stderr);
+  const framePath = path.join(frameRoot, "frame-tasks.json");
+  const tasksDir = path.join(frameRoot, "tasks");
+  const dummy = path.join(pendingWorld.root, "dummy.json");
+  writeFileSync(dummy, "{}\n");
+  const keyPath = path.join(pendingWorld.root, "public.pem");
+  writeFileSync(keyPath, publicKeyPem);
+  const refusals = [
+    ["calibration-v4-seal-label-batch.mjs", "--role", "labeler", "--actor", "alice", "--public-key", keyPath, "--frame-tasks", framePath, "--tasks-dir", tasksDir, "--input", dummy, "--output", path.join(pendingWorld.root, "sealed.json")],
+    ["calibration-v4-pilot-close.mjs", "--frame-tasks", framePath, "--commitments-dir", tasksDir, "--key-id", "0".repeat(64), "--out", path.join(pendingWorld.root, "auth.json")],
+    ["calibration-v4-reveal.mjs", "--frame-tasks", framePath, "--tasks-dir", tasksDir, "--authorization", path.join(pendingWorld.root, "calibration", `${STUDY}-prevalence-pilot`, "pilot-labeling-authorization.json"), "--commitments-dir", tasksDir, "--out-dir", path.join(pendingWorld.root, "out")],
+    ["calibration-v4-pilot-sizing.mjs", "--resolved-labels", dummy, "--frame-tasks", framePath, "--minimum-per-class", "100", "--out", path.join(pendingWorld.root, "sizing.json")]
+  ];
+  for (const [cli, ...args] of refusals) {
+    const result = spawnIn(pendingWorld, [cli, ...args]);
+    assert.notEqual(result.status, 0, `${cli} must refuse under a pending decision`);
+    assert.match(result.stderr, /not approved by a named human/, cli);
+  }
+});
+
 test("the binding's assignments verifier refuses a proposition whose digest disagrees with its text", async () => {
   const binding = requireFromHere(
     path.join(moduleDir, "..", "dist", "schema", "lib", "measurement-candidate-binding.js")

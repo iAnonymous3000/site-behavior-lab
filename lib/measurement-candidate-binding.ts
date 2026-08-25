@@ -3575,26 +3575,19 @@ function verifyCalibrationPreregistration(
     SHA256,
     `${label} candidate preregistration.censoringPolicy.sha256`
   );
-  if (censoringPolicyId === MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID) {
-    verifyCalibrationCensoringPolicyAssignments(
-      rootDir,
-      label,
-      candidateCommit,
-      censoringPolicySha256,
-      verifyCandidateBlobs
-    );
-  } else {
-    // Historical preregistrations bound the superseded global artifact.
-    verifyCalibrationCensoringPolicy(
-      rootDir,
-      label,
-      candidateCommit,
-      censoringPolicyId,
-      censoringPolicyPath,
-      censoringPolicySha256,
-      verifyCandidateBlobs
-    );
-  }
+  // The id-equality require above already pins the assignments id (the
+  // approved profile can carry no other), so only the assignments verifier
+  // can run here. No committed preregistration ever bound the superseded
+  // zero-censoring artifact; its historical readability is enforced at the
+  // ARTIFACT level by the readiness superseded-block recheck, and its
+  // verifier stays exported for out-of-band verification of history.
+  verifyCalibrationCensoringPolicyAssignments(
+    rootDir,
+    label,
+    candidateCommit,
+    censoringPolicySha256,
+    verifyCandidateBlobs
+  );
   requireValue(
     censoringPolicySha256 === approvedPolicy.policyArtifactSha256 &&
       measurementInputByPath.get(censoringPolicyPath) ===
@@ -3919,7 +3912,7 @@ function calibrationLabelSealingKeyDescriptor(
   };
 }
 
-function verifyCalibrationCensoringPolicy(
+export function verifyCalibrationCensoringPolicy(
   rootDir: string,
   label: string,
   candidateCommit: string,
