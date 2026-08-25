@@ -255,7 +255,7 @@ file per commitment into a directory, then:
 npm run calibration:v4-pilot-close -- \
   --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
   --commitments-dir <fetched-records-dir> \
-  --key-id <sha256-of-public-key-spki> \
+  --public-key calibration/cname-uncloaking-2026-08-prevalence-pilot/label-sealing-public-key.pem \
   --out calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-labeling-authorization.json
 ```
 
@@ -283,7 +283,20 @@ self-defeat against the authorized set.
 ## 6. Reveal (operator, offline reveal machine)
 
 On the machine holding the private key, from a verified checkout of the
-authorization commit:
+authorization commit. "Verified" is these three commands, not a feeling:
+
+```bash
+git fetch origin && git checkout <authorization-commit>
+git status --porcelain            # must print nothing
+shasum -a 256 calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-labeling-authorization.json
+```
+
+The digest must equal the one the close printed and the authorization PR
+recorded. The reveal cannot check this for you: it reads a file path, and on
+the offline machine there is no CI to attest the tree. This is the anchor the
+whole reveal rests on, so do it by hand and record that you did.
+
+Then:
 
 ```bash
 CALIBRATION_LABEL_REVEAL_PRIVATE_KEY="$(cat /secure/offline/pilot-label-reveal-private.pem)" \
