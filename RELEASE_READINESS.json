@@ -43,7 +43,7 @@
         "per-detector-censoring-assignments-v1"
       ],
       "recommendedDisposition": "human-decision-required-before-labeling",
-      "methodologicalAssessment": "The step-3 decision supersedes the global zero-censoring policy with per-detector C/B assignments derived from scripts/calibration-policy-assignments.mjs; the artifact and disposition digests below are the exact bytes awaiting approval. Their presence here is not a recommendation to approve or use it.",
+      "methodologicalAssessment": "The step-3 decision supersedes the global zero-censoring policy with per-detector C/B assignments derived from scripts/calibration-policy-assignments.mjs; the artifact and disposition digests below are the exact bytes a named human approved, and approval covers those bytes and their disposition only. It is not a recommendation to approve or use it, not a result, and not a critical-use claim.",
       "selected": "per-detector-censoring-assignments-v1",
       "policyArtifactPath": "research/measurement-candidate/calibration-censoring-policy-assignments.json",
       "policyArtifactSha256": "cc2ea568a2fa778e4aedcc796ee8aa8df94cc53b87d24bfcc526a6f3a9c3e909",

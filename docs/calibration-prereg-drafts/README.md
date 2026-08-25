@@ -23,15 +23,18 @@ those disagree, those win, and the draft is stale.
 
 In dependency order:
 
-1. **Build the frame producer** (code, landed). Custody assembly is
-   implemented: `scripts/calibration-study-assemble.mjs` re-fetches and
-   cross-binds the roster authorization, roster-selection ledger, and complete
+1. **The frame producer** (code, landed). Custody assembly is implemented:
+   `scripts/calibration-study-assemble.mjs` re-fetches and cross-binds the
+   roster authorization, roster-selection ledger, and complete
    acquisition-attempt ledger before it reads the reveal key, with the refusal
    paths covered by `scripts/calibration-assemble-custody-lib.test.mjs`. The
-   remaining engineering milestone is the deterministic `calibration:frame`
-   producer specified in `frame-construction.md`; the frame cannot freeze until
-   it emits the canonical case inputs, plan rows, labeler appendix, and sweep
-   receipts.
+   deterministic `calibration:frame` producer specified in
+   `frame-construction.md` has landed too (`scripts/calibration-frame.mjs`,
+   npm script `calibration:frame`) and emits the canonical case inputs and
+   plan rows. What a confirmatory frame still needs before it can freeze is
+   the labeler appendix and the sweep-receipt caller, both tracked in
+   `frame-construction.md`; the prevalence pilot does not use this producer
+   at all (see docs/calibration-pilot-runbook.md).
 2. **A controlled runner** (operator). The single authorized acquisition
    executes candidate C on the self-hosted runner named by
    `FEATURED_RUNNER_LABEL`, with attested egress.

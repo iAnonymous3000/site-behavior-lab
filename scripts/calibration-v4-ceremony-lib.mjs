@@ -1180,20 +1180,56 @@ export function buildV4ReviewerBatchFromWorksheet({
       entry.subjectUrl === task.subjectUrl,
       `${frameCase.caseId} worksheet subject ${JSON.stringify(entry.subjectUrl)} is not the task's ${JSON.stringify(task.subjectUrl)}`
     );
-    const anyMatch = entry.proposedLabel === "present";
-    const mechanical = anyMatch ? "present" : entry.determined ? "absent" : "uncertain";
+    // The two summary fields are RE-DERIVED from the evidence recorded beside
+    // them, and a worksheet whose summary disagrees with its own resolutions
+    // refuses. Reading proposedLabel as the truth about matching made the
+    // protocol's ABSENT precondition testable only against the decisions
+    // file: a one-field edit of the summary produced a determined ABSENT for
+    // a case whose own chains matched the pinned list, with every other gate
+    // passing. The instrument's rule (calibration-cname-reference-lib.mjs) is
+    // exactly this, so the derivation is a check, not a second opinion.
+    const resolutions = entry.resolutions;
+    require(
+      Array.isArray(resolutions),
+      `${frameCase.caseId} worksheet case carries no resolutions array`
+    );
+    for (const [index, resolution] of resolutions.entries()) {
+      require(
+        isRecord(resolution),
+        `${frameCase.caseId} resolution ${index} must be a record`
+      );
+      require(
+        resolution.matchedExternalSuffix === null || typeof resolution.matchedExternalSuffix === "string",
+        `${frameCase.caseId} resolution ${index} has a malformed matchedExternalSuffix`
+      );
+      require(
+        resolution.resolutionFailureCode === null || typeof resolution.resolutionFailureCode === "string",
+        `${frameCase.caseId} resolution ${index} has a malformed resolutionFailureCode`
+      );
+    }
+    const anyMatch = resolutions.some((resolution) => resolution.matchedExternalSuffix !== null);
+    const determined = resolutions.every((resolution) => resolution.resolutionFailureCode === null);
+    require(
+      entry.proposedLabel === (anyMatch ? "present" : "absent"),
+      `${frameCase.caseId} worksheet proposedLabel ${JSON.stringify(entry.proposedLabel)} disagrees with its own resolutions, which record ${anyMatch ? "a matched chain" : "no match"}`
+    );
+    require(
+      entry.determined === determined,
+      `${frameCase.caseId} worksheet determined ${JSON.stringify(entry.determined)} disagrees with its own resolutions, which record ${determined ? "every candidate resolved" : "an unresolved candidate"}`
+    );
+    const mechanical = anyMatch ? "present" : determined ? "absent" : "uncertain";
     let value = overrides.has(frameCase.caseId) ? overrides.get(frameCase.caseId) : mechanical;
     // The protocol: "Label ABSENT only when every candidate was resolved and
     // no chain matched that list." Absent is therefore permitted on exactly
-    // one worksheet state, whatever the reviewer decides; a reviewer who
+    // one evidence state, whatever the reviewer decides; a reviewer who
     // disbelieves a match downgrades to uncertain, never to absent. Refused,
     // never coerced: a plan may be stricter about uncertainty, not weaker.
     if (value === "absent") {
       require(
-        entry.determined === true && !anyMatch,
+        determined && !anyMatch,
         `${frameCase.caseId} may not be labeled absent: the protocol permits absent only when every candidate resolved and no chain matched` +
-          `${anyMatch ? " (this worksheet records a matched chain)" : ""}` +
-          `${entry.determined ? "" : " (this worksheet has unresolved candidates)"}`
+          `${anyMatch ? " (this worksheet's resolutions record a matched chain)" : ""}` +
+          `${determined ? "" : " (this worksheet's resolutions record an unresolved candidate)"}`
       );
     }
     require(
