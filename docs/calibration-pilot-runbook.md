@@ -200,13 +200,51 @@ npm run calibration:v4-seal-label-batch -- \
 ```
 
 The tiebreaker does the same with `--role tiebreaker`, blind to the
-labelers' batches (everything they see is sealed). Each reviewer then
-dispatches the hosted `Calibration Label Commitment` workflow with their
-sealed envelope, producing the authenticated commitment artifact under
-their own GitHub actor. Worksheets, HARs, and decisions files stay
-PRIVATE reviewer evidence until reveal; only sealed envelopes travel.
+labelers' batches (everything they see is sealed). Worksheets, HARs, and
+decisions files stay PRIVATE reviewer evidence until reveal; only sealed
+envelopes travel.
 
-## 5. Close (operator, after all three commitments exist)
+> **STOP. Sealing is as far as this ceremony currently runs.** Do not
+> dispatch reviewers past this point, and do not promise them a commitment
+> step: the hosted `Calibration Label Commitment` workflow cannot mint a
+> commitment for a prevalence pilot, so steps 5 through 8 below have no
+> inputs and are NOT executable as written. Verified by execution against
+> the committed code:
+>
+> - `.github/workflows/calibration-label-batch.yml` runs
+>   `npm run calibration:preflight -- --dispatch` and then
+>   `scripts/calibration-label-batch-build.mjs --candidate-root <carrier>`.
+>   Both call `validateCalibrationCandidateFiles`, which opens
+>   `calibration/<studyId>/preregistration.json` and `frame.json`: the v3
+>   candidate shape. A pilot carrier has neither by construction (it carries
+>   the pilot set, the provenance, and the sealing public key), and the v4
+>   frame is `frame-tasks.json` plus `tasks/`. Running it today refuses with
+>   `ENOENT ... preregistration.json`.
+> - Landing v3 artifacts at the carrier to satisfy it does not work either:
+>   `assertCalibrationCandidateCanSatisfyRatePolicy` imposes a structural
+>   floor of 200 planned cases, and this pilot is 100 by design.
+> - Preflight additionally requires a verified measurement-candidate
+>   binding, which a prevalence pilot has no acquisition to produce.
+> - Step 5's "fetch through the authenticated fetcher" names a library
+>   function (`fetchAuthenticatedCalibrationLabelCommitments`) that no
+>   command wraps, and whose inputs include the same v3 candidate object.
+>   Nothing produces the `<fetched-records-dir>` steps 5 and 6 both consume,
+>   and that record file's schema is published nowhere.
+>
+> What the pilot needs before reviewers are dispatched is an authenticated
+> commitment path for a v4 frame: a hosted workflow that binds the reviewer's
+> own GitHub identity to their sealed envelope against `frame-tasks.json`
+> rather than a v3 candidate, plus a command that writes the fetched records
+> in the shape `calibration:v4-pilot-close` reads. Until that exists, a
+> reviewer who follows step 4 can seal an envelope that no one can close,
+> reveal, or score.
+
+## 5. Close (operator, after all three commitments exist) - BLOCKED
+
+The steps below are written against the intended ceremony and are kept so the
+gap above is legible, but they cannot run until the commitment path exists.
+Nothing in steps 5 to 8 has ever been executed against a real reviewer
+commitment.
 
 Fetch the three commitment records through the authenticated fetcher
 (`fetchAuthenticatedCalibrationLabelCommitments` over the GitHub API,
