@@ -31,7 +31,8 @@ import {
 import {
   V4_LABEL_BATCH_SCHEMA_VERSION,
   assembleV4ReferenceCases,
-  padV4LabelBatch
+  padV4LabelBatch,
+  validateV4LabelBatch
 } from "./calibration-v4-labels-lib.mjs";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
@@ -1023,6 +1024,274 @@ async function governedWorld(status) {
 
 
 
+
+
+function worksheetFor(built, { overrides = {}, tracker, suffix } = {}) {
+  const pins = built.frameTasks.externalDefinitions;
+  const worksheet = {
+    schemaVersion: 1,
+    artifactKind: "site-behavior-cname-reference-worksheet",
+    toolVersion: "cname-reference-1",
+    studyId: built.frameTasks.studyId,
+    resolver: "9.9.9.9",
+    trackerSource: { path: "trackers.txt", sha256: tracker ?? pins.trackerDefinition.sha256, rejectedRows: [] },
+    publicSuffixSource: { path: "psl.dat", sha256: suffix ?? pins.publicSuffixDefinition.sha256 },
+    capturedAt: "2026-08-25T00:00:00.000Z",
+    independence: ["fixture"],
+    cases: built.frameTasks.cases.map((entry, index) => ({
+      caseId: entry.caseId,
+      hostsExamined: [`sub.${entry.caseId}`],
+      resolutions: [],
+      determined: index !== 2,
+      proposedLabel: index === 0 ? "present" : "absent",
+      captureSha256: sha(`capture:${entry.caseId}`),
+      ...(overrides[entry.caseId] ?? {})
+    }))
+  };
+  return { worksheet, bytes: canonicalPrettyJson(worksheet) };
+}
+
+test("the reviewer-batch producer maps the protocol, binds everything, and refuses the five forgeries", async () => {
+  const { buildV4ReviewerBatchFromWorksheet } = await import("./calibration-v4-ceremony-lib.mjs");
+  const built = pilotBuilt();
+  const { bytes } = worksheetFor(built);
+  const produced = buildV4ReviewerBatchFromWorksheet({
+    worksheetBytes: bytes,
+    frameTasks: built.frameTasks,
+    taskBytesByCaseId: built.taskBytesByCaseId,
+    role: "labeler",
+    reviewerLogin: "alice"
+  });
+  // Protocol value mapping: matched chain is PRESENT; all-resolved
+  // no-match is ABSENT; unresolved no-match is UNCERTAIN, never absent.
+  assert.deepEqual(
+    produced.batch.cases.map((entry) => entry.value),
+    ["present", "absent", "uncertain"]
+  );
+  // Evidence is the reviewer's OWN capture digest; provenance embeds the
+  // worksheet digest and the reviewer login.
+  assert.equal(produced.batch.cases[0].evidence.sha256, sha("capture:pilot-alpha.example"));
+  assert.match(
+    produced.batch.cases[0].evidence.provenance,
+    /^worksheet:[0-9a-f]{16}#pilot-alpha\.example@alice$/
+  );
+  // The batch is sealed-ready: padded to the frame's fixed length and
+  // valid against the frame.
+  assert.equal(validateV4LabelBatch(produced.batch, { frame: built.frameTasks }), produced.batch);
+
+  // Reviewer decisions override individual cases, except the protocol
+  // prohibition: an unresolved no-match case can never become absent.
+  const overridden = buildV4ReviewerBatchFromWorksheet({
+    worksheetBytes: bytes,
+    frameTasks: built.frameTasks,
+    taskBytesByCaseId: built.taskBytesByCaseId,
+    role: "labeler",
+    reviewerLogin: "alice",
+    decisions: [{ caseId: "pilot-alpha.example", value: "uncertain" }]
+  });
+  assert.equal(overridden.batch.cases[0].value, "uncertain");
+  assert.throws(
+    () =>
+      buildV4ReviewerBatchFromWorksheet({
+        worksheetBytes: bytes,
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        role: "labeler",
+        reviewerLogin: "alice",
+        decisions: [{ caseId: "pilot-gamma.example", value: "absent" }]
+      }),
+    /the protocol forbids labeling it absent/
+  );
+
+  // THE FIVE FORGERIES, each refused by name:
+  // 1. missing case
+  const missing = worksheetFor(built);
+  missing.worksheet.cases = missing.worksheet.cases.slice(0, 2);
+  assert.throws(
+    () =>
+      buildV4ReviewerBatchFromWorksheet({
+        worksheetBytes: canonicalPrettyJson(missing.worksheet),
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        role: "labeler",
+        reviewerLogin: "alice"
+      }),
+    /missing frame case/
+  );
+  // 2. duplicate case
+  const duplicated = worksheetFor(built);
+  duplicated.worksheet.cases.push(duplicated.worksheet.cases[0]);
+  assert.throws(
+    () =>
+      buildV4ReviewerBatchFromWorksheet({
+        worksheetBytes: canonicalPrettyJson(duplicated.worksheet),
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        role: "labeler",
+        reviewerLogin: "alice"
+      }),
+    /duplicates case/
+  );
+  // 2b. extra case outside the frame
+  const extra = worksheetFor(built);
+  extra.worksheet.cases.push({
+    caseId: "pilot-extra.example",
+    hostsExamined: [],
+    resolutions: [],
+    determined: true,
+    proposedLabel: "absent",
+    captureSha256: sha("capture:pilot-extra.example")
+  });
+  assert.throws(
+    () =>
+      buildV4ReviewerBatchFromWorksheet({
+        worksheetBytes: canonicalPrettyJson(extra.worksheet),
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        role: "labeler",
+        reviewerLogin: "alice"
+      }),
+    /cases outside the frame/
+  );
+  // 2c. non-canonical worksheet bytes (a hand-edited or re-serialized file)
+  assert.throws(
+    () =>
+      buildV4ReviewerBatchFromWorksheet({
+        worksheetBytes: `${worksheetFor(built).bytes}\n`,
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        role: "labeler",
+        reviewerLogin: "alice"
+      }),
+    /canonical serialized JSON/
+  );
+  // 3. wrong frame (a worksheet from another study)
+  const wrongStudy = worksheetFor(built);
+  wrongStudy.worksheet.studyId = "another-study-prevalence-pilot";
+  assert.throws(
+    () =>
+      buildV4ReviewerBatchFromWorksheet({
+        worksheetBytes: canonicalPrettyJson(wrongStudy.worksheet),
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        role: "labeler",
+        reviewerLogin: "alice"
+      }),
+    /does not match the frame's/
+  );
+  // 4. altered definition (a divergent tracker snapshot)
+  assert.throws(
+    () =>
+      buildV4ReviewerBatchFromWorksheet({
+        worksheetBytes: worksheetFor(built, { tracker: sha("7") }).bytes,
+        frameTasks: built.frameTasks,
+        taskBytesByCaseId: built.taskBytesByCaseId,
+        role: "labeler",
+        reviewerLogin: "alice"
+      }),
+    /does not equal the frame's pinned snapshot/
+  );
+  // 5. wrong reviewer: sealing alice's produced batch under bob refuses at
+  // the seal CLI (spawned below in the pipeline test).
+});
+
+test("the worksheet-to-batch-to-seal pipeline runs by EXECUTION and refuses a wrong-reviewer seal", async () => {
+  const world = await governedWorld("approved");
+  const spawnIn = (args) =>
+    spawnSync(process.execPath, [path.join(world.scriptsDir, args[0]), ...args.slice(1)], {
+      cwd: world.root,
+      encoding: "utf8"
+    });
+  writeFileSync(
+    path.join(world.root, "cases.json"),
+    `${JSON.stringify(
+      {
+        studyId: `${STUDY}-prevalence-pilot`,
+        candidates: [
+          { caseId: "pilot-alpha.example", url: "https://pilot-alpha.example/" },
+          { caseId: "pilot-beta.example", url: "https://pilot-beta.example/" },
+          { caseId: "pilot-gamma.example", url: "https://pilot-gamma.example/" }
+        ]
+      },
+      null,
+      2
+    )}\n`
+  );
+  const frameRoot = path.join(world.root, "frame");
+  const build = spawnIn([
+    "calibration-v4-frame-tasks.mjs", "build",
+    "--study-id", `${STUDY}-prevalence-pilot`,
+    "--detector", DETECTOR,
+    "--candidate-commit", CANDIDATE,
+    "--protocol-id", "independent-labeling-protocol@1",
+    "--protocol-file", world.protocolPath,
+    "--cases", path.join(world.root, "cases.json"),
+    "--output-root", frameRoot
+  ]);
+  assert.equal(build.status, 0, build.stderr);
+  const frameBytes = readFileSync(path.join(frameRoot, "frame-tasks.json"), "utf8");
+  const frame = JSON.parse(frameBytes);
+  // A worksheet consistent with the CLI-built frame and the world's pins.
+  const worksheet = {
+    schemaVersion: 1,
+    artifactKind: "site-behavior-cname-reference-worksheet",
+    toolVersion: "cname-reference-1",
+    studyId: frame.studyId,
+    resolver: "9.9.9.9",
+    trackerSource: {
+      path: "trackers.txt",
+      sha256: frame.externalDefinitions.trackerDefinition.sha256,
+      rejectedRows: []
+    },
+    publicSuffixSource: {
+      path: "psl.dat",
+      sha256: frame.externalDefinitions.publicSuffixDefinition.sha256
+    },
+    capturedAt: "2026-08-25T00:00:00.000Z",
+    independence: ["fixture"],
+    cases: frame.cases.map((entry, index) => ({
+      caseId: entry.caseId,
+      hostsExamined: [],
+      resolutions: [],
+      determined: true,
+      proposedLabel: index === 0 ? "present" : "absent",
+      captureSha256: sha(`cli-capture:${entry.caseId}`)
+    }))
+  };
+  const worksheetPath = path.join(world.root, "worksheet.json");
+  writeFileSync(worksheetPath, canonicalPrettyJson(worksheet));
+  const batchPath = path.join(world.root, "batch.json");
+  const producer = spawnIn([
+    "calibration-v4-reviewer-batch.mjs",
+    "--worksheet", worksheetPath,
+    "--frame-tasks", path.join(frameRoot, "frame-tasks.json"),
+    "--tasks-dir", path.join(frameRoot, "tasks"),
+    "--role", "labeler",
+    "--actor", "alice",
+    "--out", batchPath
+  ]);
+  assert.equal(producer.status, 0, producer.stderr);
+  const keyPath = path.join(world.root, "public.pem");
+  writeFileSync(keyPath, publicKeyPem);
+  const sealArgs = (actor, out) => [
+    "calibration-v4-seal-label-batch.mjs",
+    "--role", "labeler",
+    "--actor", actor,
+    "--public-key", keyPath,
+    "--frame-tasks", path.join(frameRoot, "frame-tasks.json"),
+    "--tasks-dir", path.join(frameRoot, "tasks"),
+    "--input", batchPath,
+    "--output", path.join(world.root, out)
+  ];
+  // WRONG REVIEWER: bob cannot seal alice's produced batch.
+  const wrongReviewer = spawnIn(sealArgs("bob", "sealed-bob.json"));
+  assert.notEqual(wrongReviewer.status, 0);
+  assert.match(wrongReviewer.stderr, /was produced for reviewer alice, not --actor bob/);
+  // The rightful reviewer seals cleanly.
+  const seal = spawnIn(sealArgs("alice", "sealed-alice.json"));
+  assert.equal(seal.status, 0, seal.stderr);
+  assert.match(seal.stdout, /plaintext was not copied/);
+});
 
 test("the gate refuses artifact-vs-approval divergence and stale frames, at the lib level", async () => {
   const { requireApprovedCensoringPolicyAssignments, requireFrameMatchesApprovedArtifact } =

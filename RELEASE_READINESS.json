@@ -48,7 +48,7 @@
       "policyArtifactPath": "research/measurement-candidate/calibration-censoring-policy-assignments.json",
       "policyArtifactSha256": "cc2ea568a2fa778e4aedcc796ee8aa8df94cc53b87d24bfcc526a6f3a9c3e909",
       "dispositionSha256": "7f2731f8ab7145a33391c1f01a9ca6b7e31f70f5041ea7e8bb1566902e91dd53",
-      "note": "Awaiting explicit named-human approval of these exact bytes (docs/calibration-censoring-policy-decision.md). Approval is one commit: status flips to approved, decidedBy/decidedAt are added, and lib/release-readiness.test.ts's AS_OF instant is bumped per its own comment; nothing else changes. Until that commit exists every ceremony and pilot entrypoint refuses, and no labels may be generated or sealed.",
+      "note": "Approved by the named human recorded in decidedBy/decidedAt after independently reproducing the policy, disposition, and protocol-bytes digests. The approval covers the exact artifact and analyzer-disposition bytes only: no resulting rate is approved and critical-use readiness is unchanged. The superseded zero-censoring approval is preserved verbatim below and its artifact stays readable at its historical path.",
       "status": "approved",
       "superseded": {
         "id": "complete-case-only-zero-censoring",
