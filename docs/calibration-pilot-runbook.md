@@ -10,14 +10,18 @@ order, with what refuses if a step is skipped. Study identity:
   `d292f4608bfaf67256bfba0cfdb5e6d1f65ded98941e06c93a8cdf749e0c564f`
   (pinned inside the approved policy artifact; do not edit the file)
 - pilot set: calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-set.json
-  (100 cases, sha256 `b1760d06...36b3f4`, bound by pilotSetSha256 inside
+  (100 cases, sha256
+  `b1760d060c4022ef9bb6b34c82d1bc404c121160a9956afe1f1606cc7236b3f4`,
+  bound by pilotSetSha256 inside
   universe-provenance.json in the same directory)
 - shared classification definitions (from the approved artifact; every
   reviewer and the tiebreaker MUST use exactly these bytes):
   - tracker definition: AdGuard cname-trackers
-    `combined_disguised_trackers_justdomains.txt` at commit `d2ef7cb2...`,
+    `combined_disguised_trackers_justdomains.txt` at commit
+    `d2ef7cb2f6af6db657d3bd23bab21f78cb1d4771`,
     sha256 `cd0f8ab54229dced42f7613f99951be527c582ab9ef8f74a35a70c3a55d8c648`
-  - public suffix list at commit `e8c9a2b2...`, sha256
+  - public suffix list at commit
+    `e8c9a2b2b2856b6449999dd0ec0d118f364ed0cd`, sha256
     `df6306ec61971424ad259757b399911f4d414486629a5a00e299a2b6c7957089`
 
 Every pilot CLI refuses unless RELEASE_READINESS.json carries the
@@ -85,8 +89,10 @@ npm run calibration:cname-reference -- \
   --cases calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-set.json \
   --har-dir <their-har-dir> \
   --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
-  --tracker-source downloaded-trackers.txt --tracker-source-sha256 cd0f8ab5... \
-  --public-suffix-source downloaded-psl.dat --public-suffix-sha256 df6306ec... \
+  --tracker-source downloaded-trackers.txt \
+  --tracker-source-sha256 cd0f8ab54229dced42f7613f99951be527c582ab9ef8f74a35a70c3a55d8c648 \
+  --public-suffix-source downloaded-psl.dat \
+  --public-suffix-source-sha256 df6306ec61971424ad259757b399911f4d414486629a5a00e299a2b6c7957089 \
   --resolver <their-resolver-ip> --out worksheet.json
 
 # review the worksheet; record any per-case overrides in decisions.json
