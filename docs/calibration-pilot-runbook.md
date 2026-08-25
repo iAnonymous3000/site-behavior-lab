@@ -28,18 +28,13 @@ Every pilot CLI refuses unless RELEASE_READINESS.json carries the
 named-human approval of the policy artifact (landed 2026-08-25) and the
 frame matches the approved artifact's protocol digest and pins.
 
-## 0. Working copy (operator and every reviewer)
+## 0. What a reviewer needs
 
-```bash
-npm ci
-npm run build:schema
-```
-
-Every command below needs `dist/schema`: the gate that compares a frame
-against the approved artifact loads the shared canonical-JSON module from
-there, and a fresh clone has no `dist/`. Skipping this step fails with
-"build dist/schema before using the calibration producer", which is a
-setup error and not a governance refusal.
+A git clone and Node. Nothing else: the frame producer, the reference
+instrument, the reviewer-batch producer, and the seal CLI run from a bare
+checkout with no `npm ci` and no `dist/`, because every gate on that path
+is a committed-bytes check. If any of them ever fails with "build
+dist/schema", that is a defect in the tool, not a step you are missing.
 
 ## 1. One-use sealing keypair (operator)
 
@@ -94,15 +89,23 @@ npm run calibration:v4-pilot-carrier-check -- \
 It extracts K's tree, runs K's OWN frame producer against K's pilot set and
 protocol bytes, and requires the result to equal the committed frame byte
 for byte; it also requires K to carry no frame files, to have landed on
-`origin/main`, and the pilot set and key to be unchanged since. CI runs the
+`origin/main`, and the pilot set, provenance, and key to be unchanged
+since. Running the carrier's own producer, rather than reassembling its
+arguments in the checker, keeps the build recipe in one place and fixes
+which code the derivation claims: the code as it stood at K. CI runs the
 same gate on every PR, keyed on the frame's existence, so a committed frame
 with no carrier file fails rather than skipping the check.
+
+If the gate goes red after F has merged, do not rewrite history to fix it:
+main is protected, and the frame is what reviewers may already hold. Retire
+that carrier, land a fresh K, rebuild the frame from it, and freeze a new F.
+Nothing sealed under the retired frame may be used, because its identity is
+the thing in question.
 
 ## 3. Frame-task generation (operator, from a clean checkout of K)
 
 ```bash
 git fetch origin && git checkout <K>
-npm ci && npm run build:schema
 npm run calibration:v4-frame-tasks -- build \
   --study-id cname-uncloaking-2026-08-prevalence-pilot \
   --detector cname-uncloaking \
@@ -134,7 +137,6 @@ re-capture it.
 
 ```bash
 git fetch origin && git checkout <F>
-npm ci && npm run build:schema
 
 # verify the shared definitions byte-for-byte before anything else
 shasum -a 256 downloaded-trackers.txt downloaded-psl.dat
