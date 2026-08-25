@@ -45,7 +45,11 @@ openssl pkey -in /secure/offline/pilot-label-reveal-private.pem -pubout \
   -out calibration/cname-uncloaking-2026-08-prevalence-pilot/label-sealing-public-key.pem
 ```
 
-Commit ONLY the public half. The private key never enters the repository,
+Commit ONLY the public half. `.gitignore` ignores `*.pem` with a single
+exception for `calibration/*/label-sealing-public-key.pem`, so the public key
+commits normally and a stray private key in the same directory still cannot:
+rehearsing this step is how we learned that `git add -A` had been skipping the
+public key in silence. The private key never enters the repository,
 any cloud sync, or any machine other than the offline reveal machine. The
 keyId every tool checks is the sha256 of the public key's SPKI DER
 (`calibrationLabelPublicKeyIdentity`).

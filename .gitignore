@@ -34,6 +34,12 @@ junit.xml
 .wrangler/
 *.pem
 *.key
+# The pilot's sealing PUBLIC key is a committed ceremony input: reviewers seal
+# to it and the carrier check requires it at the carrier commit. Without this
+# exception `git add -A` skips it silently and the carrier lands incomplete.
+# The private half never enters the repository, and this exception is scoped
+# to one filename so it cannot admit one by accident.
+!calibration/*/label-sealing-public-key.pem
 *.crt
 *.p12
 
