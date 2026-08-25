@@ -103,15 +103,14 @@ test("candidate scaffolds support every detector and share one exact policy arti
       scaffold.preregistration.censoringPolicy.id,
       CALIBRATION_CENSORING_POLICY_ID
     );
-    assert.equal(scaffold.policy.schemaVersion, 2);
-    assert.deepEqual(
-      scaffold.policy.ratePublicationEligibility.minimumDenominators,
-      {
-        referencePresent: 100,
-        referenceAbsent: 100,
-        predictedDetected: 100,
-        predictedNotDetected: 100
-      }
+    assert.equal(scaffold.policy.schemaVersion, 3);
+    assert.equal(scaffold.policy.id, CALIBRATION_CENSORING_POLICY_ID);
+    assert.equal(scaffold.policy.analyzerVersion, "calibration-censoring-analysis-v1");
+    // The scaffold COPIES the repository-committed producer output; the
+    // two-class minimums live in its publicationProfiles, one home.
+    assert.equal(
+      scaffold.policy.publicationProfiles["two-class-accuracy"].minimumPerClaimedClass,
+      100
     );
     policyDigests.add(scaffold.preregistration.censoringPolicy.sha256);
     writeCalibrationCandidateScaffold(root, scaffold);
@@ -272,8 +271,14 @@ test("the design the CNAME power analysis justifies clears the corrected floor",
 
 test("policy decision is an explicit human gate and never inferred from candidate bytes", () => {
   const policyArtifactSha256 = "1".repeat(64);
+  const policyValue = JSON.parse(
+    readFileSync(
+      path.join(process.cwd(), CALIBRATION_CENSORING_POLICY_PATH),
+      "utf8"
+    )
+  );
   const dispositionSha256 =
-    calibrationPolicyDispositionSha256(policyArtifactSha256);
+    calibrationPolicyDispositionSha256(policyArtifactSha256, policyValue);
   const base = {
     decisions: {
       calibrationCensoringPolicy: {
@@ -285,7 +290,7 @@ test("policy decision is an explicit human gate and never inferred from candidat
     }
   };
   assert.throws(
-    () => assertCalibrationDecisionApproved(base, policyArtifactSha256),
+    () => assertCalibrationDecisionApproved(base, policyArtifactSha256, policyValue),
     /must explicitly approve the exact candidate policy/
   );
   base.decisions.calibrationCensoringPolicy = {
@@ -302,6 +307,7 @@ test("policy decision is an explicit human gate and never inferred from candidat
     assertCalibrationDecisionApproved(
       base,
       policyArtifactSha256,
+      policyValue,
       new Date("2026-08-20T00:00:00.000Z")
     ),
     {
@@ -316,7 +322,7 @@ test("policy decision is an explicit human gate and never inferred from candidat
   base.decisions.calibrationCensoringPolicy.policyArtifactSha256 =
     "2".repeat(64);
   assert.throws(
-    () => assertCalibrationDecisionApproved(base, policyArtifactSha256),
+    () => assertCalibrationDecisionApproved(base, policyArtifactSha256, policyValue),
     /must explicitly approve the exact candidate policy/
   );
 });
@@ -720,7 +726,8 @@ test("acquisition contains no labels; assembly accepts exact separate labels and
     producerCommit: CARRIER,
     policyDecision: {
       dispositionSha256: calibrationPolicyDispositionSha256(
-        fixture.candidate.policySha256
+        fixture.candidate.policySha256,
+        fixture.candidate.policy
       ),
       decidedBy: "policy-owner",
       decidedAt: "2026-08-19T23:00:00.000Z"

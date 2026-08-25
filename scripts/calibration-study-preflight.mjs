@@ -55,7 +55,8 @@ const candidate = validateCalibrationCandidateFiles(rootDir, studyId);
 assertCalibrationCandidateCanSatisfyRatePolicy(candidate);
 const decision = assertCalibrationDecisionApproved(
   readiness,
-  candidate.policySha256
+  candidate.policySha256,
+  candidate.policy
 );
 if (candidate.preregistration.declaredAt >= decision.decidedAt) {
   // Candidate inputs may be preregistered before the governance decision, but

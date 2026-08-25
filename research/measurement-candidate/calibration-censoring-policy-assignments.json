@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 3,
+  "artifactKind": "site-behavior-detector-calibration-censoring-policy-assignments",
+  "id": "per-detector-censoring-assignments-v1",
+  "analyzerVersion": "calibration-censoring-analysis-v1",
+  "censorReasons": [
+    "capture-failed",
+    "reference-label-uncertain",
+    "artifact-unreadable",
+    "eligibility-criteria-not-met"
+  ],
+  "policies": {
+    "primary": "bounded-censoring-with-sensitivity-analysis",
+    "secondary": "detector-scoped-complete-case",
+    "superseded": "zero-censoring"
+  },
+  "inferenceScopes": [
+    "target-population",
+    "synthetic-positive-population",
+    "scoreable-subpopulation"
+  ],
+  "publicationProfiles": {
+    "two-class-accuracy": {
+      "id": "two-class-accuracy",
+      "claimedClasses": [
+        "reference-present",
+        "reference-absent",
+        "predicted-detected",
+        "predicted-not-detected"
+      ],
+      "minimumPerClaimedClass": 100,
+      "confidence": "wilson-score-95",
+      "maxWorstCaseHalfWidth": 0.1,
+      "preregistrationMustSupply": [
+        "detector-specific power calculation",
+        "the claimed rates the study publishes (evaluatePublication's claimedRates)"
+      ]
+    },
+    "sensitivity-only": {
+      "id": "sensitivity-only",
+      "claimedClasses": [
+        "reference-present"
+      ],
+      "minimumPerClaimedClass": 100,
+      "confidence": "wilson-score-95",
+      "maxWorstCaseHalfWidth": 0.1,
+      "preregistrationMustSupply": [
+        "power calculation for sensitivity",
+        "the claimed rates the study publishes (evaluatePublication's claimedRates)"
+      ]
+    },
+    "rule-conformance-strata": {
+      "id": "rule-conformance-strata",
+      "claimedClasses": [],
+      "minimumPerClaimedClass": null,
+      "confidence": "wilson-score-95",
+      "maxWorstCaseHalfWidth": 0.1,
+      "preregistrationMustSupply": [
+        "the positive and negative endpoint-rule strata the study reports",
+        "an independent size for each claimed stratum"
+      ]
+    }
+  },
+  "referenceProtocol": {
+    "id": "independent-labeling-protocol@1",
+    "path": "docs/calibration-prereg-drafts/labeling-protocol.md",
+    "sha256": "d292f4608bfaf67256bfba0cfdb5e6d1f65ded98941e06c93a8cdf749e0c564f"
+  },
+  "detectors": {
+    "cname-uncloaking": {
+      "disposition": "proceed",
+      "holdReason": null,
+      "proposition": {
+        "id": "cname-chain-to-pinned-tracker@1",
+        "sha256": "c9e0add2f54c2cf1a68d0e65a13b199fd0f7526d61c42409b2e3e8f185bcc5a9",
+        "text": "At least one contacted first-party subdomain in the reviewer-owned browser capture independently resolved through a CNAME chain to a service classified by the SHA-256-pinned external tracker definition."
+      },
+      "resultType": "accuracy",
+      "primary": {
+        "policy": "bounded-censoring-with-sensitivity-analysis",
+        "inferenceScope": "target-population"
+      },
+      "secondary": {
+        "policy": "detector-scoped-complete-case",
+        "inferenceScope": "scoreable-subpopulation"
+      },
+      "publicationProfile": "two-class-accuracy",
+      "externalDefinitions": {
+        "trackerDefinition": {
+          "provider": "adguard-cname-trackers",
+          "permanentId": "d2ef7cb2f6af6db657d3bd23bab21f78cb1d4771:data/combined_disguised_trackers_justdomains.txt",
+          "url": "https://raw.githubusercontent.com/AdguardTeam/cname-trackers/d2ef7cb2f6af6db657d3bd23bab21f78cb1d4771/data/combined_disguised_trackers_justdomains.txt",
+          "sha256": "cd0f8ab54229dced42f7613f99951be527c582ab9ef8f74a35a70c3a55d8c648"
+        },
+        "publicSuffixDefinition": {
+          "provider": "publicsuffix-list",
+          "permanentId": "e8c9a2b2b2856b6449999dd0ec0d118f364ed0cd:public_suffix_list.dat",
+          "url": "https://raw.githubusercontent.com/publicsuffix/list/e8c9a2b2b2856b6449999dd0ec0d118f364ed0cd/public_suffix_list.dat",
+          "sha256": "df6306ec61971424ad259757b399911f4d414486629a5a00e299a2b6c7957089"
+        }
+      }
+    },
+    "consent-banner": {
+      "disposition": "proceed",
+      "holdReason": null,
+      "proposition": {
+        "id": "consent-first-layer-visibility@1",
+        "sha256": "639aa5b976ab3c0ad299ffd930ef413e83e9221426a98a759532a06ac5f2a15d",
+        "text": "A first-layer consent control was visibly offered at the observation time in the retained capture (banner-visibility@1). The rate does not cover the published claim that a consent management platform was requested."
+      },
+      "resultType": "accuracy",
+      "primary": {
+        "policy": "bounded-censoring-with-sensitivity-analysis",
+        "inferenceScope": "target-population"
+      },
+      "secondary": {
+        "policy": "detector-scoped-complete-case",
+        "inferenceScope": "scoreable-subpopulation"
+      },
+      "publicationProfile": "two-class-accuracy",
+      "externalDefinitions": null
+    },
+    "fingerprint-heuristics": {
+      "disposition": "hold",
+      "holdReason": "No rate until the pooled boolean is split into the separately hedged published propositions and an independent behavioral reference is preregistered.",
+      "proposition": null,
+      "resultType": null,
+      "primary": null,
+      "secondary": null,
+      "publicationProfile": null,
+      "externalDefinitions": null
+    },
+    "keystroke-exfiltration": {
+      "disposition": "proceed",
+      "holdReason": null,
+      "proposition": {
+        "id": "keystroke-synthetic-sentinel-egress@1",
+        "sha256": "3d61961dc439b6e1baf1f46c6cb154c5a879105672d18ccba52591ae199a6bf6",
+        "text": "Under the synthetic-positive lab protocol, the detector observed its typed sentinel leaving in network traffic. Sensitivity for that constructed population, not open-web accuracy."
+      },
+      "resultType": "accuracy",
+      "primary": {
+        "policy": "bounded-censoring-with-sensitivity-analysis",
+        "inferenceScope": "synthetic-positive-population"
+      },
+      "secondary": {
+        "policy": "detector-scoped-complete-case",
+        "inferenceScope": "scoreable-subpopulation"
+      },
+      "publicationProfile": "sensitivity-only",
+      "externalDefinitions": null
+    },
+    "pixel-events": {
+      "disposition": "proceed",
+      "holdReason": null,
+      "proposition": {
+        "id": "pixel-endpoint-predicate-agreement@1",
+        "sha256": "cbe5d297b7488cb23a6c1e6b051cda6830eeff27fa5229a47b514ce55e9e31bb",
+        "text": "The implementation agreed with the pinned Meta, TikTok, and X endpoint predicates when independently re-executed over retained, request-complete rows. Not accuracy about tracking behavior; does not cover the populated-identifier tier."
+      },
+      "resultType": "rule-conformance",
+      "primary": {
+        "policy": "detector-scoped-complete-case",
+        "inferenceScope": "scoreable-subpopulation"
+      },
+      "secondary": null,
+      "publicationProfile": "rule-conformance-strata",
+      "externalDefinitions": null
+    },
+    "privacy-policy": {
+      "disposition": "hold",
+      "holdReason": "No 2x2 rate until the analyzer exposes a real negative class and the evidence vocabulary separates subject absence from capture or budget failure.",
+      "proposition": null,
+      "resultType": null,
+      "primary": null,
+      "secondary": null,
+      "publicationProfile": null,
+      "externalDefinitions": null
+    }
+  }
+}

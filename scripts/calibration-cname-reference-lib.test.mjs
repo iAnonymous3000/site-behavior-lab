@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
@@ -174,4 +176,45 @@ test("plain suffix lists with comments and blank lines still parse", () => {
     Buffer.from("# vendors\n\nomtrdc.net\n.online-metrix.net.\nat-o.net  # inline\n")
   );
   assert.deepEqual([...suffixes].sort(), ["at-o.net", "omtrdc.net", "online-metrix.net"]);
+});
+
+test("the reference CLI refuses a tracker or suffix source that diverges from the frame's pins, by EXECUTION", () => {
+  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+  const root = mkdtempSync(path.join(tmpdir(), "cname-pin-"));
+  const framePath = path.join(root, "frame-tasks.json");
+  writeFileSync(
+    framePath,
+    `${JSON.stringify(
+      {
+        externalDefinitions: {
+          trackerDefinition: { sha256: "a".repeat(64) },
+          publicSuffixDefinition: { sha256: "b".repeat(64) }
+        }
+      },
+      null,
+      2
+    )}\n`
+  );
+  const result = spawnSync(
+    process.execPath,
+    [
+      path.join(moduleDir, "calibration-cname-reference.mjs"),
+      "--study-id", "s-prevalence-pilot",
+      "--cases", path.join(root, "cases.json"),
+      "--har-dir", root,
+      "--frame-tasks", framePath,
+      "--tracker-source", path.join(root, "trackers.txt"),
+      "--tracker-source-sha256", "c".repeat(64),
+      "--public-suffix-source", path.join(root, "psl.dat"),
+      "--public-suffix-sha256", "b".repeat(64),
+      "--resolver", "9.9.9.9",
+      "--out", path.join(root, "out.json")
+    ],
+    { encoding: "utf8" }
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(
+    result.stderr,
+    /--tracker-source-sha256 c{64} does not equal the frame's pinned tracker definition/
+  );
 });

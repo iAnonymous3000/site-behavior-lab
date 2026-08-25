@@ -15,14 +15,19 @@
 
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   buildV4FrameTasksArtifact,
   parseV4FrameTasksBytes,
+  requireApprovedCensoringPolicyAssignments,
   verifyV4TaskBytes
 } from "./calibration-v4-ceremony-lib.mjs";
+import { sha256Hex } from "./calibration-study-lib.mjs";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const USAGE =
-  "usage: calibration-v4-frame-tasks.mjs build --study-id <id> --detector <id> --candidate-commit <sha> --protocol-id <id> --cases <candidates.json> --output-root <dir> | check --frame-tasks <frame-tasks.json> --tasks-dir <dir>";
+  "usage: calibration-v4-frame-tasks.mjs build --study-id <id> --detector <id> --candidate-commit <sha> --protocol-id <id> --protocol-file <path> --cases <candidates.json> --output-root <dir> | check --frame-tasks <frame-tasks.json> --tasks-dir <dir>";
 
 function fail(message) {
   console.error(message);
@@ -66,12 +71,34 @@ if (mode === "build") {
       "--detector",
       "--candidate-commit",
       "--protocol-id",
+      "--protocol-file",
       "--cases",
       "--output-root"
     ])
   );
   if (!/^[0-9a-f]{40}$/.test(values.get("--candidate-commit"))) {
     fail("--candidate-commit must be a full 40-character lowercase git sha");
+  }
+  // GOVERNANCE GATE: no frame exists before the named-human approval of the
+  // per-detector policy, and a held detector cannot be framed at all.
+  const { artifact } = requireApprovedCensoringPolicyAssignments({
+    rootDir: repoRoot,
+    detector: values.get("--detector")
+  });
+  // PROTOCOL BYTES: the operator supplies the exact protocol file; its
+  // digest and id must equal the approved artifact's pin, and both are
+  // frozen into the frame so every downstream artifact inherits them.
+  const protocolBytes = readFileSync(values.get("--protocol-file"), "utf8");
+  const protocolSha256 = sha256Hex(protocolBytes);
+  if (protocolSha256 !== artifact.referenceProtocol.sha256) {
+    fail(
+      `--protocol-file digest ${protocolSha256} does not equal the approved artifact's referenceProtocol.sha256 ${artifact.referenceProtocol.sha256}; reviewers must label under exactly the approved protocol bytes`
+    );
+  }
+  if (values.get("--protocol-id") !== artifact.referenceProtocol.id) {
+    fail(
+      `--protocol-id must equal the approved artifact's referenceProtocol.id ${artifact.referenceProtocol.id}`
+    );
   }
   const casesFile = JSON.parse(readFileSync(values.get("--cases"), "utf8"));
   if (casesFile.studyId !== values.get("--study-id")) {
@@ -85,6 +112,12 @@ if (mode === "build") {
       detector: values.get("--detector"),
       candidateCommit: values.get("--candidate-commit"),
       referenceProtocolId: values.get("--protocol-id"),
+      referenceProtocolSha256: protocolSha256,
+      // COPIED from the approved artifact, never restated: the shared
+      // external classification pins ride the frame into every batch,
+      // authorization, and worksheet refusal downstream.
+      externalDefinitions:
+        artifact.detectors[values.get("--detector")].externalDefinitions,
       cases: casesFile.candidates.map((entry) => ({ caseId: entry.caseId, url: entry.url }))
     });
   const root = values.get("--output-root");

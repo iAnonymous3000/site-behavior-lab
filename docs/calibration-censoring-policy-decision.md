@@ -161,3 +161,24 @@ the approval required before acquisition or labeling.
 - Running all six detectors through one ceremony shape: it would label rule
   conformance as accuracy and manufacture rates for structurally empty or
   undefined estimands.
+
+## Step-4 implementation status (2026-08-24)
+
+The selected policy artifact and its analyzer disposition are implemented:
+`research/measurement-candidate/calibration-censoring-policy-assignments.json`
+is derived from the step-3 table by `npm run calibration:policy-artifact`
+(whose `check` mode runs in CI so the table and artifact cannot drift), the
+disposition digest uses the domain
+`site-behavior-calibration-censoring-policy-disposition-v3` over the
+artifact digest, the analyzer version, and the per-detector semantic
+projection, and every scaffold, preflight, binding verification, and v4
+pilot entrypoint requires the approved digests. The shared reference
+protocol (docs/calibration-prereg-drafts/labeling-protocol.md) and the
+cname external definitions (AdGuard cname-trackers justdomains at
+`d2ef7cb2`, publicsuffix list at `e8c9a2b2`) are pinned inside the
+artifact. `RELEASE_READINESS.json` carries the exact digests with status
+pending-named-human-approval; per the authority section above, only a named
+human's approval commit (status flip plus decidedBy/decidedAt, changing
+nothing else) permits labeling, and the superseded zero-censoring approval
+is preserved verbatim in the decision's `superseded` block with its
+artifact readable at its historical path.

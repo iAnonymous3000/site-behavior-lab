@@ -226,10 +226,14 @@ Case ids and cases must be unique and sorted. The scaffold writes:
 
 - `calibration/<studyId>/preregistration.json`
 - `calibration/<studyId>/frame.json`
-- `research/measurement-candidate/calibration-censoring-policy.json`
+- `research/measurement-candidate/calibration-censoring-policy-assignments.json`
 
-The policy is global and byte-identical across studies. `--check` reproduces
-and compares the exact bytes without rewriting them. Dispatch preflight also
+The per-detector policy assignments artifact has ONE producer
+(`npm run calibration:policy-artifact`, whose `check` mode byte-compares the
+committed artifact against the step-3 table in CI); the scaffold COPIES the
+repository-committed bytes so every candidate carries the identical
+artifact. `--check` reproduces and compares the exact bytes without
+rewriting them. Dispatch preflight also
 requires the simple-random, independent, mutually blinded design and at least
 200 planned cases before anyone spends time labeling.
 

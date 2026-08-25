@@ -33,6 +33,28 @@ import {
 
 const options = parseOptions(process.argv.slice(2));
 
+// SHARED DEFINITION PINS: every reviewer classifies against the ONE
+// tracker-definition and public-suffix snapshot the frame carries from the
+// approved policy artifact. Silently divergent definitions would turn
+// definition drift into fake labeling disagreement, so a mismatch refuses
+// here, before any worksheet exists; the worksheet still records the
+// digests so sealed evidence stays auditable against the pin.
+const frameTasksForPins = JSON.parse(readFileSync(options.frameTasks, "utf8"));
+const pinned = frameTasksForPins?.externalDefinitions ?? null;
+if (!pinned?.trackerDefinition?.sha256 || !pinned?.publicSuffixDefinition?.sha256) {
+  fail("the frame-tasks artifact carries no external definition pins for this detector");
+}
+if (options.trackerSourceSha256 !== pinned.trackerDefinition.sha256) {
+  fail(
+    `--tracker-source-sha256 ${options.trackerSourceSha256} does not equal the frame's pinned tracker definition ${pinned.trackerDefinition.sha256}`
+  );
+}
+if (options.publicSuffixSha256 !== pinned.publicSuffixDefinition.sha256) {
+  fail(
+    `--public-suffix-sha256 ${options.publicSuffixSha256} does not equal the frame's pinned public-suffix definition ${pinned.publicSuffixDefinition.sha256}`
+  );
+}
+
 const trackerBytes = readFileSync(options.trackerSource);
 const trackerDigest = sha256Hex(trackerBytes);
 if (trackerDigest !== options.trackerSourceSha256) {
@@ -40,7 +62,7 @@ if (trackerDigest !== options.trackerSourceSha256) {
     `tracker source digest ${trackerDigest} does not match the declared ${options.trackerSourceSha256}`
   );
 }
-const { suffixes: trackerSuffixes } = parseTrackerSource(trackerBytes);
+const { suffixes: trackerSuffixes, rejectedRows: trackerRejectedRows } = parseTrackerSource(trackerBytes);
 
 const suffixBytes = readFileSync(options.publicSuffixSource);
 const suffixDigest = sha256Hex(suffixBytes);
@@ -93,6 +115,7 @@ const output = {
     resolverAddress: options.resolver,
     trackerSourcePath: options.trackerSource,
     trackerSourceDigest: trackerDigest,
+    trackerSourceRejectedRows: trackerRejectedRows,
     publicSuffixSourcePath: options.publicSuffixSource,
     publicSuffixSourceDigest: suffixDigest,
     capturedAt: new Date().toISOString()
@@ -152,6 +175,7 @@ function parseOptions(argv) {
     "study-id",
     "cases",
     "har-dir",
+    "frame-tasks",
     "tracker-source",
     "tracker-source-sha256",
     "public-suffix-source",
@@ -177,6 +201,7 @@ function parseOptions(argv) {
     studyId: values.get("study-id"),
     cases: values.get("cases"),
     harDir: values.get("har-dir"),
+    frameTasks: values.get("frame-tasks"),
     trackerSource: values.get("tracker-source"),
     trackerSourceSha256: values.get("tracker-source-sha256"),
     publicSuffixSource: values.get("public-suffix-source"),

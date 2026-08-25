@@ -76,7 +76,11 @@ browser capture of the case URL to enumerate contacted hostnames under the
 site's registrable domain, excluding only the registrable apex. They resolve
 each candidate's CNAME chain through a resolver they name. Label PRESENT when
 at least one chain reaches a host matched by an external, publicly published
-tracking-service list pinned by SHA-256 in the detector plan. Label ABSENT only
+tracking-service list pinned by SHA-256 in the approved censoring-policy
+assignments artifact, one shared snapshot for every labeler and the
+tiebreaker (reviewers capture and resolve independently, but silently
+divergent classification definitions would turn definition drift into fake
+labeling disagreement). Label ABSENT only
 when every candidate was resolved and no chain matched that list.
 
 If any candidate cannot be resolved, the reference is not determined and must

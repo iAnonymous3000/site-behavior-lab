@@ -154,6 +154,7 @@ export async function resolveCnameChain(host, { resolverAddress, maxHops = 10, t
 export function parseTrackerSource(bytes) {
   const text = Buffer.from(bytes).toString("utf8");
   const suffixes = new Set();
+  const rejectedRows = [];
   for (const [index, line] of text.split(/\r?\n/).entries()) {
     const value = line.split("#")[0].trim().toLowerCase();
     if (!value) continue;
@@ -167,6 +168,17 @@ export function parseTrackerSource(bytes) {
     // the reviewer believes produces false negatives that look like detector
     // recall failures.
     if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(suffix)) {
+      // Real provider snapshots carry a handful of DNS-name artifacts that
+      // are domain-shaped but not LDH hostnames (leading-hyphen labels,
+      // underscore labels). Those rows are REJECTED AND RECORDED, never
+      // silently dropped and never repaired: the worksheet discloses them
+      // so a definition entry the instrument cannot match is visible, not
+      // a quiet false-absent. Anything filter-syntax-shaped still refuses
+      // the whole file: those bytes are not the claimed kind of list.
+      if (/^[a-z0-9._-]+(\.[a-z0-9._-]+)*$/.test(suffix)) {
+        rejectedRows.push({ line: index + 1, text: line.trim().slice(0, 80) });
+        continue;
+      }
       throw new Error(
         `tracker source line ${index + 1} is not a plain domain suffix: ${JSON.stringify(line)}. ` +
           "Convert filter-list syntax to bare domain suffixes deliberately; this parser will not guess."
@@ -174,8 +186,13 @@ export function parseTrackerSource(bytes) {
     }
     suffixes.add(suffix);
   }
+  if (rejectedRows.length > 100) {
+    throw new Error(
+      `tracker source rejected ${rejectedRows.length} domain-shaped rows; the bytes are not a domain-suffix list`
+    );
+  }
   if (suffixes.size === 0) throw new Error("tracker source contains no entries");
-  return { suffixes, digest: sha256Hex(Buffer.from(bytes)) };
+  return { suffixes, digest: sha256Hex(Buffer.from(bytes)), rejectedRows };
 }
 
 /** Suffix match against the external source; returns the matching entry. */
@@ -253,6 +270,7 @@ export function worksheetHeader({
   resolverAddress,
   trackerSourcePath,
   trackerSourceDigest,
+  trackerSourceRejectedRows = [],
   publicSuffixSourcePath,
   publicSuffixSourceDigest,
   capturedAt
@@ -263,7 +281,12 @@ export function worksheetHeader({
     toolVersion: CNAME_REFERENCE_TOOL_VERSION,
     studyId,
     resolver: resolverAddress,
-    trackerSource: { path: trackerSourcePath, sha256: trackerSourceDigest },
+    trackerSource: {
+      path: trackerSourcePath,
+      sha256: trackerSourceDigest,
+      /** Rows the closed grammar rejected, disclosed, never repaired. */
+      rejectedRows: trackerSourceRejectedRows
+    },
     publicSuffixSource: {
       path: publicSuffixSourcePath,
       sha256: publicSuffixSourceDigest

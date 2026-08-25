@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash, generateKeyPairSync } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -48,6 +48,23 @@ const publicKeyPem = publicKey.export({ type: "spki", format: "pem" }).toString(
 const privateKeyPem = privateKey.export({ type: "pkcs8", format: "pem" }).toString();
 const keyId = calibrationLabelPublicKeyIdentity(publicKeyPem).keyId;
 
+const PROTOCOL_BYTES = "# fixture labeling protocol\n";
+const PROTOCOL_SHA = createHash("sha256").update(PROTOCOL_BYTES).digest("hex");
+const FIXTURE_PINS = {
+  trackerDefinition: {
+    provider: "fixture-trackers",
+    permanentId: "FIXTURE-TRACKERS-1",
+    url: "https://pins.fixture.example/trackers",
+    sha256: sha("d1")
+  },
+  publicSuffixDefinition: {
+    provider: "fixture-suffixes",
+    permanentId: "FIXTURE-SUFFIXES-1",
+    url: "https://pins.fixture.example/suffixes",
+    sha256: sha("d2")
+  }
+};
+
 function builtFrame(cases = [
   { caseId: "case-0001", url: "https://alpha-news.example/" },
   { caseId: "case-0002", url: "https://beta-news.example/" }
@@ -57,6 +74,8 @@ function builtFrame(cases = [
     detector: DETECTOR,
     candidateCommit: CANDIDATE,
     referenceProtocolId: PROTOCOL,
+    referenceProtocolSha256: PROTOCOL_SHA,
+    externalDefinitions: FIXTURE_PINS,
     cases
   });
 }
@@ -210,6 +229,8 @@ test("task-byte verification is exact: a flipped byte, a missing task, or a fore
     detector: DETECTOR,
     candidateCommit: CANDIDATE,
     referenceProtocolId: PROTOCOL,
+    referenceProtocolSha256: PROTOCOL_SHA,
+    externalDefinitions: FIXTURE_PINS,
     cases: [
       { caseId: "case-0001", url: "https://alpha-news.example/" },
       { caseId: "case-0002", url: "https://beta-news.example/" }
@@ -278,6 +299,8 @@ test("sealing validates the batch and the tasks BEFORE encrypting, and round-tri
     detector: DETECTOR,
     candidateCommit: CANDIDATE,
     referenceProtocolId: PROTOCOL,
+    referenceProtocolSha256: PROTOCOL_SHA,
+    externalDefinitions: FIXTURE_PINS,
     cases: [
       { caseId: "case-0001", url: "https://gamma-news.example/" },
       { caseId: "case-0002", url: "https://delta-news.example/" }
@@ -596,6 +619,8 @@ function pilotBuilt() {
     detector: DETECTOR,
     candidateCommit: CANDIDATE,
     referenceProtocolId: PROTOCOL,
+    referenceProtocolSha256: PROTOCOL_SHA,
+    externalDefinitions: FIXTURE_PINS,
     cases: [
       { caseId: "pilot-alpha.example", url: "https://pilot-alpha.example/" },
       { caseId: "pilot-beta.example", url: "https://pilot-beta.example/" },
@@ -940,7 +965,211 @@ test("pilot custody refusals: late commitments, substituted records, and free bo
   );
 });
 
-test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks", () => {
+/**
+ * A GOVERNED fixture world for spawn tests: the real scripts, a
+ * producer-generated policy artifact with fixture pins, and a
+ * RELEASE_READINESS decision in the requested state. Production code
+ * carries no bypass: the CLIs resolve governance from their own script
+ * location, so the world copies the scripts wholesale.
+ */
+async function governedWorld(status) {
+  const { buildCalibrationPolicyAssignmentsArtifact } = await import(
+    "./calibration-policy-artifact-lib.mjs"
+  );
+  const root = mkdtempSync(path.join(tmpdir(), "v4-governed-"));
+  const scriptsDir = path.join(root, "scripts");
+  mkdirSync(scriptsDir, { recursive: true });
+  for (const file of readdirSync(moduleDir)) {
+    if (file.endsWith(".mjs") && !file.endsWith(".test.mjs")) {
+      writeFileSync(path.join(scriptsDir, file), readFileSync(path.join(moduleDir, file)));
+    }
+  }
+  const produced = buildCalibrationPolicyAssignmentsArtifact({
+    protocolBytes: PROTOCOL_BYTES,
+    trackerDefinition: FIXTURE_PINS.trackerDefinition,
+    publicSuffixDefinition: FIXTURE_PINS.publicSuffixDefinition
+  });
+  // The copied scripts resolve their compiled contracts relative to the
+  // world root; share the repo's dist read-only.
+  symlinkSync(path.join(moduleDir, "..", "dist"), path.join(root, "dist"));
+  const artifactDir = path.join(root, "research", "measurement-candidate");
+  mkdirSync(artifactDir, { recursive: true });
+  writeFileSync(
+    path.join(artifactDir, "calibration-censoring-policy-assignments.json"),
+    produced.text
+  );
+  const decision = {
+    currentlySupportedSelections: ["per-detector-censoring-assignments-v1"],
+    recommendedDisposition: "human-decision-required-before-labeling",
+    selected: "per-detector-censoring-assignments-v1",
+    policyArtifactPath:
+      "research/measurement-candidate/calibration-censoring-policy-assignments.json",
+    policyArtifactSha256: produced.policyArtifactSha256,
+    dispositionSha256: produced.dispositionSha256,
+    status,
+    ...(status === "approved"
+      ? { decidedBy: "fixture-approver", decidedAt: "2026-08-24T00:00:00.000Z" }
+      : {})
+  };
+  writeFileSync(
+    path.join(root, "RELEASE_READINESS.json"),
+    `${JSON.stringify({ decisions: { calibrationCensoringPolicy: decision } }, null, 2)}\n`
+  );
+  const protocolPath = path.join(root, "protocol.md");
+  writeFileSync(protocolPath, PROTOCOL_BYTES);
+  return { root, scriptsDir, protocolPath, produced };
+}
+
+
+
+
+test("the binding's assignments verifier refuses a proposition whose digest disagrees with its text", async () => {
+  const binding = requireFromHere(
+    path.join(moduleDir, "..", "dist", "schema", "lib", "measurement-candidate-binding.js")
+  );
+  const { buildCalibrationPolicyAssignmentsArtifact } = await import(
+    "./calibration-policy-artifact-lib.mjs"
+  );
+  const produced = buildCalibrationPolicyAssignmentsArtifact({
+    protocolBytes: PROTOCOL_BYTES,
+    trackerDefinition: FIXTURE_PINS.trackerDefinition,
+    publicSuffixDefinition: FIXTURE_PINS.publicSuffixDefinition
+  });
+  const root = mkdtempSync(path.join(tmpdir(), "v4-assignments-verify-"));
+  const artifactPath = path.join(root, "research", "measurement-candidate");
+  mkdirSync(artifactPath, { recursive: true });
+  const write = (value) => {
+    const text = `${JSON.stringify(value, null, 2)}\n`;
+    writeFileSync(
+      path.join(artifactPath, "calibration-censoring-policy-assignments.json"),
+      text
+    );
+    return createHash("sha256").update(text).digest("hex");
+  };
+  const goodSha = write(produced.artifact);
+  assert.equal(
+    typeof binding.verifyCalibrationCensoringPolicyAssignments(
+      root,
+      "test",
+      "d".repeat(40),
+      goodSha,
+      false
+    ),
+    "object"
+  );
+  const tampered = JSON.parse(JSON.stringify(produced.artifact));
+  tampered.detectors["cname-uncloaking"].proposition.text += " and something else";
+  const tamperedSha = write(tampered);
+  assert.throws(
+    () =>
+      binding.verifyCalibrationCensoringPolicyAssignments(
+        root,
+        "test",
+        "d".repeat(40),
+        tamperedSha,
+        false
+      ),
+    /proposition.sha256 does not digest its own text/
+  );
+});
+
+test("the committed policy artifact IS the derivation from the step-3 table, by EXECUTION", () => {
+  // The producer --check byte-compares the committed artifact against a
+  // fresh derivation from DETECTOR_POLICY_ASSIGNMENTS plus the committed
+  // protocol bytes and pins: desynchronizing the table from the artifact
+  // (editing either without regenerating) fails this spawn.
+  const result = spawnSync(
+    process.execPath,
+    [
+      "scripts/calibration-policy-artifact.mjs",
+      "check",
+      "--tracker-manifest",
+      "research/measurement-candidate/cname-tracker-definition.json",
+      "--public-suffix-manifest",
+      "research/measurement-candidate/cname-public-suffix-definition.json"
+    ],
+    { cwd: path.join(moduleDir, ".."), encoding: "utf8" }
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /censoring-policy assignments verified/);
+  // And the repository's OWN decision block pins exactly those digests.
+  const readiness = JSON.parse(
+    readFileSync(path.join(moduleDir, "..", "RELEASE_READINESS.json"), "utf8")
+  );
+  const decision = readiness.decisions.calibrationCensoringPolicy;
+  const digests = result.stdout.match(/sha256 ([0-9a-f]{64}), disposition ([0-9a-f]{64})/);
+  assert.equal(decision.policyArtifactSha256, digests[1]);
+  assert.equal(decision.dispositionSha256, digests[2]);
+});
+
+test("the governance gate refuses pending decisions and held detectors by EXECUTION", async () => {
+  const pendingWorld = await governedWorld("pending-named-human-approval");
+  const spawnIn = (world, args) =>
+    spawnSync(process.execPath, [path.join(world.scriptsDir, args[0].replace(/^scripts\//, "")), ...args.slice(1)], {
+      cwd: world.root,
+      encoding: "utf8"
+    });
+  const casesPath = path.join(pendingWorld.root, "cases.json");
+  writeFileSync(
+    casesPath,
+    `${JSON.stringify({ studyId: STUDY, candidates: [{ caseId: "case-0001", url: "https://a.example/" }] }, null, 2)}\n`
+  );
+  // A pending decision blocks the frame producer outright: no labels can be
+  // generated before the named-human approval commit exists.
+  const pendingBuild = spawnIn(pendingWorld, [
+    "scripts/calibration-v4-frame-tasks.mjs",
+    "build",
+    "--study-id", STUDY,
+    "--detector", DETECTOR,
+    "--candidate-commit", CANDIDATE,
+    "--protocol-id", "independent-labeling-protocol@1",
+    "--protocol-file", pendingWorld.protocolPath,
+    "--cases", casesPath,
+    "--output-root", path.join(pendingWorld.root, "frame")
+  ]);
+  assert.notEqual(pendingBuild.status, 0);
+  assert.match(pendingBuild.stderr, /not approved by a named human/);
+
+  // A HELD detector cannot be framed even under an approved decision.
+  const approvedWorld = await governedWorld("approved");
+  writeFileSync(
+    path.join(approvedWorld.root, "cases.json"),
+    `${JSON.stringify({ studyId: STUDY, candidates: [{ caseId: "case-0001", url: "https://a.example/" }] }, null, 2)}\n`
+  );
+  const heldBuild = spawnIn(approvedWorld, [
+    "scripts/calibration-v4-frame-tasks.mjs",
+    "build",
+    "--study-id", STUDY,
+    "--detector", "fingerprint-heuristics",
+    "--candidate-commit", CANDIDATE,
+    "--protocol-id", "independent-labeling-protocol@1",
+    "--protocol-file", approvedWorld.protocolPath,
+    "--cases", path.join(approvedWorld.root, "cases.json"),
+    "--output-root", path.join(approvedWorld.root, "frame")
+  ]);
+  assert.notEqual(heldBuild.status, 0);
+  assert.match(heldBuild.stderr, /dispositioned "hold" and cannot enter a ceremony/);
+
+  // A wrong protocol file refuses against the approved artifact's pin.
+  const wrongProtocol = path.join(approvedWorld.root, "wrong-protocol.md");
+  writeFileSync(wrongProtocol, "# a different protocol\n");
+  const wrongBuild = spawnIn(approvedWorld, [
+    "scripts/calibration-v4-frame-tasks.mjs",
+    "build",
+    "--study-id", STUDY,
+    "--detector", DETECTOR,
+    "--candidate-commit", CANDIDATE,
+    "--protocol-id", "independent-labeling-protocol@1",
+    "--protocol-file", wrongProtocol,
+    "--cases", path.join(approvedWorld.root, "cases.json"),
+    "--output-root", path.join(approvedWorld.root, "frame")
+  ]);
+  assert.notEqual(wrongBuild.status, 0);
+  assert.match(wrongBuild.stderr, /does not equal the approved artifact's referenceProtocol.sha256/);
+});
+
+test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks", async () => {
+  const world = await governedWorld("approved");
   const root = mkdtempSync(path.join(tmpdir(), "v4-ceremony-"));
   const casesPath = path.join(root, "cases.json");
   writeFileSync(
@@ -959,8 +1188,8 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
   );
   const outRoot = path.join(root, "frame");
   const run = (args, env = {}) =>
-    spawnSync(process.execPath, args, {
-      cwd: path.join(moduleDir, ".."),
+    spawnSync(process.execPath, [path.join(world.scriptsDir, args[0].replace(/^scripts\//, "")), ...args.slice(1)], {
+      cwd: world.root,
       encoding: "utf8",
       env: { ...process.env, ...env }
     });
@@ -974,7 +1203,9 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
     "--candidate-commit",
     CANDIDATE,
     "--protocol-id",
-    PROTOCOL,
+    "independent-labeling-protocol@1",
+    "--protocol-file",
+    world.protocolPath,
     "--cases",
     casesPath,
     "--output-root",
@@ -1009,7 +1240,7 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
           studyId: STUDY,
           detector: DETECTOR,
           candidateCommit: CANDIDATE,
-          referenceProtocolId: PROTOCOL,
+          referenceProtocolId: frameTasks.referenceProtocolId,
           frameTasksSha256,
           cases: frameTasks.cases.map((entry) => ({
             caseId: entry.caseId,
@@ -1082,7 +1313,8 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
       "--study-id", pilotStudy,
       "--detector", DETECTOR,
       "--candidate-commit", CANDIDATE,
-      "--protocol-id", PROTOCOL,
+      "--protocol-id", "independent-labeling-protocol@1",
+      "--protocol-file", world.protocolPath,
       "--cases", path.join(pilotRoot, "cases.json"),
       "--output-root", pilotFrameRoot
     ]).status,
@@ -1111,7 +1343,7 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
           studyId: pilotStudy,
           detector: DETECTOR,
           candidateCommit: CANDIDATE,
-          referenceProtocolId: PROTOCOL,
+          referenceProtocolId: pilotFrame.referenceProtocolId,
           frameTasksSha256: pilotFrameSha,
           cases: pilotFrame.cases.map((entry, caseIndex) => ({
             caseId: entry.caseId,

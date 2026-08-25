@@ -14,7 +14,14 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { calibrationLabelPublicKeyIdentity } from "./calibration-label-source-envelope-lib.mjs";
 import { canonicalPrettyJson } from "./calibration-study-lib.mjs";
-import { parseV4FrameTasksBytes, sealV4LabelBatch } from "./calibration-v4-ceremony-lib.mjs";
+import { fileURLToPath } from "node:url";
+import {
+  parseV4FrameTasksBytes,
+  requireApprovedCensoringPolicyAssignments,
+  sealV4LabelBatch
+} from "./calibration-v4-ceremony-lib.mjs";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 import { padV4LabelBatch } from "./calibration-v4-labels-lib.mjs";
 
 const USAGE =
@@ -56,6 +63,10 @@ if (
 }
 
 const frameTasks = parseV4FrameTasksBytes(readFileSync(values.get("--frame-tasks"), "utf8"));
+// GOVERNANCE GATE: a reviewer must not seal a single label before the
+// named-human approval commit exists (committed-bytes check only; no build
+// is required on a fresh clone).
+requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
 const taskBytesByCaseId = new Map();
 for (const file of readdirSync(values.get("--tasks-dir"))) {
   if (!file.endsWith(".json")) fail(`${file} in the tasks directory is not a task file`);

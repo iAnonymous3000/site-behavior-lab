@@ -40,22 +40,24 @@
     },
     "calibrationCensoringPolicy": {
       "currentlySupportedSelections": [
-        "complete-case-only-zero-censoring"
+        "per-detector-censoring-assignments-v1"
       ],
       "recommendedDisposition": "human-decision-required-before-labeling",
-      "methodologicalAssessment": "The currently supported analyzer policy is near-unsatisfiable on the open web (pilot capture failure: 37.5%). Its presence in currentlySupportedSelections is not a recommendation to approve or use it.",
-      "selected": "complete-case-only-zero-censoring",
-      "policyArtifactPath": "research/measurement-candidate/calibration-censoring-policy.json",
-      "policyArtifactSha256": "b4bef330dde26d9f4f78904c89e3603fa67a70de9446b88094b18928a10e4cfd",
-      "semanticDisposition": {
-        "anyCensoredCase": "study-ineligible",
-        "plannedDenominator": "must-remain-complete"
-      },
-      "dispositionSha256": "e46eaa0af85b3b581e1df5f50c9e941eff56c453321620d0dd1bd47906b9a1ed",
-      "note": "Approve the exact candidate-resident policy artifact and its domain-separated analyzer disposition before acquisition or labeling. Any censored case makes a study release-ineligible; the planned denominator must remain complete.",
-      "status": "approved",
-      "decidedBy": "iAnonymous3000",
-      "decidedAt": "2026-08-02T22:10:00.000Z"
+      "methodologicalAssessment": "The step-3 decision supersedes the global zero-censoring policy with per-detector C/B assignments derived from scripts/calibration-policy-assignments.mjs; the artifact and disposition digests below are the exact bytes awaiting approval. Their presence here is not a recommendation to approve or use it.",
+      "selected": "per-detector-censoring-assignments-v1",
+      "policyArtifactPath": "research/measurement-candidate/calibration-censoring-policy-assignments.json",
+      "policyArtifactSha256": "cc2ea568a2fa778e4aedcc796ee8aa8df94cc53b87d24bfcc526a6f3a9c3e909",
+      "dispositionSha256": "7f2731f8ab7145a33391c1f01a9ca6b7e31f70f5041ea7e8bb1566902e91dd53",
+      "note": "Awaiting explicit named-human approval of these exact bytes (docs/calibration-censoring-policy-decision.md). Approval is one commit: status flips to approved and decidedBy/decidedAt are added, changing nothing else. Until that commit exists every ceremony and pilot entrypoint refuses, and no labels may be generated or sealed.",
+      "status": "pending-named-human-approval",
+      "superseded": {
+        "id": "complete-case-only-zero-censoring",
+        "policyArtifactPath": "research/measurement-candidate/calibration-censoring-policy.json",
+        "policyArtifactSha256": "b4bef330dde26d9f4f78904c89e3603fa67a70de9446b88094b18928a10e4cfd",
+        "dispositionSha256": "e46eaa0af85b3b581e1df5f50c9e941eff56c453321620d0dd1bd47906b9a1ed",
+        "decidedBy": "iAnonymous3000",
+        "decidedAt": "2026-08-02T22:10:00.000Z"
+      }
     },
     "wasmReproducibility": {
       "recommended": "keep-integrity-only-disclosure",

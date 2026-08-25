@@ -15,11 +15,17 @@ import {
   writeFileSync
 } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { TextDecoder } from "node:util";
 import {
   calibrationAcquisitionAuthorizationSha256,
   validateCalibrationAcquisitionAuthorizationIdentity
 } from "./calibration-acquisition-authorization-lib.mjs";
+
+const calibrationStudyRootDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  ".."
+);
 
 export const CALIBRATION_DETECTOR_IDS = Object.freeze([
   "fingerprint-heuristics",
@@ -30,11 +36,24 @@ export const CALIBRATION_DETECTOR_IDS = Object.freeze([
   "privacy-policy"
 ]);
 export const CALIBRATION_CENSORING_POLICY_ID =
-  "complete-case-only-zero-censoring";
+  "per-detector-censoring-assignments-v1";
 export const CALIBRATION_CENSORING_POLICY_PATH =
-  "research/measurement-candidate/calibration-censoring-policy.json";
+  "research/measurement-candidate/calibration-censoring-policy-assignments.json";
 export const CALIBRATION_POLICY_DISPOSITION_DOMAIN =
-  "site-behavior-calibration-censoring-policy-disposition-v2";
+  "site-behavior-calibration-censoring-policy-disposition-v3";
+/**
+ * HISTORICAL: the superseded global zero-censoring policy's identity, kept
+ * only so its recorded approval and artifact stay verifiable. Nothing may
+ * start a study through it.
+ */
+export const CALIBRATION_SUPERSEDED_POLICY_ID =
+  "complete-case-only-zero-censoring";
+export const CALIBRATION_SUPERSEDED_POLICY_PATH =
+  "research/measurement-candidate/calibration-censoring-policy.json";
+export const CALIBRATION_SUPERSEDED_POLICY_SHA256 =
+  "b4bef330dde26d9f4f78904c89e3603fa67a70de9446b88094b18928a10e4cfd";
+export const CALIBRATION_SUPERSEDED_DISPOSITION_SHA256 =
+  "e46eaa0af85b3b581e1df5f50c9e941eff56c453321620d0dd1bd47906b9a1ed";
 export const CALIBRATION_CENSOR_REASONS = Object.freeze([
   "capture-failed",
   "reference-label-uncertain",
@@ -238,16 +257,20 @@ function measurementBindingContract() {
       try {
         const loaded = requireFromCalibrationStudy(candidate);
         if (
-          loaded.MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID ===
+          loaded.MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID ===
             CALIBRATION_CENSORING_POLICY_ID &&
-          loaded.MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH ===
+          loaded.MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH ===
             CALIBRATION_CENSORING_POLICY_PATH &&
-          loaded.MEASUREMENT_CALIBRATION_POLICY_DISPOSITION_DOMAIN ===
+          loaded.MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_DISPOSITION_DOMAIN ===
             CALIBRATION_POLICY_DISPOSITION_DOMAIN &&
-          loaded.MEASUREMENT_CALIBRATION_POLICY_SCHEMA_VERSION === 2 &&
+          loaded.MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_SCHEMA_VERSION === 3 &&
+          loaded.MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID ===
+            CALIBRATION_SUPERSEDED_POLICY_ID &&
           typeof loaded.measurementCalibrationRatePublicationEligibility ===
             "function" &&
-          typeof loaded.measurementCalibrationPolicyDispositionSha256 ===
+          typeof loaded.measurementCalibrationPolicyAssignmentsDispositionSha256 ===
+            "function" &&
+          typeof loaded.measurementCalibrationAssignmentsSemanticProjection ===
             "function"
         ) {
           sharedMeasurementBindingContract = loaded;
@@ -446,18 +469,13 @@ export function calibrationCandidateScaffold(planInput) {
     }))
   };
   const frameText = canonicalPrettyJson(frame);
-  const policy = {
-    schemaVersion: 2,
-    artifactKind: "site-behavior-detector-calibration-censoring-policy",
-    id: CALIBRATION_CENSORING_POLICY_ID,
-    allowedReasons: [...CALIBRATION_CENSOR_REASONS],
-    releaseEligibility: {
-      anyCensoredCase: "study-ineligible",
-      plannedDenominator: "must-remain-complete"
-    },
-    ratePublicationEligibility: calibrationRatePublicationEligibility()
-  };
-  const policyText = canonicalPrettyJson(policy);
+  // The policy artifact has ONE producer (calibration-policy-artifact-lib);
+  // the scaffold copies the repository-committed approved bytes into the
+  // candidate tree rather than restating any field of them.
+  const policyText = readFileSync(
+    path.join(calibrationStudyRootDir, CALIBRATION_CENSORING_POLICY_PATH),
+    "utf8"
+  );
   const design = {
     sampling: plan.design.sampling,
     samplingFrame: framePath,
@@ -500,7 +518,7 @@ export function calibrationCandidateScaffold(planInput) {
       }
     ].sort((left, right) => left.path.localeCompare(right.path)),
     frame,
-    policy,
+    policy: JSON.parse(policyText),
     preregistration
   };
 }
@@ -539,7 +557,16 @@ export function validateCalibrationCandidateFiles(rootDir, studyId) {
   );
   requireCanonical(preRegistrationObject(preregistrationRead.value, studyId), preregistrationRead.text, "calibration preregistration");
   requireCanonical(frameObject(frameRead.value, studyId), frameRead.text, "calibration frame");
-  requireCanonical(policyObject(policyRead.value), policyRead.text, "calibration censoring policy");
+  requireCanonical(policyAssignmentsObject(policyRead.value), policyRead.text, "calibration censoring policy");
+  // ONE derivation home: the candidate-resident artifact must be byte-equal
+  // to the repository-committed artifact the producer emitted; every deeper
+  // shape/value check lives in the TS binding verifier and the producer's
+  // --check, never restated here.
+  require(
+    policyRead.text ===
+      readFileSync(path.join(calibrationStudyRootDir, CALIBRATION_CENSORING_POLICY_PATH), "utf8"),
+    "candidate censoring-policy assignments do not equal the repository-committed artifact"
+  );
   const preregistration = preregistrationRead.value;
   const frame = frameRead.value;
   const policy = policyRead.value;
@@ -723,23 +750,23 @@ export function assertCalibrationCandidateCanSatisfyRatePolicy(candidate) {
   };
 }
 
-export function calibrationPolicyDispositionSha256(policyArtifactSha256) {
+export function calibrationPolicyDispositionSha256(policyArtifactSha256, policyValue) {
   requireDigest(
     policyArtifactSha256,
     "calibration censoring policy artifact digest"
   );
-  return measurementBindingContract().measurementCalibrationPolicyDispositionSha256({
-    id: CALIBRATION_CENSORING_POLICY_ID,
-    policyArtifactPath: CALIBRATION_CENSORING_POLICY_PATH,
+  const contract = measurementBindingContract();
+  return contract.measurementCalibrationPolicyAssignmentsDispositionSha256({
     policyArtifactSha256,
-    anyCensoredCase: "study-ineligible",
-    plannedDenominator: "must-remain-complete"
+    analyzerVersion: policyValue.analyzerVersion,
+    detectors: contract.measurementCalibrationAssignmentsSemanticProjection(policyValue)
   });
 }
 
 export function assertCalibrationDecisionApproved(
   readiness,
   policyArtifactSha256,
+  policyValue,
   now = new Date()
 ) {
   require(isRecord(readiness), "release readiness manifest must be an object");
@@ -750,8 +777,9 @@ export function assertCalibrationDecisionApproved(
     policyArtifactSha256,
     "candidate calibration censoring policy digest"
   );
+  require(isRecord(policyValue), "the parsed censoring-policy assignments artifact is required");
   const expectedDispositionSha256 =
-    calibrationPolicyDispositionSha256(expectedPolicySha256);
+    calibrationPolicyDispositionSha256(expectedPolicySha256, policyValue);
   require(
     decision.status === "approved" &&
       decision.selected === CALIBRATION_CENSORING_POLICY_ID &&
@@ -2739,13 +2767,34 @@ function labelSealingKeyObject(value, studyId) {
   };
 }
 
-function policyObject(value) {
+function policyAssignmentsObject(value) {
+  require(isRecord(value), "calibration censoring policy must be an object");
+  require(
+    value.schemaVersion === 3 &&
+      value.artifactKind ===
+        "site-behavior-detector-calibration-censoring-policy-assignments" &&
+      value.id === CALIBRATION_CENSORING_POLICY_ID,
+    "calibration censoring policy identity is invalid"
+  );
+  require(
+    typeof value.analyzerVersion === "string" && value.analyzerVersion.length > 0,
+    "calibration censoring policy needs the analyzer version"
+  );
+  require(
+    JSON.stringify(value.censorReasons) === JSON.stringify(CALIBRATION_CENSOR_REASONS),
+    "calibration censoring policy reasons must equal the analyzer vocabulary"
+  );
+  return value;
+}
+
+/** HISTORICAL validator for the superseded global zero-censoring artifact. */
+export function supersededZeroCensoringPolicyObject(value) {
   require(isRecord(value), "calibration censoring policy must be an object");
   exactKeys(value, POLICY_KEYS, "calibration censoring policy");
   require(
     value.schemaVersion === 2 &&
       value.artifactKind === "site-behavior-detector-calibration-censoring-policy" &&
-      value.id === CALIBRATION_CENSORING_POLICY_ID,
+      value.id === CALIBRATION_SUPERSEDED_POLICY_ID,
     "calibration censoring policy identity is invalid"
   );
   require(

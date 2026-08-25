@@ -14,7 +14,14 @@
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { computeV4PilotSizingArtifact } from "./calibration-v4-ceremony-lib.mjs";
+import { fileURLToPath } from "node:url";
+import {
+  computeV4PilotSizingArtifact,
+  parseV4FrameTasksBytes,
+  requireApprovedCensoringPolicyAssignments
+} from "./calibration-v4-ceremony-lib.mjs";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const USAGE =
   "usage: calibration-v4-pilot-sizing.mjs --resolved-labels <resolved-labels.json> --frame-tasks <frame-tasks.json> --minimum-per-class <int> [--swept-eligible-pool <int>] --out <pilot-sizing.json>";
@@ -43,9 +50,14 @@ if (!Number.isSafeInteger(minimumPerClass) || (pool !== null && !Number.isSafeIn
   fail("--minimum-per-class and --swept-eligible-pool must be integers");
 }
 
+const sizingFrameBytes = readFileSync(values.get("--frame-tasks"), "utf8");
+requireApprovedCensoringPolicyAssignments({
+  rootDir: repoRoot,
+  detector: parseV4FrameTasksBytes(sizingFrameBytes).detector
+});
 const { artifact, text, sha256 } = computeV4PilotSizingArtifact({
   resolvedLabelsBytes: readFileSync(values.get("--resolved-labels"), "utf8"),
-  frameTasksBytes: readFileSync(values.get("--frame-tasks"), "utf8"),
+  frameTasksBytes: sizingFrameBytes,
   minimumPerClass,
   sweptEligiblePool: pool
 });

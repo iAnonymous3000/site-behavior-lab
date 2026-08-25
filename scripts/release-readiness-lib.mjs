@@ -85,6 +85,10 @@ import { evaluateAaStudy } from "./aa-study-lib.mjs";
 import {
   CALIBRATION_CENSORING_POLICY_ID,
   CALIBRATION_CENSORING_POLICY_PATH,
+  CALIBRATION_SUPERSEDED_DISPOSITION_SHA256,
+  CALIBRATION_SUPERSEDED_POLICY_ID,
+  CALIBRATION_SUPERSEDED_POLICY_PATH,
+  CALIBRATION_SUPERSEDED_POLICY_SHA256,
   calibrationPolicyDispositionSha256
 } from "./calibration-study-lib.mjs";
 import {
@@ -287,18 +291,51 @@ function calibrationCensoringDecisionProblems(
     );
   }
   if (
-    !isRecord(decision.semanticDisposition) ||
-    !hasExactKeys(decision.semanticDisposition, [
-      "anyCensoredCase",
-      "plannedDenominator"
-    ]) ||
-    decision.semanticDisposition.anyCensoredCase !== "study-ineligible" ||
-    decision.semanticDisposition.plannedDenominator !==
-      "must-remain-complete"
+    decision.status !== "approved" &&
+    decision.status !== "pending-named-human-approval"
   ) {
     problems.push(
-      "decision calibrationCensoringPolicy semanticDisposition must be exactly anyCensoredCase=study-ineligible and plannedDenominator=must-remain-complete"
+      "decision calibrationCensoringPolicy status must be approved or pending-named-human-approval"
     );
+  }
+  if (decision.status === "pending-named-human-approval") {
+    if (Object.hasOwn(decision, "decidedBy") || Object.hasOwn(decision, "decidedAt")) {
+      problems.push(
+        "a pending calibrationCensoringPolicy decision cannot carry decidedBy or decidedAt; those fields are the named human's approval act"
+      );
+    }
+  }
+  if (!isRecord(decision.superseded)) {
+    problems.push(
+      "decision calibrationCensoringPolicy must preserve the superseded zero-censoring approval for historical verification"
+    );
+  } else {
+    const superseded = decision.superseded;
+    if (
+      superseded.id !== CALIBRATION_SUPERSEDED_POLICY_ID ||
+      superseded.policyArtifactPath !== CALIBRATION_SUPERSEDED_POLICY_PATH ||
+      superseded.policyArtifactSha256 !== CALIBRATION_SUPERSEDED_POLICY_SHA256 ||
+      superseded.dispositionSha256 !== CALIBRATION_SUPERSEDED_DISPOSITION_SHA256 ||
+      typeof superseded.decidedBy !== "string" ||
+      superseded.decidedBy.length === 0 ||
+      typeof superseded.decidedAt !== "string"
+    ) {
+      problems.push(
+        "decision calibrationCensoringPolicy superseded block must preserve the exact historical approval tuple"
+      );
+    }
+    const supersededAbsolute = path.join(
+      rootDir,
+      ...CALIBRATION_SUPERSEDED_POLICY_PATH.split("/")
+    );
+    if (
+      !existsSync(supersededAbsolute) ||
+      sha256OfFile(supersededAbsolute) !== CALIBRATION_SUPERSEDED_POLICY_SHA256
+    ) {
+      problems.push(
+        "the superseded zero-censoring artifact must remain readable at its historical path with its recorded bytes"
+      );
+    }
   }
   if (
     typeof decision.policyArtifactSha256 !== "string" ||
@@ -324,10 +361,18 @@ function calibrationCensoringDecisionProblems(
       "decision calibrationCensoringPolicy policyArtifactSha256 does not match the exact policy bytes"
     );
   }
-  const expectedDisposition = calibrationPolicyDispositionSha256(
-    decision.policyArtifactSha256
-  );
-  if (decision.dispositionSha256 !== expectedDisposition) {
+  let expectedDisposition = null;
+  try {
+    expectedDisposition = calibrationPolicyDispositionSha256(
+      decision.policyArtifactSha256,
+      JSON.parse(readFileSync(policyAbsolute, "utf8"))
+    );
+  } catch {
+    problems.push(
+      "the censoring-policy assignments artifact could not be parsed for the disposition digest"
+    );
+  }
+  if (expectedDisposition !== null && decision.dispositionSha256 !== expectedDisposition) {
     problems.push(
       `decision calibrationCensoringPolicy dispositionSha256 must be ${expectedDisposition}`
     );
@@ -339,11 +384,7 @@ function calibrationCensoringDecisionProblems(
       verified.id !== decision.selected ||
       verified.policyArtifactPath !== decision.policyArtifactPath ||
       verified.policyArtifactSha256 !== decision.policyArtifactSha256 ||
-      verified.dispositionSha256 !== decision.dispositionSha256 ||
-      verified.anyCensoredCase !==
-        decision.semanticDisposition?.anyCensoredCase ||
-      verified.plannedDenominator !==
-        decision.semanticDisposition?.plannedDenominator
+      verified.dispositionSha256 !== decision.dispositionSha256
     )
   ) {
     problems.push(

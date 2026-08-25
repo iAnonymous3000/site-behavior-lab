@@ -261,6 +261,7 @@ const policyDecision = assertCalibrationDecisionApproved(
     readFileSync(path.join(rootDir, "RELEASE_READINESS.json"), "utf8")
   ),
   candidate.policySha256,
+  candidate.policy,
   new Date(assembledAt)
 );
 const assembled = assembleCalibrationStudy({
