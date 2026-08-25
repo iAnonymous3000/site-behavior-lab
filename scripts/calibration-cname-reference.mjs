@@ -2,9 +2,11 @@
 
 import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
+import { parseCandidateSet } from "./calibration-candidate-set-lib.mjs";
 import {
   buildCaseWorksheet,
   firstPartyHostsFromHar,
+  harCoversSubject,
   parseTrackerSource,
   sha256Hex,
   worksheetHeader
@@ -24,7 +26,9 @@ import {
  *     --resolver 9.9.9.9 \
  *     --out /abs/worksheet.json
  *
- * `cases.json` is `[{ "caseId": "...", "url": "https://..." }, ...]`, and
+ * `--cases` is the study's committed candidate set,
+ * `{ "studyId": "...", "candidates": [{ "caseId": "...", "url": "https://..." }, ...] }`
+ * (the same file the frame producer consumes, read by the same reader), and
  * `--har-dir` holds one `<caseId>.har` per case, exported by the REVIEWER's own
  * browser. Nothing produced by this repository's scanner is an accepted input:
  * the blinding that matters here is that the reference never sees the
@@ -73,25 +77,46 @@ if (suffixDigest !== options.publicSuffixSha256) {
 }
 const publicSuffixes = parsePublicSuffixList(suffixBytes);
 
-const cases = JSON.parse(readFileSync(options.cases, "utf8"));
-if (!Array.isArray(cases) || cases.length === 0) fail("cases file must be a non-empty array");
+// The SAME reader the frame producer uses: the committed candidate set is the
+// file both consume, so neither may have its own idea of that file's shape.
+let candidateSet;
+try {
+  candidateSet = parseCandidateSet(readFileSync(options.cases, "utf8"));
+} catch (error) {
+  fail(`${error.message}; --cases takes the study's committed candidate set`);
+}
+if (candidateSet.studyId !== options.studyId) {
+  fail(`candidate set studyId ${candidateSet.studyId} does not match --study-id ${options.studyId}`);
+}
+const cases = candidateSet.candidates;
 
 assertNoScannerArtifacts(options.harDir);
 
 const worksheets = [];
-for (const [index, entry] of cases.entries()) {
-  const caseId = String(entry?.caseId ?? "");
-  const url = String(entry?.url ?? "");
-  if (!caseId || !url.startsWith("https://")) {
-    fail(`case ${index} must carry a caseId and an https url`);
-  }
+for (const { caseId, url } of cases) {
   const harPath = path.join(options.harDir, `${caseId}.har`);
   if (!existsSync(harPath)) fail(`no reviewer capture at ${harPath}`);
   const har = JSON.parse(readFileSync(harPath, "utf8"));
+  // A capture that never reached the subject cannot answer anything about it,
+  // and would otherwise be recorded as a determined ABSENT with no candidates
+  // and no DNS: the most consequential label, from evidence of nothing.
+  if (!harCoversSubject(har, url, publicSuffixes)) {
+    fail(
+      `the capture for ${caseId} contains no request to ${new URL(url).hostname}'s own registrable domain; ` +
+        "re-capture the case (a redirect off the domain or a HAR from the wrong tab reads as a confident absent)"
+    );
+  }
   const hosts = firstPartyHostsFromHar(har, url, publicSuffixes);
   process.stdout.write(`${caseId}: ${hosts.length} first-party subdomains ... `);
   const worksheet = await buildCaseWorksheet(
-    { caseId, url, hosts },
+    {
+      caseId,
+      url,
+      hosts,
+      // Bound into the worksheet so a third party can confirm the hostnames
+      // were not chosen after the resolutions were seen.
+      captureSha256: sha256Hex(readFileSync(harPath))
+    },
     {
       resolverAddress: options.resolver,
       trackerSuffixes,
@@ -100,9 +125,6 @@ for (const [index, entry] of cases.entries()) {
       timeoutMs: 5_000
     }
   );
-  // The reviewer's own capture is bound into the worksheet so a third party can
-  // confirm the hostnames were not chosen after the resolutions were seen.
-  worksheet.captureSha256 = sha256Hex(readFileSync(harPath));
   worksheets.push(worksheet);
   console.log(
     worksheet.determined ? worksheet.proposedLabel : `${worksheet.proposedLabel} (UNDETERMINED)`
@@ -139,8 +161,13 @@ if (undetermined.length > 0) {
 }
 console.log(
   "\nThis worksheet is a proposal. Read the recorded chains, re-run any verifyCommand you\n" +
-    "want to check, form your own judgement, then seal YOUR labels with\n" +
-    "`npm run calibration:seal-label-source`."
+    "want to check, and form your own judgement. Record any case you decide differently in a\n" +
+    "decisions file, then build and seal YOUR batch:\n" +
+    "  npm run calibration:v4-reviewer-batch -- --worksheet <this file> --frame-tasks <frame> \\\n" +
+    "    --tasks-dir <tasks> --role labeler|tiebreaker --actor <your github login> \\\n" +
+    "    [--decisions <decisions.json>] --out batch.json\n" +
+    "  npm run calibration:v4-seal-label-batch -- --role <same> --actor <same> --public-key <pem> \\\n" +
+    "    --frame-tasks <frame> --tasks-dir <tasks> --input batch.json --output sealed-envelope.json"
 );
 
 /**

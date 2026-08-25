@@ -13,21 +13,23 @@ owners and the current gaps attached.
       `scripts/calibration-study-assemble.mjs` and
       `scripts/calibration-assemble-custody-lib.mjs`, with refusal paths covered
       by `scripts/calibration-assemble-custody-lib.test.mjs`.
-- [ ] CODE: build the deterministic `calibration:frame` producer from
-      frame-construction.md. No frame can freeze until it emits the canonical
-      case inputs, plan rows, labeler appendix, and sweep receipts.
+- [x] CODE: the deterministic `calibration:frame` producer from
+      frame-construction.md is implemented (`scripts/calibration-frame.mjs`,
+      npm script `calibration:frame`) and emits the canonical case inputs and
+      plan rows. What remains is not this producer: the labeler-endpoint
+      appendix and the sweep caller, both tracked in frame-construction.md.
 - [ ] OPERATOR: provision the controlled runner (`FEATURED_RUNNER_LABEL`)
       with attested egress. Also unlocks r2 corpus production.
 - [ ] OPERATOR: recruit two to ten labelers plus one tiebreaker, all
       distinct GitHub actors, all accepting public provenance. Three humans
       minimum.
-- [ ] Policy approval: the step-4 per-detector C/B artifact is IMPLEMENTED
-      and its exact digests sit in `RELEASE_READINESS.json` with status
-      pending-named-human-approval; the recorded
+- [x] Policy approval: the step-4 per-detector C/B artifact is IMPLEMENTED
+      and APPROVED in `RELEASE_READINESS.json` (status approved, decidedBy
+      `iAnonymous3000`, decidedAt `2026-08-25T09:24:57.000Z`); the recorded
       `complete-case-only-zero-censoring` approval is preserved in the
-      decision's `superseded` block. A named human must flip the status and
-      add decidedBy/decidedAt before any new acquisition or
-      labeling.
+      decision's `superseded` block. The approval covers those exact bytes
+      and their disposition only: it is not a result, and not a
+      critical-use claim.
 
 ## Per study, in order
 

@@ -139,10 +139,19 @@ adopted, with the custody machinery REUSED rather than restated:
   otherwise replay against another. The digest chain batch → frame-tasks
   bytes → per-case taskSha256 → task bytes closes it.
 
-Recorded for the pilot runbook: reveal-side frame-tasks are read from the
-candidateCommit-pinned tree; a `referenceProtocolId` names exactly one
-frozen protocol byte sequence, and protocol drift is caught only by the
-deep design digests.
+Recorded for the pilot runbook: the frame does NOT live in the commit its
+`candidateCommit` names, and cannot. Every task file embeds that sha, so a
+commit containing the tasks would have to be named by bytes it already
+contains. A pilot therefore has two commits: the input carrier K (pilot
+set, universe provenance, sealing public key, no frame files), which is
+what `candidateCommit` binds, and the later frame freeze F, which carries
+`frame-tasks.json`, `tasks/`, and a `pilot-carrier.txt` naming K. Reveal
+and every reviewer read the frame from F; `npm run
+calibration:v4-pilot-carrier-check` re-derives the committed frame by
+running K's own producer over K's own inputs, so the derivation is a
+checked fact rather than a claim. A `referenceProtocolId` names exactly
+one frozen protocol byte sequence, and protocol drift is caught only by
+the deep design digests.
 
 ## Pilot ceremony closure (landed)
 
