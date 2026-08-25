@@ -944,7 +944,7 @@ export function createCalibrationLabelCommitment(input) {
     input.sourceProvenance,
     "label commitment source"
   );
-  const envelopeSha256 = sha256Hex(canonicalPrettyJson(envelope));
+  const envelopeSha256 = calibrationLabelCommitmentEnvelopeDigest(envelope);
   const commitment = {
     schemaVersion: 1,
     artifactKind: CALIBRATION_LABEL_COMMITMENT_KIND,
@@ -962,6 +962,19 @@ export function createCalibrationLabelCommitment(input) {
     commitment,
     text: canonicalPrettyJson(commitment)
   };
+}
+
+/**
+ * The commitment record's envelope digest, in ONE place.
+ *
+ * It is minted here, re-verified by the v3 record validator, and checked
+ * again by the v4 pilot close, which reads records an operator hands it
+ * rather than records an authenticated fetcher produced. Three statements of
+ * `sha256Hex(canonicalPrettyJson(envelope))` would be three chances for a
+ * record's self-reported digest to be believed by one of them.
+ */
+export function calibrationLabelCommitmentEnvelopeDigest(envelope) {
+  return sha256Hex(canonicalPrettyJson(envelope));
 }
 
 export function validateCalibrationLabelCommitment(
@@ -1023,7 +1036,7 @@ export function validateCalibrationLabelCommitment(
     "calibration label commitment envelopeSha256"
   );
   require(
-    envelopeSha256 === sha256Hex(canonicalPrettyJson(envelope)),
+    envelopeSha256 === calibrationLabelCommitmentEnvelopeDigest(envelope),
     "calibration label commitment envelope digest is invalid"
   );
   return {

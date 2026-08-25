@@ -46,6 +46,7 @@ import { join as pathJoin } from "node:path";
 import {
   CALIBRATION_CENSORING_POLICY_ID,
   CALIBRATION_CENSORING_POLICY_PATH,
+  calibrationLabelCommitmentEnvelopeDigest,
   calibrationMeasurementCondition,
   canonicalPrettyJson,
   canonicalizeCalibrationValue,
@@ -636,14 +637,35 @@ export function buildV4PilotLabelingAuthorization({
   require(Array.isArray(commitments) && commitments.length > 0, "authorization needs commitments");
   for (const entry of commitments) {
     requireInstant(entry?.metadata?.artifactCreatedAt, "commitment artifactCreatedAt");
-    require(
-      Date.parse(entry.metadata.artifactCreatedAt) < Date.parse(labelingClosedAt),
-      "every commitment must predate the labeling close it is authorized under"
-    );
   }
+  // THE SAME SET CUSTODY THE REVEAL RUNS, run here because THIS is the
+  // irreversible step: arity (2..10 distinct labelers, exactly one
+  // tiebreaker), distinct actors, unique source/envelope/ciphertext
+  // commitments, and the chronology boundary. The close used to check only
+  // chronology, so it could freeze and commit a set the reveal would later
+  // refuse, at which point the authorization naming it is already on main.
+  validateCalibrationCommitmentSetCustody({
+    commitments,
+    acquisitionRunStartedAt: labelingClosedAt,
+    acquisitionJobStartedAt: labelingClosedAt,
+    boundaryLabel: PILOT_BOUNDARY_LABEL
+  });
   for (const entry of commitments) {
+    // The wrapper's fields are the record's CLAIMS; the envelope beside them
+    // is the evidence. A record can restate any keyId it likes, and the pilot
+    // path has no authenticated fetcher to have checked it earlier.
+    const envelope = entry?.commitment?.envelope;
+    require(isRecord(envelope), "every commitment must carry its sealed envelope");
     require(
-      entry?.commitment?.keyId === keyId,
+      entry.commitment.envelopeSha256 === calibrationLabelCommitmentEnvelopeDigest(envelope),
+      "a commitment's envelopeSha256 is not its envelope's digest; the record's own claim disagrees with the bytes beside it"
+    );
+    require(
+      entry.commitment.keyId === envelope.keyId,
+      "a commitment's wrapper keyId disagrees with the keyId inside its sealed envelope"
+    );
+    require(
+      entry.commitment.keyId === keyId,
       "every authorized commitment must be sealed under the authorization's own keyId; a mismatched key would defeat every reveal after the authorization is committed"
     );
   }
