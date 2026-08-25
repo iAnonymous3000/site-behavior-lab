@@ -258,7 +258,7 @@ export function matchExternalTracker(host, suffixes) {
  * distinction the scanner draws between a censored and a negative case.
  */
 export async function buildCaseWorksheet(
-  { caseId, url, hosts, captureSha256 },
+  { caseId, url, hosts, captureSha256, subjectLoaded = true },
   { resolverAddress, trackerSuffixes, publicSuffixes, maxHops, timeoutMs, resolve = resolveCnameChain }
 ) {
   // The reviewer's own capture digest is part of the case, not something a
@@ -312,7 +312,13 @@ export async function buildCaseWorksheet(
     subjectUrl: url,
     hostsExamined: hosts,
     resolutions,
-    determined: !anyFailure,
+    // Whether the capture reached the subject at all is part of being
+    // determined: a subject that never answered on its own domain leaves the
+    // same empty candidate list as a clean site, and the difference between
+    // those two is the difference between UNCERTAIN and the study's most
+    // consequential label.
+    subjectLoaded,
+    determined: subjectLoaded && !anyFailure,
     proposedLabel: anyMatch ? "present" : "absent"
   };
 }

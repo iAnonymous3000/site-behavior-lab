@@ -84,7 +84,12 @@ function carrierWorld({ cases = 3, provenanceDigest = null } = {}) {
       source: "fixture"
     })
   );
-  write(root, `${STUDY_DIR}/label-sealing-public-key.pem`, "-----BEGIN PUBLIC KEY-----\nfixture\n-----END PUBLIC KEY-----\n");
+  // A REAL sealing public key: the chain binds the authorization's keyId to
+  // this file's identity, so a placeholder would only prove the checker
+  // tolerates placeholders.
+  const { publicKey } = generateKeyPairSync("rsa", { modulusLength: 3072 });
+  const publicKeyPem = publicKey.export({ type: "spki", format: "pem" }).toString();
+  write(root, `${STUDY_DIR}/label-sealing-public-key.pem`, publicKeyPem);
   git(root, ["add", "-A"]);
   git(root, ["commit", "-m", "input carrier"]);
   const carrier = git(root, ["rev-parse", "HEAD"]);
@@ -105,7 +110,7 @@ function carrierWorld({ cases = 3, provenanceDigest = null } = {}) {
   git(root, ["add", "-A"]);
   git(root, ["commit", "-m", "frame freeze"]);
   git(root, ["branch", "upstream"]);
-  return { root, carrier, artifact, candidates, built };
+  return { root, carrier, artifact, candidates, built, publicKeyPem };
 }
 
 const verify = (world, overrides = {}) =>
@@ -366,8 +371,8 @@ test("the committed evidence chain is verified, and each link must name the one 
   // commitments. Hand-shaping one here would restate a contract this suite
   // exists to check, and would agree with whatever the checker happens to
   // require rather than with what the ceremony produces.
-  const { privateKey: _priv, publicKey } = generateKeyPairSync("rsa", { modulusLength: 3072 });
-  const publicKeyPem = publicKey.export({ type: "spki", format: "pem" }).toString();
+  // The ceremony's committed key IS the sealing key; the chain now checks that.
+  const publicKeyPem = world.publicKeyPem;
   const sealingKeyId = calibrationLabelPublicKeyIdentity(publicKeyPem).keyId;
   const frameTasks = JSON.parse(frameBytes);
   const taskBytesByCaseId = new Map(
@@ -376,7 +381,7 @@ test("the committed evidence chain is verified, and each link must name the one 
       readFileSync(path.join(world.root, STUDY_DIR, "tasks", `${entry.caseId}.json`), "utf8")
     ])
   );
-  const madeFor = (role, actor) => {
+  const madeFor = (role, actor, keyPem = publicKeyPem, keyIdFor = sealingKeyId) => {
     const batch = padV4LabelBatch(
       {
         schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
@@ -404,8 +409,8 @@ test("the committed evidence chain is verified, and each link must name the one 
       taskBytesByCaseId,
       role,
       reviewerLogin: actor,
-      publicKeyPem,
-      keyId: sealingKeyId
+      publicKeyPem: keyPem,
+      keyId: keyIdFor
     });
     return {
       batch,
@@ -423,7 +428,7 @@ test("the committed evidence chain is verified, and each link must name the one 
       commitment: {
         role,
         source: { commit: "f".repeat(40), path: `calibration-labels/${frameTasks.studyId}/sources.json`, actor },
-        keyId: sealingKeyId,
+        keyId: keyIdFor,
         envelopeSha256: calibrationLabelCommitmentEnvelopeDigest(sealed.envelope),
         envelope: sealed.envelope
       }
@@ -464,6 +469,34 @@ test("the committed evidence chain is verified, and each link must name the one 
   const withAuth = verify(world);
   assert.equal(withAuth.chain.authorization.commitmentSetSha256, commitmentSetSha256);
   assert.equal(withAuth.chain.resolvedLabels, null);
+  // An authorization closed under a key that is not the committed one: the
+  // carrier certifies the pem as unchanged, and nothing compared the two, so
+  // a key handed out after the freeze satisfied every other link.
+  // Everything internally consistent, and sealed under a key the ceremony
+  // never committed: the authorization validator cannot see it, because the
+  // artifact agrees with itself.
+  const strangerKey = generateKeyPairSync("rsa", { modulusLength: 3072 })
+    .publicKey.export({ type: "spki", format: "pem" })
+    .toString();
+  const strangerKeyId = calibrationLabelPublicKeyIdentity(strangerKey).keyId;
+  const strangerAuth = buildV4PilotLabelingAuthorization({
+    studyId: frameTasks.studyId,
+    detector: frameTasks.detector,
+    candidateCommit: world.carrier,
+    referenceProtocolId: frameTasks.referenceProtocolId,
+    keyId: strangerKeyId,
+    frameTasksSha256: sha(frameBytes),
+    labelingClosedAt: "2026-08-25T00:00:00.000Z",
+    commitments: [
+      madeFor("labeler", "alice", strangerKey, strangerKeyId).record,
+      madeFor("labeler", "bob", strangerKey, strangerKeyId).record,
+      madeFor("tiebreaker", "carol", strangerKey, strangerKeyId).record
+    ]
+  });
+  write(world.root, `${STUDY_DIR}/pilot-labeling-authorization.json`, strangerAuth.text);
+  assert.throws(() => verify(world), /closed under a key that is not the committed/);
+  writeChain();
+
   // Resolved labels and sizing are built by their REAL producers, from the
   // real bridge and the real counting path. The first draft of this test
   // hand-shaped both, and four of the chain's guards survived deletion
@@ -531,7 +564,25 @@ test("the committed evidence chain is verified, and each link must name the one 
       counts: { present: 99, absent: 1, uncertain: 0, total: 100 }
     })
   );
-  assert.throws(() => verify(world), /are not what the committed resolved labels contain/);
+  assert.throws(() => verify(world), /not what its own resolved labels and frame produce/);
+  // A restated derived N or a flipped feasibility verdict is caught by the
+  // same re-derivation: the digests all still bind the right files.
+  write(
+    world.root,
+    `${STUDY_DIR}/pilot-sizing.json`,
+    canonicalPrettyJson({ ...sizingBuilt.artifact, derivedN: 1 })
+  );
+  assert.throws(() => verify(world), /not what its own resolved labels and frame produce/);
+  write(
+    world.root,
+    `${STUDY_DIR}/pilot-sizing.json`,
+    canonicalPrettyJson({
+      ...sizingBuilt.artifact,
+      feasibility: { ...sizingBuilt.artifact.feasibility, feasible: !sizingBuilt.artifact.feasibility.feasible }
+    })
+  );
+  assert.throws(() => verify(world), /not what its own resolved labels and frame produce/);
+
   // Sizing that counted some other file, and sizing of another study.
   write(
     world.root,

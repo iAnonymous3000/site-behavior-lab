@@ -1116,6 +1116,7 @@ async function realWorksheet(built, { overrides = {}, tracker, suffix, studyId }
     { chain: ["edge.cdn-other.example"], terminated: true, failureCode: null },
     { chain: [], terminated: false, failureCode: "SERVFAIL" }
   ];
+  const uncoveredCaseId = built.frameTasks.cases.at(-1)?.caseId;
   const cases = [];
   for (const [index, frameCase] of built.frameTasks.cases.entries()) {
     const task = JSON.parse(built.taskBytesByCaseId.get(frameCase.caseId));
@@ -1242,6 +1243,29 @@ test("the reviewer-batch producer maps the protocol, binds everything, and refus
     /carries no resolutions array/
   );
 
+  // A subject that never answered on its own registrable domain: the
+  // resolutions array is EMPTY, so a derivation that read only the failure
+  // codes would call the emptiest possible evidence determined and let it be
+  // labelled absent. It maps to uncertain, and absent is refused for it.
+  const uncoveredWorksheet = await realWorksheet(built, {
+    overrides: {
+      "pilot-beta.example": { subjectLoaded: false, determined: false, resolutions: [], hostsExamined: [] }
+    }
+  });
+  const uncoveredBatch = produce(uncoveredWorksheet.bytes);
+  assert.equal(uncoveredBatch.batch.cases[1].value, "uncertain");
+  assert.throws(
+    () => produce(uncoveredWorksheet.bytes, { decisions: [{ caseId: "pilot-beta.example", value: "absent" }] }),
+    /may not be labeled absent/
+  );
+  // ...and a worksheet that omits the coverage record at all refuses.
+  const noCoverage = await realWorksheet(built);
+  delete noCoverage.worksheet.cases[0].subjectLoaded;
+  assert.throws(
+    () => produce(canonicalPrettyJson(noCoverage.worksheet)),
+    /does not record whether the capture reached the subject/
+  );
+
   // Malformed worksheet fields refuse before they are read as meaning: a
   // truthy "false" and a capitalized label would otherwise manufacture the
   // protocol's most consequential value out of a hand-edited file.
@@ -1352,6 +1376,24 @@ test("the reviewer pipeline runs by EXECUTION from the real instrument's own wor
   const harDir = path.join(world.root, "har");
   mkdirSync(harDir, { recursive: true });
   for (const caseId of caseIds) {
+    // pilot-gamma's subject answers on ANOTHER registrable domain, exactly as
+    // philly.com and cbslocal.com do in the committed pilot set. The run must
+    // continue and record it as undetermined, not refuse a hundred cases for
+    // one.
+    if (caseId === "pilot-gamma.example") {
+      writeFileSync(
+        path.join(harDir, `${caseId}.har`),
+        `${JSON.stringify({
+          log: {
+            entries: [
+              { request: { url: `https://${caseId}/` }, response: { status: 301 } },
+              { request: { url: "https://moved-elsewhere.example/" }, response: { status: 200 } }
+            ]
+          }
+        })}\n`
+      );
+      continue;
+    }
     writeFileSync(
       path.join(harDir, `${caseId}.har`),
       // A real capture shape: the subject answered on its own domain, and a
@@ -1390,9 +1432,11 @@ test("the reviewer pipeline runs by EXECUTION from the real instrument's own wor
   const worksheet = JSON.parse(readFileSync(worksheetPath, "utf8"));
   assert.equal(worksheet.cases.length, 3);
   assert.deepEqual(
-    worksheet.cases.map((entry) => entry.proposedLabel),
-    ["absent", "absent", "absent"]
+    worksheet.cases.map((entry) => entry.determined),
+    [true, true, false]
   );
+  assert.equal(worksheet.cases[2].subjectLoaded, false);
+  assert.match(reference.stdout, /never answered on their own registrable domain/);
 
   writeFileSync(
     path.join(world.root, "decisions.json"),
@@ -1410,6 +1454,7 @@ test("the reviewer pipeline runs by EXECUTION from the real instrument's own wor
     "--out", batchPath
   ]);
   assert.equal(producer.status, 0, producer.stderr);
+  // The moved subject maps to UNCERTAIN, from the instrument's own record.
   assert.deepEqual(
     JSON.parse(readFileSync(batchPath, "utf8")).cases.map((entry) => entry.value),
     ["absent", "absent", "uncertain"]

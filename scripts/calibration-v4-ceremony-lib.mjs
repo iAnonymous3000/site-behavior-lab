@@ -1248,14 +1248,22 @@ export function buildV4ReviewerBatchFromWorksheet({
       );
     }
     const anyMatch = resolutions.some((resolution) => resolution.matchedExternalSuffix !== null);
-    // `determined` is derived from the recorded failure codes alone. The
-    // instrument also treats an unterminated chain as undetermined, but it
-    // never records `terminated`, and its own resolver cannot return an
-    // unterminated chain without a failure code (a hop-limit exit sets
-    // MAX_HOPS), so the two agree on every worksheet the instrument writes.
-    // A worksheet from some other tool could in principle differ; that is
-    // what the artifactKind and toolVersion pins above are for.
-    const determined = resolutions.every((resolution) => resolution.resolutionFailureCode === null);
+    // `determined` is derived from the capture's own coverage and the
+    // recorded failure codes. A case whose subject never answered on its own
+    // registrable domain has an EMPTY resolutions array, and "every" over
+    // nothing is true, so reading the failure codes alone would call the
+    // emptiest possible evidence determined. The instrument also treats an
+    // unterminated chain as undetermined, but it never records `terminated`
+    // and its resolver cannot return an unterminated chain without a failure
+    // code (the hop limit sets MAX_HOPS), so the two agree on every worksheet
+    // this instrument writes; the artifactKind and toolVersion pins above are
+    // what keep some other tool's worksheet off this path.
+    require(
+      typeof entry.subjectLoaded === "boolean",
+      `${frameCase.caseId} worksheet does not record whether the capture reached the subject`
+    );
+    const determined =
+      entry.subjectLoaded && resolutions.every((resolution) => resolution.resolutionFailureCode === null);
     require(
       entry.proposedLabel === (anyMatch ? "present" : "absent"),
       `${frameCase.caseId} worksheet proposedLabel ${JSON.stringify(entry.proposedLabel)} disagrees with its own resolutions, which record ${anyMatch ? "a matched chain" : "no match"}`

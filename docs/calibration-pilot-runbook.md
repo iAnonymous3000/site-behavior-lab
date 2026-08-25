@@ -149,12 +149,18 @@ receive: F's sha, the two definition-snapshot URLs and digests above, and
 these commands. Reviewers capture each case with THEIR OWN browser (fresh
 profile, HAR export per case, named `<caseId>.har`, and nothing else in
 that directory). A capture with no successful response from the
-case's own registrable domain is refused by name rather than recorded as a
-confident absent. That covers the three shapes which otherwise look
-identical to a clean site: a subject that redirects to another registrable
-domain, a navigation that failed, and a HAR from the wrong tab. Re-capture
-it; if the subject genuinely moves off its own domain, report the case to
-the operator rather than labeling it.
+case's own registrable domain is recorded as NOT determined, so it can only
+be labelled uncertain, never absent. That covers the three shapes which
+otherwise look identical to a clean site: a subject that redirects to
+another registrable domain, a navigation that failed, and a HAR from the
+wrong tab. The run continues and lists those cases at the end.
+
+This is not hypothetical for this pilot set: `philly.com` answers on
+`www.inquirer.com` and `cbslocal.com` on `www.cbsnews.com` today. Re-capture
+if the cause was your browser or your network. If the subject genuinely
+serves another domain now, tell the operator: replacing a case is a decision
+about the study's universe, and it changes the pilot set, its digest, and
+therefore the carrier. It is never a label a reviewer may supply.
 
 ```bash
 git fetch origin && git checkout <F>
@@ -228,9 +234,10 @@ envelopes travel.
 >   binding, which a prevalence pilot has no acquisition to produce.
 > - Step 5's "fetch through the authenticated fetcher" names a library
 >   function (`fetchAuthenticatedCalibrationLabelCommitments`) whose only
->   command wrappers are the v3 ones, `calibration:study-assemble` and
->   `calibration:label-roster`, which build it the v3 candidate object a
->   pilot cannot produce. No command writes the `<fetched-records-dir>` that
+>   command wrapper is the v3 one, `calibration:assemble`
+>   (scripts/calibration-study-assemble.mjs), which builds it the v3 candidate
+>   object a pilot cannot produce; the roster builder that also calls it,
+>   scripts/calibration-label-roster-build.mjs, has no npm script at all. No command writes the `<fetched-records-dir>` that
 >   steps 5 and 6 both consume, and that record file's schema is published
 >   nowhere.
 >
