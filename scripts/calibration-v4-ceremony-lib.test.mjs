@@ -1661,7 +1661,7 @@ test("every pilot CLI refuses under a pending decision, by EXECUTION", async () 
     ["calibration-v4-seal-label-batch.mjs", "--role", "labeler", "--actor", "alice", "--public-key", keyPath, "--frame-tasks", framePath, "--tasks-dir", tasksDir, "--input", dummy, "--output", path.join(pendingWorld.root, "sealed.json")],
     ["calibration-v4-pilot-close.mjs", "--frame-tasks", framePath, "--commitments-dir", tasksDir, "--key-id", "0".repeat(64), "--out", path.join(pendingWorld.root, "auth.json")],
     ["calibration-v4-reveal.mjs", "--frame-tasks", framePath, "--tasks-dir", tasksDir, "--authorization", path.join(pendingWorld.root, "calibration", `${STUDY}-prevalence-pilot`, "pilot-labeling-authorization.json"), "--commitments-dir", tasksDir, "--out-dir", path.join(pendingWorld.root, "out")],
-    ["calibration-v4-pilot-sizing.mjs", "--resolved-labels", dummy, "--frame-tasks", framePath, "--minimum-per-class", "100", "--out", path.join(pendingWorld.root, "sizing.json")]
+    ["calibration-v4-pilot-sizing.mjs", "--resolved-labels", dummy, "--frame-tasks", framePath, "--swept-eligible-pool", "1126", "--out", path.join(pendingWorld.root, "sizing.json")]
   ];
   for (const [cli, ...args] of refusals) {
     const result = spawnIn(pendingWorld, [cli, ...args]);
@@ -2090,6 +2090,82 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
   assert.deepEqual(sizingArtifact.counts, { present: 25, absent: 70, uncertain: 5, total: 100 });
   assert.equal(typeof sizingArtifact.derivedN, "number");
   assert.equal(sizingArtifact.feasibility.sweptEligiblePool, 1126);
+  // THE GATE IS A GATE: an INFEASIBLE determination writes its artifact (the
+  // evidence the study most needs) and FAILS the process, so the next
+  // ceremony step cannot run on it. A pool one short of the derived N is the
+  // smallest honest infeasibility.
+  const infeasible = run([
+    "scripts/calibration-v4-pilot-sizing.mjs",
+    "--resolved-labels", path.join(outDir, "resolved-labels.json"),
+    "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+    "--swept-eligible-pool", String(sizingArtifact.derivedN - 1),
+    "--out", path.join(pilotRoot, "pilot-sizing-infeasible.json")
+  ]);
+  assert.notEqual(infeasible.status, 0);
+  assert.match(infeasible.stderr, /INFEASIBLE[\s\S]*enlarge the universe and sweep it afresh/);
+  const infeasibleArtifact = JSON.parse(
+    readFileSync(path.join(pilotRoot, "pilot-sizing-infeasible.json"), "utf8")
+  );
+  assert.equal(infeasibleArtifact.feasibility.feasible, false);
+
+  // An estimate that admits NO frame size is recorded as INFEASIBLE evidence,
+  // not raised as a stack trace: an all-uncertain pilot is precisely the
+  // result the study must be able to point at afterwards.
+  const allUncertain = JSON.parse(readFileSync(path.join(outDir, "resolved-labels.json"), "utf8"));
+  allUncertain.cases = allUncertain.cases.map((entry) => ({
+    caseId: entry.caseId,
+    status: "unknown",
+    reason: "reference-label-uncertain",
+    resolvedBy: "unanimous",
+    tiebreakerId: null,
+    adjudicationSha256: null
+  }));
+  const allUncertainPath = path.join(pilotRoot, "resolved-labels-all-uncertain.json");
+  writeFileSync(allUncertainPath, canonicalPrettyJson(allUncertain));
+  const unsizable = run([
+    "scripts/calibration-v4-pilot-sizing.mjs",
+    "--resolved-labels", allUncertainPath,
+    "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+    "--swept-eligible-pool", "1126",
+    "--out", path.join(pilotRoot, "pilot-sizing-unsizable.json")
+  ]);
+  assert.notEqual(unsizable.status, 0);
+  assert.match(unsizable.stderr, /INFEASIBLE[\s\S]*cannot support this study's claimed classes/);
+  assert.doesNotMatch(unsizable.stderr, /at ModuleJob|at file:/);
+  const unsizableArtifact = JSON.parse(
+    readFileSync(path.join(pilotRoot, "pilot-sizing-unsizable.json"), "utf8")
+  );
+  assert.equal(unsizableArtifact.derivedN, null);
+  assert.equal(unsizableArtifact.feasibility.feasible, false);
+  assert.match(unsizableArtifact.unsizableReason, /cannot support this study's claimed classes/);
+  assert.deepEqual(unsizableArtifact.counts, { present: 0, absent: 0, uncertain: 100, total: 100 });
+
+  // The pool is REQUIRED: a run that skipped the preregistered gate must not
+  // read like a run that passed it.
+  const noPool = run([
+    "scripts/calibration-v4-pilot-sizing.mjs",
+    "--resolved-labels", path.join(outDir, "resolved-labels.json"),
+    "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+    "--out", path.join(pilotRoot, "pilot-sizing-nopool.json")
+  ]);
+  assert.notEqual(noPool.status, 0);
+  assert.match(noPool.stderr, /Missing required argument --swept-eligible-pool/);
+
+  // The claimed-class floor comes from the APPROVED artifact, not the
+  // operator's keyboard: a disagreeing flag refuses by name, and the value
+  // the runbook publishes agrees.
+  const wrongFloor = run([
+    "scripts/calibration-v4-pilot-sizing.mjs",
+    "--resolved-labels", path.join(outDir, "resolved-labels.json"),
+    "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+    "--minimum-per-class", "10",
+    "--swept-eligible-pool", "1126",
+    "--out", path.join(pilotRoot, "pilot-sizing-floor.json")
+  ]);
+  assert.notEqual(wrongFloor.status, 0);
+  assert.match(wrongFloor.stderr, /is not the approved artifact's pinned 100/);
+  assert.equal(sizingArtifact.minimumPerClass, 100);
+
   // A nonsense pool refuses through the one validation home.
   const badPool = run([
     "scripts/calibration-v4-pilot-sizing.mjs",

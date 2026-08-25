@@ -81,7 +81,7 @@ export function deriveFrameSizeFromPilot({
     "pilot present-count must be an integer within the pilot"
   );
   const interval = wilsonInterval(pilotPresent, pilotTotal, 1.96);
-  return deriveFromInterval({
+  const derived = deriveFromInterval({
     lower: interval.lo,
     upper: interval.hi,
     minimumPerClass,
@@ -89,6 +89,10 @@ export function deriveFrameSizeFromPilot({
     pilot: { present: pilotPresent, total: pilotTotal },
     pilotLabel: `${pilotPresent}/${pilotTotal}`
   });
+  // Both public entry points assert; only the artifact producer wants the
+  // determination, and it asks for it by name.
+  if (derived.unsizable !== undefined) throw new Error(derived.unsizable);
+  return derived;
 }
 
 /**
@@ -103,7 +107,13 @@ export function deriveFrameSizeFromPilot({
  * more, and the 18..82 present-count band is therefore a NECESSARY
  * condition at any pool ceiling, not a sufficient one.
  */
-export function deriveFrameSizeFromPilotEnvelope({
+export function deriveFrameSizeFromPilotEnvelope(input) {
+  const derived = deriveEnvelope(input);
+  if (derived.unsizable !== undefined) throw new Error(derived.unsizable);
+  return derived;
+}
+
+function deriveEnvelope({
   present,
   absent,
   uncertain,
@@ -164,9 +174,26 @@ function deriveFromInterval({ lower, upper, minimumPerClass, assurance, pilot, p
       };
     }
   }
-  throw new Error(
-    `no frame size at or below ${SIZING_SEARCH_CEILING} satisfies both reference classes at assurance ${assurance} from a pilot of ${pilotLabel}; the population cannot support this study's claimed classes`
-  );
+  return {
+    unsizable: `no frame size at or below ${SIZING_SEARCH_CEILING} satisfies both reference classes at assurance ${assurance} from a pilot of ${pilotLabel}; the population cannot support this study's claimed classes`
+  };
+}
+
+/**
+ * The same derivation, as a DETERMINATION rather than an exception.
+ *
+ * A pilot whose prevalence estimate admits no frame size is not a program
+ * error: it is the preregistered gate reaching its fail condition, and that
+ * is exactly the case the study most needs recorded. Throwing produced a
+ * stack trace and no artifact, so the one outcome that stops the study left
+ * no evidence behind. The throwing form below is kept for callers that want
+ * the assertion, and both go through this one search.
+ */
+export function tryDeriveFrameSizeFromPilotEnvelope(input) {
+  const derived = deriveEnvelope(input);
+  return derived.unsizable === undefined
+    ? { sized: true, ...derived }
+    : { sized: false, reason: derived.unsizable };
 }
 
 /**
