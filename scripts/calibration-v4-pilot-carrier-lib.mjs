@@ -22,12 +22,16 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
 const pathJoin = path.join;
-import { parseV4FrameTasksBytes } from "./calibration-v4-ceremony-lib.mjs";
+import {
+  parseV4FrameTasksBytes,
+  validateV4PilotLabelingAuthorization,
+  validateV4ResolvedLabelsArtifact
+} from "./calibration-v4-ceremony-lib.mjs";
 import { CALIBRATION_CENSORING_POLICY_PATH, sha256Hex } from "./calibration-study-lib.mjs";
 
 const SHA1 = /^[0-9a-f]{40}$/;
@@ -38,6 +42,9 @@ export const PILOT_UNIVERSE_FILE = "universe-provenance.json";
 export const PILOT_PUBLIC_KEY_FILE = "label-sealing-public-key.pem";
 export const PILOT_FRAME_FILE = "frame-tasks.json";
 export const PILOT_TASKS_DIR = "tasks";
+export const PILOT_AUTHORIZATION_FILE = "pilot-labeling-authorization.json";
+export const PILOT_RESOLVED_LABELS_FILE = "resolved-labels.json";
+export const PILOT_SIZING_FILE = "pilot-sizing.json";
 
 function require_(condition, message) {
   if (!condition) throw new Error(message);
@@ -224,11 +231,77 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
     JSON.stringify(onDisk) === JSON.stringify(expected),
     `the tasks directory does not match the frame's cases: ${JSON.stringify(onDisk.filter((name) => !expected.includes(name)))} unnamed`
   );
+  // 7. THE COMMITTED EVIDENCE CHAIN, when it exists. The close, reveal, and
+  //    sizing artifacts each say their anchor is the repository commit "via
+  //    PR and CI", and until now no CI step read any of them. Each is bound to
+  //    the bytes of the step before it, so the chain is checkable from the
+  //    committed tree alone: frame -> authorization -> resolved labels ->
+  //    sizing. Absent artifacts are simply steps not yet taken.
+  const chain = { authorization: null, resolvedLabels: null, sizing: null };
+  const frameDigest = sha256Hex(frameBytes);
+  const authorizationPath = path.join(rootDir, studyDir, PILOT_AUTHORIZATION_FILE);
+  if (existsSync(authorizationPath)) {
+    const bytes = readFileSync(authorizationPath, "utf8");
+    const authorization = validateV4PilotLabelingAuthorization(JSON.parse(bytes));
+    require_(
+      authorization.frameTasksSha256 === frameDigest,
+      `${PILOT_AUTHORIZATION_FILE} binds frame ${authorization.frameTasksSha256}, not the committed frame ${frameDigest}`
+    );
+    require_(
+      authorization.candidateCommit === carrier &&
+        authorization.studyId === frameTasks.studyId &&
+        authorization.detector === frameTasks.detector &&
+        authorization.referenceProtocolId === frameTasks.referenceProtocolId,
+      `${PILOT_AUTHORIZATION_FILE} identity does not match the committed frame`
+    );
+    chain.authorization = { sha256: sha256Hex(bytes), commitmentSetSha256: authorization.commitmentSetSha256 };
+  }
+  const resolvedPath = path.join(rootDir, studyDir, PILOT_RESOLVED_LABELS_FILE);
+  if (existsSync(resolvedPath)) {
+    require_(
+      chain.authorization !== null,
+      `${PILOT_RESOLVED_LABELS_FILE} is committed without the ${PILOT_AUTHORIZATION_FILE} it must have been revealed under`
+    );
+    const bytes = readFileSync(resolvedPath, "utf8");
+    const resolved = validateV4ResolvedLabelsArtifact(JSON.parse(bytes));
+    require_(
+      resolved.frameTasksSha256 === frameDigest,
+      `${PILOT_RESOLVED_LABELS_FILE} binds a different frame than the committed one`
+    );
+    require_(
+      resolved.commitmentSetSha256 === chain.authorization.commitmentSetSha256,
+      `${PILOT_RESOLVED_LABELS_FILE} was revealed from a different commitment set than the authorization froze`
+    );
+    require_(
+      resolved.cases.length === frameTasks.cases.length,
+      `${PILOT_RESOLVED_LABELS_FILE} resolves ${resolved.cases.length} cases for a ${frameTasks.cases.length}-case frame`
+    );
+    chain.resolvedLabels = { sha256: sha256Hex(bytes) };
+  }
+  const sizingPath = path.join(rootDir, studyDir, PILOT_SIZING_FILE);
+  if (existsSync(sizingPath)) {
+    require_(
+      chain.resolvedLabels !== null,
+      `${PILOT_SIZING_FILE} is committed without the ${PILOT_RESOLVED_LABELS_FILE} it must have counted`
+    );
+    const sizing = JSON.parse(readFileSync(sizingPath, "utf8"));
+    require_(
+      sizing.frameTasksSha256 === frameDigest,
+      `${PILOT_SIZING_FILE} binds a different frame than the committed one`
+    );
+    require_(
+      sizing.resolvedLabelsSha256 === chain.resolvedLabels.sha256,
+      `${PILOT_SIZING_FILE} counted resolved labels other than the committed ones`
+    );
+    chain.sizing = { feasible: sizing.feasibility?.feasible ?? null };
+  }
+
   return {
     carrier,
     studyId: frameTasks.studyId,
     detector: frameTasks.detector,
     cases: frameTasks.cases.length,
+    chain,
     frameTasksSha256: sha256Hex(frameBytes)
   };
 }

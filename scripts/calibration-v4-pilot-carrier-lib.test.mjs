@@ -1,14 +1,31 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, generateKeyPairSync } from "node:crypto";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { buildV4FrameTasksArtifact } from "./calibration-v4-ceremony-lib.mjs";
+import {
+  buildV4FrameTasksArtifact,
+  buildV4PilotLabelingAuthorization,
+  sealV4LabelBatch
+} from "./calibration-v4-ceremony-lib.mjs";
 import { verifyPilotCarrier } from "./calibration-v4-pilot-carrier-lib.mjs";
-import { CALIBRATION_CENSORING_POLICY_PATH, canonicalPrettyJson } from "./calibration-study-lib.mjs";
+import {
+  CALIBRATION_CENSORING_POLICY_PATH,
+  calibrationLabelCommitmentEnvelopeDigest,
+  canonicalPrettyJson
+} from "./calibration-study-lib.mjs";
+import {
+  CALIBRATION_LABEL_SEALING_ALGORITHM,
+  calibrationLabelPublicKeyIdentity
+} from "./calibration-label-source-envelope-lib.mjs";
+import {
+  V4_LABEL_BATCH_KIND,
+  V4_LABEL_BATCH_SCHEMA_VERSION,
+  padV4LabelBatch
+} from "./calibration-v4-labels-lib.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const STUDY_DIR = "calibration/fixture-prevalence-pilot";
@@ -331,4 +348,147 @@ test("the sealing PUBLIC key can be committed and the private half cannot", () =
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("the committed evidence chain is verified, and each link must name the one before it", () => {
+  // The close, reveal, and sizing artifacts each say the repository commit is
+  // their anchor. Until this, no CI step read any of them. Each binds the
+  // bytes of the step before it, so the chain is decidable from the committed
+  // tree: frame -> authorization -> resolved labels -> sizing.
+  const world = carrierWorld({ cases: 2 });
+  const frameBytes = readFileSync(path.join(world.root, STUDY_DIR, "frame-tasks.json"), "utf8");
+  const frameDigest = sha(frameBytes);
+  // The authorization is built by the REAL producer from REAL sealed
+  // commitments. Hand-shaping one here would restate a contract this suite
+  // exists to check, and would agree with whatever the checker happens to
+  // require rather than with what the ceremony produces.
+  const { privateKey: _priv, publicKey } = generateKeyPairSync("rsa", { modulusLength: 3072 });
+  const publicKeyPem = publicKey.export({ type: "spki", format: "pem" }).toString();
+  const sealingKeyId = calibrationLabelPublicKeyIdentity(publicKeyPem).keyId;
+  const frameTasks = JSON.parse(frameBytes);
+  const taskBytesByCaseId = new Map(
+    world.candidates.map((entry) => [
+      entry.caseId,
+      readFileSync(path.join(world.root, STUDY_DIR, "tasks", `${entry.caseId}.json`), "utf8")
+    ])
+  );
+  const commitmentFor = (role, actor) => {
+    const batch = padV4LabelBatch(
+      {
+        schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
+        artifactKind: V4_LABEL_BATCH_KIND,
+        role,
+        studyId: frameTasks.studyId,
+        detector: frameTasks.detector,
+        candidateCommit: frameTasks.candidateCommit,
+        referenceProtocolId: frameTasks.referenceProtocolId,
+        frameTasksSha256: sha(frameBytes),
+        cases: world.candidates.map((entry) => ({
+          caseId: entry.caseId,
+          value: "absent",
+          evidence: { sha256: sha(`capture:${actor}:${entry.caseId}`), provenance: `fixture@${actor}` }
+        }))
+      },
+      frameTasks
+    );
+    const sealed = sealV4LabelBatch({
+      batchBytes: canonicalPrettyJson(batch),
+      frameTasks,
+      taskBytesByCaseId,
+      role,
+      reviewerLogin: actor,
+      publicKeyPem,
+      keyId: sealingKeyId
+    });
+    return {
+      metadata: {
+        actor,
+        artifactCreatedAt: "2026-08-24T00:00:00.000Z",
+        runId: 7000 + actor.length,
+        runAttempt: 1,
+        headSha: "e".repeat(40),
+        artifactId: 8000 + actor.length,
+        artifactName: `site-behavior-calibration-label-commitment-${role}-${frameTasks.studyId}-1-1`,
+        archiveSha256: sha(`archive:${actor}`)
+      },
+      commitment: {
+        role,
+        source: { commit: "f".repeat(40), path: `calibration-labels/${frameTasks.studyId}/sources.json`, actor },
+        keyId: sealingKeyId,
+        envelopeSha256: calibrationLabelCommitmentEnvelopeDigest(sealed.envelope),
+        envelope: sealed.envelope
+      }
+    };
+  };
+  const built = buildV4PilotLabelingAuthorization({
+    studyId: frameTasks.studyId,
+    detector: frameTasks.detector,
+    candidateCommit: world.carrier,
+    referenceProtocolId: frameTasks.referenceProtocolId,
+    keyId: sealingKeyId,
+    frameTasksSha256: sha(frameBytes),
+    labelingClosedAt: "2026-08-25T00:00:00.000Z",
+    commitments: [commitmentFor("labeler", "alice"), commitmentFor("labeler", "bob"), commitmentFor("tiebreaker", "carol")]
+  });
+  const authorization = built.authorization;
+  const commitmentSetSha256 = authorization.commitmentSetSha256;
+  const writeChain = (over = {}) => {
+    const auth = { ...authorization, ...(over.authorization ?? {}) };
+    write(world.root, `${STUDY_DIR}/pilot-labeling-authorization.json`, canonicalPrettyJson(auth));
+    return auth;
+  };
+  // An authorization that names a different frame cannot pass.
+  writeChain({ authorization: { frameTasksSha256: sha("another frame") } });
+  assert.throws(() => verify(world), /binds frame/);
+  // ...nor one that names a different carrier.
+  writeChain({ authorization: { candidateCommit: "c".repeat(40) } });
+  assert.throws(() => verify(world), /identity does not match the committed frame/);
+  // A well-formed authorization for this frame passes and is reported.
+  writeChain();
+  const withAuth = verify(world);
+  assert.equal(withAuth.chain.authorization.commitmentSetSha256, commitmentSetSha256);
+  assert.equal(withAuth.chain.resolvedLabels, null);
+  // Resolved labels revealed from a DIFFERENT commitment set than the
+  // authorization froze are refused, as are labels for another frame.
+  const resolved = {
+    schemaVersion: 1,
+    artifactKind: "site-behavior-detector-calibration-resolved-reference-labels",
+    studyId: STUDY_ID,
+    detector: DETECTOR,
+    candidateCommit: world.carrier,
+    referenceProtocolId: world.artifact.referenceProtocol.id,
+    frameTasksSha256: frameDigest,
+    commitmentSetSha256,
+    cases: world.candidates.map((entry) => ({
+      caseId: entry.caseId,
+      status: "known",
+      value: "absent",
+      resolvedBy: "unanimous",
+      tiebreakerId: null,
+      adjudicationSha256: null
+    }))
+  };
+  write(world.root, `${STUDY_DIR}/resolved-labels.json`, canonicalPrettyJson({ ...resolved, commitmentSetSha256: sha("other set") }));
+  assert.throws(() => verify(world), /revealed from a different commitment set/);
+  write(world.root, `${STUDY_DIR}/resolved-labels.json`, canonicalPrettyJson(resolved));
+  const withLabels = verify(world);
+  assert.equal(withLabels.chain.resolvedLabels.sha256, sha(canonicalPrettyJson(resolved)));
+  // Sizing must have counted the committed resolved labels, not another file.
+  const sizing = {
+    frameTasksSha256: frameDigest,
+    resolvedLabelsSha256: sha("some other labels"),
+    feasibility: { feasible: true }
+  };
+  write(world.root, `${STUDY_DIR}/pilot-sizing.json`, canonicalPrettyJson(sizing));
+  assert.throws(() => verify(world), /counted resolved labels other than the committed ones/);
+  write(
+    world.root,
+    `${STUDY_DIR}/pilot-sizing.json`,
+    canonicalPrettyJson({ ...sizing, resolvedLabelsSha256: sha(canonicalPrettyJson(resolved)) })
+  );
+  assert.equal(verify(world).chain.sizing.feasible, true);
+  // A link cannot appear without the one it must have come from.
+  rmSync(path.join(world.root, STUDY_DIR, "resolved-labels.json"));
+  assert.throws(() => verify(world), /without the resolved-labels.json it must have counted/);
+  rmSync(world.root, { recursive: true, force: true });
 });
