@@ -113,11 +113,24 @@ which code the derivation claims: the code as it stood at K. CI runs the
 same gate on every PR, keyed on the frame's existence, so a committed frame
 with no carrier file fails rather than skipping the check.
 
-If the gate goes red after F has merged, do not rewrite history to fix it:
-main is protected, and the frame is what reviewers may already hold. Retire
-that carrier, land a fresh K, rebuild the frame from it, and freeze a new F.
-Nothing sealed under the retired frame may be used, because its identity is
-the thing in question.
+If the gate goes red after F has merged, read WHICH refusal fired before
+doing anything, because the remedies are not interchangeable:
+
+- **A failure to read the repository** (the message says so, and carries what
+  git or tar reported) is an environment problem. Fix the environment and
+  re-run. It is not a finding about the carrier and no artifact is in doubt.
+- **A sizing refusal** means the sizing artifact does not follow from the
+  labels and frame it names, or was sized to a floor the approved artifact
+  does not pin. Sizing is a pure derivation over committed evidence and
+  nothing is sealed to it, so re-run step 7 and commit the artifact it
+  produces. The same applies if the sizing producer itself changes later: a
+  frozen artifact that no longer reproduces is re-derived, never grounds for
+  retiring anything.
+- **A carrier, frame, authorization, or resolved-labels refusal** is the
+  serious case. Do not rewrite history: main is protected, and the frame is
+  what reviewers may already hold. Retire that carrier, land a fresh K,
+  rebuild the frame from it, and freeze a new F. Nothing sealed under the
+  retired frame may be used, because its identity is the thing in question.
 
 ## 3. Frame-task generation (operator, from a clean checkout of K)
 
