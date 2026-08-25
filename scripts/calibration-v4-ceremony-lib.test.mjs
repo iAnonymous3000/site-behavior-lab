@@ -2125,6 +2125,68 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
   // Disagreements (cases 25..29: alice absent vs bob present) resolved by
   // carol with adjudication artifacts on disk.
   assert.ok(readdirSync(path.join(outDir, "adjudications")).length > 0);
+  // THE ANCHOR IS THE KEY IN HAND. A different, perfectly valid sealing key
+  // is refused by name: the reveal used to take the expected keyId from the
+  // very authorization it was checking, so that comparison could not fail.
+  const otherKey = generateKeyPairSync("rsa", { modulusLength: 3072 })
+    .privateKey.export({ type: "pkcs8", format: "pem" })
+    .toString();
+  const wrongKey = run(
+    [
+      "scripts/calibration-v4-reveal.mjs",
+      "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+      "--tasks-dir", path.join(pilotFrameRoot, "tasks"),
+      "--authorization", authPath,
+      "--commitments-dir", commitDir,
+      "--out-dir", path.join(pilotRoot, "revealed-wrong-key")
+    ],
+    { CALIBRATION_LABEL_REVEAL_PRIVATE_KEY: otherKey }
+  );
+  assert.notEqual(wrongKey.status, 0);
+  assert.match(wrongKey.stderr, /this is the wrong key for this pilot/);
+
+  // Custody refusals from inside the reveal reach the operator as a NAMED
+  // message, not a stack trace: an incomplete commitment set is something
+  // they can act on.
+  const partialDir = path.join(pilotRoot, "commitments-partial");
+  mkdirSync(partialDir, { recursive: true });
+  for (const file of readdirSync(commitDir).sort().slice(0, 2)) {
+    writeFileSync(path.join(partialDir, file), readFileSync(path.join(commitDir, file), "utf8"));
+  }
+  const partial = run(
+    [
+      "scripts/calibration-v4-reveal.mjs",
+      "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+      "--tasks-dir", path.join(pilotFrameRoot, "tasks"),
+      "--authorization", authPath,
+      "--commitments-dir", partialDir,
+      "--out-dir", path.join(pilotRoot, "revealed-partial")
+    ],
+    { CALIBRATION_LABEL_REVEAL_PRIVATE_KEY: privateKeyPem }
+  );
+  assert.notEqual(partial.status, 0);
+  assert.match(partial.stderr, /calibration:v4-reveal: /);
+  assert.doesNotMatch(partial.stderr, /at ModuleJob|at file:/);
+
+  // A destination that already holds a reveal is refused BEFORE the key is
+  // read: discovering it afterwards costs the plaintext its secrecy for
+  // nothing. No key is supplied here, and the refusal still names the
+  // directory rather than the missing key.
+  const occupied = run(
+    [
+      "scripts/calibration-v4-reveal.mjs",
+      "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+      "--tasks-dir", path.join(pilotFrameRoot, "tasks"),
+      "--authorization", authPath,
+      "--commitments-dir", commitDir,
+      "--out-dir", outDir
+    ],
+    {}
+  );
+  assert.notEqual(occupied.status, 0);
+  assert.match(occupied.stderr, /already contains resolved-labels\.json/);
+  assert.doesNotMatch(occupied.stderr, /CALIBRATION_LABEL_REVEAL_PRIVATE_KEY is required/);
+
   const sizing = run([
     "scripts/calibration-v4-pilot-sizing.mjs",
     "--resolved-labels", path.join(outDir, "resolved-labels.json"),

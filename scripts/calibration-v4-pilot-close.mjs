@@ -73,16 +73,22 @@ for (const file of readdirSync(values.get("--commitments-dir")).sort()) {
   if (!file.endsWith(".json")) fail(`${file} in the commitments directory is not a record file`);
   commitments.push(JSON.parse(readFileSync(path.join(values.get("--commitments-dir"), file), "utf8")));
 }
-const { text, sha256 } = buildV4PilotLabelingAuthorization({
-  studyId: frameTasks.studyId,
-  detector: frameTasks.detector,
-  candidateCommit: frameTasks.candidateCommit,
-  referenceProtocolId: frameTasks.referenceProtocolId,
-  keyId: values.get("--key-id"),
-  frameTasksSha256: sha256Hex(frameTasksBytes),
-  labelingClosedAt: new Date().toISOString(),
-  commitments
-});
+let closed;
+try {
+  closed = buildV4PilotLabelingAuthorization({
+    studyId: frameTasks.studyId,
+    detector: frameTasks.detector,
+    candidateCommit: frameTasks.candidateCommit,
+    referenceProtocolId: frameTasks.referenceProtocolId,
+    keyId: values.get("--key-id"),
+    frameTasksSha256: sha256Hex(frameTasksBytes),
+    labelingClosedAt: new Date().toISOString(),
+    commitments
+  });
+} catch (error) {
+  fail(`calibration:v4-pilot-close: ${error.message}`);
+}
+const { text, sha256 } = closed;
 mkdirSync(path.dirname(values.get("--out")), { recursive: true, mode: 0o700 });
 writeFileSync(values.get("--out"), text, { flag: "wx", mode: 0o600 });
 console.log(

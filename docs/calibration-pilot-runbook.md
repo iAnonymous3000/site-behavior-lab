@@ -259,8 +259,23 @@ npm run calibration:v4-pilot-close -- \
   --out calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-labeling-authorization.json
 ```
 
-The close freezes the labeling-close instant and the authorized
-commitment set together (a mismatched keyId refuses here, key-free).
+The close freezes the labeling-close instant and the authorized commitment
+set together, and it is the irreversible step, so it runs the same set
+custody the reveal later runs: 2 through 10 distinct labelers, exactly one
+blind tiebreaker, distinct actors, unique source, envelope, and ciphertext
+commitments, and every commitment before the close. It recomputes each
+record's envelope digest and checks each wrapper's keyId against the keyId
+inside its own sealed envelope, all without the private key.
+
+**Record filenames are load-bearing.** Records are read in lexicographic
+filename order and that becomes the authorized order, so renaming a file
+after the close changes the frozen set and the reveal reports it as a
+substituted record. Name them once, before the close, and do not touch them
+afterwards.
+
+What the close CANNOT establish is that GitHub really ran the workflow a
+record describes: only the authenticated fetcher can, which is part of the
+commitment path this pilot does not yet have.
 Commit the authorization via PR; the repository commit is the anchor the
 reveal trusts. After it merges, labeling is closed: later commitments
 self-defeat against the authorized set.
@@ -281,7 +296,13 @@ npm run calibration:v4-reveal -- \
 ```
 
 Key-free custody runs first (frame, tasks, authorization equality,
-chronology); the key is read only after all of it passes. Output:
+chronology, and the output destination being free); the key is read only
+after all of it passes, and the key you supply must be the key the
+authorization was closed under, checked by deriving its identity rather
+than by trusting the artifact's own claim. Point `--out-dir` at an empty
+directory: reveal writes are create-only, and a directory holding a
+previous reveal is refused before the key is read rather than after every
+envelope is open. Output:
 resolved-labels.json (a pure projection of the assembly bridge, carrying
 the authorized commitmentSetSha256) plus per-case adjudication artifacts
 for tiebreaker-resolved disagreements. Commit them beside the

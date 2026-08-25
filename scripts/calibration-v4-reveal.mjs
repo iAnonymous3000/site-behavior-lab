@@ -21,9 +21,11 @@
  *     --commitments-dir <dir> --out-dir <dir>
  */
 
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { createPrivateKey, createPublicKey } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { calibrationLabelPublicKeyIdentity } from "./calibration-label-source-envelope-lib.mjs";
 import {
   buildV4ResolvedLabelsArtifact,
   parseV4FrameTasksBytes,
@@ -90,24 +92,62 @@ for (const file of readdirSync(values.get("--commitments-dir")).sort()) {
   commitments.push(JSON.parse(readFileSync(path.join(values.get("--commitments-dir"), file), "utf8")));
 }
 
-const revealed = revealAuthenticatedV4PilotLabelBatches({
-  authorizationBytes,
-  commitments,
-  readPrivateKey: () => {
-    const key = process.env.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY;
-    delete process.env.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY;
-    if (!key) fail("CALIBRATION_LABEL_REVEAL_PRIVATE_KEY is required once custody passes");
-    return key;
-  },
-  candidate: {
-    studyId: frameTasks.studyId,
-    detector: frameTasks.detector,
-    labelSealingKey: { keyId: JSON.parse(authorizationBytes).labelSealingKey?.keyId ?? "" }
-  },
-  candidateCommit: frameTasks.candidateCommit,
-  frameTasks,
-  taskBytesByCaseId
-});
+const outDir = values.get("--out-dir");
+// KEY-FREE, AND FIRST: a destination that already holds a reveal makes every
+// write below fail. Discovering that after the key has been read and every
+// envelope opened costs the plaintext its secrecy for nothing, and invites a
+// retry that starts by reading the key again.
+for (const existing of ["resolved-labels.json", "adjudications"]) {
+  if (existsSync(path.join(outDir, existing))) {
+    fail(
+      `--out-dir already contains ${existing}; reveal writes are create-only. Point --out-dir at an empty directory rather than deleting a previous reveal's evidence.`
+    );
+  }
+}
+
+const authorizationKeyId = JSON.parse(authorizationBytes).labelSealingKey?.keyId ?? "";
+let revealed;
+try {
+  revealed = revealAuthenticatedV4PilotLabelBatches({
+    authorizationBytes,
+    commitments,
+    readPrivateKey: () => {
+      const key = process.env.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY;
+      delete process.env.CALIBRATION_LABEL_REVEAL_PRIVATE_KEY;
+      if (!key) fail("CALIBRATION_LABEL_REVEAL_PRIVATE_KEY is required once custody passes");
+      // THE ANCHOR IS THE KEY IN HAND, not the artifact's claim about it.
+      // Deriving the identity from the private key the operator actually
+      // supplied is what makes the comparison capable of failing: taking the
+      // keyId from the authorization and then checking envelopes against it
+      // compared the artifact with itself.
+      let derivedKeyId;
+      try {
+        derivedKeyId = calibrationLabelPublicKeyIdentity(
+          createPublicKey(createPrivateKey(key)).export({ type: "spki", format: "pem" }).toString()
+        ).keyId;
+      } catch (error) {
+        fail(`the supplied reveal key is not a usable sealing key: ${error.message}`);
+      }
+      if (derivedKeyId !== authorizationKeyId) {
+        fail(
+          `the supplied reveal key has keyId ${derivedKeyId}, and the authorization was closed under ${authorizationKeyId}; this is the wrong key for this pilot`
+        );
+      }
+      return key;
+    },
+    candidate: {
+      studyId: frameTasks.studyId,
+      detector: frameTasks.detector,
+      labelSealingKey: { keyId: authorizationKeyId }
+    },
+    candidateCommit: frameTasks.candidateCommit,
+    frameTasks,
+    taskBytesByCaseId
+  });
+} catch (error) {
+  // Every custody refusal on this path is something the operator can act on.
+  fail(`calibration:v4-reveal: ${error.message}`);
+}
 
 const resolved = buildV4ResolvedLabelsArtifact({
   frameTasks,
@@ -115,7 +155,6 @@ const resolved = buildV4ResolvedLabelsArtifact({
   tiebreakerBatch: revealed.tiebreakerBatch,
   commitmentSetSha256: revealed.commitmentSetSha256
 });
-const outDir = values.get("--out-dir");
 mkdirSync(outDir, { recursive: true, mode: 0o700 });
 writeFileSync(path.join(outDir, "resolved-labels.json"), resolved.text, {
   flag: "wx",
