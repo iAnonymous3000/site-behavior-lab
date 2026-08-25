@@ -560,9 +560,15 @@ export function requireFrameMatchesApprovedArtifact(frameTasks, artifact) {
   );
   const expectedDefinitions =
     artifact.detectors?.[frameTasks.detector]?.externalDefinitions ?? null;
+  // Compared with the PURE serializer, not the dist-backed canonicalizer:
+  // both sides are the same fixed-key record (the build CLI copies the
+  // artifact's block into the frame verbatim), and every reviewer-facing CLI
+  // calls this on a fresh clone. Reaching for the compiled canonical-JSON
+  // module here made "committed-bytes check only, no build required" false
+  // for the two CLIs that say it.
   require(
-    canonicalizeCalibrationValue(frameTasks.externalDefinitions) ===
-      canonicalizeCalibrationValue(expectedDefinitions),
+    canonicalPrettyJson(frameTasks.externalDefinitions) ===
+      canonicalPrettyJson(expectedDefinitions),
     "the frame's external definition pins do not equal the currently approved artifact's; a frame built under a superseded approval must be rebuilt"
   );
   return frameTasks;

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash, generateKeyPairSync } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -979,7 +979,7 @@ test("pilot custody refusals: late commitments, substituted records, and free bo
  * carries no bypass: the CLIs resolve governance from their own script
  * location, so the world copies the scripts wholesale.
  */
-async function governedWorld(status) {
+async function governedWorld(status, { dist = true } = {}) {
   const { buildCalibrationPolicyAssignmentsArtifact } = await import(
     "./calibration-policy-artifact-lib.mjs"
   );
@@ -998,7 +998,7 @@ async function governedWorld(status) {
   });
   // The copied scripts resolve their compiled contracts relative to the
   // world root; share the repo's dist read-only.
-  symlinkSync(path.join(moduleDir, "..", "dist"), path.join(root, "dist"));
+  if (dist) symlinkSync(path.join(moduleDir, "..", "dist"), path.join(root, "dist"));
   const artifactDir = path.join(root, "research", "measurement-candidate");
   mkdirSync(artifactDir, { recursive: true });
   writeFileSync(
@@ -1360,6 +1360,112 @@ test("the reviewer pipeline runs by EXECUTION from the real instrument's own wor
   ]);
   assert.notEqual(wrongSet.status, 0);
   assert.match(wrongSet.stderr, /candidate set studyId other-study-prevalence-pilot does not match/);
+});
+
+
+test("every reviewer-facing CLI runs on a bare clone: no dist, no install", async () => {
+  // The seal CLI's own comment promises a "committed-bytes check only; no
+  // build is required on a fresh clone". It was false: the frame-vs-approval
+  // comparison reached for the compiled canonical-JSON module, so both
+  // reviewer CLIs died on import-time module resolution before any refusal
+  // they could act on. A reviewer is not a developer and must not need a
+  // TypeScript toolchain to seal a label.
+  const world = await governedWorld("approved", { dist: false });
+  assert.equal(existsSync(path.join(world.root, "dist")), false);
+  const spawnBuild = (args) =>
+    spawnSync(process.execPath, [path.join(world.scriptsDir, args[0]), ...args.slice(1)], {
+      cwd: world.root,
+      encoding: "utf8"
+    });
+  const studyId = `${STUDY}-prevalence-pilot`;
+  const casesPath = path.join(world.root, "pilot-set.json");
+  writeFileSync(
+    casesPath,
+    canonicalPrettyJson({
+      studyId,
+      candidates: ["pilot-alpha.example", "pilot-beta.example", "pilot-gamma.example"].map((caseId) => ({
+        caseId,
+        url: `https://${caseId}/`
+      }))
+    })
+  );
+  const frameRoot = path.join(world.root, "frame");
+  const tasksDir = path.join(frameRoot, "tasks");
+  // The frame itself is built without dist too: the whole pilot path is
+  // reachable from a clone with nothing installed.
+  const frameBuild = spawnBuild([
+    "calibration-v4-frame-tasks.mjs", "build",
+    "--study-id", studyId,
+    "--detector", DETECTOR,
+    "--candidate-commit", CANDIDATE,
+    "--protocol-id", "independent-labeling-protocol@1",
+    "--protocol-file", world.protocolPath,
+    "--cases", casesPath,
+    "--output-root", frameRoot
+  ]);
+  assert.equal(frameBuild.status, 0, frameBuild.stderr);
+  assert.doesNotMatch(frameBuild.stderr, /dist\/schema/);
+  const built = {
+    frameTasks: JSON.parse(readFileSync(path.join(frameRoot, "frame-tasks.json"), "utf8")),
+    taskBytesByCaseId: new Map(
+      readdirSync(tasksDir).map((file) => [
+        file.replace(/\.json$/, ""),
+        readFileSync(path.join(tasksDir, file), "utf8")
+      ])
+    )
+  };
+  const { bytes } = await realWorksheet(built);
+  const worksheetPath = path.join(world.root, "worksheet.json");
+  writeFileSync(worksheetPath, bytes);
+  const spawnIn = (args) =>
+    spawnSync(process.execPath, [path.join(world.scriptsDir, args[0]), ...args.slice(1)], {
+      cwd: world.root,
+      encoding: "utf8"
+    });
+  const batchPath = path.join(world.root, "batch.json");
+  const produced = spawnIn([
+    "calibration-v4-reviewer-batch.mjs",
+    "--worksheet", worksheetPath,
+    "--frame-tasks", path.join(frameRoot, "frame-tasks.json"),
+    "--tasks-dir", tasksDir,
+    "--role", "labeler",
+    "--actor", "alice",
+    "--out", batchPath
+  ]);
+  assert.equal(produced.status, 0, produced.stderr);
+  assert.doesNotMatch(produced.stderr, /dist\/schema/);
+  const keyPath = path.join(world.root, "public.pem");
+  writeFileSync(keyPath, publicKeyPem);
+  const sealed = spawnIn([
+    "calibration-v4-seal-label-batch.mjs",
+    "--role", "labeler",
+    "--actor", "alice",
+    "--public-key", keyPath,
+    "--frame-tasks", path.join(frameRoot, "frame-tasks.json"),
+    "--tasks-dir", tasksDir,
+    "--input", batchPath,
+    "--output", path.join(world.root, "sealed.json")
+  ]);
+  assert.equal(sealed.status, 0, sealed.stderr);
+  assert.doesNotMatch(sealed.stderr, /dist\/schema/);
+  // The gate still bites without dist: it is a committed-bytes check.
+  const pending = await governedWorld("pending", { dist: false });
+  const refused = spawnSync(
+    process.execPath,
+    [
+      path.join(pending.scriptsDir, "calibration-v4-reviewer-batch.mjs"),
+      "--worksheet", worksheetPath,
+      "--frame-tasks", path.join(frameRoot, "frame-tasks.json"),
+      "--tasks-dir", tasksDir,
+      "--role", "labeler",
+      "--actor", "alice",
+      "--out", path.join(pending.root, "never.json")
+    ],
+    { cwd: pending.root, encoding: "utf8" }
+  );
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /not approved by a named human/);
+  assert.doesNotMatch(refused.stderr, /dist\/schema/);
 });
 
 test("the gate refuses artifact-vs-approval divergence and stale frames, at the lib level", async () => {
