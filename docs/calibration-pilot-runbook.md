@@ -28,13 +28,19 @@ Every pilot CLI refuses unless RELEASE_READINESS.json carries the
 named-human approval of the policy artifact (landed 2026-08-25) and the
 frame matches the approved artifact's protocol digest and pins.
 
-## 0. What a reviewer needs
+## 0. What each participant needs
 
-A git clone and Node. Nothing else: the frame producer, the reference
-instrument, the reviewer-batch producer, and the seal CLI run from a bare
-checkout with no `npm ci` and no `dist/`, because every gate on that path
-is a committed-bytes check. If any of them ever fails with "build
-dist/schema", that is a defect in the tool, not a step you are missing.
+**Reviewers: a git clone and Node, nothing else.** The frame producer, the
+reference instrument, the reviewer-batch producer, and the seal CLI all run
+from a bare checkout with no `npm ci` and no `dist/`, because every gate on
+that path is a committed-bytes check. If one of them ever fails with "build
+dist/schema", that is a defect in the tool, not a step a reviewer is
+missing.
+
+**The operator, for steps 5 to 7, works from a development checkout**
+(`npm ci && npm run build:schema`): close, reveal, and sizing recompute
+identity digests through the compiled canonical-JSON module, which is
+deliberate. Those steps never run on a reviewer's machine.
 
 ## 1. One-use sealing keypair (operator)
 
