@@ -635,8 +635,20 @@ export function buildV4PilotLabelingAuthorization({
   require(SHA256.test(frameTasksSha256 ?? ""), "authorization needs the frameTasksSha256");
   requireInstant(labelingClosedAt, "labelingClosedAt");
   require(Array.isArray(commitments) && commitments.length > 0, "authorization needs commitments");
-  for (const entry of commitments) {
-    requireInstant(entry?.metadata?.artifactCreatedAt, "commitment artifactCreatedAt");
+  // SHAPE BEFORE MEANING, and before every other check: the custody helper
+  // reaches into entry.commitment.role and entry.commitment.envelope, so a
+  // malformed record reached the operator as a TypeError from inside a
+  // custody helper rather than as a refusal naming the record to fix.
+  for (const [index, entry] of commitments.entries()) {
+    require(
+      isRecord(entry) && isRecord(entry.metadata) && isRecord(entry.commitment),
+      `commitment record ${index + 1} must carry a metadata record and a commitment record`
+    );
+    require(
+      isRecord(entry.commitment.envelope),
+      `commitment record ${index + 1} carries no sealed envelope`
+    );
+    requireInstant(entry.metadata.artifactCreatedAt, "commitment artifactCreatedAt");
   }
   // THE SAME SET CUSTODY THE REVEAL RUNS, run here because THIS is the
   // irreversible step: arity (2..10 distinct labelers, exactly one
@@ -654,8 +666,7 @@ export function buildV4PilotLabelingAuthorization({
     // The wrapper's fields are the record's CLAIMS; the envelope beside them
     // is the evidence. A record can restate any keyId it likes, and the pilot
     // path has no authenticated fetcher to have checked it earlier.
-    const envelope = entry?.commitment?.envelope;
-    require(isRecord(envelope), "every commitment must carry its sealed envelope");
+    const envelope = entry.commitment.envelope;
     require(
       entry.commitment.envelopeSha256 === calibrationLabelCommitmentEnvelopeDigest(envelope),
       "a commitment's envelopeSha256 is not its envelope's digest; the record's own claim disagrees with the bytes beside it"
@@ -1237,6 +1248,13 @@ export function buildV4ReviewerBatchFromWorksheet({
       );
     }
     const anyMatch = resolutions.some((resolution) => resolution.matchedExternalSuffix !== null);
+    // `determined` is derived from the recorded failure codes alone. The
+    // instrument also treats an unterminated chain as undetermined, but it
+    // never records `terminated`, and its own resolver cannot return an
+    // unterminated chain without a failure code (a hop-limit exit sets
+    // MAX_HOPS), so the two agree on every worksheet the instrument writes.
+    // A worksheet from some other tool could in principle differ; that is
+    // what the artifactKind and toolVersion pins above are for.
     const determined = resolutions.every((resolution) => resolution.resolutionFailureCode === null);
     require(
       entry.proposedLabel === (anyMatch ? "present" : "absent"),

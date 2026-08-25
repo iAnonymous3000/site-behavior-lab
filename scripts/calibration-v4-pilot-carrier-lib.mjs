@@ -28,6 +28,8 @@ import path from "node:path";
 
 const pathJoin = path.join;
 import {
+  V4_PILOT_SIZING_KIND,
+  V4_PILOT_SIZING_SCHEMA_VERSION,
   parseV4FrameTasksBytes,
   validateV4PilotLabelingAuthorization,
   validateV4ResolvedLabelsArtifact
@@ -48,6 +50,10 @@ export const PILOT_SIZING_FILE = "pilot-sizing.json";
 
 function require_(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function isRecord(value) {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** Run one git plumbing command; refuse rather than interpret a failure. */
@@ -179,9 +185,26 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
       encoding: "buffer",
       maxBuffer: 512 * 1024 * 1024
     });
-    require_(archive.status === 0, `git archive ${carrier} failed`);
+    // Forward the diagnostics. This is structurally the first step that reads
+    // the bulk of the tree, so it is where a corrupt object, an absent tar, or
+    // an exhausted buffer surfaces; and the runbook's remedy for a red gate is
+    // to RETIRE the carrier and discard the reviewers' sealed envelopes. An
+    // environment failure must not arrive wearing that accusation with no
+    // evidence attached. (The file argues this exact point about `git show`
+    // twenty lines above, and then discarded it here.)
+    require_(
+      archive.status === 0,
+      `git archive ${carrier} failed${archive.error?.code ? ` (${archive.error.code})` : ""}${
+        (archive.stderr ?? "").toString().trim() ? `: ${(archive.stderr ?? "").toString().trim()}` : ""
+      }. This is a failure to READ the repository, not a finding about the carrier; fix the environment and re-run before concluding anything about ${carrier}.`
+    );
     const extract = spawnSync("tar", ["-x", "-C", treeRoot], { input: archive.stdout });
-    require_(extract.status === 0, `extracting the carrier tree failed`);
+    require_(
+      extract.status === 0,
+      `extracting the carrier tree failed${extract.error?.code ? ` (${extract.error.code})` : ""}${
+        (extract.stderr ?? "").toString().trim() ? `: ${(extract.stderr ?? "").toString().trim()}` : ""
+      }. This is an environment failure, not a finding about the carrier.`
+    );
     const artifactBytes = readFileSync(pathJoin(treeRoot, CALIBRATION_CENSORING_POLICY_PATH), "utf8");
     const artifact = JSON.parse(artifactBytes);
     require_(
@@ -273,10 +296,20 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
       `${PILOT_RESOLVED_LABELS_FILE} was revealed from a different commitment set than the authorization froze`
     );
     require_(
-      resolved.cases.length === frameTasks.cases.length,
-      `${PILOT_RESOLVED_LABELS_FILE} resolves ${resolved.cases.length} cases for a ${frameTasks.cases.length}-case frame`
+      resolved.candidateCommit === carrier &&
+        resolved.studyId === frameTasks.studyId &&
+        resolved.detector === frameTasks.detector &&
+        resolved.referenceProtocolId === frameTasks.referenceProtocolId,
+      `${PILOT_RESOLVED_LABELS_FILE} identity does not match the committed frame`
     );
-    chain.resolvedLabels = { sha256: sha256Hex(bytes) };
+    // The CASE SET, in frame order, not its size: counting agrees for any
+    // hundred cases, including a hundred the frame never named.
+    require_(
+      JSON.stringify(resolved.cases.map((entry) => entry.caseId)) ===
+        JSON.stringify(frameTasks.cases.map((frameCase) => frameCase.caseId)),
+      `${PILOT_RESOLVED_LABELS_FILE} does not resolve exactly the frame's cases, in the frame's order`
+    );
+    chain.resolvedLabels = { sha256: sha256Hex(bytes), cases: resolved.cases };
   }
   const sizingPath = path.join(rootDir, studyDir, PILOT_SIZING_FILE);
   if (existsSync(sizingPath)) {
@@ -286,14 +319,44 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
     );
     const sizing = JSON.parse(readFileSync(sizingPath, "utf8"));
     require_(
+      isRecord(sizing) &&
+        sizing.artifactKind === V4_PILOT_SIZING_KIND &&
+        sizing.schemaVersion === V4_PILOT_SIZING_SCHEMA_VERSION,
+      `${PILOT_SIZING_FILE} is not a v${V4_PILOT_SIZING_SCHEMA_VERSION} ${V4_PILOT_SIZING_KIND}`
+    );
+    require_(
       sizing.frameTasksSha256 === frameDigest,
       `${PILOT_SIZING_FILE} binds a different frame than the committed one`
+    );
+    require_(
+      sizing.candidateCommit === carrier &&
+        sizing.studyId === frameTasks.studyId &&
+        sizing.detector === frameTasks.detector &&
+        sizing.referenceProtocolId === frameTasks.referenceProtocolId,
+      `${PILOT_SIZING_FILE} identity does not match the committed frame`
     );
     require_(
       sizing.resolvedLabelsSha256 === chain.resolvedLabels.sha256,
       `${PILOT_SIZING_FILE} counted resolved labels other than the committed ones`
     );
-    chain.sizing = { feasible: sizing.feasibility?.feasible ?? null };
+    // The counts are RE-DERIVED from the labels sitting beside them. Binding
+    // the digest proves which file was counted, never that it was counted
+    // correctly, and every number downstream rests on these three.
+    const counted = { present: 0, absent: 0, uncertain: 0 };
+    for (const entry of chain.resolvedLabels.cases) {
+      if (entry.status === "known" && entry.value === "present") counted.present += 1;
+      else if (entry.status === "known" && entry.value === "absent") counted.absent += 1;
+      else counted.uncertain += 1;
+    }
+    require_(
+      isRecord(sizing.counts) &&
+        sizing.counts.present === counted.present &&
+        sizing.counts.absent === counted.absent &&
+        sizing.counts.uncertain === counted.uncertain &&
+        sizing.counts.total === counted.present + counted.absent + counted.uncertain,
+      `${PILOT_SIZING_FILE} counts ${JSON.stringify(sizing.counts)} are not what the committed resolved labels contain (${JSON.stringify({ ...counted, total: counted.present + counted.absent + counted.uncertain })})`
+    );
+    chain.sizing = { feasible: sizing.feasibility?.feasible ?? null, counts: sizing.counts };
   }
 
   return {

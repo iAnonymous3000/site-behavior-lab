@@ -188,8 +188,12 @@ the deep design digests.
 - Ceremony order: seal (`calibration:v4-seal-label-batch`, which pads an
   unpadded reviewer batch) -> hosted commitments -> close
   (`calibration:v4-pilot-close`) -> commit the authorization -> reveal ->
-  size. The whole pipeline is executed end to end by the ceremony suite's
-  spawn smoke test. Mutation obligations were re-run for the batch-shape change
+  size. The ceremony suite executes that pipeline end to end by spawn, with
+  commitment records the test constructs. The HOSTED commitment step is the
+  one link no pilot can run today: the only hosted workflow builds a v3
+  candidate context that a pilot carrier cannot satisfy, so a real pilot
+  stops after sealing. See docs/calibration-pilot-runbook.md, which stops
+  there too, and does not pretend otherwise. Mutation obligations were re-run for the batch-shape change
 and the new surface: task digest deleted, seal-validation deleted,
 chronology deleted, uniqueness deleted, roster-equality made vacuous, key
 read before custody, content binding weakened to shape, evidence
