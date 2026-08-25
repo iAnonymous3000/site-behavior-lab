@@ -59,8 +59,13 @@ export const SWEEP_LOSS_BOUND_KIND =
   "site-behavior-calibration-reliability-loss-bound";
 export const SWEEP_LOSS_BOUND_VERSION = 1;
 
-const CASE_ID = /^[a-z0-9][a-z0-9._-]{0,99}$/;
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
+
+// The candidate-set grammar has one home; the sweep imports it and re-exports
+// it so its callers and the frame/reference tooling cannot drift apart.
+import { parseCandidateSet } from "./calibration-candidate-set-lib.mjs";
+
+export { parseCandidateSet };
 
 function require(condition, message) {
   if (!condition) throw new Error(message);
@@ -74,61 +79,6 @@ function only(record, allowed, context) {
   for (const key of Object.keys(record)) {
     require(allowed.has(key), `${context} carries unexpected field "${key}"`);
   }
-}
-
-/**
- * Parse the candidate-set file from its exact bytes. The digest is computed
- * over the bytes, never a re-serialization, so the receipt names the committed
- * file and not a formatting of it.
- */
-export function parseCandidateSet(bytes) {
-  require(
-    typeof bytes === "string" && bytes.length > 0,
-    "candidate set requires the file's exact contents"
-  );
-  let parsed;
-  try {
-    parsed = JSON.parse(bytes);
-  } catch {
-    throw new Error("candidate set is not valid JSON");
-  }
-  require(isRecord(parsed), "candidate set must be an object");
-  only(parsed, new Set(["studyId", "candidates"]), "candidate set");
-  require(
-    typeof parsed.studyId === "string" && parsed.studyId.length > 0,
-    "candidate set requires a study id"
-  );
-  require(
-    Array.isArray(parsed.candidates) && parsed.candidates.length > 0,
-    "candidate set requires at least one candidate"
-  );
-  const seen = new Set();
-  const candidates = parsed.candidates.map((entry, index) => {
-    require(isRecord(entry), `candidate ${index + 1} must be an object`);
-    only(entry, new Set(["caseId", "url"]), `candidate ${index + 1}`);
-    require(
-      typeof entry.caseId === "string" && CASE_ID.test(entry.caseId),
-      `candidate ${index + 1} needs a lowercase alphanumeric caseId`
-    );
-    require(!seen.has(entry.caseId), `duplicate caseId ${entry.caseId}`);
-    seen.add(entry.caseId);
-    let url;
-    try {
-      url = new URL(entry.url);
-    } catch {
-      throw new Error(`candidate ${entry.caseId} has an unparseable url`);
-    }
-    require(
-      url.protocol === "https:",
-      `candidate ${entry.caseId} must be https; the sweep frames public https sites only`
-    );
-    return { caseId: entry.caseId, url: entry.url };
-  });
-  return {
-    studyId: parsed.studyId,
-    candidates,
-    candidateSetDigest: sha256Hex(bytes)
-  };
 }
 
 const IDENTITY_FIELDS = Object.freeze(["buildCommit", "runtime", "runnerLabel", "egress"]);

@@ -27,6 +27,10 @@
  */
 
 import {
+  CNAME_REFERENCE_TOOL_VERSION,
+  CNAME_REFERENCE_WORKSHEET_KIND
+} from "./calibration-cname-reference-lib.mjs";
+import {
   buildCalibrationLabelEnvelopeIdentity,
   sealCalibrationLabelSourceEnvelope
 } from "./calibration-label-source-envelope-lib.mjs";
@@ -1033,9 +1037,9 @@ export function computeV4PilotSizingArtifact({
  * CNAME worksheet into the padded v4 label batch their seal will carry.
  * Reviewers never hand-author the 100-case schema; the producer applies
  * the protocol's value mapping mechanically and the reviewer's own
- * decisions file overrides individual cases, with the one protocol
- * prohibition enforced: an unresolved case with no match is never labeled
- * absent.
+ * decisions file overrides individual cases, with the protocol's ABSENT
+ * precondition enforced against the override too: absent requires a
+ * worksheet in which every candidate resolved and no chain matched.
  *
  * Bindings, all refusal-only:
  * - frame coverage exact, case for case in frame order (a missing or
@@ -1054,8 +1058,17 @@ export function computeV4PilotSizingArtifact({
  * Value mapping (docs/calibration-prereg-drafts/labeling-protocol.md): a
  * matched chain is PRESENT even when other candidates failed to resolve
  * (one reached tracker suffices); no match with every candidate resolved
- * is ABSENT; no match with any unresolved candidate is UNCERTAIN, and an
- * override to absent there is refused by name.
+ * is ABSENT; no match with any unresolved candidate is UNCERTAIN. The
+ * protocol conditions ABSENT on resolution alone, so a reviewer who
+ * disbelieves a recorded match, or whose case has an unresolved
+ * candidate, may override to UNCERTAIN but never to ABSENT: the producer
+ * refuses by name rather than coercing the value, because a plan may be
+ * stricter than the protocol about uncertainty and never weaker.
+ *
+ * The worksheet's own shape is checked before it is read as meaning
+ * (proposedLabel present|absent, determined a real boolean): a truthy
+ * "false" or a capitalized label would otherwise manufacture the
+ * protocol's most consequential value out of malformed input.
  */
 export function buildV4ReviewerBatchFromWorksheet({
   worksheetBytes,
@@ -1086,9 +1099,16 @@ export function buildV4ReviewerBatchFromWorksheet({
     worksheetBytes === canonicalPrettyJson(worksheet),
     "worksheet must be the tool's canonical serialized JSON"
   );
+  // The kind and tool version are the reference instrument's OWN exported
+  // constants, never literals restated here: a restated contract is how a
+  // producer comes to accept only worksheets no real reviewer can make.
   require(
-    worksheet.artifactKind === "site-behavior-cname-reference-worksheet",
-    "the reviewer batch producer consumes cname reference worksheets"
+    worksheet.artifactKind === CNAME_REFERENCE_WORKSHEET_KIND,
+    `the reviewer batch producer consumes ${CNAME_REFERENCE_WORKSHEET_KIND} worksheets, saw ${worksheet.artifactKind}`
+  );
+  require(
+    worksheet.toolVersion === CNAME_REFERENCE_TOOL_VERSION,
+    `worksheet toolVersion ${worksheet.toolVersion} is not ${CNAME_REFERENCE_TOOL_VERSION}`
   );
   require(
     worksheet.studyId === frameTasks.studyId,
@@ -1132,13 +1152,42 @@ export function buildV4ReviewerBatchFromWorksheet({
     const entry = byCaseId.get(frameCase.caseId);
     require(entry !== undefined, `worksheet is missing frame case ${frameCase.caseId}`);
     byCaseId.delete(frameCase.caseId);
+    // The two fields the mapping reads are checked for SHAPE before they are
+    // read as meaning. A `determined` of "false" is truthy, and a
+    // proposedLabel of "Present" is not "present": either would silently
+    // manufacture the protocol's most consequential label out of malformed
+    // input, in a producer whose whole contract is that deviations refuse.
+    require(
+      entry.proposedLabel === "present" || entry.proposedLabel === "absent",
+      `${frameCase.caseId} worksheet proposedLabel must be present or absent, saw ${JSON.stringify(entry.proposedLabel)}`
+    );
+    require(
+      typeof entry.determined === "boolean",
+      `${frameCase.caseId} worksheet determined must be a boolean, saw ${JSON.stringify(entry.determined)}`
+    );
+    // Each worksheet case must concern the SUBJECT the frame assigned. The
+    // reviewer supplies their own candidate file to the reference tool, so
+    // without this a worksheet built against stale or wrong URLs would seal
+    // labels for pages the frame never named.
+    const task = JSON.parse(taskBytesByCaseId.get(frameCase.caseId));
+    require(
+      entry.subjectUrl === task.subjectUrl,
+      `${frameCase.caseId} worksheet subject ${JSON.stringify(entry.subjectUrl)} is not the task's ${JSON.stringify(task.subjectUrl)}`
+    );
     const anyMatch = entry.proposedLabel === "present";
     const mechanical = anyMatch ? "present" : entry.determined ? "absent" : "uncertain";
     let value = overrides.has(frameCase.caseId) ? overrides.get(frameCase.caseId) : mechanical;
-    if (!anyMatch && !entry.determined) {
+    // The protocol: "Label ABSENT only when every candidate was resolved and
+    // no chain matched that list." Absent is therefore permitted on exactly
+    // one worksheet state, whatever the reviewer decides; a reviewer who
+    // disbelieves a match downgrades to uncertain, never to absent. Refused,
+    // never coerced: a plan may be stricter about uncertainty, not weaker.
+    if (value === "absent") {
       require(
-        value !== "absent",
-        `${frameCase.caseId} has unresolved candidates and no match; the protocol forbids labeling it absent`
+        entry.determined === true && !anyMatch,
+        `${frameCase.caseId} may not be labeled absent: the protocol permits absent only when every candidate resolved and no chain matched` +
+          `${anyMatch ? " (this worksheet records a matched chain)" : ""}` +
+          `${entry.determined ? "" : " (this worksheet has unresolved candidates)"}`
       );
     }
     require(

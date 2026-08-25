@@ -23,7 +23,7 @@ those disagree, those win, and the draft is stale.
 
 In dependency order:
 
-1. **Build the frame producer** (code, unimplemented). Custody assembly is
+1. **Build the frame producer** (code, landed). Custody assembly is
    implemented: `scripts/calibration-study-assemble.mjs` re-fetches and
    cross-binds the roster authorization, roster-selection ledger, and complete
    acquisition-attempt ledger before it reads the reveal key, with the refusal
@@ -53,10 +53,11 @@ In dependency order:
    and the step-4 per-detector C/B artifact now EXISTS
    (research/measurement-candidate/calibration-censoring-policy-assignments.json,
    derived from scripts/calibration-policy-assignments.mjs by
-   `npm run calibration:policy-artifact`). Its exact digests sit in the
-   manifest with status pending-named-human-approval: a named human must
-   flip that status and add decidedBy/decidedAt before any new acquisition
-   or labeling, and every ceremony and pilot CLI refuses until then.
+   `npm run calibration:policy-artifact`). Its exact digests are APPROVED in the
+   manifest (status approved, decidedBy `iAnonymous3000`, decidedAt
+   `2026-08-25T09:24:57.000Z`), which is what permits labeling to begin; every
+   ceremony and pilot CLI refuses whenever the committed artifact bytes,
+   the protocol digest, or the pins stop matching that approval.
 
 ## The zero-censoring arithmetic, stated plainly
 

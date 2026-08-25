@@ -108,6 +108,34 @@ export function firstPartyHostsFromHar(har, siteUrl, publicSuffixes) {
 }
 
 /**
+ * Did this capture actually load the case's subject?
+ *
+ * A case with no first-party subdomains is a legitimate ABSENT: nothing could
+ * be cloaked because nothing first-party was contacted. But a capture that
+ * landed somewhere else entirely (a redirect off the registrable domain, a
+ * consent wall on another host, a HAR exported from the wrong tab) produces
+ * the SAME empty candidate list, and would be recorded as a confident,
+ * determined absent with no DNS performed and nothing to review. The two are
+ * distinguishable: a capture that reached the subject contains at least one
+ * request to the subject's own registrable domain. Cases that fail this are a
+ * capture defect for the reviewer to fix, not a label.
+ */
+export function harCoversSubject(har, siteUrl, publicSuffixes) {
+  const entries = har?.log?.entries;
+  if (!Array.isArray(entries)) throw new Error("HAR has no log.entries array");
+  const siteRegistrable = registrableDomain(normalizeHost(new URL(siteUrl).hostname), publicSuffixes);
+  return entries.some((entry) => {
+    const url = entry?.request?.url;
+    if (typeof url !== "string") return false;
+    try {
+      return registrableDomain(normalizeHost(new URL(url).hostname), publicSuffixes) === siteRegistrable;
+    } catch {
+      return false;
+    }
+  });
+}
+
+/**
  * Follow a hostname's CNAME chain through an explicitly named resolver.
  *
  * Bounded by hops so a resolver loop cannot hang a reviewer's worksheet. Every
@@ -218,9 +246,15 @@ export function matchExternalTracker(host, suffixes) {
  * distinction the scanner draws between a censored and a negative case.
  */
 export async function buildCaseWorksheet(
-  { caseId, url, hosts },
+  { caseId, url, hosts, captureSha256 },
   { resolverAddress, trackerSuffixes, publicSuffixes, maxHops, timeoutMs, resolve = resolveCnameChain }
 ) {
+  // The reviewer's own capture digest is part of the case, not something a
+  // caller staples on afterwards: the worksheet case shape has one home, and
+  // the producer that consumes it refuses a case without this digest.
+  if (!/^[0-9a-f]{64}$/.test(String(captureSha256 ?? ""))) {
+    throw new Error(`${caseId} worksheet case needs the reviewer capture sha256`);
+  }
   const resolutions = [];
   let anyMatch = false;
   let anyFailure = false;
@@ -258,6 +292,12 @@ export async function buildCaseWorksheet(
   }
   return {
     caseId,
+    captureSha256,
+    // The SUBJECT this worksheet examined, recorded so a downstream producer
+    // can refuse a worksheet built against a different page than the frame
+    // assigned: the reviewer supplies their own candidate file, and caseId
+    // alone would let a stale or edited URL pass as the frame's case.
+    subjectUrl: url,
     hostsExamined: hosts,
     resolutions,
     determined: !anyFailure,

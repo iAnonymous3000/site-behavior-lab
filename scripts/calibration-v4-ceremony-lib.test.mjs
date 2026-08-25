@@ -51,18 +51,24 @@ const keyId = calibrationLabelPublicKeyIdentity(publicKeyPem).keyId;
 
 const PROTOCOL_BYTES = "# fixture labeling protocol\n";
 const PROTOCOL_SHA = createHash("sha256").update(PROTOCOL_BYTES).digest("hex");
+// The pinned definitions are REAL bytes the reviewer instrument can be run
+// against, not opaque digests: the pipeline test writes exactly these files,
+// so the frame's pins and the worksheet's recorded digests agree the way they
+// must agree in the ceremony.
+const FIXTURE_TRACKER_BYTES = "# fixture tracker definition\ntracker.example\n";
+const FIXTURE_PSL_BYTES = "// fixture public suffix list\nexample\n";
 const FIXTURE_PINS = {
   trackerDefinition: {
     provider: "fixture-trackers",
     permanentId: "FIXTURE-TRACKERS-1",
     url: "https://pins.fixture.example/trackers",
-    sha256: sha("d1")
+    sha256: sha(FIXTURE_TRACKER_BYTES)
   },
   publicSuffixDefinition: {
     provider: "fixture-suffixes",
     permanentId: "FIXTURE-SUFFIXES-1",
     url: "https://pins.fixture.example/suffixes",
-    sha256: sha("d2")
+    sha256: sha(FIXTURE_PSL_BYTES)
   }
 };
 
@@ -1026,35 +1032,69 @@ async function governedWorld(status) {
 
 
 
-function worksheetFor(built, { overrides = {}, tracker, suffix } = {}) {
+/**
+ * Worksheets under test are built by the REAL reference instrument, never
+ * hand-authored here. A fixture that restates the worksheet shape agrees with
+ * whatever the producer happens to require and proves nothing about the file
+ * a reviewer can actually make: that is exactly how the producer came to
+ * demand an artifactKind no worksheet has ever carried. Only the DNS answers
+ * are injected, because the reviewer's resolver is the one thing a test may
+ * not reach.
+ */
+async function realWorksheet(built, { overrides = {}, tracker, suffix, studyId } = {}) {
+  const { buildCaseWorksheet, worksheetHeader } = await import("./calibration-cname-reference-lib.mjs");
   const pins = built.frameTasks.externalDefinitions;
+  const publicSuffixes = new Set(["example"]);
+  const trackerSuffixes = new Set(["tracker.example"]);
+  // case 0 matches a tracker chain (PRESENT), case 1 resolves with no match
+  // (ABSENT), case 2 has a candidate this resolver could not resolve
+  // (UNCERTAIN).
+  const answers = [
+    { chain: ["cloak.tracker.example"], terminated: true, failureCode: null },
+    { chain: ["edge.cdn-other.example"], terminated: true, failureCode: null },
+    { chain: [], terminated: false, failureCode: "SERVFAIL" }
+  ];
+  const cases = [];
+  for (const [index, frameCase] of built.frameTasks.cases.entries()) {
+    const task = JSON.parse(built.taskBytesByCaseId.get(frameCase.caseId));
+    const worksheetCase = await buildCaseWorksheet(
+      {
+        caseId: frameCase.caseId,
+        url: task.subjectUrl,
+        hosts: [`sub.${frameCase.caseId}`],
+        captureSha256: sha(`capture:${frameCase.caseId}`)
+      },
+      {
+        resolverAddress: "9.9.9.9",
+        trackerSuffixes,
+        publicSuffixes,
+        maxHops: 10,
+        timeoutMs: 5_000,
+        resolve: async () => answers[index % answers.length]
+      }
+    );
+    cases.push({ ...worksheetCase, ...(overrides[frameCase.caseId] ?? {}) });
+  }
   const worksheet = {
-    schemaVersion: 1,
-    artifactKind: "site-behavior-cname-reference-worksheet",
-    toolVersion: "cname-reference-1",
-    studyId: built.frameTasks.studyId,
-    resolver: "9.9.9.9",
-    trackerSource: { path: "trackers.txt", sha256: tracker ?? pins.trackerDefinition.sha256, rejectedRows: [] },
-    publicSuffixSource: { path: "psl.dat", sha256: suffix ?? pins.publicSuffixDefinition.sha256 },
-    capturedAt: "2026-08-25T00:00:00.000Z",
-    independence: ["fixture"],
-    cases: built.frameTasks.cases.map((entry, index) => ({
-      caseId: entry.caseId,
-      hostsExamined: [`sub.${entry.caseId}`],
-      resolutions: [],
-      determined: index !== 2,
-      proposedLabel: index === 0 ? "present" : "absent",
-      captureSha256: sha(`capture:${entry.caseId}`),
-      ...(overrides[entry.caseId] ?? {})
-    }))
+    ...worksheetHeader({
+      studyId: studyId ?? built.frameTasks.studyId,
+      resolverAddress: "9.9.9.9",
+      trackerSourcePath: "trackers.txt",
+      trackerSourceDigest: tracker ?? pins.trackerDefinition.sha256,
+      trackerSourceRejectedRows: [],
+      publicSuffixSourcePath: "psl.dat",
+      publicSuffixSourceDigest: suffix ?? pins.publicSuffixDefinition.sha256,
+      capturedAt: "2026-08-25T00:00:00.000Z"
+    }),
+    cases
   };
   return { worksheet, bytes: canonicalPrettyJson(worksheet) };
 }
 
-test("the reviewer-batch producer maps the protocol, binds everything, and refuses the five forgeries", async () => {
+test("the reviewer-batch producer maps the protocol, binds everything, and refuses every forgery", async () => {
   const { buildV4ReviewerBatchFromWorksheet } = await import("./calibration-v4-ceremony-lib.mjs");
   const built = pilotBuilt();
-  const { bytes } = worksheetFor(built);
+  const { bytes } = await realWorksheet(built);
   const produced = buildV4ReviewerBatchFromWorksheet({
     worksheetBytes: bytes,
     frameTasks: built.frameTasks,
@@ -1062,219 +1102,203 @@ test("the reviewer-batch producer maps the protocol, binds everything, and refus
     role: "labeler",
     reviewerLogin: "alice"
   });
-  // Protocol value mapping: matched chain is PRESENT; all-resolved
-  // no-match is ABSENT; unresolved no-match is UNCERTAIN, never absent.
+  // Protocol value mapping, straight off the real instrument's output: a
+  // matched chain is PRESENT, an all-resolved no-match is ABSENT, and a case
+  // with a candidate the resolver could not answer is UNCERTAIN.
   assert.deepEqual(
     produced.batch.cases.map((entry) => entry.value),
     ["present", "absent", "uncertain"]
   );
-  // Evidence is the reviewer's OWN capture digest; provenance embeds the
-  // worksheet digest and the reviewer login.
   assert.equal(produced.batch.cases[0].evidence.sha256, sha("capture:pilot-alpha.example"));
   assert.match(
     produced.batch.cases[0].evidence.provenance,
     /^worksheet:[0-9a-f]{16}#pilot-alpha\.example@alice$/
   );
-  // The batch is sealed-ready: padded to the frame's fixed length and
-  // valid against the frame.
   assert.equal(validateV4LabelBatch(produced.batch, { frame: built.frameTasks }), produced.batch);
 
-  // Reviewer decisions override individual cases, except the protocol
-  // prohibition: an unresolved no-match case can never become absent.
-  const overridden = buildV4ReviewerBatchFromWorksheet({
-    worksheetBytes: bytes,
-    frameTasks: built.frameTasks,
-    taskBytesByCaseId: built.taskBytesByCaseId,
-    role: "labeler",
-    reviewerLogin: "alice",
-    decisions: [{ caseId: "pilot-alpha.example", value: "uncertain" }]
-  });
-  assert.equal(overridden.batch.cases[0].value, "uncertain");
+  const produce = (worksheetBytes, extra = {}) =>
+    buildV4ReviewerBatchFromWorksheet({
+      worksheetBytes,
+      frameTasks: built.frameTasks,
+      taskBytesByCaseId: built.taskBytesByCaseId,
+      role: "labeler",
+      reviewerLogin: "alice",
+      ...extra
+    });
+
+  // A reviewer may downgrade any case to uncertain.
+  assert.equal(
+    produce(bytes, { decisions: [{ caseId: "pilot-alpha.example", value: "uncertain" }] }).batch.cases[0]
+      .value,
+    "uncertain"
+  );
+  // THE ABSENT PRECONDITION, enforced against the override on BOTH of the
+  // states the protocol excludes: a case with unresolved candidates, and a
+  // case whose own evidence records a matched chain. The protocol conditions
+  // ABSENT on "every candidate was resolved and no chain matched"; a reviewer
+  // who disbelieves the match downgrades to uncertain, never to absent.
   assert.throws(
-    () =>
-      buildV4ReviewerBatchFromWorksheet({
-        worksheetBytes: bytes,
-        frameTasks: built.frameTasks,
-        taskBytesByCaseId: built.taskBytesByCaseId,
-        role: "labeler",
-        reviewerLogin: "alice",
-        decisions: [{ caseId: "pilot-gamma.example", value: "absent" }]
-      }),
-    /the protocol forbids labeling it absent/
+    () => produce(bytes, { decisions: [{ caseId: "pilot-gamma.example", value: "absent" }] }),
+    /may not be labeled absent[\s\S]*unresolved candidates/
+  );
+  assert.throws(
+    () => produce(bytes, { decisions: [{ caseId: "pilot-alpha.example", value: "absent" }] }),
+    /may not be labeled absent[\s\S]*matched chain/
   );
 
-  // THE FIVE FORGERIES, each refused by name:
-  // 1. missing case
-  const missing = worksheetFor(built);
-  missing.worksheet.cases = missing.worksheet.cases.slice(0, 2);
-  assert.throws(
-    () =>
-      buildV4ReviewerBatchFromWorksheet({
-        worksheetBytes: canonicalPrettyJson(missing.worksheet),
-        frameTasks: built.frameTasks,
-        taskBytesByCaseId: built.taskBytesByCaseId,
-        role: "labeler",
-        reviewerLogin: "alice"
-      }),
-    /missing frame case/
-  );
-  // 2. duplicate case
-  const duplicated = worksheetFor(built);
-  duplicated.worksheet.cases.push(duplicated.worksheet.cases[0]);
-  assert.throws(
-    () =>
-      buildV4ReviewerBatchFromWorksheet({
-        worksheetBytes: canonicalPrettyJson(duplicated.worksheet),
-        frameTasks: built.frameTasks,
-        taskBytesByCaseId: built.taskBytesByCaseId,
-        role: "labeler",
-        reviewerLogin: "alice"
-      }),
-    /duplicates case/
-  );
-  // 2b. extra case outside the frame
-  const extra = worksheetFor(built);
-  extra.worksheet.cases.push({
-    caseId: "pilot-extra.example",
-    hostsExamined: [],
-    resolutions: [],
-    determined: true,
-    proposedLabel: "absent",
-    captureSha256: sha("capture:pilot-extra.example")
+  // Malformed worksheet fields refuse before they are read as meaning: a
+  // truthy "false" and a capitalized label would otherwise manufacture the
+  // protocol's most consequential value out of a hand-edited file.
+  const capitalized = await realWorksheet(built, {
+    overrides: { "pilot-alpha.example": { proposedLabel: "Present" } }
   });
+  assert.throws(() => produce(capitalized.bytes), /proposedLabel must be present or absent/);
+  const stringDetermined = await realWorksheet(built, {
+    overrides: { "pilot-gamma.example": { determined: "false" } }
+  });
+  assert.throws(() => produce(stringDetermined.bytes), /determined must be a boolean/);
+
+  // Wrong subject: the reviewer's own candidate file named a different page
+  // than the frame assigned for this case.
+  const wrongSubject = await realWorksheet(built, {
+    overrides: { "pilot-beta.example": { subjectUrl: "https://pilot-beta.example/other" } }
+  });
+  assert.throws(() => produce(wrongSubject.bytes), /worksheet subject .* is not the task's/);
+
+  // Frame coverage: missing, duplicated, and extra cases each refuse.
+  const missing = await realWorksheet(built);
+  missing.worksheet.cases = missing.worksheet.cases.slice(0, 2);
+  assert.throws(() => produce(canonicalPrettyJson(missing.worksheet)), /missing frame case/);
+  const duplicated = await realWorksheet(built);
+  duplicated.worksheet.cases.push(duplicated.worksheet.cases[0]);
+  assert.throws(() => produce(canonicalPrettyJson(duplicated.worksheet)), /duplicates case/);
+  const extra = await realWorksheet(built);
+  extra.worksheet.cases.push({ ...extra.worksheet.cases[0], caseId: "pilot-extra.example" });
+  assert.throws(() => produce(canonicalPrettyJson(extra.worksheet)), /cases outside the frame/);
+
+  // A worksheet from another study, a divergent classification definition on
+  // either side, non-canonical bytes, and a worksheet that is not this
+  // instrument's artifact at all.
+  const wrongStudy = await realWorksheet(built, { studyId: "another-study-prevalence-pilot" });
+  assert.throws(() => produce(wrongStudy.bytes), /does not match the frame's/);
+  const alteredTracker = await realWorksheet(built, { tracker: sha("7") });
+  assert.throws(() => produce(alteredTracker.bytes), /tracker definition does not equal the frame's/);
+  const alteredSuffix = await realWorksheet(built, { suffix: sha("8") });
+  assert.throws(
+    () => produce(alteredSuffix.bytes),
+    /public-suffix definition does not equal the frame's/
+  );
+  assert.throws(() => produce(`${bytes}\n`), /canonical serialized JSON/);
+  const foreign = await realWorksheet(built);
+  foreign.worksheet.artifactKind = "site-behavior-some-other-worksheet";
+  assert.throws(() => produce(canonicalPrettyJson(foreign.worksheet)), /worksheets, saw/);
+  const oldTool = await realWorksheet(built);
+  oldTool.worksheet.toolVersion = "cname-reference@0";
+  assert.throws(() => produce(canonicalPrettyJson(oldTool.worksheet)), /toolVersion/);
+
+  // The reviewer's decisions file is itself a closed input.
+  assert.throws(
+    () => produce(bytes, { decisions: [{ caseId: "not-in-frame.example", value: "uncertain" }] }),
+    /names unknown case/
+  );
+  assert.throws(
+    () => produce(bytes, { decisions: [{ caseId: "pilot-beta.example", value: "PRESENT" }] }),
+    /must be present, absent, or uncertain/
+  );
   assert.throws(
     () =>
-      buildV4ReviewerBatchFromWorksheet({
-        worksheetBytes: canonicalPrettyJson(extra.worksheet),
-        frameTasks: built.frameTasks,
-        taskBytesByCaseId: built.taskBytesByCaseId,
-        role: "labeler",
-        reviewerLogin: "alice"
+      produce(bytes, {
+        decisions: [
+          { caseId: "pilot-beta.example", value: "uncertain" },
+          { caseId: "pilot-beta.example", value: "present" }
+        ]
       }),
-    /cases outside the frame/
+    /duplicate reviewer decision/
   );
-  // 2c. non-canonical worksheet bytes (a hand-edited or re-serialized file)
-  assert.throws(
-    () =>
-      buildV4ReviewerBatchFromWorksheet({
-        worksheetBytes: `${worksheetFor(built).bytes}\n`,
-        frameTasks: built.frameTasks,
-        taskBytesByCaseId: built.taskBytesByCaseId,
-        role: "labeler",
-        reviewerLogin: "alice"
-      }),
-    /canonical serialized JSON/
-  );
-  // The producer and sealer accept the same GitHub-login grammar. A batch
-  // that cannot later be sealed must be refused before a reviewer starts.
-  for (const reviewerLogin of ["-alice", "alice-", "alice--reviewer"]) {
-    assert.throws(
-      () =>
-        buildV4ReviewerBatchFromWorksheet({
-          worksheetBytes: bytes,
-          frameTasks: built.frameTasks,
-          taskBytesByCaseId: built.taskBytesByCaseId,
-          role: "labeler",
-          reviewerLogin
-        }),
-      /reviewer's GitHub login/
-    );
-  }
-  // 3. wrong frame (a worksheet from another study)
-  const wrongStudy = worksheetFor(built);
-  wrongStudy.worksheet.studyId = "another-study-prevalence-pilot";
-  assert.throws(
-    () =>
-      buildV4ReviewerBatchFromWorksheet({
-        worksheetBytes: canonicalPrettyJson(wrongStudy.worksheet),
-        frameTasks: built.frameTasks,
-        taskBytesByCaseId: built.taskBytesByCaseId,
-        role: "labeler",
-        reviewerLogin: "alice"
-      }),
-    /does not match the frame's/
-  );
-  // 4. altered definition (a divergent tracker snapshot)
-  assert.throws(
-    () =>
-      buildV4ReviewerBatchFromWorksheet({
-        worksheetBytes: worksheetFor(built, { tracker: sha("7") }).bytes,
-        frameTasks: built.frameTasks,
-        taskBytesByCaseId: built.taskBytesByCaseId,
-        role: "labeler",
-        reviewerLogin: "alice"
-      }),
-    /does not equal the frame's pinned snapshot/
-  );
-  // 5. wrong reviewer: sealing alice's produced batch under bob refuses at
-  // the seal CLI (spawned below in the pipeline test).
+  assert.throws(() => produce(bytes, { decisions: ["pilot-beta.example"] }), /must be a record/);
 });
 
-test("the worksheet-to-batch-to-seal pipeline runs by EXECUTION and refuses a wrong-reviewer seal", async () => {
+test("the reviewer pipeline runs by EXECUTION from the real instrument's own worksheet", async () => {
   const world = await governedWorld("approved");
   const spawnIn = (args) =>
     spawnSync(process.execPath, [path.join(world.scriptsDir, args[0]), ...args.slice(1)], {
       cwd: world.root,
       encoding: "utf8"
     });
+  const studyId = `${STUDY}-prevalence-pilot`;
+  const caseIds = ["pilot-alpha.example", "pilot-beta.example", "pilot-gamma.example"];
+  // The SAME candidate-set file the frame producer consumes; the runbook
+  // hands reviewers exactly this file, and both CLIs must read it.
+  const casesPath = path.join(world.root, "pilot-set.json");
   writeFileSync(
-    path.join(world.root, "cases.json"),
-    `${JSON.stringify(
-      {
-        studyId: `${STUDY}-prevalence-pilot`,
-        candidates: [
-          { caseId: "pilot-alpha.example", url: "https://pilot-alpha.example/" },
-          { caseId: "pilot-beta.example", url: "https://pilot-beta.example/" },
-          { caseId: "pilot-gamma.example", url: "https://pilot-gamma.example/" }
-        ]
-      },
-      null,
-      2
-    )}\n`
+    casesPath,
+    canonicalPrettyJson({
+      studyId,
+      candidates: caseIds.map((caseId) => ({ caseId, url: `https://${caseId}/` }))
+    })
   );
   const frameRoot = path.join(world.root, "frame");
   const build = spawnIn([
     "calibration-v4-frame-tasks.mjs", "build",
-    "--study-id", `${STUDY}-prevalence-pilot`,
+    "--study-id", studyId,
     "--detector", DETECTOR,
     "--candidate-commit", CANDIDATE,
     "--protocol-id", "independent-labeling-protocol@1",
     "--protocol-file", world.protocolPath,
-    "--cases", path.join(world.root, "cases.json"),
+    "--cases", casesPath,
     "--output-root", frameRoot
   ]);
   assert.equal(build.status, 0, build.stderr);
-  const frameBytes = readFileSync(path.join(frameRoot, "frame-tasks.json"), "utf8");
-  const frame = JSON.parse(frameBytes);
-  // A worksheet consistent with the CLI-built frame and the world's pins.
-  const worksheet = {
-    schemaVersion: 1,
-    artifactKind: "site-behavior-cname-reference-worksheet",
-    toolVersion: "cname-reference-1",
-    studyId: frame.studyId,
-    resolver: "9.9.9.9",
-    trackerSource: {
-      path: "trackers.txt",
-      sha256: frame.externalDefinitions.trackerDefinition.sha256,
-      rejectedRows: []
-    },
-    publicSuffixSource: {
-      path: "psl.dat",
-      sha256: frame.externalDefinitions.publicSuffixDefinition.sha256
-    },
-    capturedAt: "2026-08-25T00:00:00.000Z",
-    independence: ["fixture"],
-    cases: frame.cases.map((entry, index) => ({
-      caseId: entry.caseId,
-      hostsExamined: [],
-      resolutions: [],
-      determined: true,
-      proposedLabel: index === 0 ? "present" : "absent",
-      captureSha256: sha(`cli-capture:${entry.caseId}`)
-    }))
-  };
+
+  // Run the REAL reviewer instrument. Captures with no first-party subdomain
+  // need no DNS at all: every candidate is resolved (there are none), nothing
+  // matched, so the instrument proposes ABSENT and marks the case determined.
+  const harDir = path.join(world.root, "har");
+  mkdirSync(harDir, { recursive: true });
+  for (const caseId of caseIds) {
+    writeFileSync(
+      path.join(harDir, `${caseId}.har`),
+      `${JSON.stringify({
+        log: {
+          entries: [
+            { request: { url: `https://${caseId}/` } },
+            { request: { url: "https://cdn-other.example/asset.js" } }
+          ]
+        }
+      })}\n`
+    );
+  }
+  const trackerPath = path.join(world.root, "trackers.txt");
+  const pslPath = path.join(world.root, "psl.dat");
+  writeFileSync(trackerPath, FIXTURE_TRACKER_BYTES);
+  writeFileSync(pslPath, FIXTURE_PSL_BYTES);
   const worksheetPath = path.join(world.root, "worksheet.json");
-  writeFileSync(worksheetPath, canonicalPrettyJson(worksheet));
+  const reference = spawnIn([
+    "calibration-cname-reference.mjs",
+    "--study-id", studyId,
+    "--cases", casesPath,
+    "--har-dir", harDir,
+    "--frame-tasks", path.join(frameRoot, "frame-tasks.json"),
+    "--tracker-source", trackerPath,
+    "--tracker-source-sha256", FIXTURE_PINS.trackerDefinition.sha256,
+    "--public-suffix-source", pslPath,
+    "--public-suffix-sha256", FIXTURE_PINS.publicSuffixDefinition.sha256,
+    "--resolver", "9.9.9.9",
+    "--out", worksheetPath
+  ]);
+  assert.equal(reference.status, 0, reference.stderr);
+  // The instrument's own file, unedited, is what the producer consumes.
+  const worksheet = JSON.parse(readFileSync(worksheetPath, "utf8"));
+  assert.equal(worksheet.cases.length, 3);
+  assert.deepEqual(
+    worksheet.cases.map((entry) => entry.proposedLabel),
+    ["absent", "absent", "absent"]
+  );
+
+  writeFileSync(
+    path.join(world.root, "decisions.json"),
+    canonicalPrettyJson([{ caseId: "pilot-gamma.example", value: "uncertain" }])
+  );
   const batchPath = path.join(world.root, "batch.json");
   const producer = spawnIn([
     "calibration-v4-reviewer-batch.mjs",
@@ -1283,9 +1307,15 @@ test("the worksheet-to-batch-to-seal pipeline runs by EXECUTION and refuses a wr
     "--tasks-dir", path.join(frameRoot, "tasks"),
     "--role", "labeler",
     "--actor", "alice",
+    "--decisions", path.join(world.root, "decisions.json"),
     "--out", batchPath
   ]);
   assert.equal(producer.status, 0, producer.stderr);
+  assert.deepEqual(
+    JSON.parse(readFileSync(batchPath, "utf8")).cases.map((entry) => entry.value),
+    ["absent", "absent", "uncertain"]
+  );
+
   const keyPath = path.join(world.root, "public.pem");
   writeFileSync(keyPath, publicKeyPem);
   const sealArgs = (actor, out) => [
@@ -1302,10 +1332,34 @@ test("the worksheet-to-batch-to-seal pipeline runs by EXECUTION and refuses a wr
   const wrongReviewer = spawnIn(sealArgs("bob", "sealed-bob.json"));
   assert.notEqual(wrongReviewer.status, 0);
   assert.match(wrongReviewer.stderr, /was produced for reviewer alice, not --actor bob/);
-  // The rightful reviewer seals cleanly.
   const seal = spawnIn(sealArgs("alice", "sealed-alice.json"));
   assert.equal(seal.status, 0, seal.stderr);
   assert.match(seal.stdout, /plaintext was not copied/);
+
+  // The instrument refuses a candidate set from another study, and the
+  // producer refuses a worksheet built against a different frame.
+  writeFileSync(
+    path.join(world.root, "other-set.json"),
+    canonicalPrettyJson({
+      studyId: "other-study-prevalence-pilot",
+      candidates: caseIds.map((caseId) => ({ caseId, url: `https://${caseId}/` }))
+    })
+  );
+  const wrongSet = spawnIn([
+    "calibration-cname-reference.mjs",
+    "--study-id", studyId,
+    "--cases", path.join(world.root, "other-set.json"),
+    "--har-dir", harDir,
+    "--frame-tasks", path.join(frameRoot, "frame-tasks.json"),
+    "--tracker-source", trackerPath,
+    "--tracker-source-sha256", FIXTURE_PINS.trackerDefinition.sha256,
+    "--public-suffix-source", pslPath,
+    "--public-suffix-sha256", FIXTURE_PINS.publicSuffixDefinition.sha256,
+    "--resolver", "9.9.9.9",
+    "--out", path.join(world.root, "never.json")
+  ]);
+  assert.notEqual(wrongSet.status, 0);
+  assert.match(wrongSet.stderr, /candidate set studyId other-study-prevalence-pilot does not match/);
 });
 
 test("the gate refuses artifact-vs-approval divergence and stale frames, at the lib level", async () => {

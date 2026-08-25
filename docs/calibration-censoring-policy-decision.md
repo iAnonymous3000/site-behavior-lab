@@ -176,9 +176,9 @@ pilot entrypoint requires the approved digests. The shared reference
 protocol (docs/calibration-prereg-drafts/labeling-protocol.md) and the
 cname external definitions (AdGuard cname-trackers justdomains at
 `d2ef7cb2`, publicsuffix list at `e8c9a2b2`) are pinned inside the
-artifact. `RELEASE_READINESS.json` carries the exact digests with status
-pending-named-human-approval; per the authority section above, only a named
-human's approval commit permits labeling. That commit is exactly: the
+artifact. `RELEASE_READINESS.json` carries the exact digests, APPROVED on
+2026-08-25 by `iAnonymous3000` per the authority section above, which
+is what permits labeling. That approval commit was exactly: the
 status flip, decidedBy/decidedAt, and the release-readiness test's
 documented AS_OF bump (its ritual for any newly landed evidence), changing
 nothing else, and the superseded zero-censoring approval

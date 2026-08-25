@@ -22,6 +22,7 @@ import {
   requireApprovedCensoringPolicyAssignments,
   verifyV4TaskBytes
 } from "./calibration-v4-ceremony-lib.mjs";
+import { parseCandidateSet } from "./calibration-candidate-set-lib.mjs";
 import { sha256Hex } from "./calibration-study-lib.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -100,10 +101,18 @@ if (mode === "build") {
       `--protocol-id must equal the approved artifact's referenceProtocol.id ${artifact.referenceProtocol.id}`
     );
   }
-  const casesFile = JSON.parse(readFileSync(values.get("--cases"), "utf8"));
-  if (casesFile.studyId !== values.get("--study-id")) {
+  // ONE candidate-set reader, shared with the reliability sweep and the
+  // reviewer's reference instrument; the study it must belong to is checked
+  // here, by the caller that knows which study it is building.
+  let candidateSet;
+  try {
+    candidateSet = parseCandidateSet(readFileSync(values.get("--cases"), "utf8"));
+  } catch (error) {
+    fail(error.message);
+  }
+  if (candidateSet.studyId !== values.get("--study-id")) {
     fail(
-      `candidate set studyId ${casesFile.studyId} does not match --study-id ${values.get("--study-id")}`
+      `candidate set studyId ${candidateSet.studyId} does not match --study-id ${values.get("--study-id")}`
     );
   }
   const { frameTasks, frameTasksBytes, frameTasksSha256, taskBytesByCaseId } =
@@ -118,7 +127,7 @@ if (mode === "build") {
       // authorization, and worksheet refusal downstream.
       externalDefinitions:
         artifact.detectors[values.get("--detector")].externalDefinitions,
-      cases: casesFile.candidates.map((entry) => ({ caseId: entry.caseId, url: entry.url }))
+      cases: candidateSet.candidates
     });
   const root = values.get("--output-root");
   const tasksDir = path.join(root, "tasks");

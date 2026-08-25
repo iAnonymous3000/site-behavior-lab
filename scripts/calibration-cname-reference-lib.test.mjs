@@ -88,7 +88,7 @@ test("registrable comparison uses the reviewer's suffix list, including multi-la
 
 test("a case whose candidate could not be resolved is undetermined, never absent", async () => {
   const worksheet = await buildCaseWorksheet(
-    { caseId: "c1", url: "https://example.com/", hosts: ["metrics.example.com"] },
+    { caseId: "c1", url: "https://example.com/", hosts: ["metrics.example.com"], captureSha256: "a".repeat(64) },
     {
       resolverAddress: "9.9.9.9",
       trackerSuffixes: new Set(["omtrdc.net"]),
@@ -105,7 +105,7 @@ test("a case whose candidate could not be resolved is undetermined, never absent
 
 test("a cloaked subdomain is proposed present, with the chain and a command to re-check it", async () => {
   const worksheet = await buildCaseWorksheet(
-    { caseId: "c2", url: "https://example.com/", hosts: ["metrics.example.com"] },
+    { caseId: "c2", url: "https://example.com/", hosts: ["metrics.example.com"], captureSha256: "a".repeat(64) },
     {
       resolverAddress: "9.9.9.9",
       trackerSuffixes: new Set(["omtrdc.net"]),
@@ -128,7 +128,7 @@ test("a cloaked subdomain is proposed present, with the chain and a command to r
 
 test("a CNAME that stays inside the site's own domain is not a cloak", async () => {
   const worksheet = await buildCaseWorksheet(
-    { caseId: "c3", url: "https://example.com/", hosts: ["www.example.com"] },
+    { caseId: "c3", url: "https://example.com/", hosts: ["www.example.com"], captureSha256: "a".repeat(64) },
     {
       resolverAddress: "9.9.9.9",
       trackerSuffixes: new Set(["omtrdc.net"]),
@@ -240,4 +240,108 @@ test("parseTrackerSource records domain-shaped artifacts, refuses filter syntax,
     Array.from({ length: 101 }, (_, index) => `-bad-${index}.example`).join("\n") +
     "\nreal.example\n";
   assert.throws(() => parseTrackerSource(noisy), /rejected 101 domain-shaped rows/);
+});
+
+test("a worksheet case carries the subject it examined and the reviewer's capture digest", async () => {
+  const { buildCaseWorksheet } = await import("./calibration-cname-reference-lib.mjs");
+  // The subject is recorded so a downstream producer can refuse a worksheet
+  // built against a different page than the frame assigned; the capture digest
+  // is part of the case, not something a caller staples on afterwards.
+  const worksheet = await buildCaseWorksheet(
+    {
+      caseId: "case-1",
+      url: "https://news.example/article",
+      hosts: [],
+      captureSha256: "b".repeat(64)
+    },
+    {
+      resolverAddress: "9.9.9.9",
+      trackerSuffixes: new Set(["tracker.example"]),
+      publicSuffixes: new Set(["example"]),
+      maxHops: 10,
+      timeoutMs: 100
+    }
+  );
+  assert.equal(worksheet.subjectUrl, "https://news.example/article");
+  assert.equal(worksheet.captureSha256, "b".repeat(64));
+  assert.equal(worksheet.determined, true);
+  assert.equal(worksheet.proposedLabel, "absent");
+  await assert.rejects(
+    () =>
+      buildCaseWorksheet(
+        { caseId: "case-2", url: "https://news.example/", hosts: [] },
+        {
+          resolverAddress: "9.9.9.9",
+          trackerSuffixes: new Set(),
+          publicSuffixes: new Set(["example"]),
+          maxHops: 10,
+          timeoutMs: 100
+        }
+      ),
+    /needs the reviewer capture sha256/
+  );
+});
+
+test("the candidate set has ONE reader, shared with the sweep, and it refuses the shapes that used to diverge", async () => {
+  const { parseCandidateSet } = await import("./calibration-candidate-set-lib.mjs");
+  const { parseCandidateSet: viaSweep } = await import("./calibration-reliability-sweep-run-lib.mjs");
+  const good = `${JSON.stringify(
+    { studyId: "s-prevalence-pilot", candidates: [{ caseId: "a.example", url: "https://a.example/" }] },
+    null,
+    2
+  )}\n`;
+  assert.deepEqual(parseCandidateSet(good).candidates, [{ caseId: "a.example", url: "https://a.example/" }]);
+  // The sweep's reader and the frame/reference reader are the same function,
+  // not two graders of one file.
+  assert.equal(viaSweep, parseCandidateSet);
+  // The bare array the reference instrument used to require is refused.
+  assert.throws(
+    () => parseCandidateSet('[{"caseId":"a.example","url":"https://a.example/"}]'),
+    /candidate set must be an object/
+  );
+  const dup = `${JSON.stringify(
+    {
+      studyId: "s-prevalence-pilot",
+      candidates: [
+        { caseId: "a.example", url: "https://a.example/" },
+        { caseId: "a.example", url: "https://a.example/2" }
+      ]
+    },
+    null,
+    2
+  )}\n`;
+  assert.throws(() => parseCandidateSet(dup), /duplicate caseId/);
+  assert.throws(() => parseCandidateSet(good.replace("https://", "http://")), /must be https/);
+  // The COMMITTED pilot set parses under that one reader, and its digest is
+  // the digest the runbook and the universe provenance both name.
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const committed = readFileSync(
+    path.join(repoRoot, "calibration", "cname-uncloaking-2026-08-prevalence-pilot", "pilot-set.json"),
+    "utf8"
+  );
+  const parsed = parseCandidateSet(committed);
+  assert.equal(parsed.candidates.length, 100);
+  assert.equal(parsed.studyId, "cname-uncloaking-2026-08-prevalence-pilot");
+  assert.equal(
+    parsed.candidateSetDigest,
+    JSON.parse(
+      readFileSync(
+        path.join(repoRoot, "calibration", "cname-uncloaking-2026-08-prevalence-pilot", "universe-provenance.json"),
+        "utf8"
+      )
+    ).pilotSetSha256
+  );
+});
+
+test("a capture that never reached the subject is refused, not read as a confident absent", async () => {
+  const { harCoversSubject } = await import("./calibration-cname-reference-lib.mjs");
+  const suffixes = new Set(["example"]);
+  const onSubject = { log: { entries: [{ request: { url: "https://news.example/" } }] } };
+  assert.equal(harCoversSubject(onSubject, "https://news.example/", suffixes), true);
+  // A capture that redirected off the registrable domain yields the same
+  // EMPTY candidate list as a clean site, so without this the case would be
+  // recorded as determined absent from evidence of nothing.
+  const offSubject = { log: { entries: [{ request: { url: "https://elsewhere.example/" } }] } };
+  assert.equal(harCoversSubject(offSubject, "https://news.example/", suffixes), false);
+  assert.equal(harCoversSubject({ log: { entries: [] } }, "https://news.example/", suffixes), false);
 });

@@ -309,6 +309,13 @@ jobs:
           echo "Verifying $newest"
           npm run verify:report -- "$newest" --from public/reports
 
+      # Keyed on the committed FRAME, not on the carrier file: a pilot frame
+      # that names no carrier, or that does not re-derive byte-for-byte from
+      # the carrier it names, fails here. Needs the full history checked out
+      # above, because it reads the carrier commit's own tree.
+      - name: Verify every committed pilot frame derives from its carrier
+        run: npm run calibration:pilot-carrier-gate
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
