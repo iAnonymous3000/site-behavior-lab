@@ -178,7 +178,9 @@ cname external definitions (AdGuard cname-trackers justdomains at
 `d2ef7cb2`, publicsuffix list at `e8c9a2b2`) are pinned inside the
 artifact. `RELEASE_READINESS.json` carries the exact digests with status
 pending-named-human-approval; per the authority section above, only a named
-human's approval commit (status flip plus decidedBy/decidedAt, changing
-nothing else) permits labeling, and the superseded zero-censoring approval
+human's approval commit permits labeling. That commit is exactly: the
+status flip, decidedBy/decidedAt, and the release-readiness test's
+documented AS_OF bump (its ritual for any newly landed evidence), changing
+nothing else, and the superseded zero-censoring approval
 is preserved verbatim in the decision's `superseded` block with its
 artifact readable at its historical path.

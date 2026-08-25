@@ -257,9 +257,22 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   // moves this pin.
   const automationLanded = new Set(["release-receipt-archive", "current-method-corpus"]);
   // Hand-committed evidence that has actually landed. Every flip moves here.
+  // decisions-approved tracks the calibration decision's committed state:
+  // pending reads RED with exactly the awaiting-approval reason, and the
+  // named human's approval commit (status flip plus decidedBy/decidedAt,
+  // nothing else) turns it green WITHOUT touching this test. Both arms stay
+  // pinned; only the committed status selects between them.
+  const { readFileSync: readManifestFile } = await import("node:fs");
+  const manifest = JSON.parse(
+    readManifestFile(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
+  );
+  const calibrationDecisionApproved =
+    (manifest.decisions.calibrationCensoringPolicy as { status?: string }).status ===
+    "approved";
   const evidenced = new Set([
     "compatibility-surface-pinned",
-    "errata-resolution"
+    "errata-resolution",
+    ...(calibrationDecisionApproved ? ["decisions-approved"] : [])
   ]);
   for (const [id, kind] of Object.entries(EXPECTED_GATES)) {
     const gate = gates.get(id) as { kind: string; status: string };
@@ -270,10 +283,14 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   // decisions-approved is deliberately RED while the per-detector censoring
   // policy awaits its named-human approval; the reason must say exactly that.
   const decisionsGate = gates.get("decisions-approved") as { reasons: string[] };
-  assert.match(
-    decisionsGate.reasons.join(" "),
-    /calibrationCensoringPolicy is pending-named-human-approval/
-  );
+  if (!calibrationDecisionApproved) {
+    assert.match(
+      decisionsGate.reasons.join(" "),
+      /calibrationCensoringPolicy is pending-named-human-approval/
+    );
+  } else {
+    assert.equal(decisionsGate.reasons.length, 0, "an approved decision leaves no reasons");
+  }
   const releaseGovernance = gates.get("release-tag-governance") as {
     reasons: string[];
   };
@@ -291,10 +308,6 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   );
 
   // Pin the governed decision set: deleting a decision must stay visible.
-  const { readFileSync } = await import("node:fs");
-  const manifest = JSON.parse(
-    readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
-  );
   assert.equal(
     manifest.gates["release-tag-governance"].maxAgeDays,
     1,
