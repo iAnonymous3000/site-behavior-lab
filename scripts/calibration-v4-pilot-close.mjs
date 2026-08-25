@@ -3,8 +3,10 @@
  * Close pilot labeling: freeze the authorized commitment set and the close
  * instant into ONE repo-committable artifact, the pilot labeling
  * authorization. The reveal takes no free boundary and no free roster;
- * both come from this artifact, whose repository commit (via PR and CI) is
- * the anchor, exactly as the v3 custody trio is anchored.
+ * both come from this artifact, whose repository commit is the anchor,
+ * exactly as the v3 custody trio is anchored. CI reads it: the pilot carrier
+ * gate validates every committed authorization against the frame it names and
+ * refuses one that binds a different frame, identity, or carrier.
  *
  * WHAT THIS STEP DOES AND DOES NOT ESTABLISH. It reads record files from a
  * directory the operator supplies, so it cannot know that GitHub really ran
