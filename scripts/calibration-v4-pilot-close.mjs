@@ -27,10 +27,11 @@
  *
  *   node scripts/calibration-v4-pilot-close.mjs \
  *     --frame-tasks <frame-tasks.json> --commitments-dir <dir> \
- *     --key-id <64-hex sealing keyId> --out <authorization.json>
+ *     --public-key <label-sealing-public-key.pem> --out <authorization.json>
  */
 
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { calibrationLabelPublicKeyIdentity } from "./calibration-label-source-envelope-lib.mjs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -44,14 +45,14 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 import { sha256Hex } from "./calibration-study-lib.mjs";
 
 const USAGE =
-  "usage: calibration-v4-pilot-close.mjs --frame-tasks <frame-tasks.json> --commitments-dir <dir> --key-id <64-hex> --out <authorization.json>";
+  "usage: calibration-v4-pilot-close.mjs --frame-tasks <frame-tasks.json> --commitments-dir <dir> --public-key <pem> [--key-id <64-hex>] --out <authorization.json>";
 
 function fail(message) {
   console.error(message);
   process.exit(1);
 }
 
-const allowed = new Set(["--frame-tasks", "--commitments-dir", "--key-id", "--out"]);
+const allowed = new Set(["--frame-tasks", "--commitments-dir", "--public-key", "--key-id", "--out"]);
 const values = new Map();
 const args = process.argv.slice(2);
 for (let index = 0; index < args.length; index += 2) {
@@ -60,12 +61,30 @@ for (let index = 0; index < args.length; index += 2) {
   if (!allowed.has(name) || !value || value.startsWith("--") || values.has(name)) fail(USAGE);
   values.set(name, value);
 }
-for (const name of allowed) {
+const required = new Set(["--frame-tasks", "--commitments-dir", "--public-key", "--out"]);
+for (const name of required) {
   if (!values.has(name)) fail(`Missing required argument ${name}\n${USAGE}`);
 }
 
 const frameTasksBytes = readFileSync(values.get("--frame-tasks"), "utf8");
 const frameTasks = parseV4FrameTasksBytes(frameTasksBytes);
+// The sealing keyId is DERIVED from the ceremony's own committed public key,
+// not typed from memory. It is the sha256 of that key's SPKI DER, no command
+// printed it, and a typo produced a refusal that blamed the reviewers'
+// commitments for disagreeing with a number the operator had mistyped.
+let derivedKeyId;
+try {
+  derivedKeyId = calibrationLabelPublicKeyIdentity(
+    readFileSync(values.get("--public-key"), "utf8")
+  ).keyId;
+} catch (error) {
+  fail(`--public-key is not a usable sealing public key: ${error.message}`);
+}
+if (values.has("--key-id") && values.get("--key-id") !== derivedKeyId) {
+  fail(
+    `--key-id ${values.get("--key-id")} is not the keyId of --public-key (${derivedKeyId}); the committed public key is the ceremony's authority`
+  );
+}
 const { artifact: approvedArtifact } = requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
 requireFrameMatchesApprovedArtifact(frameTasks, approvedArtifact);
 const commitments = [];
@@ -80,7 +99,7 @@ try {
     detector: frameTasks.detector,
     candidateCommit: frameTasks.candidateCommit,
     referenceProtocolId: frameTasks.referenceProtocolId,
-    keyId: values.get("--key-id"),
+    keyId: derivedKeyId,
     frameTasksSha256: sha256Hex(frameTasksBytes),
     labelingClosedAt: new Date().toISOString(),
     commitments

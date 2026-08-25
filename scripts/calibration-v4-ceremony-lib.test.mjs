@@ -1710,7 +1710,7 @@ test("every pilot CLI refuses under a pending decision, by EXECUTION", async () 
   writeFileSync(keyPath, publicKeyPem);
   const refusals = [
     ["calibration-v4-seal-label-batch.mjs", "--role", "labeler", "--actor", "alice", "--public-key", keyPath, "--frame-tasks", framePath, "--tasks-dir", tasksDir, "--input", dummy, "--output", path.join(pendingWorld.root, "sealed.json")],
-    ["calibration-v4-pilot-close.mjs", "--frame-tasks", framePath, "--commitments-dir", tasksDir, "--key-id", "0".repeat(64), "--out", path.join(pendingWorld.root, "auth.json")],
+    ["calibration-v4-pilot-close.mjs", "--frame-tasks", framePath, "--commitments-dir", tasksDir, "--public-key", keyPath, "--out", path.join(pendingWorld.root, "auth.json")],
     ["calibration-v4-reveal.mjs", "--frame-tasks", framePath, "--tasks-dir", tasksDir, "--authorization", path.join(pendingWorld.root, "calibration", `${STUDY}-prevalence-pilot`, "pilot-labeling-authorization.json"), "--commitments-dir", tasksDir, "--out-dir", path.join(pendingWorld.root, "out")],
     ["calibration-v4-pilot-sizing.mjs", "--resolved-labels", dummy, "--frame-tasks", framePath, "--swept-eligible-pool", "1126", "--out", path.join(pendingWorld.root, "sizing.json")]
   ];
@@ -2103,11 +2103,27 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
     "scripts/calibration-v4-pilot-close.mjs",
     "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
     "--commitments-dir", commitDir,
-    "--key-id", keyId,
+    // The keyId is DERIVED from the ceremony's own committed public key.
+    "--public-key", pilotKeyPath,
     "--out", authPath
   ]);
   assert.equal(close.status, 0, close.stderr);
   assert.match(close.stdout, /3 authorized commitments/);
+  // A mistyped --key-id used to make the reviewers' commitments look wrong.
+  // The committed public key is the authority; a disagreeing flag refuses by
+  // name, and an agreeing one is accepted.
+  const mistyped = run([
+    "scripts/calibration-v4-pilot-close.mjs",
+    "--frame-tasks", path.join(pilotFrameRoot, "frame-tasks.json"),
+    "--commitments-dir", commitDir,
+    "--public-key", pilotKeyPath,
+    "--key-id", "0".repeat(64),
+    "--out", path.join(pilotRoot, "never-auth.json")
+  ]);
+  assert.notEqual(mistyped.status, 0);
+  assert.match(mistyped.stderr, /is not the keyId of --public-key/);
+  assert.equal(JSON.parse(readFileSync(authPath, "utf8")).labelSealingKey.keyId, keyId);
+
   const outDir = path.join(pilotRoot, "revealed");
   const reveal = run(
     [
