@@ -6,11 +6,24 @@
  * both come from this artifact, whose repository commit (via PR and CI) is
  * the anchor, exactly as the v3 custody trio is anchored.
  *
- * The commitment record files MUST come from the authenticated fetcher
+ * WHAT THIS STEP DOES AND DOES NOT ESTABLISH. It reads record files from a
+ * directory the operator supplies, so it cannot know that GitHub really ran
+ * the workflow a record describes: that is the authenticated fetcher's job
  * (fetchAuthenticatedCalibrationLabelCommitments over the GitHub Actions
- * API) at close time; this CLI freezes what that step produced, and the
- * operator committing the artifact attests the set. Records are read in
- * lexicographic filename order, which becomes the authorized order.
+ * API), and the fields this artifact carries under "authenticated" are only
+ * as good as the step that produced those files.
+ *
+ * What it CAN check from the bytes, it now checks, because this is the
+ * irreversible step: the same set custody the reveal later runs (2..10
+ * distinct labelers, exactly one blind tiebreaker, distinct actors, unique
+ * source/envelope/ciphertext commitments, every commitment before the close),
+ * each record's envelope digest recomputed rather than believed, and each
+ * wrapper's keyId checked against the keyId inside its own sealed envelope.
+ * Freezing a set the reveal would refuse used to be possible, and the
+ * authorization naming it is committed to a protected branch.
+ *
+ * Records are read in lexicographic filename order, which becomes the
+ * authorized order, so a rename changes the frozen set.
  *
  *   node scripts/calibration-v4-pilot-close.mjs \
  *     --frame-tasks <frame-tasks.json> --commitments-dir <dir> \

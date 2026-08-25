@@ -847,7 +847,7 @@ test("pilot custody refusals: late commitments, substituted records, and free bo
         labelingClosedAt: CLOSE,
         commitments: [commitments[0], commitments[1], late]
       }),
-    /must predate the labeling close/
+    /must exist before the authorized labeling close/
   );
   const closed = buildV4PilotLabelingAuthorization({
     studyId: built.frameTasks.studyId,
@@ -924,6 +924,57 @@ test("pilot custody refusals: late commitments, substituted records, and free bo
       }),
     /must name a prevalence pilot/
   );
+  // THE CLOSE IS THE IRREVERSIBLE STEP, so it runs the set custody the reveal
+  // runs, and it checks the sealed bytes rather than the record's claims
+  // about them. Before this, each of these froze cleanly and only failed at
+  // reveal, with the authorization already committed.
+  const closeWith = (entries) =>
+    buildV4PilotLabelingAuthorization({
+      studyId: built.frameTasks.studyId,
+      detector: DETECTOR,
+      candidateCommit: CANDIDATE,
+      referenceProtocolId: PROTOCOL,
+      keyId,
+      frameTasksSha256: built.frameTasksSha256,
+      labelingClosedAt: CLOSE,
+      commitments: entries
+    });
+  // One labeler, or no tiebreaker, or two reviewers who are the same person.
+  assert.throws(() => closeWith([commitments[0], commitments[2]]), /2 through 10 distinct/);
+  assert.throws(() => closeWith([commitments[0], commitments[1]]), /exactly one distinct blind tiebreaker/);
+  assert.throws(
+    () =>
+      closeWith([
+        commitments[0],
+        pilotCommitmentFor(built, "labeler", ["present", "absent", "absent"], "alice", BEFORE),
+        commitments[2]
+      ]),
+    /2 through 10 distinct/
+  );
+  // A record whose self-reported envelope digest is not its envelope's.
+  const forgedDigest = JSON.parse(JSON.stringify(commitments[1]));
+  forgedDigest.commitment.envelopeSha256 = sha("some other envelope");
+  assert.throws(
+    () => closeWith([commitments[0], forgedDigest, commitments[2]]),
+    /is not its envelope's digest/
+  );
+  // A record that restates a keyId its sealed envelope does not carry.
+  const forgedKey = JSON.parse(JSON.stringify(commitments[1]));
+  forgedKey.commitment.envelope = { ...forgedKey.commitment.envelope, keyId: sha("other key") };
+  forgedKey.commitment.envelopeSha256 = sha256Hex(canonicalPrettyJson(forgedKey.commitment.envelope));
+  assert.throws(
+    () => closeWith([commitments[0], forgedKey, commitments[2]]),
+    /disagrees with the keyId inside its sealed envelope/
+  );
+  // Two records carrying the same sealed envelope (replay across actors).
+  const replayed = JSON.parse(JSON.stringify(commitments[1]));
+  replayed.commitment.envelope = commitments[0].commitment.envelope;
+  replayed.commitment.envelopeSha256 = commitments[0].commitment.envelopeSha256;
+  assert.throws(
+    () => closeWith([commitments[0], replayed, commitments[2]]),
+    /unique source, envelope, and ciphertext commitments/
+  );
+
   // A substituted entry inside the authorization itself fails the set's
   // own digest: the authorization cannot disagree with itself.
   const forged = {
