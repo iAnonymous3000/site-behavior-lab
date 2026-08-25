@@ -951,6 +951,17 @@ test("pilot custody refusals: late commitments, substituted records, and free bo
       ]),
     /2 through 10 distinct/
   );
+  // A malformed record names itself, rather than dying as a TypeError from
+  // inside a custody helper.
+  assert.throws(
+    () => closeWith([commitments[0], { metadata: {} }, commitments[2]]),
+    /commitment record 2 must carry a metadata record and a commitment record/
+  );
+  assert.throws(
+    () => closeWith([commitments[0], { metadata: {}, commitment: { role: "labeler" } }, commitments[2]]),
+    /commitment record 2 carries no sealed envelope/
+  );
+
   // A record whose self-reported envelope digest is not its envelope's.
   const forgedDigest = JSON.parse(JSON.stringify(commitments[1]));
   forgedDigest.commitment.envelopeSha256 = sha("some other envelope");

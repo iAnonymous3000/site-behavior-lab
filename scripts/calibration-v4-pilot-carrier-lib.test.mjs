@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash, generateKeyPairSync } from "node:crypto";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -9,6 +9,8 @@ import { fileURLToPath } from "node:url";
 import {
   buildV4FrameTasksArtifact,
   buildV4PilotLabelingAuthorization,
+  buildV4ResolvedLabelsArtifact,
+  computeV4PilotSizingArtifact,
   sealV4LabelBatch
 } from "./calibration-v4-ceremony-lib.mjs";
 import { verifyPilotCarrier } from "./calibration-v4-pilot-carrier-lib.mjs";
@@ -355,7 +357,9 @@ test("the committed evidence chain is verified, and each link must name the one 
   // their anchor. Until this, no CI step read any of them. Each binds the
   // bytes of the step before it, so the chain is decidable from the committed
   // tree: frame -> authorization -> resolved labels -> sizing.
-  const world = carrierWorld({ cases: 2 });
+  // 100 cases: the sizing producer enforces the preregistered pilot minimum,
+  // so a smaller fixture could never reach the chain's last link.
+  const world = carrierWorld({ cases: 100 });
   const frameBytes = readFileSync(path.join(world.root, STUDY_DIR, "frame-tasks.json"), "utf8");
   const frameDigest = sha(frameBytes);
   // The authorization is built by the REAL producer from REAL sealed
@@ -372,7 +376,7 @@ test("the committed evidence chain is verified, and each link must name the one 
       readFileSync(path.join(world.root, STUDY_DIR, "tasks", `${entry.caseId}.json`), "utf8")
     ])
   );
-  const commitmentFor = (role, actor) => {
+  const madeFor = (role, actor) => {
     const batch = padV4LabelBatch(
       {
         schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
@@ -383,9 +387,12 @@ test("the committed evidence chain is verified, and each link must name the one 
         candidateCommit: frameTasks.candidateCommit,
         referenceProtocolId: frameTasks.referenceProtocolId,
         frameTasksSha256: sha(frameBytes),
-        cases: world.candidates.map((entry) => ({
+        // A realistic mix rather than one value everywhere: 25 present, so
+        // the sizing link reaches a real derivation instead of the
+        // all-absent boundary.
+        cases: world.candidates.map((entry, index) => ({
           caseId: entry.caseId,
-          value: "absent",
+          value: index < 25 ? "present" : "absent",
           evidence: { sha256: sha(`capture:${actor}:${entry.caseId}`), provenance: `fixture@${actor}` }
         }))
       },
@@ -401,6 +408,8 @@ test("the committed evidence chain is verified, and each link must name the one 
       keyId: sealingKeyId
     });
     return {
+      batch,
+      record: {
       metadata: {
         actor,
         artifactCreatedAt: "2026-08-24T00:00:00.000Z",
@@ -418,8 +427,15 @@ test("the committed evidence chain is verified, and each link must name the one 
         envelopeSha256: calibrationLabelCommitmentEnvelopeDigest(sealed.envelope),
         envelope: sealed.envelope
       }
+      }
     };
   };
+  const made = {
+    alice: madeFor("labeler", "alice"),
+    bob: madeFor("labeler", "bob"),
+    carol: madeFor("tiebreaker", "carol")
+  };
+  const commitmentFor = (role, actor) => made[actor].record;
   const built = buildV4PilotLabelingAuthorization({
     studyId: frameTasks.studyId,
     detector: frameTasks.detector,
@@ -448,47 +464,129 @@ test("the committed evidence chain is verified, and each link must name the one 
   const withAuth = verify(world);
   assert.equal(withAuth.chain.authorization.commitmentSetSha256, commitmentSetSha256);
   assert.equal(withAuth.chain.resolvedLabels, null);
-  // Resolved labels revealed from a DIFFERENT commitment set than the
-  // authorization froze are refused, as are labels for another frame.
-  const resolved = {
-    schemaVersion: 1,
-    artifactKind: "site-behavior-detector-calibration-resolved-reference-labels",
-    studyId: STUDY_ID,
-    detector: DETECTOR,
-    candidateCommit: world.carrier,
-    referenceProtocolId: world.artifact.referenceProtocol.id,
-    frameTasksSha256: frameDigest,
-    commitmentSetSha256,
-    cases: world.candidates.map((entry) => ({
-      caseId: entry.caseId,
-      status: "known",
-      value: "absent",
-      resolvedBy: "unanimous",
-      tiebreakerId: null,
-      adjudicationSha256: null
-    }))
-  };
-  write(world.root, `${STUDY_DIR}/resolved-labels.json`, canonicalPrettyJson({ ...resolved, commitmentSetSha256: sha("other set") }));
-  assert.throws(() => verify(world), /revealed from a different commitment set/);
-  write(world.root, `${STUDY_DIR}/resolved-labels.json`, canonicalPrettyJson(resolved));
+  // Resolved labels and sizing are built by their REAL producers, from the
+  // real bridge and the real counting path. The first draft of this test
+  // hand-shaped both, and four of the chain's guards survived deletion
+  // because a hand-shaped fixture agrees with whatever the checker happens
+  // to require.
+  const labelerBatches = ["alice", "bob"].map((actor) => ({
+    labelerId: `github-${actor}`,
+    batch: made[actor].batch
+  }));
+  const tiebreakerBatch = { labelerId: "github-carol", batch: made.carol.batch };
+  const resolvedBuilt = buildV4ResolvedLabelsArtifact({
+    frameTasks,
+    labelerBatches,
+    tiebreakerBatch,
+    commitmentSetSha256
+  });
+  const resolved = resolvedBuilt.artifact;
+  write(world.root, `${STUDY_DIR}/resolved-labels.json`, resolvedBuilt.text);
   const withLabels = verify(world);
-  assert.equal(withLabels.chain.resolvedLabels.sha256, sha(canonicalPrettyJson(resolved)));
-  // Sizing must have counted the committed resolved labels, not another file.
-  const sizing = {
-    frameTasksSha256: frameDigest,
-    resolvedLabelsSha256: sha("some other labels"),
-    feasibility: { feasible: true }
+  assert.equal(withLabels.chain.resolvedLabels.sha256, sha(resolvedBuilt.text));
+
+  // Labels for cases the frame never named: the same COUNT, a different set.
+  const renamed = {
+    ...resolved,
+    cases: resolved.cases.map((entry, index) =>
+      index === 0 ? { ...entry, caseId: "not-in-frame.example" } : entry
+    )
   };
-  write(world.root, `${STUDY_DIR}/pilot-sizing.json`, canonicalPrettyJson(sizing));
+  write(world.root, `${STUDY_DIR}/resolved-labels.json`, canonicalPrettyJson(renamed));
+  assert.throws(() => verify(world), /does not resolve exactly the frame's cases/);
+  // Labels whose identity belongs to another study or carrier.
+  write(
+    world.root,
+    `${STUDY_DIR}/resolved-labels.json`,
+    canonicalPrettyJson({ ...resolved, candidateCommit: "c".repeat(40) })
+  );
+  assert.throws(() => verify(world), new RegExp("resolved-labels.json identity does not match"));
+  // ...and revealed from a commitment set the authorization never froze.
+  write(
+    world.root,
+    `${STUDY_DIR}/resolved-labels.json`,
+    canonicalPrettyJson({ ...resolved, commitmentSetSha256: sha("other set") })
+  );
+  assert.throws(() => verify(world), /revealed from a different commitment set/);
+  write(world.root, `${STUDY_DIR}/resolved-labels.json`, resolvedBuilt.text);
+
+  // Sizing comes from the REAL producer over those exact labels.
+  const sizingBuilt = computeV4PilotSizingArtifact({
+    resolvedLabelsBytes: resolvedBuilt.text,
+    frameTasksBytes: frameBytes,
+    minimumPerClass: 100,
+    sweptEligiblePool: 1126
+  });
+  write(world.root, `${STUDY_DIR}/pilot-sizing.json`, sizingBuilt.text);
+  const sized = verify(world);
+  assert.deepEqual(sized.chain.sizing.counts, sizingBuilt.artifact.counts);
+
+  // Counts that disagree with the labels beside them: the digest still binds
+  // the right file, so only re-derivation can catch this.
+  write(
+    world.root,
+    `${STUDY_DIR}/pilot-sizing.json`,
+    canonicalPrettyJson({
+      ...sizingBuilt.artifact,
+      counts: { present: 99, absent: 1, uncertain: 0, total: 100 }
+    })
+  );
+  assert.throws(() => verify(world), /are not what the committed resolved labels contain/);
+  // Sizing that counted some other file, and sizing of another study.
+  write(
+    world.root,
+    `${STUDY_DIR}/pilot-sizing.json`,
+    canonicalPrettyJson({ ...sizingBuilt.artifact, resolvedLabelsSha256: sha("some other labels") })
+  );
   assert.throws(() => verify(world), /counted resolved labels other than the committed ones/);
   write(
     world.root,
     `${STUDY_DIR}/pilot-sizing.json`,
-    canonicalPrettyJson({ ...sizing, resolvedLabelsSha256: sha(canonicalPrettyJson(resolved)) })
+    canonicalPrettyJson({ ...sizingBuilt.artifact, candidateCommit: "c".repeat(40) })
   );
-  assert.equal(verify(world).chain.sizing.feasible, true);
+  assert.throws(() => verify(world), new RegExp("pilot-sizing.json identity does not match"));
+  write(
+    world.root,
+    `${STUDY_DIR}/pilot-sizing.json`,
+    canonicalPrettyJson({ ...sizingBuilt.artifact, schemaVersion: 1 })
+  );
+  assert.throws(() => verify(world), /is not a v2/);
+  write(world.root, `${STUDY_DIR}/pilot-sizing.json`, sizingBuilt.text);
+  assert.equal(verify(world).chain.sizing.feasible, sizingBuilt.artifact.feasibility.feasible);
+
   // A link cannot appear without the one it must have come from.
   rmSync(path.join(world.root, STUDY_DIR, "resolved-labels.json"));
   assert.throws(() => verify(world), /without the resolved-labels.json it must have counted/);
+  rmSync(world.root, { recursive: true, force: true });
+});
+
+test("an environment failure says so, instead of arriving as a carrier finding", () => {
+  // The runbook's remedy for a red gate is to RETIRE the carrier and discard
+  // the reviewers' sealed envelopes. A failure to READ the repository must
+  // not arrive wearing that accusation with no evidence attached.
+  const world = carrierWorld({ cases: 2 });
+  // Corrupt one object the archive must read. Everything before the
+  // re-derivation still passes: the commit resolves, the small inputs read,
+  // and ls-tree on absent paths never touches a blob.
+  const objects = path.join(world.root, ".git", "objects");
+  const removed = [];
+  for (const dir of readdirSync(objects)) {
+    if (dir.length !== 2) continue;
+    for (const file of readdirSync(path.join(objects, dir))) {
+      removed.push(path.join(objects, dir, file));
+    }
+  }
+  assert.ok(removed.length > 0);
+  rmSync(removed[removed.length - 1]);
+  let threw = null;
+  try {
+    verify(world);
+  } catch (error) {
+    threw = error.message;
+  }
+  assert.notEqual(threw, null);
+  assert.match(threw, /failure to READ the repository, not a finding about the carrier|environment failure, not a finding about the carrier/);
+  // The diagnostics git actually produced are forwarded, not swallowed.
+  assert.match(threw, /invalid object|cannot read|not a valid object|unable to read/i);
   rmSync(world.root, { recursive: true, force: true });
 });

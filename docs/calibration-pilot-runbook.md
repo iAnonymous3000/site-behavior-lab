@@ -43,10 +43,11 @@ that path is a committed-bytes check. If one of them ever fails with "build
 dist/schema", that is a defect in the tool, not a step a reviewer is
 missing.
 
-**The operator, for steps 5 to 7, works from a development checkout**
-(`npm ci && npm run build:schema`): close, reveal, and sizing recompute
-identity digests through the compiled canonical-JSON module, which is
-deliberate. Those steps never run on a reviewer's machine.
+**The operator, for steps 5 and 6, works from a development checkout**
+(`npm ci && npm run build:schema`): the close and the reveal recompute the
+commitment-set identity through the compiled canonical-JSON module, which is
+deliberate. Step 7's sizing does not need it, and neither step ever runs on a
+reviewer's machine.
 
 ## 1. One-use sealing keypair (operator)
 
@@ -226,10 +227,12 @@ envelopes travel.
 > - Preflight additionally requires a verified measurement-candidate
 >   binding, which a prevalence pilot has no acquisition to produce.
 > - Step 5's "fetch through the authenticated fetcher" names a library
->   function (`fetchAuthenticatedCalibrationLabelCommitments`) that no
->   command wraps, and whose inputs include the same v3 candidate object.
->   Nothing produces the `<fetched-records-dir>` steps 5 and 6 both consume,
->   and that record file's schema is published nowhere.
+>   function (`fetchAuthenticatedCalibrationLabelCommitments`) whose only
+>   command wrappers are the v3 ones, `calibration:study-assemble` and
+>   `calibration:label-roster`, which build it the v3 candidate object a
+>   pilot cannot produce. No command writes the `<fetched-records-dir>` that
+>   steps 5 and 6 both consume, and that record file's schema is published
+>   nowhere.
 >
 > What the pilot needs before reviewers are dispatched is an authenticated
 > commitment path for a v4 frame: a hosted workflow that binds the reviewer's
