@@ -23,7 +23,8 @@ import { fileURLToPath } from "node:url";
 import {
   buildV4PilotLabelingAuthorization,
   parseV4FrameTasksBytes,
-  requireApprovedCensoringPolicyAssignments
+  requireApprovedCensoringPolicyAssignments,
+  requireFrameMatchesApprovedArtifact
 } from "./calibration-v4-ceremony-lib.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -52,7 +53,8 @@ for (const name of allowed) {
 
 const frameTasksBytes = readFileSync(values.get("--frame-tasks"), "utf8");
 const frameTasks = parseV4FrameTasksBytes(frameTasksBytes);
-requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
+const { artifact: approvedArtifact } = requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
+requireFrameMatchesApprovedArtifact(frameTasks, approvedArtifact);
 const commitments = [];
 for (const file of readdirSync(values.get("--commitments-dir")).sort()) {
   if (!file.endsWith(".json")) fail(`${file} in the commitments directory is not a record file`);

@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import {
   parseV4FrameTasksBytes,
   requireApprovedCensoringPolicyAssignments,
+  requireFrameMatchesApprovedArtifact,
   sealV4LabelBatch
 } from "./calibration-v4-ceremony-lib.mjs";
 
@@ -66,7 +67,8 @@ const frameTasks = parseV4FrameTasksBytes(readFileSync(values.get("--frame-tasks
 // GOVERNANCE GATE: a reviewer must not seal a single label before the
 // named-human approval commit exists (committed-bytes check only; no build
 // is required on a fresh clone).
-requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
+const { artifact: approvedArtifact } = requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
+requireFrameMatchesApprovedArtifact(frameTasks, approvedArtifact);
 const taskBytesByCaseId = new Map();
 for (const file of readdirSync(values.get("--tasks-dir"))) {
   if (!file.endsWith(".json")) fail(`${file} in the tasks directory is not a task file`);

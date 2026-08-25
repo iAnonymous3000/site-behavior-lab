@@ -608,6 +608,17 @@ export function validateCalibrationCandidateFiles(rootDir, studyId) {
     "calibration label-sealing public-key identity does not match the frozen frame"
   );
   require(preregistration.detector === frame.detector, "candidate detector disagrees between preregistration and frame");
+  // The per-detector disposition binds the CLASSIC ceremony path too: a
+  // held detector cannot be scaffolded, preflighted, acquired, or
+  // assembled, not only refused by the v4 pilot CLIs.
+  {
+    const detectorRow = policyRead.value.detectors?.[preregistration.detector];
+    require(isRecord(detectorRow), `the policy assignments carry no row for detector ${preregistration.detector}`);
+    require(
+      detectorRow.disposition === "proceed",
+      `detector ${preregistration.detector} is dispositioned "${detectorRow.disposition}" and cannot enter a ceremony${detectorRow.holdReason ? `: ${detectorRow.holdReason}` : ""}`
+    );
+  }
   require(
     preregistration.plannedCases === frame.cases.length,
     "candidate frame must preserve the preregistered planned denominator"

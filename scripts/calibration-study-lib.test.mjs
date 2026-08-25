@@ -115,6 +115,16 @@ test("candidate scaffolds support every detector and share one exact policy arti
     policyDigests.add(scaffold.preregistration.censoringPolicy.sha256);
     writeCalibrationCandidateScaffold(root, scaffold);
     writeLabelSealingPublicKey(root, studyId);
+    const heldDetectors = new Set(["fingerprint-heuristics", "privacy-policy"]);
+    if (heldDetectors.has(detector)) {
+      // The step-3 hold binds the classic path: a held detector's candidate
+      // cannot even validate, let alone preflight or acquire.
+      assert.throws(
+        () => validateCalibrationCandidateFiles(root, studyId),
+        /is dispositioned "hold" and cannot enter a ceremony/
+      );
+      continue;
+    }
     const verified = validateCalibrationCandidateFiles(root, studyId);
     assert.equal(verified.detector, detector);
     assert.equal(verified.frame.cases.length, 1);

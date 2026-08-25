@@ -28,6 +28,7 @@ import {
   buildV4ResolvedLabelsArtifact,
   parseV4FrameTasksBytes,
   requireApprovedCensoringPolicyAssignments,
+  requireFrameMatchesApprovedArtifact,
   revealAuthenticatedV4PilotLabelBatches
 } from "./calibration-v4-ceremony-lib.mjs";
 
@@ -63,7 +64,8 @@ for (const name of allowed) {
 
 const frameTasksBytes = readFileSync(values.get("--frame-tasks"), "utf8");
 const frameTasks = parseV4FrameTasksBytes(frameTasksBytes);
-requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
+const { artifact: approvedArtifact } = requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
+requireFrameMatchesApprovedArtifact(frameTasks, approvedArtifact);
 if (
   !values.get("--authorization").endsWith(
     path.join("calibration", frameTasks.studyId, "pilot-labeling-authorization.json")

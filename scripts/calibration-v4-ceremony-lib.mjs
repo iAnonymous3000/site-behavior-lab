@@ -535,6 +535,32 @@ export function requireApprovedCensoringPolicyAssignments({ rootDir, detector })
   return { artifact, policyArtifactSha256: decision.policyArtifactSha256, detectorRow: row };
 }
 
+/**
+ * A frame built under an OLDER approved artifact must not keep operating
+ * after a re-approval: the frame's frozen protocol digest and external
+ * definition pins must equal the CURRENTLY approved artifact's, or seal,
+ * close, reveal, and sizing all refuse. (The gate itself trusts the
+ * repository checkout it runs from; the ceremony runbook verifies that
+ * checkout against the protected branch before any step, which is the same
+ * trust root every committed-custody check in this repository uses.)
+ */
+export function requireFrameMatchesApprovedArtifact(frameTasks, artifact) {
+  validateV4FrameTasks(frameTasks);
+  require(
+    frameTasks.referenceProtocolSha256 === artifact.referenceProtocol.sha256 &&
+      frameTasks.referenceProtocolId === artifact.referenceProtocol.id,
+    "the frame's reference protocol does not equal the currently approved artifact's; a frame built under a superseded approval must be rebuilt"
+  );
+  const expectedDefinitions =
+    artifact.detectors?.[frameTasks.detector]?.externalDefinitions ?? null;
+  require(
+    canonicalizeCalibrationValue(frameTasks.externalDefinitions) ===
+      canonicalizeCalibrationValue(expectedDefinitions),
+    "the frame's external definition pins do not equal the currently approved artifact's; a frame built under a superseded approval must be rebuilt"
+  );
+  return frameTasks;
+}
+
 export const V4_PILOT_LABELING_AUTHORIZATION_KIND =
   "site-behavior-detector-calibration-pilot-labeling-authorization";
 export const V4_PILOT_LABELING_AUTHORIZATION_SCHEMA_VERSION = 1;

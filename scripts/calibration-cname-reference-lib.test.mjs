@@ -218,3 +218,26 @@ test("the reference CLI refuses a tracker or suffix source that diverges from th
     /--tracker-source-sha256 c{64} does not equal the frame's pinned tracker definition/
   );
 });
+
+test("parseTrackerSource records domain-shaped artifacts, refuses filter syntax, and caps the noise", async () => {
+  const { parseTrackerSource } = await import("./calibration-cname-reference-lib.mjs");
+  // Provider datasets carry DNS-name artifacts that are not LDH hostnames:
+  // recorded and skipped, never repaired, never silently dropped.
+  const parsed = parseTrackerSource(
+    "# comment\ntracker.example\n-access-logs.net.daraz.example\nunder_score.example\nsecond.example\n"
+  );
+  assert.deepEqual([...parsed.suffixes], ["tracker.example", "second.example"]);
+  assert.deepEqual(
+    parsed.rejectedRows.map((row) => row.line),
+    [3, 4]
+  );
+  // Filter-list syntax still refuses the whole file: those bytes are not
+  // the claimed kind of list, and lenient reduction is dangerous.
+  assert.throws(() => parseTrackerSource("||adblock.example^\n"), /is not a plain domain suffix/);
+  assert.throws(() => parseTrackerSource("@@||exception.example^\n"), /is not a plain domain suffix/);
+  // More than 100 domain-shaped rejections refuses the file outright.
+  const noisy =
+    Array.from({ length: 101 }, (_, index) => `-bad-${index}.example`).join("\n") +
+    "\nreal.example\n";
+  assert.throws(() => parseTrackerSource(noisy), /rejected 101 domain-shaped rows/);
+});

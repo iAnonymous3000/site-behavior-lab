@@ -18,7 +18,8 @@ import { fileURLToPath } from "node:url";
 import {
   computeV4PilotSizingArtifact,
   parseV4FrameTasksBytes,
-  requireApprovedCensoringPolicyAssignments
+  requireApprovedCensoringPolicyAssignments,
+  requireFrameMatchesApprovedArtifact
 } from "./calibration-v4-ceremony-lib.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -51,10 +52,12 @@ if (!Number.isSafeInteger(minimumPerClass) || (pool !== null && !Number.isSafeIn
 }
 
 const sizingFrameBytes = readFileSync(values.get("--frame-tasks"), "utf8");
-requireApprovedCensoringPolicyAssignments({
+const sizingFrame = parseV4FrameTasksBytes(sizingFrameBytes);
+const { artifact: approvedArtifact } = requireApprovedCensoringPolicyAssignments({
   rootDir: repoRoot,
-  detector: parseV4FrameTasksBytes(sizingFrameBytes).detector
+  detector: sizingFrame.detector
 });
+requireFrameMatchesApprovedArtifact(sizingFrame, approvedArtifact);
 const { artifact, text, sha256 } = computeV4PilotSizingArtifact({
   resolvedLabelsBytes: readFileSync(values.get("--resolved-labels"), "utf8"),
   frameTasksBytes: sizingFrameBytes,
