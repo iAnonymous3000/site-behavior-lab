@@ -1,0 +1,405 @@
+{
+  "studyId": "cname-uncloaking-2026-08-prevalence-pilot",
+  "candidates": [
+    {
+      "caseId": "forbes.com",
+      "url": "https://forbes.com/"
+    },
+    {
+      "caseId": "bloomberg.com",
+      "url": "https://bloomberg.com/"
+    },
+    {
+      "caseId": "cnbc.com",
+      "url": "https://cnbc.com/"
+    },
+    {
+      "caseId": "variety.com",
+      "url": "https://variety.com/"
+    },
+    {
+      "caseId": "thehindu.com",
+      "url": "https://thehindu.com/"
+    },
+    {
+      "caseId": "cbslocal.com",
+      "url": "https://cbslocal.com/"
+    },
+    {
+      "caseId": "mercurynews.com",
+      "url": "https://mercurynews.com/"
+    },
+    {
+      "caseId": "nola.com",
+      "url": "https://nola.com/"
+    },
+    {
+      "caseId": "philly.com",
+      "url": "https://philly.com/"
+    },
+    {
+      "caseId": "cbn.com",
+      "url": "https://cbn.com/"
+    },
+    {
+      "caseId": "9news.com",
+      "url": "https://9news.com/"
+    },
+    {
+      "caseId": "charlotteobserver.com",
+      "url": "https://charlotteobserver.com/"
+    },
+    {
+      "caseId": "harpers.org",
+      "url": "https://harpers.org/"
+    },
+    {
+      "caseId": "abs-cbn.com",
+      "url": "https://abs-cbn.com/"
+    },
+    {
+      "caseId": "katu.com",
+      "url": "https://katu.com/"
+    },
+    {
+      "caseId": "i24news.tv",
+      "url": "https://i24news.tv/"
+    },
+    {
+      "caseId": "americanthinker.com",
+      "url": "https://americanthinker.com/"
+    },
+    {
+      "caseId": "freebeacon.com",
+      "url": "https://freebeacon.com/"
+    },
+    {
+      "caseId": "providencejournal.com",
+      "url": "https://providencejournal.com/"
+    },
+    {
+      "caseId": "wickedlocal.com",
+      "url": "https://wickedlocal.com/"
+    },
+    {
+      "caseId": "ksdk.com",
+      "url": "https://ksdk.com/"
+    },
+    {
+      "caseId": "lohud.com",
+      "url": "https://lohud.com/"
+    },
+    {
+      "caseId": "wftv.com",
+      "url": "https://wftv.com/"
+    },
+    {
+      "caseId": "ktvb.com",
+      "url": "https://ktvb.com/"
+    },
+    {
+      "caseId": "kptv.com",
+      "url": "https://kptv.com/"
+    },
+    {
+      "caseId": "thegazette.com",
+      "url": "https://thegazette.com/"
+    },
+    {
+      "caseId": "dailybreeze.com",
+      "url": "https://dailybreeze.com/"
+    },
+    {
+      "caseId": "lawfareblog.com",
+      "url": "https://lawfareblog.com/"
+    },
+    {
+      "caseId": "greenvilleonline.com",
+      "url": "https://greenvilleonline.com/"
+    },
+    {
+      "caseId": "argusleader.com",
+      "url": "https://argusleader.com/"
+    },
+    {
+      "caseId": "wivb.com",
+      "url": "https://wivb.com/"
+    },
+    {
+      "caseId": "goerie.com",
+      "url": "https://goerie.com/"
+    },
+    {
+      "caseId": "metro.us",
+      "url": "https://metro.us/"
+    },
+    {
+      "caseId": "newsone.com",
+      "url": "https://newsone.com/"
+    },
+    {
+      "caseId": "bismarcktribune.com",
+      "url": "https://bismarcktribune.com/"
+    },
+    {
+      "caseId": "rapidcityjournal.com",
+      "url": "https://rapidcityjournal.com/"
+    },
+    {
+      "caseId": "caller.com",
+      "url": "https://caller.com/"
+    },
+    {
+      "caseId": "rrstar.com",
+      "url": "https://rrstar.com/"
+    },
+    {
+      "caseId": "salisburypost.com",
+      "url": "https://salisburypost.com/"
+    },
+    {
+      "caseId": "messagemedia.com",
+      "url": "https://messagemedia.com/"
+    },
+    {
+      "caseId": "fredericknewspost.com",
+      "url": "https://fredericknewspost.com/"
+    },
+    {
+      "caseId": "staugustine.com",
+      "url": "https://staugustine.com/"
+    },
+    {
+      "caseId": "wacotrib.com",
+      "url": "https://wacotrib.com/"
+    },
+    {
+      "caseId": "citizensvoice.com",
+      "url": "https://citizensvoice.com/"
+    },
+    {
+      "caseId": "thereporter.com",
+      "url": "https://thereporter.com/"
+    },
+    {
+      "caseId": "thedailyworld.com",
+      "url": "https://thedailyworld.com/"
+    },
+    {
+      "caseId": "njherald.com",
+      "url": "https://njherald.com/"
+    },
+    {
+      "caseId": "aberdeennews.com",
+      "url": "https://aberdeennews.com/"
+    },
+    {
+      "caseId": "therightscoop.com",
+      "url": "https://therightscoop.com/"
+    },
+    {
+      "caseId": "alligator.org",
+      "url": "https://alligator.org/"
+    },
+    {
+      "caseId": "jaxdailyrecord.com",
+      "url": "https://jaxdailyrecord.com/"
+    },
+    {
+      "caseId": "mitchellrepublic.com",
+      "url": "https://mitchellrepublic.com/"
+    },
+    {
+      "caseId": "dailyjournal.com",
+      "url": "https://dailyjournal.com/"
+    },
+    {
+      "caseId": "austindailyherald.com",
+      "url": "https://austindailyherald.com/"
+    },
+    {
+      "caseId": "wisconsinrapidstribune.com",
+      "url": "https://wisconsinrapidstribune.com/"
+    },
+    {
+      "caseId": "conservativereview.com",
+      "url": "https://conservativereview.com/"
+    },
+    {
+      "caseId": "ctnow.com",
+      "url": "https://ctnow.com/"
+    },
+    {
+      "caseId": "loudountimes.com",
+      "url": "https://loudountimes.com/"
+    },
+    {
+      "caseId": "hickoryrecord.com",
+      "url": "https://hickoryrecord.com/"
+    },
+    {
+      "caseId": "times-herald.com",
+      "url": "https://times-herald.com/"
+    },
+    {
+      "caseId": "timesherald.com",
+      "url": "https://timesherald.com/"
+    },
+    {
+      "caseId": "neworleanscitybusiness.com",
+      "url": "https://neworleanscitybusiness.com/"
+    },
+    {
+      "caseId": "thederrick.com",
+      "url": "https://thederrick.com/"
+    },
+    {
+      "caseId": "appeal-democrat.com",
+      "url": "https://appeal-democrat.com/"
+    },
+    {
+      "caseId": "shepherdexpress.com",
+      "url": "https://shepherdexpress.com/"
+    },
+    {
+      "caseId": "ottumwacourier.com",
+      "url": "https://ottumwacourier.com/"
+    },
+    {
+      "caseId": "the-dispatch.com",
+      "url": "https://the-dispatch.com/"
+    },
+    {
+      "caseId": "thedestinlog.com",
+      "url": "https://thedestinlog.com/"
+    },
+    {
+      "caseId": "itemonline.com",
+      "url": "https://itemonline.com/"
+    },
+    {
+      "caseId": "blacknews.com",
+      "url": "https://blacknews.com/"
+    },
+    {
+      "caseId": "irishecho.com",
+      "url": "https://irishecho.com/"
+    },
+    {
+      "caseId": "westportnow.com",
+      "url": "https://westportnow.com/"
+    },
+    {
+      "caseId": "bohemian.com",
+      "url": "https://bohemian.com/"
+    },
+    {
+      "caseId": "cheboygannews.com",
+      "url": "https://cheboygannews.com/"
+    },
+    {
+      "caseId": "mccookgazette.com",
+      "url": "https://mccookgazette.com/"
+    },
+    {
+      "caseId": "commercial-news.com",
+      "url": "https://commercial-news.com/"
+    },
+    {
+      "caseId": "journalpatriot.com",
+      "url": "https://journalpatriot.com/"
+    },
+    {
+      "caseId": "newsregister.com",
+      "url": "https://newsregister.com/"
+    },
+    {
+      "caseId": "qgazette.com",
+      "url": "https://qgazette.com/"
+    },
+    {
+      "caseId": "riverreporter.com",
+      "url": "https://riverreporter.com/"
+    },
+    {
+      "caseId": "theprogressnews.com",
+      "url": "https://theprogressnews.com/"
+    },
+    {
+      "caseId": "grbj.com",
+      "url": "https://grbj.com/"
+    },
+    {
+      "caseId": "tiogapublishing.com",
+      "url": "https://tiogapublishing.com/"
+    },
+    {
+      "caseId": "rocklandtimes.com",
+      "url": "https://rocklandtimes.com/"
+    },
+    {
+      "caseId": "tiftongazette.com",
+      "url": "https://tiftongazette.com/"
+    },
+    {
+      "caseId": "eldoradonews.com",
+      "url": "https://eldoradonews.com/"
+    },
+    {
+      "caseId": "dailyunion.com",
+      "url": "https://dailyunion.com/"
+    },
+    {
+      "caseId": "nbc5.com",
+      "url": "https://nbc5.com/"
+    },
+    {
+      "caseId": "omahadailyrecord.com",
+      "url": "https://omahadailyrecord.com/"
+    },
+    {
+      "caseId": "timesgazette.com",
+      "url": "https://timesgazette.com/"
+    },
+    {
+      "caseId": "portsmouth-dailytimes.com",
+      "url": "https://portsmouth-dailytimes.com/"
+    },
+    {
+      "caseId": "news-expressky.com",
+      "url": "https://news-expressky.com/"
+    },
+    {
+      "caseId": "houstonherald.com",
+      "url": "https://houstonherald.com/"
+    },
+    {
+      "caseId": "statejournal.com",
+      "url": "https://statejournal.com/"
+    },
+    {
+      "caseId": "tooeleonline.com",
+      "url": "https://tooeleonline.com/"
+    },
+    {
+      "caseId": "hendersondispatch.com",
+      "url": "https://hendersondispatch.com/"
+    },
+    {
+      "caseId": "marysvillejt.com",
+      "url": "https://marysvillejt.com/"
+    },
+    {
+      "caseId": "yourdailyjournal.com",
+      "url": "https://yourdailyjournal.com/"
+    },
+    {
+      "caseId": "recordgazette.net",
+      "url": "https://recordgazette.net/"
+    },
+    {
+      "caseId": "williamsondailynews.com",
+      "url": "https://williamsondailynews.com/"
+    }
+  ]
+}

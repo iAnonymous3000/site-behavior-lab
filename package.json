@@ -73,6 +73,7 @@
     "calibration:cname-reference": "node scripts/calibration-cname-reference.mjs",
     "calibration:frame": "node scripts/calibration-frame.mjs",
     "calibration:v4-frame-tasks": "node scripts/calibration-v4-frame-tasks.mjs",
+    "calibration:v4-reviewer-batch": "node scripts/calibration-v4-reviewer-batch.mjs",
     "calibration:v4-seal-label-batch": "node scripts/calibration-v4-seal-label-batch.mjs",
     "calibration:policy-artifact": "node scripts/calibration-policy-artifact.mjs",
     "calibration:v4-pilot-close": "node scripts/calibration-v4-pilot-close.mjs",

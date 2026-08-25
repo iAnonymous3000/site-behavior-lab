@@ -85,6 +85,21 @@ const inputBatch = JSON.parse(readFileSync(values.get("--input"), "utf8"));
 const batchBytes = canonicalPrettyJson(
   typeof inputBatch.padding === "string" ? inputBatch : padV4LabelBatch(inputBatch, frameTasks)
 );
+// A batch produced by the reviewer-batch producer embeds the reviewer's
+// login in every provenance string; sealing someone else's batch under
+// this actor is refused rather than silently rebranded. (Generic batches
+// without the @actor tag are unaffected.)
+{
+  const parsedBatch = JSON.parse(batchBytes);
+  for (const entry of parsedBatch.cases ?? []) {
+    const match = /^worksheet:[0-9a-f]{16}#.+@([a-z0-9-]{1,39})$/.exec(entry?.evidence?.provenance ?? "");
+    if (match && match[1] !== actor) {
+      fail(
+        `batch case ${entry.caseId} was produced for reviewer ${match[1]}, not --actor ${actor}; each reviewer seals their own batch`
+      );
+    }
+  }
+}
 const sealed = sealV4LabelBatch({
   batchBytes,
   frameTasks,

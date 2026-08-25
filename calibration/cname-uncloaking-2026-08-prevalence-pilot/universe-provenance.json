@@ -1,0 +1,114 @@
+{
+  "kind": "site-behavior-calibration-candidate-universe",
+  "version": 4,
+  "studyId": "cname-uncloaking-2026-08",
+  "attestation": "operator-attested-permanent-id",
+  "baseManifest": {
+    "provider": "tranco",
+    "permanentId": "N2Q7W",
+    "url": "https://tranco-list.eu/download/N2Q7W/1000000",
+    "retrievedAt": "2026-08-24T01:07:45.000Z",
+    "sha256": "0ecb66b5847bb011dce9db39138e9a615786945dbecf34a94bd6c116bb34f0f4"
+  },
+  "sourceSha256": "0ecb66b5847bb011dce9db39138e9a615786945dbecf34a94bd6c116bb34f0f4",
+  "sourceDomains": 999992,
+  "sourceRejectedRows": [
+    {
+      "line": 1610,
+      "text": "1610,_wildcard_.ph"
+    },
+    {
+      "line": 12277,
+      "text": "12277,_wildcard_.com.ph"
+    },
+    {
+      "line": 86918,
+      "text": "86918,_wildcard_.net.ph"
+    },
+    {
+      "line": 87288,
+      "text": "87288,_wildcard_.org.ph"
+    },
+    {
+      "line": 125151,
+      "text": "125151,_wildcard_.mil.ph"
+    },
+    {
+      "line": 174656,
+      "text": "174656,_wildcard_.xn--fiqs8s"
+    },
+    {
+      "line": 178666,
+      "text": "178666,_wildcard_.ngo.ph"
+    },
+    {
+      "line": 252917,
+      "text": "252917,_wildcard_.ws"
+    }
+  ],
+  "category": {
+    "manifest": {
+      "provider": "ercexpo-us-news-domains",
+      "permanentId": "61505468f330000f15494ed302e0d1d719895b83:us-news-domains-v2.0.0.csv",
+      "url": "https://raw.githubusercontent.com/ercexpo/us-news-domains/61505468f330000f15494ed302e0d1d719895b83/us-news-domains-v2.0.0.csv",
+      "retrievedAt": "2026-08-24T01:11:21.000Z",
+      "sha256": "68fd1ffd3cfb62ef83a8f2ee0a27955afe240e16f85ed47f1c4837404115ae47"
+    },
+    "sha256": "68fd1ffd3cfb62ef83a8f2ee0a27955afe240e16f85ed47f1c4837404115ae47",
+    "domains": 5389,
+    "rejectedRows": [
+      {
+        "line": 161,
+        "text": "aol.com/news,,"
+      },
+      {
+        "line": 359,
+        "text": "bing.com/news,,"
+      },
+      {
+        "line": 1833,
+        "text": "http:kaaltv.com,,"
+      },
+      {
+        "line": 1834,
+        "text": "http:wnem.com,,"
+      },
+      {
+        "line": 2812,
+        "text": "msn.com/en-us/news,0.1119,"
+      },
+      {
+        "line": 5364,
+        "text": "yahoo.com/news,0.0848,national"
+      }
+    ],
+    "intersection": 2375
+  },
+  "population": "domains of tranco snapshot N2Q7W, in source order, intersected with category source ercexpo-us-news-domains 61505468f330000f15494ed302e0d1d719895b83:us-news-domains-v2.0.0.csv, development corpus excluded",
+  "poolSize": 2262,
+  "pilotSize": 100,
+  "pilotDisjointFromPool": true,
+  "partition": {
+    "method": "seeded-fisher-yates-sha256-v1",
+    "seedSha256": "f41e476b44cfb0f22c8e0325b549f71a054e79b2394c8fefdbb5ee2906947115",
+    "frameSize": 2362
+  },
+  "candidateSetSha256": "4b4997324774e83acad28335420f2b179ced1a9da5589a8eb53374e9c8976f6b",
+  "pilotSetSha256": "b1760d060c4022ef9bb6b34c82d1bc404c121160a9956afe1f1606cc7236b3f4",
+  "excludedDomains": [
+    "nytimes.com",
+    "theguardian.com",
+    "bbc.com",
+    "reuters.com",
+    "npr.org",
+    "foxnews.com",
+    "usatoday.com",
+    "independent.co.uk",
+    "lemonde.fr",
+    "apnews.com",
+    "repubblica.it",
+    "mirror.co.uk",
+    "asahi.com"
+  ],
+  "exclusionListSha256": "d8956ab10f1c6f352b62d8291cca686b460d9b2c6117bef4ff9a88d1fbec5873"
+}

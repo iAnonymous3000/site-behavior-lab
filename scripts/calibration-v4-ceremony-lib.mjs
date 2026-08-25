@@ -49,7 +49,10 @@ import {
   sha256Hex
 } from "./calibration-study-lib.mjs";
 import {
+  V4_LABEL_BATCH_KIND,
+  V4_LABEL_BATCH_SCHEMA_VERSION,
   assembleV4ReferenceCases,
+  padV4LabelBatch,
   validateV4FrameTasks,
   validateV4LabelBatch
 } from "./calibration-v4-labels-lib.mjs";
@@ -1023,4 +1026,150 @@ export function computeV4PilotSizingArtifact({
   };
   const text = canonicalPrettyJson(artifact);
   return { artifact, text, sha256: sha256Hex(text) };
+}
+
+/**
+ * The canonical reviewer-batch producer: converts ONE reviewer's approved
+ * CNAME worksheet into the padded v4 label batch their seal will carry.
+ * Reviewers never hand-author the 100-case schema; the producer applies
+ * the protocol's value mapping mechanically and the reviewer's own
+ * decisions file overrides individual cases, with the one protocol
+ * prohibition enforced: an unresolved case with no match is never labeled
+ * absent.
+ *
+ * Bindings, all refusal-only:
+ * - frame coverage exact, case for case in frame order (a missing or
+ *   duplicated worksheet case refuses);
+ * - task bytes verified and each worksheet case's subject equal to its
+ *   task's subjectUrl;
+ * - protocol via the frame's referenceProtocolId/Sha256 (the batch
+ *   inherits both through frameTasksSha256);
+ * - the SHARED definitions: the worksheet's trackerSource and
+ *   publicSuffixSource digests must equal the frame's pins, so a silently
+ *   divergent classification definition refuses here too;
+ * - reviewer and role: role is stamped into the batch, and every case's
+ *   provenance embeds the reviewer login plus the worksheet digest, so a
+ *   batch produced for one reviewer refuses to seal under another.
+ *
+ * Value mapping (docs/calibration-prereg-drafts/labeling-protocol.md): a
+ * matched chain is PRESENT even when other candidates failed to resolve
+ * (one reached tracker suffices); no match with every candidate resolved
+ * is ABSENT; no match with any unresolved candidate is UNCERTAIN, and an
+ * override to absent there is refused by name.
+ */
+export function buildV4ReviewerBatchFromWorksheet({
+  worksheetBytes,
+  frameTasks,
+  taskBytesByCaseId,
+  role,
+  reviewerLogin,
+  decisions = []
+}) {
+  validateV4FrameTasks(frameTasks);
+  verifyV4TaskBytes({ frameTasks, taskBytesByCaseId });
+  require(
+    role === "labeler" || role === "tiebreaker",
+    "reviewer batch role must be labeler or tiebreaker"
+  );
+  require(
+    typeof reviewerLogin === "string" && /^[a-z0-9-]{1,39}$/.test(reviewerLogin),
+    "reviewer batch needs the reviewer's GitHub login"
+  );
+  let worksheet;
+  try {
+    worksheet = JSON.parse(worksheetBytes);
+  } catch {
+    throw new Error("worksheet is not JSON");
+  }
+  require(
+    worksheetBytes === canonicalPrettyJson(worksheet),
+    "worksheet must be the tool's canonical serialized JSON"
+  );
+  require(
+    worksheet.artifactKind === "site-behavior-cname-reference-worksheet",
+    "the reviewer batch producer consumes cname reference worksheets"
+  );
+  require(
+    worksheet.studyId === frameTasks.studyId,
+    `worksheet studyId ${worksheet.studyId} does not match the frame's ${frameTasks.studyId}`
+  );
+  const pins = frameTasks.externalDefinitions;
+  require(
+    isRecord(pins) && isRecord(pins.trackerDefinition) && isRecord(pins.publicSuffixDefinition),
+    "the frame carries no external definition pins for this detector"
+  );
+  require(
+    worksheet.trackerSource?.sha256 === pins.trackerDefinition.sha256,
+    "worksheet tracker definition does not equal the frame's pinned snapshot; a silently divergent classification definition would turn definition drift into fake labeling disagreement"
+  );
+  require(
+    worksheet.publicSuffixSource?.sha256 === pins.publicSuffixDefinition.sha256,
+    "worksheet public-suffix definition does not equal the frame's pinned snapshot"
+  );
+  const worksheetSha256 = sha256Hex(worksheetBytes);
+  const byCaseId = new Map();
+  for (const entry of worksheet.cases ?? []) {
+    require(isRecord(entry), "worksheet cases must be records");
+    require(!byCaseId.has(entry.caseId), `worksheet duplicates case ${entry.caseId}`);
+    byCaseId.set(entry.caseId, entry);
+  }
+  const overrides = new Map();
+  for (const decision of decisions) {
+    require(isRecord(decision), "each reviewer decision must be a record");
+    require(
+      typeof decision.caseId === "string" && byCaseId.has(decision.caseId),
+      `reviewer decision names unknown case ${decision.caseId}`
+    );
+    require(
+      decision.value === "present" || decision.value === "absent" || decision.value === "uncertain",
+      `reviewer decision for ${decision.caseId} must be present, absent, or uncertain`
+    );
+    require(!overrides.has(decision.caseId), `duplicate reviewer decision for ${decision.caseId}`);
+    overrides.set(decision.caseId, decision.value);
+  }
+  const cases = frameTasks.cases.map((frameCase) => {
+    const entry = byCaseId.get(frameCase.caseId);
+    require(entry !== undefined, `worksheet is missing frame case ${frameCase.caseId}`);
+    byCaseId.delete(frameCase.caseId);
+    const anyMatch = entry.proposedLabel === "present";
+    const mechanical = anyMatch ? "present" : entry.determined ? "absent" : "uncertain";
+    let value = overrides.has(frameCase.caseId) ? overrides.get(frameCase.caseId) : mechanical;
+    if (!anyMatch && !entry.determined) {
+      require(
+        value !== "absent",
+        `${frameCase.caseId} has unresolved candidates and no match; the protocol forbids labeling it absent`
+      );
+    }
+    require(
+      typeof entry.captureSha256 === "string" && SHA256.test(entry.captureSha256),
+      `${frameCase.caseId} worksheet carries no reviewer capture digest`
+    );
+    return {
+      caseId: frameCase.caseId,
+      value,
+      evidence: {
+        sha256: entry.captureSha256,
+        provenance: `worksheet:${worksheetSha256.slice(0, 16)}#${frameCase.caseId}@${reviewerLogin}`
+      }
+    };
+  });
+  require(
+    byCaseId.size === 0,
+    `worksheet carries ${byCaseId.size} cases outside the frame: ${[...byCaseId.keys()].slice(0, 3).join(", ")}`
+  );
+  const batch = padV4LabelBatch(
+    {
+      schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
+      artifactKind: V4_LABEL_BATCH_KIND,
+      role,
+      studyId: frameTasks.studyId,
+      detector: frameTasks.detector,
+      candidateCommit: frameTasks.candidateCommit,
+      referenceProtocolId: frameTasks.referenceProtocolId,
+      frameTasksSha256: sha256Hex(`${JSON.stringify(frameTasks, null, 2)}\n`),
+      cases
+    },
+    frameTasks
+  );
+  return { batch, text: canonicalPrettyJson(batch), worksheetSha256 };
 }

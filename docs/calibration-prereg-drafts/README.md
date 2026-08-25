@@ -1,9 +1,15 @@
 # Calibration preregistration drafts
 
-Working drafts for the 1.1 detector-accuracy evidence program. Nothing in
-this directory is a ceremony input: the ceremony reads
-`calibration/<studyId>/` and `research/measurement-candidate/`, never this
-directory. Every draft plan carries deliberately invalid placeholder digests,
+Working drafts for the 1.1 detector-accuracy evidence program. With one
+deliberate exception, nothing in this directory is a ceremony input: the
+ceremony reads `calibration/<studyId>/` and
+`research/measurement-candidate/`, never this directory. The exception is
+`labeling-protocol.md`, whose EXACT BYTES are digest-pinned inside the
+approved censoring-policy assignments artifact
+(`referenceProtocol.sha256`) and required verbatim by the frame builder's
+`--protocol-file`; editing it after an approval invalidates every frame
+built under that approval until the artifact is regenerated and
+re-approved. Every draft plan carries deliberately invalid placeholder digests,
 so feeding one to `npm run calibration:scaffold` fails until the operator
 replaces them through the real keygen step. That is intentional. These files
 exist so the operator ceremonies start from reviewed, corpus-informed
