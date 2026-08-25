@@ -1165,6 +1165,21 @@ test("the reviewer-batch producer maps the protocol, binds everything, and refus
       }),
     /canonical serialized JSON/
   );
+  // The producer and sealer accept the same GitHub-login grammar. A batch
+  // that cannot later be sealed must be refused before a reviewer starts.
+  for (const reviewerLogin of ["-alice", "alice-", "alice--reviewer"]) {
+    assert.throws(
+      () =>
+        buildV4ReviewerBatchFromWorksheet({
+          worksheetBytes: bytes,
+          frameTasks: built.frameTasks,
+          taskBytesByCaseId: built.taskBytesByCaseId,
+          role: "labeler",
+          reviewerLogin
+        }),
+      /reviewer's GitHub login/
+    );
+  }
   // 3. wrong frame (a worksheet from another study)
   const wrongStudy = worksheetFor(built);
   wrongStudy.worksheet.studyId = "another-study-prevalence-pilot";

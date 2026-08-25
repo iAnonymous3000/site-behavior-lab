@@ -1072,7 +1072,8 @@ export function buildV4ReviewerBatchFromWorksheet({
     "reviewer batch role must be labeler or tiebreaker"
   );
   require(
-    typeof reviewerLogin === "string" && /^[a-z0-9-]{1,39}$/.test(reviewerLogin),
+    typeof reviewerLogin === "string" &&
+      /^(?!-)(?!.*--)[a-z0-9-]{1,39}(?<!-)$/.test(reviewerLogin),
     "reviewer batch needs the reviewer's GitHub login"
   );
   let worksheet;
