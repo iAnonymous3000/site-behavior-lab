@@ -314,7 +314,15 @@ jobs:
       # the carrier it names, fails here. Needs the full history checked out
       # above, because it reads the carrier commit's own tree.
       - name: Verify every committed pilot frame derives from its carrier
-        run: npm run calibration:pilot-carrier-gate
+        run: |
+          set -euo pipefail
+          # The gate requires the carrier to have LANDED, so the ref it
+          # compares against must exist here. A runner's checkout does not
+          # necessarily carry origin/<default branch> as a remote-tracking
+          # ref, and a gate that fails for a missing ref would read as a
+          # carrier defect, so fetch it explicitly first.
+          git fetch --no-tags --quiet origin "${{ github.event.repository.default_branch }}"
+          CALIBRATION_PILOT_UPSTREAM_REF=FETCH_HEAD npm run calibration:pilot-carrier-gate
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
