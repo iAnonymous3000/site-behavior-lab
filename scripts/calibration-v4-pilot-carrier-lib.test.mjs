@@ -287,3 +287,21 @@ test("the gate passes trivially when no pilot frame is committed", () => {
   assert.match(run.stdout, /no committed pilot frames/);
   rmSync(world.root, { recursive: true, force: true });
 });
+
+test("the sealing PUBLIC key can be committed and the private half cannot", () => {
+  // Found by rehearsing the ceremony: `*.pem` is ignored, so the operator's
+  // step-1 `git add -A` skipped the sealing public key without a word and the
+  // carrier landed without the file every reviewer seals to. The carrier check
+  // caught it, but only after the commit existed.
+  const publicKey = "calibration/cname-uncloaking-2026-08-prevalence-pilot/label-sealing-public-key.pem";
+  const privateKey = "calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-label-reveal-private.pem";
+  const ignored = (repoPath) =>
+    spawnSync("git", ["-C", repoRoot, "check-ignore", "-q", repoPath], { encoding: "utf8" }).status === 0;
+  assert.equal(ignored(publicKey), false, "the sealing public key must be committable");
+  assert.equal(ignored(privateKey), true, "a private key in the study directory must stay ignored");
+  assert.equal(
+    ignored("calibration/cname-uncloaking-2026-08-prevalence-pilot/anything-else.pem"),
+    true,
+    "the exception must name one file, not admit pem files generally"
+  );
+});
