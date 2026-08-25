@@ -385,7 +385,7 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
     });
     require_(
       rederivedSizing.text === readFileSync(sizingPath, "utf8"),
-      `${PILOT_SIZING_FILE} is not what its own resolved labels and frame produce; its counts, derived N, or feasibility verdict were not computed from the evidence it names`
+      `${PILOT_SIZING_FILE} is not what its own resolved labels and frame produce; its counts, derived N, or feasibility verdict were not computed from the evidence it names. Sizing is a pure derivation over committed evidence and nothing is sealed to it: re-run the sizing step and commit what it produces. This is never grounds for retiring a carrier.`
     );
     chain.sizing = { feasible: sizing.feasibility.feasible, counts: sizing.counts };
   }
