@@ -61,16 +61,25 @@ for (const file of readdirSync(values.get("--tasks-dir"))) {
     readFileSync(path.join(values.get("--tasks-dir"), file), "utf8")
   );
 }
-const { text, worksheetSha256 } = buildV4ReviewerBatchFromWorksheet({
-  worksheetBytes: readFileSync(values.get("--worksheet"), "utf8"),
-  frameTasks,
-  taskBytesByCaseId,
-  role: values.get("--role"),
-  reviewerLogin: values.get("--actor").toLowerCase(),
-  decisions: values.has("--decisions")
-    ? JSON.parse(readFileSync(values.get("--decisions"), "utf8"))
-    : []
-});
+// A reviewer is entitled to a named refusal, not a stack trace: every
+// refusal on this path is something they can act on (re-capture a case,
+// correct a decisions entry, fetch the right definition snapshot).
+let produced;
+try {
+  produced = buildV4ReviewerBatchFromWorksheet({
+    worksheetBytes: readFileSync(values.get("--worksheet"), "utf8"),
+    frameTasks,
+    taskBytesByCaseId,
+    role: values.get("--role"),
+    reviewerLogin: values.get("--actor").toLowerCase(),
+    decisions: values.has("--decisions")
+      ? JSON.parse(readFileSync(values.get("--decisions"), "utf8"))
+      : []
+  });
+} catch (error) {
+  fail(`calibration:v4-reviewer-batch: ${error.message}`);
+}
+const { text, worksheetSha256 } = produced;
 mkdirSync(path.dirname(values.get("--out")), { recursive: true, mode: 0o700 });
 writeFileSync(values.get("--out"), text, { flag: "wx", mode: 0o600 });
 console.log(

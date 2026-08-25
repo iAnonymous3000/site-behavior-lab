@@ -1336,6 +1336,25 @@ test("the reviewer pipeline runs by EXECUTION from the real instrument's own wor
   assert.equal(seal.status, 0, seal.stderr);
   assert.match(seal.stdout, /plaintext was not copied/);
 
+  // A reviewer gets a NAMED refusal, never a stack trace: a worksheet that
+  // covers fewer cases than the frame says which case is missing.
+  const short = JSON.parse(readFileSync(worksheetPath, "utf8"));
+  short.cases = short.cases.slice(0, 1);
+  const shortPath = path.join(world.root, "short-worksheet.json");
+  writeFileSync(shortPath, canonicalPrettyJson(short));
+  const named = spawnIn([
+    "calibration-v4-reviewer-batch.mjs",
+    "--worksheet", shortPath,
+    "--frame-tasks", path.join(frameRoot, "frame-tasks.json"),
+    "--tasks-dir", path.join(frameRoot, "tasks"),
+    "--role", "labeler",
+    "--actor", "alice",
+    "--out", path.join(world.root, "never-batch.json")
+  ]);
+  assert.notEqual(named.status, 0);
+  assert.match(named.stderr, /calibration:v4-reviewer-batch: worksheet is missing frame case/);
+  assert.doesNotMatch(named.stderr, /at ModuleJob|at file:/);
+
   // The instrument refuses a candidate set from another study, and the
   // producer refuses a worksheet built against a different frame.
   writeFileSync(
