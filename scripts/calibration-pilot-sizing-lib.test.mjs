@@ -149,3 +149,33 @@ test("the round-1 feasibility band: 18..82 present of 100 is NECESSARY at the op
   assert.equal(deriveFrameSizeFromPilot({ pilotPresent: 18, pilotTotal: 100, minimumPerClass: 100 }).derivedN, 1053);
   assert.equal(deriveFrameSizeFromPilot({ pilotPresent: 17, pilotTotal: 100, minimumPerClass: 100 }).derivedN, 1132);
 });
+
+test("an unsizable pilot is a DETERMINATION for the artifact, and still an assertion for callers", async () => {
+  const { deriveFrameSizeFromPilotEnvelope, tryDeriveFrameSizeFromPilotEnvelope } = await import(
+    "./calibration-pilot-sizing-lib.mjs"
+  );
+  // The gate's fail condition is the outcome the study most needs recorded.
+  // Throwing produced a stack trace and no artifact, so the one result that
+  // stops the study left no evidence behind.
+  for (const counts of [
+    { present: 0, absent: 0, uncertain: 100 },
+    { present: 0, absent: 100, uncertain: 0 },
+    { present: 100, absent: 0, uncertain: 0 }
+  ]) {
+    const determination = tryDeriveFrameSizeFromPilotEnvelope({ ...counts, minimumPerClass: 100 });
+    assert.equal(determination.sized, false);
+    assert.match(determination.reason, /cannot support this study's claimed classes/);
+    assert.throws(
+      () => deriveFrameSizeFromPilotEnvelope({ ...counts, minimumPerClass: 100 }),
+      /cannot support this study's claimed classes/
+    );
+  }
+  // A sizable pilot returns the same numbers through both forms: one search,
+  // two presentations.
+  const sizable = { present: 18, absent: 82, uncertain: 0, minimumPerClass: 100 };
+  const asserted = deriveFrameSizeFromPilotEnvelope(sizable);
+  const determined = tryDeriveFrameSizeFromPilotEnvelope(sizable);
+  assert.equal(determined.sized, true);
+  assert.equal(determined.derivedN, asserted.derivedN);
+  assert.deepEqual(determined.interval95, asserted.interval95);
+});

@@ -63,7 +63,7 @@ import {
 import { CALIBRATION_LABEL_SEALING_ALGORITHM } from "./calibration-label-source-envelope-lib.mjs";
 import {
   PREREGISTERED_SIZING_ASSURANCE,
-  deriveFrameSizeFromPilotEnvelope,
+  tryDeriveFrameSizeFromPilotEnvelope,
   requireSweptEligiblePoolCount
 } from "./calibration-pilot-sizing-lib.mjs";
 
@@ -582,7 +582,7 @@ export const V4_RESOLVED_LABELS_KIND =
 export const V4_RESOLVED_LABELS_SCHEMA_VERSION = 1;
 export const V4_PILOT_SIZING_KIND =
   "site-behavior-detector-calibration-pilot-sizing";
-export const V4_PILOT_SIZING_SCHEMA_VERSION = 1;
+export const V4_PILOT_SIZING_SCHEMA_VERSION = 2;
 const PILOT_STUDY_SUFFIX = "-prevalence-pilot";
 const PILOT_BOUNDARY_LABEL = "the authorized labeling close";
 
@@ -1006,7 +1006,10 @@ export function computeV4PilotSizingArtifact({
     else if (entry.status === "unknown" && entry.reason === "reference-label-uncertain") uncertain += 1;
     else throw new Error(`resolved case ${entry.caseId} fits no sizing bin; the partition is closed`);
   }
-  const derived = deriveFrameSizeFromPilotEnvelope({
+  // A pilot whose estimate admits no frame size is the gate reaching its fail
+  // condition, not a program error: it is recorded as a determination so the
+  // one outcome that stops the study leaves evidence behind.
+  const derived = tryDeriveFrameSizeFromPilotEnvelope({
     present,
     absent,
     uncertain,
@@ -1022,16 +1025,20 @@ export function computeV4PilotSizingArtifact({
     frameTasksSha256,
     resolvedLabelsSha256: sha256Hex(resolvedLabelsBytes),
     counts: { present, absent, uncertain, total: present + absent + uncertain },
-    interval95: derived.interval95,
-    minimumPerClass: derived.minimumPerClass,
+    interval95: derived.sized ? derived.interval95 : null,
+    minimumPerClass: derived.sized ? derived.minimumPerClass : minimumPerClass,
     assurance: PREREGISTERED_SIZING_ASSURANCE,
-    derivedN: derived.derivedN,
+    derivedN: derived.sized ? derived.derivedN : null,
+    unsizableReason: derived.sized ? null : derived.reason,
     feasibility:
       sweptEligiblePool === null
         ? null
         : {
             sweptEligiblePool: requireSweptEligiblePoolCount(sweptEligiblePool),
-            feasible: derived.derivedN <= sweptEligiblePool
+            // An unsizable estimate is infeasible against any pool: there is
+            // no N to compare, and the remedy is the same one INFEASIBLE
+            // always names, a larger universe and fresh sweep rounds.
+            feasible: derived.sized ? derived.derivedN <= sweptEligiblePool : false
           }
   };
   const text = canonicalPrettyJson(artifact);

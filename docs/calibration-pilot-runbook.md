@@ -293,7 +293,6 @@ authorization.
 npm run calibration:v4-pilot-sizing -- \
   --resolved-labels <reveal-out>/resolved-labels.json \
   --frame-tasks calibration/cname-uncloaking-2026-08-prevalence-pilot/frame-tasks.json \
-  --minimum-per-class 100 \
   --swept-eligible-pool <rounds-1-2 eligible count> \
   --out calibration/cname-uncloaking-2026-08-prevalence-pilot/pilot-sizing.json
 ```
@@ -304,12 +303,33 @@ round-1 optimistic ceiling of 1,126, the pilot must resolve 18..82
 present (necessary-only, zero-uncertain boundary). INFEASIBLE means a
 larger universe and fresh sweep rounds; never a relaxed rule.
 
+The gate is enforced, not merely printed: an INFEASIBLE determination
+writes its artifact and then exits non-zero, so no later step runs on it.
+`--swept-eligible-pool` is required, because a run that recorded no
+determination would otherwise read exactly like a run that passed. The
+claimed-class floor is NOT typed here: it comes from the approved policy
+artifact's publication profile (100 for `two-class-accuracy`), and
+`--minimum-per-class` is accepted only when it agrees with that pin. A
+pilot whose estimate admits no frame size at all is recorded the same way,
+with `derivedN: null` and the reason, rather than raised as an error: the
+one outcome that stops the study is the outcome it most needs on file.
+
 ## 8. Key destruction (operator, after the resolved artifacts are committed)
 
 ```bash
 shred -u /secure/offline/pilot-label-reveal-private.pem 2>/dev/null || \
   rm -P /secure/offline/pilot-label-reveal-private.pem
 ```
+
+**What that command does and does not guarantee.** macOS, the operator's
+platform, ships no `shred`, so the fallback runs; and `rm -P` overwrites in
+place, which APFS's copy-on-write allocator does not honour. On an APFS
+volume neither command reliably destroys the bytes, so attesting
+"destroyed" on the strength of running them would be a false attestation.
+Generate and hold the private key on an encrypted volume for the whole
+ceremony (FileVault, or a disk image you create for this pilot), and let
+the destruction claim be the one that is true there: the file is removed
+and the volume's key is discarded. Record which of the two you did.
 
 Record the destruction instant in the sizing PR's description. The
 keypair is one-use: nothing may ever be sealed to it again, and a future
