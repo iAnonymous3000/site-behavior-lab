@@ -1,0 +1,6 @@
+{
+  "provider": "publicsuffix-list",
+  "permanentId": "e8c9a2b2b2856b6449999dd0ec0d118f364ed0cd:public_suffix_list.dat",
+  "url": "https://raw.githubusercontent.com/publicsuffix/list/e8c9a2b2b2856b6449999dd0ec0d118f364ed0cd/public_suffix_list.dat",
+  "sha256": "df6306ec61971424ad259757b399911f4d414486629a5a00e299a2b6c7957089"
+}

@@ -74,6 +74,7 @@
     "calibration:frame": "node scripts/calibration-frame.mjs",
     "calibration:v4-frame-tasks": "node scripts/calibration-v4-frame-tasks.mjs",
     "calibration:v4-seal-label-batch": "node scripts/calibration-v4-seal-label-batch.mjs",
+    "calibration:policy-artifact": "node scripts/calibration-policy-artifact.mjs",
     "calibration:v4-pilot-close": "node scripts/calibration-v4-pilot-close.mjs",
     "calibration:v4-reveal": "node scripts/calibration-v4-reveal.mjs",
     "calibration:v4-pilot-sizing": "node scripts/calibration-v4-pilot-sizing.mjs",

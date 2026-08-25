@@ -97,6 +97,7 @@ export const PUBLICATION_PROFILES = Object.freeze({
 export const DETECTOR_POLICY_ASSIGNMENTS = Object.freeze({
   "cname-uncloaking": Object.freeze({
     disposition: "proceed",
+    propositionId: "cname-chain-to-pinned-tracker@1",
     proposition:
       "At least one contacted first-party subdomain in the reviewer-owned browser capture independently resolved through a CNAME chain to a service classified by the SHA-256-pinned external tracker definition.",
     resultType: "accuracy",
@@ -106,6 +107,7 @@ export const DETECTOR_POLICY_ASSIGNMENTS = Object.freeze({
   }),
   "consent-banner": Object.freeze({
     disposition: "proceed",
+    propositionId: "consent-first-layer-visibility@1",
     proposition:
       "A first-layer consent control was visibly offered at the observation time in the retained capture (banner-visibility@1). The rate does not cover the published claim that a consent management platform was requested.",
     resultType: "accuracy",
@@ -115,6 +117,7 @@ export const DETECTOR_POLICY_ASSIGNMENTS = Object.freeze({
   }),
   "keystroke-exfiltration": Object.freeze({
     disposition: "proceed",
+    propositionId: "keystroke-synthetic-sentinel-egress@1",
     proposition:
       "Under the synthetic-positive lab protocol, the detector observed its typed sentinel leaving in network traffic. Sensitivity for that constructed population, not open-web accuracy.",
     resultType: "accuracy",
@@ -124,6 +127,7 @@ export const DETECTOR_POLICY_ASSIGNMENTS = Object.freeze({
   }),
   "pixel-events": Object.freeze({
     disposition: "proceed",
+    propositionId: "pixel-endpoint-predicate-agreement@1",
     proposition:
       "The implementation agreed with the pinned Meta, TikTok, and X endpoint predicates when independently re-executed over retained, request-complete rows. Not accuracy about tracking behavior; does not cover the populated-identifier tier.",
     resultType: "rule-conformance",
@@ -156,6 +160,7 @@ export const DETECTOR_POLICY_ASSIGNMENTS = Object.freeze({
 const ASSIGNMENT_FIELDS = new Set([
   "disposition",
   "holdReason",
+  "propositionId",
   "proposition",
   "resultType",
   "primary",
@@ -181,7 +186,7 @@ export function validateDetectorPolicyAssignments(assignments = DETECTOR_POLICY_
         typeof entry.holdReason === "string" && entry.holdReason.length > 0,
         `${detector} is held without a recorded reason`
       );
-      for (const field of ["proposition", "resultType", "primary", "secondary", "publicationProfile"]) {
+      for (const field of ["propositionId", "proposition", "resultType", "primary", "secondary", "publicationProfile"]) {
         require(entry[field] === null || entry[field] === undefined, `${detector} is held but declares ${field}`);
       }
       continue;
@@ -190,6 +195,10 @@ export function validateDetectorPolicyAssignments(assignments = DETECTOR_POLICY_
     require(
       typeof entry.proposition === "string" && entry.proposition.length > 0,
       `${detector} proceeds without a named proposition; a detector id is not a claim`
+    );
+    require(
+      typeof entry.propositionId === "string" && /^[a-z0-9][a-z0-9-]*@[1-9][0-9]*$/.test(entry.propositionId),
+      `${detector} proposition needs an immutable versioned id; revising the prose without a new id would silently move a claim`
     );
     require(
       entry.resultType === "accuracy" || entry.resultType === "rule-conformance",

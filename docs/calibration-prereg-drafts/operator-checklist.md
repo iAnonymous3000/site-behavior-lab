@@ -21,11 +21,12 @@ owners and the current gaps attached.
 - [ ] OPERATOR: recruit two to ten labelers plus one tiebreaker, all
       distinct GitHub actors, all accepting public provenance. Three humans
       minimum.
-- [ ] Policy approval: REOPENED by the step-3 decision
-      (docs/calibration-censoring-policy-decision.md). The recorded
-      `complete-case-only-zero-censoring` approval is historical; a named
-      human must approve the step-4 per-detector C/B artifact's exact bytes
-      and digests in `RELEASE_READINESS.json` before any new acquisition or
+- [ ] Policy approval: the step-4 per-detector C/B artifact is IMPLEMENTED
+      and its exact digests sit in `RELEASE_READINESS.json` with status
+      pending-named-human-approval; the recorded
+      `complete-case-only-zero-censoring` approval is preserved in the
+      decision's `superseded` block. A named human must flip the status and
+      add decidedBy/decidedAt before any new acquisition or
       labeling.
 
 ## Per study, in order

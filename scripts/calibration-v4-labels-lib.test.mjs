@@ -99,12 +99,14 @@ test("uncertain resolves to the unknown status and can never become absence", ()
 });
 
 const FRAME = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   artifactKind: "site-behavior-detector-calibration-frame-tasks",
   studyId: "cname-uncloaking-v4-test",
   detector: "cname-uncloaking",
   candidateCommit: "a".repeat(40),
   referenceProtocolId: "cname-independent-v1",
+  referenceProtocolSha256: sha("f"),
+  externalDefinitions: null,
   cases: [
     { caseId: "alpha.example", taskSha256: sha("a") },
     { caseId: "beta.example", taskSha256: sha("b") }

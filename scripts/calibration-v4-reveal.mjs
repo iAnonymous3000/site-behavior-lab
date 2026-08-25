@@ -23,11 +23,15 @@
 
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   buildV4ResolvedLabelsArtifact,
   parseV4FrameTasksBytes,
+  requireApprovedCensoringPolicyAssignments,
   revealAuthenticatedV4PilotLabelBatches
 } from "./calibration-v4-ceremony-lib.mjs";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 import { canonicalPrettyJson } from "./calibration-study-lib.mjs";
 
 const USAGE =
@@ -59,6 +63,7 @@ for (const name of allowed) {
 
 const frameTasksBytes = readFileSync(values.get("--frame-tasks"), "utf8");
 const frameTasks = parseV4FrameTasksBytes(frameTasksBytes);
+requireApprovedCensoringPolicyAssignments({ rootDir: repoRoot, detector: frameTasks.detector });
 if (
   !values.get("--authorization").endsWith(
     path.join("calibration", frameTasks.studyId, "pilot-labeling-authorization.json")

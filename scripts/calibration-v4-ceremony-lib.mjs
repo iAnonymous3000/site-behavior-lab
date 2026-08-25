@@ -37,7 +37,11 @@ import {
   validateCalibrationCommitmentSetCustody,
   validateCalibrationRosterCustodyRecord
 } from "./calibration-label-sources-lib.mjs";
+import { readFileSync } from "node:fs";
+import { join as pathJoin } from "node:path";
 import {
+  CALIBRATION_CENSORING_POLICY_ID,
+  CALIBRATION_CENSORING_POLICY_PATH,
   calibrationMeasurementCondition,
   canonicalPrettyJson,
   canonicalizeCalibrationValue,
@@ -105,8 +109,14 @@ export function buildV4FrameTasksArtifact({
   detector,
   candidateCommit,
   referenceProtocolId,
+  referenceProtocolSha256,
+  externalDefinitions = null,
   cases
 }) {
+  require(
+    typeof referenceProtocolSha256 === "string" && SHA256.test(referenceProtocolSha256),
+    "frame tasks need the referenceProtocolSha256 of the exact protocol bytes"
+  );
   require(Array.isArray(cases) && cases.length > 0, "frame tasks need cases");
   const taskBytesByCaseId = new Map();
   const frameCases = cases.map((entry) => {
@@ -134,12 +144,14 @@ export function buildV4FrameTasksArtifact({
     return { caseId: entry.caseId, taskSha256: sha256Hex(bytes) };
   });
   const frameTasks = validateV4FrameTasks({
-    schemaVersion: 1,
+    schemaVersion: 2,
     artifactKind: "site-behavior-detector-calibration-frame-tasks",
     studyId,
     detector,
     candidateCommit,
     referenceProtocolId,
+    referenceProtocolSha256,
+    externalDefinitions,
     cases: frameCases
   });
   const frameTasksBytes = canonicalPrettyJson(frameTasks);
@@ -470,6 +482,57 @@ export function deepValidateV4StudyIdentity(
     issues.push("measurement-condition-mismatch");
   }
   return issues;
+}
+
+/**
+ * The governance gate every pilot entrypoint runs BEFORE doing anything: the
+ * per-detector censoring-policy assignments must be EXPLICITLY approved by a
+ * named human in RELEASE_READINESS.json, the committed artifact bytes must
+ * match the approved digest, and the detector must be dispositioned
+ * `proceed`. COMMITTED BYTES ONLY: this deliberately does not recompute the
+ * disposition digest (that is the dist-backed preflight/readiness job), so a
+ * reviewer on a fresh clone can seal without building anything. A pending
+ * decision refuses with the decision's own vocabulary: no labels are
+ * generated or sealed until the approval commit exists.
+ */
+export function requireApprovedCensoringPolicyAssignments({ rootDir, detector }) {
+  const readiness = JSON.parse(
+    readFileSync(pathJoin(rootDir, "RELEASE_READINESS.json"), "utf8")
+  );
+  const decision = readiness?.decisions?.calibrationCensoringPolicy;
+  require(isRecord(decision), "calibrationCensoringPolicy decision is missing");
+  require(
+    decision.status === "approved" &&
+      typeof decision.decidedBy === "string" &&
+      decision.decidedBy.length > 0 &&
+      typeof decision.decidedAt === "string",
+    "calibrationCensoringPolicy must explicitly approve the exact candidate policy and analyzer disposition before acquisition or labeling; the decision is not approved by a named human"
+  );
+  require(
+    decision.selected === CALIBRATION_CENSORING_POLICY_ID &&
+      decision.policyArtifactPath === CALIBRATION_CENSORING_POLICY_PATH,
+    "calibrationCensoringPolicy approves a different policy than the current assignments artifact"
+  );
+  const artifactBytes = readFileSync(
+    pathJoin(rootDir, ...CALIBRATION_CENSORING_POLICY_PATH.split("/")),
+    "utf8"
+  );
+  require(
+    sha256Hex(artifactBytes) === decision.policyArtifactSha256,
+    "the committed censoring-policy assignments bytes do not match the approved digest"
+  );
+  const artifact = JSON.parse(artifactBytes);
+  require(
+    artifactBytes === canonicalPrettyJson(artifact),
+    "censoring-policy assignments must be canonical serialized JSON"
+  );
+  const row = artifact?.detectors?.[detector];
+  require(isRecord(row), `the policy assignments carry no row for detector ${detector}`);
+  require(
+    row.disposition === "proceed",
+    `detector ${detector} is dispositioned "${row.disposition}" and cannot enter a ceremony${row.holdReason ? `: ${row.holdReason}` : ""}`
+  );
+  return { artifact, policyArtifactSha256: decision.policyArtifactSha256, detectorRow: row };
 }
 
 export const V4_PILOT_LABELING_AUTHORIZATION_KIND =

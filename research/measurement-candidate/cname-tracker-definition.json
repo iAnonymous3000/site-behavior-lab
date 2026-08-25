@@ -1,0 +1,6 @@
+{
+  "provider": "adguard-cname-trackers",
+  "permanentId": "d2ef7cb2f6af6db657d3bd23bab21f78cb1d4771:data/combined_disguised_trackers_justdomains.txt",
+  "url": "https://raw.githubusercontent.com/AdguardTeam/cname-trackers/d2ef7cb2f6af6db657d3bd23bab21f78cb1d4771/data/combined_disguised_trackers_justdomains.txt",
+  "sha256": "cd0f8ab54229dced42f7613f99951be527c582ab9ef8f74a35a70c3a55d8c648"
+}

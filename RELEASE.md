@@ -864,12 +864,15 @@ authoritative gate list):
   stays red until that disposition is selected and approved by a named human;
   approving a blank selection or merely deleting an erratum cannot satisfy
   it. The calibration decision is equally concrete: it can select only
-  `complete-case-only-zero-censoring`, must pin the exact
-  `research/measurement-candidate/calibration-censoring-policy.json` bytes,
-  and must copy the producer's domain-separated `dispositionSha256` binding
-  both the artifact and the analyzer semantics (`anyCensoredCase` makes the
-  study ineligible and the planned denominator must remain complete). A generic
-  "settled" approval, a different path, or an unbound digest stays red.
+  `per-detector-censoring-assignments-v1`, must pin the exact
+  `research/measurement-candidate/calibration-censoring-policy-assignments.json`
+  bytes, and must copy the producer's domain-separated `dispositionSha256`
+  binding both the artifact and the per-detector analyzer semantics; the
+  superseded zero-censoring approval is preserved verbatim in the decision's
+  `superseded` block and its artifact stays readable at its historical path.
+  A generic "settled" approval, a different path, or an unbound digest stays
+  red, and the decision reads honestly as pending until the named human
+  commits the approval.
 - **Derived gates.** Corpus denominators, the third-party review ledger,
   runner destruction receipts, controlled publication archives, the lifecycle
   readback receipt, and the release-receipt archive are all

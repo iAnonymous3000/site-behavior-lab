@@ -43,11 +43,14 @@ In dependency order:
 5. **The freeze**. Preregistration and scaffold land BEFORE candidate C is
    frozen; the activation receipt, runner label, egress attestation, and
    candidate must agree. The manifest still records the
-   `complete-case-only-zero-censoring` approval, but the step-3 decision
-   (docs/calibration-censoring-policy-decision.md) supersedes that policy for
-   NEW studies: step 4 must implement the per-detector C/B artifact and a
-   named human must approve its exact bytes and digests before any new
-   acquisition or labeling. A further policy ceremony IS needed.
+   `complete-case-only-zero-censoring` approval in its `superseded` block,
+   and the step-4 per-detector C/B artifact now EXISTS
+   (research/measurement-candidate/calibration-censoring-policy-assignments.json,
+   derived from scripts/calibration-policy-assignments.mjs by
+   `npm run calibration:policy-artifact`). Its exact digests sit in the
+   manifest with status pending-named-human-approval: a named human must
+   flip that status and add decidedBy/decidedAt before any new acquisition
+   or labeling, and every ceremony and pilot CLI refuses until then.
 
 ## The zero-censoring arithmetic, stated plainly
 

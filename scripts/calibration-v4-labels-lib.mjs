@@ -25,7 +25,7 @@ export const V4_ADJUDICATION_SCHEMA_VERSION = 2;
 export const V4_LABELS_MANIFEST_SCHEMA_VERSION = 4;
 export const V4_LABELS_MANIFEST_KIND =
   "site-behavior-detector-calibration-labels-manifest";
-export const V4_FRAME_TASK_SCHEMA_VERSION = 1;
+export const V4_FRAME_TASK_SCHEMA_VERSION = 2;
 export const V4_FRAME_TASK_KIND =
   "site-behavior-detector-calibration-frame-tasks";
 export const V4_LABEL_ARTIFACT_KIND =
@@ -69,12 +69,22 @@ export function validateV4FrameTasks(value) {
   require(isRecord(value), "frame tasks must be a record");
   only(
     value,
-    ["schemaVersion", "artifactKind", "studyId", "detector", "candidateCommit", "referenceProtocolId", "cases"],
+    [
+      "schemaVersion",
+      "artifactKind",
+      "studyId",
+      "detector",
+      "candidateCommit",
+      "referenceProtocolId",
+      "referenceProtocolSha256",
+      "externalDefinitions",
+      "cases"
+    ],
     "frame tasks"
   );
   require(
     value.schemaVersion === V4_FRAME_TASK_SCHEMA_VERSION,
-    `frame tasks schemaVersion must be ${V4_FRAME_TASK_SCHEMA_VERSION}`
+    `frame tasks schemaVersion must be ${V4_FRAME_TASK_SCHEMA_VERSION}; a v1 frame predates the protocol-byte and shared-definition binding and is refused by version`
   );
   require(value.artifactKind === V4_FRAME_TASK_KIND, "frame tasks kind mismatch");
   require(typeof value.studyId === "string" && value.studyId.length > 0, "frame tasks need a studyId");
@@ -87,6 +97,21 @@ export function validateV4FrameTasks(value) {
     typeof value.referenceProtocolId === "string" && value.referenceProtocolId.length > 0,
     "frame tasks need a referenceProtocolId"
   );
+  require(
+    typeof value.referenceProtocolSha256 === "string" && SHA256.test(value.referenceProtocolSha256),
+    "frame tasks need the referenceProtocolSha256 of the exact protocol bytes; an id alone cannot prove which bytes reviewers labeled under"
+  );
+  if (value.externalDefinitions !== null) {
+    require(isRecord(value.externalDefinitions), "frame tasks externalDefinitions must be null or a record");
+    for (const [name, definition] of Object.entries(value.externalDefinitions)) {
+      require(isRecord(definition), `externalDefinitions.${name} must be a record`);
+      only(definition, ["provider", "permanentId", "url", "sha256"], `externalDefinitions.${name}`);
+      require(
+        typeof definition.sha256 === "string" && SHA256.test(definition.sha256),
+        `externalDefinitions.${name} needs a sha256`
+      );
+    }
+  }
   require(Array.isArray(value.cases) && value.cases.length > 0, "frame tasks need cases");
   const seen = new Set();
   for (const [index, entry] of value.cases.entries()) {

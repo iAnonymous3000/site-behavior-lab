@@ -259,7 +259,6 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   // Hand-committed evidence that has actually landed. Every flip moves here.
   const evidenced = new Set([
     "compatibility-surface-pinned",
-    "decisions-approved",
     "errata-resolution"
   ]);
   for (const [id, kind] of Object.entries(EXPECTED_GATES)) {
@@ -268,6 +267,13 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
     if (automationLanded.has(id)) continue;
     assert.equal(gate.status, evidenced.has(id) ? "pass" : "fail", `${id} status`);
   }
+  // decisions-approved is deliberately RED while the per-detector censoring
+  // policy awaits its named-human approval; the reason must say exactly that.
+  const decisionsGate = gates.get("decisions-approved") as { reasons: string[] };
+  assert.match(
+    decisionsGate.reasons.join(" "),
+    /calibrationCensoringPolicy is pending-named-human-approval/
+  );
   const releaseGovernance = gates.get("release-tag-governance") as {
     reasons: string[];
   };
@@ -1245,13 +1251,17 @@ test("release readiness derives the runner environment pin and rejects drift end
 
 test("calibration approval binds one fixed policy artifact and semantic disposition", async () => {
   const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
-  const { calibrationPolicyDispositionSha256 } = await script(
-    "calibration-study-lib.mjs"
+  const studyLib = (await script("calibration-study-lib.mjs")) as unknown as {
+    CALIBRATION_CENSORING_POLICY_ID: string;
+    CALIBRATION_CENSORING_POLICY_PATH: string;
+    CALIBRATION_SUPERSEDED_POLICY_ID: string;
+    CALIBRATION_SUPERSEDED_POLICY_PATH: string;
+    CALIBRATION_SUPERSEDED_POLICY_SHA256: string;
+    CALIBRATION_SUPERSEDED_DISPOSITION_SHA256: string;
+  };
+  const { buildCalibrationPolicyAssignmentsArtifact } = await script(
+    "calibration-policy-artifact-lib.mjs"
   );
-  const CALIBRATION_CENSORING_POLICY_ID =
-    "complete-case-only-zero-censoring";
-  const CALIBRATION_CENSORING_POLICY_PATH =
-    "research/measurement-candidate/calibration-censoring-policy.json";
   const root = mkdtempSync(path.join(tmpdir(), "sbl-readiness-calibration-decision-"));
   try {
     const manifest = await syntheticWorld(root);
@@ -1259,47 +1269,59 @@ test("calibration approval binds one fixed policy artifact and semantic disposit
       string,
       Record<string, unknown>
     >;
-    const policy = `${JSON.stringify(
-      {
-        schemaVersion: 1,
-        artifactKind: "site-behavior-detector-calibration-censoring-policy",
-        id: CALIBRATION_CENSORING_POLICY_ID,
-        allowedReasons: [
-          "capture-failed",
-          "reference-label-uncertain",
-          "artifact-unreadable",
-          "eligibility-criteria-not-met"
-        ],
-        releaseEligibility: {
-          anyCensoredCase: "study-ineligible",
-          plannedDenominator: "must-remain-complete"
-        }
-      },
-      null,
-      2
-    )}\n`;
+    // Producer-generated fixture: the artifact comes from the ONE producer
+    // over the real step-3 table with synthetic external inputs, so the
+    // fixture cannot agree with a drifted validator by construction.
+    const fixturePin = (seed: string) => ({
+      provider: `fixture-${seed}`,
+      permanentId: `FIXTURE-${seed}`,
+      url: `https://pins.fixture.example/${seed}`,
+      sha256: createHash("sha256").update(seed).digest("hex")
+    });
+    const produced = buildCalibrationPolicyAssignmentsArtifact({
+      protocolBytes: "# fixture labeling protocol\n",
+      trackerDefinition: fixturePin("tracker"),
+      publicSuffixDefinition: fixturePin("suffix")
+    });
     const policyAbsolute = path.join(
       root,
-      ...CALIBRATION_CENSORING_POLICY_PATH.split("/")
+      ...studyLib.CALIBRATION_CENSORING_POLICY_PATH.split("/")
     );
     mkdirSync(path.dirname(policyAbsolute), { recursive: true });
-    writeFileSync(policyAbsolute, policy);
-    const policySha256 = createHash("sha256").update(policy).digest("hex");
-    decisions.calibrationCensoringPolicy = approvedDecision({
-      currentlySupportedSelections: [CALIBRATION_CENSORING_POLICY_ID],
+    writeFileSync(policyAbsolute, produced.text);
+    // The superseded artifact must remain readable at its historical path
+    // with its recorded bytes: copy the REAL committed file.
+    const supersededAbsolute = path.join(
+      root,
+      ...studyLib.CALIBRATION_SUPERSEDED_POLICY_PATH.split("/")
+    );
+    mkdirSync(path.dirname(supersededAbsolute), { recursive: true });
+    writeFileSync(
+      supersededAbsolute,
+      readFileSync(
+        path.join(process.cwd(), ...studyLib.CALIBRATION_SUPERSEDED_POLICY_PATH.split("/"))
+      )
+    );
+    const supersededBlock = {
+      id: studyLib.CALIBRATION_SUPERSEDED_POLICY_ID,
+      policyArtifactPath: studyLib.CALIBRATION_SUPERSEDED_POLICY_PATH,
+      policyArtifactSha256: studyLib.CALIBRATION_SUPERSEDED_POLICY_SHA256,
+      dispositionSha256: studyLib.CALIBRATION_SUPERSEDED_DISPOSITION_SHA256,
+      decidedBy: "iAnonymous3000",
+      decidedAt: "2026-08-02T22:10:00.000Z"
+    };
+    const decisionBody = {
+      currentlySupportedSelections: [studyLib.CALIBRATION_CENSORING_POLICY_ID],
       recommendedDisposition: "human-decision-required-before-labeling",
       methodologicalAssessment:
-        "Supported by the current analyzer; not a recommendation to approve or use it.",
-      selected: CALIBRATION_CENSORING_POLICY_ID,
-      policyArtifactPath: CALIBRATION_CENSORING_POLICY_PATH,
-      policyArtifactSha256: policySha256,
-      semanticDisposition: {
-        anyCensoredCase: "study-ineligible",
-        plannedDenominator: "must-remain-complete"
-      },
-      dispositionSha256:
-        calibrationPolicyDispositionSha256(policySha256)
-    });
+        "Per-detector assignments awaiting the named human; not a recommendation to approve or use it.",
+      selected: studyLib.CALIBRATION_CENSORING_POLICY_ID,
+      policyArtifactPath: studyLib.CALIBRATION_CENSORING_POLICY_PATH,
+      policyArtifactSha256: produced.policyArtifactSha256,
+      dispositionSha256: produced.dispositionSha256,
+      superseded: supersededBlock
+    };
+    decisions.calibrationCensoringPolicy = approvedDecision(decisionBody);
     manifest.gates["decisions-approved"].requiredDecisions.push(
       "calibrationCensoringPolicy"
     );
@@ -1315,7 +1337,86 @@ test("calibration approval binds one fixed policy artifact and semantic disposit
       "pass"
     );
 
-    decisions.calibrationCensoringPolicy.dispositionSha256 = "0".repeat(64);
+    // The PENDING state: honest red with exactly the awaiting-approval
+    // reason, every byte-binding check still enforced, and no decidedBy.
+    decisions.calibrationCensoringPolicy = {
+      ...decisionBody,
+      status: "pending-named-human-approval"
+    };
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    const pending = evaluateReleaseReadiness(root, NOW);
+    const pendingGate = pending.gates.find(
+      (gate: { id: string }) => gate.id === "decisions-approved"
+    ) as { status: string; reasons: string[] };
+    assert.equal(pendingGate.status, "fail");
+    assert.match(
+      pendingGate.reasons.join(" "),
+      /calibrationCensoringPolicy is pending-named-human-approval/
+    );
+    assert.doesNotMatch(pendingGate.reasons.join(" "), /superseded block|dispositionSha256 must be/);
+
+    // A pending decision smuggling approval fields is refused by name.
+    decisions.calibrationCensoringPolicy = {
+      ...decisionBody,
+      status: "pending-named-human-approval",
+      decidedBy: "iAnonymous3000"
+    };
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    const smuggled = evaluateReleaseReadiness(root, NOW);
+    assert.match(
+      (smuggled.gates.find(
+        (gate: { id: string }) => gate.id === "decisions-approved"
+      ) as { reasons: string[] }).reasons.join(" "),
+      /cannot carry decidedBy or decidedAt/
+    );
+
+    // Dropping the superseded historical tuple is refused: history must
+    // stay verifiable.
+    const { superseded: _dropped, ...withoutHistory } = decisionBody;
+    decisions.calibrationCensoringPolicy = approvedDecision(withoutHistory);
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    assert.match(
+      (evaluateReleaseReadiness(root, NOW).gates.find(
+        (gate: { id: string }) => gate.id === "decisions-approved"
+      ) as { reasons: string[] }).reasons.join(" "),
+      /must preserve the superseded zero-censoring approval/
+    );
+
+    // Tampering the preserved historical artifact's bytes is refused: the
+    // "remains readable" clause is enforced, not aspirational.
+    decisions.calibrationCensoringPolicy = approvedDecision(decisionBody);
+    writeFileSync(supersededAbsolute, "{}\n");
+    writeFileSync(
+      path.join(root, "RELEASE_READINESS.json"),
+      JSON.stringify(manifest)
+    );
+    assert.match(
+      (evaluateReleaseReadiness(root, NOW).gates.find(
+        (gate: { id: string }) => gate.id === "decisions-approved"
+      ) as { reasons: string[] }).reasons.join(" "),
+      /must remain readable at its historical path/
+    );
+    writeFileSync(
+      supersededAbsolute,
+      readFileSync(
+        path.join(process.cwd(), ...studyLib.CALIBRATION_SUPERSEDED_POLICY_PATH.split("/"))
+      )
+    );
+
+    // A substituted disposition digest is refused.
+    decisions.calibrationCensoringPolicy = approvedDecision({
+      ...decisionBody,
+      dispositionSha256: "0".repeat(64)
+    });
     writeFileSync(
       path.join(root, "RELEASE_READINESS.json"),
       JSON.stringify(manifest)

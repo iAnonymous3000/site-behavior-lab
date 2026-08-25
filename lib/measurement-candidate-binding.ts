@@ -62,11 +62,26 @@ export const MEASUREMENT_CANDIDATE_INPUTS_PATH =
   "research/measurement-candidate/measurement-inputs.json";
 export const MEASUREMENT_IDENTITY_PATH =
   "research/measurement-candidate/measurement-identity.json";
+/**
+ * HISTORICAL (superseded 2026-08-24 by the per-detector assignments below):
+ * the global zero-censoring artifact's path, disposition domain, and schema
+ * version stay exported so existing artifacts and the superseded readiness
+ * decision remain verifiable. Nothing may start a new study through them.
+ */
 export const MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH =
   "research/measurement-candidate/calibration-censoring-policy.json";
 export const MEASUREMENT_CALIBRATION_POLICY_DISPOSITION_DOMAIN =
   "site-behavior-calibration-censoring-policy-disposition-v2";
 export const MEASUREMENT_CALIBRATION_POLICY_SCHEMA_VERSION = 2;
+export const MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH =
+  "research/measurement-candidate/calibration-censoring-policy-assignments.json";
+export const MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_DISPOSITION_DOMAIN =
+  "site-behavior-calibration-censoring-policy-disposition-v3";
+export const MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_SCHEMA_VERSION = 3;
+export const MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_KIND =
+  "site-behavior-detector-calibration-censoring-policy-assignments";
+export const MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID =
+  "per-detector-censoring-assignments-v1";
 export const MEASUREMENT_CALIBRATION_MINIMUM_CLASS_DENOMINATOR = 100;
 export const MEASUREMENT_CALIBRATION_CONFIDENCE_LEVEL = 0.95;
 export const MEASUREMENT_CALIBRATION_MAXIMUM_WORST_CASE_HALF_WIDTH = 0.1;
@@ -74,6 +89,7 @@ export const MEASUREMENT_CANDIDATE_BINDING_KIND = "site-behavior-measurement-can
 export const MEASUREMENT_CANDIDATE_BINDING_VERSION = 1;
 export const MEASUREMENT_CALIBRATION_ARTIFACT_MANIFEST_KIND =
   "site-behavior-detector-calibration-artifact-manifest";
+/** HISTORICAL: see the supersession note on the policy path above. */
 export const MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID =
   "complete-case-only-zero-censoring";
 export const MEASUREMENT_CANDIDATE_INPUTS_KIND =
@@ -461,6 +477,17 @@ export type MeasurementCandidateAttestationRequest = {
 };
 
 export type MeasurementCalibrationPolicyProfile = {
+  id: typeof MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID;
+  policyArtifactPath: typeof MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH;
+  policyArtifactSha256: string;
+  dispositionSha256: string;
+  analyzerVersion: string;
+  decidedBy: string;
+  decidedAt: string;
+};
+
+/** HISTORICAL shape of the superseded global policy profile. */
+export type MeasurementCalibrationZeroCensoringPolicyProfile = {
   id: typeof MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID;
   policyArtifactPath: typeof MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH;
   policyArtifactSha256: string;
@@ -655,6 +682,10 @@ export function measurementCalibrationAnalysisPolicyProblems(
   analysis: DetectorCalibrationAnalysis,
   policy: MeasurementCalibrationPolicyProfile
 ): string[] {
+  // The two-class publication numbers keep their ONE home; the assignments
+  // profile no longer restates them per decision block.
+  const ratePublicationEligibility = measurementCalibrationRatePublicationEligibility();
+  void policy;
   const problems: string[] = [];
   if (
     analysis.status !== "sample-estimate" ||
@@ -674,7 +705,7 @@ export function measurementCalibrationAnalysisPolicyProblems(
     "predictedDetected",
     "predictedNotDetected"
   ] as const) {
-    const minimum = policy.ratePublicationEligibility.minimumDenominators[field];
+    const minimum = ratePublicationEligibility.minimumDenominators[field];
     if (analysis.denominators[field] < minimum) {
       problems.push(
         `${field} denominator ${analysis.denominators[field]} is below the policy minimum ${minimum}`
@@ -689,9 +720,9 @@ export function measurementCalibrationAnalysisPolicyProblems(
       if (
         interval === null ||
         interval.method !==
-          policy.ratePublicationEligibility.uncertainty.method ||
+          ratePublicationEligibility.uncertainty.method ||
         (interval.upper - interval.lower) / 2 >
-          policy.ratePublicationEligibility.uncertainty
+          ratePublicationEligibility.uncertainty
             .maximumWorstCaseHalfWidth +
             Number.EPSILON
       ) {
@@ -2688,7 +2719,7 @@ function verifyMeasurementCandidateInputs(
     "measurement candidate inputs must be a non-empty array"
   );
   const allowedInputPath =
-    /^(?:calibration\/[a-z0-9][a-z0-9._-]{0,99}\/(?:(?:preregistration|frame)\.json|label-sealing-public-key\.pem)|research\/aa-studies\/[a-z0-9][a-z0-9._-]{0,99}\/(?:preregistration|target-frame)\.json|research\/measurement-candidate\/(?:measurement-identity|calibration-censoring-policy)\.json)$/;
+    /^(?:calibration\/[a-z0-9][a-z0-9._-]{0,99}\/(?:(?:preregistration|frame)\.json|label-sealing-public-key\.pem)|research\/aa-studies\/[a-z0-9][a-z0-9._-]{0,99}\/(?:preregistration|target-frame)\.json|research\/measurement-candidate\/(?:measurement-identity|calibration-censoring-policy|calibration-censoring-policy-assignments)\.json)$/;
   const inputs: MeasurementCandidateInput[] = [];
   let priorPath = "";
   for (const [index, rawInput] of manifest.inputs.entries()) {
@@ -3544,15 +3575,26 @@ function verifyCalibrationPreregistration(
     SHA256,
     `${label} candidate preregistration.censoringPolicy.sha256`
   );
-  verifyCalibrationCensoringPolicy(
-    rootDir,
-    label,
-    candidateCommit,
-    censoringPolicyId,
-    censoringPolicyPath,
-    censoringPolicySha256,
-    verifyCandidateBlobs
-  );
+  if (censoringPolicyId === MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID) {
+    verifyCalibrationCensoringPolicyAssignments(
+      rootDir,
+      label,
+      candidateCommit,
+      censoringPolicySha256,
+      verifyCandidateBlobs
+    );
+  } else {
+    // Historical preregistrations bound the superseded global artifact.
+    verifyCalibrationCensoringPolicy(
+      rootDir,
+      label,
+      candidateCommit,
+      censoringPolicyId,
+      censoringPolicyPath,
+      censoringPolicySha256,
+      verifyCandidateBlobs
+    );
+  }
   requireValue(
     censoringPolicySha256 === approvedPolicy.policyArtifactSha256 &&
       measurementInputByPath.get(censoringPolicyPath) ===
@@ -4015,7 +4057,7 @@ function verifyCalibrationCensoringPolicy(
   );
 }
 
-export function measurementCalibrationRatePublicationEligibility(): MeasurementCalibrationPolicyProfile["ratePublicationEligibility"] {
+export function measurementCalibrationRatePublicationEligibility(): MeasurementCalibrationZeroCensoringPolicyProfile["ratePublicationEligibility"] {
   return {
     sampling: "simple-random",
     independentUnits: true,
@@ -4065,6 +4107,251 @@ export function measurementCalibrationPolicyDispositionSha256(input: {
     .digest("hex");
 }
 
+export function measurementCalibrationPolicyAssignmentsDispositionSha256(input: {
+  policyArtifactSha256: string;
+  analyzerVersion: string;
+  detectors: Record<
+    string,
+    {
+      disposition: string;
+      primary: { policy: string; inferenceScope: string } | null;
+      secondary: { policy: string; inferenceScope: string } | null;
+      publicationProfile: string | null;
+    }
+  >;
+}): string {
+  return createHash("sha256")
+    .update(MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_DISPOSITION_DOMAIN)
+    .update("\0")
+    .update(
+      canonicalJson({
+        id: MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID,
+        policyArtifactPath: MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH,
+        policyArtifactSha256: input.policyArtifactSha256,
+        analyzerVersion: input.analyzerVersion,
+        detectors: input.detectors
+      })
+    )
+    .digest("hex");
+}
+
+/**
+ * Project the per-detector SEMANTIC disposition out of a parsed assignments
+ * artifact: exactly the fields whose meaning the analyzer consumes. One
+ * projection, used by the disposition digest on every side.
+ */
+export function measurementCalibrationAssignmentsSemanticProjection(
+  artifact: JsonRecord
+): Record<
+  string,
+  {
+    disposition: string;
+    primary: { policy: string; inferenceScope: string } | null;
+    secondary: { policy: string; inferenceScope: string } | null;
+    publicationProfile: string | null;
+  }
+> {
+  const detectors = requiredRecord(artifact.detectors, "policy assignments detectors");
+  const projection: Record<
+    string,
+    {
+      disposition: string;
+      primary: { policy: string; inferenceScope: string } | null;
+      secondary: { policy: string; inferenceScope: string } | null;
+      publicationProfile: string | null;
+    }
+  > = {};
+  for (const detector of Object.keys(detectors).sort()) {
+    const row = requiredRecord(detectors[detector], `policy assignments detectors.${detector}`);
+    const arm = (value: unknown, label: string) => {
+      if (value === null) return null;
+      const record = requiredRecord(value, label);
+      return {
+        policy: requireNonEmptyString(record.policy, `${label}.policy`),
+        inferenceScope: requireNonEmptyString(record.inferenceScope, `${label}.inferenceScope`)
+      };
+    };
+    projection[detector] = {
+      disposition: requireNonEmptyString(row.disposition, `detectors.${detector}.disposition`),
+      primary: arm(row.primary, `detectors.${detector}.primary`),
+      secondary: arm(row.secondary, `detectors.${detector}.secondary`),
+      publicationProfile:
+        row.publicationProfile === null
+          ? null
+          : requireNonEmptyString(row.publicationProfile, `detectors.${detector}.publicationProfile`)
+    };
+  }
+  return projection;
+}
+
+/**
+ * Verify the per-detector censoring-policy ASSIGNMENTS artifact: canonical
+ * candidate-resident bytes, closed shape, internally consistent digests and
+ * vocabularies. VALUE truth (that the rows equal the step-3 table) is the
+ * producer --check's job in CI; this verifier deliberately reads the
+ * artifact's own embedded vocabularies rather than restating the table.
+ */
+export function verifyCalibrationCensoringPolicyAssignments(
+  rootDir: string,
+  label: string,
+  candidateCommit: string,
+  policyArtifactSha256: string,
+  verifyCandidateBlobs: boolean
+): JsonRecord {
+  const policyText = candidateResidentText(
+    rootDir,
+    candidateCommit,
+    MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH,
+    policyArtifactSha256,
+    verifyCandidateBlobs,
+    `${label} censoring-policy assignments`
+  );
+  const artifact = readJsonTextObject(policyText, `${label} censoring-policy assignments`);
+  requireValue(
+    policyText === `${JSON.stringify(artifact, null, 2)}\n`,
+    `${label} censoring-policy assignments must be canonical serialized JSON`
+  );
+  requireExactOrderedKeys(
+    artifact,
+    [
+      "schemaVersion",
+      "artifactKind",
+      "id",
+      "analyzerVersion",
+      "censorReasons",
+      "policies",
+      "inferenceScopes",
+      "publicationProfiles",
+      "referenceProtocol",
+      "detectors"
+    ],
+    `${label} censoring-policy assignments`
+  );
+  requireValue(
+    artifact.schemaVersion === MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_SCHEMA_VERSION &&
+      artifact.artifactKind === MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_KIND &&
+      artifact.id === MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID,
+    `${label} censoring-policy assignments identity is invalid`
+  );
+  requireNonEmptyString(artifact.analyzerVersion, `${label} analyzerVersion`);
+  requireValue(
+    JSON.stringify(artifact.censorReasons) ===
+      JSON.stringify([
+        "capture-failed",
+        "reference-label-uncertain",
+        "artifact-unreadable",
+        "eligibility-criteria-not-met"
+      ]),
+    `${label} candidate censoring policy reasons must equal the detector analyzer reasons`
+  );
+  const policies = requiredRecord(artifact.policies, `${label} policies`);
+  const policyVocabulary = new Set(
+    Object.values(policies).map((value) => requireNonEmptyString(value, `${label} policies entry`))
+  );
+  requireValue(Array.isArray(artifact.inferenceScopes), `${label} inferenceScopes must be an array`);
+  const scopeVocabulary = new Set(
+    (artifact.inferenceScopes as unknown[]).map((value: unknown) =>
+      requireNonEmptyString(value, `${label} inferenceScopes entry`)
+    )
+  );
+  const profiles = requiredRecord(artifact.publicationProfiles, `${label} publicationProfiles`);
+  const referenceProtocol = requiredRecord(artifact.referenceProtocol, `${label} referenceProtocol`);
+  requireExactOrderedKeys(
+    referenceProtocol,
+    ["id", "path", "sha256"],
+    `${label} referenceProtocol`
+  );
+  requireNonEmptyString(referenceProtocol.id, `${label} referenceProtocol.id`);
+  requiredPattern(referenceProtocol.sha256, SHA256, `${label} referenceProtocol.sha256`);
+  const detectors = requiredRecord(artifact.detectors, `${label} detectors`);
+  for (const [detector, rawRow] of Object.entries(detectors)) {
+    const rowLabel = `${label} detectors.${detector}`;
+    const row = requiredRecord(rawRow, rowLabel);
+    requireExactOrderedKeys(
+      row,
+      [
+        "disposition",
+        "holdReason",
+        "proposition",
+        "resultType",
+        "primary",
+        "secondary",
+        "publicationProfile",
+        "externalDefinitions"
+      ],
+      rowLabel
+    );
+    if (row.disposition === "hold") {
+      requireNonEmptyString(row.holdReason, `${rowLabel}.holdReason`);
+      requireValue(
+        row.proposition === null &&
+          row.resultType === null &&
+          row.primary === null &&
+          row.secondary === null &&
+          row.publicationProfile === null &&
+          row.externalDefinitions === null,
+        `${rowLabel} is held and must carry no analysis fields`
+      );
+      continue;
+    }
+    requireValue(row.disposition === "proceed", `${rowLabel}.disposition must be proceed or hold`);
+    requireValue(row.holdReason === null, `${rowLabel} proceeds and carries no holdReason`);
+    const proposition = requiredRecord(row.proposition, `${rowLabel}.proposition`);
+    requireExactOrderedKeys(proposition, ["id", "sha256", "text"], `${rowLabel}.proposition`);
+    requireNonEmptyString(proposition.id, `${rowLabel}.proposition.id`);
+    const propositionText = requireNonEmptyString(proposition.text, `${rowLabel}.proposition.text`);
+    requireValue(
+      proposition.sha256 ===
+        createHash("sha256").update(propositionText).digest("hex"),
+      `${rowLabel}.proposition.sha256 does not digest its own text`
+    );
+    requireNonEmptyString(row.resultType, `${rowLabel}.resultType`);
+    const primary = requiredRecord(row.primary, `${rowLabel}.primary`);
+    for (const [armName, arm] of [["primary", primary] as const, ["secondary", row.secondary] as const]) {
+      if (arm === null) continue;
+      const armRecord = requiredRecord(arm, `${rowLabel}.${armName}`);
+      requireExactOrderedKeys(armRecord, ["policy", "inferenceScope"], `${rowLabel}.${armName}`);
+      requireValue(
+        policyVocabulary.has(requireNonEmptyString(armRecord.policy, `${rowLabel}.${armName}.policy`)),
+        `${rowLabel}.${armName}.policy is outside the artifact's own policy vocabulary`
+      );
+      requireValue(
+        scopeVocabulary.has(
+          requireNonEmptyString(armRecord.inferenceScope, `${rowLabel}.${armName}.inferenceScope`)
+        ),
+        `${rowLabel}.${armName}.inferenceScope is outside the artifact's own scope vocabulary`
+      );
+    }
+    const profileId = requireNonEmptyString(row.publicationProfile, `${rowLabel}.publicationProfile`);
+    requireValue(
+      Object.hasOwn(profiles, profileId),
+      `${rowLabel}.publicationProfile names no profile in the artifact`
+    );
+    if (row.externalDefinitions !== null) {
+      const definitions = requiredRecord(row.externalDefinitions, `${rowLabel}.externalDefinitions`);
+      for (const [definitionName, rawDefinition] of Object.entries(definitions)) {
+        const definition = requiredRecord(
+          rawDefinition,
+          `${rowLabel}.externalDefinitions.${definitionName}`
+        );
+        requireExactOrderedKeys(
+          definition,
+          ["provider", "permanentId", "url", "sha256"],
+          `${rowLabel}.externalDefinitions.${definitionName}`
+        );
+        requireNonEmptyString(definition.provider, `${rowLabel} definition provider`);
+        requireNonEmptyString(definition.permanentId, `${rowLabel} definition permanentId`);
+        requireValue(
+          typeof definition.url === "string" && definition.url.startsWith("https://"),
+          `${rowLabel} definition url must be https`
+        );
+        requiredPattern(definition.sha256, SHA256, `${rowLabel} definition sha256`);
+      }
+    }
+  }
+  return artifact;
+}
+
 function verifyCalibrationPolicyDecision(
   rootDir: string,
   candidateCommit: string,
@@ -4083,47 +4370,39 @@ function verifyCalibrationPolicyDecision(
     "calibrationPolicy"
   );
   requireValue(
-    bindingPolicy.id === MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID,
-    `calibrationPolicy.id must name the currently supported analyzer policy ${MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID}; selecting another policy requires changing the analyzer before candidate selection`
+    bindingPolicy.id === MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID,
+    `calibrationPolicy.id must name the currently supported analyzer policy ${MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID}; selecting another policy requires changing the analyzer before candidate selection`
   );
   requireValue(
     bindingPolicy.policyArtifactPath ===
-      MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH,
-    `calibrationPolicy.policyArtifactPath must be ${MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH}`
+      MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH,
+    `calibrationPolicy.policyArtifactPath must be ${MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH}`
   );
   const policyArtifactSha256 = requiredPattern(
     bindingPolicy.policyArtifactSha256,
     SHA256,
     "calibrationPolicy.policyArtifactSha256"
   );
-  const policyText = candidateResidentText(
-    rootDir,
-    candidateCommit,
-    MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH,
-    policyArtifactSha256,
-    verifyCandidateBlobs,
-    "approved calibration censoring policy"
-  );
   requireValue(
-    measurementInputByPath.get(MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH) ===
+    measurementInputByPath.get(MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH) ===
       policyArtifactSha256,
     "approved calibration censoring policy must be digest-bound by the measurement inputs manifest"
   );
-  verifyCalibrationCensoringPolicy(
+  const artifact = verifyCalibrationCensoringPolicyAssignments(
     rootDir,
     "approved calibration policy",
     candidateCommit,
-    MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID,
-    MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH,
     policyArtifactSha256,
     verifyCandidateBlobs
   );
-  const dispositionSha256 = measurementCalibrationPolicyDispositionSha256({
-    id: MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID,
-    policyArtifactPath: MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH,
+  const analyzerVersion = requireNonEmptyString(
+    artifact.analyzerVersion,
+    "approved calibration policy analyzerVersion"
+  );
+  const dispositionSha256 = measurementCalibrationPolicyAssignmentsDispositionSha256({
     policyArtifactSha256,
-    anyCensoredCase: "study-ineligible",
-    plannedDenominator: "must-remain-complete"
+    analyzerVersion,
+    detectors: measurementCalibrationAssignmentsSemanticProjection(artifact)
   });
   requireValue(
     bindingPolicy.dispositionSha256 === dispositionSha256,
@@ -4161,25 +4440,19 @@ function verifyCalibrationPolicyDecision(
   );
   requireValue(
     decision.status === "approved" &&
-      decision.selected === MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID &&
+      decision.selected === MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID &&
       decision.policyArtifactPath ===
-        MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH &&
+        MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH &&
       decision.policyArtifactSha256 === policyArtifactSha256 &&
       decision.dispositionSha256 === dispositionSha256,
     "calibrationCensoringPolicy must be explicitly approved by a named human for the exact candidate policy artifact and analyzer disposition"
   );
-  // Force a strict parse before returning. The verifier above also enforces
-  // canonical candidate residency and exact analyzer semantics.
-  readJsonTextObject(policyText, "approved calibration censoring policy");
   return {
-    id: MEASUREMENT_CALIBRATION_CENSORING_POLICY_ID,
-    policyArtifactPath: MEASUREMENT_CALIBRATION_CENSORING_POLICY_PATH,
+    id: MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_ID,
+    policyArtifactPath: MEASUREMENT_CALIBRATION_POLICY_ASSIGNMENTS_PATH,
     policyArtifactSha256,
     dispositionSha256,
-    anyCensoredCase: "study-ineligible",
-    plannedDenominator: "must-remain-complete",
-    ratePublicationEligibility:
-      measurementCalibrationRatePublicationEligibility(),
+    analyzerVersion,
     decidedBy,
     decidedAt
   };
