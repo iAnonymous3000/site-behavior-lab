@@ -94,21 +94,25 @@ const cases = candidateSet.candidates;
 assertNoScannerArtifacts(options.harDir);
 
 const worksheets = [];
+const uncovered = [];
 for (const { caseId, url } of cases) {
   const harPath = path.join(options.harDir, `${caseId}.har`);
   if (!existsSync(harPath)) fail(`no reviewer capture at ${harPath}`);
   const har = JSON.parse(readFileSync(harPath, "utf8"));
   // A capture that never LOADED the subject cannot answer anything about it,
   // and would otherwise be recorded as a determined ABSENT with no candidates
-  // and no DNS: the most consequential label, from evidence of nothing.
-  if (!harCoversSubject(har, url, publicSuffixes)) {
-    fail(
-      `the capture for ${caseId} contains no successful response from ${new URL(url).hostname}'s own ` +
-        "registrable domain: the subject redirected to another domain, the navigation failed, or the HAR " +
-        "is from the wrong tab. Re-capture it, or report the case to the operator if the subject really " +
-        "does move off its own domain; either way this is a capture to fix, not a label"
-    );
-  }
+  // and no DNS: the most consequential label, from evidence of nothing. It is
+  // recorded as NOT determined and the run continues. Refusing the whole run
+  // was worse than the defect: subjects in this study's own pilot set now
+  // answer on other registrable domains (philly.com serves www.inquirer.com,
+  // cbslocal.com serves www.cbsnews.com), so a refusal produced no worksheet
+  // at all for a hundred cases because of a handful, and no partial worksheet
+  // can be sealed.
+  const subjectLoaded = harCoversSubject(har, url, publicSuffixes);
+  if (!subjectLoaded) uncovered.push(caseId);
+  // Candidates are examined either way: whatever the capture DID contact is
+  // evidence worth recording, and it is `subjectLoaded` that decides whether
+  // the case can be determined, not the emptiness of this list.
   const hosts = firstPartyHostsFromHar(har, url, publicSuffixes);
   process.stdout.write(`${caseId}: ${hosts.length} first-party subdomains ... `);
   const worksheet = await buildCaseWorksheet(
@@ -118,7 +122,8 @@ for (const { caseId, url } of cases) {
       hosts,
       // Bound into the worksheet so a third party can confirm the hostnames
       // were not chosen after the resolutions were seen.
-      captureSha256: sha256Hex(readFileSync(harPath))
+      captureSha256: sha256Hex(readFileSync(harPath)),
+      subjectLoaded
     },
     {
       resolverAddress: options.resolver,
@@ -155,6 +160,16 @@ console.log(
   `\nWrote ${options.out}: ${worksheets.length} cases, ${present.length} proposed present, ` +
     `${undetermined.length} undetermined.`
 );
+if (uncovered.length > 0) {
+  console.log(
+    `\n${uncovered.length} case(s) never answered on their own registrable domain, so they are recorded\n` +
+      "as NOT determined and can only be labelled uncertain: " +
+      `${uncovered.slice(0, 8).join(", ")}${uncovered.length > 8 ? ", ..." : ""}\n` +
+      "Re-capture if that was your browser or your network. If the subject genuinely serves another\n" +
+      "domain now, tell the operator: replacing the case is a decision about the study's universe, not\n" +
+      "a label you may supply."
+  );
+}
 if (undetermined.length > 0) {
   console.log(
     "Undetermined cases had a candidate this resolver could not resolve. Do not label them\n" +

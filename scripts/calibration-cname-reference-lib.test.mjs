@@ -361,3 +361,46 @@ test("a capture that never LOADED the subject is refused, not read as a confiden
   // A HAR entry with no response object at all is not evidence of a load.
   assert.equal(harCoversSubject(har([{ request: { url: "https://news.example/" } }]), "https://news.example/", suffixes), false);
 });
+
+test("a subject that never answered on its own domain is UNCERTAIN, and does not abort the run", async () => {
+  const { buildCaseWorksheet } = await import("./calibration-cname-reference-lib.mjs");
+  const options = {
+    resolverAddress: "9.9.9.9",
+    trackerSuffixes: new Set(["tracker.example"]),
+    publicSuffixes: new Set(["example"]),
+    maxHops: 10,
+    timeoutMs: 100
+  };
+  // philly.com serves www.inquirer.com and cbslocal.com serves
+  // www.cbsnews.com; both are in this study's committed pilot set. An earlier
+  // version refused the whole run on such a case, which produced no worksheet
+  // at all for a hundred cases because of a handful, and no partial worksheet
+  // can be sealed.
+  const moved = await buildCaseWorksheet(
+    {
+      caseId: "moved.example",
+      url: "https://moved.example/",
+      hosts: [],
+      captureSha256: "c".repeat(64),
+      subjectLoaded: false
+    },
+    options
+  );
+  assert.equal(moved.subjectLoaded, false);
+  assert.equal(moved.determined, false);
+  // The emptiest possible evidence must not read as determined: "every" over
+  // an empty resolutions array is true.
+  assert.deepEqual(moved.resolutions, []);
+  const clean = await buildCaseWorksheet(
+    {
+      caseId: "clean.example",
+      url: "https://clean.example/",
+      hosts: [],
+      captureSha256: "d".repeat(64)
+    },
+    options
+  );
+  assert.equal(clean.subjectLoaded, true);
+  assert.equal(clean.determined, true);
+  assert.equal(clean.proposedLabel, "absent");
+});

@@ -30,11 +30,13 @@ const pathJoin = path.join;
 import {
   V4_PILOT_SIZING_KIND,
   V4_PILOT_SIZING_SCHEMA_VERSION,
+  computeV4PilotSizingArtifact,
   parseV4FrameTasksBytes,
   validateV4PilotLabelingAuthorization,
   validateV4ResolvedLabelsArtifact
 } from "./calibration-v4-ceremony-lib.mjs";
 import { CALIBRATION_CENSORING_POLICY_PATH, sha256Hex } from "./calibration-study-lib.mjs";
+import { calibrationLabelPublicKeyIdentity } from "./calibration-label-source-envelope-lib.mjs";
 
 const SHA1 = /^[0-9a-f]{40}$/;
 
@@ -277,6 +279,15 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
         authorization.referenceProtocolId === frameTasks.referenceProtocolId,
       `${PILOT_AUTHORIZATION_FILE} identity does not match the committed frame`
     );
+    // The carrier certifies label-sealing-public-key.pem as unchanged since K,
+    // and the authorization declares a keyId, and nothing compared the two. A
+    // replacement key handed out after the freeze would have satisfied every
+    // other check in this chain.
+    require_(
+      authorization.labelSealingKey.keyId ===
+        calibrationLabelPublicKeyIdentity(inputs[PILOT_PUBLIC_KEY_FILE]).keyId,
+      `${PILOT_AUTHORIZATION_FILE} was closed under a key that is not the committed ${PILOT_PUBLIC_KEY_FILE}`
+    );
     chain.authorization = { sha256: sha256Hex(bytes), commitmentSetSha256: authorization.commitmentSetSha256 };
   }
   const resolvedPath = path.join(rootDir, studyDir, PILOT_RESOLVED_LABELS_FILE);
@@ -339,24 +350,28 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
       sizing.resolvedLabelsSha256 === chain.resolvedLabels.sha256,
       `${PILOT_SIZING_FILE} counted resolved labels other than the committed ones`
     );
-    // The counts are RE-DERIVED from the labels sitting beside them. Binding
-    // the digest proves which file was counted, never that it was counted
-    // correctly, and every number downstream rests on these three.
-    const counted = { present: 0, absent: 0, uncertain: 0 };
-    for (const entry of chain.resolvedLabels.cases) {
-      if (entry.status === "known" && entry.value === "present") counted.present += 1;
-      else if (entry.status === "known" && entry.value === "absent") counted.absent += 1;
-      else counted.uncertain += 1;
-    }
+    // The artifact is RE-DERIVED, not read. Binding the resolved-labels digest
+    // proves WHICH file was counted, never that it was counted correctly, and
+    // an artifact that restated its own derivedN, class floor, or feasibility
+    // verdict could declare an infeasible pilot feasible with every digest in
+    // the chain intact. The producer is deterministic given the labels, the
+    // frame, and the pool the artifact itself declares, so equality is byte
+    // equality, exactly as the frame is re-derived from its carrier.
     require_(
-      isRecord(sizing.counts) &&
-        sizing.counts.present === counted.present &&
-        sizing.counts.absent === counted.absent &&
-        sizing.counts.uncertain === counted.uncertain &&
-        sizing.counts.total === counted.present + counted.absent + counted.uncertain,
-      `${PILOT_SIZING_FILE} counts ${JSON.stringify(sizing.counts)} are not what the committed resolved labels contain (${JSON.stringify({ ...counted, total: counted.present + counted.absent + counted.uncertain })})`
+      Number.isSafeInteger(sizing.feasibility?.sweptEligiblePool),
+      `${PILOT_SIZING_FILE} records no swept eligible pool, so its feasibility cannot be re-derived`
     );
-    chain.sizing = { feasible: sizing.feasibility?.feasible ?? null, counts: sizing.counts };
+    const rederivedSizing = computeV4PilotSizingArtifact({
+      resolvedLabelsBytes: readFileSync(resolvedPath, "utf8"),
+      frameTasksBytes: frameBytes,
+      minimumPerClass: sizing.minimumPerClass,
+      sweptEligiblePool: sizing.feasibility.sweptEligiblePool
+    });
+    require_(
+      rederivedSizing.text === readFileSync(sizingPath, "utf8"),
+      `${PILOT_SIZING_FILE} is not what its own resolved labels and frame produce; its counts, derived N, or feasibility verdict were not computed from the evidence it names`
+    );
+    chain.sizing = { feasible: sizing.feasibility.feasible, counts: sizing.counts };
   }
 
   return {
