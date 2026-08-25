@@ -179,6 +179,7 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
   //    settles WHICH code the derivation claims: the code as it stood at the
   //    carrier, which is the code the operator actually ran, reviewed and
   //    CI-gated on the protected branch like every other commit.
+  let pinnedMinimumPerClass = null;
   const workRoot = mkdtempSync(pathJoin(tmpdir(), "pilot-carrier-"));
   try {
     const treeRoot = pathJoin(workRoot, "tree");
@@ -209,6 +210,13 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
     );
     const artifactBytes = readFileSync(pathJoin(treeRoot, CALIBRATION_CENSORING_POLICY_PATH), "utf8");
     const artifact = JSON.parse(artifactBytes);
+    // The claimed-class floor is PINNED by the carrier's approved artifact.
+    // The chain below needs it, and must not take it from the artifact it is
+    // checking: a sizing artifact that restated a floor of 5 would re-derive
+    // consistently with 5 and pass its own audit.
+    pinnedMinimumPerClass =
+      artifact.publicationProfiles?.[artifact.detectors?.[frameTasks.detector]?.publicationProfile]
+        ?.minimumPerClaimedClass ?? null;
     require_(
       frameTasks.referenceProtocolId === artifact.referenceProtocol.id,
       `the frame's protocol id ${frameTasks.referenceProtocolId} is not the carrier's approved ${artifact.referenceProtocol.id}`
@@ -361,10 +369,18 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
       Number.isSafeInteger(sizing.feasibility?.sweptEligiblePool),
       `${PILOT_SIZING_FILE} records no swept eligible pool, so its feasibility cannot be re-derived`
     );
+    require_(
+      Number.isSafeInteger(pinnedMinimumPerClass) && pinnedMinimumPerClass >= 1,
+      `the carrier's approved artifact pins no claimed-class minimum for ${frameTasks.detector}`
+    );
+    require_(
+      sizing.minimumPerClass === pinnedMinimumPerClass,
+      `${PILOT_SIZING_FILE} was sized to a claimed-class floor of ${sizing.minimumPerClass}, and the approved artifact pins ${pinnedMinimumPerClass}`
+    );
     const rederivedSizing = computeV4PilotSizingArtifact({
       resolvedLabelsBytes: readFileSync(resolvedPath, "utf8"),
       frameTasksBytes: frameBytes,
-      minimumPerClass: sizing.minimumPerClass,
+      minimumPerClass: pinnedMinimumPerClass,
       sweptEligiblePool: sizing.feasibility.sweptEligiblePool
     });
     require_(

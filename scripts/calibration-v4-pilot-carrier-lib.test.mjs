@@ -565,6 +565,19 @@ test("the committed evidence chain is verified, and each link must name the one 
     })
   );
   assert.throws(() => verify(world), /not what its own resolved labels and frame produce/);
+  // A RESTATED CLASS FLOOR: sizing to a floor of 5 re-derives consistently
+  // with 5, so an audit that took the floor from the artifact under test
+  // would confirm it. The floor comes from the carrier's approved artifact.
+  const looseFloor = computeV4PilotSizingArtifact({
+    resolvedLabelsBytes: resolvedBuilt.text,
+    frameTasksBytes: frameBytes,
+    minimumPerClass: 5,
+    sweptEligiblePool: 1126
+  });
+  write(world.root, `${STUDY_DIR}/pilot-sizing.json`, looseFloor.text);
+  assert.throws(() => verify(world), /claimed-class floor of 5, and the approved artifact pins 100/);
+  write(world.root, `${STUDY_DIR}/pilot-sizing.json`, sizingBuilt.text);
+
   // A restated derived N or a flipped feasibility verdict is caught by the
   // same re-derivation: the digests all still bind the right files.
   write(
