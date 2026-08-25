@@ -20,9 +20,15 @@ order, with what refuses if a step is skipped. Study identity:
     `combined_disguised_trackers_justdomains.txt` at commit
     `d2ef7cb2f6af6db657d3bd23bab21f78cb1d4771`,
     sha256 `cd0f8ab54229dced42f7613f99951be527c582ab9ef8f74a35a70c3a55d8c648`
+    <https://raw.githubusercontent.com/AdguardTeam/cname-trackers/d2ef7cb2f6af6db657d3bd23bab21f78cb1d4771/data/combined_disguised_trackers_justdomains.txt>
   - public suffix list at commit
     `e8c9a2b2b2856b6449999dd0ec0d118f364ed0cd`, sha256
     `df6306ec61971424ad259757b399911f4d414486629a5a00e299a2b6c7957089`
+    <https://raw.githubusercontent.com/publicsuffix/list/e8c9a2b2b2856b6449999dd0ec0d118f364ed0cd/public_suffix_list.dat>
+
+  These two URLs are the "definition snapshots" step 4 tells the operator to
+  send. They are commit-pinned, not branch tips: fetching either project's
+  HEAD produces different bytes and the instrument refuses them by digest.
 
 Every pilot CLI refuses unless RELEASE_READINESS.json carries the
 named-human approval of the policy artifact (landed 2026-08-25) and the
@@ -141,9 +147,13 @@ commit (the frame files exist only there; K carries the inputs). They
 receive: F's sha, the two definition-snapshot URLs and digests above, and
 these commands. Reviewers capture each case with THEIR OWN browser (fresh
 profile, HAR export per case, named `<caseId>.har`, and nothing else in
-that directory). A capture that never reached the case's own registrable
-domain is refused by name rather than recorded as a confident absent:
-re-capture it.
+that directory). A capture with no successful response from the
+case's own registrable domain is refused by name rather than recorded as a
+confident absent. That covers the three shapes which otherwise look
+identical to a clean site: a subject that redirects to another registrable
+domain, a navigation that failed, and a HAR from the wrong tab. Re-capture
+it; if the subject genuinely moves off its own domain, report the case to
+the operator rather than labeling it.
 
 ```bash
 git fetch origin && git checkout <F>

@@ -140,8 +140,15 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
   //    frame it is the input to. This is what makes the two-commit split a
   //    checked fact rather than a claim in a document.
   for (const name of [PILOT_FRAME_FILE, PILOT_TASKS_DIR]) {
+    // ls-tree, not a failed `git show`: `show` exits non-zero for a missing
+    // path AND for a broken object, an unreadable repository, or a bad
+    // revision, so treating its failure as absence would let the one check
+    // that makes this ceremony decidable pass for reasons that have nothing
+    // to do with the tree. ls-tree succeeds either way and answers with
+    // bytes: empty output means the path is genuinely absent.
+    const listed = git(rootDir, ["ls-tree", "--name-only", carrier, "--", repoPath(name)]);
     require_(
-      showAtCommit(rootDir, carrier, repoPath(name), { allowMissing: true }) === null,
+      listed.trim() === "",
       `${name} already exists at the carrier commit; the carrier is the frame's INPUT and cannot contain it`
     );
   }

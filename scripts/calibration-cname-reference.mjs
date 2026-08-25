@@ -16,9 +16,10 @@ import {
  * Reviewer instrument for independent `cname-uncloaking` reference labels.
  *
  *   npm run calibration:cname-reference -- \
- *     --study-id cname-uncloaking-2026-08 \
- *     --cases /abs/cases.json \
+ *     --study-id cname-uncloaking-2026-08-prevalence-pilot \
+ *     --cases /abs/pilot-set.json \
  *     --har-dir /abs/har \
+ *     --frame-tasks /abs/frame-tasks.json \
  *     --tracker-source /abs/external-tracking-domains.txt \
  *     --tracker-source-sha256 <64 hex> \
  *     --public-suffix-source /abs/public_suffix_list.dat \
@@ -97,13 +98,15 @@ for (const { caseId, url } of cases) {
   const harPath = path.join(options.harDir, `${caseId}.har`);
   if (!existsSync(harPath)) fail(`no reviewer capture at ${harPath}`);
   const har = JSON.parse(readFileSync(harPath, "utf8"));
-  // A capture that never reached the subject cannot answer anything about it,
+  // A capture that never LOADED the subject cannot answer anything about it,
   // and would otherwise be recorded as a determined ABSENT with no candidates
   // and no DNS: the most consequential label, from evidence of nothing.
   if (!harCoversSubject(har, url, publicSuffixes)) {
     fail(
-      `the capture for ${caseId} contains no request to ${new URL(url).hostname}'s own registrable domain; ` +
-        "re-capture the case (a redirect off the domain or a HAR from the wrong tab reads as a confident absent)"
+      `the capture for ${caseId} contains no successful response from ${new URL(url).hostname}'s own ` +
+        "registrable domain: the subject redirected to another domain, the navigation failed, or the HAR " +
+        "is from the wrong tab. Re-capture it, or report the case to the operator if the subject really " +
+        "does move off its own domain; either way this is a capture to fix, not a label"
     );
   }
   const hosts = firstPartyHostsFromHar(har, url, publicSuffixes);

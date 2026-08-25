@@ -333,15 +333,31 @@ test("the candidate set has ONE reader, shared with the sweep, and it refuses th
   );
 });
 
-test("a capture that never reached the subject is refused, not read as a confident absent", async () => {
+test("a capture that never LOADED the subject is refused, not read as a confident absent", async () => {
   const { harCoversSubject } = await import("./calibration-cname-reference-lib.mjs");
   const suffixes = new Set(["example"]);
-  const onSubject = { log: { entries: [{ request: { url: "https://news.example/" } }] } };
-  assert.equal(harCoversSubject(onSubject, "https://news.example/", suffixes), true);
-  // A capture that redirected off the registrable domain yields the same
-  // EMPTY candidate list as a clean site, so without this the case would be
-  // recorded as determined absent from evidence of nothing.
-  const offSubject = { log: { entries: [{ request: { url: "https://elsewhere.example/" } }] } };
-  assert.equal(harCoversSubject(offSubject, "https://news.example/", suffixes), false);
-  assert.equal(harCoversSubject({ log: { entries: [] } }, "https://news.example/", suffixes), false);
+  const har = (entries) => ({ log: { entries } });
+  const req = (url, status) => ({ request: { url }, response: { status } });
+  const covers = (entries) => harCoversSubject(har(entries), "https://news.example/", suffixes);
+
+  // A capture that actually loaded the subject, including one where the
+  // document is served from a subdomain or reached through an in-domain
+  // redirect.
+  assert.equal(covers([req("https://news.example/", 200)]), true);
+  assert.equal(covers([req("https://www.news.example/", 200)]), true);
+  assert.equal(covers([req("https://news.example/", 301), req("https://www.news.example/", 200)]), true);
+
+  // The three capture defects that otherwise yield an EMPTY candidate list
+  // and therefore a determined ABSENT from evidence of nothing. The first is
+  // the one this guard is named for and the one an earlier version missed:
+  // the fixture omitted the initial hop, so it asserted a HAR shape that
+  // never occurs. A real off-domain redirect leaves its own request in the
+  // HAR, which is why presence is not the question and success is.
+  assert.equal(covers([req("https://news.example/", 301), req("https://elsewhere.example/", 200)]), false);
+  assert.equal(covers([req("https://news.example/", 0)]), false);
+  assert.equal(covers([req("https://elsewhere.example/", 200)]), false);
+  assert.equal(covers([]), false);
+
+  // A HAR entry with no response object at all is not evidence of a load.
+  assert.equal(harCoversSubject(har([{ request: { url: "https://news.example/" } }]), "https://news.example/", suffixes), false);
 });

@@ -108,17 +108,24 @@ export function firstPartyHostsFromHar(har, siteUrl, publicSuffixes) {
 }
 
 /**
- * Did this capture actually load the case's subject?
+ * Did this capture actually LOAD the case's subject?
  *
  * A case with no first-party subdomains is a legitimate ABSENT: nothing could
- * be cloaked because nothing first-party was contacted. But a capture that
- * landed somewhere else entirely (a redirect off the registrable domain, a
- * consent wall on another host, a HAR exported from the wrong tab) produces
- * the SAME empty candidate list, and would be recorded as a confident,
- * determined absent with no DNS performed and nothing to review. The two are
- * distinguishable: a capture that reached the subject contains at least one
- * request to the subject's own registrable domain. Cases that fail this are a
- * capture defect for the reviewer to fix, not a label.
+ * be cloaked because nothing first-party was contacted. But three capture
+ * defects produce the same empty candidate list, and would be recorded as a
+ * confident, determined absent with no DNS performed and nothing to review:
+ * a HAR exported from the wrong tab, a navigation that failed outright, and a
+ * subject that redirects to another registrable domain (routine for the
+ * news-scoped pilot set, where an apex can 301 to a different brand or to a
+ * consent gateway).
+ *
+ * Presence of a REQUEST to the subject's domain does not separate them: the
+ * redirect hop and the failed navigation both leave that request in the HAR.
+ * What separates them is a request to the subject's own registrable domain
+ * that actually SUCCEEDED, so that is what this asks. A 3xx to another
+ * registrable domain, a status 0 (the browser recorded no response), and a
+ * capture containing no on-domain request at all are all reviewer-facing
+ * capture defects, not labels.
  */
 export function harCoversSubject(har, siteUrl, publicSuffixes) {
   const entries = har?.log?.entries;
@@ -127,11 +134,16 @@ export function harCoversSubject(har, siteUrl, publicSuffixes) {
   return entries.some((entry) => {
     const url = entry?.request?.url;
     if (typeof url !== "string") return false;
+    let onSubject;
     try {
-      return registrableDomain(normalizeHost(new URL(url).hostname), publicSuffixes) === siteRegistrable;
+      onSubject =
+        registrableDomain(normalizeHost(new URL(url).hostname), publicSuffixes) === siteRegistrable;
     } catch {
       return false;
     }
+    if (!onSubject) return false;
+    const status = entry?.response?.status;
+    return typeof status === "number" && status >= 200 && status < 300;
   });
 }
 

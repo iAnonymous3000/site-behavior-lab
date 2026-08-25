@@ -1139,11 +1139,45 @@ test("the reviewer-batch producer maps the protocol, binds everything, and refus
   // who disbelieves the match downgrades to uncertain, never to absent.
   assert.throws(
     () => produce(bytes, { decisions: [{ caseId: "pilot-gamma.example", value: "absent" }] }),
-    /may not be labeled absent[\s\S]*unresolved candidates/
+    /may not be labeled absent[\s\S]*unresolved candidate/
   );
   assert.throws(
     () => produce(bytes, { decisions: [{ caseId: "pilot-alpha.example", value: "absent" }] }),
     /may not be labeled absent[\s\S]*matched chain/
+  );
+
+  // THE SUMMARY IS NOT EVIDENCE. Editing one well-formed field, exactly the
+  // route a forger would take, used to yield a determined ABSENT for a case
+  // whose own resolutions record a matched tracker chain: the ABSENT
+  // precondition was testable only against the decisions file. Both summary
+  // fields are re-derived from the resolutions recorded beside them.
+  const flippedLabel = await realWorksheet(built, {
+    overrides: { "pilot-alpha.example": { proposedLabel: "absent" } }
+  });
+  assert.throws(
+    () => produce(flippedLabel.bytes),
+    /proposedLabel "absent" disagrees with its own resolutions, which record a matched chain/
+  );
+  const flippedDetermined = await realWorksheet(built, {
+    overrides: { "pilot-gamma.example": { determined: true } }
+  });
+  assert.throws(
+    () => produce(flippedDetermined.bytes),
+    /determined true disagrees with its own resolutions, which record an unresolved candidate/
+  );
+  // ...including the reverse direction, so the check is not one-sided.
+  const hiddenMatch = await realWorksheet(built, {
+    overrides: { "pilot-beta.example": { proposedLabel: "present" } }
+  });
+  assert.throws(
+    () => produce(hiddenMatch.bytes),
+    /proposedLabel "present" disagrees with its own resolutions, which record no match/
+  );
+  const strippedEvidence = await realWorksheet(built);
+  delete strippedEvidence.worksheet.cases[0].resolutions;
+  assert.throws(
+    () => produce(canonicalPrettyJson(strippedEvidence.worksheet)),
+    /carries no resolutions array/
   );
 
   // Malformed worksheet fields refuse before they are read as meaning: a
@@ -1258,11 +1292,14 @@ test("the reviewer pipeline runs by EXECUTION from the real instrument's own wor
   for (const caseId of caseIds) {
     writeFileSync(
       path.join(harDir, `${caseId}.har`),
+      // A real capture shape: the subject answered on its own domain, and a
+      // third-party asset loaded. No first-party subdomain was contacted, so
+      // the instrument proposes ABSENT with no DNS at all.
       `${JSON.stringify({
         log: {
           entries: [
-            { request: { url: `https://${caseId}/` } },
-            { request: { url: "https://cdn-other.example/asset.js" } }
+            { request: { url: `https://${caseId}/` }, response: { status: 200 } },
+            { request: { url: "https://cdn-other.example/asset.js" }, response: { status: 200 } }
           ]
         }
       })}\n`
