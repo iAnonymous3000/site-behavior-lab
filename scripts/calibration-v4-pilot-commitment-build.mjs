@@ -143,16 +143,15 @@ let sourceCommit;
 let sourceTree;
 try {
   const sourceRoot = values.get("--source-root");
-  const sourceBytes = readFileSync(path.join(sourceRoot, ...sourcePath.split("/")), "utf8");
-  envelopeValue = JSON.parse(sourceBytes);
-  if (sourceBytes !== canonicalPrettyJson(envelopeValue)) {
-    fail("the sealed envelope must be canonical serialized JSON");
-  }
-  sourceDigest = sha256Hex(sourceBytes);
-  const inSource = (args) => {
-    const result = spawnSync("git", ["-C", sourceRoot, ...args], { encoding: "utf8" });
-    if (result.status !== 0) fail(`git ${args.join(" ")} in the source worktree failed`);
-    return result.stdout.trim().toLowerCase();
+  const inSource = (args, { binary = false } = {}) => {
+    const result = spawnSync("git", ["-C", sourceRoot, ...args], {
+      encoding: binary ? null : "utf8",
+      maxBuffer: 16 * 1024 * 1024
+    });
+    if (result.status !== 0) {
+      fail(`git ${args.join(" ")} in the source worktree failed`);
+    }
+    return binary ? result.stdout : result.stdout.trim().toLowerCase();
   };
   sourceCommit = inSource(["rev-parse", "HEAD"]);
   sourceTree = inSource(["rev-parse", "HEAD^{tree}"]);
@@ -160,6 +159,23 @@ try {
   if (sourceCommit !== declared) {
     fail(`the source worktree is at ${sourceCommit}, and the dispatch named ${declared}`);
   }
+  // Read the blob BY COMMIT IDENTITY, never through the worktree filesystem.
+  // Otherwise an untracked file or a committed symlink could be followed and
+  // wrapped while the record falsely claimed the bytes lived at this path in
+  // sourceCommit. `cat-file blob` also bounds the read and makes a symlink's
+  // own blob (its target text) the bytes that must validate as the envelope.
+  const sourceBlob = inSource(["cat-file", "blob", `${sourceCommit}:${sourcePath}`], {
+    binary: true
+  });
+  const sourceBytes = sourceBlob.toString("utf8");
+  if (!sourceBlob.equals(Buffer.from(sourceBytes, "utf8"))) {
+    fail("the sealed envelope blob must be UTF-8");
+  }
+  envelopeValue = JSON.parse(sourceBytes);
+  if (sourceBytes !== canonicalPrettyJson(envelopeValue)) {
+    fail("the sealed envelope must be canonical serialized JSON");
+  }
+  sourceDigest = sha256Hex(sourceBlob);
 } catch (error) {
   fail(`sealed envelope: ${error.message}`);
 }
