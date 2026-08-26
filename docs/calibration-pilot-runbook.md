@@ -113,19 +113,28 @@ which code the derivation claims: the code as it stood at K. CI runs the
 same gate on every PR, keyed on the frame's existence, so a committed frame
 with no carrier file fails rather than skipping the check.
 
+**What the gate establishes, and what it does not.** It proves the frame
+derives from its carrier, and that each later artifact NAMES the one before
+it: the authorization names this frame, this carrier, and the committed
+sealing key; the resolved labels name that authorization's commitment set and
+exactly the frame's cases; the sizing names those labels. It does not prove
+the label VALUES came out of the sealed envelopes, because no ciphertext is
+committed and the reveal is where that is established. It does not re-run the
+close's commitment custody, which needs the reviewer records rather than the
+summary the authorization carries. And it does not check the sizing
+arithmetic or the swept pool. The gate's own output says so on every run, and
+none of those gaps is closed by adding another digest.
+
 If the gate goes red after F has merged, read WHICH refusal fired before
 doing anything, because the remedies are not interchangeable:
 
 - **A failure to read the repository** (the message says so, and carries what
   git or tar reported) is an environment problem. Fix the environment and
   re-run. It is not a finding about the carrier and no artifact is in doubt.
-- **A sizing refusal** means the sizing artifact does not follow from the
-  labels and frame it names, or was sized to a floor the approved artifact
-  does not pin. Sizing is a pure derivation over committed evidence and
-  nothing is sealed to it, so re-run step 7 and commit the artifact it
-  produces. The same applies if the sizing producer itself changes later: a
-  frozen artifact that no longer reproduces is re-derived, never grounds for
-  retiring anything.
+- **A sizing refusal** means the artifact does not NAME the frame, carrier, or
+  resolved labels committed beside it. Sizing is a pure derivation over
+  committed evidence and nothing is sealed to it, so re-run step 7 and commit
+  what it produces.
 - **A carrier, frame, authorization, or resolved-labels refusal** is the
   serious case. Do not rewrite history: main is protected, and the frame is
   what reviewers may already hold. Retire that carrier, land a fresh K,

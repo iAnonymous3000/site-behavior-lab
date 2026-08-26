@@ -50,7 +50,27 @@ for (const name of studyDirs) {
   }
   try {
     const result = verifyPilotCarrier({ rootDir: repoRoot, studyDir, upstreamRef });
-    verified.push(`${studyDir}: ${result.cases} cases re-derived from ${result.carrier}`);
+    // Say WHICH links exist and what was not established. A directory holding
+    // only a frame and one holding a full chain used to print the same line,
+    // so a reader could not tell a checked chain from an absent one, and the
+    // deliberately unverified parts were reported to nobody.
+    const chain = result.chain ?? {};
+    const links = ["authorization", "resolvedLabels", "sizing"].filter((name) => chain[name]);
+    const caveats = [];
+    if (chain.resolvedLabels) {
+      caveats.push("label VALUES are attested by the reveal, not re-checked here (no ciphertext is committed)");
+    }
+    if (chain.authorization) {
+      caveats.push("the close's own commitment custody cannot be re-run from committed bytes");
+    }
+    if (chain.sizing) {
+      caveats.push("the sizing arithmetic and its swept pool are not verified here");
+    }
+    verified.push(
+      `${studyDir}: ${result.cases} cases re-derived from ${result.carrier}` +
+        (links.length > 0 ? `; chain bound: ${links.join(", ")}` : "; no chain artifacts committed yet") +
+        (caveats.length > 0 ? `\n    NOT established here: ${caveats.join("; ")}` : "")
+    );
   } catch (error) {
     problems.push(`${studyDir}: ${error.message}`);
   }
