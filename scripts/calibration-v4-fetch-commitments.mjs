@@ -121,6 +121,18 @@ try {
   fail(`coordinates: ${error.message}`);
 }
 if (!Array.isArray(coordinates) || coordinates.length === 0) fail("coordinates must be a non-empty array");
+// A replayed coordinate fetches one reviewer's artifact twice and writes a
+// records directory that can never close. The close would catch it through
+// set custody, but only after the operator had a directory that looks
+// complete; refusing here costs nothing and says which value repeats.
+for (const field of ["runId", "artifactId", "archiveSha256"]) {
+  const seen = new Set();
+  for (const coordinate of coordinates) {
+    const value = coordinate?.[field];
+    if (seen.has(value)) fail(`two coordinates share ${field} ${value}; each reviewer has their own run`);
+    seen.add(value);
+  }
+}
 
 const scratchDir = mkdtempSync(path.join(tmpdir(), "v4-commitments-"));
 let records;
@@ -151,6 +163,14 @@ try {
 }
 
 mkdirSync(outDir, { recursive: true, mode: 0o700 });
+// Distinct reviewers, checked on what the API actually attested rather than
+// on what the coordinates claimed.
+const fetchedActors = new Set();
+for (const record of records) {
+  const actor = record.metadata.actor;
+  if (fetchedActors.has(actor)) fail(`two authenticated commitments are from ${actor}; reviewers must be distinct`);
+  fetchedActors.add(actor);
+}
 records.forEach((record, index) => {
   // Zero-padded index in the FETCHER's order: the close reads this directory
   // sorted, and that order becomes the frozen commitment-set identity.
