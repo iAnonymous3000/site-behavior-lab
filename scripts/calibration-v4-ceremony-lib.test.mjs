@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash, generateKeyPairSync } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -2396,4 +2396,181 @@ test("both CLIs work by EXECUTION: build, check, seal, and refuse tampered tasks
   ]);
   assert.notEqual(failedSeal.status, 0);
   assert.match(failedSeal.stderr, /task bytes do not match/);
+});
+
+test("the v4 commitment producer mints an authenticated record, by EXECUTION, and refuses every forgery", async () => {
+  const world = await governedWorld("approved");
+  const studyId = `${STUDY}-prevalence-pilot`;
+  const studyDir = path.join(world.root, "calibration", studyId);
+  mkdirSync(studyDir, { recursive: true });
+  const casesPath = path.join(world.root, "pilot-set.json");
+  const caseIds = ["pilot-alpha.example", "pilot-beta.example", "pilot-gamma.example"];
+  writeFileSync(
+    casesPath,
+    canonicalPrettyJson({
+      studyId,
+      candidates: caseIds.map((caseId) => ({ caseId, url: `https://${caseId}/` }))
+    })
+  );
+  // The carrier IS the frame's candidateCommit, and pilotBatchFor seals to it.
+  const carrier = CANDIDATE;
+  const spawnIn = (args, env = {}) =>
+    spawnSync(process.execPath, [path.join(world.scriptsDir, args[0]), ...args.slice(1)], {
+      cwd: world.root,
+      encoding: "utf8",
+      env: { ...process.env, ...env }
+    });
+  const build = spawnIn([
+    "calibration-v4-frame-tasks.mjs", "build",
+    "--study-id", studyId,
+    "--detector", DETECTOR,
+    "--candidate-commit", carrier,
+    "--protocol-id", "independent-labeling-protocol@1",
+    "--protocol-file", world.protocolPath,
+    "--cases", casesPath,
+    "--output-root", studyDir
+  ]);
+  assert.equal(build.status, 0, build.stderr);
+  writeFileSync(path.join(studyDir, "pilot-carrier.txt"), `${carrier}\n`);
+  writeFileSync(path.join(studyDir, "label-sealing-public-key.pem"), publicKeyPem);
+
+  // A reviewer's REAL sealed envelope, produced by the real seal CLI.
+  const frameTasks = JSON.parse(readFileSync(path.join(studyDir, "frame-tasks.json"), "utf8"));
+  const built = {
+    frameTasks,
+    taskBytesByCaseId: new Map(
+      readdirSync(path.join(studyDir, "tasks")).map((file) => [
+        file.replace(/\.json$/, ""),
+        readFileSync(path.join(studyDir, "tasks", file), "utf8")
+      ])
+    )
+  };
+  const batch = padV4LabelBatch(
+    {
+      schemaVersion: V4_LABEL_BATCH_SCHEMA_VERSION,
+      artifactKind: "site-behavior-detector-calibration-label-batch-source",
+      role: "labeler",
+      studyId: frameTasks.studyId,
+      detector: frameTasks.detector,
+      candidateCommit: frameTasks.candidateCommit,
+      referenceProtocolId: frameTasks.referenceProtocolId,
+      frameTasksSha256: sha(`${JSON.stringify(frameTasks, null, 2)}\n`),
+      cases: frameTasks.cases.map((entry, index) => ({
+        caseId: entry.caseId,
+        value: index === 0 ? "present" : "absent",
+        evidence: { sha256: sha(`capture:${entry.caseId}`), provenance: "fixture@alice" }
+      }))
+    },
+    frameTasks
+  );
+  const batchPath = path.join(world.root, "batch.json");
+  writeFileSync(batchPath, canonicalPrettyJson(batch));
+  // The reviewer's source is a real git worktree, as the workflow materializes
+  // it: the producer records which commit and tree the sealed bytes came from.
+  const sourceRoot = path.join(world.root, "reviewer-source");
+  mkdirSync(sourceRoot, { recursive: true });
+  const inSource = (args) => spawnSync("git", ["-C", sourceRoot, ...args], { encoding: "utf8" });
+  inSource(["init", "--initial-branch", "main"]);
+  inSource(["config", "user.email", "reviewer@example.com"]);
+  inSource(["config", "user.name", "reviewer"]);
+  const seal = spawnIn([
+    "calibration-v4-seal-label-batch.mjs",
+    "--role", "labeler",
+    "--actor", "alice",
+    "--public-key", path.join(studyDir, "label-sealing-public-key.pem"),
+    "--frame-tasks", path.join(studyDir, "frame-tasks.json"),
+    "--tasks-dir", path.join(studyDir, "tasks"),
+    "--input", batchPath,
+    "--output", path.join(sourceRoot, "sealed.json")
+  ]);
+  assert.equal(seal.status, 0, seal.stderr);
+  inSource(["add", "-A"]);
+  inSource(["commit", "-m", "sealed envelope"]);
+  const sourceCommit = inSource(["rev-parse", "HEAD"]).stdout.trim();
+
+  const hostedEnv = (over = {}) => ({
+    GITHUB_ACTOR: "alice",
+    GITHUB_TRIGGERING_ACTOR: "alice",
+    GITHUB_REPOSITORY: "iAnonymous3000/site-behavior-lab",
+    GITHUB_RUN_ID: "9001",
+    GITHUB_RUN_ATTEMPT: "1",
+    GITHUB_SHA: "b".repeat(40),
+    CALIBRATION_SOURCE_COMMIT: sourceCommit,
+    ...over
+  });
+  const mint = (over = {}, args = {}) =>
+    spawnIn(
+      [
+        "calibration-v4-pilot-commitment-build.mjs",
+        "--study-id", args.studyId ?? studyId,
+        "--role", args.role ?? "labeler",
+        "--source-root", sourceRoot,
+        "--source-path", args.sourcePath ?? "sealed.json",
+        "--output-dir", args.outputDir ?? path.join(world.root, `commitment-${Math.abs(JSON.stringify(over).length)}-${args.tag ?? "x"}`)
+      ],
+      hostedEnv(over)
+    );
+
+  const minted = mint({}, { tag: "ok", outputDir: path.join(world.root, "commitment-ok") });
+  assert.equal(minted.status, 0, minted.stderr);
+  assert.match(minted.stdout, /The plaintext was not opened/);
+  const record = JSON.parse(readFileSync(path.join(world.root, "commitment-ok", "commitment.json"), "utf8"));
+  // The record is the SHARED shape, bound to the pilot's own facts.
+  assert.equal(record.role, "labeler");
+  assert.equal(record.studyId, studyId);
+  assert.equal(record.candidateCommit, carrier);
+  assert.equal(record.keyId, keyId);
+  assert.equal(record.producer.workflowPath, ".github/workflows/calibration-v4-pilot-commitment.yml");
+  assert.equal(record.producer.actor, "alice");
+  assert.equal(record.source.commit, sourceCommit);
+
+  // A delegated dispatch is not an authenticated reviewer.
+  const delegated = mint({ GITHUB_TRIGGERING_ACTOR: "mallory" }, { tag: "delegated" });
+  assert.notEqual(delegated.status, 0);
+  assert.match(delegated.stderr, /dispatch actor and triggering actor must be identical/);
+
+  // Someone else's envelope: the envelope names alice, the dispatcher is bob.
+  const wrongActor = mint({ GITHUB_ACTOR: "bob", GITHUB_TRIGGERING_ACTOR: "bob" }, { tag: "wrongactor" });
+  assert.notEqual(wrongActor.status, 0);
+  assert.match(wrongActor.stderr, /identity does not match|reviewerLogin/i);
+
+  // A tiebreaker dispatch cannot wrap a labeler's sealed envelope.
+  const wrongRole = mint({}, { role: "tiebreaker", tag: "wrongrole" });
+  assert.notEqual(wrongRole.status, 0);
+
+  // A carrier record that disagrees with the committed frame refuses.
+  writeFileSync(path.join(studyDir, "pilot-carrier.txt"), `${"e".repeat(40)}\n`);
+  const wrongCarrier = mint({}, { tag: "wrongcarrier" });
+  assert.notEqual(wrongCarrier.status, 0);
+  assert.match(wrongCarrier.stderr, /the committed frame binds/);
+  writeFileSync(path.join(studyDir, "pilot-carrier.txt"), `${carrier}\n`);
+
+  // A tampered task byte refuses: a commitment cannot be minted against a
+  // frame whose tasks drifted.
+  const taskPath = path.join(studyDir, "tasks", `${caseIds[0]}.json`);
+  const task = JSON.parse(readFileSync(taskPath, "utf8"));
+  writeFileSync(taskPath, canonicalPrettyJson({ ...task, subjectUrl: "https://elsewhere.example/" }));
+  const tamperedTask = mint({}, { tag: "task" });
+  assert.notEqual(tamperedTask.status, 0);
+  rmSync(taskPath);
+  writeFileSync(taskPath, canonicalPrettyJson(task));
+
+  // A pending approval refuses, like every other pilot entrypoint.
+  const pending = await governedWorld("pending");
+  cpSync(studyDir, path.join(pending.root, "calibration", studyId), { recursive: true });
+  cpSync(sourceRoot, path.join(pending.root, "reviewer-source"), { recursive: true });
+  const refused = spawnSync(
+    process.execPath,
+    [
+      path.join(pending.scriptsDir, "calibration-v4-pilot-commitment-build.mjs"),
+      "--study-id", studyId,
+      "--role", "labeler",
+      "--source-root", path.join(pending.root, "reviewer-source"),
+      "--source-path", "sealed.json",
+      "--output-dir", path.join(pending.root, "commitment")
+    ],
+    { cwd: pending.root, encoding: "utf8", env: { ...process.env, ...hostedEnv() } }
+  );
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /not approved by a named human/);
 });

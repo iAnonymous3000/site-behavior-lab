@@ -142,7 +142,7 @@ export function validateCalibrationLabelCommitmentGithubMetadata(input) {
     run.id !== coordinate.runId ||
     run.run_attempt !== coordinate.runAttempt ||
     run.event !== "workflow_dispatch" ||
-    run.path !== CALIBRATION_LABEL_WORKFLOW_PATH ||
+    run.path !== (input.expectedWorkflowPath ?? CALIBRATION_LABEL_WORKFLOW_PATH) ||
     run.head_branch !== "main" ||
     !FULL_SHA.test(run.head_sha) ||
     run.conclusion !== "success" ||
@@ -233,6 +233,7 @@ export function fetchAuthenticatedCalibrationLabelCommitments(input) {
     );
     const metadata = validateCalibrationLabelCommitmentGithubMetadata({
       studyId: input.sources.studyId,
+      expectedWorkflowPath: input.expectedWorkflowPath,
       coordinate,
       run,
       artifacts
@@ -265,7 +266,8 @@ export function fetchAuthenticatedCalibrationLabelCommitments(input) {
     const commitment = validateCalibrationLabelCommitment(
       parsed.value,
       input.candidate,
-      input.sources.candidateCommit
+      input.sources.candidateCommit,
+      input.expectedWorkflowPath ?? CALIBRATION_LABEL_WORKFLOW_PATH
     );
     validateCalibrationLabelSourceEnvelope(commitment.envelope, {
       schemaVersion: 1,
