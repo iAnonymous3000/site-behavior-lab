@@ -1,0 +1,142 @@
+name: Calibration v4 Pilot Commitment
+
+on:
+  workflow_dispatch:
+    inputs:
+      role:
+        description: Independent blinded labeler or blind tiebreaker commitment
+        required: true
+        type: choice
+        options:
+          - labeler
+          - tiebreaker
+      study_id:
+        description: Prevalence-pilot study id
+        required: true
+        type: string
+      source_ref:
+        description: Full commit SHA containing the reviewer's locally sealed ciphertext envelope
+        required: true
+        type: string
+      source_path:
+        description: Canonical JSON path within source_ref
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  attestations: read
+
+concurrency:
+  group: calibration-v4-pilot-${{ inputs.study_id }}-${{ inputs.role }}-${{ github.actor }}
+  cancel-in-progress: false
+
+env:
+  CI: "1"
+  CALIBRATION_STUDY_ID: ${{ inputs.study_id }}
+
+jobs:
+  produce:
+    name: Publish one authenticated pilot ciphertext commitment
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # The TRUSTED tree: the producer, the frame, its tasks, the carrier
+      # record, the sealing public key, and the approval all come from here.
+      # The reviewer supplies only their sealed envelope, below, as data.
+      - name: Checkout exact trusted commitment producer
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up exact Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify pinned Node and npm
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Verify closed dispatch identity
+        env:
+          ROLE: ${{ inputs.role }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+          SOURCE_PATH: ${{ inputs.source_path }}
+        run: |
+          set -euo pipefail
+          [[ "$CALIBRATION_STUDY_ID" =~ ^[a-z0-9][a-z0-9._-]{0,99}$ ]]
+          [[ "$CALIBRATION_STUDY_ID" == *-prevalence-pilot ]]
+          [[ "$SOURCE_REF" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCE_PATH" =~ ^[a-z0-9][a-z0-9._/-]{0,499}\.json$ ]]
+          [[ "$SOURCE_PATH" != *..* ]]
+          [[ "$SOURCE_PATH" != *//* ]]
+          test "$ROLE" = "labeler" || test "$ROLE" = "tiebreaker"
+          test "$GITHUB_ACTOR" = "$GITHUB_TRIGGERING_ACTOR"
+
+      - name: Install trusted verifier dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Materialize the reviewer's sealed source as data only
+        env:
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          set -euo pipefail
+          git cat-file -e "${SOURCE_REF}^{commit}"
+          git worktree add --detach "$RUNNER_TEMP/calibration-v4-pilot-source" "$SOURCE_REF"
+          test "$(git -C "$RUNNER_TEMP/calibration-v4-pilot-source" rev-parse HEAD)" = "$SOURCE_REF"
+
+      - name: Validate and wrap the ciphertext commitment
+        env:
+          ROLE: ${{ inputs.role }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+          SOURCE_PATH: ${{ inputs.source_path }}
+        run: |
+          set -euo pipefail
+          test ! -e "$RUNNER_TEMP/calibration-v4-pilot-commitment"
+          CALIBRATION_SOURCE_COMMIT="$SOURCE_REF" node scripts/calibration-v4-pilot-commitment-build.mjs \
+            --study-id "$CALIBRATION_STUDY_ID" \
+            --role "$ROLE" \
+            --source-root "$RUNNER_TEMP/calibration-v4-pilot-source" \
+            --source-path "$SOURCE_PATH" \
+            --output-dir "$RUNNER_TEMP/calibration-v4-pilot-commitment"
+
+      # The artifact NAME is derived by the fetcher and must match exactly.
+      - name: Upload one immutable ciphertext commitment
+        id: commitment_artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: site-behavior-calibration-label-commitment-${{ inputs.role }}-${{ inputs.study_id }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/calibration-v4-pilot-commitment/commitment.json
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
+
+      - name: Record immutable commitment coordinates
+        env:
+          ROLE: ${{ inputs.role }}
+          ARTIFACT_ID: ${{ steps.commitment_artifact.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.commitment_artifact.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Authenticated pilot ciphertext commitment"
+            echo
+            echo "- Role: \`${ROLE}\`"
+            echo "- Actor: \`${GITHUB_ACTOR}\`"
+            echo "- Run: \`${GITHUB_RUN_ID}\`"
+            echo "- Attempt: \`${GITHUB_RUN_ATTEMPT}\`"
+            echo "- Artifact id: \`${ARTIFACT_ID}\`"
+            echo "- Artifact digest: \`${ARTIFACT_DIGEST}\`"
+            echo
+            echo "Report the role, run id, run attempt, artifact id and artifact digest to the operator: those five values are the coordinates the authenticated fetch needs. The artifact holds ciphertext and authenticated actor/run metadata only; label plaintext stays sealed until the operator's offline reveal."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove the data-only worktree
+        if: always()
+        run: git worktree remove --force "$RUNNER_TEMP/calibration-v4-pilot-source" 2>/dev/null || true

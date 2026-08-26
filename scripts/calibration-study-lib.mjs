@@ -78,6 +78,17 @@ export const CALIBRATION_LABEL_SOURCES_KIND =
   "site-behavior-detector-calibration-label-sources";
 export const CALIBRATION_LABEL_WORKFLOW_PATH =
   ".github/workflows/calibration-label-batch.yml";
+
+/**
+ * The v4 prevalence-pilot commitment workflow, which is a DIFFERENT file from
+ * the v3 one above and must stay different. Both constants are acceptance
+ * rules, not names: three call sites decide which producer records count as
+ * authentic, so widening the v3 constant to admit a second workflow would
+ * quietly widen what a v3 study accepts. A caller states which workflow it
+ * expects, and the default stays v3 so no existing caller changes.
+ */
+export const CALIBRATION_V4_PILOT_LABEL_WORKFLOW_PATH =
+  ".github/workflows/calibration-v4-pilot-commitment.yml";
 export const CALIBRATION_LABEL_SEALING_ALGORITHM =
   "rsa-oaep-sha256+a256gcm";
 export const CALIBRATION_BINDING_PATH =
@@ -931,7 +942,8 @@ export function createCalibrationLabelCommitment(input) {
   );
   const producer = calibrationLabelProducer(
     input.producer,
-    "label commitment producer"
+    "label commitment producer",
+    input.expectedWorkflowPath ?? CALIBRATION_LABEL_WORKFLOW_PATH
   );
   const envelope = calibrationLabelEnvelopeIdentity(
     input.envelope,
@@ -980,7 +992,8 @@ export function calibrationLabelCommitmentEnvelopeDigest(envelope) {
 export function validateCalibrationLabelCommitment(
   value,
   candidate,
-  expectedCandidateCommit
+  expectedCandidateCommit,
+  expectedWorkflowPath = CALIBRATION_LABEL_WORKFLOW_PATH
 ) {
   require(isRecord(value), "calibration label commitment must be an object");
   exactKeys(
@@ -1011,7 +1024,8 @@ export function validateCalibrationLabelCommitment(
   );
   const producer = calibrationLabelProducer(
     value.producer,
-    "calibration label commitment producer"
+    "calibration label commitment producer",
+    expectedWorkflowPath
   );
   const envelope = calibrationLabelEnvelopeIdentity(
     value.envelope,
@@ -1170,7 +1184,11 @@ export function validateCalibrationLabelSource(
   };
 }
 
-function calibrationLabelProducer(value, label) {
+function calibrationLabelProducer(
+  value,
+  label,
+  expectedWorkflowPath = CALIBRATION_LABEL_WORKFLOW_PATH
+) {
   require(isRecord(value), `${label} must be an object`);
   exactKeys(
     value,
@@ -1201,7 +1219,7 @@ function calibrationLabelProducer(value, label) {
   };
   require(
     producer.repository === "iAnonymous3000/site-behavior-lab" &&
-      producer.workflowPath === CALIBRATION_LABEL_WORKFLOW_PATH &&
+      producer.workflowPath === expectedWorkflowPath &&
       producer.workflowRef === "refs/heads/main" &&
       producer.runAttempt <= 100 &&
       producer.actor === producer.triggeringActor,

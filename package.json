@@ -75,6 +75,8 @@
     "calibration:v4-frame-tasks": "node scripts/calibration-v4-frame-tasks.mjs",
     "calibration:v4-reviewer-batch": "node scripts/calibration-v4-reviewer-batch.mjs",
     "calibration:v4-pilot-carrier-check": "node scripts/calibration-v4-pilot-carrier-check.mjs",
+    "calibration:v4-pilot-commitment-build": "node scripts/calibration-v4-pilot-commitment-build.mjs",
+    "calibration:v4-fetch-commitments": "node scripts/calibration-v4-fetch-commitments.mjs",
     "calibration:pilot-carrier-gate": "node scripts/calibration-pilot-carrier-gate.mjs",
     "calibration:v4-seal-label-batch": "node scripts/calibration-v4-seal-label-batch.mjs",
     "calibration:policy-artifact": "node scripts/calibration-policy-artifact.mjs",
