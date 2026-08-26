@@ -279,6 +279,9 @@ test("the repository gate is keyed on the frame, so deleting the carrier file fa
   const clean = runGate();
   assert.equal(clean.status, 0, clean.stderr);
   assert.match(clean.stdout, /pilot carrier ok - calibration\/fixture-prevalence-pilot: 2 cases/);
+  // A frame with no chain artifacts says so, rather than reading like a
+  // checked chain.
+  assert.match(clean.stdout, /no chain artifacts committed yet/);
 
   // Deleting the carrier file must FAIL: a gate keyed on that file would let
   // one deletion disable the only check that can catch a wrong carrier.
@@ -554,47 +557,20 @@ test("the committed evidence chain is verified, and each link must name the one 
   const sized = verify(world);
   assert.deepEqual(sized.chain.sizing.counts, sizingBuilt.artifact.counts);
 
-  // Counts that disagree with the labels beside them: the digest still binds
-  // the right file, so only re-derivation can catch this.
-  write(
-    world.root,
-    `${STUDY_DIR}/pilot-sizing.json`,
-    canonicalPrettyJson({
-      ...sizingBuilt.artifact,
-      counts: { present: 99, absent: 1, uncertain: 0, total: 100 }
-    })
-  );
-  assert.throws(() => verify(world), /not what its own resolved labels and frame produce/);
-  // A RESTATED CLASS FLOOR: sizing to a floor of 5 re-derives consistently
-  // with 5, so an audit that took the floor from the artifact under test
-  // would confirm it. The floor comes from the carrier's approved artifact.
-  const looseFloor = computeV4PilotSizingArtifact({
+  // The arithmetic is NOT re-derived here, by design: pinning a frozen
+  // artifact to HEAD's producer, schema constant, and approved floor would
+  // red a required check against evidence nobody may rewrite. Re-running the
+  // sizing step is how its arithmetic is checked. What this gate checks is
+  // binding, which does not move.
+  const restatedFloor = computeV4PilotSizingArtifact({
     resolvedLabelsBytes: resolvedBuilt.text,
     frameTasksBytes: frameBytes,
     minimumPerClass: 5,
     sweptEligiblePool: 1126
   });
-  write(world.root, `${STUDY_DIR}/pilot-sizing.json`, looseFloor.text);
-  assert.throws(() => verify(world), /claimed-class floor of 5, and the approved artifact pins 100/);
+  write(world.root, `${STUDY_DIR}/pilot-sizing.json`, restatedFloor.text);
+  assert.equal(verify(world).chain.sizing.arithmeticVerifiedHere, false);
   write(world.root, `${STUDY_DIR}/pilot-sizing.json`, sizingBuilt.text);
-
-  // A restated derived N or a flipped feasibility verdict is caught by the
-  // same re-derivation: the digests all still bind the right files.
-  write(
-    world.root,
-    `${STUDY_DIR}/pilot-sizing.json`,
-    canonicalPrettyJson({ ...sizingBuilt.artifact, derivedN: 1 })
-  );
-  assert.throws(() => verify(world), /not what its own resolved labels and frame produce/);
-  write(
-    world.root,
-    `${STUDY_DIR}/pilot-sizing.json`,
-    canonicalPrettyJson({
-      ...sizingBuilt.artifact,
-      feasibility: { ...sizingBuilt.artifact.feasibility, feasible: !sizingBuilt.artifact.feasibility.feasible }
-    })
-  );
-  assert.throws(() => verify(world), /not what its own resolved labels and frame produce/);
 
   // Sizing that counted some other file, and sizing of another study.
   write(
@@ -609,12 +585,22 @@ test("the committed evidence chain is verified, and each link must name the one 
     canonicalPrettyJson({ ...sizingBuilt.artifact, candidateCommit: "c".repeat(40) })
   );
   assert.throws(() => verify(world), new RegExp("pilot-sizing.json identity does not match"));
+  // A schema version is a fact about the producer, not about this frozen
+  // artifact, so it is deliberately NOT pinned: pinning it would red a
+  // required check against evidence nobody may rewrite.
   write(
     world.root,
     `${STUDY_DIR}/pilot-sizing.json`,
     canonicalPrettyJson({ ...sizingBuilt.artifact, schemaVersion: 1 })
   );
-  assert.throws(() => verify(world), /is not a v2/);
+  assert.equal(verify(world).chain.sizing.arithmeticVerifiedHere, false);
+  // The KIND is still checked: a different artifact in that filename refuses.
+  write(
+    world.root,
+    `${STUDY_DIR}/pilot-sizing.json`,
+    canonicalPrettyJson({ ...sizingBuilt.artifact, artifactKind: "something-else" })
+  );
+  assert.throws(() => verify(world), /is not a site-behavior-detector-calibration-pilot-sizing/);
   write(world.root, `${STUDY_DIR}/pilot-sizing.json`, sizingBuilt.text);
   assert.equal(verify(world).chain.sizing.feasible, sizingBuilt.artifact.feasibility.feasible);
 

@@ -29,8 +29,6 @@ import path from "node:path";
 const pathJoin = path.join;
 import {
   V4_PILOT_SIZING_KIND,
-  V4_PILOT_SIZING_SCHEMA_VERSION,
-  computeV4PilotSizingArtifact,
   parseV4FrameTasksBytes,
   validateV4PilotLabelingAuthorization,
   validateV4ResolvedLabelsArtifact
@@ -330,11 +328,12 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
       `${PILOT_SIZING_FILE} is committed without the ${PILOT_RESOLVED_LABELS_FILE} it must have counted`
     );
     const sizing = JSON.parse(readFileSync(sizingPath, "utf8"));
+    // The KIND is checked and the schema version is not: a version bump is a
+    // fact about the producer, not about this frozen artifact, and pinning it
+    // here would red a required check against evidence nobody may rewrite.
     require_(
-      isRecord(sizing) &&
-        sizing.artifactKind === V4_PILOT_SIZING_KIND &&
-        sizing.schemaVersion === V4_PILOT_SIZING_SCHEMA_VERSION,
-      `${PILOT_SIZING_FILE} is not a v${V4_PILOT_SIZING_SCHEMA_VERSION} ${V4_PILOT_SIZING_KIND}`
+      isRecord(sizing) && sizing.artifactKind === V4_PILOT_SIZING_KIND,
+      `${PILOT_SIZING_FILE} is not a ${V4_PILOT_SIZING_KIND}`
     );
     require_(
       sizing.frameTasksSha256 === frameDigest,
@@ -351,58 +350,26 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
       sizing.resolvedLabelsSha256 === chain.resolvedLabels.sha256,
       `${PILOT_SIZING_FILE} counted resolved labels other than the committed ones`
     );
-    // The artifact is RE-DERIVED, not read. Binding the resolved-labels digest
-    // proves WHICH file was counted, never that it was counted correctly, and
-    // an artifact that restated its own derivedN, class floor, or feasibility
-    // verdict could declare an infeasible pilot feasible with every digest in
-    // the chain intact. The producer is deterministic given the labels, the
-    // frame, and the pool the artifact itself declares, so equality is byte
-    // equality, exactly as the frame is re-derived from its carrier.
-    require_(
-      Number.isSafeInteger(sizing.feasibility?.sweptEligiblePool),
-      `${PILOT_SIZING_FILE} records no swept eligible pool, so its feasibility cannot be re-derived`
-    );
-    // ONE authority for the floor, and it is the one the PRODUCER reads:
-    // HEAD's approved artifact. Reading the carrier's copy instead created two
-    // authorities, so an approved revision landing after K would leave no
-    // artifact able to satisfy both the CLI that writes it and the gate that
-    // checks it.
-    const headArtifact = JSON.parse(
-      readFileSync(path.join(rootDir, CALIBRATION_CENSORING_POLICY_PATH), "utf8")
-    );
-    const pinnedMinimumPerClass =
-      headArtifact.publicationProfiles?.[
-        headArtifact.detectors?.[frameTasks.detector]?.publicationProfile
-      ]?.minimumPerClaimedClass ?? null;
-    require_(
-      Number.isSafeInteger(pinnedMinimumPerClass) && pinnedMinimumPerClass >= 1,
-      `the approved artifact pins no claimed-class minimum for ${frameTasks.detector}`
-    );
-    require_(
-      sizing.minimumPerClass === pinnedMinimumPerClass,
-      `${PILOT_SIZING_FILE} was sized to a claimed-class floor of ${sizing.minimumPerClass}, and the approved artifact pins ${pinnedMinimumPerClass}`
-    );
-    const rederivedSizing = computeV4PilotSizingArtifact({
-      resolvedLabelsBytes: readFileSync(resolvedPath, "utf8"),
-      frameTasksBytes: frameBytes,
-      minimumPerClass: pinnedMinimumPerClass,
-      sweptEligiblePool: sizing.feasibility.sweptEligiblePool
-    });
-    require_(
-      rederivedSizing.text === readFileSync(sizingPath, "utf8"),
-      `${PILOT_SIZING_FILE} is not what its own resolved labels and frame produce; its counts, derived N, or feasibility verdict were not computed from the evidence it names. Sizing is a pure derivation over committed evidence and nothing is sealed to it: re-run the sizing step and commit what it produces. This is never grounds for retiring a carrier.`
-    );
-    // THE POOL IS NOT VERIFIED HERE, and the gate does not pretend it is.
-    // sweptEligiblePool is an operator-supplied count quoted from the sweep;
-    // no committed artifact yet states it, so the re-derivation can only show
-    // that the verdict follows FROM the pool the artifact declares. A mistyped
-    // pool (11260 for 1126) still turns an infeasible pilot feasible, and this
-    // check would confirm the arithmetic. The operator's own confirmation
-    // against the sweep receipt is what closes that, and the runbook says so.
+    // WHAT THIS LINK DOES NOT DO, deliberately: it does not re-derive the
+    // sizing artifact. An earlier version did, and it pinned a FROZEN artifact
+    // to MOVING authorities: HEAD's producer, HEAD's schemaVersion constant,
+    // and HEAD's approved class floor. That is the opposite of the principle
+    // the frame link beside it follows, where the carrier's own producer is
+    // run precisely so a later refactor cannot invalidate frozen evidence. A
+    // floor re-pin or a producer bump would have turned a correctly produced
+    // artifact into a red required check on every unrelated pull request, and
+    // a red gate is expensive. Sizing is cheap to re-derive on demand and
+    // nothing is sealed to it, so its arithmetic is checked by re-running the
+    // sizing step, not by this gate.
+    //
+    // What IS checked here is binding, which does not move: the artifact
+    // names this frame, this carrier, and the exact resolved labels committed
+    // beside it.
     chain.sizing = {
       feasible: sizing.feasibility.feasible,
       counts: sizing.counts,
       sweptEligiblePool: sizing.feasibility.sweptEligiblePool,
+      arithmeticVerifiedHere: false,
       poolVerifiedHere: false
     };
   }
