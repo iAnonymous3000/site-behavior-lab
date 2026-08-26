@@ -241,6 +241,36 @@ test("the whole pilot ceremony runs by EXECUTION, from sealed batches to a sized
     );
     assert.equal(minted.status, 0, minted.stderr);
     const commitmentBytes = readFileSync(path.join(outputDir, "commitment.json"), "utf8");
+
+    if (reviewer.actor === "alice" && !reviewer.extra) {
+      // A filesystem read would accept these canonical bytes and falsely
+      // claim they came from sourceCommit. The producer must read the Git blob
+      // named by the commit/path pair, so an untracked lookalike is impossible.
+      writeFileSync(path.join(sourceRoot, "untracked-envelope.json"), readFileSync(path.join(sourceRoot, "sealed.json")));
+      const untracked = run(
+        world,
+        [
+          "calibration-v4-pilot-commitment-build.mjs",
+          "--study-id", STUDY,
+          "--role", reviewer.role,
+          "--source-root", sourceRoot,
+          "--source-path", "untracked-envelope.json",
+          "--output-dir", path.join(world.root, "commitment-untracked")
+        ],
+        {
+          GITHUB_ACTOR: reviewer.actor,
+          GITHUB_TRIGGERING_ACTOR: reviewer.actor,
+          GITHUB_REPOSITORY: REPOSITORY,
+          GITHUB_RUN_ID: "5999",
+          GITHUB_RUN_ATTEMPT: "1",
+          GITHUB_SHA: producerSha,
+          CALIBRATION_SOURCE_COMMIT: sourceCommit
+        }
+      );
+      assert.notEqual(untracked.status, 0);
+      assert.match(untracked.stderr, /cat-file blob.*source worktree failed/);
+    }
+
     const zip = makeStoredZip([["commitment.json", commitmentBytes]]);
     artifacts.set(reviewer.runId, {
       ...reviewer,
@@ -538,6 +568,21 @@ if ((match = /actions\\/runs\\/(\\d+)$/.exec(endpoint))) {
   const wrongKey = fetchInto(path.join(world.root, "records-wrong-key"));
   assert.notEqual(wrongKey.status, 0);
   writeFileSync(path.join(studyDir, "label-sealing-public-key.pem"), publicKeyPem);
+
+  // A locally modified frame can be perfectly parseable while not existing in
+  // the declared upstream history. Without this ancestry proof, the accepted
+  // producer range degenerates to every upstream commit even though none of
+  // those producers could have read the local frame revision.
+  const unmergedFrame = JSON.parse(readFileSync(path.join(studyDir, "frame-tasks.json"), "utf8"));
+  const unmergedCarrier = "b2".repeat(20);
+  unmergedFrame.candidateCommit = unmergedCarrier;
+  writeFileSync(path.join(studyDir, "frame-tasks.json"), canonicalPrettyJson(unmergedFrame));
+  writeFileSync(path.join(studyDir, "pilot-carrier.txt"), `${unmergedCarrier}\n`);
+  inWorld(["add", path.relative(world.root, path.join(studyDir, "frame-tasks.json")), path.relative(world.root, path.join(studyDir, "pilot-carrier.txt"))]);
+  inWorld(["commit", "-m", "unmerged frame revision"]);
+  const unmergedFetch = fetchInto(path.join(world.root, "records-unmerged-frame"));
+  assert.notEqual(unmergedFetch.status, 0);
+  assert.match(unmergedFetch.stderr, /frame freeze .* is not an ancestor of upstream/);
 
   rmSync(world.root, { recursive: true, force: true });
 });

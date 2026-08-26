@@ -109,6 +109,9 @@ if (git(["rev-parse", "--verify", `${upstreamRef}^{commit}`], { allowFailure: tr
   fail(`${upstreamRef} is not available; fetch it before fetching commitments`);
 }
 const upstreamTip = git(["rev-parse", `${upstreamRef}^{commit}`]).trim();
+if (git(["merge-base", "--is-ancestor", frameFreeze, upstreamTip], { allowFailure: true }) === null) {
+  fail(`the frame freeze ${frameFreeze} is not an ancestor of ${upstreamRef} ${upstreamTip}`);
+}
 const acceptedProducerCommits = [
   frameFreeze,
   ...git(["rev-list", upstreamTip, `^${frameFreeze}`]).split("\n").map((line) => line.trim()).filter(Boolean)
