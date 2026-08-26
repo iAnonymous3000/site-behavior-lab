@@ -1125,7 +1125,8 @@ async function realWorksheet(built, { overrides = {}, tracker, suffix, studyId }
         caseId: frameCase.caseId,
         url: task.subjectUrl,
         hosts: [`sub.${frameCase.caseId}`],
-        captureSha256: sha(`capture:${frameCase.caseId}`)
+        captureSha256: sha(`capture:${frameCase.caseId}`),
+        subjectLoaded: true
       },
       {
         resolverAddress: "9.9.9.9",
@@ -1258,6 +1259,19 @@ test("the reviewer-batch producer maps the protocol, binds everything, and refus
     () => produce(uncoveredWorksheet.bytes, { decisions: [{ caseId: "pilot-beta.example", value: "absent" }] }),
     /may not be labeled absent/
   );
+  // COVERAGE GATES PRESENT TOO. A 301 leaves the subject's own subdomain
+  // requests in the HAR, so a capture that never loaded the subject can still
+  // carry a matched chain. `anyMatch` short-circuited ahead of the coverage
+  // test, and that case sealed as PRESENT on evidence about another page.
+  const matchedButMoved = await realWorksheet(built, {
+    overrides: { "pilot-alpha.example": { subjectLoaded: false, determined: false } }
+  });
+  assert.equal(produce(matchedButMoved.bytes).batch.cases[0].value, "uncertain");
+  assert.throws(
+    () => produce(matchedButMoved.bytes, { decisions: [{ caseId: "pilot-alpha.example", value: "present" }] }),
+    /may not be labeled present[\s\S]*never loaded the subject/
+  );
+
   // ...and a worksheet that omits the coverage record at all refuses.
   const noCoverage = await realWorksheet(built);
   delete noCoverage.worksheet.cases[0].subjectLoaded;

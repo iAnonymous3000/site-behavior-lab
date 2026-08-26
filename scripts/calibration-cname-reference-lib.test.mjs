@@ -88,7 +88,7 @@ test("registrable comparison uses the reviewer's suffix list, including multi-la
 
 test("a case whose candidate could not be resolved is undetermined, never absent", async () => {
   const worksheet = await buildCaseWorksheet(
-    { caseId: "c1", url: "https://example.com/", hosts: ["metrics.example.com"], captureSha256: "a".repeat(64) },
+    { caseId: "c1", url: "https://example.com/", hosts: ["metrics.example.com"], captureSha256: "a".repeat(64), subjectLoaded: true },
     {
       resolverAddress: "9.9.9.9",
       trackerSuffixes: new Set(["omtrdc.net"]),
@@ -105,7 +105,7 @@ test("a case whose candidate could not be resolved is undetermined, never absent
 
 test("a cloaked subdomain is proposed present, with the chain and a command to re-check it", async () => {
   const worksheet = await buildCaseWorksheet(
-    { caseId: "c2", url: "https://example.com/", hosts: ["metrics.example.com"], captureSha256: "a".repeat(64) },
+    { caseId: "c2", url: "https://example.com/", hosts: ["metrics.example.com"], captureSha256: "a".repeat(64), subjectLoaded: true },
     {
       resolverAddress: "9.9.9.9",
       trackerSuffixes: new Set(["omtrdc.net"]),
@@ -128,7 +128,7 @@ test("a cloaked subdomain is proposed present, with the chain and a command to r
 
 test("a CNAME that stays inside the site's own domain is not a cloak", async () => {
   const worksheet = await buildCaseWorksheet(
-    { caseId: "c3", url: "https://example.com/", hosts: ["www.example.com"], captureSha256: "a".repeat(64) },
+    { caseId: "c3", url: "https://example.com/", hosts: ["www.example.com"], captureSha256: "a".repeat(64), subjectLoaded: true },
     {
       resolverAddress: "9.9.9.9",
       trackerSuffixes: new Set(["omtrdc.net"]),
@@ -252,7 +252,8 @@ test("a worksheet case carries the subject it examined and the reviewer's captur
       caseId: "case-1",
       url: "https://news.example/article",
       hosts: [],
-      captureSha256: "b".repeat(64)
+      captureSha256: "b".repeat(64),
+      subjectLoaded: true
     },
     {
       resolverAddress: "9.9.9.9",
@@ -269,7 +270,7 @@ test("a worksheet case carries the subject it examined and the reviewer's captur
   await assert.rejects(
     () =>
       buildCaseWorksheet(
-        { caseId: "case-2", url: "https://news.example/", hosts: [] },
+        { caseId: "case-2", url: "https://news.example/", hosts: [], subjectLoaded: true },
         {
           resolverAddress: "9.9.9.9",
           trackerSuffixes: new Set(),
@@ -391,12 +392,26 @@ test("a subject that never answered on its own domain is UNCERTAIN, and does not
   // The emptiest possible evidence must not read as determined: "every" over
   // an empty resolutions array is true.
   assert.deepEqual(moved.resolutions, []);
+  // Omitting coverage refuses rather than defaulting: a default of true would
+  // state that a capture reached its subject on behalf of a caller that
+  // supplied no evidence either way, and the consumer's boolean shape check
+  // cannot tell a defaulted claim from a measured one.
+  await assert.rejects(
+    () =>
+      buildCaseWorksheet(
+        { caseId: "silent.example", url: "https://silent.example/", hosts: [], captureSha256: "e".repeat(64) },
+        options
+      ),
+    /needs whether the capture reached the subject/
+  );
+
   const clean = await buildCaseWorksheet(
     {
       caseId: "clean.example",
       url: "https://clean.example/",
       hosts: [],
-      captureSha256: "d".repeat(64)
+      captureSha256: "d".repeat(64),
+      subjectLoaded: true
     },
     options
   );

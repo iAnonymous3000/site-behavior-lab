@@ -1272,13 +1272,30 @@ export function buildV4ReviewerBatchFromWorksheet({
       entry.determined === determined,
       `${frameCase.caseId} worksheet determined ${JSON.stringify(entry.determined)} disagrees with its own resolutions, which record ${determined ? "every candidate resolved" : "an unresolved candidate"}`
     );
-    const mechanical = anyMatch ? "present" : determined ? "absent" : "uncertain";
+    // Coverage gates BOTH labels, not just absent. `anyMatch` short-circuits,
+    // so a capture that never loaded the subject but still contacted one of
+    // its subdomains (a 301 leaves those requests in the HAR) would have been
+    // read as PRESENT on evidence about a page that never answered. A case
+    // whose subject did not load is uncertain, whatever its chains show.
+    const mechanical = !entry.subjectLoaded
+      ? "uncertain"
+      : anyMatch
+        ? "present"
+        : determined
+          ? "absent"
+          : "uncertain";
     let value = overrides.has(frameCase.caseId) ? overrides.get(frameCase.caseId) : mechanical;
     // The protocol: "Label ABSENT only when every candidate was resolved and
     // no chain matched that list." Absent is therefore permitted on exactly
     // one evidence state, whatever the reviewer decides; a reviewer who
     // disbelieves a match downgrades to uncertain, never to absent. Refused,
     // never coerced: a plan may be stricter about uncertainty, not weaker.
+    if (value === "present") {
+      require(
+        entry.subjectLoaded,
+        `${frameCase.caseId} may not be labeled present: this worksheet records that the capture never loaded the subject, so its chains are evidence about some other page`
+      );
+    }
     if (value === "absent") {
       require(
         determined && !anyMatch,
