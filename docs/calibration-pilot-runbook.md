@@ -363,7 +363,14 @@ larger universe and fresh sweep rounds; never a relaxed rule.
 The gate is enforced, not merely printed: an INFEASIBLE determination
 writes its artifact and then exits non-zero, so no later step runs on it.
 `--swept-eligible-pool` is required, because a run that recorded no
-determination would otherwise read exactly like a run that passed. The
+determination would otherwise read exactly like a run that passed.
+
+**The pool is the one number nothing can check for you.** No committed
+artifact states it yet, so CI can only confirm that the feasibility verdict
+follows FROM the pool the artifact declares. A mistyped pool (11260 for
+1126) turns an infeasible pilot feasible and every check still passes. Quote
+it from the sweep's own receipt, read it back before you commit the
+artifact, and record in the sizing PR where you took it from. The
 claimed-class floor is NOT typed here: it comes from the approved policy
 artifact's publication profile (100 for `two-class-accuracy`), and
 `--minimum-per-class` is accepted only when it agrees with that pin. A

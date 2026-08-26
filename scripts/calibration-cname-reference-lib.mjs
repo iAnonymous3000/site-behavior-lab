@@ -258,7 +258,7 @@ export function matchExternalTracker(host, suffixes) {
  * distinction the scanner draws between a censored and a negative case.
  */
 export async function buildCaseWorksheet(
-  { caseId, url, hosts, captureSha256, subjectLoaded = true },
+  { caseId, url, hosts, captureSha256, subjectLoaded },
   { resolverAddress, trackerSuffixes, publicSuffixes, maxHops, timeoutMs, resolve = resolveCnameChain }
 ) {
   // The reviewer's own capture digest is part of the case, not something a
@@ -266,6 +266,13 @@ export async function buildCaseWorksheet(
   // the producer that consumes it refuses a case without this digest.
   if (!/^[0-9a-f]{64}$/.test(String(captureSha256 ?? ""))) {
     throw new Error(`${caseId} worksheet case needs the reviewer capture sha256`);
+  }
+  // No default: defaulting to true would state that a capture reached its
+  // subject on behalf of a caller that supplied no evidence either way, and
+  // the consumer's boolean shape check cannot tell a defaulted claim from a
+  // measured one.
+  if (typeof subjectLoaded !== "boolean") {
+    throw new Error(`${caseId} worksheet case needs whether the capture reached the subject`);
   }
   const resolutions = [];
   let anyMatch = false;

@@ -179,7 +179,6 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
   //    settles WHICH code the derivation claims: the code as it stood at the
   //    carrier, which is the code the operator actually ran, reviewed and
   //    CI-gated on the protected branch like every other commit.
-  let pinnedMinimumPerClass = null;
   const workRoot = mkdtempSync(pathJoin(tmpdir(), "pilot-carrier-"));
   try {
     const treeRoot = pathJoin(workRoot, "tree");
@@ -210,13 +209,7 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
     );
     const artifactBytes = readFileSync(pathJoin(treeRoot, CALIBRATION_CENSORING_POLICY_PATH), "utf8");
     const artifact = JSON.parse(artifactBytes);
-    // The claimed-class floor is PINNED by the carrier's approved artifact.
-    // The chain below needs it, and must not take it from the artifact it is
-    // checking: a sizing artifact that restated a floor of 5 would re-derive
-    // consistently with 5 and pass its own audit.
-    pinnedMinimumPerClass =
-      artifact.publicationProfiles?.[artifact.detectors?.[frameTasks.detector]?.publicationProfile]
-        ?.minimumPerClaimedClass ?? null;
+
     require_(
       frameTasks.referenceProtocolId === artifact.referenceProtocol.id,
       `the frame's protocol id ${frameTasks.referenceProtocolId} is not the carrier's approved ${artifact.referenceProtocol.id}`
@@ -369,9 +362,21 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
       Number.isSafeInteger(sizing.feasibility?.sweptEligiblePool),
       `${PILOT_SIZING_FILE} records no swept eligible pool, so its feasibility cannot be re-derived`
     );
+    // ONE authority for the floor, and it is the one the PRODUCER reads:
+    // HEAD's approved artifact. Reading the carrier's copy instead created two
+    // authorities, so an approved revision landing after K would leave no
+    // artifact able to satisfy both the CLI that writes it and the gate that
+    // checks it.
+    const headArtifact = JSON.parse(
+      readFileSync(path.join(rootDir, CALIBRATION_CENSORING_POLICY_PATH), "utf8")
+    );
+    const pinnedMinimumPerClass =
+      headArtifact.publicationProfiles?.[
+        headArtifact.detectors?.[frameTasks.detector]?.publicationProfile
+      ]?.minimumPerClaimedClass ?? null;
     require_(
       Number.isSafeInteger(pinnedMinimumPerClass) && pinnedMinimumPerClass >= 1,
-      `the carrier's approved artifact pins no claimed-class minimum for ${frameTasks.detector}`
+      `the approved artifact pins no claimed-class minimum for ${frameTasks.detector}`
     );
     require_(
       sizing.minimumPerClass === pinnedMinimumPerClass,
@@ -387,7 +392,19 @@ export function verifyPilotCarrier({ rootDir, studyDir, upstreamRef = "origin/ma
       rederivedSizing.text === readFileSync(sizingPath, "utf8"),
       `${PILOT_SIZING_FILE} is not what its own resolved labels and frame produce; its counts, derived N, or feasibility verdict were not computed from the evidence it names. Sizing is a pure derivation over committed evidence and nothing is sealed to it: re-run the sizing step and commit what it produces. This is never grounds for retiring a carrier.`
     );
-    chain.sizing = { feasible: sizing.feasibility.feasible, counts: sizing.counts };
+    // THE POOL IS NOT VERIFIED HERE, and the gate does not pretend it is.
+    // sweptEligiblePool is an operator-supplied count quoted from the sweep;
+    // no committed artifact yet states it, so the re-derivation can only show
+    // that the verdict follows FROM the pool the artifact declares. A mistyped
+    // pool (11260 for 1126) still turns an infeasible pilot feasible, and this
+    // check would confirm the arithmetic. The operator's own confirmation
+    // against the sweep receipt is what closes that, and the runbook says so.
+    chain.sizing = {
+      feasible: sizing.feasibility.feasible,
+      counts: sizing.counts,
+      sweptEligiblePool: sizing.feasibility.sweptEligiblePool,
+      poolVerifiedHere: false
+    };
   }
 
   return {

@@ -171,10 +171,18 @@ if (uncovered.length > 0) {
   );
 }
 if (undetermined.length > 0) {
+  const unresolvable = undetermined.filter((entry) => !uncovered.includes(entry.caseId));
   console.log(
-    "Undetermined cases had a candidate this resolver could not resolve. Do not label them\n" +
-      "absent on this evidence: resolve the cause or record the case as one you could not\n" +
-      "determine, exactly as a scan that could not capture is censored rather than negative."
+    `Undetermined cases cannot be labelled absent on this evidence, exactly as a scan that\n` +
+      `could not capture is censored rather than negative.\n` +
+      (unresolvable.length > 0
+        ? `  ${unresolvable.length} had a candidate this resolver could not resolve: resolve the cause\n` +
+          "  or record the case as one you could not determine.\n"
+        : "") +
+      (uncovered.length > 0
+        ? `  ${uncovered.length} never answered on their own registrable domain, so there was nothing\n` +
+          "  to resolve; see the note above.\n"
+        : "")
   );
 }
 console.log(
