@@ -1,0 +1,2712 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.ssa.gov/",
+  "scannedAt": "2026-08-31T12:04:58.383Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6269,
+      "firstPartyDomain": "www.ssa.gov",
+      "totalRequests": 71,
+      "thirdPartyRequests": 13,
+      "knownTrackerRequests": 8,
+      "thirdPartyDomains": 7,
+      "cookies": 4,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 13
+    },
+    "conditions": {
+      "requestedUrl": "https://www.ssa.gov/",
+      "finalUrl": "https://www.ssa.gov/",
+      "scannedAt": "2026-08-31T12:04:52.105Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.ssa.gov/",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 50
+      },
+      {
+        "id": 2,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 104
+      },
+      {
+        "id": 3,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 104
+      },
+      {
+        "id": 4,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 105
+      },
+      {
+        "id": 5,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 106
+      },
+      {
+        "id": 6,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 106
+      },
+      {
+        "id": 7,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 107
+      },
+      {
+        "id": 8,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 107
+      },
+      {
+        "id": 9,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 107
+      },
+      {
+        "id": 10,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 108
+      },
+      {
+        "id": 11,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 108
+      },
+      {
+        "id": 12,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 108
+      },
+      {
+        "id": 13,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 108
+      },
+      {
+        "id": 14,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 108
+      },
+      {
+        "id": 15,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 157
+      },
+      {
+        "id": 16,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 158
+      },
+      {
+        "id": 17,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 18,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 19,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 20,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 21,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 169
+      },
+      {
+        "id": 22,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 171
+      },
+      {
+        "id": 23,
+        "url": "https://cdn.jsdelivr.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.jsdelivr.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 172
+      },
+      {
+        "id": 24,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 172
+      },
+      {
+        "id": 25,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 172
+      },
+      {
+        "id": 26,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 27,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 28,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 29,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 30,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 31,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 33,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 234
+      },
+      {
+        "id": 34,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 234
+      },
+      {
+        "id": 35,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 234
+      },
+      {
+        "id": 36,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 235
+      },
+      {
+        "id": 37,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 235
+      },
+      {
+        "id": 38,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 236
+      },
+      {
+        "id": 39,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 236
+      },
+      {
+        "id": 40,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 236
+      },
+      {
+        "id": 41,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 237
+      },
+      {
+        "id": 42,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 237
+      },
+      {
+        "id": 43,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 237
+      },
+      {
+        "id": 44,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 241
+      },
+      {
+        "id": 45,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 46,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 47,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 48,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 243
+      },
+      {
+        "id": 49,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 243
+      },
+      {
+        "id": 50,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 244
+      },
+      {
+        "id": 51,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 244
+      },
+      {
+        "id": 52,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 247
+      },
+      {
+        "id": 53,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 54,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 385
+      },
+      {
+        "id": 55,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 385
+      },
+      {
+        "id": 56,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 57,
+        "url": "https://www.ssa.gov/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 387
+      },
+      {
+        "id": 58,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 402
+      },
+      {
+        "id": 59,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 403
+      },
+      {
+        "id": 60,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 404
+      },
+      {
+        "id": 61,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 404
+      },
+      {
+        "id": 62,
+        "url": "https://www.googletagmanager.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 469
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.go-mpulse.net/{seg}/{seg}",
+          "initiatorDomain": "{label}.go-mpulse.net"
+        },
+        "startedAtMs": 477
+      },
+      {
+        "id": 64,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 597
+      },
+      {
+        "id": 65,
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 749
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&%5Bredacted%5D=&tid=&cid=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 749
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.digitalgov.gov/{seg}",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 753
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.digitalgov.gov/{seg}",
+          "initiatorDomain": "{label}.digitalgov.gov"
+        },
+        "startedAtMs": 779
+      },
+      {
+        "id": 69,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.digitalgov.gov/{seg}",
+          "initiatorDomain": "{label}.digitalgov.gov"
+        },
+        "startedAtMs": 779
+      },
+      {
+        "id": 70,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 780
+      },
+      {
+        "id": 71,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 935
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.jsdelivr.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.ssa.gov",
+        "requests": 58,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "image",
+          "other",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".ssa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".ssa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".ssa.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".ssa.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "mousedown",
+            "mouseup",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.digitalgov.gov/",
+            "https://{label}.go-mpulse.net/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 17
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.ssa.gov/{seg}/{seg}",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 17196
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.ssa.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5777,
+      "firstPartyDomain": "www.ssa.gov",
+      "totalRequests": 57,
+      "thirdPartyRequests": 1,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 1,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 4
+    },
+    "conditions": {
+      "requestedUrl": "https://www.ssa.gov/",
+      "finalUrl": "https://www.ssa.gov/",
+      "scannedAt": "2026-08-31T12:04:58.383Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.ssa.gov/",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 54
+      },
+      {
+        "id": 2,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 211
+      },
+      {
+        "id": 3,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 211
+      },
+      {
+        "id": 4,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 212
+      },
+      {
+        "id": 5,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 212
+      },
+      {
+        "id": 6,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 212
+      },
+      {
+        "id": 7,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 213
+      },
+      {
+        "id": 8,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 213
+      },
+      {
+        "id": 9,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 213
+      },
+      {
+        "id": 10,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 213
+      },
+      {
+        "id": 13,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 214
+      },
+      {
+        "id": 14,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 214
+      },
+      {
+        "id": 15,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 280
+      },
+      {
+        "id": 16,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 281
+      },
+      {
+        "id": 17,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 287
+      },
+      {
+        "id": 18,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 288
+      },
+      {
+        "id": 19,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 289
+      },
+      {
+        "id": 20,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 289
+      },
+      {
+        "id": 21,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 290
+      },
+      {
+        "id": 22,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 290
+      },
+      {
+        "id": 23,
+        "url": "https://cdn.jsdelivr.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.jsdelivr.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 291
+      },
+      {
+        "id": 24,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 291
+      },
+      {
+        "id": 25,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 291
+      },
+      {
+        "id": 26,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 27,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 28,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 29,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 30,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 32,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 349
+      },
+      {
+        "id": 33,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 350
+      },
+      {
+        "id": 34,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 352
+      },
+      {
+        "id": 35,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 353
+      },
+      {
+        "id": 36,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 37,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 38,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 39,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 355
+      },
+      {
+        "id": 40,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 355
+      },
+      {
+        "id": 41,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 355
+      },
+      {
+        "id": 42,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 43,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 44,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 45,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 46,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 47,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 48,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 358
+      },
+      {
+        "id": 49,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 361
+      },
+      {
+        "id": 50,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 362
+      },
+      {
+        "id": 51,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 362
+      },
+      {
+        "id": 53,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 404
+      },
+      {
+        "id": 54,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 449
+      },
+      {
+        "id": 55,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 450
+      },
+      {
+        "id": 56,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 451
+      },
+      {
+        "id": 57,
+        "url": "https://www.ssa.gov/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 451
+      },
+      {
+        "id": 58,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 59,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 60,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 483
+      },
+      {
+        "id": 61,
+        "url": "https://www.ssa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.ssa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.ssa.gov/",
+          "initiatorDomain": "www.ssa.gov"
+        },
+        "startedAtMs": 485
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn.jsdelivr.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.ssa.gov",
+        "requests": 56,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "image",
+          "other",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".ssa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.ssa.gov/{seg}/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 17196
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.ssa.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 71,
+      "after": 57,
+      "delta": -14
+    },
+    "thirdPartyRequests": {
+      "before": 13,
+      "after": 1,
+      "delta": -12
+    },
+    "knownTrackerRequests": {
+      "before": 8,
+      "after": 0,
+      "delta": -8
+    },
+    "thirdPartyDomains": {
+      "before": 7,
+      "after": 1,
+      "delta": -6
+    },
+    "cookies": {
+      "before": 4,
+      "after": 1,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 5,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 8,
+        "domains": 4
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".ssa.gov",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.digitalgov.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.ssa.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.go-mpulse.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.ssa.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.digitalgov.gov",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 13,
+      "after": 4,
+      "delta": -9
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Read the site's privacy policy (https://www.ssa.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.ssa.gov/{seg}/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260831-ecf02d1405e912efadfd67be02f31982",
+    "path": "/reports/20260831-ecf02d1405e912efadfd67be02f31982/",
+    "jsonPath": "/reports/20260831-ecf02d1405e912efadfd67be02f31982.json"
+  }
+}

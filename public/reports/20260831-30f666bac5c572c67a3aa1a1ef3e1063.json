@@ -1,0 +1,6658 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.roblox.com/",
+  "scannedAt": "2026-08-31T11:51:13.132Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5399,
+      "firstPartyDomain": "www.roblox.com",
+      "totalRequests": 186,
+      "thirdPartyRequests": 164,
+      "knownTrackerRequests": 2,
+      "thirdPartyDomains": 4,
+      "cookies": 7,
+      "thirdPartyCookies": 0,
+      "storageEntries": 5,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 7
+    },
+    "conditions": {
+      "requestedUrl": "https://www.roblox.com/",
+      "finalUrl": "https://www.roblox.com/",
+      "scannedAt": "2026-08-31T11:51:07.717Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.roblox.com/",
+        "domain": "www.roblox.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 45
+      },
+      {
+        "id": 2,
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "www.roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 245
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 246
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 249
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 249
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 249
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 249
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 249
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 249
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 249
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 18,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 254
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 255
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 256
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 258
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 258
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 258
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 258
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 258
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 262
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 262
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 265
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 265
+      },
+      {
+        "id": 140,
+        "url": "https://roblox.com/{seg}/{seg}",
+        "domain": "roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 747
+      },
+      {
+        "id": 141,
+        "url": "https://metrics.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "metrics.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 756
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 401,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 809
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.{label}.{label}.sentry.io/api/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.sentry.io",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1326
+      },
+      {
+        "id": 144,
+        "url": "https://metrics.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "metrics.roblox.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1936
+      },
+      {
+        "id": 145,
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
+        "domain": "static.cloudflareinsights.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1937
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2009
+      },
+      {
+        "id": 147,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2010
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2011
+      },
+      {
+        "id": 149,
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 2012
+      },
+      {
+        "id": 150,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2013
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2128
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2128
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 2130
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2131
+      },
+      {
+        "id": 155,
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 2139
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2151
+      },
+      {
+        "id": 157,
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 2283
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.rbxcdn.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 2431
+      },
+      {
+        "id": 159,
+        "url": "https://{label}.rbxcdn.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2433
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.rbxcdn.com/{seg}/{seg}?%5Bredacted%5D=&version=",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 2441
+      },
+      {
+        "id": 161,
+        "url": "https://{label}.rbxcdn.com/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2666
+      },
+      {
+        "id": 162,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2698
+      },
+      {
+        "id": 163,
+        "url": "https://{label}.rbxcdn.com/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2700
+      },
+      {
+        "id": 164,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2759
+      },
+      {
+        "id": 165,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2774
+      },
+      {
+        "id": 166,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3149
+      },
+      {
+        "id": 167,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3297
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3297
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3297
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3297
+      },
+      {
+        "id": 171,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3298
+      },
+      {
+        "id": 172,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3298
+      },
+      {
+        "id": 173,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3298
+      },
+      {
+        "id": 174,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3298
+      },
+      {
+        "id": 175,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3299
+      },
+      {
+        "id": 176,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3299
+      },
+      {
+        "id": 177,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3299
+      },
+      {
+        "id": 178,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3299
+      },
+      {
+        "id": 179,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3299
+      },
+      {
+        "id": 180,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3299
+      },
+      {
+        "id": 181,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3299
+      },
+      {
+        "id": 182,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3300
+      },
+      {
+        "id": 183,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3300
+      },
+      {
+        "id": 184,
+        "url": "https://{label}.rbxcdn.com/{seg}/{n}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3300
+      },
+      {
+        "id": 185,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3902
+      },
+      {
+        "id": 186,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 4291
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.{label}.{label}.sentry.io",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "static.cloudflareinsights.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.rbxcdn.com",
+        "requests": 161,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font",
+          "script",
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "images.rbxcdn.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.roblox.com",
+        "requests": 14,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          401,
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.roblox.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "metrics.roblox.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr",
+          "other"
+        ]
+      },
+      {
+        "domain": "roblox.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cf_clearance",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 13
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.rbxcdn.com/"
+          ],
+          "totalListenerCalls": 53
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.rbxcdn.com/"
+          ],
+          "totalListenerCalls": 279
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 9502,
+      "firstPartyDomain": "www.roblox.com",
+      "totalRequests": 183,
+      "thirdPartyRequests": 157,
+      "knownTrackerRequests": 3,
+      "thirdPartyDomains": 4,
+      "cookies": 7,
+      "thirdPartyCookies": 0,
+      "storageEntries": 6,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 19
+    },
+    "conditions": {
+      "requestedUrl": "https://www.roblox.com/",
+      "finalUrl": "https://www.roblox.com/",
+      "scannedAt": "2026-08-31T11:51:13.132Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.roblox.com/",
+        "domain": "www.roblox.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 52
+      },
+      {
+        "id": 2,
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "www.roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 310
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 319
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 320
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 320
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 320
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 18,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 324
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 324
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 324
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 327
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 327
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 327
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 336
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 336
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 336
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 336
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 342
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 342
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 343
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 343
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 343
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 343
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 348
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 348
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 348
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 348
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 366
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 366
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 367
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 367
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 367
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 367
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 367
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 368
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 368
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 368
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 371
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 371
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 134,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 373
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 374
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 375
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 376
+      },
+      {
+        "id": 144,
+        "url": "https://roblox.com/{seg}/{seg}",
+        "domain": "roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 806
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 401,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 889
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1525
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.rbxcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1875
+      },
+      {
+        "id": 151,
+        "url": "https://static.cloudflareinsights.com/{seg}/{seg}",
+        "domain": "static.cloudflareinsights.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1911
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.rbxcdn.com/{seg}",
+        "domain": "{label}.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1938
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1987
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1987
+      },
+      {
+        "id": 155,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1988
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1990
+      },
+      {
+        "id": 157,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1990
+      },
+      {
+        "id": 158,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1991
+      },
+      {
+        "id": 159,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1991
+      },
+      {
+        "id": 160,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1991
+      },
+      {
+        "id": 161,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1991
+      },
+      {
+        "id": 162,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1991
+      },
+      {
+        "id": 163,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1991
+      },
+      {
+        "id": 164,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1991
+      },
+      {
+        "id": 165,
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 1992
+      },
+      {
+        "id": 166,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1994
+      },
+      {
+        "id": 167,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 1994
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2035
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2035
+      },
+      {
+        "id": 171,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2036
+      },
+      {
+        "id": 172,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2036
+      },
+      {
+        "id": 173,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2037
+      },
+      {
+        "id": 174,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2037
+      },
+      {
+        "id": 175,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2038
+      },
+      {
+        "id": 176,
+        "url": "https://auth.roblox.com/{seg}/{seg}",
+        "domain": "auth.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2038
+      },
+      {
+        "id": 177,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2040
+      },
+      {
+        "id": 178,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2040
+      },
+      {
+        "id": 179,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2041
+      },
+      {
+        "id": 180,
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.roblox.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 2063
+      },
+      {
+        "id": 181,
+        "url": "https://www.roblox.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.roblox.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.roblox.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.roblox.com"
+        },
+        "startedAtMs": 2162
+      },
+      {
+        "id": 182,
+        "url": "https://images.rbxcdn.com/{seg}",
+        "domain": "images.rbxcdn.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2271
+      },
+      {
+        "id": 183,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2333
+      },
+      {
+        "id": 184,
+        "url": "https://{label}.roblox.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2386
+      },
+      {
+        "id": 185,
+        "url": "https://{label}.px-cloud.net/{seg}/{seg}",
+        "domain": "{label}.px-cloud.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "px-cloud.net",
+          "entity": "HUMAN Security",
+          "category": "security / anti-abuse",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2424
+      },
+      {
+        "id": 186,
+        "url": "https://{label}.px-cloud.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.px-cloud.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "px-cloud.net",
+          "entity": "HUMAN Security",
+          "category": "security / anti-abuse",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.rbxcdn.com/{seg}",
+          "initiatorDomain": "{label}.rbxcdn.com"
+        },
+        "startedAtMs": 2517
+      },
+      {
+        "id": 191,
+        "url": "https://{label}.roblox.com/{seg}/{seg}",
+        "domain": "{label}.roblox.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2997
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.px-cloud.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "px-cloud.net",
+          "entity": "HUMAN Security",
+          "category": "security / anti-abuse",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "static.cloudflareinsights.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "cloudflareinsights.com",
+          "entity": "Cloudflare",
+          "category": "web analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.rbxcdn.com",
+        "requests": 143,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "images.rbxcdn.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.roblox.com",
+        "requests": 19,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          401,
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.roblox.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "roblox.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "auth.roblox.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "cf_clearance",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".roblox.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 24
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 14825
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.px-cloud.net/",
+            "https://{label}.rbxcdn.com/"
+          ],
+          "totalListenerCalls": 89
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.px-cloud.net/",
+            "https://{label}.rbxcdn.com/"
+          ],
+          "totalListenerCalls": 208
+        }
+      }
+    ],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 186,
+      "after": 183,
+      "delta": -3
+    },
+    "thirdPartyRequests": {
+      "before": 164,
+      "after": 157,
+      "delta": -7
+    },
+    "knownTrackerRequests": {
+      "before": 2,
+      "after": 3,
+      "delta": 1
+    },
+    "thirdPartyDomains": {
+      "before": 4,
+      "after": 4,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 7,
+      "after": 7,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 5,
+      "after": 6,
+      "delta": 1
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [
+      {
+        "domain": "{label}.px-cloud.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "px-cloud.net",
+          "entity": "HUMAN Security",
+          "category": "security / anti-abuse",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "auth.roblox.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "removedDomains": [
+      {
+        "domain": "metrics.roblox.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.{label}.sentry.io",
+        "requests": 1,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [
+      {
+        "entity": "HUMAN Security",
+        "requests": 2,
+        "domains": 1
+      }
+    ],
+    "removedEntities": [
+      {
+        "entity": "Sentry",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]"
+      }
+    ],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [
+      {
+        "domain": "images.rbxcdn.com",
+        "requests": 8,
+        "tracker": null,
+        "initiator": "www.roblox.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.px-cloud.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "px-cloud.net",
+          "entity": "HUMAN Security",
+          "category": "security / anti-abuse",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.rbxcdn.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "removedProvenance": [
+      {
+        "domain": "{label}.{label}.{label}.sentry.io",
+        "requests": 1,
+        "tracker": {
+          "domain": "sentry.io",
+          "entity": "Sentry",
+          "category": "error monitoring",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.rbxcdn.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 7,
+      "after": 19,
+      "delta": 12
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts."
+  ],
+  "share": {
+    "id": "20260831-30f666bac5c572c67a3aa1a1ef3e1063",
+    "path": "/reports/20260831-30f666bac5c572c67a3aa1a1ef3e1063/",
+    "jsonPath": "/reports/20260831-30f666bac5c572c67a3aa1a1ef3e1063.json"
+  }
+}

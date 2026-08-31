@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "generatedAt": "2026-08-24T20:19:41.688Z",
+  "generatedAt": "2026-08-31T12:26:36.523Z",
   "metricContractVersion": "metric-contract-v1",
   "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "sampleSize": 95,
@@ -388,25 +388,25 @@
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 95,
-      "latestRunAt": "2026-08-24T08:21:14.593Z",
+      "latestRunAt": "2026-08-31T12:06:12.769Z",
       "metrics": {
         "thirdPartyRequests": {
           "count": 95,
           "min": 0,
           "max": 844,
           "p50": 26,
-          "p75": 118,
-          "p90": 244,
-          "p95": 453
+          "p75": 127,
+          "p90": 241,
+          "p95": 383
         },
         "thirdPartyDomains": {
           "count": 95,
           "min": 0,
-          "max": 140,
+          "max": 150,
           "p50": 6,
-          "p75": 17,
-          "p90": 37,
-          "p95": 66
+          "p75": 18,
+          "p90": 38,
+          "p95": 59
         },
         "cataloguedServiceRequests": {
           "count": 95,
@@ -414,33 +414,33 @@
           "max": 315,
           "p50": 5,
           "p75": 23,
-          "p90": 69,
-          "p95": 166
+          "p90": 68,
+          "p95": 121
         },
         "trackingServiceRequests": {
           "count": 95,
           "min": 0,
           "max": 315,
-          "p50": 4,
+          "p50": 5,
           "p75": 23,
-          "p90": 63,
-          "p95": 165
+          "p90": 59,
+          "p95": 117
         },
         "thirdPartyCookies": {
           "count": 95,
           "min": 0,
           "max": 162,
           "p50": 0,
-          "p75": 5,
-          "p90": 17,
+          "p75": 6,
+          "p90": 22,
           "p95": 52
         },
         "fingerprintEvents": {
-          "count": 73,
+          "count": 71,
           "min": 0,
           "max": 544,
           "p50": 0,
-          "p75": 1,
+          "p75": 2,
           "p90": 36,
           "p95": 116
         }
@@ -672,18 +672,18 @@
       "min": 0,
       "max": 844,
       "p50": 26,
-      "p75": 118,
-      "p90": 244,
-      "p95": 453
+      "p75": 127,
+      "p90": 241,
+      "p95": 383
     },
     "thirdPartyDomains": {
       "count": 95,
       "min": 0,
-      "max": 140,
+      "max": 150,
       "p50": 6,
-      "p75": 17,
-      "p90": 37,
-      "p95": 66
+      "p75": 18,
+      "p90": 38,
+      "p95": 59
     },
     "cataloguedServiceRequests": {
       "count": 95,
@@ -691,33 +691,33 @@
       "max": 315,
       "p50": 5,
       "p75": 23,
-      "p90": 69,
-      "p95": 166
+      "p90": 68,
+      "p95": 121
     },
     "trackingServiceRequests": {
       "count": 95,
       "min": 0,
       "max": 315,
-      "p50": 4,
+      "p50": 5,
       "p75": 23,
-      "p90": 63,
-      "p95": 165
+      "p90": 59,
+      "p95": 117
     },
     "thirdPartyCookies": {
       "count": 95,
       "min": 0,
       "max": 162,
       "p50": 0,
-      "p75": 5,
-      "p90": 17,
+      "p75": 6,
+      "p90": 22,
       "p95": 52
     },
     "fingerprintEvents": {
-      "count": 73,
+      "count": 71,
       "min": 0,
       "max": 544,
       "p50": 0,
-      "p75": 1,
+      "p75": 2,
       "p90": 36,
       "p95": 116
     }

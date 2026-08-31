@@ -1,0 +1,6173 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.healthline.com/",
+  "scannedAt": "2026-08-31T11:47:41.875Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 13611,
+      "firstPartyDomain": "www.healthline.com",
+      "totalRequests": 171,
+      "thirdPartyRequests": 130,
+      "knownTrackerRequests": 19,
+      "thirdPartyDomains": 36,
+      "cookies": 41,
+      "thirdPartyCookies": 12,
+      "storageEntries": 42,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 79
+    },
+    "conditions": {
+      "requestedUrl": "https://www.healthline.com/",
+      "finalUrl": "https://www.healthline.com/",
+      "scannedAt": "2026-08-31T11:47:28.247Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.healthline.com/",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 41
+      },
+      {
+        "id": 2,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 3,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 4,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 122
+      },
+      {
+        "id": 5,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 6,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 7,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 124
+      },
+      {
+        "id": 9,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 124
+      },
+      {
+        "id": 10,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 124
+      },
+      {
+        "id": 11,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 124
+      },
+      {
+        "id": 12,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 126
+      },
+      {
+        "id": 13,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 126
+      },
+      {
+        "id": 14,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 126
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 126
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 126
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 18,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 221
+      },
+      {
+        "id": 19,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 221
+      },
+      {
+        "id": 20,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 221
+      },
+      {
+        "id": 21,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 222
+      },
+      {
+        "id": 22,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 223
+      },
+      {
+        "id": 23,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 223
+      },
+      {
+        "id": 24,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 224
+      },
+      {
+        "id": 25,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 224
+      },
+      {
+        "id": 26,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 227
+      },
+      {
+        "id": 27,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 227
+      },
+      {
+        "id": 28,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 228
+      },
+      {
+        "id": 29,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 228
+      },
+      {
+        "id": 30,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 228
+      },
+      {
+        "id": 31,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 229
+      },
+      {
+        "id": 32,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 229
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.adspsp.com/{seg}",
+        "domain": "{label}.adspsp.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 229
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 229
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 230
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.healthline.com/{seg}",
+        "domain": "{label}.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 230
+      },
+      {
+        "id": 37,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 275
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.onetrust.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.onetrust.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.33across.com/{seg}",
+        "domain": "{label}.33across.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+          "initiatorDomain": "{label}.{label}.amazon-adsystem.com"
+        },
+        "startedAtMs": 446
+      },
+      {
+        "id": 40,
+        "url": "https://cdn.id5-sync.com/api/{seg}/{seg}",
+        "domain": "cdn.id5-sync.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+          "initiatorDomain": "{label}.{label}.amazon-adsystem.com"
+        },
+        "startedAtMs": 448
+      },
+      {
+        "id": 41,
+        "url": "https://secure.cdn.fastclick.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "secure.cdn.fastclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+          "initiatorDomain": "{label}.{label}.amazon-adsystem.com"
+        },
+        "startedAtMs": 448
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.amazon-adsystem.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.amazon-adsystem.com/{seg}",
+          "initiatorDomain": "{label}.{label}.amazon-adsystem.com"
+        },
+        "startedAtMs": 449
+      },
+      {
+        "id": 43,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 471
+      },
+      {
+        "id": 44,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 472
+      },
+      {
+        "id": 45,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 46,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 47,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 477
+      },
+      {
+        "id": 48,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 477
+      },
+      {
+        "id": 49,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 478
+      },
+      {
+        "id": 50,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 479
+      },
+      {
+        "id": 51,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 52,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 53,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 54,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 55,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 485
+      },
+      {
+        "id": 56,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 493
+      },
+      {
+        "id": 57,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 494
+      },
+      {
+        "id": 58,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 494
+      },
+      {
+        "id": 59,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 495
+      },
+      {
+        "id": 60,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 495
+      },
+      {
+        "id": 61,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 496
+      },
+      {
+        "id": 62,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 496
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 547
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 548
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 549
+      },
+      {
+        "id": 66,
+        "url": "https://cdn.rvohealth.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.rvohealth.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.healthline.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.healthline.com"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 67,
+        "url": "https://cdn.rvohealth.com/{seg}/api/{seg}/{seg}",
+        "domain": "cdn.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.healthline.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.healthline.com"
+        },
+        "startedAtMs": 549
+      },
+      {
+        "id": 68,
+        "url": "https://www.healthline.com/{seg}/{seg}",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 553
+      },
+      {
+        "id": 69,
+        "url": "https://cdn.rvohealth.com/{seg}/{seg}",
+        "domain": "cdn.rvohealth.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.healthline.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.healthline.com"
+        },
+        "startedAtMs": 555
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 630
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 632
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 632
+      },
+      {
+        "id": 73,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 633
+      },
+      {
+        "id": 74,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 633
+      },
+      {
+        "id": 75,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 633
+      },
+      {
+        "id": 76,
+        "url": "https://www.healthline.com/api/{seg}/{seg}/{seg}",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 791
+      },
+      {
+        "id": 77,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 78,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 792
+      },
+      {
+        "id": 79,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 793
+      },
+      {
+        "id": 80,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 794
+      },
+      {
+        "id": 81,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 795
+      },
+      {
+        "id": 82,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 795
+      },
+      {
+        "id": 83,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 795
+      },
+      {
+        "id": 84,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 796
+      },
+      {
+        "id": 85,
+        "url": "https://assets.medicalnewstoday.com/{seg}/{seg}",
+        "domain": "assets.medicalnewstoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 844
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 899
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 901
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 902
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 903
+      },
+      {
+        "id": 90,
+        "url": "https://cdn.rvohealth.com/{seg}/{seg}",
+        "domain": "cdn.rvohealth.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.rvohealth.com/{seg}/{seg}",
+          "initiatorDomain": "cdn.rvohealth.com"
+        },
+        "startedAtMs": 956
+      },
+      {
+        "id": 91,
+        "url": "https://www.healthline.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 978
+      },
+      {
+        "id": 92,
+        "url": "https://www.googletagmanager.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.healthline.com/{seg}",
+          "initiatorDomain": "{label}.healthline.com"
+        },
+        "startedAtMs": 997
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.healthline.com/{seg}",
+          "initiatorDomain": "{label}.healthline.com"
+        },
+        "startedAtMs": 1014
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1030
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1036
+      },
+      {
+        "id": 96,
+        "url": "https://www.healthline.com/api/{seg}/{seg}",
+        "domain": "www.healthline.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1038
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?cb=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.{label}.doubleclick.net"
+        },
+        "startedAtMs": 1063
+      },
+      {
+        "id": 98,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1067
+      },
+      {
+        "id": 99,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1068
+      },
+      {
+        "id": 100,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1070
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.adspsp.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adspsp.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adspsp.com/{seg}",
+          "initiatorDomain": "{label}.adspsp.com"
+        },
+        "startedAtMs": 1071
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.adspsp.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adspsp.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adspsp.com/{seg}",
+          "initiatorDomain": "{label}.adspsp.com"
+        },
+        "startedAtMs": 1071
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.33across.com/{seg}/{seg}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.33across.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1148
+      },
+      {
+        "id": 104,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1174
+      },
+      {
+        "id": 105,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1175
+      },
+      {
+        "id": 106,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 1258
+      },
+      {
+        "id": 107,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1299
+      },
+      {
+        "id": 108,
+        "url": "https://cdn.btmessage.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "cdn.btmessage.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adspsp.com/{seg}",
+          "initiatorDomain": "{label}.adspsp.com"
+        },
+        "startedAtMs": 1322
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.doubleverify.com/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleverify.com",
+          "entity": "DoubleVerify",
+          "category": "advertising measurement / verification",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adspsp.com/{seg}",
+          "initiatorDomain": "{label}.adspsp.com"
+        },
+        "startedAtMs": 1323
+      },
+      {
+        "id": 110,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1403
+      },
+      {
+        "id": 111,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1405
+      },
+      {
+        "id": 112,
+        "url": "https://api.id5-sync.com/{seg}/{n}/{seg}",
+        "domain": "api.id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1461
+      },
+      {
+        "id": 113,
+        "url": "https://www.youtube.com/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1476
+      },
+      {
+        "id": 114,
+        "url": "https://cdn.btmessage.com/{seg}/{seg}",
+        "domain": "cdn.btmessage.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.btmessage.com/{seg}/{seg}",
+          "initiatorDomain": "cdn.btmessage.com"
+        },
+        "startedAtMs": 1484
+      },
+      {
+        "id": 115,
+        "url": "https://cdn.rvohealth.com/{seg}/api/{seg}/{seg}",
+        "domain": "cdn.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1491
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1491
+      },
+      {
+        "id": 117,
+        "url": "https://cdn.cookielaw.org/{seg}/static/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 1492
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1499
+      },
+      {
+        "id": 119,
+        "url": "https://api.btmessage.com/{seg}?%5Bredacted%5D=",
+        "domain": "api.btmessage.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1567
+      },
+      {
+        "id": 120,
+        "url": "https://ad-delivery.net/{seg}?%5Bredacted%5D=",
+        "domain": "ad-delivery.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1569
+      },
+      {
+        "id": 121,
+        "url": "https://ad.doubleclick.net/{seg}?%5Bredacted%5D=&size=",
+        "domain": "ad.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1570
+      },
+      {
+        "id": 122,
+        "url": "https://ad-delivery.net/{seg}?%5Bredacted%5D=",
+        "domain": "ad-delivery.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1570
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleverify.com",
+          "entity": "DoubleVerify",
+          "category": "advertising measurement / verification",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1592
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.doubleverify.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.doubleverify.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleverify.com",
+          "entity": "DoubleVerify",
+          "category": "advertising measurement / verification",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1592
+      },
+      {
+        "id": 125,
+        "url": "https://id5-sync.com/{seg}",
+        "domain": "id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1600
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.eu-1-id5-sync.com/{seg}/{seg}",
+        "domain": "{label}.eu-1-id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1601
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.eu-1-id5-sync.com/{seg}/{seg}",
+        "domain": "{label}.eu-1-id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1601
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.healthline.com/api/{seg}",
+        "domain": "{label}.healthline.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1602
+      },
+      {
+        "id": 129,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 1608
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 1609
+      },
+      {
+        "id": 131,
+        "url": "https://ad-delivery.net/{seg}?%5Bredacted%5D=",
+        "domain": "ad-delivery.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1611
+      },
+      {
+        "id": 132,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1612
+      },
+      {
+        "id": 133,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1613
+      },
+      {
+        "id": 134,
+        "url": "https://ad-delivery.net/{seg}?%5Bredacted%5D=",
+        "domain": "ad-delivery.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 1613
+      },
+      {
+        "id": 135,
+        "url": "https://ad.doubleclick.net/{seg}?%5Bredacted%5D=&size=",
+        "domain": "ad.doubleclick.net",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1647
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.{label}.qualtrics.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1648
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.qualtrics.com/{seg}",
+          "initiatorDomain": "{label}.{label}.qualtrics.com"
+        },
+        "startedAtMs": 1713
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.{label}.qualtrics.com/{seg}",
+          "initiatorDomain": "{label}.{label}.qualtrics.com"
+        },
+        "startedAtMs": 1713
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1758
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.healthline.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.healthline.com"
+        },
+        "startedAtMs": 1766
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.qualtrics.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.qualtrics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1775
+      },
+      {
+        "id": 142,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=&tid=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 1813
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.healthline.com/{seg}/{seg}",
+        "domain": "{label}.healthline.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1813
+      },
+      {
+        "id": 144,
+        "url": "https://analytics.google.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "analytics.google.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1814
+      },
+      {
+        "id": 145,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&%5Bredacted%5D=&tid=&cid=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 1815
+      },
+      {
+        "id": 146,
+        "url": "https://id5-sync.com/{seg}/{seg}",
+        "domain": "id5-sync.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2281
+      },
+      {
+        "id": 147,
+        "url": "https://cdn.confiant-integrations.net/{seg}/{seg}/{seg}",
+        "domain": "cdn.confiant-integrations.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adspsp.com/{seg}",
+          "initiatorDomain": "{label}.adspsp.com"
+        },
+        "startedAtMs": 2380
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.privacymanager.io/{seg}/{seg}/{seg}",
+        "domain": "{label}.privacymanager.io",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adspsp.com/{seg}",
+          "initiatorDomain": "{label}.adspsp.com"
+        },
+        "startedAtMs": 2381
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.privacymanager.io/",
+        "domain": "{label}.privacymanager.io",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2440
+      },
+      {
+        "id": 150,
+        "url": "https://cdn.confiant-integrations.net/{seg}/{n}/{seg}",
+        "domain": "cdn.confiant-integrations.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.confiant-integrations.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.confiant-integrations.net"
+        },
+        "startedAtMs": 2464
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.indexww.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.indexww.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.adspsp.com/{seg}",
+          "initiatorDomain": "{label}.adspsp.com"
+        },
+        "startedAtMs": 2485
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.{label}.amazon-adsystem.com/{seg}/{n}",
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 2485
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.adspsp.com/{seg}",
+        "domain": "{label}.adspsp.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2496
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.33across.com/{seg}/{seg}?%5Bredacted%5D=&ver=",
+        "domain": "{label}.33across.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2617
+      },
+      {
+        "id": 155,
+        "url": "https://{label}.analytics.yahoo.com/{seg}/{n}/{seg}?v=&%5Bredacted%5D=",
+        "domain": "{label}.analytics.yahoo.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2618
+      },
+      {
+        "id": 156,
+        "url": "https://id5-sync.com/api/{seg}/{seg}",
+        "domain": "id5-sync.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2619
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.{label}.rkdms.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.rkdms.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2620
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2620
+      },
+      {
+        "id": 159,
+        "url": "https://api.rlcdn.com/api/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "api.rlcdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2621
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.adsrvr.org/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.adsrvr.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2640
+      },
+      {
+        "id": 161,
+        "url": "https://api.rlcdn.com/api/{seg}?%5Bredacted%5D=",
+        "domain": "api.rlcdn.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2642
+      },
+      {
+        "id": 162,
+        "url": "https://id5-sync.com/{seg}/{n}/{seg}?%5Bredacted%5D=",
+        "domain": "id5-sync.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2645
+      },
+      {
+        "id": 163,
+        "url": "https://{label}.eu-1-id5-sync.com/{seg}/{seg}",
+        "domain": "{label}.eu-1-id5-sync.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2796
+      },
+      {
+        "id": 164,
+        "url": "https://id5-sync.com/{seg}/{seg}/{seg}",
+        "domain": "id5-sync.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 2957
+      },
+      {
+        "id": 165,
+        "url": "https://adspsp.com/{seg}/{n}/{n}/{n}?%5Bredacted%5D=&v=",
+        "domain": "adspsp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 6320
+      },
+      {
+        "id": 166,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 8443
+      },
+      {
+        "id": 167,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 8590
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.{label}.rvohealth.com/{seg}/{seg}",
+        "domain": "{label}.{label}.rvohealth.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 8592
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.wp.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 8592
+      },
+      {
+        "id": 170,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 8603
+      },
+      {
+        "id": 171,
+        "url": "https://adspsp.com/{seg}/{n}/{n}/{n}?%5Bredacted%5D=&v=",
+        "domain": "adspsp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 9781
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "other",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleverify.com",
+          "entity": "DoubleVerify",
+          "category": "advertising measurement / verification",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.amazon-adsystem.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "media.{label}.rvohealth.io",
+        "requests": 38,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.rvohealth.com",
+        "requests": 16,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 8,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.rvohealth.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "document"
+        ]
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.adspsp.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "ad-delivery.net",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.33across.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.eu-1-id5-sync.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.btmessage.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.privacymanager.io",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "adspsp.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "secure.cdn.fastclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "assets.medicalnewstoday.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "api.id5-sync.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "api.btmessage.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.indexww.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.rkdms.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.wp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "assets.healthline.com",
+        "requests": 29,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "font",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.healthline.com",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "ping",
+          "fetch",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.healthline.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "image",
+          "fetch",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".33across.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".adsrvr.org",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".id5-sync.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".id5-sync.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rkdms.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rvohealth.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".yahoo.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "usprivacy",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 83
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2729
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 4
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 314
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 449
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 296
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 243
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 79
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 1158
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 16
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 233
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 96
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 181
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 43
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 261
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 535
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 81
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 29
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 52
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 29
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 8
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 68
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 66
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 49
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "scroll",
+            "touchstart",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.cookielaw.org/",
+            "https://{label}.adspsp.com/",
+            "https://{label}.doubleverify.com/"
+          ],
+          "totalListenerCalls": 15
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.healthline.com/about/{seg}",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "If enabled for the jurisdiction from which you are accessing our website or mobile application, you can opt out of the processing of your personal information for targeted advertising purposes by c..."
+        }
+      ],
+      "mentionedEntities": [
+        "Google",
+        "LiveRamp"
+      ],
+      "unmentionedEntities": [
+        "Amazon Ads",
+        "DoubleVerify",
+        "The Trade Desk"
+      ],
+      "policyTextLength": 180663
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.healthline.com/about/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 6491,
+      "firstPartyDomain": "www.healthline.com",
+      "totalRequests": 75,
+      "thirdPartyRequests": 43,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 12
+    },
+    "conditions": {
+      "requestedUrl": "https://www.healthline.com/",
+      "finalUrl": "https://www.healthline.com/",
+      "scannedAt": "2026-08-31T11:47:41.875Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.healthline.com/",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 54
+      },
+      {
+        "id": 2,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 129
+      },
+      {
+        "id": 3,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 130
+      },
+      {
+        "id": 4,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 130
+      },
+      {
+        "id": 5,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 130
+      },
+      {
+        "id": 6,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 130
+      },
+      {
+        "id": 7,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 130
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 9,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 10,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 11,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 12,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 13,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 14,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 133
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.cookielaw.org/{seg}/{seg}/{seg}",
+        "domain": "cdn.cookielaw.org",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.cookielaw.org/{seg}/{seg}",
+          "initiatorDomain": "cdn.cookielaw.org"
+        },
+        "startedAtMs": 197
+      },
+      {
+        "id": 18,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 205
+      },
+      {
+        "id": 19,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 20,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 209
+      },
+      {
+        "id": 21,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 209
+      },
+      {
+        "id": 22,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 210
+      },
+      {
+        "id": 23,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 211
+      },
+      {
+        "id": 24,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 213
+      },
+      {
+        "id": 25,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 214
+      },
+      {
+        "id": 26,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 215
+      },
+      {
+        "id": 27,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 215
+      },
+      {
+        "id": 32,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 279
+      },
+      {
+        "id": 33,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 302
+      },
+      {
+        "id": 34,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 303
+      },
+      {
+        "id": 35,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 304
+      },
+      {
+        "id": 36,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 305
+      },
+      {
+        "id": 37,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 305
+      },
+      {
+        "id": 38,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 307
+      },
+      {
+        "id": 39,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 307
+      },
+      {
+        "id": 40,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 307
+      },
+      {
+        "id": 41,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 308
+      },
+      {
+        "id": 42,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 308
+      },
+      {
+        "id": 43,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 44,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 45,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 311
+      },
+      {
+        "id": 46,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 312
+      },
+      {
+        "id": 47,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 312
+      },
+      {
+        "id": 48,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 313
+      },
+      {
+        "id": 49,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 313
+      },
+      {
+        "id": 50,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 313
+      },
+      {
+        "id": 51,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 314
+      },
+      {
+        "id": 53,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 378
+      },
+      {
+        "id": 54,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 379
+      },
+      {
+        "id": 55,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 379
+      },
+      {
+        "id": 56,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 533
+      },
+      {
+        "id": 57,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 534
+      },
+      {
+        "id": 58,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 534
+      },
+      {
+        "id": 59,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 536
+      },
+      {
+        "id": 60,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 536
+      },
+      {
+        "id": 61,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 537
+      },
+      {
+        "id": 62,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 537
+      },
+      {
+        "id": 63,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 538
+      },
+      {
+        "id": 64,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 585
+      },
+      {
+        "id": 65,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 585
+      },
+      {
+        "id": 66,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 586
+      },
+      {
+        "id": 67,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 586
+      },
+      {
+        "id": 68,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 587
+      },
+      {
+        "id": 69,
+        "url": "https://assets.medicalnewstoday.com/{seg}/{seg}",
+        "domain": "assets.medicalnewstoday.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 588
+      },
+      {
+        "id": 72,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 643
+      },
+      {
+        "id": 73,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 643
+      },
+      {
+        "id": 74,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 644
+      },
+      {
+        "id": 75,
+        "url": "https://www.healthline.com/api/{seg}/{seg}",
+        "domain": "www.healthline.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 672
+      },
+      {
+        "id": 76,
+        "url": "https://www.healthline.com/static/{seg}/{seg}/{seg}",
+        "domain": "www.healthline.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.healthline.com/",
+          "initiatorDomain": "www.healthline.com"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 78,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 723
+      },
+      {
+        "id": 79,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 724
+      },
+      {
+        "id": 81,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 82,
+        "url": "https://assets.healthline.com/{seg}/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://assets.healthline.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "assets.healthline.com"
+        },
+        "startedAtMs": 812
+      },
+      {
+        "id": 83,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 827
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.wp.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.wp.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1645
+      },
+      {
+        "id": 86,
+        "url": "https://media.{label}.rvohealth.io/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "media.{label}.rvohealth.io",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1645
+      },
+      {
+        "id": 87,
+        "url": "https://assets.healthline.com/{seg}/{seg}",
+        "domain": "assets.healthline.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1649
+      }
+    ],
+    "domains": [
+      {
+        "domain": "media.{label}.rvohealth.io",
+        "requests": 38,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "assets.medicalnewstoday.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.wp.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "assets.healthline.com",
+        "requests": 29,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "font",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.healthline.com",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "fetch",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".healthline.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.healthline.com/about/{seg}",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "If enabled for the jurisdiction from which you are accessing our website or mobile application, you can opt out of the processing of your personal information for targeted advertising purposes by c..."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 180667
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.healthline.com/about/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 171,
+      "after": 75,
+      "delta": -96
+    },
+    "thirdPartyRequests": {
+      "before": 130,
+      "after": 43,
+      "delta": -87
+    },
+    "knownTrackerRequests": {
+      "before": 19,
+      "after": 0,
+      "delta": -19
+    },
+    "thirdPartyDomains": {
+      "before": 36,
+      "after": 4,
+      "delta": -32
+    },
+    "cookies": {
+      "before": 41,
+      "after": 2,
+      "delta": -39
+    },
+    "thirdPartyCookies": {
+      "before": 12,
+      "after": 0,
+      "delta": -12
+    },
+    "storageEntries": {
+      "before": 42,
+      "after": 1,
+      "delta": -41
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.{label}.rvohealth.com",
+        "requests": 16,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.healthline.com",
+        "requests": 7,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.rvohealth.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "id5-sync.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 4,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.adspsp.com",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "ad-delivery.net",
+        "requests": 4,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.33across.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "doubleverify.com",
+          "entity": "DoubleVerify",
+          "category": "advertising measurement / verification",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.eu-1-id5-sync.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 2,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.privacymanager.io",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "ad.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "adspsp.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.btmessage.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.rkdms.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.indexww.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "api.btmessage.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "api.id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "secure.cdn.fastclick.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 8,
+        "domains": 4
+      },
+      {
+        "entity": "Amazon Ads",
+        "requests": 4,
+        "domains": 2
+      },
+      {
+        "entity": "DoubleVerify",
+        "requests": 3,
+        "domains": 1
+      },
+      {
+        "entity": "LiveRamp",
+        "requests": 2,
+        "domains": 1
+      },
+      {
+        "entity": "The Trade Desk",
+        "requests": 2,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".33across.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".adsrvr.org",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".id5-sync.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".id5-sync.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rkdms.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".rvohealth.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".yahoo.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "OptanonConsent",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "usprivacy",
+        "domain": ".healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.healthline.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.healthline.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]"
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "id5-sync.com",
+        "requests": 4,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.eu-1-id5-sync.com",
+        "requests": 3,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.cookielaw.org",
+        "requests": 3,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.rvohealth.com",
+        "requests": 3,
+        "tracker": null,
+        "initiator": "{label}.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.33across.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.adspsp.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.adspsp.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.adsrvr.org",
+        "requests": 2,
+        "tracker": {
+          "domain": "adsrvr.org",
+          "entity": "The Trade Desk",
+          "category": "advertising / demand-side platform",
+          "confidence": "curated"
+        },
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleverify.com",
+          "entity": "DoubleVerify",
+          "category": "advertising measurement / verification",
+          "confidence": "curated"
+        },
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.{label}.qualtrics.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "api.rlcdn.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "rlcdn.com",
+          "entity": "LiveRamp",
+          "category": "identity / advertising",
+          "confidence": "curated"
+        },
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.{label}.doubleclick.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.rkdms.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.33across.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.{label}.amazon-adsystem.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.adspsp.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.adspsp.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.amazon-adsystem.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "amazon-adsystem.com",
+          "entity": "Amazon Ads",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.{label}.amazon-adsystem.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.analytics.yahoo.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.doubleverify.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleverify.com",
+          "entity": "DoubleVerify",
+          "category": "advertising measurement / verification",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.adspsp.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.indexww.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.adspsp.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.onetrust.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "cdn.cookielaw.org",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.privacymanager.io",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.adspsp.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.privacymanager.io",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.qualtrics.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "api.btmessage.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "api.id5-sync.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.btmessage.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.adspsp.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.btmessage.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "cdn.btmessage.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.adspsp.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.confiant-integrations.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "cdn.confiant-integrations.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.id5-sync.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.{label}.amazon-adsystem.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.rvohealth.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "cdn.rvohealth.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.rvohealth.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "secure.cdn.fastclick.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.{label}.amazon-adsystem.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "assets.healthline.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.youtube.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 79,
+      "after": 12,
+      "delta": -67
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Read the site's privacy policy (https://www.healthline.com/about/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 2 form fields (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.healthline.com/about/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260831-ee95fa5575e7fc579fcfa56069cf6040",
+    "path": "/reports/20260831-ee95fa5575e7fc579fcfa56069cf6040/",
+    "jsonPath": "/reports/20260831-ee95fa5575e7fc579fcfa56069cf6040.json"
+  }
+}
