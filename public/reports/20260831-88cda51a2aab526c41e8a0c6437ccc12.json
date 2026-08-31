@@ -1,0 +1,1738 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.mit.edu/",
+  "scannedAt": "2026-08-31T15:17:26.857Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5711,
+      "firstPartyDomain": "www.mit.edu",
+      "totalRequests": 48,
+      "thirdPartyRequests": 8,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 2,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mit.edu/",
+      "finalUrl": "https://www.mit.edu/",
+      "scannedAt": "2026-08-31T15:17:32.798Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mit.edu/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 48
+      },
+      {
+        "id": 2,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 97
+      },
+      {
+        "id": 3,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 4,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 98
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.typekit.net/{seg}",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 129
+      },
+      {
+        "id": 6,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 141
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.typekit.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 163
+      },
+      {
+        "id": 8,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 198
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 226
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 226
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 227
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 227
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 227
+      },
+      {
+        "id": 14,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 231
+      },
+      {
+        "id": 15,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 231
+      },
+      {
+        "id": 16,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 232
+      },
+      {
+        "id": 17,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 233
+      },
+      {
+        "id": 18,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 233
+      },
+      {
+        "id": 19,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 233
+      },
+      {
+        "id": 20,
+        "url": "https://www.mit.edu/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 312
+      },
+      {
+        "id": 21,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 313
+      },
+      {
+        "id": 22,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 314
+      },
+      {
+        "id": 23,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 314
+      },
+      {
+        "id": 24,
+        "url": "https://www.mit.edu/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 338
+      },
+      {
+        "id": 25,
+        "url": "https://www.mit.edu/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 349
+      },
+      {
+        "id": 26,
+        "url": "https://www.mit.edu/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 351
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1045
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 1045
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1050
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1059
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1065
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1070
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1073
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1078
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1083
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1098
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1102
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1111
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1114
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1119
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1123
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1126
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1128
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1131
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1134
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1143
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1147
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 1255
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.typekit.net",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.mit.edu",
+        "requests": 22,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.mit.edu",
+        "requests": 18,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.mit.edu/privacy",
+      "claims": [
+        {
+          "kind": "no-selling-or-sharing",
+          "quote": "We will not share, exchange, or sell your email address and other provided personal information to third parties."
+        }
+      ],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 11617
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.mit.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5934,
+      "firstPartyDomain": "www.mit.edu",
+      "totalRequests": 46,
+      "thirdPartyRequests": 6,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mit.edu/",
+      "finalUrl": "https://www.mit.edu/",
+      "scannedAt": "2026-08-31T15:17:26.857Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-08-15T05:18:29.332Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mit.edu/",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 48
+      },
+      {
+        "id": 2,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 109
+      },
+      {
+        "id": 3,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 4,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.typekit.net/{seg}",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 146
+      },
+      {
+        "id": 6,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 259
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.typekit.net/{seg}/{seg}/{seg}/{n}/{seg}?%5Bredacted%5D=&v=",
+        "domain": "{label}.typekit.net",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.typekit.net/{seg}",
+          "initiatorDomain": "{label}.typekit.net"
+        },
+        "startedAtMs": 261
+      },
+      {
+        "id": 14,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 265
+      },
+      {
+        "id": 15,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 266
+      },
+      {
+        "id": 16,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 266
+      },
+      {
+        "id": 17,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 266
+      },
+      {
+        "id": 18,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 267
+      },
+      {
+        "id": 19,
+        "url": "https://www.mit.edu/{seg}/{seg}/{n}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 267
+      },
+      {
+        "id": 20,
+        "url": "https://www.mit.edu/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 21,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 22,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 23,
+        "url": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 24,
+        "url": "https://www.mit.edu/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 370
+      },
+      {
+        "id": 25,
+        "url": "https://www.mit.edu/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 371
+      },
+      {
+        "id": 26,
+        "url": "https://www.mit.edu/{seg}/{seg}",
+        "domain": "www.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 383
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 1057
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1058
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1069
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1071
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1076
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1081
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1086
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1089
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1093
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1097
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1101
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1107
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1110
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1113
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1116
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1121
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1125
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1128
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1132
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1136
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1140
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.mit.edu/{seg}/{seg}",
+        "domain": "{label}.mit.edu",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": null,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mit.edu/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mit.edu"
+        },
+        "startedAtMs": 1268
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.typekit.net",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.mit.edu",
+        "requests": 22,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.mit.edu",
+        "requests": 18,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.mit.edu/privacy",
+      "claims": [
+        {
+          "kind": "no-selling-or-sharing",
+          "quote": "We will not share, exchange, or sell your email address and other provided personal information to third parties."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 11617
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+      "Read the site's privacy policy (https://www.mit.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 48,
+      "after": 46,
+      "delta": -2
+    },
+    "thirdPartyRequests": {
+      "before": 8,
+      "after": 6,
+      "delta": -2
+    },
+    "knownTrackerRequests": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "thirdPartyDomains": {
+      "before": 2,
+      "after": 1,
+      "delta": -1
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.mit.edu",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "No blocking: Read the site's privacy policy (https://www.mit.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.mit.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260831-88cda51a2aab526c41e8a0c6437ccc12",
+    "path": "/reports/20260831-88cda51a2aab526c41e8a0c6437ccc12/",
+    "jsonPath": "/reports/20260831-88cda51a2aab526c41e8a0c6437ccc12.json"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "generatedAt": "2026-08-24T20:19:41.688Z",
+  "generatedAt": "2026-08-31T15:41:27.086Z",
   "metricContractVersion": "metric-contract-v1",
   "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "sampleSize": 95,
@@ -388,13 +388,13 @@
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "sampleSize": 95,
-      "latestRunAt": "2026-08-24T08:21:14.593Z",
+      "latestRunAt": "2026-08-31T15:24:37.599Z",
       "metrics": {
         "thirdPartyRequests": {
           "count": 95,
           "min": 0,
           "max": 844,
-          "p50": 26,
+          "p50": 24,
           "p75": 118,
           "p90": 244,
           "p95": 453
@@ -671,7 +671,7 @@
       "count": 95,
       "min": 0,
       "max": 844,
-      "p50": 26,
+      "p50": 24,
       "p75": 118,
       "p90": 244,
       "p95": 453
