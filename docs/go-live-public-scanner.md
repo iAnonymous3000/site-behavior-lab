@@ -958,17 +958,20 @@ That link renders the full report (request log, findings, Shields diff) for
 anyone, backed by R2. Downloading the JSON/CSV still works as an offline,
 re-uploadable copy.
 
-Runtime report HTML/RSC and both generated social-card routes are deliberately
-request-rendered: each request re-reads R2 and applies the report's immutable
-expiry metadata, rather than entering Next's persistent Full Route Cache. The
-front Worker recognizes the same canonical report ID as the store and charges
-all three representations in one atomic Durable Object namespace before it
-forwards to Node: 120 reads per client and 1,200 reads globally per fixed minute.
-Both a per-client and a global refusal leave every counter unchanged, and 429 or
-fail-closed 503 responses are `no-store`. The JSON endpoint retains its separate
-Node per-client limiter. The static Pages export is intentionally different: it
-pre-renders only committed corpus reports, which have repository-controlled
-retention and no runtime-store expiry.
+Runtime report HTML/RSC, the printable rendering, and both generated social-card
+routes are deliberately request-rendered: each request re-reads R2 and applies
+the report's immutable expiry metadata, rather than entering Next's persistent
+Full Route Cache. The front Worker recognizes the same canonical report ID as the
+store and charges all four representations in one atomic Durable Object
+namespace before it forwards to Node: 120 reads per client and 1,200 reads
+globally per fixed minute. Both a per-client and a global refusal leave every
+counter unchanged, and 429 or fail-closed 503 responses are `no-store`. Any
+method other than `GET`/`HEAD` on `/reports/*` is answered 405 at the edge and
+never forwarded: Next renders a page for a `POST` too, so a forwarded one would
+have bought the full read and render with the quota never consulted. The JSON
+endpoint retains its separate Node per-client limiter. The static Pages export
+is intentionally different: it pre-renders only committed corpus reports, which
+have repository-controlled retention and no runtime-store expiry.
 
 For the link to **unfurl with its Open Graph / X card** (headline + key counts),
 the scanner image must be built with the public origin baked in, because
