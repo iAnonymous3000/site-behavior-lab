@@ -2725,6 +2725,89 @@ test("a direct PDF privacy policy completes through the bounded scan proxy", { t
   }
 });
 
+test("a PDF privacy policy link that redirects or is missing cannot crash the process", { timeout: 40_000 }, async (t) => {
+  // destroy() on an undici body nobody read synthesizes RequestAbortedError and
+  // emits it as an 'error' event one setImmediate later. With no listener Node
+  // escalates that to an uncaughtException, so a policy link that merely
+  // answered 302 or 404 exited any plain Node host after the scan itself had
+  // already finished; only Next's own catch-all logger kept the container up.
+  // Capture the escalation the way the proxy's CONNECT-reset test does.
+  const uncaught: Error[] = [];
+  const existing = process.listeners("uncaughtException");
+  for (const listener of existing) process.off("uncaughtException", listener);
+  const capture = (error: Error): void => {
+    uncaught.push(error);
+  };
+  process.on("uncaughtException", capture);
+  t.after(() => {
+    process.off("uncaughtException", capture);
+    for (const listener of existing) process.on("uncaughtException", listener as never);
+  });
+
+  const policyPdf = policyPdfFixture(
+    "Privacy Policy. We collect information and use cookies for analytics and advertising. ".repeat(12)
+  );
+  const pdfPaths: string[] = [];
+  const upstream = createServer((request, response) => {
+    if (request.url?.endsWith(".pdf")) pdfPaths.push(request.url);
+    if (request.url === "/privacy-policy.pdf") {
+      response.writeHead(302, { location: "/policy-final.pdf" });
+      response.end();
+      return;
+    }
+    if (request.url === "/policy-final.pdf") {
+      response.writeHead(200, { "content-length": policyPdf.byteLength, "content-type": "application/pdf" });
+      response.end(policyPdf);
+      return;
+    }
+    if (request.url === "/missing.pdf") {
+      response.writeHead(404, { "content-type": "text/html; charset=utf-8" });
+      response.end("<p>not here</p>");
+      return;
+    }
+    const link = request.url === "/missing" ? "/missing.pdf" : "/privacy-policy.pdf";
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>PDF policy</title><a href="${link}">Privacy Policy</a>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    for (const [route, expected] of [
+      ["/", { version: "policy-text-cross-check@5", status: "complete", phaseId: 2 }],
+      ["/missing", { version: "policy-text-cross-check@5", status: "failed", reason: "load-failed", phaseId: 2 }]
+    ] as const) {
+      const { measurement: staged } = await scanSiteWithMeasurement(
+        { url: `http://policy-pdf-hop.test${route}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+        {
+          publicUrlAlreadyVerified: true,
+          verifyPublicUrl: async () => undefined,
+          resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+          connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+          resolveCnameChain: async () => []
+        }
+      );
+      assert.deepEqual(staged!.measurement.detectors["privacy-policy"], expected, route);
+      // The body's error surfaces a tick after the discard; give it the chance.
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    assert.deepEqual(pdfPaths, ["/privacy-policy.pdf", "/policy-final.pdf", "/missing.pdf"]);
+    assert.deepEqual(
+      uncaught.map((error) => `${error.name}: ${error.message}`),
+      [],
+      "discarding the redirect and error bodies raised no process-level error"
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
 function policyPdfFixture(text: string): Buffer {
   const textCommands = (text.match(/.{1,60}(?:\s|$)/g) ?? [text])
     .map((line) => line.replaceAll("\\", "\\\\").replaceAll("(", "\\(").replaceAll(")", "\\)"))
