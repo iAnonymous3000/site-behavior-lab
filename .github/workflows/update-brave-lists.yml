@@ -389,7 +389,16 @@ jobs:
               const marker = "<!-- site-behavior-lab:brave-list-refresh -->";
               const matches = JSON.parse(source)
                 .flat()
-                .filter((issue) => !issue.pull_request && typeof issue.body === "string" && issue.body.includes(marker));
+                // Only issues filed through the Actions token are canonical. Anyone
+                // can paste the marker into a public issue; adopting it would let
+                // this step rewrite and retitle it, and counting it would make every
+                // run here fail as ambiguous until a maintainer noticed.
+                .filter((issue) =>
+                  !issue.pull_request &&
+                  issue.user?.login === "github-actions[bot]" &&
+                  issue.user?.type === "Bot" &&
+                  typeof issue.body === "string" &&
+                  issue.body.includes(marker));
               if (matches.length > 1) throw new Error(`Found ${matches.length} canonical Brave-list refresh issues; expected at most one.`);
               if (matches.length === 1) process.stdout.write(`${matches[0].number}|${matches[0].state}`);
             });
@@ -503,7 +512,16 @@ jobs:
               const marker = "<!-- site-behavior-lab:measurement-toolchain-drift -->";
               const matches = JSON.parse(source)
                 .flat()
-                .filter((issue) => !issue.pull_request && typeof issue.body === "string" && issue.body.includes(marker));
+                // Only issues filed through the Actions token are canonical. Anyone
+                // can paste the marker into a public issue; adopting it would let
+                // this step rewrite and retitle it, and counting it would make every
+                // run here fail as ambiguous until a maintainer noticed.
+                .filter((issue) =>
+                  !issue.pull_request &&
+                  issue.user?.login === "github-actions[bot]" &&
+                  issue.user?.type === "Bot" &&
+                  typeof issue.body === "string" &&
+                  issue.body.includes(marker));
               if (matches.length > 1) throw new Error(`Found ${matches.length} canonical drift issues; expected at most one.`);
               if (matches.length === 1) process.stdout.write(`${matches[0].number}|${matches[0].state}`);
             });
