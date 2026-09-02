@@ -36,6 +36,12 @@ export const TURNSTILE_SITEVERIFY_OPERATION_TIMEOUT_MS = 10_000;
 export const TURNSTILE_SITEVERIFY_MAX_RESPONSE_BYTES = 8 * 1024;
 export const TURNSTILE_CONFIGURATION_PROBE_TIMEOUT_MS = 5_000;
 export const REQUEST_BODY_OPERATION_TIMEOUT_MS = 10_000;
+// How many read() calls the body reader makes before handing the event loop
+// back. A source that settles every read() from the microtask queue never
+// yields on its own, and the body deadline is a timer, which only runs on the
+// event loop. Legitimate bodies fit the byte cap in a handful of chunks and
+// never reach this.
+const REQUEST_BODY_READS_PER_YIELD = 1_024;
 // Cloudflare documents this as the dummy token: production secrets reject it
 // deterministically without requiring or redeeming a visitor challenge.
 const TURNSTILE_CONFIGURATION_PROBE_TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
@@ -392,7 +398,6 @@ export async function readRequestBodyWithinLimit(
     () => controller.abort(new RequestBodyReadTimeoutError(timeoutMs)),
     timeoutMs
   );
-  const abort = requestBodyAbortGate(controller.signal);
 
   try {
     throwIfRequestBodyAborted(controller.signal);
@@ -404,15 +409,27 @@ export async function readRequestBodyWithinLimit(
     if (!request.body) return "";
 
     const reader = request.body.getReader();
+    // One abort listener for the whole body. Cancelling the reader settles a
+    // pending read() as done, and the loop then takes the verdict off the
+    // signal. Each read() used to be raced against one abort promise that
+    // lived for the whole body, which pinned a fresh reaction to that promise
+    // per chunk: retained memory grew with chunk count while zero-length
+    // chunks never touched the byte cap.
+    const onAbort = () =>
+      cancelRequestReaderDetached(reader, requestBodyAbortReason(controller.signal));
+    controller.signal.addEventListener("abort", onAbort, { once: true });
     // A chunks array makes retained memory depend on chunk count instead of
     // byte count: arbitrarily many empty or one-byte chunks can allocate
     // unbounded array/object metadata while staying under the byte ceiling.
     const bytes = new Uint8Array(maxBytes);
     let total = 0;
+    let reads = 0;
     try {
       for (;;) {
         throwIfRequestBodyAborted(controller.signal);
-        const { done, value } = await Promise.race([reader.read(), abort.promise]);
+        reads += 1;
+        if (reads % REQUEST_BODY_READS_PER_YIELD === 0) await yieldToEventLoop();
+        const { done, value } = await reader.read();
         if (done) break;
         if (value.byteLength === 0) continue;
         if (value.byteLength > maxBytes - total) {
@@ -425,14 +442,9 @@ export async function readRequestBodyWithinLimit(
         total += value.byteLength;
       }
     } finally {
-      if (controller.signal.aborted) {
-        cancelRequestReaderDetached(
-          reader,
-          requestBodyAbortReason(controller.signal)
-        );
-      }
-      // Some stream doubles ignore cancellation and keep read() pending. Do
-      // not let releaseLock's resulting TypeError mask the abort/timeout.
+      controller.signal.removeEventListener("abort", onAbort);
+      // A hostile releaseLock must not mask the abort, timeout, or size
+      // verdict this reader has already reached.
       try {
         reader.releaseLock();
       } catch {
@@ -450,9 +462,12 @@ export async function readRequestBodyWithinLimit(
     }
   } finally {
     clearTimeout(timer);
-    abort.dispose();
     for (const remove of removeAbortListeners) remove();
   }
+}
+
+function yieldToEventLoop(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 function cancelRequestBodyDetached(
@@ -493,22 +508,6 @@ function forwardRequestBodyAbort(signal: AbortSignal, controller: AbortControlle
   if (signal.aborted) onAbort();
   else signal.addEventListener("abort", onAbort, { once: true });
   return () => signal.removeEventListener("abort", onAbort);
-}
-
-function requestBodyAbortGate(signal: AbortSignal): { promise: Promise<never>; dispose(): void } {
-  let onAbort: (() => void) | undefined;
-  const promise = new Promise<never>((_resolve, reject) => {
-    onAbort = () => reject(requestBodyAbortReason(signal));
-    if (signal.aborted) onAbort();
-    else signal.addEventListener("abort", onAbort, { once: true });
-  });
-  void promise.catch(() => undefined);
-  return {
-    promise,
-    dispose() {
-      if (onAbort) signal.removeEventListener("abort", onAbort);
-    }
-  };
 }
 
 function throwIfRequestBodyAborted(signal: AbortSignal): void {
