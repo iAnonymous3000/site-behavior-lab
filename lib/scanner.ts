@@ -267,6 +267,13 @@ export const MAX_PROBE_FIELD_CANDIDATES = 64;
 export const MAX_PROBE_CAPTURED_REQUESTS = 1_000;
 const KEYSTROKE_PROBE_MIN_BUDGET_MS = 4_000;
 const KEYSTROKE_EXFIL_WAIT_MS = 2_500;
+// Bound on each candidate lookup and each typing action inside the probe.
+// Without one they inherit Playwright's 30 s default: a page that removes its
+// fields the moment one is focused made the next lookup wait the full 30 s
+// before throwing, two thirds of the scan budget on one await, on a scanner
+// with two slots. The scan wall still ended the scan; it just did so after the
+// slot had been spent.
+export const KEYSTROKE_PROBE_STEP_TIMEOUT_MS = 3_000;
 // Batch-on-unload flush: budget needed to navigate away (firing pagehide so
 // recorders that buffer keystrokes transmit via sendBeacon) and watch for it.
 const KEYSTROKE_UNLOAD_MIN_BUDGET_MS = 1_500;
@@ -3641,6 +3648,7 @@ export async function probeKeystrokeExfiltration(
       sentinel,
       trustedSubjectUrl,
       boundedPageCollectorKey,
+      started,
       {
         isCancelled: () => lifecycle.cancelled,
         onTypedField: (count) => {
@@ -3748,6 +3756,7 @@ export async function typeSentinelIntoFields(
   sentinel: string,
   trustedSubjectUrl: string,
   boundedPageCollectorKey: string,
+  started: number,
   lifecycle?: {
     isCancelled: () => boolean;
     onTypedField: (count: number) => void;
@@ -3756,6 +3765,11 @@ export async function typeSentinelIntoFields(
   if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
     return { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0, preventedFieldCount: 0 };
   }
+  // The two calls below that wait, the candidate lookup and the typing action,
+  // are given this bound explicitly: the step ceiling, or whatever is left of
+  // the scan budget when that is shorter. focus() and isVisible() take no
+  // timeout and never wait; a detached element makes them throw at once.
+  const stepTimeout = () => scanTimeout(started, KEYSTROKE_PROBE_STEP_TIMEOUT_MS);
   const locator = page.locator(FILLABLE_FIELD_SELECTOR);
   const rawCandidateCount = await locator.count();
   const totalCandidateCount = Number.isSafeInteger(rawCandidateCount) && rawCandidateCount > 0
@@ -3784,7 +3798,7 @@ export async function typeSentinelIntoFields(
     candidateIndex < candidateCount && count < MAX_PROBE_FIELDS && !lifecycle?.isCancelled();
     candidateIndex += 1
   ) {
-    const handle = await locator.nth(candidateIndex).elementHandle();
+    const handle = await locator.nth(candidateIndex).elementHandle({ timeout: stepTimeout() });
     if (!handle) continue;
     if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
       await handle.dispose().catch(() => undefined);
@@ -3812,7 +3826,7 @@ export async function typeSentinelIntoFields(
       if (lifecycle?.isCancelled()) {
         return { count, types, subjectLost: false, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
       }
-      await handle.type(sentinel, { delay: 1 });
+      await handle.type(sentinel, { delay: 1, timeout: stepTimeout() });
       // `type()` resolving only means the keystrokes were dispatched. A field
       // that is readonly, disabled mid-type, or that cancels every keydown
       // accepts none of them, and counting it anyway told readers the scan had
