@@ -170,9 +170,9 @@ export function chargeEncryptedWatchReadRateLimit(
 
 /**
  * Charge every server-rendered report representation against one combined
- * namespace. A client cannot multiply its allowance across HTML, RSC, Open
- * Graph, and Twitter-card paths, while the global bucket bounds rotating-IP
- * cache-miss and render amplification.
+ * namespace. A client cannot multiply its allowance across HTML, RSC,
+ * printable, Open Graph, and Twitter-card paths, while the global bucket
+ * bounds rotating-IP cache-miss and render amplification.
  */
 export function chargeReportReadRateLimit(
   sql: DurableScanJobStoreSql,

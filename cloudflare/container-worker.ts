@@ -51,7 +51,11 @@ import { scansAvailableAfterEdgeOverlay } from "../lib/container-health-overlay"
 import { forwardContainerResponseWithinDeadline } from "../lib/container-forward-response";
 import { requireContainerR2Bucket } from "../lib/container-r2-bucket";
 import { toPublicError } from "../lib/public-errors";
-import { parsePublicReportReadPath } from "../lib/report-read-edge";
+import {
+  PUBLIC_REPORT_READ_ALLOW_HEADER,
+  parsePublicReportReadPath,
+  refusePublicReportRouteMethod
+} from "../lib/report-read-edge";
 import {
   isProductionSyntheticMonitorToken,
   isProductionSyntheticScanPayload
@@ -2901,6 +2905,12 @@ export default {
       return recoverRegisteredScanJob(request, env, scanJobId, response);
     }
 
+    // Next renders a page for every method, so a POST to a report route would
+    // reach the container as a full report read and render that the quota
+    // below never sees. Nothing writes to /reports/*; answer here.
+    if (refusePublicReportRouteMethod(request.method, url.pathname)) {
+      return reportRouteMethodNotAllowedResponse();
+    }
     const reportRead = parsePublicReportReadPath(request.method, url.pathname);
     if (reportRead) {
       const refusal = await enforcePublicReportReadRateLimit(request, env);
@@ -5325,6 +5335,22 @@ function reportReadGateResponse(status: 429 | 503, message: string, retryAfterSe
       "cache-control": "no-store",
       "content-type": "application/json; charset=utf-8",
       "retry-after": String(Math.max(1, Math.ceil(retryAfterSeconds))),
+      "x-content-type-options": "nosniff",
+      "x-robots-tag": "noindex, noarchive"
+    }
+  });
+}
+
+function reportRouteMethodNotAllowedResponse(): Response {
+  // The message and the Allow header name the same list, from the one place
+  // that defines it.
+  const error = `Reports are read-only. Allowed methods: ${PUBLIC_REPORT_READ_ALLOW_HEADER}.`;
+  return new Response(JSON.stringify({ ok: false, error }), {
+    status: 405,
+    headers: {
+      allow: PUBLIC_REPORT_READ_ALLOW_HEADER,
+      "cache-control": "no-store",
+      "content-type": "application/json; charset=utf-8",
       "x-content-type-options": "nosniff",
       "x-robots-tag": "noindex, noarchive"
     }
