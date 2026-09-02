@@ -43,11 +43,15 @@ test("operations docs distinguish the active synthetic from the active required 
 
 test("current operator docs record the fresh WAF and seven-day log receipts", () => {
   const readme = source("README.md");
+  // The receipts moved out of the README into the operations document on
+  // 2026-09-02; the README keeps only the one-paragraph posture summary,
+  // which the first test above pins.
+  const operations = source("docs/operations.md");
   const containerRunbook = source("docs/deploy-cloudflare-containers.md");
   const goLive = source("docs/go-live-public-scanner.md");
   const evidenceSurvey = source("docs/report-view-evidence-survey.md");
 
-  for (const document of [readme, containerRunbook, goLive, evidenceSurvey]) {
+  for (const document of [operations, containerRunbook, goLive, evidenceSurvey]) {
     assert.match(document, /2026-07-29/);
     assert.match(document, /combined WAF (?:ceiling|rate-limiting rule)/i);
     assert.match(
