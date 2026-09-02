@@ -124,7 +124,9 @@ Important placement decisions:
 - Move `acquireScanSlot` from the HTTP handler to the worker so scan slots model actual scanner work, not waiting HTTP requests.
 - Keep v1 compatibility persistence behavior at the worker boundary. Public r2
   production requires a committed report; durable execution fails or reconciles
-  explicitly rather than claiming success without the R2 bundle.
+  explicitly rather than claiming success without the R2 bundle. The in-process
+  worker reconciles a commit whose response was lost against the same manifest
+  before it answers, so a report that landed is never reported as a failed job.
 
 ## API Shape
 

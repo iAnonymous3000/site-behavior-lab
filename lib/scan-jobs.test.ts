@@ -1,17 +1,24 @@
 import assert from "node:assert/strict";
+import { writeFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 import { CONSENT_VERIFICATION_ENV } from "./consent-verification";
 import { PublicScanError } from "./public-errors";
+import { committedSidecarFilename } from "./redaction-provenance";
 import {
   MAX_QUEUED_JOBS,
   RATE_LIMIT_MAX,
   resetScanLimitStateForTests,
   scanLimitStateForTests
 } from "./scan-limits";
-import { readStoredScanReportById } from "./report-store";
+import {
+  commitPreparedScanReportBundle,
+  prepareScanReportBundle,
+  readStoredScanReportById,
+  reconcilePreparedScanReportBundle
+} from "./report-store";
 import {
   advanceScanJobClockForTests,
   asyncScanModeEnabled,
@@ -492,6 +499,150 @@ test("enqueuePreparedScanJob charges the rate limit at submit time so bursts can
     () => enqueuePreparedScanJob(makePreparedScanRequest({ clientKey: "flooder" }), { scan: hang }),
     (error) => error instanceof PublicScanError && error.status === 429
   );
+});
+
+test("an in-process job whose commit landed but lost its response reconciles to the stored report", async () => {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  const scan: ScanRunner = async () =>
+    scanMeasurementEnvelopeWithR2Run(
+      makePublicSingleReportV2R2().run,
+      "data:image/png;base64,LOST_RESPONSE"
+    );
+  let committedWire = "";
+  let reconcileCalls = 0;
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), {
+    scan,
+    publication: {
+      prepare: (report, reportId) => prepareScanReportBundle(report, { shareId: reportId }),
+      // The real store write lands and only the response is lost: the shape the
+      // store's whole-operation deadline produces when it fires after the PUT.
+      commit: async (bundle, signal) => {
+        await commitPreparedScanReportBundle(bundle, { signal });
+        committedWire = bundle.reportWire;
+        throw new Error("simulated lost commit response");
+      },
+      reconcile: (manifest, signal) => {
+        reconcileCalls += 1;
+        return reconcilePreparedScanReportBundle(manifest, { signal });
+      }
+    }
+  });
+  await waitForScanJobForTests(submission.jobId);
+
+  const status = getScanJobStatus(submission.jobId);
+  assert.equal(status?.status, "succeeded");
+  assert.equal(status?.error, undefined);
+  assert.equal(reconcileCalls, 1);
+  assert.equal(status?.report?.schemaVersion, 2);
+  if (status?.report?.schemaVersion !== 2 || status.report.reportType !== "single") {
+    throw new Error("expected r2 single job report");
+  }
+  assert.equal(status.report.share?.id, submission.reportId);
+  const stored = await readStoredScanReportById(submission.reportId);
+  assert.equal(stored.outcome, "found");
+  if (stored.outcome !== "found") throw new Error("expected the reconciled report in the store");
+  // The job's answer is the exact bundle it committed, nothing re-derived.
+  assert.equal(stored.wire, committedWire);
+  assert.deepEqual(status.report, stored.stored.report);
+  assert.equal(stored.wire.includes("LOST_RESPONSE"), false);
+});
+
+test("an in-process job whose commit never landed still fails and publishes nothing", async () => {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  const scan: ScanRunner = async () =>
+    scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
+  let reconcileCalls = 0;
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), {
+    scan,
+    publication: {
+      prepare: (report, reportId) => prepareScanReportBundle(report, { shareId: reportId }),
+      commit: async () => {
+        throw new Error("simulated commit failure before any write");
+      },
+      reconcile: (manifest, signal) => {
+        reconcileCalls += 1;
+        return reconcilePreparedScanReportBundle(manifest, { signal });
+      }
+    }
+  });
+  await waitForScanJobForTests(submission.jobId);
+
+  const status = getScanJobStatus(submission.jobId);
+  assert.equal(status?.status, "failed");
+  assert.equal(status?.error, "The service could not complete this request. Try again later.");
+  assert.equal(status?.report, undefined);
+  assert.equal(reconcileCalls, 1);
+  assert.deepEqual(await readStoredScanReportById(submission.reportId), { outcome: "not-found" });
+});
+
+test("an in-process job fails closed when the store holds bytes that contradict its manifest", async () => {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  const scan: ScanRunner = async () =>
+    scanMeasurementEnvelopeWithR2Run(makePublicSingleReportV2R2().run);
+  // No injected adapter: the production saver against the real local store.
+  // A foreign commit marker already under this job's reserved report ID makes
+  // the create-only sidecar write fail after the report PUT landed, and the
+  // read-back must then refuse to adopt a bundle whose bytes disagree. The
+  // marker is written synchronously, before the worker's first store access
+  // can be scheduled, so the ordering does not depend on the thread pool.
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), { scan });
+  writeFileSync(
+    path.join(reportDir, committedSidecarFilename(submission.reportId)),
+    '{"foreign":true}\n',
+    { flag: "wx" }
+  );
+  await waitForScanJobForTests(submission.jobId);
+
+  const status = getScanJobStatus(submission.jobId);
+  assert.equal(status?.status, "failed");
+  assert.equal(status?.error, "The service could not complete this request. Try again later.");
+  assert.equal(status?.report, undefined);
+  assert.notEqual((await readStoredScanReportById(submission.reportId)).outcome, "found");
+});
+
+test("a cancelled in-process job never reaches its commit or reconciliation", async () => {
+  process.env[PUBLIC_R2_REPORTS_ENV] = "1";
+  process.env[BUILD_COMMIT_ENV] = "a".repeat(40);
+  process.env[CONSENT_VERIFICATION_ENV] = "1";
+  const started = deferred<AbortSignal>();
+  let commitCalls = 0;
+  let reconcileCalls = 0;
+  const scan: ScanRunner = (_payload, options) =>
+    new Promise((_resolve, reject) => {
+      assert.ok(options?.signal);
+      started.resolve(options.signal);
+      options.signal.addEventListener("abort", () => reject(options.signal?.reason), { once: true });
+    });
+  const submission = enqueuePreparedScanJob(makePreparedScanRequest(), {
+    scan,
+    publication: {
+      prepare: (report, reportId) => prepareScanReportBundle(report, { shareId: reportId }),
+      commit: async (bundle) => {
+        commitCalls += 1;
+        return bundle.report;
+      },
+      reconcile: async () => {
+        reconcileCalls += 1;
+        return { outcome: "missing" as const };
+      }
+    }
+  });
+
+  await started.promise;
+  assert.equal(cancelScanJob(submission.jobId)?.status, "cancelled");
+  await waitForScanJobForTests(submission.jobId);
+
+  assert.equal(commitCalls, 0);
+  assert.equal(reconcileCalls, 0);
+  assert.equal(getScanJobStatus(submission.jobId)?.status, "cancelled");
+  assert.equal(getScanJobStatus(submission.jobId)?.report, undefined);
+  assert.deepEqual(await readStoredScanReportById(submission.reportId), { outcome: "not-found" });
 });
 
 function makePreparedScanRequest(overrides: Partial<PreparedScanRequest> = {}): PreparedScanRequest {
