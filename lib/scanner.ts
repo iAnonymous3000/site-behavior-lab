@@ -13,7 +13,7 @@ import {
 import { randomBytes } from "node:crypto";
 import { createServer as createNetServer } from "node:net";
 import { isDeepStrictEqual } from "node:util";
-import { Client, ProxyAgent, request as requestThroughProxy } from "undici";
+import { Client, type Dispatcher, ProxyAgent, request as requestThroughProxy } from "undici";
 import { findTrackerMatch } from "./tracker-catalog";
 import { initiatorObservationFromCdpParams, RequestInitiatorIndex } from "./request-initiator";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
@@ -95,7 +95,7 @@ import {
   type FingerprintObservationCollection,
   type FingerprintObservations
 } from "./fingerprint-observer";
-import { extractPolicyTextFromPdf, MAX_POLICY_PDF_BYTES } from "./policy-pdf";
+import { extractPolicyTextFromPdf, MAX_POLICY_PDF_BYTES, MAX_POLICY_PDF_PARSE_MS } from "./policy-pdf";
 import {
   startPublicScanProxy,
   type PublicScanProxyDiagnostics,
@@ -3950,8 +3950,14 @@ async function probePrivacyPolicy(input: {
       verifyPublicUrl: input.verifyPublicUrl
     });
     if (!fetched) return null;
+    // The race below cannot interrupt the parse; the parse ends its own
+    // thread at this deadline, clamped to what remains of the scan budget.
     const policyText = await withScanDeadline(
-      extractPolicyTextFromPdf(fetched.bytes, MAX_POLICY_TEXT_CHARS),
+      extractPolicyTextFromPdf(
+        fetched.bytes,
+        MAX_POLICY_TEXT_CHARS,
+        scanTimeout(input.started, MAX_POLICY_PDF_PARSE_MS)
+      ),
       input.started,
       MAX_SCAN_DURATION_MS,
       scanTimeoutError
@@ -4067,7 +4073,7 @@ async function fetchBoundedPolicyPdf(input: {
 
       if ([301, 302, 303, 307, 308].includes(response.statusCode)) {
         const location = firstHeaderValue(response.headers.location);
-        response.body.destroy();
+        await discardPolicyPdfBody(response.body);
         if (!location || redirectCount === MAX_POLICY_PDF_REDIRECTS) return null;
         const redirected = safeParseUrl(new URL(location, currentUrl).href);
         if (!redirected) return null;
@@ -4075,13 +4081,13 @@ async function fetchBoundedPolicyPdf(input: {
         continue;
       }
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        response.body.destroy();
+        await discardPolicyPdfBody(response.body);
         return null;
       }
 
       const declaredLength = Number(firstHeaderValue(response.headers["content-length"]));
       if (Number.isFinite(declaredLength) && declaredLength > MAX_POLICY_PDF_BYTES) {
-        response.body.destroy();
+        await discardPolicyPdfBody(response.body);
         return null;
       }
 
@@ -4108,6 +4114,23 @@ async function fetchBoundedPolicyPdf(input: {
       tunnelProxy.close().catch(() => undefined)
     ]);
   }
+}
+
+/**
+ * Discard a policy-PDF response body nobody is going to read.
+ *
+ * destroy() on an undici body that was never read synthesizes a
+ * RequestAbortedError and emits it as an 'error' event one setImmediate later.
+ * Nothing listened, so Node escalated it to an uncaughtException: a policy
+ * link that merely answered 302 or 404 exited any plain Node host running the
+ * scanner after the scan itself had already finished, and only Next's own
+ * catch-all logger kept the container up. dump() reads and drops at most
+ * 128 KiB, attaches its own error listener first, and is bounded by the
+ * request's body timeout and abort signal. The in-loop destroy in the reader
+ * above is different: the async iterator owns that body and consumes its error.
+ */
+async function discardPolicyPdfBody(body: Dispatcher.ResponseData["body"]): Promise<void> {
+  await body.dump().catch(() => undefined);
 }
 
 function firstHeaderValue(value: string | string[] | undefined): string | undefined {
