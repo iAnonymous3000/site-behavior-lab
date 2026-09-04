@@ -80,7 +80,13 @@ function entrySummary(entry: DirectoryEntry): string {
     "en-US"
   )} third-party tracking-service requests, ${cookies}.`;
   if (entry.requestEvidenceComplete) return metrics;
-  return `${metrics} Request evidence incomplete${entry.capped ? " (recording capped)" : ""}; request counts are lower bounds.`;
+  // A failed visit (an error document or a blocked load) is why the counts are
+  // floors, so say that rather than a capture loss the run did not record.
+  const reason =
+    entry.runOutcome !== "complete"
+      ? "Visit did not complete"
+      : `Request evidence incomplete${entry.capped ? " (recording capped)" : ""}`;
+  return `${metrics} ${reason}; request counts are lower bounds.`;
 }
 
 function feedTimestamp(entry: DirectoryEntry): string {

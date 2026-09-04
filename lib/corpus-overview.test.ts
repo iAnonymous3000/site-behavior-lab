@@ -6,19 +6,25 @@ import {
   consentClicksForView,
   corpusExportMetadataForView,
   entryEligibleForCorpusRollups,
+  entryEvidenceCompleteness,
   preferAsSiteDataPoint,
   selectAggregateCorpusCohort,
   selectSiteDataPoints,
   summarizeCorpusSiteCounts,
   type DirectoryEntry
 } from "./corpus-overview";
-import { makeConsentInterventionReportV2R2, makeConsentSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+import {
+  makeConsentInterventionReportV2R2,
+  makeConsentSingleReportV2R2,
+  makePublicSingleReportV2R2
+} from "./scan-report-v2-r2-fixtures";
+import { evaluateQuality } from "./scan-report-v2-evaluators";
 import {
   METRIC_CONTRACT_DIGEST,
   METRIC_CONTRACT_VERSION
 } from "./metric-contract";
 import { SCAN_REPORT_SCHEMA_VERSION, type ConsentInteractionSummary, type ScanResult } from "./types";
-import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
+import { familyCensoredOnRun, viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import {
   SERVICE_ROLE_TAXONOMY_DIGEST,
   SERVICE_ROLE_TAXONOMY_VERSION
@@ -315,6 +321,42 @@ test("corpus rollups require an uncensored passive lead run", () => {
     entryEligibleForCorpusRollups(makeEntry({ id: "consent-reject", consentMode: "reject-all", comparisonType: "consent" })),
     false
   );
+});
+
+test("a failed visit's directory entry carries no exact request or cookie counts", () => {
+  // The report's JSON-LD publishes a failed visit's request counts as lower
+  // bounds and withholds its cookie snapshot. The directory entry feeds the
+  // site feed, the site profile, the directory and the category rows, and it
+  // read family censoring alone, so a failed HTTP 403 visit with uncensored
+  // families reached every one of those as "8 third-party requests, 0
+  // third-party cookies" stated as fact.
+  const completeV1 = viewFromV1Report(makeResult());
+  assert.deepEqual(entryEvidenceCompleteness(completeV1.runs[0]), {
+    requestEvidenceComplete: true,
+    cookieEvidenceComplete: true
+  });
+
+  const blocked = makeResult();
+  blocked.summary.status = 403;
+  const blockedView = viewFromV1Report(blocked);
+  assert.equal(blockedView.runs[0].quality.outcome, "failed");
+  assert.equal(familyCensoredOnRun(blockedView.runs[0], "requests"), false, "the failure is the only defect");
+  assert.deepEqual(entryEvidenceCompleteness(blockedView.runs[0]), {
+    requestEvidenceComplete: false,
+    cookieEvidenceComplete: false
+  });
+
+  const r2 = makePublicSingleReportV2R2();
+  r2.run.qualityFacts = { ...r2.run.qualityFacts, status: 429 };
+  r2.run.summary = { ...r2.run.summary, status: 429 };
+  r2.run.quality = evaluateQuality(r2.run.qualityFacts, { observedRequests: r2.run.evidence.requests.length });
+  const r2View = viewFromV2(r2, 2);
+  assert.equal(r2View.runs[0].quality.outcome, "failed");
+  assert.equal(familyCensoredOnRun(r2View.runs[0], "cookies"), false, "the failure is the only defect");
+  assert.deepEqual(entryEvidenceCompleteness(r2View.runs[0]), {
+    requestEvidenceComplete: false,
+    cookieEvidenceComplete: false
+  });
 });
 
 test("corpus site counts separate attempts, successful coverage, failures, and capped coverage", () => {

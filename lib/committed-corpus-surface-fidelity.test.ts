@@ -343,6 +343,7 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
   );
 
   const bundleById = new Map(publicBundles.map((bundle) => [bundle.id, bundle]));
+  let failedLeadRows = 0;
   for (const row of rows) {
     const bundle = bundleById.get(row.id);
     assert.ok(bundle, `${row.id}: corpus row has no committed bundle`);
@@ -400,7 +401,22 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     assert.equal(row.status, run.status, `${row.id}: corpus status`);
     assert.equal(row.runOutcome, run.quality.outcome, `${row.id}: corpus run outcome`);
     assert.equal(row.requestCapped, runHitRequestRecordingCap(run), `${row.id}: corpus cap flag`);
-    assert.equal(row.requestEvidenceComplete, !familyCensoredOnRun(run, "requests"), `${row.id}: corpus completeness`);
+    // The rule lib/report-jsonld.ts applies to the same run: a failed visit's
+    // request counts are floors and its cookie snapshot is unmeasured, on top
+    // of family censoring. Restated here rather than read from the helper so
+    // the two cannot agree by construction.
+    const runFailed = run.quality.outcome === "failed";
+    if (runFailed) failedLeadRows += 1;
+    assert.equal(
+      row.requestEvidenceComplete,
+      !runFailed && !familyCensoredOnRun(run, "requests"),
+      `${row.id}: corpus completeness`
+    );
+    assert.equal(
+      row.cookieEvidenceComplete,
+      !runFailed && !familyCensoredOnRun(run, "cookies"),
+      `${row.id}: corpus cookie completeness`
+    );
     assert.equal(row.schemaVersion, bundle.stored.schemaVersion, `${row.id}: corpus schema version`);
     assert.equal(row.schemaRevision, bundle.view.revision, `${row.id}: corpus schema revision`);
     assert.equal(row.schemaOrigin, bundle.view.origin, `${row.id}: corpus schema origin`);
@@ -447,6 +463,7 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     assert.equal(row.reportUrl, `${SITE_ORIGIN}/reports/${row.id}/`, `${row.id}: corpus report URL`);
     assert.equal(row.jsonUrl, `${SITE_ORIGIN}/reports/${row.id}.json`, `${row.id}: corpus JSON URL`);
   }
+  assert.ok(failedLeadRows > 0, "the completeness rule for failed visits must be exercised by a real failed lead run");
 
   const expectedCounts = independentCorpusSiteCounts(publicBundles);
   assert.equal(overview.attemptedSiteCount, expectedCounts.attempted, "corpus attempted-site count");
