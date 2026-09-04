@@ -1020,6 +1020,54 @@ export function buildReportHeadline(
     );
   }
 
+  // A detector that did not complete closes the calm claims (report-facts
+  // treats every non-"complete" ledger status as detector-incomplete), but it
+  // is not a signal, and the fallback below asserts one. Only some of those
+  // statuses come with a recorded capture loss, which the censorship branches
+  // above already describe; the rest reach here silently. The scanner writes
+  // privacy-policy "unsupported" with no loss when the page offers no
+  // discoverable policy link, so wikipedia.org's r2 pair (every count zero,
+  // every other detector complete) published "retained an informational
+  // signal that does not support ... a reassuring summary" as its headline,
+  // JSON-LD description and share card, directly above a green "few review
+  // signals" bottom line and eight ok cards; the board renders no policy card
+  // at all, so nothing on the page supported the sentence. Say what the
+  // ledger recorded instead: the completed measurements' absences, and which
+  // check did not complete, in the same family as the capture-loss branch.
+  // Gated on an "ok" observed severity so a real informational signal (a
+  // CNAME alias, a below-threshold observation) keeps the fallback below.
+  const incompleteDetectorClauses =
+    facts.strongestObservedSeverity === "ok"
+      ? Object.entries(run.detectors ?? {})
+          .filter(([, entry]) => entry.status !== "complete")
+          .map(([id, entry]) => `${detectorCheckName(id)} ${detectorStatusPhrase(entry.status)}`)
+      : [];
+  if (!facts.calmEligible && incompleteDetectorClauses.length > 0) {
+    const incompleteClause = joinNames(incompleteDetectorClauses, 2);
+    const unprovenSentence = `${capitalize(incompleteClause)}, so whatever ${
+      incompleteDetectorClauses.length === 1 ? "that check looks" : "those checks look"
+    } for is unproven here rather than shown to be absent.`;
+    return finish(
+      "info",
+      completedAbsenceParts.length > 0
+        ? `${domain}'s completed measurements recorded no listed activity, but ${incompleteClause}.`
+        : `${domain}'s scan completed some measurements, but ${incompleteClause}.`,
+      `${
+        completedAbsenceParts.length > 0 ? `${capitalize(joinNames(completedAbsenceParts))}. ` : ""
+      }${unprovenSentence}`,
+      stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }],
+      undefined,
+      {
+        story: "incomplete-evidence",
+        absenceClaims: completedAbsenceClaims
+      },
+      // The three completed-family sentences alone can exceed the social
+      // card's bound; the card keeps the absence as the headline states it
+      // and the unproven check, never the withheld placeholder.
+      `${completedAbsenceParts.length > 0 ? "Completed measurements recorded no listed activity. " : ""}${unprovenSentence}`
+    );
+  }
+
   if (!facts.calmEligible) {
     return finish(
       "info",
@@ -1160,6 +1208,50 @@ function friendlyDomain(run: RunView): string {
 
 function n(value: number): string {
   return value.toLocaleString("en-US");
+}
+
+/**
+ * Reader phrasing for a detector ledger entry that did not report "complete".
+ * The ledger records identity and status, never a cause the copy could quote,
+ * so each phrase states only the status. "unsupported" is the producer's word
+ * for a probe the page gave nothing to run against (the scanner writes it for
+ * privacy-policy when no policy link is discoverable); a producer that cannot
+ * capture whole evidence families is the unsupported-evidence branch's case.
+ */
+function detectorCheckName(id: string): string {
+  switch (id) {
+    case "fingerprint-heuristics":
+      return "the fingerprinting check";
+    case "keystroke-exfiltration":
+      return "the synthetic-input check";
+    case "cname-uncloaking":
+      return "the CNAME check";
+    case "pixel-events":
+      return "the pixel-event check";
+    case "consent-banner":
+      return "the consent-banner check";
+    case "privacy-policy":
+      return "the privacy-policy check";
+    default:
+      return `the ${id} check`;
+  }
+}
+
+function detectorStatusPhrase(status: string): string {
+  switch (status) {
+    case "unsupported":
+      return "did not apply to this page";
+    case "skipped":
+      return "was skipped";
+    case "partial":
+      return "completed only part of its measurement";
+    default:
+      return "did not finish";
+  }
+}
+
+function capitalize(text: string): string {
+  return text.length > 0 ? `${text[0].toUpperCase()}${text.slice(1)}` : text;
 }
 
 function joinNames(items: string[], limit = 3): string {

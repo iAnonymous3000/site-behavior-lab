@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-24T20:20:22.395Z",
+  "generatedAt": "2026-09-04T23:49:19.426Z",
   "reports": [
     {
       "id": "20260824-57fb460826b091487918bf40aadb3076",
@@ -5820,7 +5820,7 @@
       "reportWireBytes": 33219,
       "reportWireSha256": "3c6d561486df797ce5fe77ae7562bc858a49a376684f744b2bc20b2d4ec9bd43",
       "title": "wikipedia.org",
-      "headline": "wikipedia.org's visit produced evidence that needs context.",
+      "headline": "wikipedia.org's completed measurements recorded no listed activity, but the privacy-policy check did not apply to this page.",
       "tone": "info",
       "domain": "wikipedia.org",
       "requestedUrl": "https://www.wikipedia.org/",
