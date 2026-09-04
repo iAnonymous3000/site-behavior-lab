@@ -201,6 +201,57 @@ test("a resolver that fails is a scanner outage, never a verdict about the host"
   }
 });
 
+test("a hostname is admitted only when every resolved address is public", async () => {
+  // The literal tests above never reach the resolver, and until now no case
+  // handed the lookup seam a private answer, so the every-address rule and
+  // the private-target refusal itself could be deleted with the suite green.
+  // The proxy enforces the same rule at connect time; this is the edge that
+  // refuses the scan before a browser is ever launched.
+  const verify = (answer: Array<{ address: string; family: number }>) =>
+    assertPublicHttpUrl(new URL("https://resolved.example/"), {
+      lookup: async () => answer,
+      timeoutMs: 1_000
+    });
+  const privateTargetRefusal = (error: unknown) =>
+    error instanceof PublicScanError &&
+    error.status === 400 &&
+    error.failureCause === "private-target" &&
+    /Local and private network targets are blocked/.test(error.message);
+
+  await assert.doesNotReject(() => verify([{ address: "1.1.1.1", family: 4 }]));
+  await assert.doesNotReject(() =>
+    verify([
+      { address: "1.1.1.1", family: 4 },
+      { address: "2606:4700:4700::1111", family: 6 }
+    ])
+  );
+
+  await assert.rejects(() => verify([{ address: "10.0.0.1", family: 4 }]), privateTargetRefusal, "a single private answer");
+  await assert.rejects(
+    () =>
+      verify([
+        { address: "1.1.1.1", family: 4 },
+        { address: "10.0.0.1", family: 4 }
+      ]),
+    privateTargetRefusal,
+    "a public address first does not admit the private one beside it"
+  );
+  await assert.rejects(
+    () =>
+      verify([
+        { address: "169.254.169.254", family: 4 },
+        { address: "1.1.1.1", family: 4 }
+      ]),
+    privateTargetRefusal,
+    "a private address first is refused whatever follows"
+  );
+  await assert.rejects(
+    () => verify([{ address: "::ffff:7f00:1", family: 6 }]),
+    privateTargetRefusal,
+    "an IPv4-mapped loopback answer is loopback"
+  );
+});
+
 test("an unresolvable host still fails closed rather than reaching the network", async () => {
   // Every branch above refuses. The 503 changes the status and the sentence,
   // never the outcome, so a resolver outage can never admit an unverified host.

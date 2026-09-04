@@ -99,6 +99,103 @@ test("the production dial receives the verified address, never the hostname, on 
   assert.deepEqual(proxy.blockedTargets, []);
 });
 
+test("public scan proxy refuses a mixed resolver answer whichever position the private address holds", async (t) => {
+  // The pin admits a hostname only when EVERY resolved address is public. A
+  // check that admitted the answer on ANY public address would pin whichever
+  // address comes first, so both orders are exercised, with the production
+  // dial in place and a loopback fixture to make an admitted private pin
+  // visible as a served request rather than a network timeout.
+  let privateServerHits = 0;
+  const privateServer = http.createServer((_request, response) => {
+    privateServerHits += 1;
+    response.end("private metadata");
+  });
+  await listen(privateServer);
+  const privatePort = portOf(privateServer);
+  t.after(() => closeServer(privateServer));
+
+  const answers = [
+    [
+      { address: "127.0.0.1", family: 4 },
+      { address: "1.1.1.1", family: 4 }
+    ],
+    [
+      { address: "1.1.1.1", family: 4 },
+      { address: "127.0.0.1", family: 4 }
+    ],
+    [
+      { address: "2606:4700:4700::1111", family: 6 },
+      { address: "::ffff:127.0.0.1", family: 6 }
+    ],
+    [
+      { address: "1.1.1.1", family: 4 },
+      { address: "169.254.169.254", family: 4 }
+    ]
+  ];
+  for (const answer of answers) {
+    const label = answer.map((entry) => entry.address).join(", ");
+    const dialed: string[] = [];
+    const proxy = await startPublicScanProxy({
+      allowNonStandardPortsForTests: true,
+      resolveHost: async () => answer,
+      dialUpstreamForTests: (options) => {
+        dialed.push(String(options.host));
+        return net.connect({ host: "127.0.0.1", port: options.port });
+      }
+    });
+    try {
+      await assert.rejects(() => proxyGet(proxy.server, `http://rebind.test:${privatePort}/latest`), label);
+      assert.deepEqual(
+        proxy.blockedTargets,
+        [{ target: `http://rebind.test:${privatePort}/`, reason: "non-public-address" }],
+        label
+      );
+      assert.deepEqual(dialed, [], `nothing is dialed for answer [${label}]`);
+    } finally {
+      await proxy.close();
+    }
+  }
+  assert.equal(privateServerHits, 0);
+});
+
+test("public scan proxy refuses local names and private literals before resolving or dialing", async (t) => {
+  const privateServer = http.createServer((_request, response) => response.end("private metadata"));
+  await listen(privateServer);
+  const privatePort = portOf(privateServer);
+  t.after(() => closeServer(privateServer));
+
+  let resolveCalls = 0;
+  const dialed: string[] = [];
+  const proxy = await startPublicScanProxy({
+    allowNonStandardPortsForTests: true,
+    // A resolver that would admit anything, so a shape check that stopped
+    // running shows up as a served request rather than a resolver refusal.
+    resolveHost: async () => {
+      resolveCalls += 1;
+      return [{ address: "1.1.1.1", family: 4 }];
+    },
+    dialUpstreamForTests: (options) => {
+      dialed.push(String(options.host));
+      return net.connect({ host: "127.0.0.1", port: options.port });
+    }
+  });
+  t.after(() => proxy.close());
+
+  const hosts = ["metadata.internal", "localhost", "printer.local", "10.0.0.1", "169.254.169.254", "[::1]", "[::ffff:127.0.0.1]"];
+  for (const host of hosts) {
+    await assert.rejects(() => proxyGet(proxy.server, `http://${host}:${privatePort}/latest`), host);
+  }
+  const tunnelStatus = (await rawProxyConnect(proxy.server, `metadata.internal:${privatePort}`)).toString("latin1").split("\r\n")[0];
+  assert.doesNotMatch(tunnelStatus, /^HTTP\/1\.1 200 /);
+
+  assert.equal(resolveCalls, 0, "a refused shape never reaches the resolver");
+  assert.deepEqual(dialed, []);
+  assert.deepEqual(
+    proxy.blockedTargets.map((entry) => entry.reason),
+    Array.from({ length: hosts.length + 1 }, () => "non-public-address")
+  );
+});
+
 test("public scan proxy retries host resolution after a rejected pin", async (t) => {
   let resolveCalls = 0;
   const proxy = await startPublicScanProxy({
