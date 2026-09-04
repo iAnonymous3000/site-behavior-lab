@@ -18,7 +18,8 @@ import {
   familyCensoredOnRun,
   runHitRequestRecordingCap,
   toReportView,
-  type ReportView
+  type ReportView,
+  type RunView
 } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportBundles } from "./static-report-files";
@@ -114,9 +115,19 @@ export type DirectoryEntry = {
   reportHasSuccessfulLoad: boolean;
   /** Whether any successfully loaded arm hit the exact request-recording cap. */
   reportHasRequestCappedLoad: boolean;
-  /** Whether request-derived counts are complete enough for aggregate use. */
+  /**
+   * Whether request-derived counts are exact totals. False when the request
+   * family was censored or the visit failed (an error document or a blocked
+   * load): every surface then renders them as "at least" lower bounds, the
+   * same reading the report's own structured data gives them.
+   */
   requestEvidenceComplete: boolean;
-  /** Whether cookie counts are complete enough for a cookie-specific aggregate. */
+  /**
+   * Whether the third-party cookie count is a measurement. False when the
+   * cookie family was censored or the visit failed: the end-state snapshot of
+   * an interrupted visit can move either way, so surfaces render it as not
+   * measured rather than as a zero.
+   */
   cookieEvidenceComplete: boolean;
   /**
    * The lead run hit the request-recording cap: its activity counts are floors cut
@@ -279,6 +290,29 @@ export type CorpusSiteCounts = Pick<
 >;
 
 type CatalogEntry = { domain: string; id: string; label: string };
+
+/**
+ * The evidence-completeness flags a directory entry carries for its lead run.
+ *
+ * These used to read family censoring alone, so a failed HTTP 403/429 visit
+ * whose families were not censored published "8 third-party requests, 0
+ * third-party cookies" as exact fact in the site feed, the site profile, the
+ * directory and the category rows, while the same report's JSON-LD published
+ * the requests as a lower bound from a failed visit and withheld the cookie
+ * snapshot. One record, two verdicts. This is the rule lib/report-jsonld.ts
+ * applies: a failed outcome makes every monotonic count a floor and the cookie
+ * snapshot unmeasured.
+ */
+export function entryEvidenceCompleteness(run: RunView): {
+  requestEvidenceComplete: boolean;
+  cookieEvidenceComplete: boolean;
+} {
+  const failed = run.quality.outcome === "failed";
+  return {
+    requestEvidenceComplete: !failed && !familyCensoredOnRun(run, "requests"),
+    cookieEvidenceComplete: !failed && !familyCensoredOnRun(run, "cookies")
+  };
+}
 
 /** A missing main-document response or HTTP >= 400 is not a successful site load. */
 function entryLoadFailed(entry: DirectoryEntry): boolean {
@@ -598,8 +632,7 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
       // in the count summarizer keep a two-arm report from counting it twice.
       reportHasSuccessfulLoad: successfulRuns.length > 0,
       reportHasRequestCappedLoad: successfulRuns.some(runHitRequestRecordingCap),
-      requestEvidenceComplete: !familyCensoredOnRun(run, "requests"),
-      cookieEvidenceComplete: !familyCensoredOnRun(run, "cookies"),
+      ...entryEvidenceCompleteness(run),
       capped: runHitRequestRecordingCap(run),
       requestedUrl: run.conditions.requestedUrl,
       finalUrl: run.conditions.finalUrl,
