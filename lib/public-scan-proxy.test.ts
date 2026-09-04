@@ -49,6 +49,56 @@ test("public scan proxy refuses private DNS results before opening the upstream 
   ]);
 });
 
+test("the production dial receives the verified address, never the hostname, on both proxy paths", async (t) => {
+  // Every other proxy test replaces defaultConnectUpstream through
+  // connectUpstreamForTests, so none of them can see what production hands to
+  // net.connect. This one keeps the production function and observes its
+  // socket options one layer down: the pin must dial the address that passed
+  // the public check. Dialing the hostname would let a resolver that answered
+  // a public address at verification and a private one at connect time reach
+  // loopback or link-local from the container.
+  const upstream = responseServer(() => "pinned");
+  await listen(upstream);
+  const port = portOf(upstream);
+  const dialed: net.TcpNetConnectOpts[] = [];
+  let resolveCalls = 0;
+  const proxy = await startPublicScanProxy({
+    allowNonStandardPortsForTests: true,
+    resolveHost: async () => {
+      resolveCalls += 1;
+      return [{ address: "93.184.216.34", family: 4 }];
+    },
+    dialUpstreamForTests: (options) => {
+      dialed.push({ ...options });
+      // The verified address is not on this machine; land the socket on the
+      // loopback fixture so the transaction completes without the network.
+      return net.connect({ host: "127.0.0.1", port: options.port });
+    }
+  });
+  t.after(async () => {
+    await proxy.close();
+    await closeServer(upstream);
+  });
+
+  assert.equal(await proxyGet(proxy.server, `http://pinned.test:${port}/resource`), "pinned");
+  assert.deepEqual(dialed, [{ host: "93.184.216.34", port, family: 4 }]);
+  assert.equal(resolveCalls, 1);
+
+  const tunnel = await openTunnel(proxy.server, `pinned.test:${port}`);
+  tunnel.destroy();
+  assert.deepEqual(dialed[1], { host: "93.184.216.34", port, family: 4 }, "CONNECT dials the same pin");
+
+  // A public IP literal is its own pin: no resolver call, and the literal is
+  // what gets dialed. (The CONNECT above resolved once more: an https: pin is
+  // cached apart from the http: one.)
+  const resolveCallsBeforeLiteral = resolveCalls;
+  assert.equal(await proxyGet(proxy.server, `http://93.184.216.34:${port}/literal`), "pinned");
+  assert.equal(resolveCalls, resolveCallsBeforeLiteral, "an IP literal is never resolved");
+  assert.deepEqual(dialed[2], { host: "93.184.216.34", port, family: 4 });
+  assert.equal(dialed.length, 3);
+  assert.deepEqual(proxy.blockedTargets, []);
+});
+
 test("public scan proxy retries host resolution after a rejected pin", async (t) => {
   let resolveCalls = 0;
   const proxy = await startPublicScanProxy({

@@ -154,7 +154,17 @@ type StartPublicScanProxyOptions = {
   resolveHost?: ResolvePublicHost;
   /** Routes an already validated, pinned target in deterministic socket tests. */
   connectUpstreamForTests?: (target: Readonly<PinnedTarget>) => net.Socket;
+  /**
+   * Test seam UNDER the production dial rather than in place of it: receives
+   * the exact socket options defaultConnectUpstream builds from a pinned
+   * target. connectUpstreamForTests replaces that function wholesale, so no
+   * test through it can observe whether the verified address or the hostname
+   * is what production hands to net.connect.
+   */
+  dialUpstreamForTests?: UpstreamDialer;
 };
+
+type UpstreamDialer = (options: net.TcpNetConnectOpts) => net.Socket;
 
 const DEFAULT_HTTP_PORT = 80;
 const DEFAULT_HTTPS_PORT = 443;
@@ -177,7 +187,9 @@ export async function startPublicScanProxy(options: StartPublicScanProxyOptions 
     normalizeUniqueTargetLimit(options.uniqueTargetLimit)
   );
   const upstreamResponseDiagnostics = new UpstreamResponseDiagnostics();
-  const rawConnectUpstream = options.connectUpstreamForTests ?? defaultConnectUpstream;
+  const dialUpstream: UpstreamDialer = options.dialUpstreamForTests ?? net.connect;
+  const rawConnectUpstream =
+    options.connectUpstreamForTests ?? ((target: Readonly<PinnedTarget>) => defaultConnectUpstream(target, dialUpstream));
   let closing = false;
   const connectUpstream = (target: Readonly<PinnedTarget>): net.Socket => {
     const socket = rawConnectUpstream(target);
@@ -715,8 +727,11 @@ async function defaultResolveHost(hostname: string): Promise<ResolvedHostAddress
   return dns.lookup(hostname, { all: true, verbatim: true });
 }
 
-function defaultConnectUpstream(target: Readonly<PinnedTarget>): net.Socket {
-  return net.connect({
+function defaultConnectUpstream(target: Readonly<PinnedTarget>, dial: UpstreamDialer): net.Socket {
+  // Dial the address that was verified public, never the hostname: a resolver
+  // that answered a public address at verification and a private one at
+  // connect time would otherwise reach loopback or link-local from here.
+  return dial({
     host: target.address,
     port: target.port,
     family: target.family
