@@ -215,6 +215,67 @@ test("a historical nontracking CNAME alias prevents a reassuring absence headlin
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /few catalogued|No cross-site hosts/);
 });
 
+test("a quiet r2 run whose only incomplete detector recorded no capture loss names that check, not a signal", () => {
+  // wikipedia.org's committed r2 pair: every count zero, every detector
+  // complete except privacy-policy "unsupported", which the scanner writes
+  // with NO capture loss when the page offers no discoverable policy link.
+  // report-facts closes calm on any non-complete detector, and the fallback
+  // then asserted "retained an informational signal" as the headline, the
+  // JSON-LD description and the share card, above a green "few review
+  // signals" bottom line and eight ok cards, with no policy card to point at.
+  const report = makePublicSingleReportV2R2();
+  for (const id of Object.keys(report.run.detectors) as Array<keyof typeof report.run.detectors>) {
+    report.run.detectors[id] = { version: report.run.detectors[id].version, status: "complete" };
+  }
+  report.run.detectors["privacy-policy"] = {
+    ...report.run.detectors["privacy-policy"],
+    status: "unsupported",
+    reason: "unsupported"
+  };
+  const view = viewFromV2(report, 2);
+  const { facts, headline, findings, violations } = validateReportPresentation(view);
+  assert.equal(facts.display.strongestObservedSeverity, "ok");
+  assert.equal(facts.display.calmEligible, false, "the fixture must reach the calm-ineligible tail");
+  assert.deepEqual(facts.display.censorshipNotes, [], "the fixture must carry no capture loss");
+  assert.equal(findings.find((finding) => finding.id === "bottom-line")?.icon, "check");
+  assert.equal(findings.some((finding) => finding.id === "privacy-policy"), false);
+
+  assert.equal(headline.tone, "info");
+  assert.equal(headline.semantic.story, "incomplete-evidence");
+  assert.equal(headline.semantic.reassuring, false);
+  assert.match(headline.headline, /completed measurements recorded no listed activity, but the privacy-policy check did not apply to this page\./);
+  assert.match(headline.subhead, /^The request log recorded no cross-site hosts/);
+  assert.match(headline.subhead, /unproven here rather than shown to be absent/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /informational signal|needs context|few catalogued/);
+  assert.deepEqual(headline.semantic.absenceClaims, [
+    "third-party-services",
+    "named-platforms",
+    "third-party-cookies",
+    "fingerprint-apis"
+  ]);
+  assert.ok(headline.compactSubhead && headline.compactSubhead.length <= 300, "the social card needs a fitting restatement");
+  assert.match(headline.compactSubhead, /privacy-policy check did not apply to this page/);
+  assert.deepEqual(violations, []);
+});
+
+test("every silent detector status is named by what the ledger recorded", () => {
+  // The fixture default: two probe-disabled detectors and no capture loss.
+  // Both are named with their status; nothing is called a signal.
+  const skipped = buildReportHeadline(viewFromV2(makePublicSingleReportV2R2(), 2));
+  assert.equal(skipped.semantic.story, "incomplete-evidence");
+  assert.match(skipped.headline, /but the synthetic-input check was skipped and the privacy-policy check was skipped\./);
+  assert.doesNotMatch(`${skipped.headline} ${skipped.subhead}`, /informational signal|needs context/);
+
+  const failed = makePublicSingleReportV2R2();
+  for (const id of Object.keys(failed.run.detectors) as Array<keyof typeof failed.run.detectors>) {
+    failed.run.detectors[id] = { version: failed.run.detectors[id].version, status: "complete" };
+  }
+  failed.run.detectors["consent-banner"] = { ...failed.run.detectors["consent-banner"], status: "failed", reason: "scan-failed" };
+  const failedHeadline = buildReportHeadline(viewFromV2(failed, 2));
+  assert.match(failedHeadline.headline, /but the consent-banner check did not finish\./);
+  assert.doesNotMatch(`${failedHeadline.headline} ${failedHeadline.subhead}`, /informational signal|needs context/);
+});
+
 test("flags a GPC comparison that barely changed as an alarm", () => {
   const baseline = makeResult({
     firstPartyDomain: "www.amazon.com",
