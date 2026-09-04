@@ -482,10 +482,15 @@ export async function cancelRuntimeScan(options: {
     if (error instanceof ClientFetchTimeoutError) throw new Error("Scan cancellation timed out.");
     throw error;
   }
+  // A refused cancellation carries the server's declared reason (the job is
+  // already being saved, or has already finished, or is unknown after a
+  // restart) on a 4xx body. Read the body before the status, as submission
+  // does, so the visitor sees that reason instead of a bare HTTP code; the
+  // generic status message is kept for responses that declare nothing.
+  if (isRuntimeScanError(payload)) throw scanRequestError(payload);
   if (responseStatus < 200 || responseStatus >= 300) {
     throw new Error(`The scan could not be cancelled (HTTP ${responseStatus}).`);
   }
-  if (isRuntimeScanError(payload)) throw scanRequestError(payload);
   if (
     !isRecord(payload) ||
     payload.ok !== true ||
