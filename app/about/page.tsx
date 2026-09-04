@@ -136,7 +136,7 @@ export default function AboutPage() {
           <strong>Accountability surfaces.</strong> The <Link href="/status/">status page</Link>,{" "}
           <Link href="/corrections/">corrections</Link>, <Link href="/privacy/">privacy</Link> and{" "}
           <Link href="/security/">security</Link> pages, plus a published transparency log recording every
-          report this project has released.
+          report committed to the public corpus. Share reports from live scans expire and join no log.
           </li>
           </ul>
       </section>
