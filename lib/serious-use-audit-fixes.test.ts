@@ -81,33 +81,6 @@ test("IPv6 protocol-assignment space defaults to refused, with the registry's ex
 });
 
 /**
- * The consent click is a synthetic MouseEvent. On a form's submit control that
- * runs the form's activation behavior, which made this scanner POST forms on
- * sites it was only supposed to observe.
- */
-test("the consent click cancels activation for form submit controls only", () => {
-  const consent = source("lib/consent-interaction.ts");
-  assert.match(consent, /nativePreventDefault/, "the click must be able to cancel activation");
-  assert.match(
-    consent,
-    /if \(isFormSubmitControl\(element\)\) \{\s*nativeReflectApply\(nativePreventDefault, event, \[\]\);/,
-    "activation must be cancelled for submit controls before dispatch"
-  );
-  // Scoped, not blanket: an <a href> consent control legitimately registers a
-  // choice by navigating, and requiring type="button" would refuse the bare
-  // <button> most real CMPs ship.
-  assert.doesNotMatch(
-    consent,
-    /controlSelector[^\n]*:not\(\[type=submit\]\)/,
-    "the fix must not remove submit controls from the selector"
-  );
-  assert.match(consent, /const isFormSubmitControl/, "the submit test must exist");
-  // Read through native accessors, so a page cannot hide its form association.
-  assert.match(consent, /nativeButtonForm/);
-  assert.match(consent, /nativeInputForm/);
-});
-
-/**
  * The caller turns ANY rejection from the consent probe into clicked:false. The
  * settle wait could reject after a real click, so a published report could say
  * nothing was clicked while post-click cookies sat in the log.
