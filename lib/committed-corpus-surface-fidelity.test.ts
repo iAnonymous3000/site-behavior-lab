@@ -91,6 +91,7 @@ test("every committed bundle stays faithful across every public report surface",
   const corpus = await readProductionCorpusStats();
   const bundles: AcceptedBundle[] = [];
   let censorshipNoteCount = 0;
+  markedSubjectUrls = 0;
 
   for (const id of ids) {
     const managed = await readStaticReportBundle(reportsDir, id);
@@ -168,6 +169,11 @@ test("every committed bundle stays faithful across every public report surface",
     true,
     "the committed-corpus copy gate found no censorship notes; a zero must be investigated, not treated as success"
   );
+  assert.equal(
+    markedSubjectUrls > 0,
+    true,
+    "no committed report carries a redaction marker in its subject URL, so the JSON-LD marker rule was never exercised"
+  );
 
   await assertCorpusProjection(bundles, corpus);
   await assertManifestProjection(reportsDir, bundles);
@@ -180,6 +186,9 @@ async function readProductionCorpusStats(): Promise<CorpusStats> {
   assert.equal(isCorpusStats(value), true, "the committed production corpus stats must be readable");
   return value as CorpusStats;
 }
+
+/** Subject URLs carrying a redaction marker, counted so the marker rule cannot pass vacuously. */
+let markedSubjectUrls = 0;
 
 function assertJsonLdFidelity(id: string, view: ReportView, presentation: Presentation): void {
   const url = `${SITE_ORIGIN}/reports/${id}/`;
@@ -223,8 +232,17 @@ function assertJsonLdFidelity(id: string, view: ReportView, presentation: Presen
       "@type": "WebSite",
       name: presentation.headline.domain
     };
+    // A redacted URL is not navigable on either wire generation: v2 flags its
+    // route shapes, v1 carries the same {seg}/{label}/{n} markers unflagged.
+    // Restated as the marker spelling rather than read from report-url.ts so
+    // the surface and this gate cannot agree by construction.
+    const requestedUrlCarriesMarker = /\{(?:seg|n|label|invalid-url|invalid-host)\}|\[redacted/i.test(
+      subjectRun.conditions.requestedUrl
+    );
+    if (requestedUrlCarriesMarker) markedSubjectUrls += 1;
     if (
       !subjectRun.conditions.urlsAreRouteShapes &&
+      !requestedUrlCarriesMarker &&
       urlBelongsToSubject(subjectRun.conditions.requestedUrl, subjectRun.domain)
     ) {
       expectedAbout.url = subjectRun.conditions.requestedUrl;

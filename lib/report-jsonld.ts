@@ -4,6 +4,7 @@ import {
   type ReportClaimId,
   type RunFacts
 } from "./report-facts";
+import { safeNavigableHttpUrl } from "./report-url";
 import {
   comparisonArmViews,
   displayRunView,
@@ -42,8 +43,14 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
       facts.arms.variant.subject.describesSubject === true
     : facts.display.subject.describesSubject;
   const requestedUrl = subjectRun.conditions.requestedUrl;
+  // Route shapes are flagged only on v2 wires, but the v1 redactor writes the
+  // same `{seg}` / `{label}` markers into conditions.requestedUrl, so the flag
+  // alone let four committed v1 reports publish a placeholder as the site's
+  // URL. Apply the rule every link surface already applies: a value carrying
+  // any redaction marker is not a navigable URL.
   const aboutUrlEligible =
     !subjectRun.conditions.urlsAreRouteShapes &&
+    safeNavigableHttpUrl(requestedUrl) !== null &&
     urlMatchesSubjectDomain(requestedUrl, subjectRun.domain);
   const scannedAt = view.scannedAt;
   const labels = view.comparison?.runLabels;
@@ -73,9 +80,10 @@ export function buildReportDataset(view: ReportView, options: { url: string; jso
     // wrong value here harder to notice and more durable than wrong prose.
     measurementTechnique: measurementTechniqueFor(run.conditions.automation),
     keywords: ["web tracking", "third-party trackers", "cookies", "browser fingerprinting", headline.domain],
-    // v2 route shapes deliberately contain privacy placeholders such as
-    // `{seg}`. They describe the measured subject but are not navigable URLs,
-    // so do not publish them as schema.org WebSite.url values.
+    // Redacted URLs (v2 route shapes and v1 requested URLs alike) deliberately
+    // contain privacy placeholders such as `{seg}`. They describe the measured
+    // subject but are not navigable URLs, so do not publish them as schema.org
+    // WebSite.url values.
     ...(reportSubjectEstablished
       ? {
           about: {

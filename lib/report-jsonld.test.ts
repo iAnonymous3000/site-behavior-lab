@@ -57,6 +57,23 @@ test("does not publish a privacy-generalized route shape as a WebSite URL", () =
   assert.deepEqual(dataset.about, { "@type": "WebSite", name: "example.com" });
 });
 
+test("does not publish a v1 redaction marker as a WebSite URL either", () => {
+  // The v1 redactor writes the same placeholders into conditions.requestedUrl,
+  // but v1 views never flag urlsAreRouteShapes, so the route-shape gate alone
+  // let committed reports publish `https://www.canada.ca/{seg}` and
+  // `https://{label}.unicode.org/` as the site's canonical URL.
+  for (const requestedUrl of ["https://www.canada.ca/{seg}", "https://{label}.canada.ca/", "https://www.canada.ca/?q={n}"]) {
+    const result = makeResult({ firstPartyDomain: "www.canada.ca" });
+    result.conditions.requestedUrl = requestedUrl;
+    result.conditions.finalUrl = requestedUrl;
+    const view = viewFromV1Report(result);
+    assert.equal(view.runs[0].conditions.urlsAreRouteShapes, false);
+
+    const dataset = buildReportDataset(view, { url: "https://example.org/reports/v1-marker/" });
+    assert.deepEqual(dataset.about, { "@type": "WebSite", name: "canada.ca" }, requestedUrl);
+  }
+});
+
 test("measures both labeled runs and top-level dates for comparison reports", () => {
   const baseline = makeResult({ firstPartyDomain: "news.example", thirdPartyRequests: 50, thirdPartyDomains: 5 });
   const variant = makeResult({ firstPartyDomain: "news.example", thirdPartyRequests: 12, thirdPartyDomains: 5 });
