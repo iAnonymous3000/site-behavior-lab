@@ -274,10 +274,6 @@ const KEYSTROKE_EXFIL_WAIT_MS = 2_500;
 // with two slots. The scan wall still ended the scan; it just did so after the
 // slot had been spent.
 export const KEYSTROKE_PROBE_STEP_TIMEOUT_MS = 3_000;
-// Batch-on-unload flush: budget needed to navigate away (firing pagehide so
-// recorders that buffer keystrokes transmit via sendBeacon) and watch for it.
-const KEYSTROKE_UNLOAD_MIN_BUDGET_MS = 1_500;
-const KEYSTROKE_UNLOAD_WAIT_MS = 700;
 const FILLABLE_FIELD_SELECTOR =
   "input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=reset]):not([type=file]):not([type=range]):not([type=color]):not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), [contenteditable=true], [contenteditable='']";
 // CNAME-uncloaking: how many first-party subdomains to resolve, the budget to
@@ -714,6 +710,7 @@ export async function scanSiteWithMeasurement(
   throwIfScanAborted(options.signal);
   const started = Date.now();
   const measurementKernel = new MeasurementKernel<Request>(started);
+  let keystrokeActivePhase: number | null = null;
   const passivePhaseId = measurementKernel.beginPhase("passive-load");
   const targetUrl = normalizeUrl(payload.url);
   const verifyPublicUrl = options.verifyPublicUrl ?? assertPublicHttpUrl;
@@ -965,10 +962,40 @@ export async function scanSiteWithMeasurement(
     };
     const publicHostChecks = new Map<string, Promise<void>>();
     const inFlightRouteHandlers = new Set<Promise<void>>();
+    let measuringRequests = true;
+
+    // Page routes take precedence. This fallback prevents popup/auxiliary
+    // requests from loading outside the guarded and recorded visit paths.
+    await context.route("**/*", (route) => {
+      const operation = (async () => {
+        // Attribute loss before awaiting abort, while the originating phase is
+        // still active. Drain these handlers with the main-page route work.
+        if (measuringRequests) measurementKernel.recordCaptureLoss({
+          family: "requests", phaseId: measurementKernel.currentPhaseId(),
+          kind: "dropped", count: 1
+        });
+        await route.abort();
+      })();
+      inFlightRouteHandlers.add(operation);
+      operation.then(
+        () => inFlightRouteHandlers.delete(operation),
+        () => inFlightRouteHandlers.delete(operation)
+      );
+      return operation;
+    });
+    page.on("popup", (popup) => { void popup.close().catch(() => undefined); });
 
     await page.route("**/*", (route) => {
       const operation = (async () => {
         const request = route.request();
+        if (keystrokeActivePhase !== null && request.isNavigationRequest()) {
+          measurementKernel.recordCaptureLoss({
+            family: "requests", phaseId: keystrokeActivePhase,
+            kind: "dropped", count: 1
+          });
+          await route.abort();
+          return;
+        }
         cnameRequestTypes.set(
           request,
           mapRequestType(request.resourceType(), { subFrame: requestIsSubFrameNavigation(request) })
@@ -2094,6 +2121,7 @@ export async function scanSiteWithMeasurement(
       activeProbeSubjectAvailable &&
       MAX_SCAN_DURATION_MS - (Date.now() - started) >= KEYSTROKE_PROBE_MIN_BUDGET_MS;
     const keystrokePhaseId = keystrokeBudgetAvailable ? measurementKernel.beginPhase("active-probe") : null;
+    keystrokeActivePhase = keystrokePhaseId;
     let keystrokeProbe: KeystrokeProbeOutcome | null = null;
     const keystrokeProbeLifecycle: KeystrokeProbeLifecycle = {
       cancelled: false,
@@ -2153,6 +2181,7 @@ export async function scanSiteWithMeasurement(
         count: 1
       });
     }
+    keystrokeActivePhase = null;
     const keystrokeDetection = keystrokeProbe?.detection ?? null;
     const keystrokeCaptureLossCount =
       keystrokeProbe && "captureLossCount" in keystrokeProbe
@@ -2337,6 +2366,7 @@ export async function scanSiteWithMeasurement(
     // snapshot (publicRecords already mapped to fresh objects), but leaving one
     // attached keeps its closure alive on the page and rescans up to a thousand
     // records per straggler for the rest of the context's life.
+    measuringRequests = false;
     page.off("request", recordRequest);
     page.off("response", recordResponse);
     measurementKernel.endPhase();
@@ -3593,12 +3623,9 @@ async function applyConsentChoice(
 }
 
 /**
- * Type a unique synthetic sentinel into the page's form fields (never
- * submitting), then watch the network for that value leaving to a third party:
- * direct evidence of keystroke/input capture. Best-effort: bounded by the scan
- * budget, swallows its own errors, and returns null when nothing leaked or there
- * was no time to probe. The form is never submitted and typed values are
- * synthetic, so this performs no real action on the site.
+ * Type synthetic input into eligible visible fields with native form submission
+ * blocked. Focus/input/blur handlers may send requests: this is an active
+ * observation. Teardown-only transmissions are outside its coverage.
  */
 // Exported for the disclosure regression test: the failure this function must
 // survive is typeSentinelIntoFields rejecting after it has already typed into
@@ -3685,10 +3712,6 @@ export async function probeKeystrokeExfiltration(
       addKeystrokeProbeDisclosure(warnings, typed.count, false);
       return { status: "partial", reason: "load-failed", detection: null, subjectLost: true };
     }
-    // Flush batch-on-unload senders: many recorders buffer keystrokes and only
-    // transmit via sendBeacon on pagehide. Best-effort and isolated, so a failure
-    // here never discards the real-time captures above.
-    await flushUnloadBeacons(page, started).catch(() => undefined);
   } catch {
     if (!lifecycle.cancelled && lifecycle.typedFieldCount > 0) {
       addKeystrokeProbeDisclosure(warnings, lifecycle.typedFieldCount);
@@ -3730,25 +3753,12 @@ function addKeystrokeProbeDisclosure(
   warnings.add(
     `This scan typed a synthetic test value into ${
       count === 1 ? "1 form field" : `${count} form fields`
-    } (never submitting the form) to test whether typed input is captured and sent to third parties. The value is synthetic and is not stored. ${
+    } with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. ${
       evidenceRetained
-        ? "Requests the page sent during and after this typing, including any unload beacons, are part of the recorded request log and counts."
+        ? "Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
         : "Requests from this incomplete probe were omitted from the recorded request log and counts."
     }`
   );
-}
-
-/**
- * Navigate to about:blank so the page fires pagehide/unload, prompting session
- * recorders that buffer keystrokes to flush them via sendBeacon, which the
- * probe's request listener then captures. Runs only after all page-dependent
- * report data is already collected; bounded by the remaining scan budget.
- */
-async function flushUnloadBeacons(page: Page, started: number): Promise<void> {
-  if (MAX_SCAN_DURATION_MS - (Date.now() - started) < KEYSTROKE_UNLOAD_MIN_BUDGET_MS) return;
-  await page.goto("about:blank", { waitUntil: "commit", timeout: 2_000 });
-  const remaining = MAX_SCAN_DURATION_MS - (Date.now() - started) - 100;
-  if (remaining > 0) await page.waitForTimeout(Math.min(KEYSTROKE_UNLOAD_WAIT_MS, remaining));
 }
 
 export async function typeSentinelIntoFields(
@@ -3782,6 +3792,7 @@ export async function typeSentinelIntoFields(
   // Fields the probe reached and typed into, where the page refused the input.
   // Tracked separately so a refused field is never reported as a typed one.
   let preventedFieldCount = 0;
+  let failedCandidateCount = 0;
   let candidateIndex = 0;
   // Candidates never examined, for ANY reason the loop stops early. The count
   // used to come from the 64-candidate ceiling alone, but the loop also stops
@@ -3791,15 +3802,18 @@ export async function typeSentinelIntoFields(
   // published "no keystroke exfiltration" as a complete absence over fields the
   // scanner never touched.
   const omittedCandidates = (): number =>
-    cappedCandidateCount + Math.max(0, candidateCount - candidateIndex);
+    cappedCandidateCount + failedCandidateCount + Math.max(0, candidateCount - candidateIndex);
 
   for (
     ;
     candidateIndex < candidateCount && count < MAX_PROBE_FIELDS && !lifecycle?.isCancelled();
     candidateIndex += 1
   ) {
-    const handle = await locator.nth(candidateIndex).elementHandle({ timeout: stepTimeout() });
-    if (!handle) continue;
+    const timeout = stepTimeout();
+    const handle = await locator.nth(candidateIndex).elementHandle({ timeout }).catch(() => null);
+    // Preserve earlier evidence when the candidate set disappears. Remaining
+    // fields are omitted, rather than repeatedly waiting for missing elements.
+    if (!handle) break;
     if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
       await handle.dispose().catch(() => undefined);
       return { count, types, subjectLost: true, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
@@ -3812,10 +3826,17 @@ export async function typeSentinelIntoFields(
         "fieldType"
       );
       const fieldType = isBoundedFieldType(rawFieldType) ? rawFieldType : "other";
+      if (!["text", "search", "email", "tel", "url", "password", "textarea", "contenteditable"].includes(fieldType)) {
+        failedCandidateCount += 1;
+        continue;
+      }
       if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
         return { count, types, subjectLost: true, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
       }
-      await handle.focus();
+      if (await callBoundedElementCollector(handle, boundedPageCollectorKey, "focusForProbe") !== true) {
+        failedCandidateCount += 1;
+        continue;
+      }
       if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
         return { count, types, subjectLost: true, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
       }
@@ -3845,9 +3866,11 @@ export async function typeSentinelIntoFields(
       lifecycle?.onTypedField(count);
       if (lifecycle?.isCancelled()) continue;
       // Some recorders only transmit on blur; never press Enter, which could submit.
-      await callBoundedElementCollector(handle, boundedPageCollectorKey, "blur");
+      if (await callBoundedElementCollector(handle, boundedPageCollectorKey, "blur") !== true) {
+        failedCandidateCount += 1;
+      }
     } catch {
-      /* skip fields that cannot be focused or typed into */
+      failedCandidateCount += 1;
     } finally {
       await handle.dispose().catch(() => undefined);
     }

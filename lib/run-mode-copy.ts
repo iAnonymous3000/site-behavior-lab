@@ -9,14 +9,14 @@ export const RUN_MODE_LABELS: Record<RunMode, string> = {
   single: "Single",
   gpc: "GPC diff",
   shields: "Blocker",
-  consent: "Consent"
+  consent: "Consent · experimental"
 };
 
 export const RUN_MODE_TITLES: Record<RunMode, string> = {
   single: "One controlled visit.",
   gpc: "Two visits: with and without the Global Privacy Control opt-out signal.",
   shields: "Two visits: one normal, one with Brave's ad-block engine and default Shields lists actively blocking (a simulation, not a live Brave-browser visit).",
-  consent: 'Two visits: one asked to click "Accept all" on the cookie banner, one "Reject all".'
+  consent: 'Experimental. Two visits: one asked to click "Accept all" on the cookie banner, one "Reject all".'
 };
 
 export function runModeHint(mode: RunMode): string {
@@ -27,7 +27,7 @@ export function runModeHint(mode: RunMode): string {
     return 'Visits the page twice: once normally, then once sending Global Privacy Control (GPC), a legal "do not sell or share my data" signal. The report shows the difference between this one pair of visits; request counts cannot prove that the site received or honored the signal.';
   }
   if (mode === "consent") {
-    return 'Visits the page twice: once clicking "Accept all" on the cookie/consent banner and once clicking "Reject all", to show the observed difference between this one pair of visits. If no banner control is found, that visit stays pre-consent and the report says so.';
+    return 'Experimental: coverage varies across consent banners. Visits the page twice, attempting "Accept all" and "Reject all". A comparison requires recorded choices and adequate measurement; if no banner control is found, that visit stays pre-consent. Results describe this pair of visits.';
   }
   return "One controlled visit that records the requests, cookies, and scripts the page loads, up to a recording cap that is flagged when hit.";
 }

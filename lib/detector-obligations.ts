@@ -42,8 +42,8 @@ export const HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY = Obje
 });
 
 export const DETECTOR_OBLIGATION_TARGET_REGISTRY = Object.freeze({
-  detectorRegistryVersion: "node-detectors-v6",
-  detectorRegistryDigest: "81866718b36e35239f0418cc543eee845660e686849da1b816d937a601c1528b"
+  detectorRegistryVersion: "node-detectors-v7",
+  detectorRegistryDigest: "e019df75386c8f89584f5d14b4b191fa00f76a4ddb88f79a5875e7d07c72c89b"
 });
 
 export const DETECTOR_OBLIGATION_TARGET_REGISTRIES = Object.freeze([

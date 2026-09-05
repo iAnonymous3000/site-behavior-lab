@@ -1,3 +1,4 @@
+import { publishedReportCorrections } from "@/lib/published-report-corrections";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
@@ -180,6 +181,9 @@ export function ReportEvidenceReceipt({
           </div>
           <div className="evidence-receipt-links">
             <a className="secondary-button" href={jsonHref}>Open report JSON</a>
+            {publishedReportCorrections(view.reportId).currentSubjectEvent && (
+              <a className="secondary-button" href={sitePagesBasePath() + "/corrections.json"}>Download corrections with this JSON</a>
+            )}
             {provenanceHref && <a className="secondary-button" href={provenanceHref}>Open provenance sidecar</a>}
             {/* Container-only. The printable rendering is excluded from the
                 static export by serverOnlyAppDirs, so linking it on Pages would
@@ -296,7 +300,7 @@ function ReportCorrectionNotice({ corrections }: { corrections: ReportCorrection
             ? "This report has a reviewed clarification"
             : `This report was ${event.state}`}
       </h2>
-      <p>{event.summary}</p>
+      {(isReplacement ? [event] : corrections.subjectEvents).map(item => <p key={item.eventId}><strong>{item.eventId}:</strong> {item.summary}</p>)}
       {(event.replacementReportIds?.length ?? 0) > 0 && !isReplacement && (
         <p className="report-correction-replacements">
           Replacement evidence:{" "}

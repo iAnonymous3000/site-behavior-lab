@@ -21,6 +21,14 @@ const OTHER_JOB_ID = `20260718-${"c".repeat(32)}`;
 const OTHER_REPORT_ID = `20260718-${"d".repeat(32)}`;
 const STATUS_PATH = `/api/scans/${JOB_ID}`;
 
+test("a missing job and missing saved report end recovery with an actionable outcome", async () => {
+  await assert.rejects(pollAcceptedScanJob({
+    statusPath: STATUS_PATH, reportId: REPORT_ID,
+    fetcher: async () => new Response(JSON.stringify({ok: false, error: "Scan job not found"}), {status: 404, headers: {"content-type": "application/json"}}),
+    wait: async () => undefined
+  }), (error: unknown) => error instanceof ScanJobEndedError && error.status === "expired" && /Start a new scan/.test(error.message));
+});
+
 test("an accepted job keeps polling past the old 180-second client limit", async () => {
   let calls = 0;
   let clock = 0;

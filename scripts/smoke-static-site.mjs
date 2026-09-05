@@ -132,6 +132,7 @@ const corpusCsvMetricContractColumns = [
 // Same additive rule: the cookie-family completeness flag appends after the
 // metric-contract block, so every column above keeps its position.
 const corpusCsvCompletenessColumns = ["cookie_evidence_complete"];
+const corpusCsvCorrectionColumns = ["correction_event", "correction_state", "correction_summary", "correction_url"];
 const recordedConsentChoiceStates = ["verified", "contradicted", "weak-signal", "unavailable", "failed"];
 
 function pass(message) {
@@ -466,15 +467,28 @@ async function main() {
       ...corpusCsvDecisionColumns,
       ...corpusCsvProvenanceColumns,
       ...corpusCsvMetricContractColumns,
-      ...corpusCsvCompletenessColumns
+      ...corpusCsvCompletenessColumns,
+      ...corpusCsvCorrectionColumns
     ];
     if (
       legacyTailIndex < 0 ||
       corpusCsvHeader.slice(legacyTailIndex + 1).join(",") !== expectedAppendedTail.join(",")
     ) {
       fail(
-        "researcher CSV export did not append the complete decision, provenance/cohort, and metric-contract tail after the legacy contract"
+        "researcher CSV export did not append the complete decision, provenance/cohort, metric-contract, completeness, and correction tail after the legacy contract"
       );
+    }
+    const corrections = JSON.parse(await readFile(path.join(outDir, "corrections.json"), "utf8"));
+    for (const event of corrections.entries) {
+      for (const id of event.reportIds) {
+        const row = corpus.reports.find((report) => report.id === id);
+        // The directory export may retain one representative rather than every
+        // archived report. Any affected representative must carry its context.
+        if (row && (!row.correctionSummary?.includes(event.eventId) ||
+          !corpusCsv.includes(event.eventId))) {
+          fail(`researcher exports omitted correction context for ${id}`);
+        }
+      }
     }
     pass("researcher exports publish the complete appended contract and bind JSON to the published metric identity");
 
@@ -541,7 +555,7 @@ async function main() {
 
     const firstReport = manifest.reports[0];
     if (typeof firstReport.headline !== "string" || !firstReport.headline) fail("manifest report lacks its canonical headline");
-    await assertStaticSeoContract(manifest, firstReport);
+    await assertStaticSeoContract(manifest, firstReport, corrections);
     pass("static canonicals, social URLs, indexability, and sitemap dates satisfy the SEO contract");
     await page.getByLabel("Search reports").fill(firstReport.domain);
     const matchingDomainCount = manifest.reports.filter((report) => searchableReportText(report).includes(firstReport.domain.toLowerCase())).length;
@@ -981,7 +995,10 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-async function assertStaticSeoContract(manifest, firstReport) {
+async function assertStaticSeoContract(manifest, firstReport, corrections) {
+  const correctionStates = new Map(corrections.entries.flatMap(event =>
+    event.reportIds.map(id => [id, event.state])));
+  const isSuppressed = id => correctionStates.has(id) && correctionStates.get(id) !== "active";
   const configuredOrigin = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL?.trim();
   if (!configuredOrigin) fail("static SEO contract requires NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL");
   const origin = new URL(configuredOrigin).origin;
@@ -1009,8 +1026,8 @@ async function assertStaticSeoContract(manifest, firstReport) {
   }
   const directoryHtml = await readFile(path.join(outDir, "directory", "index.html"), "utf8");
   assertTrailingSlashProfileLinks(directoryHtml, "directory");
-  if (/name="robots" content="[^"]*noindex/i.test(reportHtml)) {
-    fail("permanent report was emitted with noindex");
+  if (/name="robots" content="[^"]*noindex/i.test(reportHtml) !== isSuppressed(firstReport.id)) {
+    fail("permanent report indexability disagrees with its correction state");
   }
   const reportDescription = metaContent(reportHtml, "name", "description");
   if (!reportDescription || reportDescription.length > 160 || !reportDescription.includes("not a verdict")) {
@@ -1025,6 +1042,7 @@ async function assertStaticSeoContract(manifest, firstReport) {
     .map((match) => match[1])
     .sort();
   const expectedReportUrls = manifest.reports
+    .filter(report => !isSuppressed(report.id))
     .map((report) => `${publicBase}/reports/${report.id}/`)
     .sort();
   if (JSON.stringify(sitemapReportUrls) !== JSON.stringify(expectedReportUrls)) {
@@ -1032,7 +1050,17 @@ async function assertStaticSeoContract(manifest, firstReport) {
       `sitemap report URL set differs from the public manifest (${sitemapReportUrls.length} sitemap, ${expectedReportUrls.length} manifest)`
     );
   }
-  const reportEntry = sitemapUrlEntry(sitemapXml, reportUrl);
+  for (const report of manifest.reports.filter(report => isSuppressed(report.id))) {
+    const html = await readFile(path.join(outDir, "reports", report.id, "index.html"), "utf8");
+    if (!/name="robots" content="[^"]*noindex/i.test(html)) {
+      fail(`corrected report ${report.id} was emitted without noindex`);
+    }
+    const description = metaContent(html, "name", "description");
+    if (!description || description.length > 160 || !description.includes("not a verdict")) {
+      fail(`corrected report ${report.id} metadata lost its evidence caveat`);
+    }
+  }
+  const reportEntry = isSuppressed(firstReport.id) ? null : sitemapUrlEntry(sitemapXml, reportUrl);
   const profileEntry = sitemapUrlEntry(sitemapXml, profileUrl);
   const expectedScanDate = firstReport.scannedAt.slice(0, 10);
   const expectedProfileDate = manifest.reports
@@ -1041,7 +1069,7 @@ async function assertStaticSeoContract(manifest, firstReport) {
     .filter((value) => Number.isFinite(Date.parse(value)))
     .sort((left, right) => Date.parse(right) - Date.parse(left))[0]
     ?.slice(0, 10);
-  if (!reportEntry.includes(`<lastmod>${expectedScanDate}`)) fail("report sitemap date is not derived from its scan");
+  if (reportEntry && !reportEntry.includes(`<lastmod>${expectedScanDate}`)) fail("report sitemap date is not derived from its scan");
   if (!expectedProfileDate || !profileEntry.includes(`<lastmod>${expectedProfileDate}`)) {
     fail("profile sitemap date is not derived from its latest scan");
   }

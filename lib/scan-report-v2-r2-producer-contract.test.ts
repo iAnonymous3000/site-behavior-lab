@@ -135,20 +135,28 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v4-b68c-pre-accountability-no-adblock",
       "node-v4-b68c-accountability-v1-lists-2026-07-25",
       "node-v4-b68c-accountability-v1-no-adblock",
+      "node-v4-b68c-service-role-v1-lists-2026-07-25",
+      "node-v4-b68c-service-role-v1-no-adblock",
       "node-v4-ec26-lists-2026-07-25",
       "node-v4-ec26-no-adblock",
       "node-v4-6c78-tldts749-lists-2026-07-25",
       "node-v4-6c78-tldts749-no-adblock",
       "node-v4-6c78-tldts7410-lists-2026-08-04",
+      "node-v4-6c78-tldts7410-lists-2026-08-11",
       "node-v4-6c78-tldts7410-lists-2026-08-14",
+      "node-v4-6c78-tldts7410-lists-2026-08-14-evening",
+      "node-v4-resource-budget-v1-lists-2026-08-15",
+      "node-v4-resource-budget-v1-no-adblock",
       "node-v4-6c78-tldts7410-lists-2026-08-15",
       "node-v4-6c78-tldts7410-no-adblock",
       "node-v5-6c78-tldts7410-lists-2026-08-15",
       "node-v5-6c78-tldts7410-no-adblock",
       "node-v6-6c78-tldts7410-lists-2026-08-15",
       "node-v6-6c78-tldts7410-no-adblock",
-      "node-v6-gpc-worker-v2-6c78-tldts7410-active-lists-2026-08-15",
-      "node-v6-gpc-worker-v2-6c78-tldts7410-active-no-adblock"
+      "node-v6-gpc-worker-v2-6c78-tldts7410-lists-2026-08-15",
+      "node-v6-gpc-worker-v2-6c78-tldts7410-no-adblock",
+      "node-v7-active-probe-v2-active-lists-2026-08-15",
+      "node-v7-active-probe-v2-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -216,7 +224,7 @@ test("Node producer rows are complete, immutable, and individually replayable", 
   assert.equal(activeAccountability?.phaseOmissionContractVersion, "phase-omission-v2");
   assert.match(
     activeAccountability?.methodologyVersion ?? "",
-    /\+detector-accountability-v1\+service-role-taxonomy-v1\+gpc-worker-application-v2$/
+    /\+detector-accountability-v1\+service-role-taxonomy-v1\+gpc-worker-application-v2\+active-probe-v2\+auxiliary-context-block-v1$/
   );
   assert.deepEqual(activeAccountability?.detectorObligations, {
     version: "detector-obligations-v1",
@@ -257,7 +265,8 @@ test("Node producer rows are complete, immutable, and individually replayable", 
     // silently fall into the "earlier epoch" branch and this guard passes for
     // the wrong reason.
     const isServiceRoleEpoch =
-      tuple.id.includes("-ec26-") || tuple.id.includes("-6c78-") || tuple.id.includes("-active-");
+      tuple.id.includes("-ec26-") || tuple.id.includes("-6c78-") || tuple.id.includes("-active-") ||
+      tuple.id.includes("-service-role-v1-") || tuple.id.includes("-resource-budget-v1-");
     const hasAccountability = tuple.id.includes("-accountability-v1-") || isServiceRoleEpoch;
     assert.equal(tuple.detectorObligations !== null, hasAccountability, `${tuple.id} obligation identity`);
     assert.equal(
@@ -306,7 +315,7 @@ test("the detector-v6 identity preserves the v4 resource-budget rows and the clo
     (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
   );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v6-gpc-worker-v2-6c78-tldts7410-active-lists-2026-08-15"
+    (tuple) => tuple.id === "node-v7-active-probe-v2-active-lists-2026-08-15"
   );
   assert.equal(historical?.methodologyVersion, HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION);
   assert.equal(
@@ -331,7 +340,7 @@ test("the gpc-worker-application revision closes the v6 rows and separates them 
     (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
   );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v6-gpc-worker-v2-6c78-tldts7410-active-lists-2026-08-15"
+    (tuple) => tuple.id === "node-v6-gpc-worker-v2-6c78-tldts7410-lists-2026-08-15"
   );
   assert.notEqual(closedV6, undefined);
   assert.notEqual(active, undefined);
@@ -635,6 +644,11 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
       mixedVersion: "hand-curated-2026.07"
     }
   ];
+  oracle.push({
+    normalizationVersion: `${V4_PREFIX}6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1`,
+    catalog: serviceRoleTracker,
+    mixedVersion: "hand-curated-2026.07"
+  });
   assert.equal(PAGEGRAPH_R2_PRODUCER_TUPLES.length, oracle.length + 1);
   assert.equal(Object.isFrozen(PAGEGRAPH_R2_PRODUCER_TUPLES), true);
   const activeMethodologySuffix = active.provenance.methodologyVersion.slice(

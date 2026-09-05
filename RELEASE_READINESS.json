@@ -67,6 +67,16 @@
       "status": "approved",
       "decidedBy": "iAnonymous3000",
       "decidedAt": "2026-08-02T22:10:00.000Z"
+    },
+    "jobRecovery": {
+      "recommended": "explicit-failure-safe-retry",
+      "selected": "explicit-failure-safe-retry",
+      "automaticRestartRecovery": "deferred",
+      "document": "docs/v1-implementation-plan.md",
+      "status": "approved",
+      "decidedBy": "iAnonymous3000",
+      "decidedAt": "2026-09-05T17:54:05.369Z",
+      "note": "Approved in the project task on 2026-09-05: v1 requires explicit loss/failure and safe retry; durable jobs and sharding remain disabled. Durable activation retains the existing replay and soak obligations."
     }
   },
   "gates": {
@@ -79,7 +89,8 @@
         "compatibilitySurface",
         "reportRevisionR3",
         "calibrationCensoringPolicy",
-        "wasmReproducibility"
+        "wasmReproducibility",
+        "jobRecovery"
       ]
     },
     "release-tag-governance": {
@@ -192,7 +203,7 @@
     },
     "durable-soak": {
       "kind": "durable-soak",
-      "title": "Durable jobs completed the declared soak with all five behaviors authenticated in the window",
+      "title": "V1 recovery scope is approved; durable activation requires the full authenticated soak",
       "attestation": "research/ops-receipts/durable-soak-attestation.json",
       "maxAgeDays": 45,
       "minimumEvidenceHours": 24,

@@ -8,7 +8,7 @@ import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
 import { readStoredReportForId } from "@/lib/report-source";
 import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
-import { conciseMetadataText, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
+import { correctionMetadataDescription, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
 import { toReportView } from "@/lib/scan-report-views";
 import { siteBaseUrl, siteOrigin, sitePagesBasePath } from "@/lib/site-url";
 import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
@@ -56,10 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     comparisonAxis: view.comparison?.axis
   });
   const description = correction.currentSubjectEvent
-    ? conciseMetadataText(
-        `Correction ledger status: ${correction.currentSubjectEvent.state}. ${correction.currentSubjectEvent.summary}`,
-        160
-      )
+    ? correctionMetadataDescription(correction.currentSubjectEvent.state)
     : reportMetadataDescription(headline);
   const reportUrl = publicReportUrl(id);
 

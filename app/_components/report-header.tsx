@@ -1,5 +1,6 @@
 "use client";
 
+import { publishedReportCorrections } from "@/lib/published-report-corrections";
 import { AlertCircle, CheckCircle2, Copy, Download, ExternalLink } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
@@ -153,7 +154,7 @@ export function ReportHeader({
         </span>
         <button className="secondary-button" type="button" onClick={onDownload}>
           <Download size={17} aria-hidden="true" />
-          JSON
+          {(publishedReportCorrections(view.reportId).subjectEvents.length + publishedReportCorrections(view.reportId).replacementEvents.length) > 0 ? "JSON + corrections (ZIP)" : "JSON"}
         </button>
         {/* Rendered by the scanner, not in the browser, so it only appears when
             an origin that can render one is reachable. CSV and JSON are built

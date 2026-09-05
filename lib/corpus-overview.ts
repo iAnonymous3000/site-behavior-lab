@@ -1,3 +1,5 @@
+import { publishedReportCorrections } from "./published-report-corrections";
+import { entryEvidenceCompleteness } from "./scan-report-views";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { CompatibilityFingerprint, ComparisonDecision } from "./comparison-decision";
@@ -15,11 +17,9 @@ import { trackingServiceRequests } from "./report-insights";
 import {
   comparisonArmViews,
   displayRunView,
-  familyCensoredOnRun,
   runHitRequestRecordingCap,
   toReportView,
   type ReportView,
-  type RunView
 } from "./scan-report-view";
 import { isReservedReportDomain } from "./reserved-report-domains";
 import { listStaticReportBundles } from "./static-report-files";
@@ -314,16 +314,7 @@ type CatalogEntry = { domain: string; id: string; label: string };
  * applies: a failed outcome makes every monotonic count a floor and the cookie
  * snapshot unmeasured.
  */
-export function entryEvidenceCompleteness(run: RunView): {
-  requestEvidenceComplete: boolean;
-  cookieEvidenceComplete: boolean;
-} {
-  const failed = run.quality.outcome === "failed";
-  return {
-    requestEvidenceComplete: !failed && !familyCensoredOnRun(run, "requests"),
-    cookieEvidenceComplete: !failed && !familyCensoredOnRun(run, "cookies")
-  };
-}
+export { entryEvidenceCompleteness } from "./scan-report-views";
 
 /** A missing main-document response or HTTP >= 400 is not a successful site load. */
 function entryLoadFailed(entry: DirectoryEntry): boolean {
@@ -372,6 +363,7 @@ export function summarizeCorpusSiteCounts(entries: DirectoryEntry[]): CorpusSite
 /** Consent interaction arms are post-choice states, not passive site visits. */
 export function entryEligibleForCorpusRollups(entry: DirectoryEntry): boolean {
   return (
+    !publishedReportCorrections(entry.id).suppressIndexing &&
     !entryLoadFailed(entry) &&
     entry.requestEvidenceComplete &&
     !entry.capped &&
@@ -438,6 +430,7 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
 
   const siteCounts = summarizeCorpusSiteCounts(entries);
   const sitemapReports = loadedEntries
+    .filter(({ entry }) => !publishedReportCorrections(entry.id).suppressIndexing)
     .map(({ entry, lastModifiedAt }) => ({ id: entry.id, lastModifiedAt }))
     .sort((left, right) => left.id.localeCompare(right.id));
 

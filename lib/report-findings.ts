@@ -21,6 +21,7 @@
  */
 
 import { detectConsentPlatform } from "./consent-banner";
+import { publishedReportCorrections } from "./published-report-corrections";
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { corpusBenchmark, corpusIsUsable, selectCorpusStatsCohort, type CorpusStats } from "./corpus-stats";
 import {
@@ -285,6 +286,14 @@ export function buildFindings(
    */
   focusArm?: "baseline" | "variant"
 ): Finding[] {
+  const correction = publishedReportCorrections(view.reportId);
+  if (correction.suppressIndexing && correction.currentSubjectEvent) {
+    const event = correction.currentSubjectEvent;
+    return [{ id: "public-correction", icon: "alert", level: "warn", methodology: true,
+      title: `Report ${event.state}`, lead: event.summary,
+      detail: "The original observations remain available below. Use them with the public correction; the original findings summary is withheld.",
+      evidence: `${event.eventId} · ${event.detailsUrl}` }];
+  }
   const facts = (focusArm && reportFacts.arms?.[focusArm]) ?? reportFacts.display;
   // New artifacts publish one distribution per exact schema/methodology/
   // producer/requested-GPC cohort. Select the report's own cohort or fail
@@ -719,6 +728,13 @@ export function buildFindings(
     // older producer put its name in one of these arrays.
     const policyMentionedEntityNames = new Set(policy.mentionedEntities);
     const policyUnmentionedEntityNames = new Set(policy.unmentionedEntities);
+    // Earlier instruments used parent-company keys that did not match the
+    // catalog. A historical non-match cannot support an omission accusation.
+    const unreliablePolicyAliases = run.detectors?.["privacy-policy"]?.version === "policy-text-cross-check@6"
+      ? [] : ["Amazon Ads", "Oracle Advertising"];
+    const unknownPolicyMentions = trackingNames.filter(entity =>
+      unreliablePolicyAliases.includes(entity) && policyUnmentionedEntityNames.has(entity));
+    for (const entity of unknownPolicyMentions) policyUnmentionedEntityNames.delete(entity);
     const mentionedTrackingEntities = trackingNames.filter((entity) =>
       policyMentionedEntityNames.has(entity)
     );
@@ -727,10 +743,13 @@ export function buildFindings(
     );
     const namedCount = mentionedTrackingEntities.length;
     const totalObserved = namedCount + unmentionedTrackingEntities.length;
-    const coverage =
+    const coverage = (
       totalObserved > 0
         ? `${namedCount} of ${plural(totalObserved, "observed tracking company", "observed tracking companies")} named in the policy`
-        : "no catalogued tracking companies observed to check against it";
+        : unknownPolicyMentions.length > 0
+          ? "no reliable company-mention results available"
+          : "no catalogued tracking companies observed to check against it") +
+      (unknownPolicyMentions.length ? `; policy mentions of ${humanList(unknownPolicyMentions)} are unknown because the historical alias matcher was incomplete` : "");
 
     // A "nothing contradicted" reassurance is itself an absence claim over
     // the checked evidence, so censored collection hedges it.

@@ -282,7 +282,10 @@ function decodeX(parsed: URL, input: PixelEventInput): DecodedPixel {
   // mark a purchase; everything else is conversion/audience tracking. X's
   // browser pixel identifies via its own cookie (p_user_id), not user-supplied
   // PII, so no advanced-matching categories are claimed here.
-  const purchase = hasStringValue(params.get("tw_sale_amount") ?? "") || hasStringValue(params.get("tw_order_quantity") ?? "");
+  const positiveDecimal = (value: string | null): boolean =>
+    value !== null && /^(?:\d+(?:\.\d+)?|\.\d+)$/.test(value.trim()) &&
+    Number.isFinite(Number(value)) && Number(value) > 0;
+  const purchase = positiveDecimal(params.get("tw_sale_amount")) || positiveDecimal(params.get("tw_order_quantity"));
   return {
     platform: "X",
     product: "X (Twitter) Pixel",

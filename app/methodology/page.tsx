@@ -38,12 +38,10 @@ export default function MethodologyPage() {
         </p>
         <p>
           A measured run is not a promise of exactly one network navigation. Consent verification may perform one
-          disclosed post-choice reload; the input probe may navigate to a blank page at the end to flush unload
-          beacons; and policy analysis may open one separate, SSRF-guarded policy page after the primary request log is
-          frozen. Reload- and policy-phase traffic is excluded from the main request counts. Beacons the measured
-          page sends while its document is still alive during the active input probe remain included; a beacon
-          issued only during the final teardown is provoked but not reported to the recorder by the pinned
-          Playwright build, so it is absent from the request log.
+          disclosed post-choice reload, and policy analysis may open one separate, SSRF-guarded policy page after
+          the primary request log is frozen. Reload- and policy-phase traffic is excluded from the main request
+          counts. Requests observed while the document is alive during the active input probe remain included.
+          Teardown-only transmissions are not measured; a quiet probe cannot establish their absence.
         </p>
         <p>
           A local PageGraph import is the disclosed exception: it adapts a paired GraphML capture and metadata
@@ -126,8 +124,11 @@ export default function MethodologyPage() {
         <h2>The two bounded interactions</h2>
         <p>
           First, the input probe: the scanner types a synthetic, non-personal test value into up to a handful of
-          visible form fields, never submits, and watches whether that value leaves to a third party in plain,
-          encoded, or hashed form. Second, in consent comparison mode only, the scanner clicks one accept-all or
+          supported form fields already in the viewport, with native form submission blocked, and watches whether
+          that value leaves to a third party in plain, encoded, or hashed form. Focus, input and blur handlers may
+          run and send requests. Unsupported, offscreen and failed field attempts are reported as omitted coverage;
+          the probe does not scroll to reach them. Auxiliary pages are blocked and their requests counted as lost
+          coverage. Second, in consent comparison mode only, the scanner clicks one accept-all or
           reject-all control on the cookie banner&apos;s first layer (known consent-platform controls first, then a
           conservative whole-label match). Whenever at least one field accepts the synthetic value, the report says
           how many did; a visit where no field accepted it carries no typed-field count. Consent-comparison reports

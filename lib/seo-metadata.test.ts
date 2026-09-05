@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   conciseMetadataText,
+  correctionMetadataDescription,
   newestSitemapDate,
   publicPageMetadata,
   REPORT_RENDERED_TITLE_MAX_LENGTH,
@@ -80,6 +81,16 @@ test("report metadata is concise, report-specific, and retains the evidence cave
 test("metadata truncation collapses whitespace and stops cleanly", () => {
   assert.equal(conciseMetadataText("  one\n two   three  ", 20), "one two three");
   assert.equal(conciseMetadataText("one two three four five", 16), "one two three…");
+});
+
+test("every correction state retains bounded metadata and the complete evidence caveat", () => {
+  for (const state of ["active", "corrected", "superseded", "withdrawn"] as const) {
+    const description = correctionMetadataDescription(state);
+    assert.ok(description.length <= 160);
+    assert.match(description, /Read the report and correction together/);
+    assert.match(description, /Evidence to check, not a verdict\.$/);
+    assert.ok(description.includes(state === "active" ? "clarification" : state));
+  }
 });
 
 test("report metadata never turns an incomplete fingerprint detector into clean absence copy", () => {

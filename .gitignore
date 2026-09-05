@@ -78,3 +78,6 @@ CODEX.md
 *.tmp
 *.temp
 wrangler.container.generated.*.jsonc
+
+# Ephemeral fresh-source readiness compilation (removed after evaluation)
+.readiness-schema-*/

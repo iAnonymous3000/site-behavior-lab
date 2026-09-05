@@ -30,9 +30,11 @@ One scan is one automated visit from one place at one time. The scanner:
   methodology versions);
 - observes high-entropy browser API use and fingerprinting heuristics, and
   third-party session-recording and input-monitoring listeners;
-- types a synthetic, non-personal sentinel into up to eight visible form fields
+- types a synthetic, non-personal sentinel into up to eight supported form fields already in the viewport
   and watches whether it leaves the site, in plain, base64, hex, or hashed
-  form. It never submits a form and never presses Enter. A visit where
+  form. Native form submission is blocked; focus, input and blur callbacks can
+  run and send requests. Unsupported, offscreen and failed attempts count as
+  omitted coverage. Teardown-only transmissions are not measured. A visit where
   at least one field accepted the value discloses how many fields were typed
   into; a visit where no field accepted it carries no such statement;
 - resolves first-party subdomains' CNAME chains to catch trackers hidden behind
@@ -288,8 +290,8 @@ Node methodology is
 `shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2`,
 and production r2 reports extend it with the phase-kernel, boundary-state,
 consent, resource-budget, proxy-traffic, service-worker-block,
-detector-accountability, service-role-taxonomy, and GPC worker-application
-components, recorded verbatim in `provenance.methodologyVersion`. The Shields
+detector-accountability, service-role-taxonomy, GPC worker-application,
+active-probe, and auxiliary-context-block components, recorded verbatim in `provenance.methodologyVersion`. The Shields
 simulation uses the `adblock` Rust crate compiled to WASM from
 `tools/adblock-wasm/` over a pinned snapshot of Brave's default lists whose
 manifest digest is part of the identity; the curated service catalog is

@@ -1,3 +1,4 @@
+import { publishedReportCorrections } from "./published-report-corrections";
 import {
   corpusCohortIdentityForView,
   selectPrimaryCorpusCohort,
@@ -115,6 +116,10 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
       coverageDomains.add(domain);
       if (successfulRuns.some(runHitRequestRecordingCap)) cappedDomains.add(domain);
     }
+
+    // Corrections exclude reports from distributions without erasing that a
+    // visit was attempted and its document loaded.
+    if (publishedReportCorrections(id).suppressIndexing) continue;
 
     // A run that answered with an HTTP error (403/401/429 bot walls, outages)
     // reflects an error page, not the site, and a null status means the main

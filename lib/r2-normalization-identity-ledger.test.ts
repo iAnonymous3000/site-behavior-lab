@@ -53,9 +53,9 @@ import {
  *   5. Only then update the two literals below to the new identity.
  */
 const ACTIVE_NODE_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
 const ACTIVE_PAGEGRAPH_R2_NORMALIZATION_LITERAL =
-  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
+  "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 test("the active r2 normalization identities match their reviewed ledger literals", () => {
   assert.equal(
@@ -81,9 +81,9 @@ test("the active r2 normalization identities match their reviewed ledger literal
  * the change as a widening per the ritual above, since an admitted-pattern
  * change is a vocabulary change even though the digest cannot show it).
  */
-const PINNED_DYNAMIC_WARNING_PATTERNS_LABEL = "scanner-warning-patterns-v8";
+const PINNED_DYNAMIC_WARNING_PATTERNS_LABEL = "scanner-warning-patterns-v9";
 const PINNED_IS_SCANNER_WARNING_SHA256 =
-  "c52bdb8fb3413354e7d8bbec628779962ea5bdc91180703be9887a694a6101af";
+  "5079a0127a6274827ed58561c291b3ab113ded3478eca6605235f5632d24de4d";
 
 test("the warning-pattern block matches the version label that names it", () => {
   const source = readFileSync(path.join(process.cwd(), "lib", "redact-scan-report-v1.ts"), "utf8");

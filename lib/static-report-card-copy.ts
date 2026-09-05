@@ -1,3 +1,4 @@
+import { publishedReportCorrections } from "./published-report-corrections";
 import { plural } from "./text-format";
 import type { StaticReportManifestEntry } from "./types";
 
@@ -18,9 +19,14 @@ export function staticReportRequestCountLabel(
 export function staticReportRequestEvidenceStatus(
   report: StaticReportManifestEntry
 ): string | null {
-  if (report.requestEvidenceComplete) return null;
-  const reason = report.requestCapped ? "request recording capped" : "request evidence incomplete";
-  return `${reason}; retained request counts are lower bounds`;
+  const correction = publishedReportCorrections(report.id).currentSubjectEvent;
+  const notices: string[] = [];
+  if (correction) notices.push(`Public ${correction.state === "active" ? "clarification" : "correction"} ${correction.eventId} applies; read it with this report`);
+  if (!report.requestEvidenceComplete) {
+    const reason = report.requestCapped ? "request recording capped" : "request evidence incomplete";
+    notices.push(`${reason}; retained request counts are lower bounds`);
+  }
+  return notices.length ? notices.join(". ") : null;
 }
 
 /**

@@ -175,7 +175,7 @@ export function pickPrivacyPolicyLink(links: PolicyLinkCandidate[], firstPartyHo
     if (
       NON_POLICY_PRIVACY_PAGE.test(path) ||
       NON_POLICY_PRIVACY_PAGE.test(text) ||
-      NON_POLICY_LOCALIZED_LINK.test(text)
+      (NON_POLICY_LOCALIZED_LINK.test(text) && !/^privacy cent(?:re|er)$/.test(text))
     ) {
       continue;
     }
@@ -375,10 +375,22 @@ export const COMPARED_POLICY_CLAIM_KINDS: readonly PrivacyPolicyClaimKind[] = [
  */
 export function isCurrentlyCheckablePolicyClaim(claim: PrivacyPolicyClaim): boolean {
   if (!COMPARED_POLICY_CLAIM_KINDS.includes(claim.kind)) return false;
-  if (claim.kind !== "no-selling-or-sharing") return true;
   // A capped quote may have lost a qualifier after its retained prefix.
   if (claim.quote.trimEnd().endsWith("...")) return false;
+  if (claim.kind === "no-cookies" || claim.kind === "no-third-party-cookies") {
+    return blanketCookieClaimKind(claim.quote) === claim.kind;
+  }
   return noSellingOrSharingClaimScope(claim.quote) === "blanket";
+}
+
+/** Only direct, unqualified denials support a cookie contradiction. A negation
+ * elsewhere in the sentence must never govern a positive cookie statement. */
+function blanketCookieClaimKind(sentence: string): "no-cookies" | "no-third-party-cookies" | null {
+  const lower = normalizePolicySignal(sentence).trim();
+  const active = /^(?:we|our (?:web)?site|this (?:web)?site)\s+(?:do(?:es)? not|don't|doesn't|never|will not|won't)\s+(?:use|set|place|serve|allow|store)\s+(?:any\s+)?(third[-\s]party\s+)?cookies(?:\s+on this (?:web)?site)?(?:\s+at all)?[.!]?$/;
+  const passive = /^no (third[-\s]party\s+)?cookies\s+are\s+(?:used|set|placed|stored)(?:\s+on this (?:web)?site)?(?:\s+at all)?[.!]?$/;
+  const match = active.exec(lower) ?? passive.exec(lower);
+  return match ? (match[1] ? "no-third-party-cookies" : "no-cookies") : null;
 }
 
 /** Extract checkable claims from the policy text, one per kind, with the matched sentence as the quote. */
@@ -389,19 +401,8 @@ export function extractPolicyClaims(policyText: string): PrivacyPolicyClaim[] {
     const lower = sentence.toLowerCase();
     const negated = FIRST_PERSON_NEGATION.test(lower);
 
-    if (!claims.has("no-third-party-cookies")) {
-      if ((negated && /\b(?:use|set|place|serve|allow|store)\b[^.]{0,40}\bthird[-\s]?party cookies\b/.test(lower)) ||
-        /\bno third[-\s]?party cookies\b[^.]{0,40}\b(?:are|is)\s+(?:used|set|placed|stored)\b/.test(lower)) {
-        claims.set("no-third-party-cookies", sentence);
-      }
-    }
-
-    // "We do not use cookies" (blanket). The negative lookahead keeps scoped
-    // statements ("we do not use cookies for advertising / to track you") from
-    // matching, since those claim much less than "no cookies at all".
-    if (!claims.has("no-cookies") && negated && /\buse\s+(?:any\s+)?cookies\b(?!\s*(?:for|to|that|which|other than|except))/.test(lower) && !/third[-\s]?party/.test(lower)) {
-      claims.set("no-cookies", sentence);
-    }
+    const cookieKind = blanketCookieClaimKind(sentence);
+    if (cookieKind && !claims.has(cookieKind)) claims.set(cookieKind, sentence);
 
     if (!claims.has("no-selling-or-sharing") && noSellingOrSharingClaimScope(sentence) === "blanket") {
       claims.set("no-selling-or-sharing", sentence);
@@ -430,8 +431,8 @@ const ENTITY_ALIASES: Record<string, string[]> = {
   X: ["twitter", "x corp"],
   Google: ["google", "doubleclick", "youtube"],
   Microsoft: ["microsoft", "bing", "clarity"],
-  Amazon: ["amazon"],
-  Oracle: ["oracle", "bluekai"],
+  "Amazon Ads": ["amazon"],
+  "Oracle Advertising": ["oracle", "bluekai"],
   Adobe: ["adobe"],
   LinkedIn: ["linkedin"],
   TikTok: ["tiktok", "bytedance"]

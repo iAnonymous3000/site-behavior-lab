@@ -1,4 +1,5 @@
 import type { ReportHeadline } from "./report-headline";
+import type { CorrectionsEventState } from "./corrections-ledger-model";
 import { siteUrl } from "./site-url";
 import { displayHost } from "./text-format";
 
@@ -89,6 +90,13 @@ export function reportMetadataDescription(headline: ReportHeadline): string {
     `Automated visit to ${headline.domain || "this site"}. Open the report for the complete finding, evidence scope, and limitations. Evidence to check, not a verdict.`,
     REPORT_DESCRIPTION_MAX_LENGTH
   );
+}
+
+/** Correction metadata must retain its evidence caveat without truncating a
+ * longer ledger summary into an unqualified fragment. */
+export function correctionMetadataDescription(state: CorrectionsEventState): string {
+  const notice = state === "active" ? "A public clarification applies." : `This report was ${state}.`;
+  return `${notice} Read the report and correction together. Evidence to check, not a verdict.`;
 }
 
 /** A sitemap date is emitted only when it is parseable and not in the future. */

@@ -120,8 +120,8 @@ test("the summary tells a maintainer whether the outgoing identity must be froze
   assert.match(withPublications, /\*\*60\*\*/);
 
   const withoutPublications = formatBraveAdoptionSummary(adoption, 0);
-  assert.match(withoutPublications, /Do not add a historical row/);
-  assert.doesNotMatch(withoutPublications, /must ALSO be frozen/);
+  assert.match(withoutPublications, /must ALSO be frozen/);
+  assert.match(withoutPublications, /zero committed reports is not evidence/);
 });
 
 test("a matching snapshot produces no adoption instructions", () => {

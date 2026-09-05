@@ -106,7 +106,7 @@ export const HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION =
  * earlier methodology string, so only the revision carries a component.
  */
 export const NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION =
-  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}+gpc-worker-application-v2`;
+  `${NODE_SCANNER_METHODOLOGY_VERSION}+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+${SERVICE_ROLE_TAXONOMY_VERSION}+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1`;
 
 /** Exact producer epoch attested by the reviewed Node r2/v3 corpus. */
 export const HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION =
@@ -325,10 +325,8 @@ export const HISTORICAL_DETECTOR_V6_NODE_R2_DETECTOR_VERSIONS = Object.freeze({
  * A closed row exists because reports were published against it: the 60 r2
  * reports committed in #144 carry this exact identity, and pointing the active
  * row at a newer digest without this would make every one of them unreadable
- * through the producer contract. The previous adoption needed no such row
- * because nothing had published under its identity; that is a fact to CHECK per
- * refresh, not a rule, and the active constant's docblock says so. The
- * `every committed managed bundle remains readable` guard is what enforces it.
+ * through the producer contract. Live reports and downloaded copies also
+ * require closed rows, even when no report is retained in the committed corpus.
  */
 export const HISTORICAL_R2_LISTS_2026_08_14_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
@@ -337,6 +335,34 @@ export const HISTORICAL_R2_LISTS_2026_08_14_ADBLOCK_IDENTITY = Object.freeze({
   manifestDigest: "0f52cc524a8999a1022279aca74003ece9720f267bc678430727b7312d43f0ac",
   engineVersion: "adblock-rust-0.13.2"
 } satisfies NonNullable<Toolchain["adblock"]>);
+
+/** Restored deployed list windows, reconstructed from the exact source commits:
+ * 362c041fdbc373ff12d0bd030ea5d6739a42c1a5 and
+ * 79d5c43db3bf1eaf449070a01cf6e6567eee785d. */
+export const HISTORICAL_R2_LISTS_2026_08_11_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists", lists: 31,
+  fetchedAt: "2026-08-11T18:35:37.416Z",
+  manifestDigest: "c16dadd4e9966e3c72e2dc6d29c6d2975f212a850563358043d57fcddd082a6e",
+  engineVersion: "adblock-rust-0.13.2"
+});
+export const HISTORICAL_R2_LISTS_2026_08_14_EVENING_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists", lists: 31,
+  fetchedAt: "2026-08-14T23:10:31.506Z",
+  manifestDigest: "33313fb6103235af53051b55c3050c577b62beba8764891a4ec5646779e6129c",
+  engineVersion: "adblock-rust-0.13.2"
+});
+
+/** Producer identity deployed through 232a9c6, before the approved v1 fixes. */
+export const HISTORICAL_GPC_V2_NODE_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2";
+const HISTORICAL_GPC_V2_NODE_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
+const HISTORICAL_GPC_V2_ADBLOCK = Object.freeze({
+  "source": "Brave default ad-block lists",
+  "lists": 31,
+  "fetchedAt": "2026-08-15T05:18:29.332Z",
+  "manifestDigest": "83cbcffc98c65083d7bd08e7c0224dfbb4360ba52a2c39a3345ca671051eb5c6",
+  "engineVersion": "adblock-rust-0.13.2"
+});
+const HISTORICAL_PRE_V1_PAGEGRAPH_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1";
 
 const NODE_V3_NORMALIZATION =
   "redaction-v3+allowlists-v2:042fbfccf7b914479b7100002c5f709b54314606840c4dde50fb2368e23c30e8+public-string-policy-v2:74f1170bbf38a2f85629fa612c01f5da3c0ab1d8f0042f4082eef21815db868c+tldts@7.4.3+node-evidence-policy-v1";
@@ -393,6 +419,12 @@ const PAGEGRAPH_6C78_TLDTS_749_NORMALIZATION =
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  [HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION]: Object.freeze([
+    HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_DETECTOR_V6_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_GPC_V2_NODE_METHODOLOGY
+  ]),
   [NODE_DBB6_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
   [NODE_6E87_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
   [NODE_5B1F_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_R2_V4_METHODOLOGY_VERSION]),
@@ -406,7 +438,8 @@ export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   // accountability-v1 methodologies, matching its two frozen tuple families.
   [HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION]: Object.freeze([
     PRE_ACCOUNTABILITY_NODE_R2_METHODOLOGY_VERSION,
-    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION
   ]),
   // The ec26 identity closed when scanner-warning-patterns-v8 widened the
   // status-disclosure grammar and the consent-arm disclosure. Its whole era
@@ -468,12 +501,9 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
  * exist. `brave-snapshot-adoption.test.ts` now fails first and says so
  * directly; `npm run lists:adoption` prints the replacement literal.
  *
- * NO HISTORICAL ROW IS RETIRED HERE, because no committed report was measured
- * under the outgoing identity. A closed row exists only to keep
- * already-published reports readable, so freezing an identity nothing published
- * under would guard an empty set. That is a fact to CHECK per refresh, not a
- * rule: `npm run lists:adoption` counts the committed reports carrying the
- * outgoing manifest and says which case this is.
+ * Every outgoing production identity must be retained as a closed row,
+ * regardless of the committed report count. `npm run lists:adoption` reminds
+ * maintainers to preserve live-report and downloaded-copy compatibility.
  */
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
@@ -756,6 +786,7 @@ const HISTORICAL_DETECTOR_V6_FIELDS: NodeTupleFields = Object.freeze({
   publicLimits: HISTORICAL_NODE_R2_PUBLIC_LIMITS_V1,
   phaseOmissionContractVersion: "phase-omission-v2"
 });
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -793,14 +824,13 @@ function nodeTuple(
   });
 }
 
-// The newest CLOSED epoch is the v6 rows under gpc-worker-application-v1;
-// the active identity must differ from them somewhere, or the closed rows
-// already describe live production and an active pair would duplicate them.
-// Today the registry and detector versions are shared and only the
-// methodology's worker-application component separates the two.
+// The newest closed epoch is v6 under gpc-worker-application-v2. The active
+// probe, auxiliary-page policy, detector versions and warning vocabulary now
+// distinguish this producer from it; closed rows never follow active constants.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !==
-    HISTORICAL_DETECTOR_V6_NODE_R2_METHODOLOGY_VERSION ||
+    HISTORICAL_GPC_V2_NODE_METHODOLOGY ||
+  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_GPC_V2_NODE_NORMALIZATION ||
   String(DETECTOR_REGISTRY_VERSION) !==
     HISTORICAL_DETECTOR_V6_NODE_R2_DETECTOR_REGISTRY_VERSION ||
   DETECTOR_REGISTRY_DIGEST !== HISTORICAL_DETECTOR_V6_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
@@ -812,14 +842,14 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v6-gpc-worker-v2-6c78-tldts7410-active-lists-2026-08-15",
+        "node-v7-active-probe-v2-active-lists-2026-08-15",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v6-gpc-worker-v2-6c78-tldts7410-active-no-adblock",
+        "node-v7-active-probe-v2-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -992,6 +1022,16 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_ACCOUNTABILITY_V1_FIELDS,
     null
   ),
+  // ServiceRole shipped at 8465f3d9134ab6c443256b90a4ead97e91904d4b
+  // before the catalog/normalizer moved at 6c94b0d1ecfd14071380a51bd16d555b0967df0f.
+  ...[HISTORICAL_R2_LISTS_2026_07_25_ADBLOCK_IDENTITY, null].map((adblock) => nodeTuple(
+    `node-v4-b68c-service-role-v1-${adblock ? "lists-2026-07-25" : "no-adblock"}`,
+    HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_NORMALIZATION_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_NODE_R2_METHODOLOGY_VERSION,
+    Object.freeze({ ...HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+      trackerCatalog: HISTORICAL_ACCOUNTABILITY_V1_NODE_R2_TRACKER_CATALOG }),
+    adblock
+  )),
   nodeTuple(
     "node-v4-ec26-lists-2026-07-25",
     NODE_EC26_NORMALIZATION,
@@ -1032,12 +1072,34 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY
   ),
   nodeTuple(
+    "node-v4-6c78-tldts7410-lists-2026-08-11",
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    HISTORICAL_R2_LISTS_2026_08_11_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
     "node-v4-6c78-tldts7410-lists-2026-08-14",
     HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
     HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
     HISTORICAL_SERVICE_ROLE_V1_FIELDS,
     HISTORICAL_R2_LISTS_2026_08_14_ADBLOCK_IDENTITY
   ),
+  nodeTuple(
+    "node-v4-6c78-tldts7410-lists-2026-08-14-evening",
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS,
+    HISTORICAL_R2_LISTS_2026_08_14_EVENING_ADBLOCK_IDENTITY
+  ),
+  // The August 15 lists shipped at 63a51f00d8c5262274fe44ab0929d32528e87827
+  // before resource-budget-v2. Preserve both epochs and the no-list variant.
+  ...[HISTORICAL_R2_LISTS_2026_08_15_ADBLOCK_IDENTITY, null].map(adblock => nodeTuple(
+    `node-v4-resource-budget-v1-${adblock ? "lists-2026-08-15" : "no-adblock"}`,
+    HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
+    HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
+    HISTORICAL_SERVICE_ROLE_V1_FIELDS, adblock
+  )),
   nodeTuple(
     "node-v4-6c78-tldts7410-lists-2026-08-15",
     HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION,
@@ -1090,6 +1152,8 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_DETECTOR_V6_FIELDS,
     null
   ),
+  nodeTuple("node-v6-gpc-worker-v2-6c78-tldts7410-lists-2026-08-15", HISTORICAL_GPC_V2_NODE_NORMALIZATION, HISTORICAL_GPC_V2_NODE_METHODOLOGY, HISTORICAL_DETECTOR_V6_FIELDS, HISTORICAL_GPC_V2_ADBLOCK),
+  nodeTuple("node-v6-gpc-worker-v2-6c78-tldts7410-no-adblock", HISTORICAL_GPC_V2_NODE_NORMALIZATION, HISTORICAL_GPC_V2_NODE_METHODOLOGY, HISTORICAL_DETECTOR_V6_FIELDS, null),
   ...ACTIVE_NODE_TUPLES
 ]);
 
@@ -1146,6 +1210,7 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     PAGEGRAPH_6C78_TLDTS_749_NORMALIZATION,
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
+  pageGraphTuple("pagegraph-v4-6c78-tldts7410", HISTORICAL_PRE_V1_PAGEGRAPH_NORMALIZATION, HISTORICAL_R2_2026_08_TRACKER_CATALOG),
   pageGraphTuple("pagegraph-v4-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,

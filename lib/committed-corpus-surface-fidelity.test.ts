@@ -661,7 +661,7 @@ function expectedManifestEntry(bundle: AcceptedBundle): StaticReportManifestEntr
     device: (comparison ? tail : lead).conditions.viewport.isMobile ? "mobile" : "desktop",
     gpcEnabled: comparison ? "comparison" : lead.conditions.gpcEnabled,
     ...(runHitRequestRecordingCap(lead) ? { requestCapped: true } : {}),
-    requestEvidenceComplete: !familyCensoredOnRun(lead, "requests"),
+    requestEvidenceComplete: lead.quality.outcome !== "failed" && !familyCensoredOnRun(lead, "requests"),
     ...(historyKey ? { historyKey } : {}),
     ...(comparisonHistoryKey ? { comparisonHistoryKey } : {}),
     metrics: {

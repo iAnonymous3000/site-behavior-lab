@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { publishedReportCorrections } from "./published-report-corrections";
 import {
   buildReportHeadline,
   type HeadlineTone,
@@ -38,6 +39,8 @@ export function renderReportCard(view: ReportView): ImageResponse {
   const headline = buildReportHeadline(view);
   const subhead = buildReportCardSubhead(view, headline);
   const attribution = buildReportCardAttribution(view, headline.domain);
+  const cardCaveat = publishedReportCorrections(view.reportId).currentSubjectEvent
+    ? "Read the report and public correction together before using these findings." : headline.caveat;
   const accent = TONE_HEX[headline.tone];
   const stats = headline.stats.slice(0, 3);
   const headlineSize = headline.headline.length > 64 ? 50 : headline.headline.length > 44 ? 58 : 66;
@@ -116,7 +119,7 @@ export function renderReportCard(view: ReportView): ImageResponse {
             <div style={{ display: "flex", fontSize: 19, color: TEXT }}>{attribution}</div>
             <div style={{ display: "flex", fontSize: 18, color: SUBTLE }}>open source · reproducible</div>
             <div style={{ display: "flex", fontSize: 16, color: SUBTLE, marginTop: 4, maxWidth: 360, textAlign: "right" }}>
-              {headline.caveat}
+              {cardCaveat}
             </div>
           </div>
         </div>

@@ -37,6 +37,7 @@ import {
   type RunView
 } from "@/lib/scan-report-views";
 import { displayHost, plural } from "@/lib/text-format";
+import { publishedReportCorrections } from "@/lib/published-report-corrections";
 
 /**
  * The evidence-heavy half of the product. The homepage imports this module
@@ -127,14 +128,22 @@ export function ReportRenderer({
 
   async function downloadReport() {
     const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
-    const blob = new Blob([JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2)], {
+    const wire = JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2);
+    const corrections = publishedReportCorrections(reportView.reportId);
+    if (corrections.subjectEvents.length || corrections.replacementEvents.length) {
+      const { reportExportBundle } = await import("@/lib/report-export-bundle");
+      const bundle = reportExportBundle(wire, JSON.stringify(corrections, null, 2));
+      downloadBlob(new Blob([bundle as Uint8Array<ArrayBuffer>], {type: "application/zip"}), `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}-evidence.zip`);
+      return;
+    }
+    const blob = new Blob([wire], {
       type: "application/json"
     });
     downloadBlob(blob, `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}.json`);
   }
 
   function downloadCsv() {
-    const csv = requestLogToCsv(displayedRun.evidence.requests, requestLogRecordingState(displayedRun));
+    const csv = requestLogToCsv(displayedRun.evidence.requests, requestLogRecordingState(displayedRun), publishedReportCorrections(reportView.reportId).subjectEvents);
     const armPart = arms ? `-${safeFilenamePart(armDisplayLabel(reportView, displayedArmLabel))}` : "";
     downloadBlob(
       new Blob([csv], { type: "text/csv;charset=utf-8" }),
@@ -276,7 +285,7 @@ export function ReportRenderer({
           {displayedRun.evidence.pixelEvents.length > 0 && (
             <section className="side-card" id="pixels">
               <h2>Advertising Pixels</h2>
-              <PixelEventsList pixels={displayedRun.evidence.pixelEvents} facts={displayedFacts} />
+              <PixelEventsList pixels={displayedRun.evidence.pixelEvents} facts={displayedFacts} corrected={publishedReportCorrections(reportView.reportId).suppressIndexing} />
             </section>
           )}
 

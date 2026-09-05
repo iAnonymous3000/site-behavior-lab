@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T23:49:19.426Z",
+  "generatedAt": "2026-09-05T18:01:33.695Z",
   "reports": [
     {
       "id": "20260824-57fb460826b091487918bf40aadb3076",
@@ -13820,8 +13820,8 @@
       "reportWireBytes": 590963,
       "reportWireSha256": "e0fbb8c75f78d0bac34ff37dce1c17dceda4a91458d31d2a9cd03c3d7442b85a",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "webmd.com's retained request log includes catalogued Google, Pinterest and LinkedIn, +1 more domains.",
-      "tone": "alarm",
+      "headline": "webmd.com: report corrected",
+      "tone": "warn",
       "domain": "webmd.com",
       "requestedUrl": "https://www.webmd.com/",
       "scannedAt": "2026-07-27T09:06:08.130Z",
@@ -16289,7 +16289,7 @@
       "reportWireBytes": 275758,
       "reportWireSha256": "2a1ed3f3e30b176a24cada8cd30e2f08b80160ec8b5b89c7dbb2ed5f92bee636",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "webmd.com recorded 302 fewer third-party requests in the visit configured for Brave-list blocking.",
+      "headline": "webmd.com: report corrected",
       "tone": "warn",
       "domain": "webmd.com",
       "requestedUrl": "https://www.webmd.com/",
@@ -17944,7 +17944,7 @@
       "reportWireBytes": 274496,
       "reportWireSha256": "98ca1bfd35379288fb8ffa7fffa4bb2432e31b9035744bf177e4fcbde84f567e",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "webmd.com recorded 299 fewer third-party requests in the visit configured for Brave-list blocking.",
+      "headline": "webmd.com: report corrected",
       "tone": "warn",
       "domain": "webmd.com",
       "requestedUrl": "https://www.webmd.com/",
@@ -18864,7 +18864,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:2419e2fcc1e0accba28951f01c7e2eb9aac716292401ffe9992bd81b2dd3f4c2:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.wayfair.com|shields|https://www.wayfair.com|https://www.wayfair.com",
       "metrics": {
         "totalRequests": 18,
@@ -18975,7 +18975,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:2419e2fcc1e0accba28951f01c7e2eb9aac716292401ffe9992bd81b2dd3f4c2:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.etsy.com|shields|https://www.etsy.com|https://www.etsy.com",
       "metrics": {
         "totalRequests": 7,
@@ -19168,7 +19168,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:2419e2fcc1e0accba28951f01c7e2eb9aac716292401ffe9992bd81b2dd3f4c2:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.reuters.com|shields|https://www.reuters.com|https://www.reuters.com",
       "metrics": {
         "totalRequests": 6,
@@ -19727,7 +19727,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:2419e2fcc1e0accba28951f01c7e2eb9aac716292401ffe9992bd81b2dd3f4c2:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.zocdoc.com|shields|https://www.zocdoc.com|https://www.zocdoc.com",
       "metrics": {
         "totalRequests": 7,
@@ -19866,7 +19866,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:2419e2fcc1e0accba28951f01c7e2eb9aac716292401ffe9992bd81b2dd3f4c2:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.goodrx.com|shields|https://www.goodrx.com|https://www.goodrx.com",
       "metrics": {
         "totalRequests": 13,
@@ -19884,7 +19884,7 @@
       "reportWireBytes": 271559,
       "reportWireSha256": "ba0a8d6ea79c632d4103b0bd1b7d05e7bfe095c5944d1f22f8be95a52dd131f4",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "webmd.com recorded 306 fewer third-party requests in the visit configured for Brave-list blocking.",
+      "headline": "webmd.com: report corrected",
       "tone": "warn",
       "domain": "webmd.com",
       "requestedUrl": "https://www.webmd.com/",
@@ -20341,7 +20341,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:2419e2fcc1e0accba28951f01c7e2eb9aac716292401ffe9992bd81b2dd3f4c2:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.govt.nz|shields|https://www.govt.nz|https://www.govt.nz",
       "metrics": {
         "totalRequests": 9,
@@ -21488,7 +21488,7 @@
       "comparisonType": "consent",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:fcc1606ba67643659828dac07ce70918d7cda033612d5d67c0d163e0538ca601:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.wayfair.com|consent|none|https://www.wayfair.com|https://www.wayfair.com",
       "metrics": {
         "totalRequests": 18,
@@ -21627,7 +21627,7 @@
       "comparisonType": "consent",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:fcc1606ba67643659828dac07ce70918d7cda033612d5d67c0d163e0538ca601:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.etsy.com|consent|none|https://www.etsy.com|https://www.etsy.com",
       "metrics": {
         "totalRequests": 7,
@@ -21820,7 +21820,7 @@
       "comparisonType": "consent",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:fcc1606ba67643659828dac07ce70918d7cda033612d5d67c0d163e0538ca601:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.reuters.com|consent|none|https://www.reuters.com|https://www.reuters.com",
       "metrics": {
         "totalRequests": 6,
@@ -22406,7 +22406,7 @@
       "comparisonType": "consent",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:fcc1606ba67643659828dac07ce70918d7cda033612d5d67c0d163e0538ca601:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.zocdoc.com|consent|none|https://www.zocdoc.com|https://www.zocdoc.com",
       "metrics": {
         "totalRequests": 7,
@@ -22572,7 +22572,7 @@
       "comparisonType": "consent",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:fcc1606ba67643659828dac07ce70918d7cda033612d5d67c0d163e0538ca601:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.goodrx.com|consent|none|https://www.goodrx.com|https://www.goodrx.com",
       "metrics": {
         "totalRequests": 13,
@@ -22590,8 +22590,8 @@
       "reportWireBytes": 435933,
       "reportWireSha256": "fb342bd4ad406ffea2f8fc5afb55c936043ad1b3fc216dcfc25e287bf52a92a4",
       "title": "Consent comparison attempt (no banner clicked)",
-      "headline": "webmd.com contacted catalogued Google, Pinterest and X domains during this visit.",
-      "tone": "alarm",
+      "headline": "webmd.com: report corrected",
+      "tone": "warn",
       "domain": "webmd.com",
       "requestedUrl": "https://www.webmd.com/",
       "scannedAt": "2026-07-02T14:26:14.790Z",
@@ -23299,7 +23299,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:e8e26162f2356d856ad017c0b51f048d7ae527a257e975a7b61b543c7ceb051d:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.wayfair.com|shields|https://www.wayfair.com|https://www.wayfair.com",
       "metrics": {
         "totalRequests": 18,
@@ -23410,7 +23410,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:e8e26162f2356d856ad017c0b51f048d7ae527a257e975a7b61b543c7ceb051d:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.etsy.com|shields|https://www.etsy.com|https://www.etsy.com",
       "metrics": {
         "totalRequests": 7,
@@ -23576,7 +23576,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:e8e26162f2356d856ad017c0b51f048d7ae527a257e975a7b61b543c7ceb051d:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.reuters.com|shields|https://www.reuters.com|https://www.reuters.com",
       "metrics": {
         "totalRequests": 6,
@@ -24135,7 +24135,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:e8e26162f2356d856ad017c0b51f048d7ae527a257e975a7b61b543c7ceb051d:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.zocdoc.com|shields|https://www.zocdoc.com|https://www.zocdoc.com",
       "metrics": {
         "totalRequests": 7,
@@ -24274,7 +24274,7 @@
       "comparisonType": "shields",
       "device": "desktop",
       "gpcEnabled": "comparison",
-      "requestEvidenceComplete": true,
+      "requestEvidenceComplete": false,
       "historyKey": "v1:e8e26162f2356d856ad017c0b51f048d7ae527a257e975a7b61b543c7ceb051d:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680|www.goodrx.com|shields|https://www.goodrx.com|https://www.goodrx.com",
       "metrics": {
         "totalRequests": 13,
@@ -24292,7 +24292,7 @@
       "reportWireBytes": 265652,
       "reportWireSha256": "f1c5371c2f2ea6a247196f615917e01a0da8de90d5e1e10df46426a5ae362576",
       "title": "Brave-list blocking off/on comparison",
-      "headline": "webmd.com recorded 295 fewer third-party requests in the visit configured for Brave-list blocking.",
+      "headline": "webmd.com: report corrected",
       "tone": "warn",
       "domain": "webmd.com",
       "requestedUrl": "https://www.webmd.com/",

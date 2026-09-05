@@ -913,7 +913,7 @@ function FingerprintList({
   );
 }
 
-function PixelEventsList({ pixels, facts }: { pixels: PixelEventSummary[]; facts: RunFacts }) {
+function PixelEventsList({ pixels, facts, corrected = false }: { pixels: PixelEventSummary[]; facts: RunFacts; corrected?: boolean }) {
   const evidenceIncomplete = facts.claims["pixel-events"].blockers.some(
     (blocker) => blocker !== "subject-not-established"
   );
@@ -932,7 +932,10 @@ function PixelEventsList({ pixels, facts }: { pixels: PixelEventSummary[]; facts
   return (
     <div className="compact-list">
       {pixels.map((pixel) => {
-        const events = pixel.events.length > 0 ? pixel.events.join(", ") : "no named event retained";
+        const events = pixel.events.length > 0 ? pixel.events.map(event =>
+          corrected && pixel.platform === "X" && event === "Purchase"
+            ? "Purchase (unsupported historical label; see correction)" : event
+        ).join(", ") : "no named event retained";
         const identifiers =
           pixel.advancedMatching.length > 0
             ? ` · identifiers: ${pixel.advancedMatching.map(pixelFieldLabel).join(", ")}`

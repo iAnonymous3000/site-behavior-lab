@@ -132,7 +132,9 @@ test("superseded PageGraph normalizations retain their historical catalog epoch"
   }
 
   const mixedEpoch = buildPageGraphScanReportV2R2(GRAPH_BYTES, metadata(), CONTEXT);
-  const [superseded] = SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"];
+  const superseded = SUPERSEDED_R2_NORMALIZATIONS["pagegraph-import"].find(normalization =>
+    PAGEGRAPH_R2_PRODUCER_TUPLES.some(tuple => tuple.normalizationVersion === normalization &&
+      tuple.trackerCatalog.digest !== mixedEpoch.run.toolchain.trackerCatalog.digest));
   assert.notEqual(superseded, undefined);
   mixedEpoch.run.toolchain.normalizationVersion = superseded!;
   mixedEpoch.run.fingerprints = buildFingerprints({

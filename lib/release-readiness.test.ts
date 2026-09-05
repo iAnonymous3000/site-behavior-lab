@@ -221,7 +221,8 @@ const EXPECTED_DECISIONS = [
   "compatibilitySurface",
   "reportRevisionR3",
   "calibrationCensoringPolicy",
-  "wasmReproducibility"
+  "wasmReproducibility",
+  "jobRecovery"
 ];
 // The lean 1.0 fork: these evidence programs gate the 1.1 calibrated-claims
 // release. Restoring either to EXPECTED_GATES and manifest.gates is the
@@ -237,7 +238,7 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
   // calendar: this pins the evaluator over committed evidence, and staleness
   // enforcement is exercised by the synthetic tests below. Bump the instant
   // whenever new evidence lands.
-  const AS_OF = Date.parse("2026-08-26T00:00:00.000Z");
+  const AS_OF = Date.parse("2026-09-05T18:00:00.000Z");
   const result = evaluateReleaseReadiness(process.cwd(), AS_OF);
   assert.equal(result.ready, false);
   assert.deepEqual(result.manifestProblems, []);
@@ -270,6 +271,7 @@ test("the committed manifest is NOT READY, every gate is pinned by id and kind, 
     (manifest.decisions.calibrationCensoringPolicy as { status?: string }).status ===
     "approved";
   const evidenced = new Set([
+    "durable-soak", // approved deferral with every durable feature disabled
     "compatibility-surface-pinned",
     "errata-resolution",
     ...(calibrationDecisionApproved ? ["decisions-approved"] : [])
@@ -3340,4 +3342,44 @@ test("the errata gate verifies the page the frozen schemas actually point at", (
   for (const erratum of required) {
     assert.ok(page.includes(erratum), `the methodology page must publish ${erratum}`);
   }
+});
+
+
+test("fresh schema loading resolves checkout dependencies and a broken checkout cannot use the test cache", async () => {
+  const { freshCompiledSchemaModules, evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
+  const modules = freshCompiledSchemaModules(process.cwd());
+  assert.ok(modules, "fresh compiled schema must load its installed dependencies, including tldts");
+  assert.equal(typeof modules["scan-report-reader"].readStoredScanReport, "function");
+  const root = mkdtempSync(path.join(tmpdir(), "readiness-no-stale-fallback-"));
+  try {
+    writeFileSync(path.join(root, "tsconfig.schema.json"), "{}");
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify({
+      schemaVersion: 1, artifactKind: "site-behavior-release-readiness-manifest", targetRelease: "1.0.0",
+      decisions: {}, gates: { calibration: { kind: "calibration", title: "calibration", requiredDetectors: ["pixel-events"] } }
+    }));
+    const result = evaluateReleaseReadiness(root, NOW);
+    assert.equal(result.ready, false);
+    assert.match(result.gates[0].reasons.join(" "), /unavailable/);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("explicit recovery scope fails closed when durable production flags are enabled or approval is hollow", async () => {
+  const { evaluateReleaseReadiness } = await script("release-readiness-lib.mjs");
+  const root = mkdtempSync(path.join(tmpdir(), "readiness-recovery-scope-"));
+  const flags = ["SITE_BEHAVIOR_LAB_DURABLE_JOBS", "SITE_BEHAVIOR_LAB_CONTAINER_SHARDING", "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES"];
+  const decision = { selected: "explicit-failure-safe-retry", status: "approved", decidedBy: "fixture", decidedAt: "2026-08-01T00:00:00.000Z" };
+  const manifest = { schemaVersion: 1, artifactKind: "site-behavior-release-readiness-manifest", targetRelease: "1.0.0",
+    decisions: { jobRecovery: decision }, gates: { "durable-soak": { kind: "durable-soak", title: "recovery" } } };
+  const evaluate = (enabled?: string) => {
+    writeFileSync(path.join(root, "RELEASE_READINESS.json"), JSON.stringify(manifest));
+    // A commented disabled value must never mask the actual enabled flag.
+    writeFileSync(path.join(root, "wrangler.container.jsonc"), `// "${enabled}": "0"\n` + JSON.stringify({ vars: Object.fromEntries(flags.map(flag => [flag, flag === enabled ? "1" : "0"])) }));
+    return evaluateReleaseReadiness(root, NOW).gates[0];
+  };
+  try {
+    assert.equal(evaluate().status, "pass");
+    for (const flag of flags) { const gate = evaluate(flag); assert.equal(gate.status, "fail"); assert.ok(gate.reasons.join(" ").includes(flag)); }
+    decision.status = "pending";
+    assert.equal(evaluate().status, "fail");
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

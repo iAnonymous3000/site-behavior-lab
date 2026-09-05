@@ -3,7 +3,7 @@ import { buildReportFacts } from "./report-facts";
 import { buildReportHeadline } from "./report-headline";
 import {
   displayRunView,
-  requestEvidenceState,
+  entryEvidenceCompleteness,
   runHitRequestRecordingCap,
   toReportView,
   type ReportView
@@ -130,7 +130,7 @@ function toManifestEntry(
     device: (comparison ? tail : lead).conditions.viewport.isMobile ? "mobile" : "desktop",
     gpcEnabled: comparison ? "comparison" : lead.conditions.gpcEnabled,
     ...(runHitRequestRecordingCap(lead) ? { requestCapped: true } : {}),
-    requestEvidenceComplete: requestEvidenceState(lead) === "complete",
+    requestEvidenceComplete: entryEvidenceCompleteness(lead).requestEvidenceComplete,
     ...(historyKey ? { historyKey } : {}),
     ...(comparisonHistoryKey ? { comparisonHistoryKey } : {}),
     metrics: {

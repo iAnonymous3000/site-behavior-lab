@@ -15,6 +15,7 @@ import {
   trackerResponseQualification
 } from "./report-insights";
 import { reviewedOwnershipRelationship } from "./reviewed-ownership";
+import { publishedReportCorrections } from "./published-report-corrections";
 import { displayHost, plural } from "./text-format";
 import {
   CONSENT_WHOLE_VISIT_CAVEAT,
@@ -106,6 +107,7 @@ export type ReportHeadline = {
    */
   semantic: {
     story:
+      | "correction"
       | "load-failure"
       | "subject-unverified"
       | "interstitial"
@@ -139,6 +141,34 @@ const SHARE_TAGLINE = "See what a site does, not what it says. Open-source and r
 export function buildReportHeadline(
   view: ReportView,
   reportFacts = buildReportFacts(view)
+): ReportHeadline {
+  const headline = buildUncorrectedReportHeadline(view, reportFacts);
+  const context = publishedReportCorrections(view.reportId);
+  const event = context.currentSubjectEvent;
+  if (!event) return headline;
+  const notice = `${event.eventId}: ${event.summary}`;
+  if (!context.suppressIndexing) return {
+    ...headline, subhead: notice, subheadPrimaryClaim: notice,
+    compactSubhead: `A public clarification applies. Open the report and read ${event.eventId} before using its findings.`,
+    compactSubheadSource: notice,
+    caveat: headline.caveat,
+    shareText: `${headline.domain}: a public clarification applies (${event.eventId}). Read the report and correction together.`
+  };
+  return {
+    ...headline, tone: "warn", kicker: "Public evidence correction",
+    headline: `${headline.domain}: report ${event.state}`,
+    subhead: notice, subheadPrimaryClaim: notice,
+    compactSubhead: `This report is ${event.state}. Read ${event.eventId} before using its evidence.`,
+    compactSubheadSource: notice, caveat: "The archived measurement is unchanged; its interpretation was corrected.", stats: [],
+    shareText: `${headline.domain}: report ${event.state}. ${event.eventId}. Read the correction before using this evidence.`,
+    semantic: { story: "correction", reassuring: false, runScope: "display",
+      subjectScope: "returned-document", assertedClaims: [], absenceClaims: [] }
+  };
+}
+
+function buildUncorrectedReportHeadline(
+  view: ReportView,
+  reportFacts: ReturnType<typeof buildReportFacts>
 ): ReportHeadline {
   const facts = reportFacts.display;
   const run = facts.run;
