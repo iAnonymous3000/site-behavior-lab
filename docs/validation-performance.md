@@ -45,6 +45,10 @@ to PR #222's tested head `3ebef9dc17da14e69fd7f727f6ffc472504b0caf`.
   promotion paths still require that check. All existing checks still execute.
 - Superseded PR runs are cancelled. Main and manual runs keep unique concurrency
   groups and retain their evidence and promotion lifecycle.
+- The carrier archive corruption test removes a specific blob after verifying
+  the intact fixture. Removing an arbitrary Git object could miss the intended
+  failure path and fail otherwise valid CI runs. The test still requires the
+  verifier to distinguish an unreadable repository from an invalid carrier.
 - Static generation compiles its schema tools once and uses that fresh artifact
   for both manifest and statistics generation. Docker dependency layers precede
   source-identity arguments so a new SHA does not invalidate unchanged package
