@@ -6,12 +6,44 @@ import {
   buildPrivacyPolicySummary,
   classifyEntityMentions,
   extractPolicyClaims,
+  isCurrentlyCheckablePolicyClaim,
   isAllowedPrivacyPolicyUrl,
   MIN_POLICY_TEXT_LENGTH,
   pickPrivacyPolicyLink
 } from "./privacy-policy";
 
 const PAD = " Lorem ipsum privacy boilerplate.".repeat(30);
+
+test("cookie denials cannot borrow negation or drop a qualification", () => {
+  for (const quote of [
+    "We do not sell personal information, but we do use third-party cookies.",
+    "We do not sell personal information; we use cookies.",
+    "We do not use third-party cookies for advertising.",
+    "We do not use cookies unless you consent.",
+    "We do not use cookies, except for authentication.",
+    "We currently do not use cookies.",
+    "We do not allow partners to use third-party cookies."
+  ]) {
+    assert.equal(extractPolicyClaims(quote).some(c => c.kind.includes("cookies")), false, quote);
+    for (const kind of ["no-cookies", "no-third-party-cookies"] as const) {
+      assert.equal(isCurrentlyCheckablePolicyClaim({kind, quote}), false, quote);
+    }
+  }
+  for (const quote of ["We never use any cookies.", "No cookies are stored on this site."]) {
+    assert.deepEqual(extractPolicyClaims(quote).map(c => c.kind), ["no-cookies"]);
+  }
+});
+
+test("catalog entity names recognize their parent company aliases", () => {
+  assert.deepEqual(classifyEntityMentions("Our partners include Amazon and Oracle.", ["Amazon Ads", "Oracle Advertising", "Google"]), {
+    mentioned: ["Amazon Ads", "Oracle Advertising"], unmentioned: ["Google"]
+  });
+});
+
+test("Privacy Centre is not mistaken for a localized settings link", () => {
+  assert.equal(pickPrivacyPolicyLink([{href: "https://shop.example/privacy", text: "Privacy Centre"}], "shop.example"), "https://shop.example/privacy");
+  assert.equal(pickPrivacyPolicyLink([{href: "https://shop.example/privacy", text: "Centre de preferences"}], "shop.example"), null);
+});
 
 test("isAllowedPrivacyPolicyUrl keeps redirects within the site or an approved policy host", () => {
   assert.equal(isAllowedPrivacyPolicyUrl("https://legal.shop.example/privacy", "www.shop.example"), true);

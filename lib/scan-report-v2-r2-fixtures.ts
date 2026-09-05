@@ -1,13 +1,11 @@
 /**
  * Deterministic ScanReport v2 REVISION 2 fixtures per the accepted r2-a4
- * addendum (docs/scan-report-v2-rfc.md, section 15). Types-and-fixtures slice:
- * these compile against lib/scan-report-v2-r2.ts and seed the next slice's r2
- * validator/evaluator and differential harness; nothing validates or emits
- * them yet.
+ * addendum (docs/scan-report-v2-rfc.md, section 15), used by the reader,
+ * validator, evaluator and producer differential tests.
  *
  * Derived blocks are built with the r2 evaluators, so every fixture is
- * internally consistent by construction and serves as ground truth for the
- * reject-on-disagreement checks.
+ * internally consistent by construction. They exercise reject-on-disagreement
+ * checks; independent behavioral expectations must come from separate cases.
  */
 import { axisStateFor, type ArmVerification, type Experiment } from "./scan-report-v2";
 import { buildComparisonDiffV2, evaluateQuality } from "./scan-report-v2-evaluators";

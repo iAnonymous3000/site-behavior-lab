@@ -18,6 +18,7 @@ import {
 } from "./report-tables";
 import { PrintCompleteProvider } from "./print-mode";
 import { VisitPhasesAndStateChanges } from "./visit-phases-and-state-changes";
+import { shareForLoadedReport } from "@/lib/client-report-reader";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogRecordingState, requestLogToCsv } from "@/lib/csv-export";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
@@ -37,6 +38,7 @@ import {
   type RunView
 } from "@/lib/scan-report-views";
 import { displayHost, plural } from "@/lib/text-format";
+import { publishedReportCorrections } from "@/lib/published-report-corrections";
 
 /**
  * The evidence-heavy half of the product. The homepage imports this module
@@ -127,18 +129,34 @@ export function ReportRenderer({
 
   async function downloadReport() {
     const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
-    const blob = new Blob([JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2)], {
+    const wire = JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2);
+    const corrections = publishedReportCorrections(reportView.reportId);
+    if (corrections.subjectEvents.length || corrections.replacementEvents.length) {
+      const { reportExportBundle } = await import("@/lib/report-export-bundle");
+      const bundle = reportExportBundle(wire, JSON.stringify(corrections, null, 2));
+      downloadBlob(new Blob([bundle as Uint8Array<ArrayBuffer>], {type: "application/zip"}), `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}-evidence.zip`);
+      return;
+    }
+    const blob = new Blob([wire], {
       type: "application/json"
     });
     downloadBlob(blob, `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}.json`);
   }
 
-  function downloadCsv() {
-    const csv = requestLogToCsv(displayedRun.evidence.requests, requestLogRecordingState(displayedRun));
+  async function downloadCsv() {
+    const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
+    const { reportExportBundle } = await import("@/lib/report-export-bundle");
+    const corrections = publishedReportCorrections(reportView.reportId);
+    const csv = requestLogToCsv(displayedRun.evidence.requests, requestLogRecordingState(displayedRun), corrections.subjectEvents);
+    const bundle = reportExportBundle(
+      JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2),
+      JSON.stringify(corrections, null, 2),
+      { csv, arm: arms ? displayedArmLabel : null }
+    );
     const armPart = arms ? `-${safeFilenamePart(armDisplayLabel(reportView, displayedArmLabel))}` : "";
     downloadBlob(
-      new Blob([csv], { type: "text/csv;charset=utf-8" }),
-      `site-behavior-lab-${safeFilenamePart(displayedRun.domain)}${armPart}-requests.csv`
+      new Blob([bundle as Uint8Array<ArrayBuffer>], { type: "application/zip" }),
+      `site-behavior-lab-${safeFilenamePart(displayedRun.domain)}${armPart}-requests.zip`
     );
   }
 
@@ -176,7 +194,7 @@ export function ReportRenderer({
       <section className="report-grid">
         <div className="report-main">
           <ReportHeader
-            share={loaded.wire.share ?? null}
+            share={shareForLoadedReport(loaded)}
             view={reportView}
             runFacts={displayedFacts}
             evidenceFacts={displayedFacts}
@@ -186,7 +204,7 @@ export function ReportRenderer({
             liveApiServesReportPages={liveApiServesReportPages}
           />
           <HeadlineBanner
-            share={loaded.wire.share ?? null}
+            share={shareForLoadedReport(loaded)}
             headline={headline}
             liveApiServesReportPages={liveApiServesReportPages}
           />
@@ -276,7 +294,7 @@ export function ReportRenderer({
           {displayedRun.evidence.pixelEvents.length > 0 && (
             <section className="side-card" id="pixels">
               <h2>Advertising Pixels</h2>
-              <PixelEventsList pixels={displayedRun.evidence.pixelEvents} facts={displayedFacts} />
+              <PixelEventsList pixels={displayedRun.evidence.pixelEvents} facts={displayedFacts} corrected={publishedReportCorrections(reportView.reportId).suppressIndexing} />
             </section>
           )}
 

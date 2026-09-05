@@ -19,6 +19,7 @@ import {
   type StoredScanReport
 } from "./scan-report-reader";
 import { redactPublicScanReportV2R2 } from "./scan-report-v2-r2-remediation";
+import { R2ProducerContractError } from "./scan-report-v2-r2-producer-contract";
 import { parseStrictJson } from "./strict-json";
 
 export type ManagedReportReadFailureReason =
@@ -33,6 +34,7 @@ export type ManagedReportReadFailureReason =
   | "redaction-version-mismatch"
   | "digest-mismatch"
   | "redaction-not-idempotent"
+  | "producer-contract-mismatch"
   | "share-id-mismatch"
   | "missing-retention-metadata"
   | "malformed-retention-metadata"
@@ -120,8 +122,8 @@ export function readManagedReport(input: {
       if (publicReportDigest(redacted) !== publicReportDigest(publicReport)) {
         return failure("redaction-not-idempotent");
       }
-    } catch {
-      return failure("redaction-not-idempotent");
+    } catch (error) {
+      return failure((error instanceof R2ProducerContractError || (error instanceof Error && error.cause instanceof R2ProducerContractError)) ? "producer-contract-mismatch" : "redaction-not-idempotent");
     }
   }
 

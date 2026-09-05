@@ -102,6 +102,7 @@ export async function pollAcceptedScanJob(options: AcceptedScanJobPoll): Promise
           attemptTimeoutMs: options.attemptTimeoutMs
         });
         if (recovered) return recovered;
+        throw new ScanJobEndedError("expired", "This scan is no longer available, and no saved report could be found. It may have expired or been interrupted. Start a new scan to try again.");
       }
       throw new Error(payload.error);
     }

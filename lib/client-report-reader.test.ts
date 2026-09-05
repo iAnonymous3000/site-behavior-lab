@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { readLoadedReport, withoutLoadedReportShare } from "./client-report-reader";
+import { readLoadedReport, asLocalReport, shareForLoadedReport } from "./client-report-reader";
 import { buildReportShare } from "./report-locator";
 import { displayableScreenshot } from "./report-insights";
-import { loadedReportFromStored } from "./scan-report-view";
+import { loadedReportFromStored, publicWireForExportOrPersistence } from "./scan-report-view";
 import { readStoredScanReport } from "./scan-report-reader";
 import { makeEphemeralSingleReport, makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
@@ -138,7 +138,7 @@ test("job envelopes and API errors are refusals with their own messages, never '
   if (!apiError.ok) assert.match(apiError.message, /Unauthorized/);
 });
 
-test("withoutLoadedReportShare strips every generation and both ephemeral projections", async () => {
+test("local imports preserve identity in every export generation without offering an unverified share link", async () => {
   const share = buildReportShare(SHARE_ID);
   const payloads = [
     { ...makeScanReportV1(), share },
@@ -153,12 +153,16 @@ test("withoutLoadedReportShare strips every generation and both ephemeral projec
     assert.equal(read.ok, true);
     if (!read.ok) continue;
     const originalView = read.loaded.view;
-    const stripped = withoutLoadedReportShare(read.loaded);
-    assert.equal(stripped.wire.share, undefined);
-    assert.equal(stripped.view, originalView);
-    if (stripped.source === "v2-ephemeral" || stripped.source === "v2-r2-ephemeral") {
-      assert.equal(stripped.public.share, undefined);
+    const local = asLocalReport(read.loaded);
+    assert.equal(shareForLoadedReport(local), null);
+    assert.equal(local.wire, read.loaded.wire, "import changes no recorded evidence");
+    assert.equal(local.view, originalView);
+    assert.deepEqual(publicWireForExportOrPersistence(local).share, share);
+    assert.equal("localOnly" in publicWireForExportOrPersistence(local), false);
+    if (local.source === "v2-ephemeral" || local.source === "v2-r2-ephemeral") {
+      assert.equal(local.public, read.loaded.source === local.source ? read.loaded.public : null);
     }
+    assert.deepEqual(shareForLoadedReport(read.loaded), share);
     assert.deepEqual(read.loaded.wire.share, share);
   }
 });

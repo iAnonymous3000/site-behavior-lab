@@ -30,8 +30,8 @@ import {
 } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { tmpdir } from "node:os";
 import path from "node:path";
+import ts from "typescript";
 import {
   parseCanonicalRunnerDestructionReceiptBytes,
   runnerDestructionEnvironmentDigest,
@@ -1259,7 +1259,7 @@ function evaluateAaStudies(id, gate, rootDir, measurementContext, freezeContext,
 
 const freshCompiledCache = new Map();
 
-function freshCompiledSchemaModules(rootDir) {
+export function freshCompiledSchemaModules(rootDir) {
   if (freshCompiledCache.has(rootDir)) {
     return freshCompiledCache.get(rootDir)?.modules ?? null;
   }
@@ -1269,7 +1269,9 @@ function freshCompiledSchemaModules(rootDir) {
     freshCompiledCache.set(rootDir, null);
     return null;
   }
-  const output = mkdtempSync(path.join(tmpdir(), "sbl-readiness-schema-"));
+  // Emit next to this checkout's node_modules so freshly compiled imports
+  // resolve exactly the installed dependency graph (including tldts).
+  const output = mkdtempSync(path.join(rootDir, ".readiness-schema-"));
   try {
     execFileSync(process.execPath, [compiler, "-p", config, "--outDir", output], {
       cwd: rootDir,
@@ -1311,6 +1313,9 @@ process.once("exit", () => {
 function loadCompiled(name, rootDir = process.cwd()) {
   const fresh = freshCompiledSchemaModules(rootDir);
   if (fresh?.[name]) return fresh[name];
+  // A real checkout's compilation failure must not load a stale test build.
+  if (existsSync(path.join(rootDir, "tsconfig.schema.json")) ||
+      existsSync(path.join(rootDir, "node_modules", "typescript", "bin", "tsc"))) return null;
   // Synthetic fixtures do not carry the repository compiler. They may use
   // only the test runner's freshly emitted tree; never fall back to ignored
   // dist/schema output whose bytes can lag the current TypeScript source.
@@ -5846,6 +5851,23 @@ export function evaluateReleaseReadiness(
           result = freezeContext.result;
           break;
         case "durable-soak":
+          if (manifest.decisions?.jobRecovery?.selected === "explicit-failure-safe-retry") {
+            const decision = manifest.decisions.jobRecovery;
+            const configPath = path.join(rootDir, "wrangler.container.jsonc");
+            const parsed = ts.parseConfigFileTextToJson(configPath, readFileSync(configPath, "utf8"));
+            if (parsed.error) throw new Error("production container configuration is not valid JSONC");
+            const variables = parsed.config?.vars;
+            const reasons = [];
+            if (decision.status !== "approved" || !decision.decidedBy || !decision.decidedAt) reasons.push("explicit-failure recovery scope is not approved");
+            for (const flag of ["SITE_BEHAVIOR_LAB_DURABLE_JOBS", "SITE_BEHAVIOR_LAB_CONTAINER_SHARDING", "SITE_BEHAVIOR_LAB_ENCRYPTED_WATCHES"]) {
+              if (variables?.[flag] !== "0") reasons.push(`${flag} must remain disabled for the selected v1 scope`);
+            }
+            result = gateResult(id, gate, reasons.length ? "fail" : "pass", reasons.length ? reasons : [
+              "V1 promises explicit scan failure and safe retry; automatic restart recovery is deferred.",
+              "Durable jobs, sharding and watches remain disabled. This is scope conformance, not durable-soak evidence."
+            ]);
+            break;
+          }
           result = evaluateDurableSoak(
             id,
             gate,

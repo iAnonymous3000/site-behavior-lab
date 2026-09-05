@@ -11,6 +11,7 @@ import {
 } from "./scan-report-v2-r2-evaluators";
 import type { PublicComparisonReportV2R2, PublicScanReportV2R2, ScanRunV2R2 } from "./scan-report-v2-r2";
 import { sha256Hex } from "./sha256";
+import { publishedReportCorrections } from "./published-report-corrections";
 import type { ScanResult } from "./types";
 
 type TemporalGeneration = "v1" | "v2-r1" | "v2-r2";
@@ -27,6 +28,7 @@ export type LoadedTemporalComparisonResult =
         | "unordered"
         | "duplicate-run"
         | "incompatible"
+        | "correction-context"
         | "invalid-derived-report";
       message: string;
     };
@@ -37,6 +39,8 @@ export type LoadedTemporalComparisonResult =
  * that selection rule here makes the upload UI and its tests use one gate.
  */
 export function temporalUploadSelectionError(loaded: LoadedReport): string | null {
+  const correctionError = temporalCorrectionError(loaded);
+  if (correctionError) return correctionError;
   if (loaded.view.reportType === "comparison") {
     return "Choose a single-scan Site Behavior Lab JSON report.";
   }
@@ -55,6 +59,12 @@ export function createLoadedTemporalComparison(
   left: LoadedReport,
   right: LoadedReport
 ): LoadedTemporalComparisonResult {
+  // r2 runs have no source-report field, and a v1 derived pair also drops its
+  // parent identities. Do not silently turn a corrected/clarified observation
+  // into a fresh artifact whose reader cannot recover those notices. This
+  // refusal leaves the original reports readable without altering either wire.
+  const correctionError = temporalCorrectionError(left) ?? temporalCorrectionError(right);
+  if (correctionError) return { ok: false, code: "correction-context", message: correctionError };
   const leftGeneration = temporalGeneration(left);
   const rightGeneration = temporalGeneration(right);
   if (leftGeneration === "v2-r1" || rightGeneration === "v2-r1") {
@@ -94,6 +104,14 @@ export function createLoadedTemporalComparison(
     return createV1TemporalComparison(left, right);
   }
   return createR2TemporalComparison(left, right);
+}
+
+function temporalCorrectionError(loaded: LoadedReport): string | null {
+  const context = publishedReportCorrections(loaded.view.reportId);
+  const events = [...context.subjectEvents, ...context.replacementEvents];
+  if (events.length === 0) return null;
+  const ids = events.map(event => event.eventId).join(", ");
+  return `This report has published correction context (${ids}). A new temporal report cannot retain that context in the current format. Read the original reports and their notices separately.`;
 }
 
 function temporalGeneration(loaded: LoadedReport): TemporalGeneration {

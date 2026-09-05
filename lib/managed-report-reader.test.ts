@@ -425,3 +425,18 @@ test("managed v1 reports retain historical bare consent labels without reopening
     assert.equal(read.ok, true, `legacy label ${matchedText} should remain a managed fixed point`);
   }
 });
+
+
+test("an unknown producer is diagnosed separately from unsafe report bytes", () => {
+  const report = makePublicSingleReportV2R2();
+  report.run.privacy.redactionVersion = REDACTION_VERSION;
+  assert.ok(report.run.toolchain.adblock);
+  report.run.toolchain.adblock.manifestDigest = "c".repeat(64);
+  report.run.fingerprints = buildFingerprints(report.run);
+  const sidecar = buildProvenanceEntry({ reportId: REPORT_ID, publicReport: report,
+    writtenAt: RETENTION.createdAt, createdAt: RETENTION.createdAt, expiresAt: RETENTION.expiresAt });
+  const read = readManagedReport({ reportId: REPORT_ID, reportContents: JSON.stringify(report),
+    sidecarContents: JSON.stringify(sidecar), retention: RETENTION });
+  assert.equal(read.ok, false);
+  if (!read.ok) assert.equal(read.reason, "producer-contract-mismatch");
+});

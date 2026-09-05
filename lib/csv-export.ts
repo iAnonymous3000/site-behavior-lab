@@ -1,6 +1,7 @@
 import type { NetworkRequestRecord } from "./types";
-import { requestEvidenceState, type RunView } from "./scan-report-views";
+import { requestEvidenceState, type RequestEvidenceState, type RunView } from "./scan-report-views";
 import { displayHost, displayPublicUrl } from "./text-format";
+import type { CorrectionsLedgerEvent } from "./corrections-ledger-model";
 
 /**
  * Request-log CSV export, shared by the report UI.
@@ -28,10 +29,9 @@ const CSV_HEADER = [
  * then the exact request-recording cap, then any other request-family capture
  * loss. Anything but "complete" means the rows are a truncated lower bound.
  */
-export type RequestLogRecordingState = "complete" | "capped" | "incomplete" | "failed";
+export type RequestLogRecordingState = RequestEvidenceState;
 
 export function requestLogRecordingState(run: RunView): RequestLogRecordingState {
-  if (run.quality.outcome === "failed") return "failed";
   return requestEvidenceState(run);
 }
 
@@ -41,7 +41,13 @@ export function requestLogRecordingState(run: RunView): RequestLogRecordingState
  * leaves the page, parsers expect header plus rows, and a downloaded capped
  * log of exactly 1,000 rows otherwise reads as a complete recording.
  */
-export function requestLogToCsv(requests: NetworkRequestRecord[], recordingState: RequestLogRecordingState): string {
+export function requestLogToCsv(requests: NetworkRequestRecord[], recordingState: RequestLogRecordingState, corrections: readonly CorrectionsLedgerEvent[] = []): string {
+  const current = corrections.at(-1);
+  const correctionCells = current ? [
+    corrections.map(event => event.eventId).join(" "), current.state,
+    corrections.map(event => `${event.eventId}: ${event.summary}`).join(" "),
+    [...new Set(corrections.map(event => event.detailsUrl))].join(" ")
+  ] : [];
   const rows = requests.map((request) => [
     request.id,
     displayHost(request.domain),
@@ -52,9 +58,11 @@ export function requestLogToCsv(requests: NetworkRequestRecord[], recordingState
     request.tracker?.entity ?? "",
     request.tracker?.category ?? "",
     displayPublicUrl(request.url),
-    recordingState
+    recordingState,
+    ...correctionCells
   ]);
-  return [CSV_HEADER, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n").concat("\r\n");
+  const header = current ? [...CSV_HEADER, "correction_event", "correction_state", "correction_summary", "correction_url"] : CSV_HEADER;
+  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n").concat("\r\n");
 }
 
 export function csvCell(value: string | number): string {

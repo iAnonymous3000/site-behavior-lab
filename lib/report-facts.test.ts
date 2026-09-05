@@ -20,6 +20,8 @@ import {
 } from "./scan-report-v2-r2-fixtures";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { viewFromV1Report, viewFromV2, type RunView } from "./scan-report-views";
+import { requestLogRecordingState } from "./csv-export";
+import { buildReportDataset } from "./report-jsonld";
 import type {
   DomainSummary,
   FingerprintDetectionSummary,
@@ -45,6 +47,27 @@ function requireFamilyLedger(
   assert.ok(run.quality.byFamily, "r2 fixture must expose its recorded family ledger");
   return run.quality.byFamily;
 }
+
+test("a failed requested visit cannot be complete in the header while failed in exports", () => {
+  for (const status of [403, 500]) {
+    const report = makeV1Result();
+    report.summary.status = status;
+    const view = viewFromV1Report(report);
+    const facts = buildReportFacts(view).display;
+    assert.equal(facts.requestEvidenceState, "failed");
+    assert.equal(requestLogRecordingState(facts.run), "failed");
+    assert.equal(facts.calmEligible, false);
+    assert.equal(facts.claims["third-party-services"].allowed, false);
+    const dataset = buildReportDataset(view, { url: "https://example.test/report" });
+    const quality = (dataset.variableMeasured as { name: string; value: unknown }[])
+      .find(value => value.name === "Measurement quality");
+    assert.equal(quality?.value, "failed");
+    // Capture coverage of the returned document is a different fact. Do not
+    // fabricate a loss event just because the requested visit failed.
+    assert.equal(facts.evidence.requests.state, "complete");
+    assert.equal(facts.subject.describesSubject, false);
+  }
+});
 
 test("claim eligibility is family- and detector-scoped", () => {
   const clean = buildRunFacts(makeR2RunView());

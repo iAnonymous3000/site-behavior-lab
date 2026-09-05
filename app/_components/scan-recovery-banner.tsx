@@ -95,7 +95,7 @@ export function ScanRecoveryBanner({
         {acceptedJob && !loading && (
           <div className="scan-recovery-controls">
             <p>
-              The accepted job is retained; you can resume status checks, cancel it, or dismiss this tab&rsquo;s recovery record.
+              This tab retained the scan reference. Resume status checks to look for its outcome, cancel the scan, or dismiss this tab&rsquo;s recovery record.
             </p>
             <div className="scan-recovery-actions">
               <button className="secondary-button" type="button" onClick={onResume} disabled={cancelling}>

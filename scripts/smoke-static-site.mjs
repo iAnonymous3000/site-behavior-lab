@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createServer } from "node:http";
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
@@ -132,6 +133,7 @@ const corpusCsvMetricContractColumns = [
 // Same additive rule: the cookie-family completeness flag appends after the
 // metric-contract block, so every column above keeps its position.
 const corpusCsvCompletenessColumns = ["cookie_evidence_complete"];
+const corpusCsvCorrectionColumns = ["correction_event", "correction_state", "correction_summary", "correction_url"];
 const recordedConsentChoiceStates = ["verified", "contradicted", "weak-signal", "unavailable", "failed"];
 
 function pass(message) {
@@ -466,15 +468,28 @@ async function main() {
       ...corpusCsvDecisionColumns,
       ...corpusCsvProvenanceColumns,
       ...corpusCsvMetricContractColumns,
-      ...corpusCsvCompletenessColumns
+      ...corpusCsvCompletenessColumns,
+      ...corpusCsvCorrectionColumns
     ];
     if (
       legacyTailIndex < 0 ||
       corpusCsvHeader.slice(legacyTailIndex + 1).join(",") !== expectedAppendedTail.join(",")
     ) {
       fail(
-        "researcher CSV export did not append the complete decision, provenance/cohort, and metric-contract tail after the legacy contract"
+        "researcher CSV export did not append the complete decision, provenance/cohort, metric-contract, completeness, and correction tail after the legacy contract"
       );
+    }
+    const corrections = JSON.parse(await readFile(path.join(outDir, "corrections.json"), "utf8"));
+    for (const event of corrections.entries) {
+      for (const id of event.reportIds) {
+        const row = corpus.reports.find((report) => report.id === id);
+        // The directory export may retain one representative rather than every
+        // archived report. Any affected representative must carry its context.
+        if (row && (!row.correctionSummary?.includes(event.eventId) ||
+          !corpusCsv.includes(event.eventId))) {
+          fail(`researcher exports omitted correction context for ${id}`);
+        }
+      }
     }
     pass("researcher exports publish the complete appended contract and bind JSON to the published metric identity");
 
@@ -541,7 +556,7 @@ async function main() {
 
     const firstReport = manifest.reports[0];
     if (typeof firstReport.headline !== "string" || !firstReport.headline) fail("manifest report lacks its canonical headline");
-    await assertStaticSeoContract(manifest, firstReport);
+    await assertStaticSeoContract(manifest, firstReport, corrections);
     pass("static canonicals, social URLs, indexability, and sitemap dates satisfy the SEO contract");
     await page.getByLabel("Search reports").fill(firstReport.domain);
     const matchingDomainCount = manifest.reports.filter((report) => searchableReportText(report).includes(firstReport.domain.toLowerCase())).length;
@@ -796,6 +811,44 @@ async function main() {
     await expectRequestRowCount(page, 0);
     pass("static report request filters narrow rows");
 
+    const failedVisit = JSON.parse(await readFile(singleReportFixture, "utf8"));
+    failedVisit.summary.status = 403;
+    await reportUploadInput.setInputFiles({ name: "failed-visit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(failedVisit)) });
+    await expectText(page.locator(".report-header .capped-chip"), "visit failed");
+    await expectText(page.locator("#request-evidence-explanation"), "cannot establish absence");
+    const csvDownloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "CSV + context", exact: true }).click();
+    const csvDownload = await csvDownloadPromise;
+    const csvArchive = await csvDownload.path();
+    if (!csvArchive || !csvDownload.suggestedFilename().endsWith("-requests.zip")) fail("request download omitted its context bundle");
+    const requestCsv = execFileSync("unzip", ["-p", csvArchive, "requests.csv"], { encoding: "utf8" });
+    const failedRows = requestCsv.trimEnd().split("\r\n").slice(1);
+    if (failedRows.length !== failedVisit.requests.length || !failedRows.every(row => row.endsWith(",failed"))) fail("failed visit CSV lost its recording state or observations");
+    const csvSource = JSON.parse(execFileSync("unzip", ["-p", csvArchive, "report.json"], { encoding: "utf8" }));
+    if (csvSource.summary.status !== 403) fail("request bundle lost the failed source visit");
+    execFileSync("unzip", ["-t", csvArchive]);
+    pass("failed visit header and downloaded request bundle retain the same outcome");
+
+    const correctedId = corrections.entries.find(event => event.state === "corrected")?.reportIds[0];
+    if (!correctedId) fail("correction roundtrip smoke needs a published corrected report");
+    await reportUploadInput.setInputFiles(path.join(rootDir, "public", "reports", `${correctedId}.json`));
+    await page.getByText("Public evidence correction", { exact: true }).waitFor();
+    const reportDownloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "JSON + corrections (ZIP)", exact: true }).click();
+    const reportDownload = await reportDownloadPromise;
+    const reportArchive = await reportDownload.path();
+    if (!reportArchive) fail("corrected report did not download");
+    const retainedJson = execFileSync("unzip", ["-p", reportArchive, "report.json"], { maxBuffer: 16 * 1024 * 1024 });
+    if (JSON.parse(retainedJson).share?.id !== correctedId) fail("local re-export erased the correction identity");
+    const retainedNotices = JSON.parse(execFileSync("unzip", ["-p", reportArchive, "corrections.json"], { encoding: "utf8" }));
+    if (!retainedNotices.subjectEvents.some(event => event.state === "corrected")) fail("export lost the correction notice");
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await openHomepageTools(page);
+    await reportUploadInput.setInputFiles({ name: "reopened-report.json", mimeType: "application/json", buffer: retainedJson });
+    await page.getByText("Public evidence correction", { exact: true }).waitFor();
+    if (await page.getByRole("link", { name: "Share", exact: true }).count()) fail("local re-export enabled an unverified share link");
+    pass("corrected report retains its identity and notices across browser import, export and reopen");
+
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
     await loadStaticArchive(page);
@@ -981,7 +1034,10 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-async function assertStaticSeoContract(manifest, firstReport) {
+async function assertStaticSeoContract(manifest, firstReport, corrections) {
+  const correctionStates = new Map(corrections.entries.flatMap(event =>
+    event.reportIds.map(id => [id, event.state])));
+  const isSuppressed = id => correctionStates.has(id) && correctionStates.get(id) !== "active";
   const configuredOrigin = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL?.trim();
   if (!configuredOrigin) fail("static SEO contract requires NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL");
   const origin = new URL(configuredOrigin).origin;
@@ -1009,8 +1065,8 @@ async function assertStaticSeoContract(manifest, firstReport) {
   }
   const directoryHtml = await readFile(path.join(outDir, "directory", "index.html"), "utf8");
   assertTrailingSlashProfileLinks(directoryHtml, "directory");
-  if (/name="robots" content="[^"]*noindex/i.test(reportHtml)) {
-    fail("permanent report was emitted with noindex");
+  if (/name="robots" content="[^"]*noindex/i.test(reportHtml) !== isSuppressed(firstReport.id)) {
+    fail("permanent report indexability disagrees with its correction state");
   }
   const reportDescription = metaContent(reportHtml, "name", "description");
   if (!reportDescription || reportDescription.length > 160 || !reportDescription.includes("not a verdict")) {
@@ -1025,6 +1081,7 @@ async function assertStaticSeoContract(manifest, firstReport) {
     .map((match) => match[1])
     .sort();
   const expectedReportUrls = manifest.reports
+    .filter(report => !isSuppressed(report.id))
     .map((report) => `${publicBase}/reports/${report.id}/`)
     .sort();
   if (JSON.stringify(sitemapReportUrls) !== JSON.stringify(expectedReportUrls)) {
@@ -1032,7 +1089,17 @@ async function assertStaticSeoContract(manifest, firstReport) {
       `sitemap report URL set differs from the public manifest (${sitemapReportUrls.length} sitemap, ${expectedReportUrls.length} manifest)`
     );
   }
-  const reportEntry = sitemapUrlEntry(sitemapXml, reportUrl);
+  for (const report of manifest.reports.filter(report => isSuppressed(report.id))) {
+    const html = await readFile(path.join(outDir, "reports", report.id, "index.html"), "utf8");
+    if (!/name="robots" content="[^"]*noindex/i.test(html)) {
+      fail(`corrected report ${report.id} was emitted without noindex`);
+    }
+    const description = metaContent(html, "name", "description");
+    if (!description || description.length > 160 || !description.includes("not a verdict")) {
+      fail(`corrected report ${report.id} metadata lost its evidence caveat`);
+    }
+  }
+  const reportEntry = isSuppressed(firstReport.id) ? null : sitemapUrlEntry(sitemapXml, reportUrl);
   const profileEntry = sitemapUrlEntry(sitemapXml, profileUrl);
   const expectedScanDate = firstReport.scannedAt.slice(0, 10);
   const expectedProfileDate = manifest.reports
@@ -1041,7 +1108,7 @@ async function assertStaticSeoContract(manifest, firstReport) {
     .filter((value) => Number.isFinite(Date.parse(value)))
     .sort((left, right) => Date.parse(right) - Date.parse(left))[0]
     ?.slice(0, 10);
-  if (!reportEntry.includes(`<lastmod>${expectedScanDate}`)) fail("report sitemap date is not derived from its scan");
+  if (reportEntry && !reportEntry.includes(`<lastmod>${expectedScanDate}`)) fail("report sitemap date is not derived from its scan");
   if (!expectedProfileDate || !profileEntry.includes(`<lastmod>${expectedProfileDate}`)) {
     fail("profile sitemap date is not derived from its latest scan");
   }

@@ -1,5 +1,5 @@
 import type { LoadedReport } from "./scan-report-view";
-import { withoutReportShare } from "./report-locator";
+import type { ReportShare } from "./types";
 import { hasBrowserSafeReportCollections } from "./client-report-resource-policy";
 
 /**
@@ -63,17 +63,14 @@ export async function readLoadedReport(payload: unknown, subject = "This file"):
 }
 
 /**
- * Drop an imported report's untrusted/unservable share capability without
- * changing its evidence view. Ephemeral generations carry both a display wire
- * and a persistable public projection, so both copies must lose the share.
+ * A recorded report ID links the measurement to later corrections. Keep it in
+ * both the wire and public projection so export/reopen cannot erase that link.
+ * Whether this app can serve its permalink is a separate, local UI decision.
  */
-export function withoutLoadedReportShare(loaded: LoadedReport): LoadedReport {
-  if (loaded.source === "v1" || loaded.source === "v2-public" || loaded.source === "v2-r2-public") {
-    return { ...loaded, wire: withoutReportShare(loaded.wire) } as LoadedReport;
-  }
-  return {
-    ...loaded,
-    wire: withoutReportShare(loaded.wire),
-    public: withoutReportShare(loaded.public)
-  } as LoadedReport;
+export function asLocalReport(loaded: LoadedReport): LoadedReport {
+  return { ...loaded, localOnly: true };
+}
+
+export function shareForLoadedReport(loaded: LoadedReport): ReportShare | null {
+  return loaded.localOnly ? null : loaded.wire.share ?? null;
 }

@@ -38,12 +38,10 @@ export default function MethodologyPage() {
         </p>
         <p>
           A measured run is not a promise of exactly one network navigation. Consent verification may perform one
-          disclosed post-choice reload; the input probe may navigate to a blank page at the end to flush unload
-          beacons; and policy analysis may open one separate, SSRF-guarded policy page after the primary request log is
-          frozen. Reload- and policy-phase traffic is excluded from the main request counts. Beacons the measured
-          page sends while its document is still alive during the active input probe remain included; a beacon
-          issued only during the final teardown is provoked but not reported to the recorder by the pinned
-          Playwright build, so it is absent from the request log.
+          disclosed post-choice reload, and policy analysis may open one separate, SSRF-guarded policy page after
+          the primary request log is frozen. Reload- and policy-phase traffic is excluded from the main request
+          counts. Requests observed while the document is alive during the active input probe remain included.
+          Teardown-only transmissions are not measured; a quiet probe cannot establish their absence.
         </p>
         <p>
           A local PageGraph import is the disclosed exception: it adapts a paired GraphML capture and metadata
@@ -126,8 +124,11 @@ export default function MethodologyPage() {
         <h2>The two bounded interactions</h2>
         <p>
           First, the input probe: the scanner types a synthetic, non-personal test value into up to a handful of
-          visible form fields, never submits, and watches whether that value leaves to a third party in plain,
-          encoded, or hashed form. Second, in consent comparison mode only, the scanner clicks one accept-all or
+          supported form fields already in the viewport, with native form submission blocked, and watches whether
+          that value leaves to a third party in plain, encoded, or hashed form. Focus, input and blur handlers may
+          run and send requests. Unsupported, offscreen and failed field attempts are reported as omitted coverage;
+          the probe does not scroll to reach them. Auxiliary pages are blocked and their requests counted as lost
+          coverage. Second, in consent comparison mode only, the scanner clicks one accept-all or
           reject-all control on the cookie banner&apos;s first layer (known consent-platform controls first, then a
           conservative whole-label match). Whenever at least one field accepts the synthetic value, the report says
           how many did; a visit where no field accepted it carries no typed-field count. Consent-comparison reports
@@ -160,6 +161,11 @@ export default function MethodologyPage() {
           state, or bot detection, so comparison wording stays descriptive: it reports what differed between the
           visits, never that the compared setting caused the difference.
         </p>
+        <p>
+          Saved reports with published corrections or clarifications remain readable individually. Local temporal
+          comparison refuses them because the current comparison format cannot retain their source-report notices.
+          A comparison must not silently discard a limitation attached after measurement.
+        </p>
       </section>
 
       <section className="legal-section">
@@ -169,8 +175,9 @@ export default function MethodologyPage() {
           WebAssembly) with the default-enabled Brave Shields filter lists, vendored as a pinned snapshot. Matching
           requests are aborted in this scanner&apos;s browser: a simulation of Brave&apos;s default list blocking,
           not a live Brave-browser visit. Each request is matched with its actual HTTP method against the document
-          that initiated it, network rules only (no cosmetic rules). Blocked counts are a close lower-bound
-          approximation of Brave&apos;s default Shields for that page load, and the report separately states
+          that initiated it, network rules only (no cosmetic rules). Blocked counts describe this engine and list
+          snapshot in the scanner; they do not establish actual Brave behavior or a lower bound on its blocking.
+          The report separately states
           filter-list matches, engine-blocked requests, and the total third-party reduction, which are three
           different measurements.
         </p>
@@ -186,6 +193,14 @@ export default function MethodologyPage() {
           impersonate the scanner. Shared reports live behind unguessable IDs and expire; reports published into
           the versioned public corpus are retained under disclosed age, count, and cohort rules. Reports cited by
           the corrections ledger are pinned against automated corpus pruning.
+        </p>
+        <p>
+          Opening a saved report locally preserves its recorded ID so later corrections remain discoverable;
+          it does not verify that a share link is served on the current site. CSV downloads include the source
+          report and correction context in a ZIP, including for empty request logs. For comparisons, the CSV
+          filename identifies the selected baseline or variant. Extract report.json to reopen the measurement;
+          read corrections.json alongside it. The included notices reflect this app build&apos;s ledger, not a
+          guarantee that no later correction exists. These downloads are not signed provenance packages.
         </p>
         <p>
           Restart-safe queue data, when explicitly enabled, is infrastructure state rather than report evidence. The

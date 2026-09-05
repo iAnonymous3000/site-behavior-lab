@@ -17,6 +17,18 @@ import {
 
 const HASH = "a".repeat(64);
 
+test("X purchase classification requires a finite positive decimal", () => {
+  for (const key of ["tw_sale_amount", "tw_order_quantity"]) {
+    for (const value of ["", "0", "0.00", "-1", "not-a-number", "Infinity", "0x10", "1e9"]) {
+      const decoded = decodePixelRequest({url: `https://analytics.twitter.com/i/adsct?${key}=${encodeURIComponent(value)}`});
+      assert.ok(!decoded?.events.includes("Purchase"), `${key}=${value}`);
+    }
+    for (const value of ["1", "49.99", ".50"]) {
+      assert.deepEqual(decodePixelRequest({url: `https://analytics.twitter.com/i/adsct?${key}=${value}`})?.events, ["Purchase"]);
+    }
+  }
+});
+
 // --- Meta -------------------------------------------------------------------
 
 test("Meta: a plain /tr GET yields the event name and no advanced matching", () => {

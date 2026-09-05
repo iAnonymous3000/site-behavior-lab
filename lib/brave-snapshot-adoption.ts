@@ -151,12 +151,10 @@ export function formatBraveAdoptionSummary(
     ""
   ];
   lines.push(
-    publishedUnderPinned > 0
-      ? "Reports were measured under the outgoing rules, so that identity must ALSO be frozen as a " +
-          "`HISTORICAL_R2_LISTS_<date>_ADBLOCK_IDENTITY` row and added to the historical tuple " +
-          "families, or every one of those reports becomes unreadable through the producer contract."
-      : "No committed report carries the outgoing manifest, so freezing that identity would guard an empty " +
-          "set. Do not add a historical row for it."
+    "The outgoing production identity must ALSO be frozen as a closed producer row before adoption, " +
+    "including every deployed methodology and the no-list variant. Live reports and downloaded copies " +
+    "can outlive server retention without appearing in the committed corpus; zero committed reports " +
+    "is not evidence that no report was produced. Preserve the exact constants from the outgoing source revision."
   );
   return lines.join("\n");
 }

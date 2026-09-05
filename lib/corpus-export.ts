@@ -1,3 +1,4 @@
+import { publishedReportCorrections } from "./published-report-corrections";
 import { csvCell } from "./csv-export";
 import { preferCorpusRepresentative } from "./corpus-representative";
 import type { DirectoryEntry } from "./corpus-overview";
@@ -25,6 +26,10 @@ import {
 export const CORPUS_EXPORT_SCHEMA_VERSION = 1 as const;
 
 export type CorpusExportRow = {
+  correctionEvent?: string | null;
+  correctionState?: string | null;
+  correctionSummary?: string | null;
+  correctionUrl?: string | null;
   id: string;
   domain: string;
   category: string;
@@ -142,6 +147,7 @@ export type CorpusExportRow = {
 };
 
 export type CorpusExclusionReason =
+  | "public-correction"
   | "run-failed"
   | "missing-http-status"
   | "http-error-status"
@@ -187,6 +193,10 @@ export function buildCorpusExportRows(entries: DirectoryEntry[], origin: string)
   const base = origin.replace(/\/+$/, "");
   const inclusion = corpusInclusionForEntries(entries);
   return entries.map((entry) => ({
+    correctionEvent: publishedReportCorrections(entry.id).currentSubjectEvent?.eventId ?? null,
+    correctionState: publishedReportCorrections(entry.id).currentSubjectEvent?.state ?? null,
+    correctionSummary: publishedReportCorrections(entry.id).subjectEvents.map(e => `${e.eventId}: ${e.summary}`).join(" ") || null,
+    correctionUrl: publishedReportCorrections(entry.id).currentSubjectEvent?.detailsUrl ?? null,
     id: entry.id,
     domain: entry.domain,
     category: entry.category,
@@ -260,6 +270,7 @@ function corpusInclusionForEntries(entries: DirectoryEntry[]): {
 
   for (const entry of entries) {
     const entryReasons: CorpusExclusionReason[] = [];
+    if (publishedReportCorrections(entry.id).suppressIndexing) entryReasons.push("public-correction");
     if (entry.runOutcome !== "complete") entryReasons.push("run-failed");
     if (entry.status === null) entryReasons.push("missing-http-status");
     else if (entry.status >= 400) entryReasons.push("http-error-status");
@@ -519,7 +530,8 @@ const CSV_HEADER = [
   "tracking_service_requests",
   "delta_catalogued_service_requests",
   "delta_tracking_service_requests",
-  "cookie_evidence_complete"
+  "cookie_evidence_complete",
+  "correction_event", "correction_state", "correction_summary", "correction_url"
 ] as const;
 
 export function corpusExportToCsv(rows: CorpusExportRow[]): string {
@@ -583,7 +595,8 @@ export function corpusExportToCsv(rows: CorpusExportRow[]): string {
     row.trackingServiceRequests,
     row.deltaCataloguedServiceRequests ?? "",
     row.deltaTrackingServiceRequests ?? "",
-    row.cookieEvidenceComplete ? "true" : "false"
+    row.cookieEvidenceComplete ? "true" : "false",
+    row.correctionEvent ?? "", row.correctionState ?? "", row.correctionSummary ?? "", row.correctionUrl ?? ""
   ]);
   return [CSV_HEADER, ...lines].map((line) => line.map(csvCell).join(",")).join("\r\n").concat("\r\n");
 }

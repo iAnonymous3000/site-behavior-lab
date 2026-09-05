@@ -76,7 +76,7 @@ function isInside(childPath, parentPath) {
 function shouldCopy(sourcePath) {
   const name = path.basename(sourcePath);
   if (sourcePath === outDir) return false;
-  if (skippedNames.has(name)) return false;
+  if (skippedNames.has(name) || name.startsWith(".readiness-schema-")) return false;
   if (name.startsWith(".env") && name !== ".env.example") return false;
   return !serverOnlyAppDirs.some((serverDir) => isInside(sourcePath, serverDir));
 }

@@ -1,3 +1,4 @@
+import { publishedReportCorrections } from "@/lib/published-report-corrections";
 import { loadCorpusOverview, type DirectoryEntry } from "@/lib/corpus-overview";
 import { reportPagePath } from "@/lib/report-locator";
 import { siteProfileKey } from "@/lib/site-profile";
@@ -31,7 +32,7 @@ export async function GET(_request: Request, context: { params: Promise<{ domain
   const base = siteBaseUrl();
   const profileUrl = `${base}/sites/${encodeURIComponent(key)}/`;
   const feedUrl = `${base}/sites/${encodeURIComponent(key)}/feed.xml`;
-  const updated = feedTimestamp(matches[0]);
+  const updated = matches.map(feedTimestamp).sort().at(-1)!;
 
   const feedEntries = matches
     .map((entry) => {
@@ -67,6 +68,8 @@ ${feedEntries}
 }
 
 function entrySummary(entry: DirectoryEntry): string {
+  const event = publishedReportCorrections(entry.id).currentSubjectEvent;
+  if (event) return `${event.eventId}: ${event.summary} ${event.detailsUrl}`;
   // Cookie completeness is its own family: a visit can finish collecting
   // requests while cookie capture is cut short. Every other DirectoryEntry
   // consumer (the site profile, the directory index, and the category page)
@@ -90,7 +93,8 @@ function entrySummary(entry: DirectoryEntry): string {
 }
 
 function feedTimestamp(entry: DirectoryEntry): string {
-  const parsed = Date.parse(entry.scannedAt);
+  const correction = publishedReportCorrections(entry.id).currentSubjectEvent;
+  const parsed = Math.max(Date.parse(entry.scannedAt) || 0, Date.parse(correction?.publishedAt ?? "") || 0);
   return Number.isFinite(parsed) ? new Date(parsed).toISOString() : new Date(0).toISOString();
 }
 

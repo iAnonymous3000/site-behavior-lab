@@ -1,5 +1,6 @@
 "use client";
 
+import { publishedReportCorrections } from "@/lib/published-report-corrections";
 import { AlertCircle, CheckCircle2, Copy, Download, ExternalLink } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useEffect, useState } from "react";
@@ -63,7 +64,9 @@ export function ReportHeader({
         : `Unverified document returned while scanning ${displayHost(run.domain)}`);
   const selectedRequestEvidence = evidenceFacts.requestEvidenceState;
   const requestEvidenceExplanation =
-    selectedRequestEvidence === "capped"
+    selectedRequestEvidence === "failed"
+      ? "The selected visit failed. Retained requests describe only the returned document or partial visit; they cannot establish absence of activity on the requested page."
+      : selectedRequestEvidence === "capped"
       ? "The selected visit hit the request-recording cap. Request and domain counts are lower bounds; cookie and storage availability is reported separately."
       : selectedRequestEvidence === "incomplete"
         ? "The selected visit did not finish collecting request evidence. Request counts are lower bounds; Run quality records the reason."
@@ -107,7 +110,7 @@ export function ReportHeader({
               aria-describedby="request-evidence-explanation"
               className="capped-chip"
             >
-              {selectedRequestEvidence === "capped" ? "recording capped" : "request evidence incomplete"}
+              {selectedRequestEvidence === "failed" ? "visit failed" : selectedRequestEvidence === "capped" ? "recording capped" : "request evidence incomplete"}
             </span>
           )}
         </p>
@@ -144,16 +147,16 @@ export function ReportHeader({
           onClick={onDownloadCsv}
         >
           <Download size={17} aria-hidden="true" />
-          {csvArmLabel ? `CSV · ${csvArmLabel}` : "CSV"}
+          {csvArmLabel ? `CSV + context · ${csvArmLabel}` : "CSV + context"}
         </button>
         <span className="visually-hidden" id="csv-export-description">
           {csvArmLabel
-            ? `Downloads the ${csvArmLabel} visit's request log and follows the evidence switcher below.`
-            : "Downloads the request log as CSV."}
+            ? `Downloads the ${csvArmLabel} visit's request CSV, source report and correction context in a ZIP. Follows the evidence switcher below.`
+            : "Downloads the request CSV, source report and correction context in a ZIP, including when no requests were recorded."}
         </span>
         <button className="secondary-button" type="button" onClick={onDownload}>
           <Download size={17} aria-hidden="true" />
-          JSON
+          {(publishedReportCorrections(view.reportId).subjectEvents.length + publishedReportCorrections(view.reportId).replacementEvents.length) > 0 ? "JSON + corrections (ZIP)" : "JSON"}
         </button>
         {/* Rendered by the scanner, not in the browser, so it only appears when
             an origin that can render one is reachable. CSV and JSON are built

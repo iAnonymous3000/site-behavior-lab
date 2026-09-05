@@ -117,6 +117,35 @@ export function installBoundedPageCollector(key: string): void {
   const htmlElementPrototype = typeof HTMLElement === "function" ? HTMLElement.prototype : null;
   const contentEditableGetter = getter(htmlElementPrototype, "isContentEditable");
   const blurMethod = method(htmlElementPrototype, "blur");
+  const focusMethod = method(htmlElementPrototype, "focus");
+  const elementRect = method(elementPrototype, "getBoundingClientRect");
+  const matchesMethod = method(elementPrototype, "matches");
+  const viewportWidth = getter(globalThis, "innerWidth");
+  const viewportHeight = getter(globalThis, "innerHeight");
+  let probingInput = false;
+  // Install before page script can retain native submission methods. Outside
+  // the active probe the wrappers preserve ordinary page behavior.
+  const formPrototype = typeof HTMLFormElement === "function" ? HTMLFormElement.prototype : null;
+  if (formPrototype) {
+    for (const name of ["submit", "requestSubmit"]) {
+      const original = method(formPrototype, name);
+      if (original) nativeDefine(formPrototype, name, {
+        configurable: true, writable: true,
+        value: function(this: unknown, ...args: unknown[]) {
+          if (!probingInput) return call(original, this, args);
+        }
+      });
+    }
+    const addListener = method(EventTarget.prototype, "addEventListener");
+    const preventDefault = method(Event.prototype, "preventDefault");
+    const stopImmediate = method(Event.prototype, "stopImmediatePropagation");
+    call(addListener, globalThis, ["submit", (event: Event) => {
+      if (probingInput) {
+        call(preventDefault, event, []);
+        call(stopImmediate, event, []);
+      }
+    }, true]);
+  }
   const inputPrototype = typeof HTMLInputElement === "function" ? HTMLInputElement.prototype : null;
   const inputValueGetter = getter(inputPrototype, "value");
   const textAreaPrototype = typeof HTMLTextAreaElement === "function" ? HTMLTextAreaElement.prototype : null;
@@ -510,6 +539,17 @@ export function installBoundedPageCollector(key: string): void {
     }
   });
 
+  set(api, "focusForProbe", (element: unknown): boolean => {
+    const rect = call(elementRect, element, []);
+    const width = viewportWidth ? call(viewportWidth, globalThis, []) : globalThis.innerWidth;
+    const height = viewportHeight ? call(viewportHeight, globalThis, []) : globalThis.innerHeight;
+    if (rect.width <= 0 || rect.height <= 0 || rect.top < 0 || rect.left < 0 ||
+        rect.bottom > height || rect.right > width) return false;
+    probingInput = true;
+    call(focusMethod, element, [{ preventScroll: true }]);
+    return call(matchesMethod, element, [":focus"]) === true;
+  });
+
   set(api, "text", (maxCharsInput: unknown): string => {
     try {
       const maxChars = boundedPositiveInteger(maxCharsInput, 400_000);
@@ -589,7 +629,7 @@ export async function callBoundedPageCollector(
 export async function callBoundedElementCollector(
   handle: { evaluate<T, Arg>(pageFunction: (element: Element, arg: Arg) => T, arg: Arg): Promise<T> },
   key: string,
-  method: "fieldType" | "blur" | "sentinelPresent",
+  method: "fieldType" | "blur" | "sentinelPresent" | "focusForProbe",
   argument?: string
 ): Promise<unknown> {
   return handle.evaluate((element, arg) => {

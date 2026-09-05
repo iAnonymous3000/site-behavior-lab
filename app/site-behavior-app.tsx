@@ -49,7 +49,7 @@ import { readClientFileText } from "@/lib/client-file-policy";
 import { isStaticReportManifest } from "@/lib/static-report-manifest-guard";
 import type { HomepageDiscovery, HomepageFeaturedGroup } from "@/lib/homepage-discovery";
 import { plural } from "@/lib/text-format";
-import { readLoadedReport, withoutLoadedReportShare } from "@/lib/client-report-reader";
+import { readLoadedReport, asLocalReport } from "@/lib/client-report-reader";
 // Type-only: the deep reader module stays lazy-loaded (client-report-reader);
 // a type import is erased at build time and adds nothing to the bundle.
 import type { LoadedReport } from "@/lib/scan-report-view";
@@ -231,7 +231,7 @@ export function SiteBehaviorApp({
         const read = await readLoadedReport(payload, "This report JSON");
         signal.throwIfAborted();
         if (!read.ok) throw new Error(read.message);
-        return withoutLoadedReportShare(read.loaded);
+        return asLocalReport(read.loaded);
       },
       reportOpenHandlers("Report JSON could not be opened.")
     );

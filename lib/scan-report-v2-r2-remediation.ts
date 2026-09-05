@@ -57,8 +57,8 @@ export type R2RedactionRemediationFailure =
   | "generated-report-inconsistent";
 
 export class R2RedactionRemediationError extends Error {
-  constructor(readonly reason: R2RedactionRemediationFailure, detail?: string) {
-    super(detail ? `${reason}: ${detail}` : reason);
+  constructor(readonly reason: R2RedactionRemediationFailure, detail?: string, cause?: unknown) {
+    super(detail ? `${reason}: ${detail}` : reason, { cause });
     this.name = "R2RedactionRemediationError";
   }
 }
@@ -188,7 +188,7 @@ function redactRun(run: ScanRunV2R2, sourceVersion: number): void {
     assertR2ProducerContract(run);
   } catch (error) {
     if (error instanceof R2ProducerContractError) {
-      throw new R2RedactionRemediationError("sanitizer-rejected-evidence", error.message);
+      throw new R2RedactionRemediationError("sanitizer-rejected-evidence", error.message, error);
     }
     throw error;
   }

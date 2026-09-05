@@ -402,6 +402,8 @@ export type ClaimPolicy = {
 };
 
 export type ReportView = {
+  /** Immutable report identity used to resolve public correction context. */
+  reportId?: string;
   origin: "v2" | "legacy-derived";
   /** null for v1 (no v2 revision applies). */
   revision: 1 | 2 | null;
@@ -945,6 +947,7 @@ export function viewFromV1Report(report: ScanReport): ReportView {
         : null;
     return {
       origin: "legacy-derived",
+      reportId: report.share?.id,
       revision: null,
       limited: true,
       reportType: "comparison",
@@ -972,6 +975,7 @@ export function viewFromV1Report(report: ScanReport): ReportView {
   const runs = [runViewFromV1(report, null, report.conditions.scannedAt)];
   return {
     origin: "legacy-derived",
+      reportId: report.share?.id,
     revision: null,
     limited: true,
     reportType: "single",
@@ -1061,6 +1065,7 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
       : [];
     return {
       origin: "v2",
+      reportId: report.share?.id,
       revision,
       limited,
       reportType: "comparison",
@@ -1093,6 +1098,7 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
   const runs = [runViewFromV2(report.run, null)];
   return {
     origin: "v2",
+      reportId: report.share?.id,
     revision,
     limited,
     reportType: "single",
@@ -1108,8 +1114,10 @@ export function viewFromV2(report: PublicScanReportV2 | PublicScanReportV2R2, re
 }
 
 export function toReportView(stored: StoredScanReport): ReportView {
-  if (stored.schemaVersion === 1) return viewFromV1Report(stored.report);
-  return viewFromV2(stored.report, stored.schemaRevision);
+  const view = stored.schemaVersion === 1
+    ? viewFromV1Report(stored.report)
+    : viewFromV2(stored.report, stored.schemaRevision);
+  return { ...view, reportId: stored.report.share?.id };
 }
 
 /**
@@ -1262,8 +1270,11 @@ export function runHitRequestRecordingCap(run: RunView): boolean {
   return run.warnings.some((warning) => warning.includes(REQUEST_RECORDING_CAP_WARNING_FRAGMENT));
 }
 
-/** Reader-facing state for the request evidence without conflating censoring with a cap. */
-export function requestEvidenceState(run: RunView): "complete" | "capped" | "incomplete" {
+export type RequestEvidenceState = "complete" | "capped" | "incomplete" | "failed";
+
+/** Requested-visit state; a failed visit can still retain observations of the returned document. */
+export function requestEvidenceState(run: RunView): RequestEvidenceState {
+  if (run.quality.outcome === "failed") return "failed";
   if (runHitRequestRecordingCap(run)) return "capped";
   return familyCensoredOnRun(run, "requests") ? "incomplete" : "complete";
 }
@@ -1319,4 +1330,15 @@ export function runVisitLabel(run: RunView): string {
   if (run.label === "baseline") return "Baseline visit";
   if (run.label === "variant") return "Variant visit";
   return "Recorded visit";
+}
+
+export function entryEvidenceCompleteness(run: RunView): {
+  requestEvidenceComplete: boolean;
+  cookieEvidenceComplete: boolean;
+} {
+  const failed = run.quality.outcome === "failed";
+  return {
+    requestEvidenceComplete: !failed && !familyCensoredOnRun(run, "requests"),
+    cookieEvidenceComplete: !failed && !familyCensoredOnRun(run, "cookies")
+  };
 }

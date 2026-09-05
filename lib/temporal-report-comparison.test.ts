@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { buildStaticReportShare } from "./report-locator";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
@@ -11,7 +12,9 @@ import { scanReportV2R2SemanticViolations } from "./scan-report-v2-r2-evaluators
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { readStoredScanReport } from "./scan-report-reader";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
-import { publicWireForExportOrPersistence, type LoadedReport } from "./scan-report-view";
+import { publicWireForExportOrPersistence, loadedReportFromStored, type LoadedReport } from "./scan-report-view";
+import { asLocalReport } from "./client-report-reader";
+import ledger from "../public/corrections.json";
 import {
   createLoadedTemporalComparison,
   temporalUploadSelectionError
@@ -20,6 +23,37 @@ import {
 function loadedR2(report: ReturnType<typeof makePublicSingleReportV2R2>): LoadedReport {
   return { source: "v2-r2-public", wire: report, view: viewFromV2(report, 2) };
 }
+
+function archivedReport(id: string): LoadedReport {
+  const read = readStoredScanReport(JSON.parse(readFileSync(`public/reports/${id}.json`, "utf8")));
+  assert.ok(read.ok);
+  if (!read.ok) throw new Error(`Unreadable archive: ${id}`);
+  return loadedReportFromStored(read.stored);
+}
+
+test("corrected historical visits cannot become an apparently uncorrected temporal artifact", () => {
+  // This real pair previously passed compatibility and lost all three notices.
+  const before = archivedReport("20260625-e633e42c3ccc90348ea024fe00356d18");
+  const after = archivedReport("20260706-7eba401fdd41ef20f5baf2651d4cf6e7");
+  for (const [left, right] of [[before, after], [asLocalReport(after), asLocalReport(before)]]) {
+    const result = createLoadedTemporalComparison(left, right);
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.equal(result.code, "correction-context");
+      assert.match(result.message, /SBL-CORR-2026-003/);
+    }
+  }
+});
+
+test("local comparison retains no loophole for a published clarification", () => {
+  for (const event of ledger.entries) {
+    const loaded = asLocalReport(archivedReport(event.reportIds[0]));
+    assert.ok(temporalUploadSelectionError(loaded)?.includes(event.eventId));
+    const result = createLoadedTemporalComparison(loadedR2(makePublicSingleReportV2R2()), loaded);
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, "correction-context");
+  }
+});
 
 test("compatible v2/r2 singles build an ordered, exportable temporal report", () => {
   const before = makePublicSingleReportV2R2();

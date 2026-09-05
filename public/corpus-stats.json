@@ -1,6 +1,6 @@
 {
   "version": 4,
-  "generatedAt": "2026-09-05T00:04:08.073Z",
+  "generatedAt": "2026-09-05T18:09:00.843Z",
   "metricContractVersion": "metric-contract-v1",
   "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "sampleSize": 94,
@@ -22,56 +22,56 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
-      "sampleSize": 85,
+      "sampleSize": 84,
       "latestRunAt": "2026-07-06T09:35:22.638Z",
       "metrics": {
         "thirdPartyRequests": {
-          "count": 85,
+          "count": 84,
           "min": 0,
           "max": 399,
-          "p50": 28,
-          "p75": 113,
-          "p90": 187,
-          "p95": 281
+          "p50": 26,
+          "p75": 100,
+          "p90": 175,
+          "p95": 231
         },
         "thirdPartyDomains": {
-          "count": 85,
+          "count": 84,
           "min": 0,
           "max": 79,
-          "p50": 7,
-          "p75": 16,
-          "p90": 32,
+          "p50": 6,
+          "p75": 15,
+          "p90": 31,
           "p95": 47
         },
         "cataloguedServiceRequests": {
-          "count": 85,
+          "count": 84,
           "min": 0,
-          "max": 154,
+          "max": 122,
           "p50": 3,
-          "p75": 21,
-          "p90": 43,
-          "p95": 53
-        },
-        "trackingServiceRequests": {
-          "count": 85,
-          "min": 0,
-          "max": 154,
-          "p50": 2,
-          "p75": 15,
+          "p75": 19,
           "p90": 41,
           "p95": 51
         },
+        "trackingServiceRequests": {
+          "count": 84,
+          "min": 0,
+          "max": 117,
+          "p50": 2,
+          "p75": 14,
+          "p90": 41,
+          "p95": 48
+        },
         "thirdPartyCookies": {
-          "count": 85,
+          "count": 84,
           "min": 0,
           "max": 38,
           "p50": 0,
           "p75": 5,
-          "p90": 12,
-          "p95": 19
+          "p90": 10,
+          "p95": 14
         },
         "fingerprintEvents": {
-          "count": 85,
+          "count": 84,
           "min": 0,
           "max": 539,
           "p50": 0,
@@ -168,56 +168,56 @@
       "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
       "metricContractVersion": "metric-contract-v1",
       "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
-      "sampleSize": 64,
+      "sampleSize": 63,
       "latestRunAt": "2026-07-25T18:22:07.705Z",
       "metrics": {
         "thirdPartyRequests": {
-          "count": 64,
+          "count": 63,
           "min": 0,
-          "max": 382,
+          "max": 243,
           "p50": 14,
           "p75": 68,
-          "p90": 162,
-          "p95": 185
+          "p90": 161,
+          "p95": 177
         },
         "thirdPartyDomains": {
-          "count": 64,
+          "count": 63,
           "min": 0,
-          "max": 59,
+          "max": 47,
           "p50": 3,
           "p75": 9,
-          "p90": 24,
+          "p90": 21,
           "p95": 29
         },
         "cataloguedServiceRequests": {
-          "count": 64,
+          "count": 63,
           "min": 0,
-          "max": 152,
-          "p50": 1,
-          "p75": 10,
-          "p90": 29,
-          "p95": 36
-        },
-        "trackingServiceRequests": {
-          "count": 64,
-          "min": 0,
-          "max": 152,
+          "max": 63,
           "p50": 1,
           "p75": 10,
           "p90": 27,
-          "p95": 36
+          "p95": 32
+        },
+        "trackingServiceRequests": {
+          "count": 63,
+          "min": 0,
+          "max": 63,
+          "p50": 1,
+          "p75": 10,
+          "p90": 25,
+          "p95": 29
         },
         "thirdPartyCookies": {
-          "count": 64,
+          "count": 63,
           "min": 0,
           "max": 36,
           "p50": 0,
           "p75": 1,
           "p90": 5,
-          "p95": 19
+          "p95": 10
         },
         "fingerprintEvents": {
-          "count": 64,
+          "count": 63,
           "min": 0,
           "max": 122,
           "p50": 0,

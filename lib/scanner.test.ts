@@ -185,12 +185,13 @@ test("active input typing stops if focus races an origin change", async () => {
         tagName: "INPUT",
         isContentEditable: false,
         getAttribute: () => "text",
-        blur: () => undefined
+        blur: () => true
       } as unknown as HTMLElement;
       Object.defineProperty(globalThis, "test-collector", {
         configurable: true,
         value: {
           fieldType: () => "text",
+          focusForProbe: async () => { await handle.focus(); return true; },
           sentinelPresent: () => true,
           blur: () => true
         }
@@ -244,12 +245,13 @@ test("active input typing records a typed field before a failing blur can hide t
         tagName: "INPUT",
         isContentEditable: false,
         getAttribute: () => "text",
-        blur: () => undefined
+        blur: () => true
       } as unknown as HTMLElement;
       Object.defineProperty(globalThis, "test-collector", {
         configurable: true,
         value: {
           fieldType: () => "text",
+          focusForProbe: async () => { await handle.focus(); return true; },
           sentinelPresent: () => true,
           blur: () => {
             throw new Error("execution context disappeared after typing");
@@ -293,7 +295,7 @@ test("active input typing records a typed field before a failing blur can hide t
     count: 1,
     types: ["text"],
     subjectLost: false,
-    omittedCandidateCount: 0,
+    omittedCandidateCount: 1,
     preventedFieldCount: 0
   });
 });
@@ -313,12 +315,13 @@ test("a field that refuses the sentinel is never reported as a typed field", asy
         tagName: "INPUT",
         isContentEditable: false,
         getAttribute: () => "text",
-        blur: () => undefined
+        blur: () => true
       } as unknown as HTMLElement;
       Object.defineProperty(globalThis, "test-collector", {
         configurable: true,
         value: {
           fieldType: () => "text",
+          focusForProbe: async () => { await handle.focus(); return true; },
           // The field stayed empty: the page refused the keystrokes.
           sentinelPresent: () => false,
           blur: () => true
@@ -441,11 +444,12 @@ test("the typing loop bounds each candidate lookup itself instead of inheriting 
         tagName: "INPUT",
         isContentEditable: false,
         getAttribute: () => "text",
-        blur: () => undefined
+        blur: () => true
       } as unknown as HTMLElement;
       Object.defineProperty(globalThis, "vanishing-collector", {
         configurable: true,
-        value: { fieldType: () => "text", sentinelPresent: () => true, blur: () => undefined }
+        value: { fieldType: () => "text",
+          focusForProbe: async () => { await handle.focus(); return true; }, sentinelPresent: () => true, blur: () => true }
       });
       try {
         return callback(element, arg);
@@ -487,7 +491,7 @@ test("the typing loop bounds each candidate lookup itself instead of inheriting 
     );
 
   const startedAt = Date.now();
-  await assert.rejects(typing(startedAt), /Timeout \d+ms exceeded/);
+  assert.equal((await typing(startedAt)).omittedCandidateCount, 60);
   const elapsedMs = Date.now() - startedAt;
   assert.ok(
     elapsedMs < PLAYWRIGHT_DEFAULT_TIMEOUT_MS / SCALE,
@@ -499,7 +503,7 @@ test("the typing loop bounds each candidate lookup itself instead of inheriting 
   // Near the end of the scan the bound is whatever budget remains, never more.
   lookupTimeouts.length = 0;
   fieldsRemoved = false;
-  await assert.rejects(typing(Date.now() - 44_500), /Timeout \d+ms exceeded/);
+  assert.equal((await typing(Date.now() - 44_500)).omittedCandidateCount, 60);
   assert.equal(lookupTimeouts.length, 2);
   for (const timeout of lookupTimeouts) {
     assert.ok(
@@ -1767,12 +1771,12 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@3",
+      version: "synthetic-sentinel@4",
       status: "skipped",
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@5",
+      version: "policy-text-cross-check@6",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1798,7 +1802,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     );
     assert.equal(zillow.result.summary.status, 403);
     assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@5",
+      version: "policy-text-cross-check@6",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1820,7 +1824,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       options
     );
     assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@5",
+      version: "policy-text-cross-check@6",
       status: "skipped",
       reason: "evidence-cap-reached"
     });
@@ -1887,12 +1891,12 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@3",
+      version: "synthetic-sentinel@4",
       status: "skipped",
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@5",
+      version: "policy-text-cross-check@6",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1980,7 +1984,7 @@ test("scanSite stages live phase-aware readbacks while returning only v1", { tim
     assert.equal(Object.keys(staged.measurement.detectors).length, 6);
     assert.equal(staged.measurement.detectors["fingerprint-heuristics"].status, "complete");
     assert.deepEqual(staged.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@3",
+      version: "synthetic-sentinel@4",
       status: "complete",
       phaseId: 1
     });
@@ -2111,7 +2115,7 @@ test("keystroke candidate overflow records exact detector-output truncation", { 
     assert.deepEqual(
       measurement.measurement.detectors["keystroke-exfiltration"],
       {
-        version: "synthetic-sentinel@3",
+        version: "synthetic-sentinel@4",
         status: "partial",
         reason: "evidence-cap-reached",
         phaseId: activePhase.phaseId
@@ -2316,7 +2320,7 @@ test("a truncated recognized pixel POST censors pixel detector output", { timeou
 
     assert.equal(result.warnings.includes(PIXEL_DECODE_CAPTURE_LOSS_WARNING), true);
     assert.deepEqual(measurement.measurement.detectors["pixel-events"], {
-      version: "pixel-request-decoder@3",
+      version: "pixel-request-decoder@4",
       status: "partial",
       reason: "evidence-cap-reached",
       phaseId: 0
@@ -2815,7 +2819,7 @@ test("a direct PDF privacy policy completes through the bounded scan proxy", { t
     assert.ok(result.privacyPolicy, "the PDF policy produced a stored cross-check summary");
     assert.ok((result.privacyPolicy?.policyTextLength ?? 0) >= 500);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@5",
+      version: "policy-text-cross-check@6",
       status: "complete",
       phaseId: 2
     });
@@ -2882,8 +2886,8 @@ test("a PDF privacy policy link that redirects or is missing cannot crash the pr
 
   try {
     for (const [route, expected] of [
-      ["/", { version: "policy-text-cross-check@5", status: "complete", phaseId: 2 }],
-      ["/missing", { version: "policy-text-cross-check@5", status: "failed", reason: "load-failed", phaseId: 2 }]
+      ["/", { version: "policy-text-cross-check@6", status: "complete", phaseId: 2 }],
+      ["/missing", { version: "policy-text-cross-check@6", status: "failed", reason: "load-failed", phaseId: 2 }]
     ] as const) {
       const { measurement: staged } = await scanSiteWithMeasurement(
         { url: `http://policy-pdf-hop.test${route}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
@@ -3581,7 +3585,7 @@ test("a consent click cannot promote a sibling origin into evidence or active-in
       phaseId: 1
     });
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@3",
+      version: "synthetic-sentinel@4",
       status: "skipped",
       reason: "load-failed"
     });
@@ -3886,7 +3890,7 @@ test("post-consent cross-site reload evidence is rejected and the active input p
     );
     const reloadPhase = staged!.measurement.phases.find((phase) => phase.kind === "post-choice-reload")!;
     assert.deepEqual(staged!.measurement.detectors["keystroke-exfiltration"], {
-      version: "synthetic-sentinel@3",
+      version: "synthetic-sentinel@4",
       status: "skipped",
       reason: "load-failed"
     });
@@ -4188,14 +4192,15 @@ test("a probe that throws after typing still discloses the fields it typed into"
         tagName: "INPUT",
         isContentEditable: false,
         getAttribute: () => "text",
-        blur: () => undefined
+        blur: () => true
       } as unknown as HTMLElement;
       Object.defineProperty(globalThis, "probe-throw-collector", {
         configurable: true,
         value: {
           fieldType: () => "text",
+          focusForProbe: () => true,
           sentinelPresent: () => true,
-          blur: () => undefined
+          blur: () => true
         }
       });
       try {
@@ -4247,7 +4252,7 @@ test("a probe that throws after typing still discloses the fields it typed into"
     lifecycle
   );
 
-  assert.equal(outcome.status, "failed");
+  assert.equal(outcome.status, "partial");
   assert.equal(
     lifecycle.typedFieldCount,
     TYPED_BEFORE_FAILURE,
@@ -4262,4 +4267,37 @@ test("a probe that throws after typing still discloses the fields it typed into"
     "a probe that typed into fields must disclose it even when it then failed"
   );
   assert.match(disclosure, new RegExp(`${TYPED_BEFORE_FAILURE} form fields`));
+});
+
+
+test("the scanner blocks probe-triggered foreign-realm form navigation and auxiliary page requests", { timeout: 30_000 }, async () => {
+  const submitted: string[] = [];
+  const upstream = createServer((request, response) => {
+    if (request.url?.includes("submitted") || request.url?.includes("popup")) submitted.push(request.url);
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>Probe navigation fixture</title>
+      <form action="/submitted"><input id="field"></form><iframe id="realm" src="about:blank"></iframe>
+      <script>field.addEventListener('blur', () => {
+        realm.contentWindow.HTMLFormElement.prototype.submit.call(document.forms[0]);
+        window.open('/popup', '_blank');
+      });</script>`);
+  });
+  await new Promise<void>(resolve => upstream.listen(0, "127.0.0.1", resolve));
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      { url: "http://probe-navigation.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+      { publicUrlAlreadyVerified: true, verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"), resolveCnameChain: async () => [] }
+    );
+    assert.deepEqual(submitted, []);
+    assert.ok(measurement?.measurement.qualityFacts.captureLoss.some(loss => loss.family === "requests" && loss.kind === "dropped"));
+    assert.ok(result.warnings.some(warning => warning.includes("native form submission blocked")));
+    assert.ok(result.warnings.every(warning => !warning.includes("including unload")));
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>(resolve => upstream.close(() => resolve()));
+  }
 });
