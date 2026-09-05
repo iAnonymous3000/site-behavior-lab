@@ -314,6 +314,8 @@ identity change and follows `RELEASE.md`, not a routine edit.
   `CHANGELOG.md`: what a tag claims and what still blocks 1.0.
 - `docs/pagegraph-adapter.md`, `docs/native-shields-differential.md`:
   research-only importers and comparisons that never write public reports.
+- `docs/critical-use-audit-2026-09-01.md`: the most recent audit against the
+  critical-use definition, with what was found, fixed, and deliberately left.
 
 ## Contributing, security, license
 
