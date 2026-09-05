@@ -1,4 +1,5 @@
 import type { NetworkRequestRecord } from "./types";
+import { requestEvidenceState, type RunView } from "./scan-report-views";
 import { displayHost, displayPublicUrl } from "./text-format";
 
 /**
@@ -17,10 +18,30 @@ const CSV_HEADER = [
   "third_party",
   "tracker_entity",
   "tracker_category",
-  "url"
+  "url",
+  "recording_state"
 ] as const;
 
-export function requestLogToCsv(requests: NetworkRequestRecord[]): string {
+/**
+ * Whether the exported log is a complete recording, in the same precedence the
+ * report's structured data uses for its quality property: a failed visit first,
+ * then the exact request-recording cap, then any other request-family capture
+ * loss. Anything but "complete" means the rows are a truncated lower bound.
+ */
+export type RequestLogRecordingState = "complete" | "capped" | "incomplete" | "failed";
+
+export function requestLogRecordingState(run: RunView): RequestLogRecordingState {
+  if (run.quality.outcome === "failed") return "failed";
+  return requestEvidenceState(run);
+}
+
+/**
+ * The state travels on every row as a constant column rather than as a comment
+ * or a filename suffix: the file is what a researcher keeps and cites once it
+ * leaves the page, parsers expect header plus rows, and a downloaded capped
+ * log of exactly 1,000 rows otherwise reads as a complete recording.
+ */
+export function requestLogToCsv(requests: NetworkRequestRecord[], recordingState: RequestLogRecordingState): string {
   const rows = requests.map((request) => [
     request.id,
     displayHost(request.domain),
@@ -30,7 +51,8 @@ export function requestLogToCsv(requests: NetworkRequestRecord[]): string {
     request.thirdParty ? "yes" : "no",
     request.tracker?.entity ?? "",
     request.tracker?.category ?? "",
-    displayPublicUrl(request.url)
+    displayPublicUrl(request.url),
+    recordingState
   ]);
   return [CSV_HEADER, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n").concat("\r\n");
 }

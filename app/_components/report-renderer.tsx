@@ -19,7 +19,7 @@ import {
 import { PrintCompleteProvider } from "./print-mode";
 import { VisitPhasesAndStateChanges } from "./visit-phases-and-state-changes";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
-import { requestLogToCsv } from "@/lib/csv-export";
+import { requestLogRecordingState, requestLogToCsv } from "@/lib/csv-export";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
 import { buildReportFacts } from "@/lib/report-facts";
@@ -134,7 +134,7 @@ export function ReportRenderer({
   }
 
   function downloadCsv() {
-    const csv = requestLogToCsv(displayedRun.evidence.requests);
+    const csv = requestLogToCsv(displayedRun.evidence.requests, requestLogRecordingState(displayedRun));
     const armPart = arms ? `-${safeFilenamePart(armDisplayLabel(reportView, displayedArmLabel))}` : "";
     downloadBlob(
       new Blob([csv], { type: "text/csv;charset=utf-8" }),
