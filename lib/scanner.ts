@@ -59,7 +59,7 @@ import {
   tcfObservedState,
   type TcfApiReadOutcome
 } from "./consent-verification";
-import { decodePixelRequest, summarizePixelEvents, type PixelEventInput } from "./pixel-events";
+import { inspectPixelRequest, summarizePixelEvents, type PixelEventInput } from "./pixel-events";
 import {
   buildPrivacyPolicySummary,
   isAllowedPrivacyPolicyUrl,
@@ -2318,15 +2318,13 @@ export async function scanSiteWithMeasurement(
         const url = request.url();
         const body = safeRequestPostDataWithCoverage(request);
         const input = { url, method: record.method, postData: body.value };
+        const pixel = inspectPixelRequest(input);
         pixelEventInputs.push(input);
         const phaseInputs = pixelEventInputsByPhase.get(phaseId) ?? [];
         phaseInputs.push(input);
         pixelEventInputsByPhase.set(phaseId, phaseInputs);
         if (
-          record.method.toUpperCase() !== "GET" &&
-          record.method.toUpperCase() !== "HEAD" &&
-          (body.truncated || body.unreadable) &&
-          decodePixelRequest({ url, method: record.method, postData: null }) !== null
+          pixel !== null && (body.truncated || body.unreadable || !pixel.bodyDecoded)
         ) {
           const kind = body.truncated ? "truncated" : "dropped";
           const key = `${phaseId}:${kind}`;
@@ -2336,7 +2334,7 @@ export async function scanSiteWithMeasurement(
             kind,
             count: Math.min(Number.MAX_SAFE_INTEGER, (previous?.count ?? 0) + 1)
           });
-          if (body.unreadable) pixelBodyReadFailed = true;
+          if (body.unreadable || (!body.truncated && !pixel.bodyDecoded)) pixelBodyReadFailed = true;
         }
       }
       const decorated = {

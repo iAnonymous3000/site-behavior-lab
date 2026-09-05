@@ -811,6 +811,20 @@ async function main() {
     await expectRequestRowCount(page, 0);
     pass("static report request filters narrow rows");
 
+    const legacyOmitted = JSON.parse(await readFile(singleReportFixture, "utf8"));
+    for (const key of ["fingerprintDetections", "pixelEvents", "cnameCloaks", "privacyPolicy"]) delete legacyOmitted[key];
+    await reportUploadInput.setInputFiles({ name: "legacy-omitted.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacyOmitted)) });
+    await expectText(page.locator("#pixels"), "did not record pixel evidence");
+    await expectText(page.locator("#signals"), "Heuristic and listener evidence is unavailable or incomplete; only retained observations are shown.");
+    pass("legacy omitted detector evidence remains visibly unavailable after browser import");
+
+    legacyOmitted.pixelEvents = [{ platform: "Meta", product: "Meta Pixel", requests: 1, events: [], advancedMatching: [] }];
+    await reportUploadInput.setInputFiles({ name: "endpoint-only.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacyOmitted)) });
+    await page.getByRole("heading", { name: "Advertising pixel endpoints were observed", exact: true }).waitFor();
+    await expectText(page.locator("#pixels"), "no named event retained");
+    if (await page.getByText(/reported specific named events/).count()) fail("endpoint-only evidence became a named-event claim");
+    pass("pixel endpoint-only evidence stays distinct from event labels in findings and tables");
+
     const failedVisit = JSON.parse(await readFile(singleReportFixture, "utf8"));
     failedVisit.summary.status = 403;
     await reportUploadInput.setInputFiles({ name: "failed-visit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(failedVisit)) });

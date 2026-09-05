@@ -110,6 +110,23 @@ function rejectsNodeMutation(mutate: (run: ScanRunV2R2) => void, label: string):
   );
 }
 
+test("closed v7 reports keep their exact decoder identity when v8 adds body coverage", () => {
+  const closed = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v7-active-probe-v2-active-no-adblock");
+  const current = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v8-pixel-coverage-active-no-adblock");
+  assert.ok(closed && current);
+  assert.deepEqual(closed.detectorRegistry, {
+    version: "node-detectors-v7", digest: "e019df75386c8f89584f5d14b4b191fa00f76a4ddb88f79a5875e7d07c72c89b"
+  });
+  assert.equal(closed.detectorVersions["pixel-events"], "pixel-request-decoder@4");
+  assert.equal(current.detectorVersions["pixel-events"], "pixel-request-decoder@5");
+  assert.equal(closed.normalizationVersion, current.normalizationVersion, "no redaction or schema change");
+  assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(closed)));
+  const hybrid = runForTuple(closed);
+  hybrid.detectors["pixel-events"].version = current.detectorVersions["pixel-events"];
+  assert.throws(() => assertR2ProducerContract(hybrid), R2ProducerContractError);
+  assert.equal(Object.isFrozen(closed.detectorVersions), true);
+});
+
 test("Node producer rows are complete, immutable, and individually replayable", () => {
   const expectedTupleIds = [
       "node-v3-shadow-lists-2026-07-12",
@@ -156,7 +173,9 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v6-gpc-worker-v2-6c78-tldts7410-lists-2026-08-15",
       "node-v6-gpc-worker-v2-6c78-tldts7410-no-adblock",
       "node-v7-active-probe-v2-active-lists-2026-08-15",
-      "node-v7-active-probe-v2-active-no-adblock"
+      "node-v7-active-probe-v2-active-no-adblock",
+      "node-v8-pixel-coverage-active-lists-2026-08-15",
+      "node-v8-pixel-coverage-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -315,7 +334,7 @@ test("the detector-v6 identity preserves the v4 resource-budget rows and the clo
     (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
   );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v7-active-probe-v2-active-lists-2026-08-15"
+    (tuple) => tuple.id === "node-v8-pixel-coverage-active-lists-2026-08-15"
   );
   assert.equal(historical?.methodologyVersion, HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION);
   assert.equal(

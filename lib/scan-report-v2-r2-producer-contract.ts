@@ -787,6 +787,56 @@ const HISTORICAL_DETECTOR_V6_FIELDS: NodeTupleFields = Object.freeze({
   phaseOmissionContractVersion: "phase-omission-v2"
 });
 
+/** Closed v7 identity: pixel decoding did not disclose unsupported bodies. */
+const HISTORICAL_NODE_V7_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
+const HISTORICAL_NODE_V7_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
+const HISTORICAL_NODE_V7_FIELDS: NodeTupleFields = Object.freeze({
+  detectorRegistry: Object.freeze({
+    "version": "node-detectors-v7",
+    "digest": "e019df75386c8f89584f5d14b4b191fa00f76a4ddb88f79a5875e7d07c72c89b"
+  } as const),
+  detectorVersions: Object.freeze({
+    "fingerprint-heuristics": "fingerprint-observer@3",
+    "keystroke-exfiltration": "synthetic-sentinel@4",
+    "cname-uncloaking": "dns-cname-chain@4",
+    "pixel-events": "pixel-request-decoder@4",
+    "consent-banner": "consent-control-and-state@2",
+    "privacy-policy": "policy-text-cross-check@6"
+  } as const),
+  detectorStatusContractVersion: "detector-status-v2",
+  detectorObligations: Object.freeze({
+    "version": "detector-obligations-v1",
+    "digest": "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+  } as const),
+  serviceRoleTaxonomy: Object.freeze({
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
+  trackerCatalog: Object.freeze({
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
+  publicLimits: Object.freeze({
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
+  phaseOmissionContractVersion: "phase-omission-v2",
+});
+
 const ACTIVE_DETECTOR_STATUS_CONTRACT_VERSION: DetectorStatusContractVersion =
   isDetectorReasonCode("evidence-cap-reached") ? "detector-status-v2" : "detector-status-v1";
 const ACTIVE_NODE_FIELDS: NodeTupleFields = Object.freeze({
@@ -824,32 +874,23 @@ function nodeTuple(
   });
 }
 
-// The newest closed epoch is v6 under gpc-worker-application-v2. The active
-// probe, auxiliary-page policy, detector versions and warning vocabulary now
-// distinguish this producer from it; closed rows never follow active constants.
+// Closed v7 rows retain their exact literals; decoder coverage defines v8.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
-  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !==
-    HISTORICAL_GPC_V2_NODE_METHODOLOGY ||
-  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_GPC_V2_NODE_NORMALIZATION ||
-  String(DETECTOR_REGISTRY_VERSION) !==
-    HISTORICAL_DETECTOR_V6_NODE_R2_DETECTOR_REGISTRY_VERSION ||
-  DETECTOR_REGISTRY_DIGEST !== HISTORICAL_DETECTOR_V6_NODE_R2_DETECTOR_REGISTRY_DIGEST ||
-  canonicalJson(ACTIVE_DETECTOR_VERSIONS) !==
-    canonicalJson(HISTORICAL_DETECTOR_V6_NODE_R2_DETECTOR_VERSIONS) ||
-  canonicalJson(ACTIVE_SERVICE_ROLE_TAXONOMY) !==
-    canonicalJson(HISTORICAL_DETECTOR_V6_FIELDS.serviceRoleTaxonomy);
+  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V7_METHODOLOGY ||
+  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V7_NORMALIZATION ||
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V7_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v7-active-probe-v2-active-lists-2026-08-15",
+        "node-v8-pixel-coverage-active-lists-2026-08-15",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v7-active-probe-v2-active-no-adblock",
+        "node-v8-pixel-coverage-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -1154,6 +1195,15 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   ),
   nodeTuple("node-v6-gpc-worker-v2-6c78-tldts7410-lists-2026-08-15", HISTORICAL_GPC_V2_NODE_NORMALIZATION, HISTORICAL_GPC_V2_NODE_METHODOLOGY, HISTORICAL_DETECTOR_V6_FIELDS, HISTORICAL_GPC_V2_ADBLOCK),
   nodeTuple("node-v6-gpc-worker-v2-6c78-tldts7410-no-adblock", HISTORICAL_GPC_V2_NODE_NORMALIZATION, HISTORICAL_GPC_V2_NODE_METHODOLOGY, HISTORICAL_DETECTOR_V6_FIELDS, null),
+  nodeTuple(
+    "node-v7-active-probe-v2-active-lists-2026-08-15", HISTORICAL_NODE_V7_NORMALIZATION,
+    HISTORICAL_NODE_V7_METHODOLOGY, HISTORICAL_NODE_V7_FIELDS,
+    HISTORICAL_R2_LISTS_2026_08_15_ADBLOCK_IDENTITY
+  ),
+  nodeTuple(
+    "node-v7-active-probe-v2-active-no-adblock", HISTORICAL_NODE_V7_NORMALIZATION,
+    HISTORICAL_NODE_V7_METHODOLOGY, HISTORICAL_NODE_V7_FIELDS, null
+  ),
   ...ACTIVE_NODE_TUPLES
 ]);
 

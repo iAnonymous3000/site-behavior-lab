@@ -49,7 +49,7 @@ export const FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING =
   "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.";
 /**
  * A recognized advertising-pixel request carried a body that the scanner
- * could not read completely. v2 records the same fact in the
+ * could not read or interpret completely. v2 records the same fact in the
  * `detector-output` capture-loss ledger; v1 needs this stable warning so its
  * report reader does not turn a partial decode into a definitive absence of
  * advanced-matching fields.

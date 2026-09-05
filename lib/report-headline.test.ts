@@ -623,7 +623,8 @@ test("listener detections whose origins are same-site per the request log claim 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.doesNotMatch(headline.headline, /fingerprint-like browser API patterns/);
   assert.doesNotMatch(headline.subhead, /keyboard input/);
-  assert.equal(headline.tone, "calm");
+  assert.equal(headline.tone, "info", "other optional evidence is unrecorded");
+  assert.equal(headline.semantic.story, "incomplete-evidence");
 });
 
 test("cross-site input monitoring keeps the probe headline with listener wording", () => {
@@ -832,14 +833,23 @@ test("a pixel with populated identifier fields leads over the named-platform sto
 
   const headline = buildReportHeadline(viewFromV1Report(result));
   assert.equal(headline.tone, "warn");
-  // Field POPULATION is what the detector proves; the values are never read,
+  // Field POPULATION is what the detector records; values are not retained,
   // so the copy must not assert personal identifiers were sent, must not call
   // the values hashed, and must not assert matching succeeded.
-  assert.match(headline.headline, /shop\.example sent data in personal-identifier fields to Meta Pixel\./);
-  assert.doesNotMatch(headline.headline, /sent personal identifiers to/);
+  assert.match(headline.headline, /shop\.example's observed Meta Pixel requests contained populated identifier fields\./);
+  assert.doesNotMatch(headline.headline, /sent|delivered/);
   assert.match(headline.subhead, /platform designates for personal identifiers \(email and phone\)/);
   assert.match(headline.subhead, /never their values/);
   assert.doesNotMatch(headline.subhead, /hashed/);
+
+  for (const request of result.requests) {
+    request.status = null;
+    request.blockedByShields = true;
+  }
+  const blocked = buildReportHeadline(viewFromV1Report(result));
+  assert.match(blocked.headline, /observed Meta Pixel requests contained populated identifier fields/);
+  assert.doesNotMatch(blocked.headline, /sent|delivered/);
+  assert.match(blocked.subhead, /successful delivery.*not verified/);
 });
 
 test("an event-only pixel does not trigger the identifier headline", () => {
@@ -1173,15 +1183,16 @@ test("a null status (e.g. PageGraph import) is not treated as a failed load", ()
   const result = makeResult({ firstPartyDomain: "quiet.example", status: null });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.equal(headline.tone, "calm");
-  assert.match(headline.headline, /quiet\.example showed few catalogued or fingerprint-like signals in this visit\./);
+  assert.equal(headline.tone, "info");
+  assert.doesNotMatch(headline.headline, /failed load|not complete a trustworthy load/);
+  assert.match(headline.subhead, /not recorded in this legacy report/);
 });
 
-test("the calm absence claim qualifies cookies as third-party", () => {
+test("a completed cookie measurement qualifies its absence as third-party", () => {
   const result = makeResult({ firstPartyDomain: "quiet.example", cookies: 5, thirdPartyCookies: 0 });
 
   const headline = buildReportHeadline(viewFromV1Report(result));
-  assert.equal(headline.tone, "calm");
+  assert.equal(headline.tone, "info");
   assert.match(headline.subhead, /third-party cookie records/);
   assert.doesNotMatch(headline.subhead, /tracking companies, cookies/);
 });

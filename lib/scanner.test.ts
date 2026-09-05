@@ -2277,67 +2277,74 @@ test("CNAME resolution does not let a filter-list match override a reviewed nont
   }
 });
 
-test("a truncated recognized pixel POST censors pixel detector output", { timeout: 30_000 }, async () => {
-  const upstream = createServer((request, response) => {
-    const host = request.headers.host?.split(":")[0] ?? "";
-    if (host === "pixel-body.test") {
-      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-      response.end(`<!doctype html><title>Pixel body fixture</title><script>
-        fetch("http://analytics.tiktok.com/api/v2/pixel", {
-          method: "POST",
-          mode: "no-cors",
-          body: "x".repeat(${MAX_CAPTURED_BODY_CHARS + 1})
-        }).catch(() => undefined);
-      </script>`);
-      return;
-    }
-    response.writeHead(204);
-    response.end();
-  });
-  await new Promise<void>((resolve, reject) => {
-    upstream.once("error", reject);
-    upstream.listen(0, "127.0.0.1", resolve);
-  });
-  const address = upstream.address();
-  assert.ok(address && typeof address === "object");
-
-  try {
-    const { result, measurement } = await scanSiteWithMeasurement(
-      {
-        url: "http://pixel-body.test/",
-        device: "desktop",
-        gpcEnabled: false,
-        consentMode: "observe"
-      },
-      {
-        publicUrlAlreadyVerified: true,
-        verifyPublicUrl: async () => undefined,
-        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
-        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
-        resolveCnameChain: async () => []
+for (const pixelBodyCase of [
+  { name: "truncated", expression: `"x".repeat(${MAX_CAPTURED_BODY_CHARS + 1})`, reason: "evidence-cap-reached", kind: "truncated" },
+  { name: "malformed JSON", expression: JSON.stringify('{"event":'), reason: "scan-failed", kind: "dropped" },
+  { name: "unsupported JSON", expression: JSON.stringify('{"unknown":{"email":"populated"}}'), reason: "scan-failed", kind: "dropped" }
+]) {
+  test(`a ${pixelBodyCase.name} recognized pixel POST censors pixel detector output`, { timeout: 30_000 }, async () => {
+    const upstream = createServer((request, response) => {
+      const host = request.headers.host?.split(":")[0] ?? "";
+      if (host === "pixel-body.test") {
+        response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+        response.end(`<!doctype html><title>Pixel body fixture</title><script>
+          fetch("http://analytics.tiktok.com/api/v2/pixel", {
+            method: "POST",
+            mode: "no-cors",
+            body: ${pixelBodyCase.expression}
+          }).catch(() => undefined);
+        </script>`);
+        return;
       }
-    );
-
-    assert.equal(result.warnings.includes(PIXEL_DECODE_CAPTURE_LOSS_WARNING), true);
-    assert.deepEqual(measurement.measurement.detectors["pixel-events"], {
-      version: "pixel-request-decoder@4",
-      status: "partial",
-      reason: "evidence-cap-reached",
-      phaseId: 0
+      response.writeHead(204);
+      response.end();
     });
-    assert.ok(
-      measurement.measurement.qualityFacts.captureLoss.some(
-        (loss) =>
-          loss.family === "detector-output" &&
-          loss.kind === "truncated" &&
-          loss.detail === "pixel-decode"
-      )
-    );
-  } finally {
-    await closeSharedBrowserForTests();
-    await new Promise<void>((resolve) => upstream.close(() => resolve()));
-  }
-});
+    await new Promise<void>((resolve, reject) => {
+      upstream.once("error", reject);
+      upstream.listen(0, "127.0.0.1", resolve);
+    });
+    const address = upstream.address();
+    assert.ok(address && typeof address === "object");
+
+    try {
+      const { result, measurement } = await scanSiteWithMeasurement(
+        {
+          url: "http://pixel-body.test/",
+          device: "desktop",
+          gpcEnabled: false,
+          consentMode: "observe"
+        },
+        {
+          publicUrlAlreadyVerified: true,
+          verifyPublicUrl: async () => undefined,
+          resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+          connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+          resolveCnameChain: async () => []
+        }
+      );
+
+      assert.equal(result.warnings.includes(PIXEL_DECODE_CAPTURE_LOSS_WARNING), true);
+      assert.deepEqual(measurement.measurement.detectors["pixel-events"], {
+        version: "pixel-request-decoder@5",
+        status: "partial",
+        reason: pixelBodyCase.reason,
+        phaseId: 0
+      });
+      assert.ok(
+        measurement.measurement.qualityFacts.captureLoss.some(
+          (loss) =>
+            loss.family === "detector-output" &&
+            loss.kind === pixelBodyCase.kind &&
+            loss.detail === "pixel-decode"
+        )
+      );
+    } finally {
+      await closeSharedBrowserForTests();
+      await new Promise<void>((resolve) => upstream.close(() => resolve()));
+    }
+  });
+
+}
 
 test("scanSite marks fingerprint coverage partial when a poisoned main frame is masked by a readable iframe", { timeout: 20_000 }, async () => {
   const upstream = createServer((request, response) => {

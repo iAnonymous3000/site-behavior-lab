@@ -1,4 +1,5 @@
 import { consentPlatformForDomain, consentPlatformKindForDomain } from "./consent-banner";
+import { captureLossAffectsScope } from "./capture-loss-detail-contract";
 import {
   HEADLINE_PLATFORMS,
   crossSiteListenerDetection,
@@ -34,6 +35,7 @@ import {
   requestEvidenceState,
   unsupportedEvidenceFamilies,
   type RequestEvidenceState,
+  type OptionalLegacyEvidence,
   type ReportView,
   type RunView
 } from "./scan-report-views";
@@ -44,7 +46,7 @@ import {
   type EvidenceFamily
 } from "./scan-report-v2";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
-import type { FingerprintDetectionSummary } from "./types";
+import type { FingerprintDetectionSummary, PixelEventSummary } from "./types";
 
 /**
  * Structured report truth shared by every human-facing consumer.
@@ -103,6 +105,7 @@ export type ClaimBlocker =
   | "subject-not-established"
   | "family-censored"
   | "family-unsupported"
+  | "evidence-unrecorded"
   | "detector-incomplete";
 
 export type ClaimEligibility = {
@@ -183,6 +186,10 @@ export type RunIdentityFacts = {
 };
 
 export type RunSignalFacts = {
+  pixels: {
+    withEventLabels: PixelEventSummary[];
+    withIdentifiers: PixelEventSummary[];
+  };
   fingerprint: {
     eventCount: number;
     apiFamilies: number;
@@ -240,9 +247,10 @@ type ClaimRequirement = {
   families: EvidenceFamily[];
   /**
    * A shared evidence family can carry independent detector products. When
-   * present, only these exact capture-loss details censor this claim.
+   * present, known sibling losses can be excluded; unknown loss stays relevant.
    */
   familyDetails?: Partial<Record<EvidenceFamily, readonly string[]>>;
+  optionalLegacyEvidence?: OptionalLegacyEvidence;
   detectors?: DetectorId[];
   count: "monotonic" | "snapshot" | "none";
 };
@@ -262,6 +270,7 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     count: "monotonic"
   },
   "session-recording-input-monitoring": {
+    optionalLegacyEvidence: "fingerprintDetections",
     families: ["detector-output"],
     familyDetails: {
       "detector-output": ["public-fingerprint-detections"]
@@ -270,6 +279,7 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     count: "none"
   },
   "keystroke-exfiltration": {
+    optionalLegacyEvidence: "fingerprintDetections",
     families: ["detector-output"],
     familyDetails: {
       "detector-output": [
@@ -283,6 +293,7 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
   },
   "storage-keys": { families: ["storage"], count: "snapshot" },
   "cname-cloaking": {
+    optionalLegacyEvidence: "cnameCloaks",
     families: ["detector-output"],
     familyDetails: {
       "detector-output": ["cname-lookups", "public-cname-cloaks"]
@@ -291,6 +302,7 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     count: "none"
   },
   "pixel-events": {
+    optionalLegacyEvidence: "pixelEvents",
     families: ["requests", "detector-output"],
     familyDetails: {
       "detector-output": ["pixel-decode", "public-pixel-events"]
@@ -302,13 +314,14 @@ export const REPORT_CLAIM_REQUIREMENTS: Readonly<Record<ReportClaimId, ClaimRequ
     families: ["requests", "detector-output", "consent-verification"],
     familyDetails: {
       "detector-output": ["consent-banner"],
-      "consent-verification": ["public-consent-observations"]
+      "consent-verification": ["consent-verification", "public-consent-observations"]
     },
     detectors: ["consent-banner"],
     count: "none"
   },
   "shields-blocked": { families: ["requests"], count: "monotonic" },
   "privacy-policy": {
+    optionalLegacyEvidence: "privacyPolicy",
     families: ["requests", "cookies", "detector-output"],
     familyDetails: {
       "detector-output": [
@@ -374,6 +387,10 @@ export function buildRunFacts(run: RunView): RunFacts {
         : "info"
     : "ok";
   const signals: RunSignalFacts = {
+    pixels: {
+      withEventLabels: run.evidence.pixelEvents.filter((pixel) => pixel.events.length > 0),
+      withIdentifiers: run.evidence.pixelEvents.filter((pixel) => pixel.advancedMatching.length > 0)
+    },
     fingerprint: {
       eventCount: run.counts.fingerprintEvents,
       apiFamilies: new Set(run.evidence.fingerprintEvents.map((event) => event.api)).size,
@@ -602,6 +619,9 @@ function claimEligibility(
   requirement: ClaimRequirement
 ): ClaimEligibility {
   const blockers = new Set<ClaimBlocker>();
+  const evidenceUnrecorded = requirement.optionalLegacyEvidence !== undefined &&
+    run.unrecordedEvidence.includes(requirement.optionalLegacyEvidence);
+  if (evidenceUnrecorded) blockers.add("evidence-unrecorded");
   if (!subject.describesSubject) blockers.add("subject-not-established");
   for (const family of requirement.families) {
     const state = claimFamilyState(run, evidence, family, requirement.familyDetails?.[family]);
@@ -639,7 +659,7 @@ function claimEligibility(
     (status) => status !== "complete" && status !== "partial"
   );
   const exactCountAllowed =
-    requirement.count !== "none" && !familyIncomplete && !detectorIncomplete;
+    requirement.count !== "none" && !familyIncomplete && !detectorIncomplete && !evidenceUnrecorded;
   return {
     allowed: blockers.size === 0,
     blockers: [...blockers],
@@ -649,6 +669,7 @@ function claimEligibility(
     exactCountAllowed,
     lowerBound:
       requirement.count === "monotonic" &&
+      !evidenceUnrecorded &&
       !familyUnsupported &&
       !detectorUnavailable &&
       (familyCensored || detectorPartial),
@@ -667,11 +688,11 @@ function claimFamilyState(
 ): EvidenceState {
   if (!details) return evidence[family].state;
   // Frozen v1 has no causal loss ledger. Preserve its legacy family state;
-  // detector identity already defaults claims that need it to unavailable.
+  // optional evidence omitted on that wire is handled separately above.
   if (!run.quality.facts) return evidence[family].state;
-  return run.quality.facts.captureLoss.some(
-    (loss) => loss.family === family && loss.detail !== undefined && details.includes(loss.detail)
-  )
+  const losses = run.quality.facts.captureLoss.filter((loss) => loss.family === family);
+  if (losses.length === 0) return evidence[family].state;
+  return losses.some((loss) => captureLossAffectsScope(loss, details))
     ? "censored"
     : "complete";
 }

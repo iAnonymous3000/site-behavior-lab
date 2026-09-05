@@ -291,7 +291,9 @@ export function ReportRenderer({
             <TopThirdParties facts={displayedFacts} />
           </section>
 
-          {displayedRun.evidence.pixelEvents.length > 0 && (
+          {(displayedRun.evidence.pixelEvents.length > 0 || displayedFacts.claims["pixel-events"].blockers.some(
+            (blocker) => blocker !== "subject-not-established"
+          )) && (
             <section className="side-card" id="pixels">
               <h2>Advertising Pixels</h2>
               <PixelEventsList pixels={displayedRun.evidence.pixelEvents} facts={displayedFacts} corrected={publishedReportCorrections(reportView.reportId).suppressIndexing} />
