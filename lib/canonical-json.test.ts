@@ -57,6 +57,23 @@ test("non-JSON values are rejected loudly, never coerced", () => {
   assert.throws(() => canonicalJson({ v: () => 1 }), /unsupported function/);
 });
 
+test("repeated keys retain their encoding, values and full failure paths", () => {
+  const value = { rows: [{ "quote\"": "e\u0301", n: 1 }, { "quote\"": "second", n: 2 }] };
+  assert.equal(canonicalJson(value), '{"rows":[{"n":1,"quote\\\"":"é"},{"n":2,"quote\\\"":"second"}]}');
+  value.rows[0].n = 3;
+  assert.equal(canonicalJson(value), '{"rows":[{"n":3,"quote\\\"":"é"},{"n":2,"quote\\\"":"second"}]}');
+  assert.throws(() => canonicalJson({ rows: [{ n: 1 }, { n: NaN }] }), /non-finite number at \$\.rows\.1\.n$/);
+  assert.throws(() => canonicalJson({ rows: [[], [undefined]] }), /undefined array element at \$\.rows\.1\.0$/);
+});
+
+test("large key vocabularies retain canonical order and NFC rejection", () => {
+  const entries = Array.from({ length: 300 }, (_, index) => [`k${String(index).padStart(3, "0")}`, index] as const);
+  const value = Object.fromEntries([...entries].reverse());
+  const expected = `{${entries.map(([key, n]) => `"${key}":${n}`).join(",")}}`;
+  assert.equal(canonicalJson(value), expected);
+  assert.throws(() => canonicalJson({ ...value, "z\u0301": 1 }), /object key is not NFC-normalized/);
+});
+
 test("the canonicalization version is pinned; changing the rules must change it", () => {
   assert.equal(CANONICALIZATION_VERSION, "canon-v1");
   // A frozen digest of a fixed value. Every committed provenance sidecar

@@ -19,11 +19,18 @@ FROM playwright-base AS build
 RUN apt-get update && apt-get install -y --no-install-recommends unzip \
   && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Dependencies depend on the lockfile and pinned base, not the source commit
+# or public build identity. Keep these layers reusable when either changes;
+# source checks and the application build below still receive the exact SHA.
+COPY package.json package-lock.json ./
+RUN npm ci && npx playwright install chromium
+
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
 ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF
 
-WORKDIR /app
-ENV NEXT_TELEMETRY_DISABLED=1
 ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=${SITE_BEHAVIOR_LAB_BUILD_COMMIT}
 ENV SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=${SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF}
 
@@ -60,9 +67,6 @@ ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_SITE_BEHAVIOR
 # origin. Scheme and host only.
 ARG NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN="https://sitebehavior.org"
 ENV NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN=${NEXT_PUBLIC_SITE_BEHAVIOR_LAB_LIBRARY_ORIGIN}
-
-COPY package.json package-lock.json ./
-RUN npm ci && npx playwright install chromium
 
 COPY . .
 # .next/cache is the build's SWC and webpack cache, not runtime state: Next

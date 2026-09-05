@@ -27,7 +27,7 @@ export const CANONICALIZATION_VERSION = "canon-v1";
  * coerced data would "match" bytes that never existed.
  */
 export function canonicalJson(value: unknown): string {
-  return serialize(value, []);
+  return serialize(value, [], new Map());
 }
 
 /** sha256 hex over the canonical JSON of a public report. */
@@ -35,7 +35,7 @@ export function publicReportDigest(report: unknown): string {
   return sha256Hex(canonicalJson(report));
 }
 
-function serialize(value: unknown, path: string[]): string {
+function serialize(value: unknown, path: string[], encodedKeys: Map<string, string>): string {
   if (value === null) return "null";
   const type = typeof value;
 
@@ -48,11 +48,15 @@ function serialize(value: unknown, path: string[]): string {
     return JSON.stringify(value);
   }
   if (Array.isArray(value)) {
-    const items = value.map((item, index) =>
+    const items = value.map((item, index) => {
       // JSON.stringify serializes undefined/functions in arrays as null; a
       // canonical form must not invent nulls silently.
-      item === undefined ? rejectValue("undefined array element", [...path, String(index)]) : serialize(item, [...path, String(index)])
-    );
+      path.push(String(index));
+      if (item === undefined) rejectValue("undefined array element", path);
+      const serialized = serialize(item, path, encodedKeys);
+      path.pop();
+      return serialized;
+    });
     return `[${items.join(",")}]`;
   }
   if (type === "object") {
@@ -88,11 +92,23 @@ function serialize(value: unknown, path: string[]): string {
     // DetectorLedger over DetectorId, `perMetric` over MetricFamily), and NFC
     // is the identity on ASCII.
     for (const key of keys) {
-      if (key.normalize("NFC") !== key) {
-        rejectValue("object key is not NFC-normalized", [...path, key]);
+      if (!encodedKeys.has(key)) {
+        if (key.normalize("NFC") !== key) {
+          path.push(key);
+          rejectValue("object key is not NFC-normalized", path);
+        }
+        // Cache only key encodings within this serialization. Reports repeat
+        // a small vocabulary thousands of times; values and mutable objects
+        // are never cached, and unusual key sets cannot grow this unboundedly.
+        if (encodedKeys.size < 256) encodedKeys.set(key, JSON.stringify(key));
       }
     }
-    const members = keys.map((key) => `${JSON.stringify(key)}:${serialize(record[key], [...path, key])}`);
+    const members = keys.map((key) => {
+      path.push(key);
+      const serialized = serialize(record[key], path, encodedKeys);
+      path.pop();
+      return `${encodedKeys.get(key) ?? JSON.stringify(key)}:${serialized}`;
+    });
     return `{${members.join(",")}}`;
   }
   return rejectValue(`unsupported ${type}`, path);

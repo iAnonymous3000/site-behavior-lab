@@ -11,7 +11,8 @@ const attestStart = workflow.indexOf("\n  attest:");
 const supplyChainJob = workflow.slice(supplyChainStart, appStart);
 const smokeStart = workflow.indexOf("\n  smoke:");
 const dockerStart = workflow.indexOf("\n  docker:");
-const appJob = workflow.slice(appStart, smokeStart);
+const testsJob = workflow.slice(workflow.indexOf("\n  tests:"), workflow.indexOf("\n  pages:"));
+const pagesJob = workflow.slice(workflow.indexOf("\n  pages:"), smokeStart);
 const smokeJob = workflow.slice(smokeStart, dockerStart);
 const dockerJob = workflow.slice(dockerStart, attestStart);
 const attestJob = workflow.slice(attestStart, promoteStart);
@@ -34,7 +35,8 @@ test("every unit-suite and smoke job pins a budget below the 6-hour default", ()
   // runs the suite or a live app must pin its own ceiling, like
   // update-brave-lists.yml does for its unit-test step.
   assert.notEqual(smokeStart, -1);
-  assert.match(appJob, /\n {4}timeout-minutes: 45\n/);
+  assert.match(testsJob, /\n {4}timeout-minutes: 45\n/);
+  assert.match(pagesJob, /\n {4}timeout-minutes: 45\n/);
   assert.match(smokeJob, /\n {4}timeout-minutes: 45\n/);
   assert.match(dockerJob, /\n {4}timeout-minutes: 45\n/);
 });
@@ -365,7 +367,7 @@ test("exact-image OS licenses are normalized, review-bound, preserved, and indep
 
 test("every CI Node job verifies the exact reviewed Node and npm runtime", () => {
   const setupCount = (workflow.match(/uses: actions\/setup-node@a0853c24544627f65ddf259abe73b1d18a591444/g) ?? []).length;
-  assert.equal(setupCount, 4);
+  assert.equal(setupCount, 5);
   assert.equal((workflow.match(/node-version: 24\.14\.1/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(node --version\)" = "v24\.14\.1"/g) ?? []).length, setupCount);
   assert.equal((workflow.match(/test "\$\(npm --version\)" = "11\.11\.0"/g) ?? []).length, setupCount);

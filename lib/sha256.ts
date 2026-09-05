@@ -1,13 +1,21 @@
 /**
- * Pure, synchronous SHA-256 (hex) over a UTF-8 string. Zero-dep and free of
- * runtime globals so it is importable from every lane (Node, Cloudflare
- * Worker, browser); Node's crypto is lane-bound and WebCrypto is async-only,
- * which the synchronous validators cannot use.
+ * Synchronous SHA-256 (hex), shared by Node, Workers and browsers. Node's
+ * native implementation avoids repeatedly hashing the corpus in JavaScript;
+ * the portable implementation below preserves the same synchronous contract
+ * where native synchronous crypto is unavailable. No Node import enters the
+ * browser bundle, and neither path changes the bytes being hashed.
  *
  * Fingerprint digests are equality/indexing values, never secrecy
  * (scan-report-v2-rfc.md 3.2), so a straightforward reference implementation
  * is sufficient.
  */
+
+// getBuiltinModule is Node's synchronous, cross-environment loading API. A
+// browser process shim has no such method; it uses the portable path. Feature
+// detection also keeps older self-hosted runtimes readable.
+const nativeHash = typeof process !== "undefined" && typeof process.getBuiltinModule === "function"
+  ? process.getBuiltinModule("crypto")?.hash
+  : undefined;
 
 const K = new Uint32Array([
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -30,11 +38,13 @@ function utf8Bytes(text: string): Uint8Array {
 }
 
 export function sha256Hex(text: string): string {
+  if (nativeHash) return nativeHash("sha256", text, "hex");
   return sha256BytesHex(utf8Bytes(text));
 }
 
 /** SHA-256 over exact bytes, for browser-side artifact provenance. */
 export function sha256BytesHex(message: Uint8Array): string {
+  if (nativeHash) return nativeHash("sha256", message, "hex");
   const bitLength = message.length * 8;
 
   // Padding: 0x80, zeros, 64-bit big-endian length.

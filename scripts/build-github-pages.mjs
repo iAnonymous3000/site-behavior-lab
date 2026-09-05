@@ -237,7 +237,8 @@ async function main() {
     cwd: workDir,
     env: {
       ...process.env,
-      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_TELEMETRY_DISABLED: "1",
+      SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1"
     }
   });
 
@@ -245,7 +246,8 @@ async function main() {
     cwd: workDir,
     env: {
       ...process.env,
-      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_TELEMETRY_DISABLED: "1",
+      SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1"
     }
   });
 
