@@ -224,7 +224,7 @@ function decodeMeta(parsed: URL, input: PixelEventInput): DecodedPixel {
     if (!hasStringValue(value)) continue;
     // Advanced matching is sent as ud[em], ud[ph], ud[external_id], ...
     const match = key.match(/^ud\[([^\]]+)\]$/i);
-    const field = match ? META_UD_FIELDS[match[1].toLowerCase()] : undefined;
+    const field = match ? identifierField(META_UD_FIELDS, match[1]) : undefined;
     if (field) advancedMatching.add(field);
   }
 
@@ -278,7 +278,7 @@ function decodeTikTok(input: PixelEventInput): PixelInspection {
     }
     for (const user of userObjects(event)) {
       for (const [key, value] of Object.entries(user)) {
-        const field = TIKTOK_USER_FIELDS[key.toLowerCase()];
+        const field = identifierField(TIKTOK_USER_FIELDS, key);
         if (!field) continue;
         if (value != null && typeof value !== "string" && !Array.isArray(value)) bodyDecoded = false;
         if (hasJsonValue(value)) advancedMatching.add(field);
@@ -320,6 +320,12 @@ function decodeX(parsed: URL, input: PixelEventInput): DecodedPixel {
 
 function hostMatches(host: string, suffix: string): boolean {
   return host === suffix || host.endsWith(`.${suffix}`);
+}
+
+/** Payload keys may name Object.prototype members; only owned vocabulary keys count. */
+function identifierField(fields: Readonly<Record<string, PixelMatchField>>, key: string): PixelMatchField | undefined {
+  const normalized = key.toLowerCase();
+  return Object.hasOwn(fields, normalized) ? fields[normalized] : undefined;
 }
 
 /** Query params plus any urlencoded POST body (pixels occasionally POST `/tr`). */

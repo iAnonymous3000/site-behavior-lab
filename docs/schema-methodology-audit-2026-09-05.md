@@ -90,6 +90,8 @@ stored measurement, sidecar, release threshold, or redaction rule changes.
 Regression expectations include valid open-vocabulary imports with unknown loss,
 omitted versus explicitly empty legacy output, endpoint-only and mixed-platform
 summaries, malformed/unsupported/mixed bodies, and actual browser POST capture.
+Identifier vocabularies admit only their own keys: inherited object properties
+such as `constructor` and `__proto__` cannot become invalid report categories.
 Historical payloads were discarded, so their missed labels or fields cannot be
 reconstructed. Historical copy states that limit instead of asserting absence.
 

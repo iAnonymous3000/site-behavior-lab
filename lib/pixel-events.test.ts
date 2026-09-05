@@ -18,6 +18,20 @@ import {
 
 const HASH = "a".repeat(64);
 
+test("inherited object keys never become identifier categories", () => {
+  const inputs: PixelEventInput[] = [
+    { url: "https://www.facebook.com/tr?ev=PageView&ud[constructor]=value&ud[__proto__]=value&ud[em]=value" },
+    { url: "https://analytics.tiktok.com/api/v2/pixel", postData: '{"event":"Pageview","user":{"constructor":"value","__proto__":"value","toString":"value","email":"value"}}' }
+  ];
+  for (const input of inputs) {
+    const inspection = inspectPixelRequest(input);
+    assert.equal(inspection?.bodyDecoded, true);
+    assert.deepEqual(inspection?.decoded.advancedMatching, ["email"]);
+    const summary = JSON.parse(JSON.stringify(summarizePixelEvents([input])));
+    assert.deepEqual(summary[0].advancedMatching, ["email"], "the JSON boundary cannot acquire null, object, or function categories");
+  }
+});
+
 test("unsupported pixel bodies remain recognized endpoints with incomplete decoding", () => {
   for (const postData of [null, "", "{\"event\":", "opaque-data", "42", '{"unknown":{"email":"value"}}']) {
     const inspection = inspectPixelRequest({ url: "https://analytics.tiktok.com/api/v2/pixel", method: "POST", postData });
