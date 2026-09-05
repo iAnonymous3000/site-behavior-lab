@@ -146,8 +146,11 @@ test("public metric copy keeps request rows and distinct service entities separa
   assert.doesNotMatch(staticGallery, /Most third-party</);
   assert.doesNotMatch(staticGallery, /Most catalogued-service requests</);
   assert.match(evidenceNavigation, /label: "Show catalog-matched requests"/);
-  assert.match(readme, /builds the v4 corpus artifact/);
-  assert.match(readme, /v1 and v2 runs can contribute only to their own exact cohorts/);
+  // The corpus-percentile section moved from the README into the operations
+  // document on 2026-09-02; the sentences it pins moved with it verbatim.
+  const operations = source("docs/operations.md");
+  assert.match(operations, /builds the v4 corpus artifact/);
+  assert.match(operations, /v1 and v2 runs can contribute only to their own exact cohorts/);
   assert.match(methodology, /v1 and v2 runs\s+can contribute only inside their own exact cohorts/);
   assert.doesNotMatch(readme, /every v2 lead run (?:is|are) excluded/);
   assert.doesNotMatch(methodology, /every v2 run (?:is|are) excluded/);

@@ -638,6 +638,81 @@ test("a version-2 corpus benchmarks only the report's exact methodology cohort",
   assert.match(byId(rejected, "bottom-line").detail, /fixed reference thresholds/);
 });
 
+test("the board withholds a percentile rank from a run the corpus builder excludes, even where the claim gate allows one", () => {
+  // The corpus distribution is built from complete, uncapped, uncensored,
+  // pre-consent visits. The board reads the builder's own population
+  // predicate before ranking; nothing else stands between a cut-short visit
+  // and a percentile badge, because the per-claim evidence gate only knows the
+  // families a claim depends on. Censoring the REQUEST family leaves the
+  // cookies claim's own gate open (its family is cookies), so a board that
+  // restated the population rule as "complete and observe" would rank the
+  // cookies of a request-censored visit against sites the builder never
+  // admitted it beside. Every case below keeps quality.outcome "complete" and
+  // consent "observe", the shape such a restatement admits.
+  const rankable = (mutate: (run: ReturnType<typeof displayRunView>) => void) => {
+    const view = viewFromV2(makePublicSingleReportV2R2(), 2);
+    const run = displayRunView(view);
+    run.counts.thirdPartyCookies = 15;
+    mutate(run);
+    const metrics = makeCorpus(60).metrics;
+    const corpus: CorpusStats = {
+      version: 2,
+      generatedAt: new Date(0).toISOString(),
+      sampleSize: 60,
+      metrics,
+      primaryCohortId: "v1:legacy:producer-unrecorded",
+      cohorts: [
+        {
+          ...corpusCohortIdentityForView(view),
+          sampleSize: 60,
+          latestRunAt: "2026-07-06T09:35:00.000Z",
+          metrics
+        }
+      ]
+    };
+    return { view, run, corpus, findings: buildFindings(view, corpus) };
+  };
+
+  const complete = rankable(() => undefined);
+  assert.equal(complete.run.quality.outcome, "complete");
+  assert.equal(complete.run.conditions.consentMode, "observe");
+  assert.match(
+    byId(complete.findings, "third-party-cookies").benchmark ?? "",
+    /At or above the 90th-percentile mark for third-party cookies across the 60 sites measured for this metric/,
+    "the control: a fully measured visit in a usable matching cohort is ranked"
+  );
+
+  const censored = rankable((run) => {
+    run.quality.byFamily = {
+      ...(run.quality.byFamily ?? {}),
+      requests: { outcome: "censored", reasons: ["budget-exhausted:request-capture"] }
+    };
+  });
+  assert.equal(censored.run.quality.outcome, "complete", "the censoring leaves the run outcome untouched");
+  assert.equal(
+    buildReportFacts(censored.view).display.claims["third-party-cookies"].benchmarkAllowed,
+    true,
+    "premise: the cookies claim's own evidence gate does not withhold the rank, so the board's population rule is the only guard"
+  );
+  assert.equal(
+    byId(censored.findings, "third-party-cookies").benchmark,
+    undefined,
+    "a request-censored visit is outside the builder's population and carries no percentile"
+  );
+  assert.equal(byId(censored.findings, "third-party-services").benchmark, undefined);
+  assert.match(byId(censored.findings, "bottom-line").detail, /not ranked against corpus percentiles/);
+
+  // The 1,000-request recording cap on a v2 run is warning-derived rather than
+  // a censored family; the builder excludes it through the same predicate.
+  const capped = rankable((run) => {
+    run.warnings = [...run.warnings, "The scan stopped recording or loading additional requests after 1000 requests."];
+  });
+  assert.equal(capped.run.quality.outcome, "complete");
+  assert.equal(requestEvidenceState(capped.run), "capped");
+  assert.equal(byId(capped.findings, "third-party-cookies").benchmark, undefined);
+  assert.equal(byId(capped.findings, "third-party-services").benchmark, undefined);
+});
+
 test("small corpora below the honesty gate fall back to fixed thresholds", () => {
   const result = makeResult({ thirdPartyDomains: 40, thirdPartyRequests: 40 });
   const tiny = buildFindings(viewFromV1Report(result), makeCorpus(10));
@@ -1579,8 +1654,10 @@ test("a chain-attributed listener detection is never published as registered by 
   assert.doesNotMatch(copy, /(third-party|cross-site) script registered (listeners?\b|broad)/i);
   assert.doesNotMatch(copy, /registered broad third-party/i);
   assert.doesNotMatch(copy, /listeners? from /i);
-  assert.match(card.lead, /call chains that included a third-party script/);
-  assert.match(card.detail, /does not by itself establish that the third-party script registered the listener/);
+  // cdn.example.net matches no catalog entry and no reviewed organization, so
+  // nothing establishes an outside operator; the copy says so.
+  assert.match(card.lead, /call chains that included a script served from another registrable domain/);
+  assert.match(card.detail, /does not by itself establish that the cross-site script registered the listener/);
   // Not vacuous: the detection rendered and named the chain origin.
   assert.match(card.evidence, /cdn\.example\.net/);
 
@@ -1591,8 +1668,70 @@ test("a chain-attributed listener detection is never published as registered by 
   const sessionCard = byId(buildFindings(viewFromV1Report(sessionChain), null), "session-recording-input-monitoring");
   const sessionCopy = [sessionCard.title, sessionCard.lead, sessionCard.detail, sessionCard.evidence].join(" ");
   assert.doesNotMatch(sessionCopy, /(third-party|cross-site) script registered (listeners?\b|broad)/i);
-  assert.match(sessionCard.lead, /call chains that included a third-party script/);
+  assert.match(sessionCard.lead, /call chains that included a script served from another registrable domain/);
   assert.match(sessionCard.evidence, /cdn\.example\.net/);
+});
+
+test("a listener origin is called a third-party script only when the report attributes it to another operator", () => {
+  // github.com serves its own scripts from githubassets.com. The card read
+  // "Input-monitoring signal involving a third-party script" over exactly
+  // that origin, which told a reader the site's own code was an outside
+  // party monitoring input. A different registrable domain establishes no
+  // operator by itself (reviewed-ownership.ts says as much); the catalog or
+  // reviewed ownership does.
+  const ownAssetHost: DomainSummary = {
+    domain: "{label}.shopassets.example",
+    requests: 3,
+    thirdParty: true,
+    resourceTypes: ["script"],
+    statuses: [200],
+    tracker: null,
+    blockedByShields: false
+  };
+  const ownCdn = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [ownAssetHost],
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://{label}.shopassets.example/"])]
+  });
+  const ownCdnCard = byId(buildFindings(viewFromV1Report(ownCdn), null), "session-recording-input-monitoring");
+  assert.equal(ownCdnCard.title, "Input-monitoring signal involving a script from another domain");
+  assert.doesNotMatch(ownCdnCard.title, /third-party/);
+  assert.doesNotMatch(ownCdnCard.lead, /third-party script/);
+  assert.match(ownCdnCard.lead, /a script served from another registrable domain, whose operator this scan did not establish/);
+  assert.match(ownCdnCard.evidence, /shopassets\.example/);
+
+  // The same origin with a catalog match on its requests is attributed to a
+  // named entity, and the card keeps saying third party.
+  const catalogued = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [makeTrackerDomain("{label}.shopassets.example", 3, "ReplayCo", "analytics")],
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://{label}.shopassets.example/"])]
+  });
+  const cataloguedCard = byId(buildFindings(viewFromV1Report(catalogued), null), "session-recording-input-monitoring");
+  assert.equal(cataloguedCard.title, "Input-monitoring signal involving a third-party script");
+  assert.match(cataloguedCard.lead, /call chains that included a third-party script\./);
+
+  // Reviewed ownership placing the origin under a different reviewed
+  // organization than the subject also attributes it.
+  const reviewedOther = makeResult({
+    firstPartyDomain: "www.x.com",
+    fingerprintDetections: [makeListenerDetection("session-recording", ["https://www.gstatic.com/"])]
+  });
+  const reviewedCard = byId(buildFindings(viewFromV1Report(reviewedOther), null), "session-recording-input-monitoring");
+  assert.equal(reviewedCard.title, "Interaction-monitoring signal involving a third-party script");
+
+  // And reviewed ownership folding a catalogued origin back into the
+  // subject's own organization withholds the label.
+  const sameOrganization = makeResult({
+    firstPartyDomain: "www.youtube.com",
+    domains: [makeTrackerDomain("www.gstatic.com", 3, "Google", "analytics")],
+    fingerprintDetections: [makeListenerDetection("session-recording", ["https://www.gstatic.com/"])]
+  });
+  const sameOrganizationCard = byId(
+    buildFindings(viewFromV1Report(sameOrganization), null),
+    "session-recording-input-monitoring"
+  );
+  assert.equal(sameOrganizationCard.title, "Interaction-monitoring signal involving a script from another domain");
 });
 
 test("the session-recording lead names only the event categories the detection recorded", () => {

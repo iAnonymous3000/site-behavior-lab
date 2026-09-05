@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
 import { test } from "node:test";
 import { chromium, type Browser, type Page } from "playwright";
 import {
@@ -926,6 +928,125 @@ test("the allow-all control wins over the qualified one on a banner carrying bot
     await browser.close();
   }
 });
+
+test("the consent click never submits a form, while link and non-submit controls still activate", { timeout: 30_000 }, async () => {
+  // A synthetic click on a form's submit control runs the form's activation
+  // behaviour, which once made this scanner POST a site's own form with the
+  // visitor's fields. The refusal lives in the page-side dispatch and is only
+  // observable against a real server: a fixture on loopback records every
+  // POST it receives, and the assertions are on what reached it and where the
+  // page ended up, not on how the dispatch is written.
+  const posts: { path: string; body: string }[] = [];
+  const gets: string[] = [];
+  const fixture = createServer((request, response) => {
+    const path = request.url ?? "/";
+    if (request.method === "POST") {
+      let body = "";
+      request.setEncoding("utf8");
+      request.on("data", (chunk: string) => {
+        body += chunk;
+      });
+      request.on("end", () => {
+        posts.push({ path, body });
+        response.setHeader("Content-Type", "text/html");
+        response.end("<!doctype html><title>submitted</title>");
+      });
+      return;
+    }
+    gets.push(path);
+    response.setHeader("Content-Type", "text/html");
+    response.end(FORM_FIXTURE_PAGES[path] ?? "<!doctype html><title>missing</title>");
+  });
+  await new Promise<void>((resolve) => fixture.listen(0, "127.0.0.1", resolve));
+  const origin = `http://127.0.0.1:${(fixture.address() as AddressInfo).port}`;
+
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const page = await newConsentPage(browser);
+    const click = () =>
+      page
+        .evaluate(findAndClickConsentControl, consentClickArgs("accept-all", SHADOW_ROOT_CAPABILITY))
+        // A submission would tear down the execution context mid-evaluate;
+        // keep that visible as a value instead of an exception.
+        .catch((error: unknown) => ({ evaluateError: String(error) }));
+
+    for (const path of ["/bare-button", "/input-submit"]) {
+      await page.goto(`${origin}${path}`);
+      const outcome = await click();
+      await page.waitForTimeout(300);
+      assert.deepEqual(posts, [], `${path}: the click must not submit the form`);
+      assert.equal(page.url(), `${origin}${path}`, `${path}: the page must stay where it was`);
+      assert.deepEqual(
+        outcome,
+        { clicked: true, cmp: "OneTrust", selector: "#onetrust-accept-btn-handler" },
+        `${path}: the page's own click handler still runs, so the control reacts`
+      );
+      assert.equal(await page.evaluate(() => document.title), "banner", path);
+    }
+
+    // The cancellation is scoped to submit controls: a link consent control
+    // registers its choice by navigating, and must still do so.
+    await page.goto(`${origin}/anchor`);
+    await click();
+    await page.waitForURL(`${origin}/accepted`, { timeout: 5_000 }).catch(() => {
+      assert.fail("the link control must still navigate: a blanket cancellation would suppress it");
+    });
+    assert.equal(gets.at(-1), "/accepted", "the link control must still navigate");
+    assert.deepEqual(posts, []);
+
+    // A type="button" inside the same form is not a submit control: its
+    // handler runs, the form stays put.
+    await page.goto(`${origin}/type-button`);
+    const typeButtonOutcome = await click();
+    await page.waitForTimeout(300);
+    assert.deepEqual(typeButtonOutcome, { clicked: true, cmp: "OneTrust", selector: "#onetrust-accept-btn-handler" });
+    assert.deepEqual(posts, []);
+    assert.equal(page.url(), `${origin}/type-button`);
+  } finally {
+    await browser.close();
+    await new Promise<void>((resolve) => fixture.close(() => resolve()));
+  }
+});
+
+const FORM_FIXTURE_BANNER_TEXT = "<p>We use cookies to improve your experience. Leave your email for updates.</p>";
+const FORM_FIXTURE_REACT_SCRIPT = `<script>
+    document.querySelector("#onetrust-accept-btn-handler").addEventListener("click", (event) => {
+      event.currentTarget.closest("form, div").hidden = true;
+    });
+  </script>`;
+const FORM_FIXTURE_PAGES: Record<string, string> = {
+  "/bare-button": `<!doctype html><title>banner</title><body>
+    <form method="post" action="/newsletter">
+      ${FORM_FIXTURE_BANNER_TEXT}
+      <input name="email" value="visitor@example.test">
+      <button id="onetrust-accept-btn-handler">Accept all</button>
+    </form>
+    ${FORM_FIXTURE_REACT_SCRIPT}
+  </body>`,
+  "/input-submit": `<!doctype html><title>banner</title><body>
+    <form method="post" action="/newsletter">
+      ${FORM_FIXTURE_BANNER_TEXT}
+      <input name="email" value="visitor@example.test">
+      <input type="submit" id="onetrust-accept-btn-handler" value="Accept all">
+    </form>
+    ${FORM_FIXTURE_REACT_SCRIPT}
+  </body>`,
+  "/anchor": `<!doctype html><title>banner</title><body>
+    <div>
+      ${FORM_FIXTURE_BANNER_TEXT}
+      <a href="/accepted" id="onetrust-accept-btn-handler">Accept all</a>
+    </div>
+  </body>`,
+  "/type-button": `<!doctype html><title>banner</title><body>
+    <form method="post" action="/newsletter">
+      ${FORM_FIXTURE_BANNER_TEXT}
+      <input name="email" value="visitor@example.test">
+      <button type="button" id="onetrust-accept-btn-handler">Accept all</button>
+    </form>
+    ${FORM_FIXTURE_REACT_SCRIPT}
+  </body>`,
+  "/accepted": "<!doctype html><title>accepted</title>"
+};
 
 test("the reviewed accept/reject pairs stay symmetric and keep their vendor semantics", () => {
   const entryFor = (cmp: string) => {

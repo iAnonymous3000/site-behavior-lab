@@ -158,6 +158,31 @@ test("malformed ids, unknown options, and unsafe origins are refused before any 
   assert.match(insecureOrigin.stderr, /must be https/);
 });
 
+test("a rewritten sidecar clock still verifies, so the boundary must name the sidecar timestamps", async () => {
+  // The transparency log binds the report bytes and the canonical digest only,
+  // and the CLI feeds the reader a retention clock copied from the same
+  // sidecar, so createdAt/writtenAt verify against themselves. That is a
+  // documented boundary of the one-command path, not a chain break; the
+  // verdict is honest only while the closing output says so.
+  const { dir, id } = await fixtureBundle();
+  try {
+    const sidecarPath = path.join(dir, `${id}.provenance.json`);
+    const sidecar = JSON.parse(readFileSync(sidecarPath, "utf8")) as Record<string, unknown>;
+    assert.equal(typeof sidecar.createdAt, "string");
+    sidecar.createdAt = "2025-01-01T00:00:00.000Z";
+    sidecar.writtenAt = "2025-01-01T00:00:00.000Z";
+    writeFileSync(sidecarPath, `${JSON.stringify(sidecar, null, 2)}\n`);
+
+    const result = runCli([id, "--from", dir]);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /Verified: these bytes are exactly what this project published/);
+    assert.match(result.stdout, /This command does not prove:[\s\S]*the sidecar's own timestamps \(createdAt, writtenAt\)/);
+    assert.match(result.stdout, /sidecar bytes are bound only by the CI evidence manifest/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test("the boundary is printed on success as well as failure", async () => {
   const { dir, id } = await fixtureBundle();
   try {

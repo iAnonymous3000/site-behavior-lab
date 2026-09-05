@@ -118,6 +118,8 @@ type InternalScanJobRecord = {
   error?: string;
   scan?: ScanRunner;
   saveReport?: ReportSaver;
+  /** Test seam for the in-process commit-then-reconcile saver; production uses the report store. */
+  publication?: DurablePublicationAdapter;
   usesDefaultPersistence: boolean;
   abortController: AbortController;
   publicationStarted: boolean;
@@ -347,7 +349,11 @@ export async function submitScanJobRequest(request: Request): Promise<ScanJobSub
 
 export function enqueuePreparedScanJob(
   prepared: PreparedScanRequest,
-  dependencies: { scan?: ScanRunner; saveReport?: ReportSaver } = {}
+  dependencies: {
+    scan?: ScanRunner;
+    saveReport?: ReportSaver;
+    publication?: DurablePublicationAdapter;
+  } = {}
 ): ScanJobSubmissionResponse {
   pruneScanJobs();
   // Reject an explicitly requested but unready r2 producer before this job is
@@ -387,6 +393,7 @@ export function enqueuePreparedScanJob(
     progress: createProgress("queued", prepared, 0),
     scan: dependencies.scan,
     saveReport: dependencies.saveReport,
+    publication: dependencies.publication,
     usesDefaultPersistence: admissionSaver === saveScanReport,
     abortController: new AbortController(),
     publicationStarted: false,
@@ -765,7 +772,7 @@ async function runScanJob(record: InternalScanJobRecord): Promise<void> {
     }
     const saveReport: ReportSaver = record.durable
       ? durableReportSaver(record)
-      : record.saveReport ?? ((report) => saveScanReport(report, { shareId: record.reportId }));
+      : record.saveReport ?? localReportSaver(record);
     const report = await executePreparedScan(record.prepared, record.scan, saveReport, QUEUE_TIMEOUT_MS, false, {
       signal: record.abortController.signal,
       onProgress: (progress) => updateRunningProgress(record, progress),
@@ -785,7 +792,8 @@ async function runScanJob(record: InternalScanJobRecord): Promise<void> {
     if (error instanceof DurablePublicationOutcomeUnknownError && record.durable) {
       // Do not invent a terminal result after a control-plane or R2 outcome-
       // unknown window. Leave the DO's manifest authoritative and stop local
-      // ownership; lease expiry will reconcile exact persisted bytes.
+      // ownership; lease expiry will reconcile exact persisted bytes. An
+      // in-process job has no later reconciler and falls through to failure.
       record.durable.detachedAtMs = Date.now();
       scheduleDurableLocalCleanup(record);
       return;
@@ -834,50 +842,96 @@ function durableReportSaver(record: InternalScanJobRecord): ReportSaver {
     if (!durable || !bundle) {
       throw new Error("Durable publication began without a prepared report bundle.");
     }
-
-    const publication = boundedOperationSignal(
+    return (await commitPreparedBundleOrReconcile(
+      durable.publication,
+      bundle,
       record.abortController.signal,
-      durable.publicationTimeoutMs,
-      "Durable scan-report publication timed out."
-    );
+      durable.publicationTimeoutMs
+    )) as T;
+  };
+}
+
+/**
+ * The in-process worker's saver. Its commit runs under the report store's own
+ * whole-operation deadline, which can fire after the R2 PUT has landed, and a
+ * transport can lose the response the same way. Answering that rejection with
+ * "failed" reported a permanently public report as a job that published
+ * nothing, so the submitter was told to resubmit and visit the target again.
+ * Prepare the bundle under the reserved report capability, then let the same
+ * read-back as the durable path decide from exact stored bytes. There is no
+ * coordinator to reconcile later, so an outcome that is still unknown within
+ * the publication bound is reported as a failure, never as a fabricated result.
+ */
+function localReportSaver(record: InternalScanJobRecord): ReportSaver {
+  const publication = record.publication ?? DEFAULT_DURABLE_PUBLICATION;
+  return async <T extends RuntimeScanReport>(report: T): Promise<T> => {
+    const bundle = publication.prepare(report, record.reportId);
+    if (bundle.manifest.reportId !== record.reportId) {
+      throw new Error("The prepared scan-report bundle used the wrong report capability.");
+    }
+    return (await commitPreparedBundleOrReconcile(
+      publication,
+      bundle,
+      record.abortController.signal,
+      DURABLE_SCAN_JOB_PUBLICATION_TIMEOUT_MS
+    )) as T;
+  };
+}
+
+/**
+ * Commit one prepared bundle and, when the commit rejects, read the store back
+ * before answering. A rejection after the PUT landed must not stand in for a
+ * failed publication; exact stored bytes are the only evidence that counts.
+ * Both savers share this so the two paths cannot disagree about that window.
+ */
+async function commitPreparedBundleOrReconcile(
+  publication: DurablePublicationAdapter,
+  bundle: PreparedScanReportBundle,
+  executionSignal: AbortSignal,
+  timeoutMs: number
+): Promise<RuntimeScanReport> {
+  const operation = boundedOperationSignal(
+    executionSignal,
+    timeoutMs,
+    "Scan-report publication timed out."
+  );
+  try {
     try {
+      return await awaitOperationOrAbort(operation.signal, () =>
+        publication.commit(bundle, operation.signal)
+      );
+    } catch (commitError) {
+      let reconciliation: ScanReportBundleReconciliation;
       try {
-        return (await awaitOperationOrAbort(publication.signal, () =>
-          durable.publication.commit(bundle, publication.signal)
-        )) as T;
-      } catch (commitError) {
-        let reconciliation: ScanReportBundleReconciliation;
-        try {
-          reconciliation = await awaitOperationOrAbort(publication.signal, () =>
-            durable.publication.reconcile(bundle.manifest, publication.signal)
-          );
-        } catch (reconciliationError) {
-          throw new DurablePublicationOutcomeUnknownError(
-            "Durable scan-report reconciliation has an unknown outcome.",
-            { cause: reconciliationError }
-          );
-        }
-        if (reconciliation.outcome === "found") {
-          // A completed first attempt may have lost its response after R2 commit.
-          // The canonical stored public report is authoritative even though an
-          // ephemeral screenshot is necessarily unavailable after reconciliation.
-          return reconciliation.report as T;
-        }
-        if (reconciliation.outcome === "integrity-error") {
-          throw new Error(
-            `Durable scan-report publication failed integrity reconciliation (${reconciliation.reason}).`,
-            { cause: commitError }
-          );
-        }
+        reconciliation = await awaitOperationOrAbort(operation.signal, () =>
+          publication.reconcile(bundle.manifest, operation.signal)
+        );
+      } catch (reconciliationError) {
         throw new DurablePublicationOutcomeUnknownError(
-          "Durable scan-report publication has an unknown outcome.",
+          "Scan-report reconciliation has an unknown outcome.",
+          { cause: reconciliationError }
+        );
+      }
+      if (reconciliation.outcome === "found") {
+        // A completed first attempt may have lost its response after R2 commit.
+        // The canonical stored public report is authoritative even though an
+        // ephemeral screenshot is necessarily unavailable after reconciliation.
+        return reconciliation.report as RuntimeScanReport;
+      }
+      if (reconciliation.outcome === "integrity-error") {
+        throw new Error(
+          `Scan-report publication failed integrity reconciliation (${reconciliation.reason}).`,
           { cause: commitError }
         );
       }
-    } finally {
-      publication.dispose();
+      throw new DurablePublicationOutcomeUnknownError(
+        "Scan-report publication has an unknown outcome.",
+        { cause: commitError }
+      );
     }
-  };
+  } finally {
+    operation.dispose();
+  }
 }
 
 /**

@@ -40,8 +40,10 @@ export default function MethodologyPage() {
           A measured run is not a promise of exactly one network navigation. Consent verification may perform one
           disclosed post-choice reload; the input probe may navigate to a blank page at the end to flush unload
           beacons; and policy analysis may open one separate, SSRF-guarded policy page after the primary request log is
-          frozen. Reload- and policy-phase traffic is excluded from the main request counts, while unload beacons sent
-          by the measured page during the active input probe remain included.
+          frozen. Reload- and policy-phase traffic is excluded from the main request counts. Beacons the measured
+          page sends while its document is still alive during the active input probe remain included; a beacon
+          issued only during the final teardown is provoked but not reported to the recorder by the pinned
+          Playwright build, so it is absent from the request log.
         </p>
         <p>
           A local PageGraph import is the disclosed exception: it adapts a paired GraphML capture and metadata

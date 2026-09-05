@@ -18,7 +18,7 @@ export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   const { entries } = await loadCorpusOverview();
-  return [...new Set(entries.map((entry) => siteProfileKey(entry.domain)).filter((key): key is string => Boolean(key)))].map(
+  return [...new Set(entries.map((entry) => entry.siteKey).filter((key): key is string => key !== null))].map(
     (domain) => ({ domain })
   );
 }
@@ -143,7 +143,9 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           <h2 id="current-title">{latest.headline}</h2>
           <p>
             {reportKindLabel(latest)} · {formatDate(latest.scannedAt)} · {latest.device}
-            {!latest.requestEvidenceComplete && <> · <IncompleteEvidenceChip capped={latest.capped} /></>}
+            {!latest.requestEvidenceComplete && (
+              <> · <IncompleteEvidenceChip capped={latest.capped} failed={latest.runOutcome !== "complete"} /></>
+            )}
           </p>
         </div>
         <dl className="site-profile-metrics">
@@ -217,7 +219,9 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
                 <span>{entry.headline}</span>
                 <small>
                   {!entry.requestEvidenceComplete && "at least "}{entry.thirdPartyRequests.toLocaleString()} third-party requests · {!entry.requestEvidenceComplete && "at least "}{entry.trackerRequests.toLocaleString()} third-party tracking-service requests · schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}
-                  {!entry.requestEvidenceComplete && <> · <IncompleteEvidenceChip capped={entry.capped} /></>}
+                  {!entry.requestEvidenceComplete && (
+                    <> · <IncompleteEvidenceChip capped={entry.capped} failed={entry.runOutcome !== "complete"} /></>
+                  )}
                 </small>
               </Link>
             </li>
@@ -234,7 +238,7 @@ async function loadProfile(rawDomain: string): Promise<{ domain: string; entries
   if (!key) return null;
   const { entries } = await loadCorpusOverview();
   const matches = entries
-    .filter((entry) => siteProfileKey(entry.domain) === key)
+    .filter((entry) => entry.siteKey === key)
     .sort((left, right) => Date.parse(right.scannedAt) - Date.parse(left.scannedAt));
   return matches.length > 0 ? { domain: key, entries: matches } : null;
 }
@@ -245,14 +249,18 @@ async function loadProfile(rawDomain: string): Promise<{ domain: string; entries
  * unreachable by touch and by keyboard, and screen readers skip `title` when the element
  * already has text. lib/accessibility-contract.test.ts bans this pattern elsewhere.
  */
-function IncompleteEvidenceChip({ capped }: { capped: boolean }) {
+function IncompleteEvidenceChip({ capped, failed }: { capped: boolean; failed: boolean }) {
+  // A failed visit is named as such: its counts are floors because the load
+  // did not complete, not because of a capture loss the run never recorded.
   return (
     <span className="capped-chip">
-      {capped ? "recording capped" : "request evidence incomplete"}
+      {failed ? "visit did not complete" : capped ? "recording capped" : "request evidence incomplete"}
       <span className="visually-hidden print-text-equivalent">
-        {capped
-          ? ": this visit hit the exact request-recording cap, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."
-          : ": this visit has incomplete request evidence from another bounded capture loss, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."}
+        {failed
+          ? ": this visit returned an error document or was blocked, so its request counts are lower bounds, its cookie count is not measured, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+          : capped
+            ? ": this visit hit the exact request-recording cap, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+            : ": this visit has incomplete request evidence from another bounded capture loss, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."}
       </span>
     </span>
   );

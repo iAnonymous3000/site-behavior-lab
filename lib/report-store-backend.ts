@@ -154,26 +154,35 @@ export function createFilesystemReportStoreBackend(): ReportStoreBackend {
       }
       await mkdir(dir, { recursive: true });
       options?.signal?.throwIfAborted();
+      let retentionCreated = false;
       let reportCreated = false;
       try {
-        await writeFile(filePath(id), contents, { flag: "wx" });
-        reportCreated = true;
-        options?.signal?.throwIfAborted();
         if (retention) {
           // Filesystems have no portable object custom-metadata API. Keep the
           // immutable clock in a companion outside the report-file pattern;
           // the facade treats a missing/malformed companion exactly like
-          // missing R2 custom metadata and never falls back to mtime.
+          // missing R2 custom metadata and never falls back to mtime. The
+          // companion lands before the report: a crash between the two writes
+          // then strands a companion, which nothing lists or serves, where
+          // the other order stranded a clockless report that no prune pass
+          // could ever schedule.
           await writeFile(retentionPath(id), `${JSON.stringify(retention)}\n`, { flag: "wx" });
+          retentionCreated = true;
           options?.signal?.throwIfAborted();
         }
+        await writeFile(filePath(id), contents, { flag: "wx" });
+        reportCreated = true;
+        options?.signal?.throwIfAborted();
       } catch (error) {
-        // Roll back only after this call's create-only report write succeeded.
-        // A conflict on the report itself belongs to another process and must
-        // never trigger deletion of that process's in-flight bundle.
-        if (reportCreated) {
-          await removeFiles([retentionPath(id), filePath(id)]).catch(() => undefined);
-        }
+        // Roll back only what this call created, the report before its
+        // companion so an interrupted rollback cannot leave a clockless report
+        // either. A conflict on either file belongs to another process and
+        // must never trigger deletion of that process's in-flight bundle.
+        const created = [
+          ...(reportCreated ? [filePath(id)] : []),
+          ...(retentionCreated ? [retentionPath(id)] : [])
+        ];
+        if (created.length > 0) await removeFiles(created).catch(() => undefined);
         throw error;
       }
       return { ownership: "certain" };

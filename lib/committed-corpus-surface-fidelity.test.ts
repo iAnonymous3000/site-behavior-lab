@@ -11,7 +11,7 @@ import {
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { KNOWN_CAPTURE_LOSS_DETAILS } from "./capture-loss-presentation";
 import { loadCorpusOverview } from "./corpus-overview";
-import { corpusSiteDomainKey } from "./corpus-site-domain";
+import { corpusSiteDomainKey, corpusSiteKeyForRun } from "./corpus-site-domain";
 import { isCorpusStats, type CorpusStats } from "./corpus-stats";
 import { serializeJsonLd } from "./jsonld-script";
 import { isReservedReportDomain } from "./reserved-report-domains";
@@ -91,6 +91,7 @@ test("every committed bundle stays faithful across every public report surface",
   const corpus = await readProductionCorpusStats();
   const bundles: AcceptedBundle[] = [];
   let censorshipNoteCount = 0;
+  markedSubjectUrls = 0;
 
   for (const id of ids) {
     const managed = await readStaticReportBundle(reportsDir, id);
@@ -168,6 +169,11 @@ test("every committed bundle stays faithful across every public report surface",
     true,
     "the committed-corpus copy gate found no censorship notes; a zero must be investigated, not treated as success"
   );
+  assert.equal(
+    markedSubjectUrls > 0,
+    true,
+    "no committed report carries a redaction marker in its subject URL, so the JSON-LD marker rule was never exercised"
+  );
 
   await assertCorpusProjection(bundles, corpus);
   await assertManifestProjection(reportsDir, bundles);
@@ -180,6 +186,9 @@ async function readProductionCorpusStats(): Promise<CorpusStats> {
   assert.equal(isCorpusStats(value), true, "the committed production corpus stats must be readable");
   return value as CorpusStats;
 }
+
+/** Subject URLs carrying a redaction marker, counted so the marker rule cannot pass vacuously. */
+let markedSubjectUrls = 0;
 
 function assertJsonLdFidelity(id: string, view: ReportView, presentation: Presentation): void {
   const url = `${SITE_ORIGIN}/reports/${id}/`;
@@ -223,8 +232,17 @@ function assertJsonLdFidelity(id: string, view: ReportView, presentation: Presen
       "@type": "WebSite",
       name: presentation.headline.domain
     };
+    // A redacted URL is not navigable on either wire generation: v2 flags its
+    // route shapes, v1 carries the same {seg}/{label}/{n} markers unflagged.
+    // Restated as the marker spelling rather than read from report-url.ts so
+    // the surface and this gate cannot agree by construction.
+    const requestedUrlCarriesMarker = /\{(?:seg|n|label|invalid-url|invalid-host)\}|\[redacted/i.test(
+      subjectRun.conditions.requestedUrl
+    );
+    if (requestedUrlCarriesMarker) markedSubjectUrls += 1;
     if (
       !subjectRun.conditions.urlsAreRouteShapes &&
+      !requestedUrlCarriesMarker &&
       urlBelongsToSubject(subjectRun.conditions.requestedUrl, subjectRun.domain)
     ) {
       expectedAbout.url = subjectRun.conditions.requestedUrl;
@@ -325,6 +343,7 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
   );
 
   const bundleById = new Map(publicBundles.map((bundle) => [bundle.id, bundle]));
+  let failedLeadRows = 0;
   for (const row of rows) {
     const bundle = bundleById.get(row.id);
     assert.ok(bundle, `${row.id}: corpus row has no committed bundle`);
@@ -382,7 +401,22 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     assert.equal(row.status, run.status, `${row.id}: corpus status`);
     assert.equal(row.runOutcome, run.quality.outcome, `${row.id}: corpus run outcome`);
     assert.equal(row.requestCapped, runHitRequestRecordingCap(run), `${row.id}: corpus cap flag`);
-    assert.equal(row.requestEvidenceComplete, !familyCensoredOnRun(run, "requests"), `${row.id}: corpus completeness`);
+    // The rule lib/report-jsonld.ts applies to the same run: a failed visit's
+    // request counts are floors and its cookie snapshot is unmeasured, on top
+    // of family censoring. Restated here rather than read from the helper so
+    // the two cannot agree by construction.
+    const runFailed = run.quality.outcome === "failed";
+    if (runFailed) failedLeadRows += 1;
+    assert.equal(
+      row.requestEvidenceComplete,
+      !runFailed && !familyCensoredOnRun(run, "requests"),
+      `${row.id}: corpus completeness`
+    );
+    assert.equal(
+      row.cookieEvidenceComplete,
+      !runFailed && !familyCensoredOnRun(run, "cookies"),
+      `${row.id}: corpus cookie completeness`
+    );
     assert.equal(row.schemaVersion, bundle.stored.schemaVersion, `${row.id}: corpus schema version`);
     assert.equal(row.schemaRevision, bundle.view.revision, `${row.id}: corpus schema revision`);
     assert.equal(row.schemaOrigin, bundle.view.origin, `${row.id}: corpus schema origin`);
@@ -429,6 +463,7 @@ async function assertCorpusProjection(bundles: AcceptedBundle[], corpus: CorpusS
     assert.equal(row.reportUrl, `${SITE_ORIGIN}/reports/${row.id}/`, `${row.id}: corpus report URL`);
     assert.equal(row.jsonUrl, `${SITE_ORIGIN}/reports/${row.id}.json`, `${row.id}: corpus JSON URL`);
   }
+  assert.ok(failedLeadRows > 0, "the completeness rule for failed visits must be exercised by a real failed lead run");
 
   const expectedCounts = independentCorpusSiteCounts(publicBundles);
   assert.equal(overview.attemptedSiteCount, expectedCounts.attempted, "corpus attempted-site count");
@@ -536,9 +571,15 @@ function independentCorpusSiteCounts(bundles: AcceptedBundle[]): {
   const capped = new Set<string>();
 
   for (const bundle of bundles) {
-    const domain =
-      corpusSiteDomainKey(bundle.presentation.headline.domain) ||
-      bundle.presentation.headline.domain.toLowerCase();
+    // Identity is the lead run's, whose requested URL still carries a
+    // `{label}` marker; the headline's display domain has dropped it, so
+    // keying on the display string would count a generalized sub-property
+    // (plato.stanford.edu) as the apex. Such a visit is no site.
+    const domain = corpusSiteKeyForRun({
+      domain: bundle.view.domain,
+      conditions: displayRunView(bundle.view).conditions
+    });
+    if (!domain) continue;
     attempted.add(domain);
     const successfulRuns = bundle.view.runs.filter(
       (run) =>

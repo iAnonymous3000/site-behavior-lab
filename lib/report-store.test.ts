@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { R2_LIST_MAX_HEAD_CANDIDATES } from "./report-store-r2";
 import { access, mkdir, mkdtemp, readFile, readdir, rm, unlink, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -544,14 +545,29 @@ test("a contradictory sidecar conflict never deletes bytes this save did not cre
   ]);
 });
 
-test("a retention-file conflict rolls back the filesystem primary it created", async () => {
-  // A filesystem report write is itself two create-only files. If the report
-  // lands but retention creation conflicts, the backend owns and rolls back
-  // that report rather than leaving a permanently uncommitted object.
+test("a retention-file conflict refuses the save and leaves the other writer's companion alone", async () => {
+  // A filesystem report write is itself two create-only files, and the
+  // companion carrying the immutable clock lands first. A conflict on it means
+  // another writer is between its two writes, or crashed there; deleting that
+  // companion would strip the clock from the report about to land beside it.
+  // Nothing was created here, so nothing is rolled back.
   const retentionConflictId = `20260712-${"f".repeat(32)}`;
-  await writeFile(path.join(reportDir, `${retentionConflictId}.retention.json`), "{}\n");
+  const strangerCompanion = path.join(reportDir, `${retentionConflictId}.retention.json`);
+  await writeFile(strangerCompanion, "{}\n");
   await assert.rejects(() => saveScanReport(makeScanResult(), { shareId: retentionConflictId }), /EEXIST/);
-  assert.deepEqual(await readdir(reportDir), []);
+  assert.deepEqual(await readdir(reportDir), [`${retentionConflictId}.retention.json`]);
+  assert.equal(await readFile(strangerCompanion, "utf8"), "{}\n");
+});
+
+test("a report-file conflict rolls back only the companion this save created", async () => {
+  // The mirror case: the companion was created here and the report belongs to
+  // another process, so the companion goes and that report is untouched.
+  const reportConflictId = `20260712-${"e".repeat(32)}`;
+  const strangerReport = path.join(reportDir, `${reportConflictId}.json`);
+  await writeFile(strangerReport, "{}\n");
+  await assert.rejects(() => saveScanReport(makeScanResult(), { shareId: reportConflictId }), /EEXIST/);
+  assert.deepEqual(await readdir(reportDir), [`${reportConflictId}.json`]);
+  assert.equal(await readFile(strangerReport, "utf8"), "{}\n");
 });
 
 test("missing provenance or retention metadata makes an existing report unreadable", async () => {
@@ -869,6 +885,61 @@ test("report-only bundles are retained while delayed and removed at immutable ex
   await pruneStoredReports(Date.parse(retention.expiresAt));
   await assert.rejects(() => access(reportPath), /ENOENT/);
   await assert.rejects(() => access(retentionPath), /ENOENT/);
+});
+
+test("a crash between the two filesystem writes leaves no report without its clock", async () => {
+  // The report and its retention companion are separate create-only writes
+  // with no transaction joining them. A process killed between the two used to
+  // leave `<id>.json` alone: uncommitted, so reads failed closed, and
+  // clockless, so the prune branch above never scheduled it, while retention
+  // health read clean over it. The companion now lands first, so the same
+  // crash strands only the companion, which nothing lists or serves. Only a
+  // real crash exercises this honestly: a child process patches writeFile so
+  // the second create-only write kills it outright, rollback and all.
+  const id = `20260901-${"c".repeat(32)}`;
+  const retention = {
+    createdAt: FIXTURE_NOW.toISOString(),
+    expiresAt: new Date(FIXTURE_NOW.getTime() + 24 * 60 * 60 * 1_000).toISOString()
+  };
+  const child = spawnSync(
+    process.execPath,
+    [
+      "-e",
+      `
+      const promises = require("node:fs/promises");
+      const writeFile = promises.writeFile;
+      let writes = 0;
+      promises.writeFile = function (...args) {
+        writes += 1;
+        if (writes === 2) process.kill(process.pid, "SIGKILL");
+        return writeFile.apply(this, args);
+      };
+      const { createFilesystemReportStoreBackend } = require(process.env.SBL_TEST_BACKEND_MODULE);
+      createFilesystemReportStoreBackend()
+        .write(process.env.SBL_TEST_ID, "{}\\n", JSON.parse(process.env.SBL_TEST_RETENTION))
+        .then(() => process.exit(0), () => process.exit(1));
+      `
+    ],
+    {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        SBL_TEST_BACKEND_MODULE: path.join(__dirname, "report-store-backend.js"),
+        SBL_TEST_ID: id,
+        SBL_TEST_RETENTION: JSON.stringify(retention)
+      }
+    }
+  );
+  assert.equal(child.signal, "SIGKILL", child.stderr || child.stdout);
+  assert.deepEqual(await readdir(reportDir), [`${id}.retention.json`]);
+
+  assert.equal((await readStoredScanReportById(id)).outcome, "not-found");
+  await pruneStoredReports(Date.parse(retention.expiresAt) + 1);
+  assert.deepEqual(await reportStoreRetentionStatus(), {
+    debtCount: 0,
+    maintenanceRequired: false,
+    healthy: true
+  });
 });
 
 test("pruning preserves a sidecar-only marker until its exact immutable expiry", async () => {

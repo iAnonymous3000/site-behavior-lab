@@ -22,20 +22,39 @@ const checker = nativeImport(
   pathToFileURL(path.join(ROOT, "scripts", "verify-required-ci-jobs.mjs")).href
 );
 
-test("every required job name is a job CI actually declares", async () => {
-  // The gate list and the jobs that exist must agree. Renaming a CI job
-  // without updating the list would otherwise leave a gate that can never be
-  // satisfied, or worse, silently drop one from the required set.
+test("the required-job file and the direct promotion gate name the same jobs", async () => {
+  // The direct promotion in ci.yml is gated by promote.needs; the fallback
+  // promotion and the release tag are gated by .github/required-ci-jobs.json.
+  // The two must agree in both directions. Renaming a CI job without updating
+  // the file would leave a gate that can never be satisfied; adding a gate to
+  // needs alone would let a revision that failed it reach production through
+  // the fallback, which deliberately accepts a failed CI run so a failed
+  // direct promotion can retry. Checking only that the file names declared
+  // jobs let that second drift pass.
   const ci = await source(".github/workflows/ci.yml");
-  const declared = [...ci.matchAll(/^ {4}name: (.+)$/gm)].map((match) => match[1].trim());
+  const names = new Map(
+    [...ci.matchAll(/^ {2}([\w-]+):\n {4}name: (.+)$/gm)].map((match) => [match[1], match[2].trim()])
+  );
+  const promoteStart = ci.indexOf("\n  promote:\n");
+  assert.notEqual(promoteStart, -1, "ci.yml must declare the promote job");
+  const needs = ci.slice(promoteStart).match(/^ {4}needs:\n((?: {6}- [\w-]+\n)+)/m);
+  assert.ok(needs, "ci.yml must gate the promote job on a block-style needs list");
+  const gates = needs[1]
+    .trim()
+    .split("\n")
+    .map((line) => {
+      const id = line.trim().slice(2);
+      const name = names.get(id);
+      assert.ok(name, `promote needs "${id}", which .github/workflows/ci.yml does not declare as a named job`);
+      return name;
+    });
 
   const { requiredCiJobs } = await checker;
-  for (const required of requiredCiJobs(ROOT)) {
-    assert.ok(
-      declared.includes(required),
-      `.github/required-ci-jobs.json requires "${required}", which .github/workflows/ci.yml does not declare`
-    );
-  }
+  assert.deepEqual(
+    [...gates].sort(),
+    [...requiredCiJobs(ROOT)].sort(),
+    "ci.yml promote.needs and .github/required-ci-jobs.json must require the same jobs"
+  );
 });
 
 test("the promotion gate and the release gate verify the same required jobs", async () => {

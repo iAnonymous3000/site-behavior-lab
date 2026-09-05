@@ -23,7 +23,9 @@ test("supply-chain CI uses a read-only job and blocks production promotion", () 
   assert.match(supplyChainJob, /runs-on: ubuntu-latest\n\s+timeout-minutes: 35/);
   assert.match(supplyChainJob, /permissions:\n\s+contents: read/);
   assert.doesNotMatch(supplyChainJob, /contents: write|pull-requests: write|security-events: write/);
-  assert.match(promoteJob, /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke\n\s+- attest/);
+  // Anchored past the last entry: an appended gate would otherwise still
+  // match, and a gate present only here never reaches the fallback promotion.
+  assert.match(promoteJob, /needs:\n\s+- supply-chain\n\s+- app\n\s+- docker\n\s+- smoke\n\s+- attest\n(?!\s*- )/);
 });
 
 test("every unit-suite and smoke job pins a budget below the 6-hour default", () => {

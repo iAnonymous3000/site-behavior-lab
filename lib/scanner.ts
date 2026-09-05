@@ -13,7 +13,7 @@ import {
 import { randomBytes } from "node:crypto";
 import { createServer as createNetServer } from "node:net";
 import { isDeepStrictEqual } from "node:util";
-import { Client, ProxyAgent, request as requestThroughProxy } from "undici";
+import { Client, type Dispatcher, ProxyAgent, request as requestThroughProxy } from "undici";
 import { findTrackerMatch } from "./tracker-catalog";
 import { initiatorObservationFromCdpParams, RequestInitiatorIndex } from "./request-initiator";
 import { adblockListMeta, getAdblockEngine, mapRequestType } from "./adblock-engine";
@@ -95,7 +95,7 @@ import {
   type FingerprintObservationCollection,
   type FingerprintObservations
 } from "./fingerprint-observer";
-import { extractPolicyTextFromPdf, MAX_POLICY_PDF_BYTES } from "./policy-pdf";
+import { extractPolicyTextFromPdf, MAX_POLICY_PDF_BYTES, MAX_POLICY_PDF_PARSE_MS } from "./policy-pdf";
 import {
   startPublicScanProxy,
   type PublicScanProxyDiagnostics,
@@ -267,6 +267,13 @@ export const MAX_PROBE_FIELD_CANDIDATES = 64;
 export const MAX_PROBE_CAPTURED_REQUESTS = 1_000;
 const KEYSTROKE_PROBE_MIN_BUDGET_MS = 4_000;
 const KEYSTROKE_EXFIL_WAIT_MS = 2_500;
+// Bound on each candidate lookup and each typing action inside the probe.
+// Without one they inherit Playwright's 30 s default: a page that removes its
+// fields the moment one is focused made the next lookup wait the full 30 s
+// before throwing, two thirds of the scan budget on one await, on a scanner
+// with two slots. The scan wall still ended the scan; it just did so after the
+// slot had been spent.
+export const KEYSTROKE_PROBE_STEP_TIMEOUT_MS = 3_000;
 // Batch-on-unload flush: budget needed to navigate away (firing pagehide so
 // recorders that buffer keystrokes transmit via sendBeacon) and watch for it.
 const KEYSTROKE_UNLOAD_MIN_BUDGET_MS = 1_500;
@@ -3641,6 +3648,7 @@ export async function probeKeystrokeExfiltration(
       sentinel,
       trustedSubjectUrl,
       boundedPageCollectorKey,
+      started,
       {
         isCancelled: () => lifecycle.cancelled,
         onTypedField: (count) => {
@@ -3748,6 +3756,7 @@ export async function typeSentinelIntoFields(
   sentinel: string,
   trustedSubjectUrl: string,
   boundedPageCollectorKey: string,
+  started: number,
   lifecycle?: {
     isCancelled: () => boolean;
     onTypedField: (count: number) => void;
@@ -3756,6 +3765,11 @@ export async function typeSentinelIntoFields(
   if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
     return { count: 0, types: [], subjectLost: true, omittedCandidateCount: 0, preventedFieldCount: 0 };
   }
+  // The two calls below that wait, the candidate lookup and the typing action,
+  // are given this bound explicitly: the step ceiling, or whatever is left of
+  // the scan budget when that is shorter. focus() and isVisible() take no
+  // timeout and never wait; a detached element makes them throw at once.
+  const stepTimeout = () => scanTimeout(started, KEYSTROKE_PROBE_STEP_TIMEOUT_MS);
   const locator = page.locator(FILLABLE_FIELD_SELECTOR);
   const rawCandidateCount = await locator.count();
   const totalCandidateCount = Number.isSafeInteger(rawCandidateCount) && rawCandidateCount > 0
@@ -3784,7 +3798,7 @@ export async function typeSentinelIntoFields(
     candidateIndex < candidateCount && count < MAX_PROBE_FIELDS && !lifecycle?.isCancelled();
     candidateIndex += 1
   ) {
-    const handle = await locator.nth(candidateIndex).elementHandle();
+    const handle = await locator.nth(candidateIndex).elementHandle({ timeout: stepTimeout() });
     if (!handle) continue;
     if (!sameScanSubjectUrl(page.url(), trustedSubjectUrl)) {
       await handle.dispose().catch(() => undefined);
@@ -3812,7 +3826,7 @@ export async function typeSentinelIntoFields(
       if (lifecycle?.isCancelled()) {
         return { count, types, subjectLost: false, omittedCandidateCount: omittedCandidates(), preventedFieldCount };
       }
-      await handle.type(sentinel, { delay: 1 });
+      await handle.type(sentinel, { delay: 1, timeout: stepTimeout() });
       // `type()` resolving only means the keystrokes were dispatched. A field
       // that is readonly, disabled mid-type, or that cancels every keydown
       // accepts none of them, and counting it anyway told readers the scan had
@@ -3950,8 +3964,14 @@ async function probePrivacyPolicy(input: {
       verifyPublicUrl: input.verifyPublicUrl
     });
     if (!fetched) return null;
+    // The race below cannot interrupt the parse; the parse ends its own
+    // thread at this deadline, clamped to what remains of the scan budget.
     const policyText = await withScanDeadline(
-      extractPolicyTextFromPdf(fetched.bytes, MAX_POLICY_TEXT_CHARS),
+      extractPolicyTextFromPdf(
+        fetched.bytes,
+        MAX_POLICY_TEXT_CHARS,
+        scanTimeout(input.started, MAX_POLICY_PDF_PARSE_MS)
+      ),
       input.started,
       MAX_SCAN_DURATION_MS,
       scanTimeoutError
@@ -4067,7 +4087,7 @@ async function fetchBoundedPolicyPdf(input: {
 
       if ([301, 302, 303, 307, 308].includes(response.statusCode)) {
         const location = firstHeaderValue(response.headers.location);
-        response.body.destroy();
+        await discardPolicyPdfBody(response.body);
         if (!location || redirectCount === MAX_POLICY_PDF_REDIRECTS) return null;
         const redirected = safeParseUrl(new URL(location, currentUrl).href);
         if (!redirected) return null;
@@ -4075,13 +4095,13 @@ async function fetchBoundedPolicyPdf(input: {
         continue;
       }
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        response.body.destroy();
+        await discardPolicyPdfBody(response.body);
         return null;
       }
 
       const declaredLength = Number(firstHeaderValue(response.headers["content-length"]));
       if (Number.isFinite(declaredLength) && declaredLength > MAX_POLICY_PDF_BYTES) {
-        response.body.destroy();
+        await discardPolicyPdfBody(response.body);
         return null;
       }
 
@@ -4108,6 +4128,23 @@ async function fetchBoundedPolicyPdf(input: {
       tunnelProxy.close().catch(() => undefined)
     ]);
   }
+}
+
+/**
+ * Discard a policy-PDF response body nobody is going to read.
+ *
+ * destroy() on an undici body that was never read synthesizes a
+ * RequestAbortedError and emits it as an 'error' event one setImmediate later.
+ * Nothing listened, so Node escalated it to an uncaughtException: a policy
+ * link that merely answered 302 or 404 exited any plain Node host running the
+ * scanner after the scan itself had already finished, and only Next's own
+ * catch-all logger kept the container up. dump() reads and drops at most
+ * 128 KiB, attaches its own error listener first, and is bounded by the
+ * request's body timeout and abort signal. The in-loop destroy in the reader
+ * above is different: the async iterator owns that body and consumes its error.
+ */
+async function discardPolicyPdfBody(body: Dispatcher.ResponseData["body"]): Promise<void> {
+  await body.dump().catch(() => undefined);
 }
 
 function firstHeaderValue(value: string | string[] | undefined): string | undefined {

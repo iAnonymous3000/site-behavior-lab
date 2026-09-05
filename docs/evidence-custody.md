@@ -17,7 +17,13 @@ report page and every printed copy now carries.
    committed reports.
 3. **The provenance sidecar**, `/reports/<id>.provenance.json`, for committed
    reports. It carries the canonical digest, which is a different number over a
-   different serialisation and answers a different question.
+   different serialisation and answers a different question. The digest in
+   item 2 covers the report JSON only. The transparency log binds the report
+   bytes and the canonical digest, not the sidecar's own `createdAt` and
+   `writtenAt`, so the one-command check below cannot tell a rewritten
+   publication date from the original; the sidecar bytes are authenticated
+   only through the CI evidence manifest, steps 2 to 4 of
+   [verify-a-report.md](./verify-a-report.md).
 4. **Where and when you fetched them.** The URL and the retrieval time, in your
    own records. Nothing in the report can establish this for you.
 

@@ -4,7 +4,7 @@ import {
   type CorpusCohortIdentity
 } from "./corpus-cohort";
 import { preferCorpusRepresentative } from "./corpus-representative";
-import { corpusSiteDomainKey } from "./corpus-site-domain";
+import { corpusSiteKeyForRun } from "./corpus-site-domain";
 import {
   CORPUS_METRIC_KEYS,
   CORPUS_MIN_SAMPLE,
@@ -98,8 +98,16 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // use only the lead run. A comparison therefore covers its catalogued site
     // when either primary arm loaded successfully, and is cap-flagged when one
     // hit the exact request-recording cap. The domain sets prevent double counts.
+    //
+    // `result` is the canonical display/lead run: the plain "off" baseline for
+    // intervention comparisons, and the newer variant for a temporal pair.
+    // Protected intervention variants never enter the passive distribution.
+    // Both arms were asked for the same URL, so the lead run's requested host
+    // decides for the whole report whether the visit belongs to a site at all;
+    // one asked for a generalized host belongs to none and counts nowhere.
     const view = toReportView(read.stored);
-    const domain = corpusSiteDomainKey(view.domain);
+    const result = displayRunView(view);
+    const domain = corpusSiteKeyForRun({ domain: view.domain, conditions: result.conditions });
     const successfulRuns = view.runs.filter(
       (run) => run.quality.outcome === "complete" && typeof run.status === "number" && run.status < 400
     );
@@ -107,11 +115,6 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
       coverageDomains.add(domain);
       if (successfulRuns.some(runHitRequestRecordingCap)) cappedDomains.add(domain);
     }
-
-    // Use the canonical display/lead run: the plain "off" baseline for
-    // intervention comparisons, and the newer variant for a temporal pair.
-    // Protected intervention variants never enter the passive distribution.
-    const result = displayRunView(view);
 
     // A run that answered with an HTTP error (403/401/429 bot walls, outages)
     // reflects an error page, not the site, and a null status means the main
@@ -121,7 +124,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // already disclose these as failed loads.
     if (result.quality.outcome !== "complete" || typeof result.status !== "number" || result.status >= 400) continue;
 
-    const leadDomain = corpusSiteDomainKey(result.domain);
+    const leadDomain = corpusSiteKeyForRun(result);
     if (!leadDomain || isReservedReportDomain(leadDomain)) continue;
 
     // A run that hit the request-recording cap has activity counts that are

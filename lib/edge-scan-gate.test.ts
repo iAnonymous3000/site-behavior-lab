@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { Worker } from "node:worker_threads";
 import {
   comparisonModeCount,
   EdgeScanGateError,
@@ -596,6 +597,74 @@ test("readRequestBodyWithinLimit enforces an explicit whole-body deadline", asyn
   );
   assert.ok(Date.now() - startedAt < 1_000, "the helper must not wait for an external platform cutoff");
   assert.equal(cancelled, true);
+});
+
+test("readRequestBodyWithinLimit's deadline fires against a source that never yields", async () => {
+  // Zero-length chunks count for nothing against the byte cap, and a source
+  // that enqueues them synchronously settles every read() from the microtask
+  // queue, so on its own the loop never hands the event loop back to the
+  // deadline timer. 100,000 of them ran the old reader well past a 5 ms
+  // deadline and still returned an empty body with the timer unfired.
+  let served = 0;
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (served >= 100_000) {
+        controller.close();
+        return;
+      }
+      served += 1;
+      controller.enqueue(new Uint8Array(0));
+    }
+  });
+  const requestLike = { headers: new Headers(), body: stream } as unknown as Request;
+  await assert.rejects(
+    readRequestBodyWithinLimit(requestLike, 4_096, { timeoutMs: 5 }),
+    (error: unknown) => error instanceof RequestBodyReadTimeoutError && error.timeoutMs === 5
+  );
+  assert.ok(served < 100_000, `the deadline must end the read, not the source; it served ${served} chunks`);
+});
+
+test("readRequestBodyWithinLimit retains nothing per chunk across a flood of empty chunks", async () => {
+  // Each read() used to be raced against one abort promise that lived for the
+  // whole body, and every race pinned a fresh reaction to it: roughly 700
+  // bytes per zero-length chunk, so 200,000 of them held well over 100 MB
+  // while the byte cap saw nothing. Run the read under a 64 MB old-space
+  // ceiling so that growth is a hard failure instead of a heap measurement a
+  // well-timed collection could hide.
+  const worker = new Worker(
+    `
+    const { parentPort, workerData } = require("node:worker_threads");
+    const { readRequestBodyWithinLimit } = require(workerData.modulePath);
+    let served = 0;
+    const body = new ReadableStream({
+      pull(controller) {
+        if (served >= workerData.chunks) {
+          controller.close();
+          return;
+        }
+        served += 1;
+        controller.enqueue(new Uint8Array(0));
+      }
+    });
+    readRequestBodyWithinLimit({ headers: new Headers(), body }, 4_096).then(
+      (result) => parentPort.postMessage({ result, served }),
+      (error) => {
+        throw error;
+      }
+    );
+    `,
+    {
+      eval: true,
+      workerData: { modulePath: path.join(__dirname, "edge-scan-gate.js"), chunks: 200_000 },
+      resourceLimits: { maxOldGenerationSizeMb: 64 }
+    }
+  );
+  const outcome = await new Promise<{ result: string | null; served: number }>((resolve, reject) => {
+    worker.once("message", resolve);
+    worker.once("error", reject);
+    worker.once("exit", (code) => reject(new Error(`the reader's worker exited with code ${code} before answering`)));
+  });
+  assert.deepEqual(outcome, { result: "", served: 200_000 });
 });
 
 function settleWithin<T>(operation: Promise<T>, timeoutMs = 250): Promise<T> {

@@ -230,6 +230,13 @@ function report(options: Options, checks: readonly Check[], independent: boolean
   console.log("    That is a methodology question: https://sitebehavior.org/methodology/");
   console.log("  - Sigstore attestation over the CI evidence manifest.");
   console.log("    That needs the gh CLI; see docs/verify-a-report.md step 3.");
+  // The transparency log binds the report bytes and the canonical digest, not
+  // the sidecar. Its createdAt/writtenAt are copied from the sidecar into the
+  // reader's own retention input, so a rewritten publication date verifies
+  // against itself. Say so, or a green verdict reads as covering the clock.
+  console.log("  - the sidecar's own timestamps (createdAt, writtenAt).");
+  console.log("    The transparency log covers the report bytes and the canonical digest only;");
+  console.log("    the sidecar bytes are bound only by the CI evidence manifest (steps 2 to 4 of that doc).");
   if (!independent) {
     console.log("  - that the origin serving these bytes is the one that published them.");
     console.log("    Nothing above cross-checked an independent record; run this from a");

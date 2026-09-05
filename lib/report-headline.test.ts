@@ -7,6 +7,8 @@ import {
 } from "./bot-wall-classifier";
 import { createConsentComparisonReport, createGpcComparisonReport, createShieldsComparisonReport } from "./compare-reports";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import type { CorpusStats } from "./corpus-stats";
+import { validateReportPresentation } from "./report-consistency";
 import { displayableScreenshot } from "./report-insights";
 import { buildReportHeadline, reportPageTitle } from "./report-headline";
 import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
@@ -213,6 +215,67 @@ test("a historical nontracking CNAME alias prevents a reassuring absence headlin
   assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /few catalogued|No cross-site hosts/);
 });
 
+test("a quiet r2 run whose only incomplete detector recorded no capture loss names that check, not a signal", () => {
+  // wikipedia.org's committed r2 pair: every count zero, every detector
+  // complete except privacy-policy "unsupported", which the scanner writes
+  // with NO capture loss when the page offers no discoverable policy link.
+  // report-facts closes calm on any non-complete detector, and the fallback
+  // then asserted "retained an informational signal" as the headline, the
+  // JSON-LD description and the share card, above a green "few review
+  // signals" bottom line and eight ok cards, with no policy card to point at.
+  const report = makePublicSingleReportV2R2();
+  for (const id of Object.keys(report.run.detectors) as Array<keyof typeof report.run.detectors>) {
+    report.run.detectors[id] = { version: report.run.detectors[id].version, status: "complete" };
+  }
+  report.run.detectors["privacy-policy"] = {
+    ...report.run.detectors["privacy-policy"],
+    status: "unsupported",
+    reason: "unsupported"
+  };
+  const view = viewFromV2(report, 2);
+  const { facts, headline, findings, violations } = validateReportPresentation(view);
+  assert.equal(facts.display.strongestObservedSeverity, "ok");
+  assert.equal(facts.display.calmEligible, false, "the fixture must reach the calm-ineligible tail");
+  assert.deepEqual(facts.display.censorshipNotes, [], "the fixture must carry no capture loss");
+  assert.equal(findings.find((finding) => finding.id === "bottom-line")?.icon, "check");
+  assert.equal(findings.some((finding) => finding.id === "privacy-policy"), false);
+
+  assert.equal(headline.tone, "info");
+  assert.equal(headline.semantic.story, "incomplete-evidence");
+  assert.equal(headline.semantic.reassuring, false);
+  assert.match(headline.headline, /completed measurements recorded no listed activity, but the privacy-policy check did not apply to this page\./);
+  assert.match(headline.subhead, /^The request log recorded no cross-site hosts/);
+  assert.match(headline.subhead, /unproven here rather than shown to be absent/);
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /informational signal|needs context|few catalogued/);
+  assert.deepEqual(headline.semantic.absenceClaims, [
+    "third-party-services",
+    "named-platforms",
+    "third-party-cookies",
+    "fingerprint-apis"
+  ]);
+  assert.ok(headline.compactSubhead && headline.compactSubhead.length <= 300, "the social card needs a fitting restatement");
+  assert.match(headline.compactSubhead, /privacy-policy check did not apply to this page/);
+  assert.deepEqual(violations, []);
+});
+
+test("every silent detector status is named by what the ledger recorded", () => {
+  // The fixture default: two probe-disabled detectors and no capture loss.
+  // Both are named with their status; nothing is called a signal.
+  const skipped = buildReportHeadline(viewFromV2(makePublicSingleReportV2R2(), 2));
+  assert.equal(skipped.semantic.story, "incomplete-evidence");
+  assert.match(skipped.headline, /but the synthetic-input check was skipped and the privacy-policy check was skipped\./);
+  assert.doesNotMatch(`${skipped.headline} ${skipped.subhead}`, /informational signal|needs context/);
+
+  const failed = makePublicSingleReportV2R2();
+  for (const id of Object.keys(failed.run.detectors) as Array<keyof typeof failed.run.detectors>) {
+    failed.run.detectors[id] = { version: failed.run.detectors[id].version, status: "complete" };
+  }
+  failed.run.detectors["consent-banner"] = { ...failed.run.detectors["consent-banner"], status: "failed", reason: "scan-failed" };
+  const failedHeadline = buildReportHeadline(viewFromV2(failed, 2));
+  assert.match(failedHeadline.headline, /but the consent-banner check did not finish\./);
+  assert.doesNotMatch(`${failedHeadline.headline} ${failedHeadline.subhead}`, /informational signal|needs context/);
+});
+
 test("flags a GPC comparison that barely changed as an alarm", () => {
   const baseline = makeResult({
     firstPartyDomain: "www.amazon.com",
@@ -290,7 +353,16 @@ test("a GPC pair that did not move says so, instead of claiming a difference", (
   );
 });
 
-test("credits a GPC comparison that pulled back as calm", () => {
+test("a GPC comparison that pulled back keeps its number but never reassures over the board it leads", () => {
+  // The >= 50% branch fires only when the baseline visit made off-site
+  // requests, and the findings board rates any nonzero third-party count at
+  // least "info", which makes its bottom line an alert. A "calm" tone here is
+  // therefore "quiet-copy-over-loud-finding" by construction: this pair is
+  // below every warn threshold (1 tracking entity, 10 hosts, no cookies), the
+  // shape the old severity check could not see, and it rendered green over
+  // "this visit has review-worthy signals". Build the board the page renders
+  // (the same derivation validateReportPresentation uses) and hold the two
+  // together, with the production corpus absent and present.
   const baseline = makeResult({
     firstPartyDomain: "respectful.example",
     domains: [makeTrackerDomain("ads.example", 100, "AdCo", "advertising")],
@@ -304,10 +376,22 @@ test("credits a GPC comparison that pulled back as calm", () => {
     thirdPartyDomains: 0
   });
 
-  const headline = buildReportHeadline(viewFromV1Report(gpcPair(baseline, variant)));
-  assert.equal(headline.tone, "calm");
+  const view = viewFromV1Report(gpcPair(baseline, variant));
+  const { facts, headline, findings, violations } = validateReportPresentation(view);
+  const bottomLine = findings.find((finding) => finding.id === "bottom-line");
+  assert.equal(facts.arms?.baseline.strongestObservedSeverity, "info", "fixture must sit below the warn threshold");
+  assert.equal(bottomLine?.icon, "alert", "a baseline with off-site requests is an alert board");
+  assert.deepEqual(violations, []);
+  assert.equal(headline.semantic.reassuring, false);
+  assert.equal(headline.tone, "info");
   assert.match(headline.headline, /Off-site requests to respectful\.example were 100% lower in the visit configured with a privacy signal\./);
   assert.match(headline.subhead, /not proof the site honors or received the signal/);
+  assert.match(headline.subhead, /The visit without the signal still made off-site requests/);
+  assert.ok(headline.subhead.length <= 300, `subhead must fit the social card: ${headline.subhead.length}`);
+
+  const withCorpus = validateReportPresentation(view, makeCorpus(60));
+  assert.equal(withCorpus.findings.find((finding) => finding.id === "bottom-line")?.icon, "alert");
+  assert.deepEqual(withCorpus.violations, []);
 });
 
 test("a large GPC reduction over a still-loud pair is not reassuring", () => {
@@ -1215,6 +1299,18 @@ type ResultOverrides = {
   pixelEvents?: PixelEventSummary[];
   status?: number | null;
 };
+
+function makeCorpus(sampleSize: number): CorpusStats {
+  return {
+    version: 1,
+    generatedAt: new Date(0).toISOString(),
+    sampleSize,
+    metrics: {
+      thirdPartyDomains: { count: sampleSize, min: 0, max: 50, p50: 8, p75: 18, p90: 30, p95: 42 },
+      thirdPartyCookies: { count: sampleSize, min: 0, max: 30, p50: 2, p75: 6, p90: 12, p95: 20 }
+    }
+  };
+}
 
 function makeTrackerDomain(domain: string, requests: number, entity: string, category: string): DomainSummary {
   return {

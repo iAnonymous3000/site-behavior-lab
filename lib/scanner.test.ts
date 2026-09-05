@@ -38,6 +38,7 @@ import {
   MAX_PROBE_CAPTURED_REQUESTS,
   MAX_PROBE_FIELD_CANDIDATES,
   MAX_PROBE_FIELDS,
+  KEYSTROKE_PROBE_STEP_TIMEOUT_MS,
   isTimeoutError,
   NON_HTTP_WARNING_EXAMPLE_LIMIT,
   phaseAwareDetections,
@@ -220,7 +221,8 @@ test("active input typing stops if focus races an origin change", async () => {
     page as unknown as Parameters<typeof typeSentinelIntoFields>[0],
     "synthetic-value",
     "https://www.example.com/form",
-    "test-collector"
+    "test-collector",
+    Date.now()
   );
 
   // The one candidate was focused but never typed into, so it yielded no
@@ -277,6 +279,7 @@ test("active input typing records a typed field before a failing blur can hide t
     "synthetic-value",
     "https://www.example.com/form",
     "test-collector",
+    Date.now(),
     {
       isCancelled: () => false,
       onTypedField: (count) => {
@@ -344,6 +347,7 @@ test("a field that refuses the sentinel is never reported as a typed field", asy
     "synthetic-value",
     "https://www.example.com/form",
     "test-collector",
+    Date.now(),
     {
       isCancelled: () => false,
       onTypedField: (count) => {
@@ -401,7 +405,8 @@ test("active input typing materializes only the bounded candidate window", async
     page as unknown as Parameters<typeof typeSentinelIntoFields>[0],
     "synthetic-value",
     "https://www.example.com/form",
-    "test-collector"
+    "test-collector",
+    Date.now()
   );
 
   assert.equal(handleReads, MAX_PROBE_FIELD_CANDIDATES);
@@ -413,6 +418,105 @@ test("active input typing materializes only the bounded candidate window", async
     omittedCandidateCount: 1_000_000 - MAX_PROBE_FIELD_CANDIDATES,
     preventedFieldCount: 0
   });
+});
+
+test("the typing loop bounds each candidate lookup itself instead of inheriting Playwright's default", async () => {
+  // A page that removes every field on focusin leaves nothing for the next
+  // candidate lookup to attach to. Playwright then waits its own default of
+  // 30 seconds before throwing, two thirds of the scan budget spent on one
+  // await, unless the probe hands it a bound. This fake waits the way
+  // Playwright does, for the caller's timeout or the 30 s default, scaled
+  // down fifty-fold so the unbounded case fails in tenths of a second rather
+  // than stalling the suite.
+  const SCALE = 50;
+  const PLAYWRIGHT_DEFAULT_TIMEOUT_MS = 30_000;
+  const lookupTimeouts: Array<number | undefined> = [];
+  let fieldsRemoved = false;
+  const handle = {
+    async isVisible() {
+      return true;
+    },
+    async evaluate<Arg>(callback: (element: HTMLElement, arg: Arg) => unknown, arg: Arg) {
+      const element = {
+        tagName: "INPUT",
+        isContentEditable: false,
+        getAttribute: () => "text",
+        blur: () => undefined
+      } as unknown as HTMLElement;
+      Object.defineProperty(globalThis, "vanishing-collector", {
+        configurable: true,
+        value: { fieldType: () => "text", sentinelPresent: () => true, blur: () => undefined }
+      });
+      try {
+        return callback(element, arg);
+      } finally {
+        Reflect.deleteProperty(globalThis, "vanishing-collector");
+      }
+    },
+    async focus() {
+      fieldsRemoved = true;
+    },
+    async type() {
+      throw new Error("Element is not attached to the DOM");
+    },
+    async dispose() {}
+  };
+  const page = {
+    url: () => "https://www.example.com/form",
+    locator: () => ({
+      count: async () => 60,
+      nth: () => ({
+        elementHandle(options?: { timeout?: number }) {
+          lookupTimeouts.push(options?.timeout);
+          if (!fieldsRemoved) return Promise.resolve(handle);
+          const waitMs = options?.timeout ?? PLAYWRIGHT_DEFAULT_TIMEOUT_MS;
+          return new Promise<never>((_resolve, reject) => {
+            setTimeout(() => reject(new Error(`Timeout ${waitMs}ms exceeded.`)), waitMs / SCALE);
+          });
+        }
+      })
+    })
+  };
+  const typing = (started: number) =>
+    typeSentinelIntoFields(
+      page as unknown as Parameters<typeof typeSentinelIntoFields>[0],
+      "synthetic-value",
+      "https://www.example.com/form",
+      "vanishing-collector",
+      started
+    );
+
+  const startedAt = Date.now();
+  await assert.rejects(typing(startedAt), /Timeout \d+ms exceeded/);
+  const elapsedMs = Date.now() - startedAt;
+  assert.ok(
+    elapsedMs < PLAYWRIGHT_DEFAULT_TIMEOUT_MS / SCALE,
+    `the lookup after the fields vanished took ${elapsedMs}ms at 1/${SCALE} scale, no sooner than Playwright's default`
+  );
+  // One lookup found the field that then removed the form, the next one waited.
+  assert.deepEqual(lookupTimeouts, [KEYSTROKE_PROBE_STEP_TIMEOUT_MS, KEYSTROKE_PROBE_STEP_TIMEOUT_MS]);
+
+  // Near the end of the scan the bound is whatever budget remains, never more.
+  lookupTimeouts.length = 0;
+  fieldsRemoved = false;
+  await assert.rejects(typing(Date.now() - 44_500), /Timeout \d+ms exceeded/);
+  assert.equal(lookupTimeouts.length, 2);
+  for (const timeout of lookupTimeouts) {
+    assert.ok(
+      typeof timeout === "number" && timeout > 0 && timeout <= 500,
+      `a lookup with 500ms of scan budget left was bounded by ${timeout}ms`
+    );
+  }
+
+  // With the budget already spent, the probe fails as a scan timeout before
+  // asking Playwright for anything.
+  lookupTimeouts.length = 0;
+  fieldsRemoved = false;
+  await assert.rejects(
+    typing(Date.now() - 46_000),
+    (error: unknown) => error instanceof PublicScanError && error.status === 504
+  );
+  assert.deepEqual(lookupTimeouts, []);
 });
 
 test("active-probe request capture bounds request count, URL length, and body retention", () => {
@@ -2718,6 +2822,89 @@ test("a direct PDF privacy policy completes through the bounded scan proxy", { t
     assert.equal(
       staged!.measurement.qualityFacts.captureLoss.some((loss) => loss.detail === "policy-visit"),
       false
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a PDF privacy policy link that redirects or is missing cannot crash the process", { timeout: 40_000 }, async (t) => {
+  // destroy() on an undici body nobody read synthesizes RequestAbortedError and
+  // emits it as an 'error' event one setImmediate later. With no listener Node
+  // escalates that to an uncaughtException, so a policy link that merely
+  // answered 302 or 404 exited any plain Node host after the scan itself had
+  // already finished; only Next's own catch-all logger kept the container up.
+  // Capture the escalation the way the proxy's CONNECT-reset test does.
+  const uncaught: Error[] = [];
+  const existing = process.listeners("uncaughtException");
+  for (const listener of existing) process.off("uncaughtException", listener);
+  const capture = (error: Error): void => {
+    uncaught.push(error);
+  };
+  process.on("uncaughtException", capture);
+  t.after(() => {
+    process.off("uncaughtException", capture);
+    for (const listener of existing) process.on("uncaughtException", listener as never);
+  });
+
+  const policyPdf = policyPdfFixture(
+    "Privacy Policy. We collect information and use cookies for analytics and advertising. ".repeat(12)
+  );
+  const pdfPaths: string[] = [];
+  const upstream = createServer((request, response) => {
+    if (request.url?.endsWith(".pdf")) pdfPaths.push(request.url);
+    if (request.url === "/privacy-policy.pdf") {
+      response.writeHead(302, { location: "/policy-final.pdf" });
+      response.end();
+      return;
+    }
+    if (request.url === "/policy-final.pdf") {
+      response.writeHead(200, { "content-length": policyPdf.byteLength, "content-type": "application/pdf" });
+      response.end(policyPdf);
+      return;
+    }
+    if (request.url === "/missing.pdf") {
+      response.writeHead(404, { "content-type": "text/html; charset=utf-8" });
+      response.end("<p>not here</p>");
+      return;
+    }
+    const link = request.url === "/missing" ? "/missing.pdf" : "/privacy-policy.pdf";
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>PDF policy</title><a href="${link}">Privacy Policy</a>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    for (const [route, expected] of [
+      ["/", { version: "policy-text-cross-check@5", status: "complete", phaseId: 2 }],
+      ["/missing", { version: "policy-text-cross-check@5", status: "failed", reason: "load-failed", phaseId: 2 }]
+    ] as const) {
+      const { measurement: staged } = await scanSiteWithMeasurement(
+        { url: `http://policy-pdf-hop.test${route}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },
+        {
+          publicUrlAlreadyVerified: true,
+          verifyPublicUrl: async () => undefined,
+          resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+          connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+          resolveCnameChain: async () => []
+        }
+      );
+      assert.deepEqual(staged!.measurement.detectors["privacy-policy"], expected, route);
+      // The body's error surfaces a tick after the discard; give it the chance.
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    assert.deepEqual(pdfPaths, ["/privacy-policy.pdf", "/policy-final.pdf", "/missing.pdf"]);
+    assert.deepEqual(
+      uncaught.map((error) => `${error.name}: ${error.message}`),
+      [],
+      "discarding the redirect and error bodies raised no process-level error"
     );
   } finally {
     await closeSharedBrowserForTests();

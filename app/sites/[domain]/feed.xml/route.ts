@@ -14,7 +14,7 @@ export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   const { entries } = await loadCorpusOverview();
-  return [...new Set(entries.map((entry) => siteProfileKey(entry.domain)).filter((key): key is string => Boolean(key)))].map(
+  return [...new Set(entries.map((entry) => entry.siteKey).filter((key): key is string => key !== null))].map(
     (domain) => ({ domain })
   );
 }
@@ -24,7 +24,7 @@ export async function GET(_request: Request, context: { params: Promise<{ domain
   if (!key) return new Response("Not found", { status: 404 });
   const { entries } = await loadCorpusOverview();
   const matches = entries
-    .filter((entry) => siteProfileKey(entry.domain) === key)
+    .filter((entry) => entry.siteKey === key)
     .sort((left, right) => Date.parse(right.scannedAt) - Date.parse(left.scannedAt));
   if (matches.length === 0) return new Response("Not found", { status: 404 });
 
@@ -80,7 +80,13 @@ function entrySummary(entry: DirectoryEntry): string {
     "en-US"
   )} third-party tracking-service requests, ${cookies}.`;
   if (entry.requestEvidenceComplete) return metrics;
-  return `${metrics} Request evidence incomplete${entry.capped ? " (recording capped)" : ""}; request counts are lower bounds.`;
+  // A failed visit (an error document or a blocked load) is why the counts are
+  // floors, so say that rather than a capture loss the run did not record.
+  const reason =
+    entry.runOutcome !== "complete"
+      ? "Visit did not complete"
+      : `Request evidence incomplete${entry.capped ? " (recording capped)" : ""}`;
+  return `${metrics} ${reason}; request counts are lower bounds.`;
 }
 
 function feedTimestamp(entry: DirectoryEntry): string {

@@ -1684,10 +1684,10 @@
       "notes": null
     },
     {
-      "key": "npm:fast-uri@3.1.5",
+      "key": "npm:fast-uri@3.1.7",
       "ecosystem": "npm",
       "name": "fast-uri",
-      "version": "3.1.5",
+      "version": "3.1.7",
       "runtime": false,
       "status": "unreviewed",
       "declaredLicense": "BSD-3-Clause",

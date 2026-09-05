@@ -543,18 +543,24 @@ export function buildReportHeadline(
       );
     }
     if (reductionPct >= 50) {
-      // A large reduction is not a clean result. This is the only comparison
-      // branch that can render "calm" (and therefore semantic.reassuring), and
-      // it used to do so on the delta alone: theguardian.com dropped 641 -> 160
-      // third-party requests, so a reassuring headline rendered above 20
-      // catalogued tracking entities and 158 third-party cookie records. That
-      // is exactly the state report-consistency calls
-      // "quiet-copy-over-loud-finding", and nothing enforces that rule at
-      // render time. Stay reassuring only when neither arm carries a
-      // review-worthy signal of its own.
+      // A large reduction is not a clean result, and this branch can never be
+      // one: it fires only when the baseline visit made off-site requests
+      // (before > 0), and the findings board rates any nonzero third-party
+      // count at least "info" (levelForMetric and corpusBenchmark both refuse
+      // "ok" for a positive count), which makes its bottom line an alert. So a
+      // "calm" tone here (semantic.reassuring) is the report-consistency state
+      // "quiet-copy-over-loud-finding" BY CONSTRUCTION. It used to reassure
+      // whenever neither arm reached warn/loud, after theguardian.com (641 ->
+      // 160 third-party requests, 20 catalogued tracking entities) showed the
+      // delta alone was not enough; that narrower check could not see the
+      // "info" cards the board alerts on, nor the consent-banner, pixel or
+      // session-recording cards at all, so a 60% drop over a WARN consent card
+      // still rendered green. The reduction stays; the reassurance never
+      // renders from a comparison, and validateReportPresentation pins the
+      // pair against the board it actually renders over.
       // reportFacts.arms is non-null whenever the local `arms` is (both come
       // from comparisonArmViews), but fall back to every run rather than to
-      // "no signal": an absent arm must never be the reason a report reassures.
+      // "no signal": an absent arm must never soften the sentence below.
       const pairFacts = reportFacts.arms
         ? [reportFacts.arms.baseline, reportFacts.arms.variant]
         : reportFacts.runs;
@@ -565,12 +571,12 @@ export function buildReportHeadline(
       // Pair-framed: the stat chips stay on the lead (baseline) run, so the
       // evidence switcher default stays there too (no focusArm).
       return finish(
-        pairCarriesReviewSignal ? "info" : "calm",
+        "info",
         `Off-site requests to ${domain} were ${reductionPct}% lower in the visit configured with a privacy signal.`,
         `In the visit configured with Global Privacy Control, off-site requests were ${reductionPct}% lower (${n(before)} → ${n(after)}). An observed difference for this pair of visits, not proof the site honors or received the signal.${
           pairCarriesReviewSignal
             ? " Both visits still recorded review-worthy activity of their own; the cards below describe what remained."
-            : ""
+            : " The visit without the signal still made off-site requests; the cards below describe each visit."
         }`,
         undefined,
         undefined,
@@ -1014,6 +1020,54 @@ export function buildReportHeadline(
     );
   }
 
+  // A detector that did not complete closes the calm claims (report-facts
+  // treats every non-"complete" ledger status as detector-incomplete), but it
+  // is not a signal, and the fallback below asserts one. Only some of those
+  // statuses come with a recorded capture loss, which the censorship branches
+  // above already describe; the rest reach here silently. The scanner writes
+  // privacy-policy "unsupported" with no loss when the page offers no
+  // discoverable policy link, so wikipedia.org's r2 pair (every count zero,
+  // every other detector complete) published "retained an informational
+  // signal that does not support ... a reassuring summary" as its headline,
+  // JSON-LD description and share card, directly above a green "few review
+  // signals" bottom line and eight ok cards; the board renders no policy card
+  // at all, so nothing on the page supported the sentence. Say what the
+  // ledger recorded instead: the completed measurements' absences, and which
+  // check did not complete, in the same family as the capture-loss branch.
+  // Gated on an "ok" observed severity so a real informational signal (a
+  // CNAME alias, a below-threshold observation) keeps the fallback below.
+  const incompleteDetectorClauses =
+    facts.strongestObservedSeverity === "ok"
+      ? Object.entries(run.detectors ?? {})
+          .filter(([, entry]) => entry.status !== "complete")
+          .map(([id, entry]) => `${detectorCheckName(id)} ${detectorStatusPhrase(entry.status)}`)
+      : [];
+  if (!facts.calmEligible && incompleteDetectorClauses.length > 0) {
+    const incompleteClause = joinNames(incompleteDetectorClauses, 2);
+    const unprovenSentence = `${capitalize(incompleteClause)}, so whatever ${
+      incompleteDetectorClauses.length === 1 ? "that check looks" : "those checks look"
+    } for is unproven here rather than shown to be absent.`;
+    return finish(
+      "info",
+      completedAbsenceParts.length > 0
+        ? `${domain}'s completed measurements recorded no listed activity, but ${incompleteClause}.`
+        : `${domain}'s scan completed some measurements, but ${incompleteClause}.`,
+      `${
+        completedAbsenceParts.length > 0 ? `${capitalize(joinNames(completedAbsenceParts))}. ` : ""
+      }${unprovenSentence}`,
+      stats.length > 0 ? stats : [{ label: "third-party requests", value: n(run.counts.thirdPartyRequests), emphasis: true }],
+      undefined,
+      {
+        story: "incomplete-evidence",
+        absenceClaims: completedAbsenceClaims
+      },
+      // The three completed-family sentences alone can exceed the social
+      // card's bound; the card keeps the absence as the headline states it
+      // and the unproven check, never the withheld placeholder.
+      `${completedAbsenceParts.length > 0 ? "Completed measurements recorded no listed activity. " : ""}${unprovenSentence}`
+    );
+  }
+
   if (!facts.calmEligible) {
     return finish(
       "info",
@@ -1154,6 +1208,50 @@ function friendlyDomain(run: RunView): string {
 
 function n(value: number): string {
   return value.toLocaleString("en-US");
+}
+
+/**
+ * Reader phrasing for a detector ledger entry that did not report "complete".
+ * The ledger records identity and status, never a cause the copy could quote,
+ * so each phrase states only the status. "unsupported" is the producer's word
+ * for a probe the page gave nothing to run against (the scanner writes it for
+ * privacy-policy when no policy link is discoverable); a producer that cannot
+ * capture whole evidence families is the unsupported-evidence branch's case.
+ */
+function detectorCheckName(id: string): string {
+  switch (id) {
+    case "fingerprint-heuristics":
+      return "the fingerprinting check";
+    case "keystroke-exfiltration":
+      return "the synthetic-input check";
+    case "cname-uncloaking":
+      return "the CNAME check";
+    case "pixel-events":
+      return "the pixel-event check";
+    case "consent-banner":
+      return "the consent-banner check";
+    case "privacy-policy":
+      return "the privacy-policy check";
+    default:
+      return `the ${id} check`;
+  }
+}
+
+function detectorStatusPhrase(status: string): string {
+  switch (status) {
+    case "unsupported":
+      return "did not apply to this page";
+    case "skipped":
+      return "was skipped";
+    case "partial":
+      return "completed only part of its measurement";
+    default:
+      return "did not finish";
+  }
+}
+
+function capitalize(text: string): string {
+  return text.length > 0 ? `${text[0].toUpperCase()}${text.slice(1)}` : text;
 }
 
 function joinNames(items: string[], limit = 3): string {

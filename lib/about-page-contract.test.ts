@@ -90,6 +90,13 @@ test("the About page keeps universal capture and retention claims inside the doc
     assert.doesNotMatch(about, forbidden, `the About page must not make the universal claim ${forbidden}`);
   }
 
+  // The transparency log holds committed corpus ids only. Share reports from
+  // live scans are released too, and join no log, so the About page must not
+  // tell a reader holding one that the log records it.
+  assert.doesNotMatch(about, /transparency log recording every\s+report this project has released/);
+  assert.match(about, /transparency log recording every\s+report committed to the public corpus/);
+  assert.match(about, /Share reports from live scans expire and join no log/);
+
   assert.match(about, /Older reports may not contain[\s\S]*every version field/);
   assert.match(about, /counts are lower bounds rather than[\s\S]*complete transcripts/);
   assert.match(about, /Runtime share links can expire under the ordinary[\s\S]*retention policy/);

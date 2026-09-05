@@ -872,6 +872,39 @@ test("cancellation requires a 2xx response bound to the exact accepted job", asy
   );
 });
 
+test("a refused cancellation surfaces the reason the server declared, not a bare HTTP code", async () => {
+  // The container answers 409 once publication has started or the job has
+  // finished, and 404 once a restart has dropped the record, each with the
+  // reason on the wire. Reading the status before the body threw that reason
+  // away and told the visitor "(HTTP 409)" with no hint that the result was
+  // still on its way.
+  const job: ActiveScanJob = {
+    jobId: JOB_ID,
+    reportId: REPORT_ID,
+    statusPath: STATUS_PATH,
+    accessKey: ""
+  };
+  for (const [status, error] of [
+    [409, "This scan report is already being saved and can no longer be cancelled."],
+    [409, "This scan job has already finished and cannot be cancelled."],
+    [404, "Scan job not found."]
+  ] as const) {
+    let thrown: unknown;
+    try {
+      await cancelRuntimeScan({
+        job,
+        resolveApiUrl: (path) => path,
+        fetcher: async () => Response.json({ ok: false, error }, { status })
+      });
+    } catch (caught) {
+      thrown = caught;
+    }
+    assert.ok(thrown instanceof ScanRequestError, `HTTP ${status} must carry the declared reason`);
+    assert.equal(thrown.message, error);
+    assert.equal(friendlyScanError(thrown, false), error);
+  }
+});
+
 test("friendly scan errors explain a DECLARED cause and never infer one", () => {
   // This test used to assert the opposite, and in doing so it codified the
   // defect: it required that any message containing "private address" render

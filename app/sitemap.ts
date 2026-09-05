@@ -66,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const profileLastModified = new Map<string, Date | undefined>();
   for (const entry of overview.entries) {
-    const profilePath = siteProfilePath(entry.domain);
+    const profilePath = entry.siteKey === null ? null : siteProfilePath(entry.siteKey);
     if (!profilePath) continue;
     const scannedAt = sitemapLastModified(entry.scannedAt, generatedAt);
     if (!profileLastModified.has(profilePath)) profileLastModified.set(profilePath, undefined);

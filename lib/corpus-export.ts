@@ -1,6 +1,5 @@
 import { csvCell } from "./csv-export";
 import { preferCorpusRepresentative } from "./corpus-representative";
-import { corpusSiteDomainKey } from "./corpus-site-domain";
 import type { DirectoryEntry } from "./corpus-overview";
 import {
   METRIC_CONTRACT_DIGEST,
@@ -149,6 +148,13 @@ export type CorpusExclusionReason =
   | "request-evidence-incomplete"
   | "request-recording-cap"
   | "post-choice-consent-lead"
+  /**
+   * The lead run was asked for a host carrying a `{label}` marker (an
+   * unreviewed label the publication generalized), so the row names no
+   * identifiable site and can represent none: it must not stand in for the
+   * registrable domain's own visits, and it is no site of its own either.
+   */
+  | "generalized-lead-host"
   | "superseded-by-newer-report";
 
 export const CORPUS_EXPORT_NOTE = [
@@ -262,11 +268,13 @@ function corpusInclusionForEntries(entries: DirectoryEntry[]): {
     if (entry.consentMode === "accept-all" || entry.consentMode === "reject-all") {
       entryReasons.push("post-choice-consent-lead");
     }
+    if (entry.siteKey === null) entryReasons.push("generalized-lead-host");
     reasons.set(entry.id, entryReasons);
-    if (entryReasons.length > 0) continue;
+    if (entryReasons.length > 0 || entry.siteKey === null) continue;
 
-    const domain = corpusSiteDomainKey(entry.domain) || entry.domain.toLowerCase();
-    const key = `${entry.corpusCohort.id}\u0000${domain}`;
+    // Identity is the loader's siteKey, never re-derived from the display
+    // domain, which has already dropped the `{label}` marker.
+    const key = `${entry.corpusCohort.id}\u0000${entry.siteKey}`;
     const current = newestEligible.get(key);
     if (!current || preferCorpusRepresentative(entry, current)) newestEligible.set(key, entry);
   }
