@@ -8,6 +8,7 @@ import {
   corpusExportToCsv
 } from "./corpus-export";
 import type { DirectoryEntry } from "./corpus-overview";
+import { siteProfileKey } from "./site-profile";
 import {
   METRIC_CONTRACT_DIGEST,
   METRIC_CONTRACT_VERSION
@@ -33,8 +34,13 @@ const RECORDED_CATALOG_IDENTITY = {
 };
 
 function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): DirectoryEntry {
+  const domain = overrides.domain ?? "shop.example";
   return {
-    domain: "shop.example",
+    domain,
+    // The loader keys from the lead run (corpusSiteKeyForRun). Fixture hosts
+    // under the reserved `.example` name have no public suffix, so they key to
+    // themselves.
+    siteKey: siteProfileKey(domain) ?? domain.toLowerCase(),
     tone: "warn",
     headline: "shop.example told Google you were here.",
     thirdPartyRequests: 120,
@@ -90,6 +96,41 @@ function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): Directo
     ...overrides
   };
 }
+
+test("a generalized lead host is excluded by name and never supersedes the apex's own visit", () => {
+  // plato.stanford.edu's report publishes as `{label}.stanford.edu`: the loader
+  // gives it no site key while its display domain reads `stanford.edu`.
+  // Keying the export on the display string made it stanford.edu's newest
+  // eligible representative, marked www.stanford.edu's same-day visit
+  // "superseded-by-newer-report", and counted it in the cohort denominator.
+  const flagship = makeEntry({
+    id: "20260824-c1059a2e10109207ca3b1298cf267ca4",
+    domain: "stanford.edu",
+    requestedUrl: "https://www.stanford.edu/",
+    finalUrl: "https://www.stanford.edu/",
+    scannedAt: "2026-08-24T08:14:17.900Z",
+    thirdPartyRequests: 71
+  });
+  const generalized = makeEntry({
+    id: "20260824-fdbf9e4dcd606b222865ee7117233dbb",
+    domain: "stanford.edu",
+    siteKey: null,
+    requestedUrl: "https://{label}.stanford.edu/",
+    finalUrl: "https://{label}.stanford.edu/",
+    scannedAt: "2026-08-24T08:14:58.913Z",
+    thirdPartyRequests: 3
+  });
+
+  const rows = buildCorpusExportRows([generalized, flagship], "https://sitebehavior.org");
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  assert.equal(byId.get(flagship.id)?.corpusInclusion, "included");
+  assert.deepEqual(byId.get(flagship.id)?.corpusExclusionReasons, []);
+  assert.equal(byId.get(generalized.id)?.corpusInclusion, "excluded");
+  assert.deepEqual(byId.get(generalized.id)?.corpusExclusionReasons, ["generalized-lead-host"]);
+  assert.equal(byId.get(flagship.id)?.corpusCohortDenominator, 1);
+  assert.equal(byId.get(generalized.id)?.corpusCohortDenominator, 1);
+  assert.equal(rows.length, 2, "the excluded row stays published and auditable");
+});
 
 test("rows carry absolute report URLs and since-last-scan deltas", () => {
   const rows = buildCorpusExportRows(

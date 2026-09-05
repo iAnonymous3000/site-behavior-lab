@@ -1,5 +1,4 @@
 import { domainsMatch, type FeaturedSiteConfig } from "./featured-sites";
-import { siteProfileKey } from "./site-profile";
 
 /**
  * Small, server-built discovery payload for the homepage. The full report
@@ -8,6 +7,13 @@ import { siteProfileKey } from "./site-profile";
 export type HomepageReportSource = {
   id: string;
   domain: string;
+  /**
+   * The site the report belongs to, as the corpus loader keyed it from the
+   * lead run (corpusSiteKeyForRun); null when the visit was asked for a
+   * `{label}`-generalized host, which names no site and must not become the
+   * newest report of the apex it sits under.
+   */
+  siteKey: string | null;
   headline: string;
   tone: "alarm" | "warn" | "info" | "calm";
   scannedAt: string;
@@ -150,7 +156,7 @@ export function buildHomepageDiscovery(
   const newestBySite = new Map<string, HomepageKnownSite>();
 
   for (const report of successful) {
-    const domain = siteProfileKey(report.domain);
+    const domain = report.siteKey;
     if (!domain || newestBySite.has(domain)) continue;
     newestBySite.set(domain, {
       domain,
@@ -161,7 +167,7 @@ export function buildHomepageDiscovery(
 
   const knownSites = [...newestBySite.values()].sort((left, right) => left.domain.localeCompare(right.domain));
   const newestReport = successful[0];
-  const latestDomain = newestReport ? siteProfileKey(newestReport.domain) : null;
+  const latestDomain = newestReport ? newestReport.siteKey : null;
 
   return {
     reportCount: reports.length,

@@ -7,7 +7,7 @@ import {
   type CorpusCohortIdentity
 } from "./corpus-cohort";
 import { preferCorpusRepresentative } from "./corpus-representative";
-import { corpusSiteDomainKey } from "./corpus-site-domain";
+import { corpusSiteKeyForRun } from "./corpus-site-domain";
 import { CORPUS_MIN_SAMPLE } from "./corpus-stats";
 import { domainsMatch } from "./featured-sites";
 import { buildReportHeadline, type HeadlineTone } from "./report-headline";
@@ -57,6 +57,17 @@ export type { ConsentClicks } from "./temporal-report-identity";
 export type DirectoryEntry = {
   id: string;
   domain: string;
+  /**
+   * The site this report belongs to, derived once from the lead run by
+   * {@link corpusSiteKeyForRun}; null when the visit was asked for a
+   * `{label}`-generalized host and so names no identifiable site. `domain` is
+   * the headline's display string with the marker already stripped, so a
+   * reader that re-derives identity from it cannot tell plato.stanford.edu's
+   * `{label}.stanford.edu` from `www.stanford.edu`: the directory, the
+   * categories, the site history and feed, the homepage, the export and the
+   * site counts all read this field instead.
+   */
+  siteKey: string | null;
   tone: HeadlineTone;
   headline: string;
   thirdPartyRequests: number;
@@ -326,23 +337,28 @@ function entryLoadFailed(entry: DirectoryEntry): boolean {
  */
 /**
  * One site identity, shared with the directory, the export, and the stats
- * builder.
+ * builder: the loader derives it from the lead run (corpusSiteKeyForRun) and
+ * every reader takes `entry.siteKey` as is.
  *
  * `entry.domain` is the HEADLINE's display string: a label marker and one
  * leading `www.` stripped, nothing else. Counting on it meant a rescan that
  * recorded `example.com` where an older row said `news.example.com` added a
  * site to the homepage, /status, and /corpus.json's own `siteCount` while
  * /directory/, corpus-stats, and that same file's per-cohort denominators kept
- * the old total. Display stays on `entry.domain`; only identity moves.
+ * the old total. Re-deriving the key from it had the opposite failure: the
+ * marker was already gone, so a generalized `{label}.stanford.edu` visit keyed
+ * to `stanford.edu` and represented it. A row with no key belongs to no site:
+ * it is not attempted, covered, capped or measured coverage, exactly as the
+ * stats builder skips it. Display stays on `entry.domain`; only identity moves.
  */
-function corpusSiteKey(entry: DirectoryEntry): string {
-  return corpusSiteDomainKey(entry.domain) || entry.domain.toLowerCase();
+function siteKeys(entries: readonly DirectoryEntry[]): Set<string> {
+  return new Set(entries.map((entry) => entry.siteKey).filter((key): key is string => key !== null));
 }
 
 export function summarizeCorpusSiteCounts(entries: DirectoryEntry[]): CorpusSiteCounts {
-  const attemptedDomains = new Set(entries.map(corpusSiteKey));
-  const coverageDomains = new Set(entries.filter((entry) => entry.reportHasSuccessfulLoad).map(corpusSiteKey));
-  const cappedDomains = new Set(entries.filter((entry) => entry.reportHasRequestCappedLoad).map(corpusSiteKey));
+  const attemptedDomains = siteKeys(entries);
+  const coverageDomains = siteKeys(entries.filter((entry) => entry.reportHasSuccessfulLoad));
+  const cappedDomains = siteKeys(entries.filter((entry) => entry.reportHasRequestCappedLoad));
   const failedSiteCount = [...attemptedDomains].filter((domain) => !coverageDomains.has(domain)).length;
 
   return {
@@ -456,9 +472,9 @@ export function selectAggregateCorpusCohort(entries: DirectoryEntry[]): {
   const selected = selectPrimaryCorpusCohort(
     [...byCohort.values()].map((cohortEntries) => ({
       identity: cohortEntries[0].corpusCohort,
-      siteCount: new Set(cohortEntries.map(corpusSiteKey)).size,
+      siteCount: siteKeys(cohortEntries).size,
       latestRunAt: newestScannedAt(cohortEntries),
-      sites: [...new Set(cohortEntries.map(corpusSiteKey))]
+      sites: [...siteKeys(cohortEntries)]
     })),
     CORPUS_MIN_SAMPLE
   );
@@ -501,7 +517,8 @@ export function selectSiteDataPoints(entries: DirectoryEntry[]): DirectoryEntry[
   const shieldsByDomain = new Map<string, DirectoryEntry>();
 
   for (const entry of entries) {
-    const key = corpusSiteKey(entry);
+    const key = entry.siteKey;
+    if (key === null) continue;
     const current = currentByDomain.get(key);
     if (!current || preferAsSiteDataPoint(entry, current)) currentByDomain.set(key, entry);
 
@@ -511,9 +528,9 @@ export function selectSiteDataPoints(entries: DirectoryEntry[]): DirectoryEntry[
     }
   }
 
-  return [...currentByDomain.values()].map((entry) => ({
+  return [...currentByDomain.entries()].map(([key, entry]) => ({
     ...entry,
-    shieldsThirdPartyChange: shieldsByDomain.get(corpusSiteKey(entry))?.shieldsThirdPartyChange ?? null
+    shieldsThirdPartyChange: shieldsByDomain.get(key)?.shieldsThirdPartyChange ?? null
   }));
 }
 
@@ -614,6 +631,9 @@ async function loadDirectoryEntries(catalog: CatalogEntry[]): Promise<LoadedDire
     const entry: DirectoryEntry = {
       id,
       ...presentation,
+      // Identity comes from the run itself, whose requested URL still carries
+      // a `{label}` marker; the presentation's `domain` has already dropped it.
+      siteKey: corpusSiteKeyForRun(run) || null,
       shieldsThirdPartyChange,
       category,
       categoryLabel,

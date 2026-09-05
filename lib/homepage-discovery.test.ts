@@ -6,6 +6,7 @@ import {
   type HomepageReportSource
 } from "./homepage-discovery";
 import type { FeaturedSiteConfig } from "./featured-sites";
+import { siteProfileKey } from "./site-profile";
 
 const config: FeaturedSiteConfig = {
   version: 1,
@@ -19,9 +20,14 @@ const config: FeaturedSiteConfig = {
 };
 
 function report(index: number, overrides: Partial<HomepageReportSource> = {}): HomepageReportSource {
+  const domain = overrides.domain ?? `site-${index}.com`;
   return {
     id: `report-${index}`,
-    domain: `site-${index}.com`,
+    domain,
+    // The loader keys from the lead run (corpusSiteKeyForRun). Fixture hosts
+    // under the reserved `.example` name have no public suffix, so they key to
+    // themselves.
+    siteKey: siteProfileKey(domain) ?? domain.toLowerCase(),
     headline: `Report ${index}`,
     tone: "info",
     scannedAt: `2026-07-${String(index + 1).padStart(2, "0")}T00:00:00.000Z`,
@@ -77,6 +83,19 @@ test("featured cards preserve incomplete non-cap request evidence for lower-boun
     requestCapped: false,
     requestEvidenceComplete: false
   });
+});
+
+test("a generalized lead host is never a site's latest report on the homepage", () => {
+  const discovery = buildHomepageDiscovery(config, [
+    report(0, { id: "flagship", scannedAt: "2026-08-24T08:14:17.900Z" }),
+    report(0, { id: "generalized", siteKey: null, scannedAt: "2026-08-24T08:14:58.913Z" })
+  ]);
+
+  assert.deepEqual(discovery.knownSites, [
+    { domain: "site-0.com", latestReportId: "flagship", scannedAt: "2026-08-24T08:14:17.900Z" }
+  ]);
+  assert.equal(discovery.latestReport, null, "the newest successful report names no site");
+  assert.equal(discovery.reportCount, 2);
 });
 
 test("discovery emits only each site's latest successful evidence", () => {

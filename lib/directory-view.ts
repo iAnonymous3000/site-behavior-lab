@@ -5,7 +5,7 @@ import {
   type DirectoryEntry
 } from "./corpus-overview";
 import { selectPrimaryCorpusCohort, type CorpusCohortIdentity } from "./corpus-cohort";
-import { siteProfileKey, siteProfilePath } from "./site-profile";
+import { siteProfilePath } from "./site-profile";
 
 /** Keep every crawlable directory document comfortably bounded. */
 export const DIRECTORY_PAGE_SIZE = 24;
@@ -50,7 +50,7 @@ export function buildDirectorySites(entries: DirectoryEntry[]): DirectorySite[] 
   const bySite = new Map<string, DirectoryEntry[]>();
 
   for (const entry of entries) {
-    const domain = siteProfileKey(entry.domain);
+    const domain = entry.siteKey;
     if (!domain) continue;
     const list = bySite.get(domain);
     if (list) list.push(entry);
@@ -91,7 +91,7 @@ export function buildCategoryEvidencePages(
 
   for (const entry of entries) {
     if (!entryEligibleForCorpusRollups(entry) || !entry.category) continue;
-    const domain = siteProfileKey(entry.domain);
+    const domain = entry.siteKey;
     if (!domain) continue;
     const key = `${domain}\u0000${entry.corpusCohort.id}`;
     const list = reportsBySiteAndCohort.get(key);
@@ -100,7 +100,7 @@ export function buildCategoryEvidencePages(
   }
 
   const currentSites = [...reportsBySiteAndCohort.values()].map((reports) => {
-    const domain = siteProfileKey(reports[0].domain) as string;
+    const domain = reports[0].siteKey as string;
     const latest = reports.reduce((selected, candidate) =>
       preferAsSiteDataPoint(candidate, selected) ? candidate : selected
     );

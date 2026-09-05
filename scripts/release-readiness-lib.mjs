@@ -885,7 +885,7 @@ export function deriveBoundCorpusCohort(
     typeof views?.familyCensoredOnRun !== "function" ||
     typeof views?.runHitRequestRecordingCap !== "function" ||
     typeof cohorts?.corpusCohortIdentityForView !== "function" ||
-    typeof siteDomains?.corpusSiteDomainKey !== "function" ||
+    typeof siteDomains?.corpusSiteKeyForRun !== "function" ||
     typeof reservedDomains?.isReservedReportDomain !== "function" ||
     typeof representatives?.preferCorpusRepresentative !== "function"
   ) {
@@ -934,7 +934,7 @@ export function deriveBoundCorpusCohort(
       ) {
         continue;
       }
-      const domain = siteDomains.corpusSiteDomainKey(run.domain);
+      const domain = siteDomains.corpusSiteKeyForRun(run);
       if (!domain || reservedDomains.isReservedReportDomain(domain)) continue;
       if (
         views.familyCensoredOnRun(run, "requests") ||
