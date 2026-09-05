@@ -4,6 +4,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { committedReportCreatedAt } from "./committed-report-created-at";
 import { buildCorpusExportRows } from "./corpus-export";
+import { corpusSiteKeyForRun } from "./corpus-site-domain";
 import {
   corpusExportMetadataForView,
   directoryShieldsThirdPartyChange,
@@ -161,6 +162,7 @@ function directoryEntry(artifact: ManagedArtifact): DirectoryEntry {
   return {
     id: artifact.reportId,
     domain: headline.domain,
+    siteKey: corpusSiteKeyForRun(run) || null,
     tone: headline.tone,
     headline: headline.headline,
     thirdPartyRequests: run.counts.thirdPartyRequests,

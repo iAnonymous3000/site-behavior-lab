@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { DirectoryEntry } from "./corpus-overview";
+import { siteProfileKey } from "./site-profile";
 import {
   buildCategoryEvidencePages,
   buildDirectorySites,
@@ -24,9 +25,14 @@ const SERVICE_ROLE_IDENTITY = {
 } as const;
 
 function entry(id: string, overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
+  const domain = overrides.domain ?? "www.example.com";
   return {
     id,
-    domain: "www.example.com",
+    domain,
+    // The loader keys from the lead run (corpusSiteKeyForRun). Fixture hosts
+    // under the reserved `.example` name have no public suffix, so they key to
+    // themselves.
+    siteKey: siteProfileKey(domain) ?? domain.toLowerCase(),
     tone: "info",
     headline: "Observed evidence.",
     thirdPartyRequests: 12,
@@ -95,6 +101,48 @@ test("directory collapses subdomains to one canonical profile and keeps the newe
   assert.equal(sites[1].latest.id, "new");
   assert.equal(sites[1].reportCount, 2);
   assert.equal(sites[1].profilePath, "/sites/example.com");
+});
+
+test("a generalized lead host joins no directory row, profile or category site", () => {
+  // The loader keys plato.stanford.edu's report as siteKey null with the
+  // display domain `stanford.edu`; www.stanford.edu's report keys to
+  // stanford.edu. Grouping by the display string put both under one profile
+  // and, being newer, plato's visit became the /directory/ row, the
+  // /sites/stanford.edu/ header and the category data point for stanford.edu.
+  const flagship = entry("20260824-c1059a2e10109207ca3b1298cf267ca4", {
+    domain: "stanford.edu",
+    requestedUrl: "https://www.stanford.edu/",
+    finalUrl: "https://www.stanford.edu/",
+    scannedAt: "2026-08-24T08:14:17.900Z",
+    thirdPartyRequests: 71,
+    category: "education",
+    categoryLabel: "Education"
+  });
+  const generalized = entry("20260824-fdbf9e4dcd606b222865ee7117233dbb", {
+    domain: "stanford.edu",
+    siteKey: null,
+    requestedUrl: "https://{label}.stanford.edu/",
+    finalUrl: "https://{label}.stanford.edu/",
+    scannedAt: "2026-08-24T08:14:58.913Z",
+    thirdPartyRequests: 3,
+    category: "education",
+    categoryLabel: "Education"
+  });
+
+  const sites = buildDirectorySites([generalized, flagship]);
+  assert.deepEqual(
+    sites.map((site) => [site.domain, site.latest.id, site.latest.thirdPartyRequests, site.reportCount]),
+    [["stanford.edu", flagship.id, 71, 1]],
+    "the apex's own visit is the row; the marker host is neither its latest nor a row of its own"
+  );
+
+  const [page] = buildCategoryEvidencePages([generalized, flagship], 1);
+  assert.equal(page.id, "education");
+  assert.deepEqual(
+    page.sites.map((site) => [site.domain, site.latest.id]),
+    [["stanford.edu", flagship.id]]
+  );
+  assert.equal(page.rollup.siteCount, 1);
 });
 
 test("directory pagination is bounded and rejects invalid page numbers", () => {

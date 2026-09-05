@@ -11,7 +11,7 @@ import {
 import { corpusCohortIdentityForView } from "./corpus-cohort";
 import { KNOWN_CAPTURE_LOSS_DETAILS } from "./capture-loss-presentation";
 import { loadCorpusOverview } from "./corpus-overview";
-import { corpusSiteDomainKey } from "./corpus-site-domain";
+import { corpusSiteDomainKey, corpusSiteKeyForRun } from "./corpus-site-domain";
 import { isCorpusStats, type CorpusStats } from "./corpus-stats";
 import { serializeJsonLd } from "./jsonld-script";
 import { isReservedReportDomain } from "./reserved-report-domains";
@@ -571,9 +571,15 @@ function independentCorpusSiteCounts(bundles: AcceptedBundle[]): {
   const capped = new Set<string>();
 
   for (const bundle of bundles) {
-    const domain =
-      corpusSiteDomainKey(bundle.presentation.headline.domain) ||
-      bundle.presentation.headline.domain.toLowerCase();
+    // Identity is the lead run's, whose requested URL still carries a
+    // `{label}` marker; the headline's display domain has dropped it, so
+    // keying on the display string would count a generalized sub-property
+    // (plato.stanford.edu) as the apex. Such a visit is no site.
+    const domain = corpusSiteKeyForRun({
+      domain: bundle.view.domain,
+      conditions: displayRunView(bundle.view).conditions
+    });
+    if (!domain) continue;
     attempted.add(domain);
     const successfulRuns = bundle.view.runs.filter(
       (run) =>

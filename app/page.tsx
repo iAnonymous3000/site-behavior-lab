@@ -43,6 +43,7 @@ export default async function Home() {
   const discoveryReports: HomepageReportSource[] = entries.map((entry) => ({
     id: entry.id,
     domain: entry.domain,
+    siteKey: entry.siteKey,
     headline: entry.headline,
     tone: entry.tone,
     scannedAt: entry.scannedAt,

@@ -18,7 +18,7 @@ export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   const { entries } = await loadCorpusOverview();
-  return [...new Set(entries.map((entry) => siteProfileKey(entry.domain)).filter((key): key is string => Boolean(key)))].map(
+  return [...new Set(entries.map((entry) => entry.siteKey).filter((key): key is string => key !== null))].map(
     (domain) => ({ domain })
   );
 }
@@ -238,7 +238,7 @@ async function loadProfile(rawDomain: string): Promise<{ domain: string; entries
   if (!key) return null;
   const { entries } = await loadCorpusOverview();
   const matches = entries
-    .filter((entry) => siteProfileKey(entry.domain) === key)
+    .filter((entry) => entry.siteKey === key)
     .sort((left, right) => Date.parse(right.scannedAt) - Date.parse(left.scannedAt));
   return matches.length > 0 ? { domain: key, entries: matches } : null;
 }

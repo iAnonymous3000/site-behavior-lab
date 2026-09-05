@@ -40,6 +40,8 @@ afterEach(async () => {
 
 function makeResult(overrides: {
   firstPartyDomain?: string;
+  /** The URL the visit was asked for; defaults to the first-party host's root. */
+  requestedUrl?: string;
   thirdPartyRequests?: number;
   status?: number;
   scannedAt?: string;
@@ -50,6 +52,7 @@ function makeResult(overrides: {
   const thirdPartyRequests = overrides.thirdPartyRequests ?? base.summary.thirdPartyRequests;
   const firstPartyDomain = overrides.firstPartyDomain ?? "shop-fixture.dev";
   const subjectUrl = `https://${firstPartyDomain}/`;
+  const requestedUrl = overrides.requestedUrl ?? subjectUrl;
   return {
     ...base,
     requests:
@@ -75,7 +78,7 @@ function makeResult(overrides: {
     },
     conditions: {
       ...base.conditions,
-      requestedUrl: subjectUrl,
+      requestedUrl,
       finalUrl: subjectUrl,
       scannedAt: overrides.scannedAt ?? base.conditions.scannedAt,
       gpcEnabled: overrides.gpcEnabled ?? base.conditions.gpcEnabled
@@ -202,24 +205,64 @@ test("equal timestamps choose the lexicographically larger immutable report id",
   assert.equal(stats.metrics.thirdPartyRequests?.max, 40);
 });
 
-test("redacted and unredacted host labels collapse to one corpus site", async () => {
+test("a visit asked for a generalized sub-property neither represents its apex nor adds a site", async () => {
+  // This used to pin the opposite: a newer `{label}.mit.edu` report "wins" as
+  // mit.edu's data point. The premise, that the marker host is a redacted
+  // spelling of the same site, does not hold: the seed catalog curates
+  // ocw.mit.edu beside mit.edu and plato.stanford.edu beside stanford.edu, and
+  // the real redaction below turns each sub-property into `{label}.<apex>`.
+  // On 2026-08-24 the plato scan landed 41 s after www.stanford.edu's, so the
+  // published stanford.edu distribution point, directory row and history
+  // header were plato's (3 third-party requests in place of 71). A visit whose
+  // requested host the reader cannot recover names no site: it must not stand
+  // in for the apex and must not count as a site of its own. A visit asked
+  // for the apex that merely LANDED on a generalized host (www.clevelandclinic
+  // .org answers from my.clevelandclinic.org) is still that site's own visit.
   await writeReport(
     "20260601-12121212121212121212121212121212",
-    makeResult({ firstPartyDomain: "mit.edu", thirdPartyRequests: 10, scannedAt: "2026-06-01T00:00:00.000Z" })
+    makeResult({ firstPartyDomain: "www.mit.edu", thirdPartyRequests: 10, scannedAt: "2026-06-01T00:00:00.000Z" })
   );
   await writeReport(
     "20260701-34343434343434343434343434343434",
-    makeResult({ firstPartyDomain: "{label}.mit.edu", thirdPartyRequests: 40, scannedAt: "2026-07-01T00:00:00.000Z" })
+    makeResult({ firstPartyDomain: "ocw.mit.edu", thirdPartyRequests: 40, scannedAt: "2026-07-01T00:00:00.000Z" })
   );
   await writeReport(
     "20260701-56565656565656565656565656565656",
-    makeResult({ firstPartyDomain: "stanford.edu", thirdPartyRequests: 20, scannedAt: "2026-07-01T00:00:00.000Z" })
+    makeResult({ firstPartyDomain: "www.stanford.edu", thirdPartyRequests: 20, scannedAt: "2026-07-01T00:00:00.000Z" })
+  );
+  await writeReport(
+    "20260702-78787878787878787878787878787878",
+    makeResult({ firstPartyDomain: "home.unicode.org", thirdPartyRequests: 60, scannedAt: "2026-07-02T00:00:00.000Z" })
+  );
+  await writeReport(
+    "20260703-9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a",
+    makeResult({
+      firstPartyDomain: "my.clevelandclinic.org",
+      requestedUrl: "https://www.clevelandclinic.org/",
+      thirdPartyRequests: 30,
+      scannedAt: "2026-07-03T00:00:00.000Z"
+    })
   );
 
+  // The fixture goes through the real publication redaction, so the marker
+  // is the one the corpus carries, not a hand-written spelling.
+  const ocw = JSON.parse(await readFile(path.join(reportsDir, "20260701-34343434343434343434343434343434.json"), "utf8")) as {
+    conditions: { requestedUrl: string };
+  };
+  assert.equal(ocw.conditions.requestedUrl, "https://{label}.mit.edu/");
+  const clinic = JSON.parse(await readFile(path.join(reportsDir, "20260703-9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a9a.json"), "utf8")) as {
+    conditions: { requestedUrl: string; finalUrl: string };
+  };
+  assert.equal(clinic.conditions.requestedUrl, "https://www.clevelandclinic.org/");
+  assert.equal(clinic.conditions.finalUrl, "https://{label}.clevelandclinic.org/");
+
   const { stats } = await buildCorpusStats(reportsDir);
-  assert.equal(stats.sampleSize, 2);
-  assert.equal(stats.coverageSiteCount, 2);
-  assert.equal(stats.metrics.thirdPartyRequests?.max, 40, "the newest marked MIT report wins");
+  assert.equal(stats.sampleSize, 3, "mit.edu, stanford.edu and clevelandclinic.org; the generalized subjects add no site");
+  assert.equal(stats.coverageSiteCount, 3);
+  assert.equal(stats.metrics.thirdPartyRequests?.max, 30, "the clinic's own redirected visit is measured");
+  assert.equal(stats.metrics.thirdPartyRequests?.min, 10, "www.mit.edu stays mit.edu's data point over the newer ocw visit");
+  assert.equal(stats.metrics.thirdPartyRequests?.count, 3);
+  assert.equal(stats.metrics.thirdPartyRequests?.p50, 20);
 });
 
 test("a loaded v2 site stays covered even though its metrics are never measured", async () => {

@@ -1,6 +1,7 @@
 import { safeNavigableHttpUrl } from "./report-url";
 import { scanPrefillHref } from "./scan-prefill";
 import { displayRunView, type ReportView } from "./scan-report-views";
+import { corpusSiteKeyForRun } from "./corpus-site-domain";
 import { siteProfilePath } from "./site-profile";
 
 const EVIDENCE_ISSUE_URL = "https://github.com/iAnonymous3000/site-behavior-lab/issues/new";
@@ -36,9 +37,12 @@ export function reportActivation(input: {
   // The domain is already public in this report, so the site root is always a
   // safe replay target even when the exact route is a privacy-marked shape.
   const siteTarget = exactTarget ?? safeNavigableHttpUrl(`https://${input.view.domain}/`);
+  // The history page lists this report only under the site the corpus keys
+  // it to; a visit asked for a generalized host is listed under none.
+  const siteKey = corpusSiteKeyForRun(run);
 
   return {
-    profilePath: input.siteHistoryAvailable ? siteProfilePath(input.view.domain) : null,
+    profilePath: input.siteHistoryAvailable && siteKey ? siteProfilePath(siteKey) : null,
     exactRescanHref: exactTarget ? scanPrefillHref(exactTarget) : null,
     siteRescanHref: siteTarget ? scanPrefillHref(siteTarget) : null,
     evidenceIssueUrl: evidenceProblemUrl({

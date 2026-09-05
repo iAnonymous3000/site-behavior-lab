@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createConsentComparisonReport } from "./compare-reports";
 import { corpusSiteDomainKey } from "./corpus-site-domain";
+import { siteProfileKey } from "./site-profile";
 import {
   consentClicksForView,
   corpusExportMetadataForView,
@@ -157,8 +158,13 @@ test("researcher-export metadata keeps v1 derivation and r2 recorded states dist
 });
 
 function makeEntry(overrides: Partial<DirectoryEntry> & { id: string }): DirectoryEntry {
+  const domain = overrides.domain ?? "shop.example";
   return {
-    domain: "shop.example",
+    domain,
+    // The loader keys from the lead run (corpusSiteKeyForRun). Fixture hosts
+    // under the reserved `.example` name have no public suffix, so they key to
+    // themselves.
+    siteKey: siteProfileKey(domain) ?? domain.toLowerCase(),
     tone: "warn",
     headline: "shop.example told Google you were here.",
     thirdPartyRequests: 100,
@@ -411,6 +417,54 @@ test("the corpus counts one site however the headline chose to spell it", () => 
     selectSiteDataPoints(entries).length
   );
   assert.equal(selectSiteDataPoints(entries).length, 2);
+});
+
+test("a generalized lead host never represents the site its display domain names", () => {
+  // The loader keys identity from the lead run, whose requested host is
+  // `{label}.stanford.edu`, while the headline's display domain is already
+  // `stanford.edu`; the entry
+  // arrives exactly as the loader builds it for plato.stanford.edu's report.
+  // A reader that re-derived the key from the display string collapsed it
+  // into www.stanford.edu's site and, being newer, it became the 95-site
+  // distribution's stanford.edu data point (3 third-party requests for 71).
+  const flagship = makeEntry({
+    id: "20260824-c1059a2e10109207ca3b1298cf267ca4",
+    domain: "stanford.edu",
+    requestedUrl: "https://www.stanford.edu/",
+    finalUrl: "https://www.stanford.edu/",
+    scannedAt: "2026-08-24T08:14:17.900Z",
+    thirdPartyRequests: 71
+  });
+  const generalized = makeEntry({
+    id: "20260824-fdbf9e4dcd606b222865ee7117233dbb",
+    domain: "stanford.edu",
+    siteKey: null,
+    requestedUrl: "https://{label}.stanford.edu/",
+    finalUrl: "https://{label}.stanford.edu/",
+    scannedAt: "2026-08-24T08:14:58.913Z",
+    thirdPartyRequests: 3
+  });
+  assert.equal(flagship.siteKey, "stanford.edu");
+
+  const points = selectSiteDataPoints([generalized, flagship]);
+  assert.deepEqual(
+    points.map((entry) => [entry.id, entry.thirdPartyRequests]),
+    [[flagship.id, 71]],
+    "the apex's own newest visit represents it; the marker host is no data point"
+  );
+
+  const counts = summarizeCorpusSiteCounts([generalized, flagship]);
+  assert.equal(counts.attemptedSiteCount, 1);
+  assert.equal(counts.coverageSiteCount, 1);
+  assert.equal(summarizeCorpusSiteCounts([generalized]).attemptedSiteCount, 0, "a marker host is no site");
+
+  const aggregate = selectAggregateCorpusCohort([generalized, flagship]);
+  assert.equal(aggregate.cohort?.id, flagship.corpusCohort.id);
+  assert.equal(
+    aggregate.entries.length,
+    2,
+    "the row stays in the cohort's export rows; only its site identity is withheld"
+  );
 });
 
 test("comparison coverage and cap counts consider every arm without double counting the site", () => {
