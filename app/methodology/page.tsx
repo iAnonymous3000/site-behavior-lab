@@ -161,6 +161,11 @@ export default function MethodologyPage() {
           state, or bot detection, so comparison wording stays descriptive: it reports what differed between the
           visits, never that the compared setting caused the difference.
         </p>
+        <p>
+          Saved reports with published corrections or clarifications remain readable individually. Local temporal
+          comparison refuses them because the current comparison format cannot retain their source-report notices.
+          A comparison must not silently discard a limitation attached after measurement.
+        </p>
       </section>
 
       <section className="legal-section">
@@ -170,8 +175,9 @@ export default function MethodologyPage() {
           WebAssembly) with the default-enabled Brave Shields filter lists, vendored as a pinned snapshot. Matching
           requests are aborted in this scanner&apos;s browser: a simulation of Brave&apos;s default list blocking,
           not a live Brave-browser visit. Each request is matched with its actual HTTP method against the document
-          that initiated it, network rules only (no cosmetic rules). Blocked counts are a close lower-bound
-          approximation of Brave&apos;s default Shields for that page load, and the report separately states
+          that initiated it, network rules only (no cosmetic rules). Blocked counts describe this engine and list
+          snapshot in the scanner; they do not establish actual Brave behavior or a lower bound on its blocking.
+          The report separately states
           filter-list matches, engine-blocked requests, and the total third-party reduction, which are three
           different measurements.
         </p>
@@ -187,6 +193,14 @@ export default function MethodologyPage() {
           impersonate the scanner. Shared reports live behind unguessable IDs and expire; reports published into
           the versioned public corpus are retained under disclosed age, count, and cohort rules. Reports cited by
           the corrections ledger are pinned against automated corpus pruning.
+        </p>
+        <p>
+          Opening a saved report locally preserves its recorded ID so later corrections remain discoverable;
+          it does not verify that a share link is served on the current site. CSV downloads include the source
+          report and correction context in a ZIP, including for empty request logs. For comparisons, the CSV
+          filename identifies the selected baseline or variant. Extract report.json to reopen the measurement;
+          read corrections.json alongside it. The included notices reflect this app build&apos;s ledger, not a
+          guarantee that no later correction exists. These downloads are not signed provenance packages.
         </p>
         <p>
           Restart-safe queue data, when explicitly enabled, is infrastructure state rather than report evidence. The

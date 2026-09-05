@@ -33,6 +33,7 @@ import {
   familyUnsupportedOnRun,
   requestEvidenceState,
   unsupportedEvidenceFamilies,
+  type RequestEvidenceState,
   type ReportView,
   type RunView
 } from "./scan-report-views";
@@ -215,7 +216,7 @@ export type RunFacts = {
   signals: RunSignalFacts;
   censorshipNotes: string[];
   unsupportedFamilies: string[];
-  requestEvidenceState: "complete" | "capped" | "incomplete";
+  requestEvidenceState: RequestEvidenceState;
   strongestObservedSeverity: ReportSeverity;
   /**
    * Deliberately conservative and corpus-independent. A calm headline is

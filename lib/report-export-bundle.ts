@@ -1,11 +1,17 @@
-/** A ZIP with stored (uncompressed) entries: preserves exact JSON bytes and
- * bundles public correction context without changing the report wire schema. */
-export function reportExportBundle(reportJson: string, correctionsJson: string): Uint8Array {
+/** Stored ZIP entries preserve supplied bytes. A CSV travels with its source
+ * report and corrections even when there are no request rows to carry context. */
+export function reportExportBundle(
+  reportJson: string,
+  correctionsJson: string,
+  requestLog?: { csv: string; arm: "baseline" | "variant" | null }
+): Uint8Array {
+  const files: [string, string][] = [["report.json", reportJson], ["corrections.json", correctionsJson]];
+  if (requestLog) files.push([requestLog.arm ? `${requestLog.arm}-requests.csv` : "requests.csv", requestLog.csv]);
   const encoder = new TextEncoder();
   const chunks: Uint8Array[] = [];
   const directory: Uint8Array[] = [];
   let offset = 0;
-  for (const [filename, content] of [["report.json", reportJson], ["corrections.json", correctionsJson]]) {
+  for (const [filename, content] of files) {
     const name = encoder.encode(filename);
     const data = encoder.encode(content);
     let crc = 0xffffffff;
@@ -34,7 +40,7 @@ export function reportExportBundle(reportJson: string, correctionsJson: string):
   const directorySize = directory.reduce((size, part) => size + part.length, 0);
   const end = new Uint8Array(22);
   const view = new DataView(end.buffer);
-  view.setUint32(0, 0x06054b50, true); view.setUint16(8, 2, true); view.setUint16(10, 2, true);
+  view.setUint32(0, 0x06054b50, true); view.setUint16(8, files.length, true); view.setUint16(10, files.length, true);
   view.setUint32(12, directorySize, true); view.setUint32(16, offset, true);
   const output = new Uint8Array(offset + directorySize + end.length);
   let cursor = 0;

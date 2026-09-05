@@ -1,8 +1,7 @@
 /**
  * ScanReport v2 REVISION 2 wire types, exactly as specified by the accepted
- * r2-a4 addendum (docs/scan-report-v2-rfc.md, section 15). Types and fixtures
- * slice only: no validator, evaluator, reader dispatch, projector, or schema
- * publication references these yet, and no producer emits them.
+ * r2-a4 addendum (docs/scan-report-v2-rfc.md, section 15). These are the current
+ * producer and reader contract; the published r2 schema is also frozen.
  *
  * The r1 types and schema are FROZEN (executable hash gate in
  * scripts/build-schema.mjs); this module never modifies them, it composes them

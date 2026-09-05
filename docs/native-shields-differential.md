@@ -4,9 +4,10 @@
 
 Site Behavior Lab's public Shields comparison is a controlled Playwright
 Chromium intervention using the vendored `adblock-rust` engine and a pinned
-snapshot of Brave's default filter lists. It is intentionally described as a
-close lower-bound approximation of default Brave Shields, not as a live Brave
-visit.
+snapshot of Brave's default filter lists. Its counts describe that simulation.
+They do not establish actual Brave behavior or a lower bound on its blocking.
+This differential runner can supply independent diagnostic observations, but
+its existence does not establish representative accuracy.
 
 Brave exposes a browser-only CDP event,
 `Network.requestAdblockInfoReceived`, for a request that the native engine

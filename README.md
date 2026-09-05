@@ -55,7 +55,8 @@ One scan is one automated visit from one place at one time. The scanner:
   the order is disclosed.
 
 The output is a report page with a plain-language headline and a
-severity-ranked findings board, the underlying JSON, a CSV of the request log,
+severity-ranked findings board, the underlying JSON, a request CSV bundled with
+its source report and correction context,
 and a printable PDF. Reports produced by the public instance are stored for a
 bounded window; a curated corpus of committed reports under `public/reports/`
 drives the site directory, per-site history pages, category pages, and the
@@ -67,11 +68,13 @@ a transparency log whose head is periodically anchored with OpenTimestamps.
 - **One visit, not the site.** The report is what one automated Chromium
   visit from the configured scanner saw. Sites vary behaviour by region,
   browser, IP reputation, login state, consent state, bot detection, and time.
-- **Counts are lower bounds.** Service Workers are blocked by design, a
+- **Counts describe the instrumented visit.** Retained request counts can be
+  lower bounds when capture is incomplete; cookie and storage snapshots can
+  change in either direction. None estimates an ordinary browser visit.
+  Service Workers are blocked by design, a
   SharedWorker's traffic beyond its entry script is not recorded, WebSocket
   traffic is not recorded at all, storage is read from the top frame only, the
-  visit never navigates on its own and scrolls only if focusing a form field
-  for the input probe brings it into view, and the service catalog is a
+  input probe does not scroll to reach offscreen fields, and the service catalog is a
   curated, US-biased list rather than an inventory.
 - **A failed or challenged load is not a clean result.** Sites that refuse
   undisguised automated browsers are reported as refusals, never evaded.

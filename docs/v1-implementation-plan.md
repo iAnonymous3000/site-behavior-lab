@@ -4,6 +4,9 @@ Approved in the project task on 2026-09-05. V1 promises that a user can inspect 
 page, understand observed behavior and measurement limits, and share evidence
 that supports the report's claims.
 
+The [schema and methodology audit](schema-methodology-audit-2026-09-05.md)
+records the end-to-end contract, reproduced gaps and compatibility decisions.
+
 ## Implementation
 
 - [x] Correct policy and pixel interpretations, input-probe coverage, and
@@ -39,7 +42,16 @@ observations but no longer lead with the original findings or enter statistical
 distributions. A loaded document still counts toward descriptive corpus coverage.
 JSON downloads from the explorer include a separate corrections file in a ZIP;
 raw JSON and its provenance remain independently available. Request CSVs carry
-all applicable clarification summaries.
+all applicable clarification summaries. Request CSV downloads include the source
+report and corrections in a ZIP so zero-row logs retain their context. The
+selected comparison arm is named in the CSV filename.
+
+Local imports retain the recorded identity through re-export while disabling
+unverified share controls. Temporal composition of reports with published notices
+is refused until their context can survive in a portable derived artifact.
+Failed-visit labels agree between the header and request export without changing
+capture facts. Simulation counts no longer claim an unestablished lower bound on
+real Brave behavior. No measurement schema revision is introduced.
 
 Closed producer rows also restore the ServiceRole/b68c window and the August 11,
 August 14 evening and pre-resource-budget-v2 August 15 list windows. The source

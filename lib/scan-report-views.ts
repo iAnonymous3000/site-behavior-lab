@@ -1270,8 +1270,11 @@ export function runHitRequestRecordingCap(run: RunView): boolean {
   return run.warnings.some((warning) => warning.includes(REQUEST_RECORDING_CAP_WARNING_FRAGMENT));
 }
 
-/** Reader-facing state for the request evidence without conflating censoring with a cap. */
-export function requestEvidenceState(run: RunView): "complete" | "capped" | "incomplete" {
+export type RequestEvidenceState = "complete" | "capped" | "incomplete" | "failed";
+
+/** Requested-visit state; a failed visit can still retain observations of the returned document. */
+export function requestEvidenceState(run: RunView): RequestEvidenceState {
+  if (run.quality.outcome === "failed") return "failed";
   if (runHitRequestRecordingCap(run)) return "capped";
   return familyCensoredOnRun(run, "requests") ? "incomplete" : "complete";
 }

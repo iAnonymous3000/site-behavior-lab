@@ -1,4 +1,4 @@
-import { readLoadedReport, withoutLoadedReportShare } from "./client-report-reader";
+import { readLoadedReport, asLocalReport } from "./client-report-reader";
 import { readClientFileArrayBuffer, readClientFileText } from "./client-file-policy";
 import { parseJsonTextWithPolicy } from "./client-fetch-policy";
 import {
@@ -82,7 +82,7 @@ export async function readPageGraphUpload(
   const read = await readLoadedReport(report, "This PageGraph capture");
   signal?.throwIfAborted();
   if (!read.ok) throw new Error(read.message);
-  return withoutLoadedReportShare(read.loaded);
+  return asLocalReport(read.loaded);
 }
 
 export function configuredClientBuildCommit(

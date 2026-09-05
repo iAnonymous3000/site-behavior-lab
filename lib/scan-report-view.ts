@@ -46,7 +46,10 @@ export * from "./scan-report-views";
  * diagnostics. Serialization always goes through the boundary below; for
  * ephemeral results, `public` is the only persistable form.
  */
-export type LoadedReport =
+export type LoadedReport = {
+  /** Local imports retain recorded identity but cannot offer an unverified permalink. Never serialized. */
+  localOnly?: true;
+} & (
   | { source: "v1"; wire: ScanReport; view: ReportView }
   | { source: "v2-public"; wire: PublicScanReportV2; view: ReportView }
   | { source: "v2-ephemeral"; wire: EphemeralScanReport; public: PublicScanReportV2; view: ReportView }
@@ -56,7 +59,7 @@ export type LoadedReport =
       wire: EphemeralSingleReportR2 | EphemeralComparisonReportR2;
       public: PublicScanReportV2R2;
       view: ReportView;
-    };
+    });
 
 /**
  * The canonical mapping from a stored report to the client render envelope. A

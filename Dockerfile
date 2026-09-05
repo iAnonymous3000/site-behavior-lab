@@ -14,6 +14,11 @@ RUN test "$(node --version)" = "v24.18.1" \
 
 FROM playwright-base AS build
 
+# Independent ZIP interoperability checks use the system reader. Install it
+# only in the build stage; the scanner runtime does not need archive tools.
+RUN apt-get update && apt-get install -y --no-install-recommends unzip \
+  && rm -rf /var/lib/apt/lists/*
+
 ARG SITE_BEHAVIOR_LAB_BUILD_COMMIT
 ARG SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF
 

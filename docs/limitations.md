@@ -76,9 +76,11 @@ Three practical consequences when interpreting a report:
   undisguised automated browsers, and the scanner reports that honestly instead
   of evading it. Check the report's quality and bot-wall disclosures before
   reading a low count as a clean result.
-- **Counts are a lower bound, never an inventory.** Service Workers are blocked
-  by design; Web Worker and WebSocket traffic can be incomplete; storage is read
-  from the top frame only; the service catalog is US-biased.
+- **Counts describe the instrumented visit, not an ordinary browser visit.**
+  Capture loss can make retained request counts lower bounds for that same
+  visit. Cookie and storage snapshots can change in either direction. Service
+  Workers are blocked by design; SharedWorker and WebSocket coverage is absent
+  beyond the disclosed boundaries; storage is read from the top frame only.
 - **Severity may not be corpus-ranked.** Percentile severity needs a
   current-method cohort of at least 50 sites. Where none exists the report falls
   back to fixed thresholds, and `public/corpus-stats.json` shows each cohort's
@@ -131,9 +133,9 @@ is the remaining one-arm asymmetry and is always disclosed.
 
 Site Behavior Lab reports what happened during automated Chromium visits from the configured scanner instance: one completed visit for a single report, or one completed visit per condition for a comparison. Optional durable execution may abandon an attempt whose execution, publication, or status coordination was lost and retry it once, so the target can see an extra visit that was partial or that completed before its result was lost; report evidence is never merged across attempts.
 
-### Why the counts are a lower bound
+### What the counts describe
 
-Recorded counts are a lower bound of what the completed visit observed: requests made by a dedicated Web Worker are recorded (worker sessions attach to the page's network manager), but Service Workers are blocked at context creation so none runs, a SharedWorker's own traffic beyond its entry script is not recorded because the recorder is page-scoped, no WebSocket activity is recorded at all, neither the connection nor its messages (Chromium surfaces sockets only through a listener the scanner does not subscribe to, so the handshake never enters the HTTP request log either), and storage keys are read from the top frame only.
+Retained request counts can be a lower bound for the same instrumented visit when capture is incomplete. Cookie and storage snapshots can change in either direction and are not monotonic lower bounds. None of these counts establishes what an ordinary browser visit would have done: blocking Service Workers, suppressing navigation, or typing a sentinel can change which requests occur. Requests made by a dedicated Web Worker are recorded (worker sessions attach to the page's network manager), but Service Workers are blocked at context creation so none runs, a SharedWorker's own traffic beyond its entry script is not recorded because the recorder is page-scoped, no WebSocket activity is recorded at all, neither the connection nor its messages (Chromium surfaces sockets only through a listener the scanner does not subscribe to, so the handshake never enters the HTTP request log either), and storage keys are read from the top frame only.
 
 ### The two bounded interactions
 
@@ -161,7 +163,7 @@ Consent comparison mode runs one visit that clicks the banner's accept-all choic
 
 ### The Brave Shields block simulation
 
-The simulation uses Brave's own ad-block engine (the open-source [`adblock`](https://github.com/brave/adblock-rust) Rust crate, compiled to WASM) with the `default_enabled` lists from Brave's filter-list catalog. Under the Node scanner's `shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2` base methodology (production r2 reports record the full extended identity, this base plus the phase-kernel, boundary-state, consent, budget, proxy-traffic, service-worker-block, accountability, ServiceRole-taxonomy, and GPC worker-application suffixes, in `provenance.methodologyVersion`), each route-evaluated request is matched with its actual HTTP method against the document that initiated it: an ordinary subresource uses its requesting frame, a subframe navigation uses the parent document, and a non-HTTP inherited frame such as `about:blank` walks to its nearest HTTP(S) ancestor. Main-frame navigations are deliberately neither blocked nor counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. The source URL is used transiently by the engine and never added to the public v1 report. It matches network requests only: it does not apply cosmetic/element-hiding rules (CNAME cloaking is handled by the separate DNS step described above, not the block simulation), and the lists are a pinned snapshot, so blocked counts are a close lower-bound approximation of Brave's default Shields rather than a guarantee of identical behavior in a live Brave browser.
+The simulation uses Brave's own ad-block engine (the open-source [`adblock`](https://github.com/brave/adblock-rust) Rust crate, compiled to WASM) with the `default_enabled` lists from Brave's filter-list catalog. Under the Node scanner's `shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2` base methodology (production r2 reports record the full extended identity, this base plus the phase-kernel, boundary-state, consent, budget, proxy-traffic, service-worker-block, accountability, ServiceRole-taxonomy, and GPC worker-application suffixes, in `provenance.methodologyVersion`), each route-evaluated request is matched with its actual HTTP method against the document that initiated it: an ordinary subresource uses its requesting frame, a subframe navigation uses the parent document, and a non-HTTP inherited frame such as `about:blank` walks to its nearest HTTP(S) ancestor. Main-frame navigations are deliberately neither blocked nor counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. The source URL is used transiently by the engine and never added to the public v1 report. It matches network requests only: it does not apply cosmetic/element-hiding rules (CNAME cloaking is handled by the separate DNS step described above, not the block simulation), and the lists are a pinned snapshot, so blocked counts describe only this engine/list snapshot in the scanner. They do not establish real Brave behavior or a lower bound on its blocking; independently paired browser measurements would be needed to assess that relationship.
 
 ### What a result does not generalize to
 

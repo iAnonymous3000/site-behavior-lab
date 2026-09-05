@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createServer } from "node:http";
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
@@ -809,6 +810,44 @@ async function main() {
     await page.getByLabel("Resource type").selectOption("script");
     await expectRequestRowCount(page, 0);
     pass("static report request filters narrow rows");
+
+    const failedVisit = JSON.parse(await readFile(singleReportFixture, "utf8"));
+    failedVisit.summary.status = 403;
+    await reportUploadInput.setInputFiles({ name: "failed-visit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(failedVisit)) });
+    await expectText(page.locator(".report-header .capped-chip"), "visit failed");
+    await expectText(page.locator("#request-evidence-explanation"), "cannot establish absence");
+    const csvDownloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "CSV + context", exact: true }).click();
+    const csvDownload = await csvDownloadPromise;
+    const csvArchive = await csvDownload.path();
+    if (!csvArchive || !csvDownload.suggestedFilename().endsWith("-requests.zip")) fail("request download omitted its context bundle");
+    const requestCsv = execFileSync("unzip", ["-p", csvArchive, "requests.csv"], { encoding: "utf8" });
+    const failedRows = requestCsv.trimEnd().split("\r\n").slice(1);
+    if (failedRows.length !== failedVisit.requests.length || !failedRows.every(row => row.endsWith(",failed"))) fail("failed visit CSV lost its recording state or observations");
+    const csvSource = JSON.parse(execFileSync("unzip", ["-p", csvArchive, "report.json"], { encoding: "utf8" }));
+    if (csvSource.summary.status !== 403) fail("request bundle lost the failed source visit");
+    execFileSync("unzip", ["-t", csvArchive]);
+    pass("failed visit header and downloaded request bundle retain the same outcome");
+
+    const correctedId = corrections.entries.find(event => event.state === "corrected")?.reportIds[0];
+    if (!correctedId) fail("correction roundtrip smoke needs a published corrected report");
+    await reportUploadInput.setInputFiles(path.join(rootDir, "public", "reports", `${correctedId}.json`));
+    await page.getByText("Public evidence correction", { exact: true }).waitFor();
+    const reportDownloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "JSON + corrections (ZIP)", exact: true }).click();
+    const reportDownload = await reportDownloadPromise;
+    const reportArchive = await reportDownload.path();
+    if (!reportArchive) fail("corrected report did not download");
+    const retainedJson = execFileSync("unzip", ["-p", reportArchive, "report.json"], { maxBuffer: 16 * 1024 * 1024 });
+    if (JSON.parse(retainedJson).share?.id !== correctedId) fail("local re-export erased the correction identity");
+    const retainedNotices = JSON.parse(execFileSync("unzip", ["-p", reportArchive, "corrections.json"], { encoding: "utf8" }));
+    if (!retainedNotices.subjectEvents.some(event => event.state === "corrected")) fail("export lost the correction notice");
+    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+    await openHomepageTools(page);
+    await reportUploadInput.setInputFiles({ name: "reopened-report.json", mimeType: "application/json", buffer: retainedJson });
+    await page.getByText("Public evidence correction", { exact: true }).waitFor();
+    if (await page.getByRole("link", { name: "Share", exact: true }).count()) fail("local re-export enabled an unverified share link");
+    pass("corrected report retains its identity and notices across browser import, export and reopen");
 
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });

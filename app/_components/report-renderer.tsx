@@ -18,6 +18,7 @@ import {
 } from "./report-tables";
 import { PrintCompleteProvider } from "./print-mode";
 import { VisitPhasesAndStateChanges } from "./visit-phases-and-state-changes";
+import { shareForLoadedReport } from "@/lib/client-report-reader";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogRecordingState, requestLogToCsv } from "@/lib/csv-export";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
@@ -142,12 +143,20 @@ export function ReportRenderer({
     downloadBlob(blob, `site-behavior-lab-${safeFilenamePart(primaryRun.domain)}.json`);
   }
 
-  function downloadCsv() {
-    const csv = requestLogToCsv(displayedRun.evidence.requests, requestLogRecordingState(displayedRun), publishedReportCorrections(reportView.reportId).subjectEvents);
+  async function downloadCsv() {
+    const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
+    const { reportExportBundle } = await import("@/lib/report-export-bundle");
+    const corrections = publishedReportCorrections(reportView.reportId);
+    const csv = requestLogToCsv(displayedRun.evidence.requests, requestLogRecordingState(displayedRun), corrections.subjectEvents);
+    const bundle = reportExportBundle(
+      JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2),
+      JSON.stringify(corrections, null, 2),
+      { csv, arm: arms ? displayedArmLabel : null }
+    );
     const armPart = arms ? `-${safeFilenamePart(armDisplayLabel(reportView, displayedArmLabel))}` : "";
     downloadBlob(
-      new Blob([csv], { type: "text/csv;charset=utf-8" }),
-      `site-behavior-lab-${safeFilenamePart(displayedRun.domain)}${armPart}-requests.csv`
+      new Blob([bundle as Uint8Array<ArrayBuffer>], { type: "application/zip" }),
+      `site-behavior-lab-${safeFilenamePart(displayedRun.domain)}${armPart}-requests.zip`
     );
   }
 
@@ -185,7 +194,7 @@ export function ReportRenderer({
       <section className="report-grid">
         <div className="report-main">
           <ReportHeader
-            share={loaded.wire.share ?? null}
+            share={shareForLoadedReport(loaded)}
             view={reportView}
             runFacts={displayedFacts}
             evidenceFacts={displayedFacts}
@@ -195,7 +204,7 @@ export function ReportRenderer({
             liveApiServesReportPages={liveApiServesReportPages}
           />
           <HeadlineBanner
-            share={loaded.wire.share ?? null}
+            share={shareForLoadedReport(loaded)}
             headline={headline}
             liveApiServesReportPages={liveApiServesReportPages}
           />

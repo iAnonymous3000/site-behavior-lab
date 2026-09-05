@@ -1,5 +1,5 @@
 import type { NetworkRequestRecord } from "./types";
-import { requestEvidenceState, type RunView } from "./scan-report-views";
+import { requestEvidenceState, type RequestEvidenceState, type RunView } from "./scan-report-views";
 import { displayHost, displayPublicUrl } from "./text-format";
 import type { CorrectionsLedgerEvent } from "./corrections-ledger-model";
 
@@ -29,10 +29,9 @@ const CSV_HEADER = [
  * then the exact request-recording cap, then any other request-family capture
  * loss. Anything but "complete" means the rows are a truncated lower bound.
  */
-export type RequestLogRecordingState = "complete" | "capped" | "incomplete" | "failed";
+export type RequestLogRecordingState = RequestEvidenceState;
 
 export function requestLogRecordingState(run: RunView): RequestLogRecordingState {
-  if (run.quality.outcome === "failed") return "failed";
   return requestEvidenceState(run);
 }
 
