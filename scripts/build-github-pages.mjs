@@ -16,6 +16,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDeploymentReceipt, resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
+import { attachPagesCompilerCache } from "./pages-compiler-cache.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const workDir = path.join(rootDir, ".next-pages-work");
@@ -206,6 +207,7 @@ async function main() {
   await copyTrackedTree(rootDir, workDir);
   await prepareStaticReportRouteMode(workDir);
   await symlink(nodeModulesDir, path.join(workDir, "node_modules"), "dir");
+  await attachPagesCompilerCache(rootDir, workDir);
 
   const nextBin = path.join(workDir, "node_modules", ".bin", process.platform === "win32" ? "next.cmd" : "next");
 

@@ -116,7 +116,7 @@
     "test:smoke:encrypted-watches": "node scripts/smoke-encrypted-watches.mjs",
     "toolchain:canary": "node scripts/run-schema-cli.mjs toolchain-canary",
     "wasm:verify-reproducibility": "node scripts/verify-wasm-reproducibility.mjs --verify",
-    "test:unit": "rm -rf .unit-test-dist && tsc -p tsconfig.test.json && node --test --test-concurrency=1 .unit-test-dist/lib/*.test.js && npm run test:calibration-producer && npm run test:calibration-ceremony && npm run test:calibration-v4-ceremony && npm run test:calibration-tools && npm run test:calibration-censoring-lib && npm run test:calibration-censoring-artifact && npm run test:aa-producer && npm run test:pdf-reader && npm run test:featured-taxonomy && npm run test:durable-producers",
+    "test:unit": "rm -rf .unit-test-dist && tsc -p tsconfig.test.json && node --test --test-concurrency=1 .unit-test-dist/lib/*.test.js && npm run test:calibration-producer && npm run test:calibration-ceremony && npm run test:calibration-v4-ceremony && npm run test:calibration-tools && npm run test:calibration-censoring-lib && npm run test:calibration-censoring-artifact && npm run test:aa-producer && npm run test:pdf-reader && npm run test:featured-taxonomy && npm run test:durable-producers && node --test scripts/pages-compiler-cache.test.mjs",
     "test:smoke": "node scripts/smoke-test.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "reports:remediation-inventory": "node scripts/remediation-inventory.mjs",

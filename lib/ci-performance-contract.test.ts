@@ -66,3 +66,25 @@ test("Docker dependencies are independent of source identity while all source ch
   assert.ok(docker.indexOf("ENV SITE_BEHAVIOR_LAB_BUILD_COMMIT=") < checks);
   assert.match(docker, /must be a full lowercase Git SHA/);
 });
+
+test("Docker cache reuse still builds and exercises the exact checkout before recording evidence", () => {
+  const docker = job("docker");
+  const build = docker.indexOf("- name: Build exact deployable Docker image");
+  const smoke = docker.indexOf("- name: Smoke deployable Docker image");
+  const evidence = docker.indexOf("- name: Record exact-SHA container build evidence");
+  assert.ok(build > 0 && smoke > build && evidence > smoke);
+  assert.match(docker, /test "\$commit" = "\$GITHUB_SHA"/);
+  assert.match(docker, /proof=\$\(node scripts\/measurement-candidate-build-proof\.mjs\)/);
+  const buildStep = docker.slice(build, smoke);
+  assert.match(buildStep, /context: \.\n/);
+  assert.match(buildStep, /load: true\n\s+push: false/);
+  assert.match(buildStep, /SITE_BEHAVIOR_LAB_BUILD_COMMIT=\$\{\{ steps\.container_inputs\.outputs\.commit \}\}/);
+  assert.match(buildStep, /SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=\$\{\{ steps\.container_inputs\.outputs\.proof \}\}/);
+  assert.match(buildStep, /cache-from: type=gha,scope=scanner-amd64-v1,version=2/);
+  assert.match(buildStep, /cache-to: type=gha,scope=scanner-amd64-v1,version=2,mode=max/);
+  assert.doesNotMatch(buildStep, /continue-on-error|\n\s+if:/);
+  const smokeStep = docker.slice(smoke, docker.indexOf("- name: Scan smoke-tested container image with Trivy"));
+  assert.match(smokeStep, /DOCKER_SMOKE_SKIP_BUILD: "1"/);
+  assert.match(smokeStep, /DOCKER_SMOKE_PUBLIC_R2: "1"/);
+  assert.doesNotMatch(smokeStep, /continue-on-error|\n\s+if:/);
+});
