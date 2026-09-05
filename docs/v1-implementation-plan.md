@@ -23,12 +23,20 @@ records the end-to-end contract, reproduced gaps and compatibility decisions.
 
 ## Implemented evidence boundary
 
-The detector registry is node-detectors-v7: synthetic-sentinel@4,
-pixel-request-decoder@4 and policy-text-cross-check@6. The methodology records
+The detector registry is node-detectors-v8: synthetic-sentinel@4,
+pixel-request-decoder@5 and policy-text-cross-check@6. The methodology records
 active-probe-v2 and auxiliary-context-block-v1. Focus, input and blur callbacks
 can send requests; native submissions and probe-triggered navigation are
 blocked. Unsupported fields, failed attempts and offscreen fields count as
 omissions. Teardown-only transmissions are not measured.
+
+Pixel bodies that cannot be decoded no longer count as fully measured. Endpoint
+presence, retained event labels, and populated identifier fields remain separate
+observations; none establishes user actions or successful delivery. Unknown or
+unscoped capture loss blocks affected absence, exact-count and benchmark claims.
+Optional legacy evidence omitted on the wire stays unrecorded after normalization.
+The closed v7 producer rows and all accountability obligation epochs remain
+enforced. Historical payload contents cannot be reconstructed from summaries.
 
 The existing redaction rules are retained. The only public-string change admits
 the new fixed scanner disclosure in addition to the old one. Its warning-pattern

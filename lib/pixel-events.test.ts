@@ -7,6 +7,7 @@ import {
   TIKTOK_STANDARD_EVENTS,
   X_EVENT_NAMES,
   decodePixelRequest,
+  inspectPixelRequest,
   summarizePixelEvents,
   type PixelEventInput
 } from "./pixel-events";
@@ -16,6 +17,62 @@ import {
 } from "./redact-scan-report-v1";
 
 const HASH = "a".repeat(64);
+
+test("inherited object keys never become identifier categories", () => {
+  const inputs: PixelEventInput[] = [
+    { url: "https://www.facebook.com/tr?ev=PageView&ud[constructor]=value&ud[__proto__]=value&ud[em]=value" },
+    { url: "https://analytics.tiktok.com/api/v2/pixel", postData: '{"event":"Pageview","user":{"constructor":"value","__proto__":"value","toString":"value","email":"value"}}' }
+  ];
+  for (const input of inputs) {
+    const inspection = inspectPixelRequest(input);
+    assert.equal(inspection?.bodyDecoded, true);
+    assert.deepEqual(inspection?.decoded.advancedMatching, ["email"]);
+    const summary = JSON.parse(JSON.stringify(summarizePixelEvents([input])));
+    assert.deepEqual(summary[0].advancedMatching, ["email"], "the JSON boundary cannot acquire null, object, or function categories");
+  }
+});
+
+test("unsupported pixel bodies remain recognized endpoints with incomplete decoding", () => {
+  for (const postData of [null, "", "{\"event\":", "opaque-data", "42", '{"unknown":{"email":"value"}}']) {
+    const inspection = inspectPixelRequest({ url: "https://analytics.tiktok.com/api/v2/pixel", method: "POST", postData });
+    assert.ok(inspection);
+    assert.equal(inspection.bodyDecoded, false, String(postData));
+    assert.deepEqual(inspection.decoded.events, []);
+  }
+  for (const postData of ['{"ev":"Purchase"}', "opaque-data", "x".repeat(MAX_DECODED_BODY_CHARS + 1)]) {
+    const inspection = inspectPixelRequest({ url: "https://www.facebook.com/tr?ev=PageView", method: "POST", postData });
+    assert.equal(inspection?.bodyDecoded, false);
+    assert.deepEqual(inspection?.decoded.events, ["PageView"], "a body failure does not discard a decoded query label");
+  }
+  assert.equal(inspectPixelRequest({ url: "https://unrelated.example/", postData: "invalid" }), null);
+});
+
+test("mixed and multiple TikTok batches retain positives while exposing unparsed entries", () => {
+  const inspect = (body: unknown) => inspectPixelRequest({ url: "https://analytics.tiktok.com/api/v2/pixel", postData: JSON.stringify(body) });
+  const mixed = inspect({ batch: [{ event: "Pageview", user: { email: HASH } }, null] });
+  assert.equal(mixed?.bodyDecoded, false);
+  assert.deepEqual(mixed?.decoded.events, ["Pageview"]);
+  assert.deepEqual(mixed?.decoded.advancedMatching, ["email"]);
+  const complete = inspect({ batch: [{ event: "Pageview" }], events: [{ event: "ViewContent", user: { phone: HASH } }] });
+  assert.equal(complete?.bodyDecoded, true);
+  assert.deepEqual(complete?.decoded.events, ["Pageview", "ViewContent"]);
+  assert.deepEqual(complete?.decoded.advancedMatching, ["phone"]);
+  assert.equal(inspect({ batch: [] })?.bodyDecoded, true, "an explicitly empty supported batch is decoded");
+  assert.equal(inspect({ event: "Pageview", user: "opaque" })?.bodyDecoded, false);
+  assert.equal(inspect({ event: "Pageview", user: { email: 123 } })?.bodyDecoded, false);
+  assert.equal(inspect({ event: "Pageview", batch: "opaque" })?.bodyDecoded, false);
+  assert.equal(inspect({ event: "Pageview", context: "opaque" })?.bodyDecoded, false);
+  const bothUsers = inspect({ event: "Pageview", context: { user: { email: HASH } }, user: { phone: HASH } });
+  assert.equal(bothUsers?.bodyDecoded, true);
+  assert.deepEqual(bothUsers?.decoded.advancedMatching, ["email", "phone"]);
+  const unnamed = inspect({ batch: [{ user: { email: HASH } }] });
+  assert.equal(unnamed?.bodyDecoded, false);
+  assert.deepEqual(unnamed?.decoded.events, []);
+  assert.deepEqual(unnamed?.decoded.advancedMatching, ["email"], "a missing event label must not discard an observed identifier field");
+  let nested: unknown = { event: "Pageview" };
+  for (let i = 0; i < 100; i++) nested = { batch: [nested] };
+  assert.equal(inspect(nested)?.bodyDecoded, false, "deep input is bounded and disclosed");
+});
 
 test("X purchase classification requires a finite positive decimal", () => {
   for (const key of ["tw_sale_amount", "tw_order_quantity"]) {

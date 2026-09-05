@@ -87,6 +87,11 @@ export type {
  * components keep their prop types. Raw evidence is not a claim: it always
  * renders; `claims` gates wording only.
  */
+export const OPTIONAL_LEGACY_EVIDENCE = [
+  "fingerprintDetections", "pixelEvents", "cnameCloaks", "privacyPolicy"
+] as const;
+export type OptionalLegacyEvidence = (typeof OPTIONAL_LEGACY_EVIDENCE)[number];
+
 export type RunEvidenceView = {
   requests: NetworkRequestRecord[];
   /** Per-domain grouping: v1 carries it on the wire, v2 derives it from requests. */
@@ -321,6 +326,8 @@ export type RunView = {
   /** Configured-vs-verified axis readbacks (r2, RFC 15.3); null on v1 and r1. */
   verificationFacts: RunVerificationFactsView | null;
   evidence: RunEvidenceView;
+  /** Optional v1 outputs omitted on the wire, preserved before array normalization. */
+  unrecordedEvidence: OptionalLegacyEvidence[];
   conditions: RunConditionsView;
   consent: RunConsentView | null;
   quality: RunQualityView;
@@ -467,6 +474,7 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
     screenshot: null,
     phases: run.phases.map((phase) => ({ ...phase })),
     countsByPhase: run.summary.countsByPhase.map((entry) => ({ ...entry })),
+    unrecordedEvidence: [],
     detectors: Object.fromEntries(
       Object.entries(run.detectors).map(([id, entry]) => [
         id,
@@ -642,6 +650,7 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     phases: null,
     countsByPhase: null,
     detectors: null,
+    unrecordedEvidence: OPTIONAL_LEGACY_EVIDENCE.filter((key) => result[key] === undefined),
     fingerprints: null,
     provenance: null,
     redactionVersion: null,

@@ -2668,7 +2668,7 @@ test("an incomplete pixel-body read never publishes a no-identifier-fields claim
   ];
 
   const complete = byId(buildFindings(viewFromV1Report(result), null), "pixel-events");
-  assert.match(complete.detail, /No advanced-matching identifier fields were observed/);
+  assert.match(complete.detail, /No advanced-matching identifier fields are recorded/);
 
   result.warnings = [PIXEL_DECODE_CAPTURE_LOSS_WARNING];
   const view = viewFromV1Report(result);
@@ -2677,7 +2677,7 @@ test("an incomplete pixel-body read never publishes a no-identifier-fields claim
   assert.equal(familyCensoredOnRun(run, "requests"), false);
 
   const partial = byId(buildFindings(view, null), "pixel-events");
-  assert.doesNotMatch(partial.detail, /No advanced-matching identifier fields were observed/);
+  assert.doesNotMatch(partial.detail, /No advanced-matching identifier fields are recorded/);
   assert.match(partial.detail, /Pixel decoding was incomplete/);
   assert.match(partial.detail, /advanced-matching identifier fields is unknown/);
 });

@@ -99,7 +99,17 @@ export default function MethodologyPage() {
           <li>A privacy-policy cross-check: the site&apos;s own policy text compared against the observed evidence.</li>
         </ul>
         <p>
-          Counts are lower bounds. Requests made by a dedicated Web Worker are recorded, but Service Workers are
+          Advertising-pixel evidence distinguishes an observed endpoint, a retained event label, and a populated
+          identifier field. A label such as Purchase does not verify a purchase or successful delivery. Current
+          decoding records unreadable, malformed, unsupported, and partially decoded bodies as coverage gaps
+          while retaining supported observations. Older decoders did not record every such gap; missing labels
+          or identifier fields in historical evidence cannot establish their absence from the original traffic.
+          Optional evidence omitted from a legacy report remains unrecorded, even when its table is empty.
+        </p>
+        <p>
+          Retained request and event counts describe activity within the measured visit; missing coverage can
+          make them lower bounds. Cookie and storage snapshots can change in either direction, so incomplete
+          snapshots are not lower bounds. Requests made by a dedicated Web Worker are recorded, but Service Workers are
           blocked before the page loads, so none runs; a SharedWorker&apos;s own traffic beyond the script that
           starts it is not recorded, and no WebSocket activity is recorded at all, neither the connection nor its
           messages. Storage keys are read from the top frame

@@ -1036,7 +1036,8 @@ export function buildFindings(
 
   const pixelEvents = pixelEventSummaries(run.evidence);
   if (pixelEvents.length > 0) {
-    const pixelsWithMatching = pixelEvents.filter((pixel) => pixel.advancedMatching.length > 0);
+    const pixelsWithMatching = facts.signals.pixels.withIdentifiers;
+    const pixelsWithEvents = facts.signals.pixels.withEventLabels;
     const matchingFields = Array.from(new Set(pixelsWithMatching.flatMap((pixel) => pixel.advancedMatching))).map(pixelFieldLabel);
     findings.push({
       id: "pixel-events",
@@ -1045,19 +1046,23 @@ export function buildFindings(
       title:
         pixelsWithMatching.length > 0
           ? "Advertising pixels carried populated identifier fields"
-          : "Advertising pixels reported specific events",
+          : pixelsWithEvents.length > 0
+            ? "Advertising pixel requests contained event labels"
+            : "Advertising pixel endpoints were observed",
       lead:
         pixelsWithMatching.length > 0
           ? `${humanList(pixelsWithMatching.map((pixel) => pixel.product))} attached populated personal-identifier fields (${humanList(
               matchingFields
-            )}) to the events fired in this visit.`
-          : `${humanList(pixelEvents.map((pixel) => pixel.product))} reported specific named events, not just their presence, during this visit.`,
+            )}) to requests observed in this visit.`
+          : pixelsWithEvents.length > 0
+            ? `${humanList(pixelsWithEvents.map((pixel) => pixel.product))} requests contained event labels during this visit.`
+            : `${humanList(pixelEvents.map((pixel) => pixel.product))} endpoints appeared in the request evidence, but no event label was retained.`,
       detail:
         pixelsWithMatching.length > 0
-          ? "Beyond detecting that a pixel is present, this reads each pixel request's event type and whether its advanced-matching parameters held values. These are the fields the platforms document as carrying hashed emails or phone numbers so events can be matched to a known person; the scanner records only which fields were populated, never their values, so neither the contents nor the hashing is verified."
+          ? "Recognized identifier fields held non-empty values. The scanner records their categories, never their values, so their contents, hashing, successful delivery, and eventual use are not verified. Event labels do not establish that the corresponding user action occurred."
           : pixelDetectorCensored
-            ? "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that a pixel request was recorded. Pixel decoding was incomplete for one or more request bodies, so whether other pixel requests carried advanced-matching identifier fields is unknown."
-            : "This reads each pixel request's event type (such as PageView, ViewContent, or Purchase), not just that a pixel request was recorded. No advanced-matching identifier fields were observed in this passive visit; interaction-gated events could still carry them for real users.",
+            ? "Pixel decoding was incomplete for one or more request bodies, so whether other pixel requests carried advanced-matching identifier fields is unknown. Retained labels describe request contents, not verified user actions or successful delivery."
+            : "No advanced-matching identifier fields are recorded in the decoded evidence. Unsupported payload formats and later interactions may carry other fields; older decoders did not record every decoding gap. Event labels do not establish user actions or successful delivery.",
       evidence: humanList(pixelEvents.map(pixelEventEvidence), 4),
       claim: findingClaim(facts, "pixel-events", "presence")
     });
