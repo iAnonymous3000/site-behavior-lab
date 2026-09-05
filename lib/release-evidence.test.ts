@@ -249,7 +249,7 @@ test("container and CI source contracts preserve exact-SHA evidence after the re
     /RUN test "\$\(node --version\)" = "v24\.18\.1" \\\n\s+&& test "\$\(npm --version\)" = "11\.16\.0"/
   );
 
-  const app = workflow.slice(workflow.indexOf("\n  app:"), workflow.indexOf("\n  smoke:"));
+  const app = workflow.slice(workflow.indexOf("\n  pages:"), workflow.indexOf("\n  smoke:"));
   const docker = workflow.slice(workflow.indexOf("\n  docker:"), workflow.indexOf("\n  attest:"));
   const attest = workflow.slice(workflow.indexOf("\n  attest:"), workflow.indexOf("\n  promote:"));
   assert.ok(app.indexOf("npm run test:smoke:static") < app.indexOf("Record exact-SHA static build evidence"));

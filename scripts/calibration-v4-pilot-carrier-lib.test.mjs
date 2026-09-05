@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash, generateKeyPairSync } from "node:crypto";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -610,24 +610,19 @@ test("the committed evidence chain is verified, and each link must name the one 
   rmSync(world.root, { recursive: true, force: true });
 });
 
-test("an environment failure says so, instead of arriving as a carrier finding", () => {
+test("an environment failure says so, instead of arriving as a carrier finding", (t) => {
   // The runbook's remedy for a red gate is to RETIRE the carrier and discard
   // the reviewers' sealed envelopes. A failure to READ the repository must
   // not arrive wearing that accusation with no evidence attached.
   const world = carrierWorld({ cases: 2 });
-  // Corrupt one object the archive must read. Everything before the
-  // re-derivation still passes: the commit resolves, the small inputs read,
-  // and ls-tree on absent paths never touches a blob.
-  const objects = path.join(world.root, ".git", "objects");
-  const removed = [];
-  for (const dir of readdirSync(objects)) {
-    if (dir.length !== 2) continue;
-    for (const file of readdirSync(path.join(objects, dir))) {
-      removed.push(path.join(objects, dir, file));
-    }
-  }
-  assert.ok(removed.length > 0);
-  rmSync(removed[removed.length - 1]);
+  t.after(() => rmSync(world.root, { recursive: true, force: true }));
+  assert.equal(verify(world).carrier, world.carrier);
+  // Remove a known carrier blob first read by the archive. Choosing an
+  // arbitrary loose object can instead remove an earlier input, a commit,
+  // or a frame-freeze object that the verifier never reads from Git.
+  const blob = git(world.root, ["rev-parse", `${world.carrier}:scripts/calibration-v4-frame-tasks.mjs`]);
+  assert.equal(git(world.root, ["cat-file", "-t", blob]), "blob");
+  rmSync(path.join(world.root, ".git", "objects", blob.slice(0, 2), blob.slice(2)));
   let threw = null;
   try {
     verify(world);
@@ -635,8 +630,8 @@ test("an environment failure says so, instead of arriving as a carrier finding",
     threw = error.message;
   }
   assert.notEqual(threw, null);
+  assert.ok(threw.startsWith(`git archive ${world.carrier} failed`), threw);
   assert.match(threw, /failure to READ the repository, not a finding about the carrier|environment failure, not a finding about the carrier/);
   // The diagnostics git actually produced are forwarded, not swallowed.
   assert.match(threw, /invalid object|cannot read|not a valid object|unable to read/i);
-  rmSync(world.root, { recursive: true, force: true });
 });

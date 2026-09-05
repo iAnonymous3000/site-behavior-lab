@@ -17,6 +17,12 @@ on:
 permissions:
   contents: read
 
+# Superseded PR revisions need no further feedback. Main and manual runs keep
+# unique groups so source-bound promotion and evidence runs are never cancelled.
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   CI: "1"
   NEXT_TELEMETRY_DISABLED: "1"
@@ -213,6 +219,28 @@ jobs:
 
   app:
     name: Typecheck, Unit Tests, Build
+    needs:
+      - tests
+      - pages
+    # Keep the existing required check as a fail-closed join. A skipped
+    # dependency must fail this check, not become an implicitly passing skip.
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require tests and builds to succeed
+        env:
+          TEST_RESULT: ${{ needs.tests.result }}
+          BUILD_RESULT: ${{ needs.pages.result }}
+        run: |
+          set -euo pipefail
+          if [[ "$TEST_RESULT" != "success" || "$BUILD_RESULT" != "success" ]]; then
+            echo "::error::Tests: $TEST_RESULT; builds and static smoke: $BUILD_RESULT"
+            exit 1
+          fi
+
+  tests:
+    name: Typecheck and Unit Tests
     runs-on: ubuntu-latest
     # A deadlocked unit test must fail this job fast, never consume the 6-hour default budget.
     timeout-minutes: 45
@@ -335,6 +363,34 @@ jobs:
 
       - name: Unit tests
         run: npm run test:unit
+
+  pages:
+    name: Build and Static Export
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          set -euo pipefail
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Build
         run: npm run build
@@ -596,7 +652,7 @@ jobs:
   # This job never checks out or executes candidate code. OIDC and attestation
   # writes are isolated here and are unavailable to pull-request code. The three
   # subjects are the exact JSON evidence manifests and normalized image-package
-  # inventory produced by the tested app and Docker jobs; they are not the
+  # inventory produced by the gated Pages and Docker jobs; they are not the
   # Cloudflare deployment or a registry image.
   attest:
     name: Attest exact-SHA evidence manifests
