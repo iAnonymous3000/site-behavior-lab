@@ -26,6 +26,7 @@ import { corpusBenchmark, corpusIsUsable, selectCorpusStatsCohort, type CorpusSt
 import {
   HEADLINE_PLATFORMS,
   crossSiteListenerDetection,
+  listenerOriginAttributedToOutsideOperator,
   type CrossSiteListenerDetection,
   detectionEvidence,
   detectionLabel,
@@ -1174,6 +1175,22 @@ export function buildFindings(
       sessionReplayNames.length > 0 ? `known session-replay vendor(s): ${humanList(sessionReplayNames)}` : ""
     ].filter(Boolean);
     const replayCorroborated = Boolean(sessionRecordingDetection && sessionReplayNames.length > 0);
+    // "Third-party script" only when the report attributes at least one
+    // retained origin to an operator other than the site's (reviewed
+    // ownership or a catalog match). A site's own asset domain is a different
+    // registrable domain and nothing more; calling it a third party publishes
+    // an outside-party claim the wire does not make.
+    const listenerOrigins = [
+      ...(sessionRecordingDetection?.detection.evidence.thirdPartyOrigins ?? []),
+      ...(inputMonitoringDetection?.detection.evidence.thirdPartyOrigins ?? [])
+    ];
+    const outsideOperatorAttributed = listenerOrigins.some((origin) =>
+      listenerOriginAttributedToOutsideOperator(run.evidence, run.domain, origin)
+    );
+    const scriptNoun = outsideOperatorAttributed ? "a third-party script" : "a script from another domain";
+    const scriptPhrase = outsideOperatorAttributed
+      ? "a third-party script"
+      : "a script served from another registrable domain, whose operator this scan did not establish";
     // Named from this detection's own event types, never from the vocabulary
     // the gate draws on, so the lead cannot claim coverage of an event class
     // no listener in this visit was registered for.
@@ -1191,26 +1208,26 @@ export function buildFindings(
       // third-party helper. Attributing registration to the third party would
       // publish an accusation the wire does not support.
       title: inputMonitoringDetection
-        ? "Input-monitoring signal involving a third-party script"
+        ? `Input-monitoring signal involving ${scriptNoun}`
         : replayCorroborated
           ? "Session-recording signal matched a known vendor"
           : sessionRecordingDetection
-            ? "Interaction-monitoring signal involving a third-party script"
+            ? `Interaction-monitoring signal involving ${scriptNoun}`
             : "Session-replay vendor observed",
       lead: inputMonitoringDetection
-        ? "Listener coverage that could observe typing-related input events was registered through call chains that included a third-party script."
+        ? `Listener coverage that could observe typing-related input events was registered through call chains that included ${scriptPhrase}.`
         : replayCorroborated
-          ? "The page registered broad interaction listeners through call chains that included a third-party script, and contacted a known session-replay service."
+          ? `The page registered broad interaction listeners through call chains that included ${scriptPhrase}, and contacted a known session-replay service.`
           : sessionRecordingDetection
             ? sessionCategories.length > 0
               ? `Broad ${humanList(
                   sessionCategories,
                   LISTENER_EVENT_CATEGORIES.length
-                )} listener coverage was registered during the visit through call chains that included a third-party script.`
-              : "Broad interaction listener coverage was registered during the visit through call chains that included a third-party script."
+                )} listener coverage was registered during the visit through call chains that included ${scriptPhrase}.`
+              : `Broad interaction listener coverage was registered during the visit through call chains that included ${scriptPhrase}.`
             : `${humanList(sessionReplayNames)} appeared in the request log.`,
       detail:
-        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain; a third-party origin in that chain does not by itself establish that the third-party script registered the listener, because first-party code can register its own listeners through a third-party helper. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected); treat this card as a review prompt rather than proof.",
+        "This is a behavioral instrumentation signal from listener registration, stack-attributed script origins, and known-vendor requests: it shows the page was instrumented to observe interaction, not that anything was transmitted. Stack attribution records the script origins present in the bounded registration call chain; a cross-site origin in that chain does not by itself establish that the cross-site script registered the listener, because first-party code can register its own listeners through a helper served from elsewhere. A different registrable domain is also not by itself a different operator: sites commonly serve their own scripts from a separate asset domain, so the card says third party only when the catalog or reviewed ownership attributes an origin to another organization. On scanners that run the active keystroke-capture probe, actual transmission is tested separately (a synthetic value is typed, never real input, and no typed values are collected); treat this card as a review prompt rather than proof.",
       evidence: humanList(behaviorNotes, 4),
       claim: findingClaim(facts, "session-recording-input-monitoring", "presence")
     });

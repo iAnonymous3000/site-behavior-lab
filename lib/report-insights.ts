@@ -4,7 +4,11 @@ import {
   PAGE_SUBJECT_CAPTURE_LOSS_DETAIL,
   PAGE_SUBJECT_UNVERIFIED_WARNING
 } from "./bot-wall-classifier";
-import { isReviewedSameOrganizationDomain, reviewedOrganizationForDomain } from "./reviewed-ownership";
+import {
+  isReviewedSameOrganizationDomain,
+  reviewedOrganizationForDomain,
+  reviewedOwnershipRelationship
+} from "./reviewed-ownership";
 import {
   hasUnknownServiceRole,
   isOperationalOnlyEntity as hasOperationalOnlyServiceRoles,
@@ -315,6 +319,35 @@ export function crossSiteListenerDetection(
     detection: { ...detection, evidence: { ...detection.evidence, thirdPartyOrigins: origins } },
     originsNarrowed: true
   };
+}
+
+/**
+ * Whether the report attributes a listener origin to an operator other than
+ * the site's own: reviewed ownership placing the host under a different
+ * reviewed organization, or a catalog match on a request to that host that
+ * reviewed ownership does not fold back into the site's organization.
+ *
+ * A different registrable domain alone establishes no operator. Sites commonly
+ * serve their own scripts from a separate asset domain (githubassets.com for
+ * github.com, paypalobjects.com for paypal.com), and reviewed-ownership.ts
+ * says the registrable-domain boundary is not by itself evidence of disclosure
+ * to an outside company. The listener card used to call every such origin a
+ * "third-party script", which told a reader the site's own code was an
+ * outside party monitoring input.
+ */
+export function listenerOriginAttributedToOutsideOperator(
+  result: Pick<ScanResult, "requests">,
+  subjectDomain: string,
+  origin: string
+): boolean {
+  const host = normalizeOriginHost(origin);
+  if (!host) return false;
+  const relationship = reviewedOwnershipRelationship(subjectDomain, host);
+  if (relationship.kind === "same-organization") return false;
+  if (relationship.kind === "different-reviewed-organizations") return true;
+  return result.requests.some(
+    (request) => request.thirdParty && request.tracker !== null && normalizeOriginHost(request.domain) === host
+  );
 }
 
 function normalizeOriginHost(value: string): string {
