@@ -1654,8 +1654,10 @@ test("a chain-attributed listener detection is never published as registered by 
   assert.doesNotMatch(copy, /(third-party|cross-site) script registered (listeners?\b|broad)/i);
   assert.doesNotMatch(copy, /registered broad third-party/i);
   assert.doesNotMatch(copy, /listeners? from /i);
-  assert.match(card.lead, /call chains that included a third-party script/);
-  assert.match(card.detail, /does not by itself establish that the third-party script registered the listener/);
+  // cdn.example.net matches no catalog entry and no reviewed organization, so
+  // nothing establishes an outside operator; the copy says so.
+  assert.match(card.lead, /call chains that included a script served from another registrable domain/);
+  assert.match(card.detail, /does not by itself establish that the cross-site script registered the listener/);
   // Not vacuous: the detection rendered and named the chain origin.
   assert.match(card.evidence, /cdn\.example\.net/);
 
@@ -1666,8 +1668,70 @@ test("a chain-attributed listener detection is never published as registered by 
   const sessionCard = byId(buildFindings(viewFromV1Report(sessionChain), null), "session-recording-input-monitoring");
   const sessionCopy = [sessionCard.title, sessionCard.lead, sessionCard.detail, sessionCard.evidence].join(" ");
   assert.doesNotMatch(sessionCopy, /(third-party|cross-site) script registered (listeners?\b|broad)/i);
-  assert.match(sessionCard.lead, /call chains that included a third-party script/);
+  assert.match(sessionCard.lead, /call chains that included a script served from another registrable domain/);
   assert.match(sessionCard.evidence, /cdn\.example\.net/);
+});
+
+test("a listener origin is called a third-party script only when the report attributes it to another operator", () => {
+  // github.com serves its own scripts from githubassets.com. The card read
+  // "Input-monitoring signal involving a third-party script" over exactly
+  // that origin, which told a reader the site's own code was an outside
+  // party monitoring input. A different registrable domain establishes no
+  // operator by itself (reviewed-ownership.ts says as much); the catalog or
+  // reviewed ownership does.
+  const ownAssetHost: DomainSummary = {
+    domain: "{label}.shopassets.example",
+    requests: 3,
+    thirdParty: true,
+    resourceTypes: ["script"],
+    statuses: [200],
+    tracker: null,
+    blockedByShields: false
+  };
+  const ownCdn = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [ownAssetHost],
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://{label}.shopassets.example/"])]
+  });
+  const ownCdnCard = byId(buildFindings(viewFromV1Report(ownCdn), null), "session-recording-input-monitoring");
+  assert.equal(ownCdnCard.title, "Input-monitoring signal involving a script from another domain");
+  assert.doesNotMatch(ownCdnCard.title, /third-party/);
+  assert.doesNotMatch(ownCdnCard.lead, /third-party script/);
+  assert.match(ownCdnCard.lead, /a script served from another registrable domain, whose operator this scan did not establish/);
+  assert.match(ownCdnCard.evidence, /shopassets\.example/);
+
+  // The same origin with a catalog match on its requests is attributed to a
+  // named entity, and the card keeps saying third party.
+  const catalogued = makeResult({
+    firstPartyDomain: "www.shop.example",
+    domains: [makeTrackerDomain("{label}.shopassets.example", 3, "ReplayCo", "analytics")],
+    fingerprintDetections: [makeListenerDetection("input-monitoring", ["https://{label}.shopassets.example/"])]
+  });
+  const cataloguedCard = byId(buildFindings(viewFromV1Report(catalogued), null), "session-recording-input-monitoring");
+  assert.equal(cataloguedCard.title, "Input-monitoring signal involving a third-party script");
+  assert.match(cataloguedCard.lead, /call chains that included a third-party script\./);
+
+  // Reviewed ownership placing the origin under a different reviewed
+  // organization than the subject also attributes it.
+  const reviewedOther = makeResult({
+    firstPartyDomain: "www.x.com",
+    fingerprintDetections: [makeListenerDetection("session-recording", ["https://www.gstatic.com/"])]
+  });
+  const reviewedCard = byId(buildFindings(viewFromV1Report(reviewedOther), null), "session-recording-input-monitoring");
+  assert.equal(reviewedCard.title, "Interaction-monitoring signal involving a third-party script");
+
+  // And reviewed ownership folding a catalogued origin back into the
+  // subject's own organization withholds the label.
+  const sameOrganization = makeResult({
+    firstPartyDomain: "www.youtube.com",
+    domains: [makeTrackerDomain("www.gstatic.com", 3, "Google", "analytics")],
+    fingerprintDetections: [makeListenerDetection("session-recording", ["https://www.gstatic.com/"])]
+  });
+  const sameOrganizationCard = byId(
+    buildFindings(viewFromV1Report(sameOrganization), null),
+    "session-recording-input-monitoring"
+  );
+  assert.equal(sameOrganizationCard.title, "Interaction-monitoring signal involving a script from another domain");
 });
 
 test("the session-recording lead names only the event categories the detection recorded", () => {
