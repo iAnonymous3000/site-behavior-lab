@@ -1019,16 +1019,19 @@ One-time dashboard setup (no API token needed):
    Settings > Builds > branch = `production`; disable non-production branch
    builds.
 
-Current reference state: scanner and Pages non-production builds are disabled;
-existing Pages previews remain Access-protected. Enable build caching in both
+Current reference state (2026-09-05): scanner non-production builds are disabled.
+Pages automatic preview deployments are disabled; existing preview deployments
+remain Access-protected. Enable build caching in both
 projects. The Pages wrapper maps only Webpack/SWC compiler data into the
 provider's cached `.next/cache` directory; it still regenerates the schema,
 report manifest, corpus statistics, deployment receipt, and exported pages.
 
 Require TLS 1.2 or newer on the `sitebehavior.org` zone, retaining TLS 1.3.
 Verify the scanner hostname independently: Pages has its own TLS floor.
-Use a dedicated scanner deployment token scoped to the account and required
-deployment services, with zone permissions restricted to `sitebehavior.org`.
+Use a dedicated scanner deployment token. The reference token grants Containers,
+Cloudchamber, and Workers Scripts Edit plus Account Settings Read on this account,
+and Memberships and User Details Read. It has no zone permissions; the current
+deployment config does not manage routes or certificates.
 It must not grant unrelated AI, database, queue, or R2 bucket administration.
 Before retiring a formerly shared token, identify and migrate its other users.
 The scanner's runtime R2 object credential is separate and stays bucket-scoped.

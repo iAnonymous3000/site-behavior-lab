@@ -79,6 +79,38 @@ The PR records final CI timings and complete validation results.
 
 ## Remaining costs and boundaries
 
+### Compiler and dependency caches (2026-09-05)
+
+Pages and Workers build caching are enabled in Cloudflare. The Pages wrapper
+retains only Webpack, SWC, TypeScript incremental state, and Next's `.rscinfo`
+compiler identity in an isolated namespace under the provider's `.next/cache`.
+Next still owns its normal key expiry and rotation. Generated reports, fetch
+data, schemas, manifests, deployment receipts, and rendered pages are rebuilt.
+CI uses a GitHub-scoped Docker layer cache with exact commit/proof build inputs;
+the full container checks, smoke tests, and fresh security scans remain required.
+
+Local full exports on Node 24.14.1 with the 887-report corpus took 303.45 seconds
+cold, then 317.99 and 304.32 seconds warm. Webpack compilation fell from 10.7
+seconds to 4.0 and 3.7 seconds. These samples establish compiler reuse, **not an
+end-to-end speedup**. A separate small Next build verified unchanged warm reuse,
+configuration-only invalidation, and source-only invalidation in fresh worktrees.
+
+Between the warm exports, 1,792 of 1,795 JSON/CSV files were byte-identical.
+The two corpus exports contained identical data after excluding their fresh
+top-level generation timestamps. The third changed file was the freshly
+generated report index; all 887 of its byte lengths and SHA-256 bindings were
+checked independently against the exported report files. The deployment receipt
+retained the exact source SHA. Static browser and accessibility checks passed.
+
+The observed Cloudflare container build of production commit `6655907` took
+25m01s. Workers' [dependency cache](https://developers.cloudflare.com/workers/ci-cd/builds/build-caching/)
+does not preserve the Docker builder's layers;
+that build still runs the full checks and runtime build. CI Docker cache savings
+need a successful cache-producing run followed by a comparable warm run before
+claiming a measured improvement.
+
+### Release boundaries
+
 PR validation, trusted main validation, and Cloudflare deployment still have
 distinct source and trust contexts. This change does not promote PR artifacts
 or manufacture a main-commit attestation from another revision's results.

@@ -716,7 +716,11 @@ disclosure. A 2026-07-21 deployment recheck confirmed that Pages and the
 scanner both use `production` and scanner non-production builds are disabled.
 A separate 2026-07-28 preview recheck superseded the old preview note: Pages
 automatic preview deployments are enabled but Access-restricted rather than
-public. The 2026-07-29 release recheck verified the combined WAF ceiling on both
+public. A 2026-09-05 recheck supersedes that preview setting: Pages automatic
+preview deployments are disabled; existing preview deployments remain
+Access-protected. Scanner non-production builds remain disabled and both
+projects still deploy `production`. The 2026-07-29 release recheck verified the
+combined WAF ceiling on both
 `POST /api/scan` and
 `GET /api/scan/admission` at ten requests per ten seconds per IP with a
 ten-second block. For each route, the eleventh bounded invalid request received

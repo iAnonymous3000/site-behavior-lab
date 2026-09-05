@@ -239,9 +239,10 @@ unit tests and build, Chromium smoke, Docker runtime and public R2 smoke, and
 exact-SHA evidence attestation. The revision each surface is serving is
 published at [`/api/health`](https://scan.sitebehavior.org/api/health) and
 [`/deployment.json`](https://sitebehavior.org/deployment.json).
-Scanner and Pages non-production builds are disabled. Existing Pages previews
-remain Access-protected. Both Cloudflare projects enable build caching; the
-Pages wrapper retains only compiler caches across freshly generated exports.
+Scanner non-production builds are disabled. Pages automatic preview deployments
+are disabled; existing preview deployments remain Access-protected.
+Both Cloudflare projects enable build caching; the Pages wrapper retains only
+compiler caches across freshly generated exports.
 
 The hourly production synthetic is active (a neutral scan, a public r2 result,
 a persisted read-back, and a rendered report page), and the separate
