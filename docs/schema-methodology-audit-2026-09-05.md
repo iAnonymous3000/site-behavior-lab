@@ -73,6 +73,26 @@ is made.
 
 ## Validation and remaining direction
 
+The follow-up accuracy pass reproduced three further gaps through accepted
+reports: an endpoint-only pixel summary acquired named-event copy; generic v2
+loss details disappeared from scoped claim gates; and omitted optional v1 output
+became an apparently measured empty array. The shared facts now preserve these
+distinctions. Known unrelated detector losses remain scoped to their own claims.
+
+The collector also treated malformed or unsupported pixel bodies as complete.
+Decoder @5 records dropped output for those cases, retains decoded query labels
+and supported batch entries, and bounds nested parsing. Registry v8 identifies
+this measurement change while exact closed v7 rows preserve prior reports.
+Coverage obligations remain enforced across v3 through v8, including the v6
+registry accidentally omitted by the previous transition. No frozen schema,
+stored measurement, sidecar, release threshold, or redaction rule changes.
+
+Regression expectations include valid open-vocabulary imports with unknown loss,
+omitted versus explicitly empty legacy output, endpoint-only and mixed-platform
+summaries, malformed/unsupported/mixed bodies, and actual browser POST capture.
+Historical payloads were discarded, so their missed labels or fields cannot be
+reconstructed. Historical copy states that limit instead of asserting absence.
+
 Validation is recorded separately for four questions:
 
 - **Structural validity:** frozen-schema hash checks, generation-aware readers,

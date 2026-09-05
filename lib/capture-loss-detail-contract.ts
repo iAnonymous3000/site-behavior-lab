@@ -1,5 +1,5 @@
 import { PAGE_SUBJECT_CAPTURE_LOSS_DETAIL } from "./bot-wall-classifier";
-import type { EvidenceFamily } from "./scan-report-v2";
+import type { CaptureLossEntry, EvidenceFamily } from "./scan-report-v2";
 import {
   R2_NAVIGATION_STATUS_UNREPRESENTABLE,
   R2_REQUEST_STATUS_UNREPRESENTABLE
@@ -81,6 +81,13 @@ export function captureLossDetailAllowsFamily(value: string, family: EvidenceFam
     isKnownCaptureLossDetail(value) &&
     (CAPTURE_LOSS_DETAIL_CONTRACT[value].families as readonly EvidenceFamily[]).includes(family)
   );
+}
+
+/** Only an understood, family-compatible detail can exclude a sibling claim. */
+export function captureLossAffectsScope(loss: CaptureLossEntry, details: readonly string[]): boolean {
+  return loss.detail === undefined ||
+    !captureLossDetailAllowsFamily(loss.detail, loss.family) ||
+    details.includes(loss.detail);
 }
 
 function captureLossDetailFamilies(): Record<KnownCaptureLossDetail, readonly EvidenceFamily[]> {

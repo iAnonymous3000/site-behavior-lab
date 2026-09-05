@@ -2,10 +2,9 @@
  * Pixel-level event decoder.
  *
  * The tracker catalogue tells you a Meta/TikTok/X pixel is *present*. This layer
- * reads what the pixel is actually *doing*: which events it fired (PageView,
- * Purchase, ...) and whether it attached personal identifiers ("advanced
- * matching", e.g. a hashed email or phone). That is the analysis Blacklight
- * performs from full request archives.
+ * reads event labels and populated identifier-category fields in observed
+ * requests. Labels do not prove user actions, successful delivery, identifier
+ * contents, hashing, or downstream use.
  *
  * Two deliberate privacy rules keep this compatible with the rest of the scanner
  * (which scrubs request URLs to origin+path and never retains payloads):
@@ -46,6 +45,12 @@ type DecodedPixel = {
   product: string;
   events: string[];
   advancedMatching: PixelMatchField[];
+};
+
+export type PixelInspection = {
+  decoded: DecodedPixel;
+  /** Supported body format decoded fully, including every recognized batch. */
+  bodyDecoded: boolean;
 };
 
 // Defensive cap mirroring the scanner's capture-time truncation
@@ -96,14 +101,19 @@ export function summarizePixelEvents(inputs: PixelEventInput[]): PixelEventSumma
 
 /** Decode a single request, or null when it is not a recognised pixel endpoint. */
 export function decodePixelRequest(input: PixelEventInput): DecodedPixel | null {
+  return inspectPixelRequest(input)?.decoded ?? null;
+}
+
+/** Endpoint recognition and body coverage are separate observations. */
+export function inspectPixelRequest(input: PixelEventInput): PixelInspection | null {
   const parsed = safeParseUrl(input.url);
   if (!parsed) return null;
   const host = parsed.hostname.toLowerCase();
   const path = parsed.pathname;
 
-  if (isMetaPixel(host, path)) return decodeMeta(parsed, input);
+  if (isMetaPixel(host, path)) return { decoded: decodeMeta(parsed, input), bodyDecoded: formBodyDecoded(input.postData) };
   if (isTikTokPixel(host, path)) return decodeTikTok(input);
-  if (isXPixel(host, path)) return decodeX(parsed, input);
+  if (isXPixel(host, path)) return { decoded: decodeX(parsed, input), bodyDecoded: formBodyDecoded(input.postData) };
   return null;
 }
 
@@ -246,28 +256,40 @@ function isTikTokPixel(host: string, path: string): boolean {
   return hostMatches(host, "analytics.tiktok.com") && path.startsWith("/api/v2/pixel");
 }
 
-function decodeTikTok(input: PixelEventInput): DecodedPixel {
+function decodeTikTok(input: PixelEventInput): PixelInspection {
   const events = new Set<string>();
   const advancedMatching = new Set<PixelMatchField>();
   const body = parseJsonBody(input.postData);
+  const batch = tiktokEventObjects(body);
+  let bodyDecoded = batch.complete;
 
-  for (const event of tiktokEventObjects(body)) {
+  for (const event of batch.events) {
     const name = firstString(event, ["event", "event_type", "type"]);
     // Same rule as decodeMeta: generalize an unsafe name, never drop the event.
     if (name && hasStringValue(name)) {
       events.add(isSafeEventToken(name) ? catalogEventName(name, TIKTOK_STANDARD_EVENTS) : CUSTOM_EVENT_LABEL);
     }
 
-    const user = pickUserObject(event);
-    if (!user) continue;
-    for (const [key, value] of Object.entries(user)) {
-      if (!hasJsonValue(value)) continue;
-      const field = TIKTOK_USER_FIELDS[key.toLowerCase()];
-      if (field) advancedMatching.add(field);
+    // A populated user container in an unsupported shape is not an empty one.
+    if ((event.user != null && !isRecord(event.user)) ||
+        (event.context != null && !isRecord(event.context)) ||
+        (isRecord(event.context) && event.context.user != null && !isRecord(event.context.user))) {
+      bodyDecoded = false;
+    }
+    for (const user of userObjects(event)) {
+      for (const [key, value] of Object.entries(user)) {
+        const field = TIKTOK_USER_FIELDS[key.toLowerCase()];
+        if (!field) continue;
+        if (value != null && typeof value !== "string" && !Array.isArray(value)) bodyDecoded = false;
+        if (hasJsonValue(value)) advancedMatching.add(field);
+      }
     }
   }
 
-  return { platform: "TikTok", product: "TikTok Pixel", events: Array.from(events), advancedMatching: Array.from(advancedMatching) };
+  return {
+    decoded: { platform: "TikTok", product: "TikTok Pixel", events: Array.from(events), advancedMatching: Array.from(advancedMatching) },
+    bodyDecoded
+  };
 }
 
 // --- X (Twitter) Pixel: GET to analytics.twitter.com/i/adsct ----------------
@@ -314,6 +336,10 @@ function mergedParams(parsed: URL, input: PixelEventInput): URLSearchParams {
   return params;
 }
 
+function formBodyDecoded(body: string | null | undefined): boolean {
+  return !body || (body.length <= MAX_DECODED_BODY_CHARS && !looksLikeJson(body) && body.includes("="));
+}
+
 function parseJsonBody(body: string | null | undefined): unknown {
   if (!body || body.length > MAX_DECODED_BODY_CHARS || !looksLikeJson(body)) return null;
   try {
@@ -329,22 +355,40 @@ function looksLikeJson(body: string): boolean {
 }
 
 /** Candidate event objects from a TikTok body: a single event, a batch, or an array. */
-function tiktokEventObjects(body: unknown): Record<string, unknown>[] {
-  if (Array.isArray(body)) return body.filter(isRecord);
-  if (!isRecord(body)) return [];
-  if (typeof body.event === "string" || typeof body.event_type === "string") return [body];
+function tiktokEventObjects(body: unknown, depth = 0): { events: Record<string, unknown>[]; complete: boolean } {
+  if (depth > 4) return { events: [], complete: false };
+  if (Array.isArray(body)) {
+    const batches = body.map((event) => tiktokEventObjects(event, depth + 1));
+    return { events: batches.flatMap((batch) => batch.events), complete: batches.every((batch) => batch.complete) };
+  }
+  if (!isRecord(body)) return { events: [], complete: false };
+  const events: Record<string, unknown>[] = [];
+  const named = firstString(body, ["event", "event_type", "type"]) !== null;
+  // Identifier fields remain evidence even when the event label is absent or
+  // malformed. Keep those independent observations while disclosing the gap.
+  if (named || body.user != null || (isRecord(body.context) && body.context.user != null)) events.push(body);
+  let recognized = named;
+  let complete = true;
   for (const key of ["batch", "events", "data", "messages"]) {
     const value = body[key];
-    if (Array.isArray(value)) return value.filter(isRecord);
+    if (Array.isArray(value)) {
+      recognized = true;
+      const batch = tiktokEventObjects(value, depth + 1);
+      events.push(...batch.events);
+      complete &&= batch.complete;
+    } else if (value != null) {
+      complete = false;
+    }
   }
-  return [];
+  return { events, complete: recognized && complete };
 }
 
-function pickUserObject(event: Record<string, unknown>): Record<string, unknown> | null {
+function userObjects(event: Record<string, unknown>): Record<string, unknown>[] {
+  const users: Record<string, unknown>[] = [];
   const context = event.context;
-  if (isRecord(context) && isRecord(context.user)) return context.user;
-  if (isRecord(event.user)) return event.user;
-  return null;
+  if (isRecord(context) && isRecord(context.user)) users.push(context.user);
+  if (isRecord(event.user)) users.push(event.user);
+  return users;
 }
 
 function firstString(obj: Record<string, unknown>, keys: string[]): string | null {

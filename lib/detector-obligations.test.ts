@@ -50,8 +50,16 @@ test("the obligation contract keeps every accountability registry epoch active",
       detectorRegistryDigest: "65547960bf03ca7d6d7b8279aa8b5ffed3a995bed2f36a64535d4179743ce204"
     },
     {
+      detectorRegistryVersion: "node-detectors-v6",
+      detectorRegistryDigest: "81866718b36e35239f0418cc543eee845660e686849da1b816d937a601c1528b"
+    },
+    {
       detectorRegistryVersion: "node-detectors-v7",
       detectorRegistryDigest: "e019df75386c8f89584f5d14b4b191fa00f76a4ddb88f79a5875e7d07c72c89b"
+    },
+    {
+      detectorRegistryVersion: "node-detectors-v8",
+      detectorRegistryDigest: "fcd25504e7d18811478b440fbd738a01cacfdb8e4811099edc5be62d84402947"
     }
   ]);
   assert.equal(
@@ -66,7 +74,7 @@ test("the obligation contract keeps every accountability registry epoch active",
     DETECTOR_OBLIGATION_TARGET_REGISTRIES[2],
     HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY
   );
-  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[3], DETECTOR_OBLIGATION_TARGET_REGISTRY);
+  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[5], DETECTOR_OBLIGATION_TARGET_REGISTRY);
   assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
 });
 
@@ -455,6 +463,23 @@ test("pre-accountability registry identities do not inherit an obligation epoch"
     digest: "1".repeat(64)
   };
   assert.deepEqual(detectorObligationViolations(historical, "historical", EPOCH), []);
+});
+
+test("every accountability epoch still rejects an unexplained partial pixel detector", () => {
+  for (const epoch of DETECTOR_OBLIGATION_TARGET_REGISTRIES) {
+    const run = makeScanRunV2R2();
+    run.provenance.detectorRegistry = {
+      version: epoch.detectorRegistryVersion,
+      digest: epoch.detectorRegistryDigest
+    };
+    run.detectors["pixel-events"] = {
+      ...run.detectors["pixel-events"], status: "partial", reason: "scan-failed", phaseId: 0
+    };
+    assert.match(detectorObligationViolations(run, "run", epoch).join("\n"),
+      /pixel-events lacks causal detector-output\/pixel-decode loss/, epoch.detectorRegistryVersion);
+    run.qualityFacts.captureLoss.push({ family: "detector-output", phaseId: 0, kind: "dropped", count: 1, detail: "pixel-decode" });
+    assert.deepEqual(detectorObligationViolations(run, "run", epoch), []);
+  }
 });
 
 test("the shared r2 semantic reader still rejects missing obligations in historical v3 reports", () => {

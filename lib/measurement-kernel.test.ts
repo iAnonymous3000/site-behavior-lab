@@ -49,7 +49,7 @@ test("records detector outcomes and maps exhausted budgets to capture loss once"
     { family: "requests", phaseId: 0, kind: "cap", count: 3, detail: "request-capture" }
   ]);
   assert.deepEqual(result.detectors["pixel-events"], {
-    version: "pixel-request-decoder@4",
+    version: "pixel-request-decoder@5",
     status: "complete",
     phaseId: 0
   });
@@ -140,14 +140,14 @@ test("boundary snapshots derive added, changed, and removed cookie/storage recor
 });
 
 test("detector registry identity is stable and non-empty", () => {
-  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v7");
+  assert.equal(DETECTOR_REGISTRY_VERSION, "node-detectors-v8");
   assert.equal(DETECTOR_VERSIONS["cname-uncloaking"], "dns-cname-chain@4");
   assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@3");
   assert.equal(DETECTOR_VERSIONS["privacy-policy"], "policy-text-cross-check@6");
   // Detector behavior is published provenance. Completeness, cancellation,
   // and truncation semantics moved together with the detector versions rather
   // than silently presenting the new behavior as the old release.
-  assert.equal(DETECTOR_REGISTRY_DIGEST, "e019df75386c8f89584f5d14b4b191fa00f76a4ddb88f79a5875e7d07c72c89b");
+  assert.equal(DETECTOR_REGISTRY_DIGEST, "fcd25504e7d18811478b440fbd738a01cacfdb8e4811099edc5be62d84402947");
   assert.deepEqual(DETECTOR_OBLIGATION_TARGET_REGISTRY, {
     detectorRegistryVersion: DETECTOR_REGISTRY_VERSION,
     detectorRegistryDigest: DETECTOR_REGISTRY_DIGEST

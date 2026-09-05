@@ -408,7 +408,7 @@ function buildUncorrectedReportHeadline(
   // for being non-empty (never storing the values), so the copy must not
   // assert they WERE personal identifiers, nor that matching succeeded, only
   // what the fields are designed for.
-  const pixelsWithMatching = run.evidence.pixelEvents.filter((pixel) => pixel.advancedMatching.length > 0);
+  const pixelsWithMatching = facts.signals.pixels.withIdentifiers;
   if (pixelsWithMatching.length > 0) {
     const products = joinNames(pixelsWithMatching.map((pixel) => pixel.product));
     const fields = joinNames(
@@ -416,8 +416,8 @@ function buildUncorrectedReportHeadline(
     );
     return finish(
       "warn",
-      `${domain} sent data in personal-identifier fields to ${products}.`,
-      `An advertising pixel on ${domain} attached populated fields that the platform designates for personal identifiers (${fields}) to the events it reported. The scanner records only that they were filled, never their values, so their contents, hashing, and eventual use are not verified.${extraNote}`
+      `${domain}'s observed ${products} requests contained populated identifier fields.`,
+      `An advertising pixel on ${domain} attached populated fields that the platform designates for personal identifiers (${fields}) to observed requests. The scanner records only that they were filled, never their values, so their contents, hashing, successful delivery, and eventual use are not verified.${extraNote}`
     );
   }
 
@@ -955,7 +955,7 @@ function buildUncorrectedReportHeadline(
   ) {
     completedAbsenceClaims.push("fingerprint-apis");
     completedAbsenceParts.push(
-      "the fingerprint observer recorded no instrumented API events or matched heuristics"
+      "the fingerprint observer recorded no instrumented API events"
     );
   }
   // WHICH family stopped early decides what may be hedged. A loss in the
@@ -1068,9 +1068,10 @@ function buildUncorrectedReportHeadline(
   // CNAME alias, a below-threshold observation) keeps the fallback below.
   const incompleteDetectorClauses =
     facts.strongestObservedSeverity === "ok"
-      ? Object.entries(run.detectors ?? {})
+      ? [...Object.entries(run.detectors ?? {})
           .filter(([, entry]) => entry.status !== "complete")
-          .map(([id, entry]) => `${detectorCheckName(id)} ${detectorStatusPhrase(entry.status)}`)
+          .map(([id, entry]) => `${detectorCheckName(id)} ${detectorStatusPhrase(entry.status)}`),
+        ...(run.unrecordedEvidence.length > 0 ? ["some optional detector evidence was not recorded in this legacy report"] : [])]
       : [];
   if (!facts.calmEligible && incompleteDetectorClauses.length > 0) {
     const incompleteClause = joinNames(incompleteDetectorClauses, 2);

@@ -138,6 +138,10 @@ test("detects a cookie-absence claim over a recorded third-party cookie", () => 
 
 test("detects reassuring framing over a loud finding", () => {
   const presentation = presentationFor(makeScanReportV1());
+  const headline: ReportHeadline = {
+    ...presentation.headline, tone: "calm",
+    semantic: { ...presentation.headline.semantic, reassuring: true }
+  };
   const findings: Finding[] = presentation.findings.map((finding, index) =>
     index === 0 ? { ...finding, level: "loud" } : finding
   );
@@ -145,7 +149,7 @@ test("detects reassuring framing over a loud finding", () => {
   assertOnlyViolation(
     presentation,
     "quiet-copy-over-loud-finding",
-    presentation.headline,
+    headline,
     findings
   );
 });
@@ -158,7 +162,11 @@ test("detects a reassuring headline over an alert bottom line", () => {
   // warn/loud check nor any card-level rule caught it, because the disagreement
   // sat at "info".
   const presentation = presentationFor(makeScanReportV1());
-  assert.equal(presentation.headline.semantic.reassuring, true);
+  assert.equal(presentation.headline.semantic.reassuring, false, "omitted legacy evidence must not reassure");
+  const headline: ReportHeadline = {
+    ...presentation.headline, tone: "calm",
+    semantic: { ...presentation.headline.semantic, reassuring: true }
+  };
   const bottomLine = presentation.findings.find((finding) => finding.id === "bottom-line");
   assert.equal(bottomLine?.icon, "check", "the clean path must not already alert");
 
@@ -169,7 +177,7 @@ test("detects a reassuring headline over an alert bottom line", () => {
   assertOnlyViolation(
     presentation,
     "quiet-copy-over-loud-finding",
-    presentation.headline,
+    headline,
     findings
   );
 });

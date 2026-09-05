@@ -413,7 +413,7 @@ test("request loss yields retained lower bounds while cookie and storage loss st
 });
 
 test("calm eligibility is conservative, signal-aware, and scoped to calm claims", () => {
-  assert.equal(factsForV1(makeV1Result()).calmEligible, true);
+  assert.equal(factsForV1(makeV1Result()).calmEligible, false, "optional detector evidence is unrecorded");
 
   const listener = makeV1Result();
   listener.fingerprintDetections = [inputMonitoringDetection()];

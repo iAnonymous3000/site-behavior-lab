@@ -861,12 +861,18 @@ function FingerprintList({
 }) {
   const apiState = facts.evidence.fingerprinting.state;
   const detectorIncomplete = facts.claims["fingerprint-apis"].blockers.includes("detector-incomplete");
+  const behaviorEvidenceIncomplete = facts.claims["session-recording-input-monitoring"].blockers.some(
+    (blocker) => blocker !== "subject-not-established"
+  );
   if (apiState === "unsupported" && detectorIncomplete) {
     return <p className="muted">Browser-behavior evidence was not captured; this PageGraph import does not support it.</p>;
   }
   if (events.length === 0 && detections.length === 0) {
     if (apiState === "censored" || detectorIncomplete) {
       return <p className="muted">No browser-behavior signals were retained, but collection or detector work was incomplete; absence is unproven.</p>;
+    }
+    if (behaviorEvidenceIncomplete) {
+      return <p className="muted">No instrumented API event records were retained. Heuristic and listener evidence is unavailable or incomplete; their absence is unproven.</p>;
     }
     if (!facts.subject.describesSubject) {
       return <p className="muted">No instrumented browser-behavior signals appeared on the returned document; this does not describe the site&apos;s normal page.</p>;
@@ -906,6 +912,9 @@ function FingerprintList({
       {(apiState === "censored" || detectorIncomplete) && (
         <p className="muted">Only retained browser-behavior evidence is shown; collection or detector work was incomplete.</p>
       )}
+      {behaviorEvidenceIncomplete && (
+        <p className="muted">Heuristic and listener evidence is unavailable or incomplete; only retained observations are shown.</p>
+      )}
       {!facts.subject.describesSubject && (
         <p className="muted">These signals describe the returned document, not a verified normal page load.</p>
       )}
@@ -920,7 +929,9 @@ function PixelEventsList({ pixels, facts, corrected = false }: { pixels: PixelEv
   if (pixels.length === 0) {
     return (
       <p className="muted">
-        {evidenceIncomplete
+        {facts.claims["pixel-events"].blockers.includes("evidence-unrecorded")
+          ? "This legacy report did not record pixel evidence; an empty display is not an absence finding."
+          : evidenceIncomplete
           ? "No advertising-pixel events were retained; collection or decoding was incomplete, so this is not an absence finding."
           : facts.subject.describesSubject
             ? "No advertising-pixel events were decoded in this passive visit."
