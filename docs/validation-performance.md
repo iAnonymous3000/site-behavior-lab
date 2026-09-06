@@ -3,6 +3,18 @@
 The objective is shorter time to trustworthy feedback and live deployment,
 without changing report meaning or weakening the release contract.
 
+## Maintainer delivery
+
+Routine maintainer work is validated locally and pushed directly to `main`.
+Main CI remains the full production gate; a PR is used only when explicitly
+requested. This removes the PR-then-main validation cycle for routine work.
+
+An existing PR head must not be reused when switching to this path. GitHub's
+production rules evaluate same-named checks attached to the commit, including
+cancelled PR jobs. On `8c4ccaf`, every required main job and attestation passed,
+but cancelled PR checks blocked promotion. A fresh direct-to-main commit avoids
+that collision while retaining the existing required checks and failed history.
+
 ## Measured bottlenecks
 
 Baseline source: `e6051c4ca2bcc949b258edc9644c593642e50fba`. Its tree is identical
