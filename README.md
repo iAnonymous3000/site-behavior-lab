@@ -1,20 +1,40 @@
 # Site Behavior Lab
 
-[![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
+[![CI](https://github.com/iAnonymous3000/site-behavior-lab/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/iAnonymous3000/site-behavior-lab/actions/workflows/ci.yml?query=branch%3Amain)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-Site Behavior Lab visits a public website with a controlled, headless Chromium
-and publishes a record of what that site did during the visit: the requests it
-made, the third parties it contacted, the cookies and storage keys it set, the
-browser APIs it touched, whether it registered your consent choice, whether it
-sent what you typed somewhere else, and whether its privacy policy contradicts
-any of that. Every published sentence is meant to be traceable to recorded
-evidence, and the evidence is meant to be reproducible by anyone.
+**Turn a website visit into evidence you can inspect.**
 
-The public instance is [sitebehavior.org](https://sitebehavior.org). This
-README is written for someone deciding whether to depend on the project for
-something that matters. It says what the scanner does, how to run it, and
-where it stops.
+Site Behavior Lab visits a public website in controlled, headless Chromium and
+records its requests, cookies, storage keys, browser signals, and consent
+behavior. Reports connect plain-language findings to the recorded evidence,
+with scan conditions, missing coverage, and later corrections kept visible.
+Each report describes the measured visit; it is not a privacy score or a legal
+verdict.
+
+[**Scan a website**](https://sitebehavior.org) ·
+[Browse reports](https://sitebehavior.org/directory/) ·
+[Read the methodology](https://sitebehavior.org/methodology/) ·
+[See measurement limits](https://sitebehavior.org/catalog/)
+
+[![A historical GitHub report with its visit identity, reviewed clarification, and evidence-linked findings](docs/images/report-overview.jpg)](https://sitebehavior.org/reports/20260824-4f89a805b50169b2c0e8b01a975018c9/)
+
+*The live report interface, captured September 6, 2026. This historical paired
+report records August 24 visits and retains its reviewed clarification; it does
+not describe GitHub's current behavior.*
+
+| Start here | |
+|---|---|
+| **Understand a visit** | Follow findings into the request log, browser signals, and coverage details. Export the report as JSON, an evidence bundle with CSV, or a printable PDF. |
+| **Compare conditions** | Inspect paired GPC, consent-choice, or Brave Shields simulation visits, with the intervention and visit order disclosed. |
+| **Run your own instance** | [Local setup](#run-it-locally) · [Self-hosting](#self-host) |
+| **Check or contribute** | [Verify a report](#verify-a-report) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) |
+
+**Version:** `0.6.0` is the prepared milestone; its governed tag and receipt are
+pending. The latest receipted tag is [`v0.4.0`](https://github.com/iAnonymous3000/site-behavior-lab/tree/v0.4.0).
+Product versions are independent of the report contracts: v1 remains frozen,
+and v2/r1 and v2/r2 remain byte-immutable. See the [changelog](CHANGELOG.md) and
+[release status](RELEASE.md#current-release-state).
 
 ## What it does
 
@@ -124,14 +144,13 @@ scheduled rescans are all implemented behind flags and all committed at `0`.
 Production runs the in-process queue; a scan interrupted by a container
 restart is lost and must be re-run. Aggregate product metrics are also off.
 
-Release state: the latest tag is `v0.4.0` (2026-08-02). `release-policy.json`
-declares `0.5.0`, but no `v0.5.0` tag or release receipt exists yet, and the
-policy file says so in its `tagPending` field. The 1.0 readiness manifest
-(`npm run release:readiness`) enforces eighteen gates; most of the open ones
-are operator attestations, controlled-runner receipts, and legal review rather
-than code, and two evidence programs (detector calibration and an A/A
-repeatability study) are deferred to 1.1. There is no stable public API and no
-npm package.
+Road to 1.0: the [investigative-v1 qualification contract](docs/v1-release-qualification.md)
+requires independently checked scan outcomes bound to the release candidate,
+alongside the applicable provider, licensing, source, and release-authority
+evidence. `npm run release:readiness` evaluates the committed evidence; a green
+build or healthy deployment does not establish qualification. Formal detector
+calibration and the research A/A repeatability study remain separate 1.1
+milestones. There is no stable public API and no npm package.
 
 Retention: reports saved by the public instance are kept for seven days or
 500 reports, whichever prunes first (the R2 backend clamps the count to 936);

@@ -28,9 +28,18 @@ machine-readable source of the current status is
 The current release is `v0.4.0`, tagged 2026-08-02, with its receipt durably
 archived at
 [`docs/release-receipts/0.4.0/release-receipt.json`](docs/release-receipts/0.4.0/release-receipt.json).
-The source policy currently declares `v0.5.0`, but that version is not a
-release until the governed tag ceremony succeeds. Do not describe the policy
-declaration by itself as a published release.
+The source policy currently declares `v0.6.0`, prepared on 2026-09-06. It is not
+a release until the governed tag ceremony succeeds. The earlier `0.5.0`
+declaration was never tagged; its dated milestone remains in the changelog.
+`CITATION.cff` continues to cite the latest archived receipt, `0.4.0`.
+
+As checked on 2026-09-06, the dedicated release App variables, its private key
+in the `release-tag` environment, and the creation-only release-tag ruleset
+are not configured. The fresh, externally selected governance receipt is also
+absent. Complete step 3 below before attempting the `0.6.0` ceremony; do not
+create a tag through a manual push or weaken the existing tag protections.
+The policy's `tagPending` field records this open window. Do not describe the
+policy declaration by itself as a published release.
 
 One historical failure is worth keeping on the record because its recovery
 path is the template for any future tag-ceremony failure. The first

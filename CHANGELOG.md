@@ -7,7 +7,34 @@ public API or a 1.0 release.
 
 ## Unreleased
 
-Work landing after the 0.5.0 milestone. Nothing here is released.
+Changes after the prepared 0.6.0 milestone will be recorded here.
+
+## 0.6.0 - 2026-09-06
+
+Prepared milestone: the governed tag and release receipt are pending. This
+date records the source declaration, not a completed release. The latest
+receipted release remains 0.4.0; see [release status](RELEASE.md#current-release-state).
+
+This milestone brings findings and their evidence closer together, makes
+incomplete observations harder to misread, and carries tested artifacts from
+main CI into deployment. It preserves the report schemas and published
+measurements. It does not declare 1.0 readiness, a stable public API, or measured
+detector error rates.
+
+### Highlights
+
+- An evidence-first report interface with shared findings across server-rendered
+  and interactive views, clearer comparisons, print/export actions, and site
+  history. Directory search accepts URLs consistently and fits narrow screens.
+- Consistent uncertainty and coverage disclosures across reports, summaries,
+  comparisons, and exports, including historical pixel evidence and failed visits.
+- Parallel CI builds and reuse of tested, attested container and Pages artifacts
+  during production deployment. Routine maintainer changes go directly to main;
+  exact-source checks, promotion authority, and live verification still apply.
+- A bounded investigative-v1 qualification contract and independent capture
+  workflow. Qualification remains evidence-gated; formal calibration is separate.
+- A clearer repository front page, a real report screenshot, and explicit
+  separation between a prepared product milestone and a completed release tag.
 
 ### Added
 
@@ -90,7 +117,10 @@ Work landing after the 0.5.0 milestone. Nothing here is released.
   are the scanner's, so it keeps going through the sentence, which separates
   them.
 
-## [0.5.0] - 2026-08-11
+## 0.5.0 - 2026-08-11
+
+Historical source declaration, never tagged or receipted. Its changes are
+retained here as recorded; this heading does not claim a published release.
 
 Evidence you can print, cite, and check. A report now leaves the browser as a
 document with page numbers and a running identity, says on its face when the
@@ -666,7 +696,6 @@ activation gate has passed or that the corresponding production control is live.
   authorizes enabling the currently off feature flags.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
-[0.5.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.5.0
 [0.4.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.4.0
 [0.4.0-rc.1]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.4.0-rc.1
 [0.3.0]: https://github.com/iAnonymous3000/site-behavior-lab/releases/tag/v0.3.0
