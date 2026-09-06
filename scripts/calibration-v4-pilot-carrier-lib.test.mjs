@@ -610,28 +610,63 @@ test("the committed evidence chain is verified, and each link must name the one 
   rmSync(world.root, { recursive: true, force: true });
 });
 
-test("an environment failure says so, instead of arriving as a carrier finding", (t) => {
-  // The runbook's remedy for a red gate is to RETIRE the carrier and discard
-  // the reviewers' sealed envelopes. A failure to READ the repository must
-  // not arrive wearing that accusation with no evidence attached.
-  const world = carrierWorld({ cases: 2 });
-  t.after(() => rmSync(world.root, { recursive: true, force: true }));
-  assert.equal(verify(world).carrier, world.carrier);
-  // Remove a known carrier blob first read by the archive. Choosing an
-  // arbitrary loose object can instead remove an earlier input, a commit,
-  // or a frame-freeze object that the verifier never reads from Git.
-  const blob = git(world.root, ["rev-parse", `${world.carrier}:scripts/calibration-v4-frame-tasks.mjs`]);
-  assert.equal(git(world.root, ["cat-file", "-t", blob]), "blob");
-  rmSync(path.join(world.root, ".git", "objects", blob.slice(0, 2), blob.slice(2)));
-  let threw = null;
-  try {
-    verify(world);
-  } catch (error) {
-    threw = error.message;
+for (const storage of ["fresh", "packed"]) {
+  test(`an environment failure says so, instead of arriving as a carrier finding (${storage})`, (t) => {
+    // The runbook's remedy for a red gate is to RETIRE the carrier and discard
+    // the reviewers' sealed envelopes. A failure to READ the repository must
+    // not arrive wearing that accusation with no evidence attached.
+    const world = carrierWorld({ cases: 2 });
+    t.after(() => rmSync(world.root, { recursive: true, force: true }));
+    if (storage === "packed") git(world.root, ["repack", "-a", "-d"]);
+    assert.equal(verify(world).carrier, world.carrier);
+
+    // Deleting a loose object does not make it unreadable when Git also has a
+    // packed copy. Inject a real Git read failure at the archive boundary instead:
+    // preflight still reads the intact repository, but archive sees an empty
+    // object store. The real Git executable supplies the failure and diagnostics.
+    const resolvedGit = spawnSync("sh", ["-c", "command -v git"], { encoding: "utf8" });
+    assert.equal(resolvedGit.status, 0, resolvedGit.stderr);
+    const realGit = resolvedGit.stdout.trim();
+    assert.ok(path.isAbsolute(realGit));
+    const faultBin = path.join(world.root, "fault-bin");
+    const emptyObjects = path.join(world.root, "empty-objects");
+    mkdirSync(faultBin);
+    mkdirSync(emptyObjects);
+    const archiveEnv = { ...process.env, GIT_OBJECT_DIRECTORY: emptyObjects };
+    delete archiveEnv.GIT_ALTERNATE_OBJECT_DIRECTORIES;
+    const unreadableArchive = spawnSync(realGit, ["-C", world.root, "archive", world.carrier], {
+      env: archiveEnv, encoding: "utf8"
+    });
+    assert.notEqual(unreadableArchive.status, 0);
+    const gitDiagnostic = unreadableArchive.stderr.trim();
+    assert.ok(gitDiagnostic.length > 0, "The independent Git read failure must provide a diagnostic");
+    writeFileSync(path.join(faultBin, "git"), `#!/usr/bin/env node
+  const { spawnSync } = require("node:child_process");
+  const args = process.argv.slice(2);
+  const env = { ...process.env };
+  if (args[0] === "-C" && args[2] === "archive") {
+    env.GIT_OBJECT_DIRECTORY = ${JSON.stringify(emptyObjects)};
+    delete env.GIT_ALTERNATE_OBJECT_DIRECTORIES;
   }
-  assert.notEqual(threw, null);
-  assert.ok(threw.startsWith(`git archive ${world.carrier} failed`), threw);
-  assert.match(threw, /failure to READ the repository, not a finding about the carrier|environment failure, not a finding about the carrier/);
-  // The diagnostics git actually produced are forwarded, not swallowed.
-  assert.match(threw, /invalid object|cannot read|not a valid object|unable to read/i);
-});
+  const result = spawnSync(${JSON.stringify(realGit)}, args, { env, stdio: "inherit" });
+  process.exit(result.status ?? 1);
+  `, { mode: 0o755 });
+    const originalPath = process.env.PATH;
+    t.after(() => {
+      if (originalPath === undefined) delete process.env.PATH;
+      else process.env.PATH = originalPath;
+    });
+    process.env.PATH = `${faultBin}${path.delimiter}${originalPath ?? ""}`;
+    let threw = null;
+    try {
+      verify(world);
+    } catch (error) {
+      threw = error.message;
+    }
+    assert.notEqual(threw, null);
+    assert.ok(threw.startsWith(`git archive ${world.carrier} failed`), threw);
+    assert.match(threw, /failure to READ the repository, not a finding about the carrier|environment failure, not a finding about the carrier/);
+    // The diagnostics git actually produced are forwarded, not swallowed.
+    assert.ok(threw.includes(gitDiagnostic), threw);
+  });
+}

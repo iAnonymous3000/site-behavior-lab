@@ -57,10 +57,13 @@ to PR #222's tested head `3ebef9dc17da14e69fd7f727f6ffc472504b0caf`.
   promotion paths still require that check. All existing checks still execute.
 - Superseded PR runs are cancelled. Main and manual runs keep unique concurrency
   groups and retain their evidence and promotion lifecycle.
-- The carrier archive corruption test removes a specific blob after verifying
-  the intact fixture. Removing an arbitrary Git object could miss the intended
-  failure path and fail otherwise valid CI runs. The test still requires the
-  verifier to distinguish an unreadable repository from an invalid carrier.
+- The carrier archive error test first verifies the intact fixture, then makes
+  the real Git archive command read an empty object store. It checks fresh and
+  deliberately packed repositories and requires Git's actual diagnostic to be
+  preserved. Deleting a loose blob was insufficient when a packed copy remained
+  readable; that fixture assumption caused a false CI failure on `eacdc1a`.
+  The verifier must still distinguish an unreadable repository from an invalid
+  carrier; its production behavior and release gate are unchanged.
 - Static generation compiles its schema tools once and uses that fresh artifact
   for both manifest and statistics generation. Docker dependency layers precede
   source-identity arguments so a new SHA does not invalidate unchanged package
