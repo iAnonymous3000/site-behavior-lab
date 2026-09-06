@@ -67,9 +67,14 @@ test("catalog and project trust surfaces are linked from the site footer", () =>
  * path is pinned rather than left to convention.
  */
 test("both site listings render the shared evidence table, not their own grid", () => {
+  // The directory renders the table through its search controls, which own
+  // the query the table filters by; the category page renders it directly.
   const surfaces = ["app/directory/directory-index.tsx", "app/categories/[category]/page.tsx"];
   for (const file of surfaces) {
-    const contents = source(file);
+    const contents =
+      file === "app/directory/directory-index.tsx"
+        ? source(file) + source("app/directory/directory-controls.tsx")
+        : source(file);
     assert.match(contents, /<SiteEvidenceTable/, `${file} does not render the shared table`);
     assert.match(contents, /siteEvidenceRow\(/, `${file} does not build rows through the shared mapper`);
     // The cookie count is the field the two grids disagreed on. Neither surface

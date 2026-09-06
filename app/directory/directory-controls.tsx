@@ -1,37 +1,51 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
 import { normalizeDirectorySearchQuery } from "@/lib/directory-search";
+import type { SiteEvidenceRow } from "@/lib/site-evidence-row";
 import { displayHost, plural } from "@/lib/text-format";
+import { SiteEvidenceTable } from "../_components/site-evidence-table";
 import styles from "./directory.module.css";
 
-type SearchSite = { domain: string; path: string; category: string; categoryPath: string };
-type CategoryOption = { id: string; label: string; path: string; siteCount: number };
-
-export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; categories: CategoryOption[] }) {
+/**
+ * One search that filters the table in place.
+ *
+ * The page used to carry two forms above the table, each with a submit button
+ * that stayed disabled until the reader had typed or chosen something: a
+ * "Find a site" box that navigated to the first matching profile, and a
+ * "Browse a category" select that navigated to a category page. Below them
+ * sat a table with its own filter box over the same rows. A reader looking
+ * for one site typed into whichever box they saw first and got a different
+ * result from each.
+ *
+ * Now the query narrows the table the reader is looking at, the status line
+ * says how many rows remain, and an exact match offers its profile as a plain
+ * link. Nothing navigates on input: a change filters, only a link moves. The
+ * categories are links in the page header, where a select used to be.
+ */
+export function DirectoryControls({ rows, caption }: { rows: SiteEvidenceRow[]; caption: string }) {
   const [query, setQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
   const normalizedQuery = normalizeDirectorySearchQuery(query);
-  const matches = useMemo(
-    () => normalizedQuery ? sites.filter((site) => site.domain.includes(normalizedQuery)).slice(0, 8) : [],
-    [normalizedQuery, sites]
+  const exact = useMemo(
+    () => (normalizedQuery ? rows.find((row) => row.domain === normalizedQuery) ?? null : null),
+    [normalizedQuery, rows]
+  );
+  const matching = useMemo(
+    () =>
+      normalizedQuery
+        ? rows.filter(
+            (row) =>
+              row.domain.includes(normalizedQuery) ||
+              displayHost(row.domain).toLowerCase().includes(normalizedQuery) ||
+              row.categoryLabel.toLowerCase().includes(normalizedQuery)
+          ).length
+        : rows.length,
+    [normalizedQuery, rows]
   );
 
-  function openFirstMatch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const exact = sites.find((site) => site.domain === normalizedQuery);
-    const destination = exact ?? matches[0];
-    if (destination) window.location.assign(destination.path);
-  }
-
-  function openSelectedCategory(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (selectedCategory) window.location.assign(selectedCategory);
-  }
-
   return (
-    <section className={styles.controls} aria-label="Find a scanned site">
-      <form className={styles.searchForm} onSubmit={openFirstMatch}>
+    <div className={styles.sites}>
+      <div className={styles.searchForm} role="search">
         <label htmlFor="directory-search">Find a site</label>
         <div>
           <input
@@ -40,53 +54,26 @@ export function DirectoryControls({ sites, categories }: { sites: SearchSite[]; 
             id="directory-search"
             inputMode="url"
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="example.com"
+            placeholder="example.com, or a category"
             spellCheck={false}
             type="search"
             value={query}
           />
-          <button disabled={matches.length === 0} type="submit">Open profile</button>
+          {exact && (
+            <a className="secondary-button" href={exact.profileHref}>
+              Open {displayHost(exact.domain)}
+            </a>
+          )}
         </div>
-        {/* The has-matches branch used to reuse the idle sentence verbatim, so the region
-            never changed and the success path was the only silent one: suggestions
-            appeared and the submit button went live with nothing announced. */}
         <p aria-live="polite" id="directory-search-status" role="status">
-          {matches.length > 0
-            ? `${plural(matches.length, "matching site")} listed below. Enter opens the first.`
-            : normalizedQuery
-              ? "No matching published site profile."
-              : "Searches canonical domains across every directory page."}
+          {normalizedQuery
+            ? matching === 0
+              ? "No scanned site matches. The table below is empty until the query changes."
+              : `${plural(matching, "matching site")} in the table below.`
+            : "Filters the table below by domain or category as you type."}
         </p>
-        {matches.length > 0 && (
-          <ul aria-label="Matching site profiles" className={styles.searchMatches}>
-            {matches.map((site) => (
-              <li key={site.domain}>
-                <a href={site.path}>{displayHost(site.domain)}</a>
-                <span>{site.category}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </form>
-      <form className={`${styles.categoryControl} ${styles.searchForm}`} onSubmit={openSelectedCategory}>
-        <label htmlFor="directory-category">Browse a category</label>
-        <div>
-          <select
-            id="directory-category"
-            onChange={(event) => setSelectedCategory(event.target.value)}
-            value={selectedCategory}
-          >
-            <option value="">Choose a category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.path}>
-                {category.label} ({category.siteCount})
-              </option>
-            ))}
-          </select>
-          <button disabled={!selectedCategory} type="submit">Browse category</button>
-        </div>
-        <p>Aggregate pages appear only after the evidence-quality sample floor is met.</p>
-      </form>
-    </section>
+      </div>
+      <SiteEvidenceTable caption={caption} externalQuery={query} rows={rows} />
+    </div>
   );
 }

@@ -623,6 +623,41 @@ a {
   max-width: 48ch;
 }
 
+/* Category links in a page header: label plus count, as a wrapping row of
+   pills. Links, because a category is a page. */
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.category-chip {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--pill);
+  color: var(--text);
+  display: inline-flex;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  text-decoration: none;
+}
+
+.category-chip span {
+  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+.category-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
 /* ---- Cards (shared) ---- */
 .scan-panel,
 .method-card,

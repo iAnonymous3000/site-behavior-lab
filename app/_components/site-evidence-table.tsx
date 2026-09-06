@@ -51,18 +51,27 @@ export function SiteEvidenceTable({
    * the same thing on every row, and a filter over six rows is a control that
    * costs more attention than it saves.
    */
-  filterable = true
+  filterable = true,
+  externalQuery
 }: {
   rows: SiteEvidenceRow[];
   /** What this table is, for readers who reach it by its accessible name. */
   caption: string;
   filterable?: boolean;
+  /**
+   * A query owned by the page rather than by this table. The directory's
+   * search box sits above the table with its own status line and an
+   * open-profile shortcut, so it hands its value down here instead of the
+   * table rendering a second box that filtered the same rows.
+   */
+  externalQuery?: string;
 }) {
   const [sort, setSort] = useState<{ key: SortKey; descending: boolean }>({
     key: "domain",
     descending: false
   });
-  const [query, setQuery] = useState("");
+  const [ownQuery, setQuery] = useState("");
+  const query = externalQuery ?? ownQuery;
 
   const visible = useMemo(() => {
     const needle = filterable ? query.trim().toLowerCase() : "";
@@ -89,7 +98,7 @@ export function SiteEvidenceTable({
   return (
     <div className={styles.tableSection}>
       <div className={styles.tableTools}>
-        {filterable && (
+        {filterable && externalQuery === undefined && (
           <label className={styles.tableFilter}>
             <span className="visually-hidden">Filter sites by domain or category</span>
             <input
