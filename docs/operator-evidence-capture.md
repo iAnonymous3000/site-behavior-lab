@@ -135,12 +135,20 @@ trusted hosted capture and archive. It refuses any origin other than exactly
 probe always sends the internally pinned invalid body `{}` with
 `Content-Type: application/json`, and its fixed digest is retained in the
 transcript and final receipt. The producer executes eleven GET requests,
-waits out that route's mitigation timeout plus a one-second isolation margin,
+waits out the counting window plus the mitigation timeout and a one-second margin,
 and then executes eleven POST requests. Each individual request has a
 five-second abort timeout. Each first ten must avoid 429; for POST, each first
 ten must return exactly 400 so the invalid probe cannot create a scan or
 report. Each eleventh must be 429 with an integer `Retry-After` equal to the
 policy.
+
+Both routes share the IP/data-center counter. On September 6, a hosted capture
+and a local repeat throttled POST early after the former 11-second gap. A
+POST-only burst after idle time and a paired probe with a 21-second gap passed
+the unchanged response checks. The producer now allows both periods to elapse;
+historical receipt semantics and release requirements are unchanged. These
+observations do not establish a universal hard ceiling:
+[Cloudflare documents counter-update delays and non-exact request limits](https://developers.cloudflare.com/waf/rate-limiting-rules/).
 
 The first phase writes only a canonical sanitized probe transcript.
 After it finishes, export the provider's Security Events query to a bounded

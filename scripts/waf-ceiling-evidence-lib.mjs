@@ -1289,8 +1289,13 @@ export async function executeWafCeilingProbe({
   const probes = [];
   for (const [routeIndex, route] of WAF_ROUTE_CONTRACT.entries()) {
     if (routeIndex > 0) {
+      // Both routes share the IP/data-center counter. The mitigation timeout
+      // alone did not isolate POST from the preceding GET burst in production:
+      // an 11s gap throttled POST early, while a 21s gap passed unchanged checks.
+      // Let the counting window and mitigation period both elapse. Historical
+      // receipt validation keeps its original minimum and exact requirements.
       await wait(
-        rulePolicy.mitigationTimeoutSeconds * 1_000 +
+        (rulePolicy.windowSeconds + rulePolicy.mitigationTimeoutSeconds) * 1_000 +
           WAF_COOLDOWN_MARGIN_MS
       );
     }

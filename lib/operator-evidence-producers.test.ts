@@ -447,7 +447,7 @@ test("WAF receipt proves two isolated exact eleventh-request ceilings and derive
   );
 });
 
-test("live WAF executor never retains request headers, bodies, URLs, or response bodies", async () => {
+test("live WAF executor isolates shared counters and never retains private request or response material", async () => {
   const {
     executeWafCeilingProbe,
     serializeWafProbeTranscript,
@@ -463,6 +463,7 @@ test("live WAF executor never retains request headers, bodies, URLs, or response
   const requestBodies: Array<string | undefined> = [];
   const requestContentTypes: Array<string | null> = [];
   let waitedMilliseconds = 0;
+  let getBurstCompletedAt = 0;
   let nowMs = Date.parse("2026-08-01T00:00:00.000Z");
   const secret = "secret-body-and-credential";
   const transcript = await executeWafCeilingProbe({
@@ -489,11 +490,15 @@ test("live WAF executor never retains request headers, bodies, URLs, or response
       requestContentTypes.push(options.headers.get("content-type"));
       nowMs += 25;
       const ordinal = ((calls - 1) % 11) + 1;
+      if (calls === 11) getBurstCompletedAt = nowMs;
+      // The live 11s-gap probe throttled POST early despite a 10s mitigation.
+      // Model counter state that persists through the counting window too.
+      const staleGetCounter = calls > 11 && nowMs - getBurstCompletedAt < 20_000;
       return {
-        status: ordinal === 11 ? 429 : 400,
+        status: ordinal === 11 || staleGetCounter ? 429 : 400,
         headers: {
           get: (name: string) => {
-            if (name === "retry-after" && ordinal === 11) return "10";
+            if (name === "retry-after" && (ordinal === 11 || staleGetCounter)) return "10";
             if (name === "cf-ray") {
               return `${calls.toString(16).padStart(16, "0")}-SJC`;
             }
@@ -516,7 +521,7 @@ test("live WAF executor never retains request headers, bodies, URLs, or response
     requestSignals.every((signal) => signal instanceof AbortSignal),
     true
   );
-  assert.equal(waitedMilliseconds, 11_000);
+  assert.equal(waitedMilliseconds, 21_000);
   assert.equal(transcript.postProbeBodyDigest, WAF_POST_PROBE_BODY_DIGEST);
   assert.deepEqual(requestBodies.slice(0, 11), Array(11).fill(undefined));
   assert.deepEqual(requestBodies.slice(11), Array(11).fill("{}"));
