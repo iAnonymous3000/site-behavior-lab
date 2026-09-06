@@ -140,7 +140,7 @@ test(
 test(
   "extractPolicyTextFromPdf ends a parse that outlives its deadline at the deadline, without stalling the event loop",
   { timeout: 60_000 },
-  async () => {
+  async (context) => {
     // Cheap on memory and slow on CPU: 48 MB of text-positioning operators
     // that pdf.js walks one by one for over a second while the decoded stream
     // stays well inside the memory bound. Only the deadline can end it, and a
@@ -154,19 +154,33 @@ test(
       ])
     ]);
 
+    // Observe the actual deadline instead of requiring a coarse wall clock to
+    // read at least 500ms. Node timer scheduling can cross that clock's tick
+    // boundary at 499ms; that does not mean the parser escaped its deadline.
+    const originalSetTimeout = globalThis.setTimeout;
+    let deadlineFired = false;
+    context.mock.method(globalThis, "setTimeout", (
+      callback: (...args: unknown[]) => void,
+      delay?: number,
+      ...args: unknown[]
+    ) => originalSetTimeout(() => {
+      if (delay === 500) deadlineFired = true;
+      callback(...args);
+    }, delay));
     const watch = watchProcess();
-    const started = Date.now();
+    const started = performance.now();
     let extracted: string | null;
     try {
       extracted = await extractPolicyTextFromPdf(slow, 400_000, 500);
     } finally {
       watch.stop();
     }
-    const elapsedMs = Date.now() - started;
+    const elapsedMs = performance.now() - started;
 
     assert.ok(watch.maxGapMs < 250, `the event loop stalled for ${watch.maxGapMs}ms during the parse`);
     assert.equal(extracted, null);
-    assert.ok(elapsedMs >= 500 && elapsedMs < 2_000, `the parse returned after ${elapsedMs}ms against a 500ms deadline`);
+    assert.equal(deadlineFired, true, "the deadline must end this parse, not an unrelated refusal");
+    assert.ok(elapsedMs < 2_000, `the parse returned after ${elapsedMs}ms against a 500ms deadline`);
     await assertParseThreadStopped();
   }
 );
