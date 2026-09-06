@@ -34,7 +34,11 @@ test("homepage keeps the evidence renderer outside its initial route module", ()
 test("report pages pass compact server output instead of serializing stored evidence into the client", () => {
   const page = readFileSync(path.join(root, "app", "reports", "[id]", "page.tsx"), "utf8");
   assert.doesNotMatch(page, /stored=\{result\.stored\}/);
-  assert.match(page, /summary=\{<ReportPageSummary/);
+  // The summary slot carries the headline and the findings board, both built
+  // on the server from the view; the raw evidence still crosses the network
+  // only through the explorer's digest-bound fetch.
+  assert.match(page, /summary=\{\s*<ReportPageSummary/);
+  assert.match(page, /const findings = buildFindings\(view, await loadCommittedCorpusStats\(\), facts, evidenceArm\)/);
   assert.match(page, /evidenceHref=\{evidenceHref\}/);
   assert.match(page, /expectedEvidenceSha256=\{result\.wireSha256\}/);
 });

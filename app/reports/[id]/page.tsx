@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import corrections from "@/public/corrections.json";
 import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "@/lib/report-headline";
+import { buildReportFacts } from "@/lib/report-facts";
+import { buildFindings, type Finding } from "@/lib/report-findings";
+import { renderedEvidenceArm, type EvidenceArm } from "@/lib/report-evidence-navigation";
+import { loadCommittedCorpusStats } from "@/lib/current-scan-cohort";
 import { parseCorrectionsLedger, reportCorrections } from "@/lib/corrections-ledger";
 import { serializeJsonLd } from "@/lib/jsonld-script";
 import { buildReportDataset } from "@/lib/report-jsonld";
@@ -11,6 +15,7 @@ import { requireFreshRuntimeReportRequest } from "@/lib/report-route-freshness";
 import { correctionMetadataDescription, reportMetadataDescription, reportMetadataTitle } from "@/lib/seo-metadata";
 import { toReportView } from "@/lib/scan-report-views";
 import { siteBaseUrl, siteOrigin, sitePagesBasePath } from "@/lib/site-url";
+import { FindingsList } from "@/app/_components/findings-list";
 import { PrintEvidenceFooter } from "@/app/_components/print-evidence-footer";
 import { ReportEvidenceReceipt, ReportPageContext } from "@/app/_components/report-page-context";
 import { SavedReportClient } from "./saved-report-client";
@@ -106,7 +111,15 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
   // (RFC 14.8 atomic consumer migration); unreadable and newer-revision
   // reports were already answered above.
   const view = toReportView(result.stored);
-  const headline = buildReportHeadline(view);
+  // The same facts, headline, arm and cards the explorer builds once it has
+  // fetched the wire, built here from the view the server already holds and
+  // the committed corpus statistics, so the reader who never presses
+  // "Explore full evidence" still gets the board. Both surfaces go through
+  // one buildFindings call, so they cannot disagree about a card.
+  const facts = buildReportFacts(view);
+  const headline = buildReportHeadline(view, facts);
+  const evidenceArm = renderedEvidenceArm(view, headline);
+  const findings = buildFindings(view, await loadCommittedCorpusStats(), facts, evidenceArm);
   const correction = reportCorrections(correctionsLedger, id);
   const reportUrl = publicReportUrl(id);
   const jsonUrl = STATIC_EXPORT ? `${siteBaseUrl()}/reports/${id}.json` : `${siteOrigin()}/api/reports/${id}`;
@@ -149,7 +162,14 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
             view={view}
           />
         }
-        summary={<ReportPageSummary headline={headline} />}
+        summary={
+          <ReportPageSummary
+            headline={headline}
+            findings={findings}
+            evidenceArm={evidenceArm}
+            automation={facts.display.run.conditions.automation}
+          />
+        }
       />
       <PrintEvidenceFooter
         committed={result.origin === "committed"}
@@ -169,7 +189,17 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
  * `ReportPageContext` identity block, so opening the evidence explorer no
  * longer swaps one copy of those facts for another.
  */
-function ReportPageSummary({ headline }: { headline: ReportHeadline }) {
+function ReportPageSummary({
+  headline,
+  findings,
+  evidenceArm,
+  automation
+}: {
+  headline: ReportHeadline;
+  findings: readonly Finding[];
+  evidenceArm: EvidenceArm | undefined;
+  automation: string;
+}) {
   return (
     <div className="report-page-summary">
       <section className={`headline-banner tone-${headline.tone}`} aria-label="Plain-language summary">
@@ -188,6 +218,12 @@ function ReportPageSummary({ headline }: { headline: ReportHeadline }) {
         )}
         <div className="headline-footer"><span className="headline-caveat">{headline.caveat}</span></div>
       </section>
+      <FindingsList
+        findings={findings}
+        evidenceArm={evidenceArm}
+        automation={automation}
+        glossaryHref={`${sitePagesBasePath()}/glossary/`}
+      />
     </div>
   );
 }

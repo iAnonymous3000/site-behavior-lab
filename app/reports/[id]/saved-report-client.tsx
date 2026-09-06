@@ -157,11 +157,12 @@ export function SavedReportClient({
               tabIndex={-1}
             >
               <div>
-                <p className="eyebrow">Detailed evidence</p>
+                <p className="eyebrow">Raw evidence</p>
                 <h2 id="full-evidence-title">Open the interactive evidence explorer</h2>
                 <p>
-                  Load request rows, domains, cookies, storage, browser signals, visit phases, charts, and CSV export
-                  only when you need them. The versioned report JSON remains available above without this interface.
+                  The findings above are built from the stored report. Load the request rows, domains, cookies,
+                  storage keys, browser signals, visit phases, charts and CSV export when you want to check them; the
+                  versioned report JSON is always available below without this interface.
                 </p>
               </div>
               <button className="primary-button" type="button" onClick={() => void loadEvidence()} disabled={loading}>
