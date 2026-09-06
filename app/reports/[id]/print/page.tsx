@@ -123,8 +123,8 @@ export default async function PrintableReportPage({ params }: { params: Promise<
         {/* This route renders no .app-footer, so the standing scope caveat the
             print stylesheet rescues there has to be stated here directly. */}
         <p className="app-footer-caveat">
-          Reports use one completed automated visit per condition. Reproducible for this configuration, not a
-          universal claim.
+          Reports record one automated visit per condition; visits may be incomplete. Results describe these visits,
+          not everything a site can do.
         </p>
       </main>
       <PrintEvidenceFooter

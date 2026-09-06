@@ -73,7 +73,7 @@ const FIXTURE_BODY = `<body>
     </main>
     <footer class="app-footer">
       <span class="app-footer-links" id="footerlinks"><a href="#">Glossary</a></span>
-      <span class="app-footer-caveat" id="caveat">Reports use one completed automated visit per condition.</span>
+      <span class="app-footer-caveat" id="caveat">Reports record one automated visit per condition; visits may be incomplete.</span>
     </footer>
   </div>
   <footer class="print-evidence-footer" id="printfooter">

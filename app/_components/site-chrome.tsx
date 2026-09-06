@@ -117,8 +117,8 @@ export function SiteChrome({
             </a>
           </span>
           <span className="app-footer-caveat">
-            Reports use one completed automated visit per condition. On restart-safe deployments, an interrupted visit
-            may be retried; attempts are never merged. Reproducible for this configuration, not a universal claim.
+            Reports record one automated visit per condition; visits may be incomplete. On restart-safe deployments,
+            an interrupted visit may be retried; attempts are never merged. Results describe these visits, not everything a site can do.
           </span>
         </footer>
       </div>
