@@ -4,6 +4,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { waitForDeployment } from "./verify-deployed-container.mjs";
 import {
   REPOSITORY, IMAGE_REPOSITORY, assertPublishedImageIdentity,
   validatePublishedContainer, validMainRun, attestationArgs, sha256, assertRegistryManifest
@@ -14,6 +15,127 @@ const tree = "2".repeat(40);
 const imageId = `sha256:${"3".repeat(64)}`;
 const reference = `${IMAGE_REPOSITORY}@sha256:${"4".repeat(64)}`;
 const configBytes = Buffer.from('{"name":"example"}\n');
+
+function rolloutClock() {
+  let elapsed = 0;
+  return {
+    expectedImage: reference, expectedCommit: commit, timeoutMs: 100, pollMs: 10,
+    now: () => elapsed, sleep: async (ms) => { elapsed += ms; }, onPending: () => {},
+    advance: (ms) => { elapsed += ms; }
+  };
+}
+
+test("rollout readback waits for delayed provider visibility and then the live revision", async () => {
+  const clock = rolloutClock();
+  let providerReads = 0, healthReads = 0;
+  const receipt = await waitForDeployment({ ...clock,
+    application: async () => ({ id: "production-app", image: ++providerReads < 3 ? "old-image" : reference }),
+    health: async () => ({ deployment: ++healthReads < 2 ? "old-revision" : commit })
+  });
+  assert.equal(clock.now(), 30);
+  assert.equal(providerReads, 4);
+  assert.equal(healthReads, 2);
+  assert.deepEqual({ ...receipt, observedAt: undefined }, {
+    observedAt: undefined, sourceCommit: commit, applicationId: "production-app", image: reference
+  });
+  assert.ok(Number.isFinite(Date.parse(receipt.observedAt)));
+});
+
+test("an already matching deployment returns without sleeping", async () => {
+  const receipt = await waitForDeployment({ ...rolloutClock(),
+    application: async () => ({ id: "production-app", image: reference }),
+    health: async () => ({ deployment: commit }),
+    sleep: async () => assert.fail("A converged rollout must not wait")
+  });
+  assert.equal(receipt.sourceCommit, commit);
+});
+
+test("matching observations from different attempts cannot establish convergence", async () => {
+  let providerReads = 0, healthReads = 0;
+  const clock = rolloutClock();
+  await assert.rejects(waitForDeployment({ ...clock,
+    application: async () => ({ id: "production-app", image: ++providerReads === 1 ? reference : "old-image" }),
+    health: async () => ({ deployment: ++healthReads === 1 ? "old-revision" : commit })
+  }), /did not converge.*old-image/);
+  assert.equal(healthReads, 1);
+  assert.equal(clock.now(), 100);
+});
+
+test("permanent identity mismatches and failed reads fail at the bounded deadline", async () => {
+  for (const overrides of [
+    { application: async () => ({ image: "wrong-image" }) },
+    { health: async () => ({ deployment: "wrong-revision" }) },
+    { application: async () => { throw new Error("provider unavailable"); } },
+    { health: async () => { throw new Error("health unavailable"); } }
+  ]) {
+    const clock = rolloutClock();
+    await assert.rejects(waitForDeployment({ ...clock,
+      application: async () => ({ id: "production-app", image: reference }),
+      health: async () => ({ deployment: commit }), ...overrides
+    }), /did not converge within 100ms/);
+    assert.equal(clock.now(), 100);
+  }
+});
+
+test("transient read errors do not prevent a later matching observation", async () => {
+  let reads = 0;
+  const receipt = await waitForDeployment({ ...rolloutClock(),
+    application: async () => {
+      if (++reads === 1) throw new Error("provider unavailable");
+      return { id: "production-app", image: reference };
+    },
+    health: async () => ({ deployment: commit })
+  });
+  assert.equal(reads, 2);
+  assert.equal(receipt.image, reference);
+});
+
+test("read time consumes the overall budget and late matching responses are refused", async () => {
+  const clock = rolloutClock();
+  const budgets = [];
+  await assert.rejects(waitForDeployment({ ...clock,
+    application: async (budget) => {
+      budgets.push(budget); clock.advance(70);
+      return { id: "production-app", image: reference };
+    },
+    health: async (budget) => { budgets.push(budget); clock.advance(30); return { deployment: commit }; }
+  }), /did not converge/);
+  assert.deepEqual(budgets, [100, 30]);
+  assert.equal(clock.now(), 100);
+});
+
+test("live readback rejects failed HTTP status, oversized bodies and duplicate JSON keys", async (t) => {
+  const cases = [
+    () => new Response(JSON.stringify({ deployment: commit }), { status: 503 }),
+    () => new Response(' '.repeat(256 * 1024 + 1)),
+    () => new Response(`{"deployment":"old","deployment":"${commit}"}`)
+  ];
+  for (const response of cases) {
+    t.mock.method(globalThis, "fetch", async () => response());
+    await assert.rejects(waitForDeployment({ ...rolloutClock(),
+      application: async () => ({ id: "production-app", image: reference })
+    }), /did not converge/);
+    t.mock.restoreAll();
+  }
+  t.mock.method(globalThis, "fetch", async (_url, options) => {
+    assert.equal(options.redirect, "error");
+    assert.equal(options.cache, "no-store");
+    assert.ok(options.signal instanceof AbortSignal);
+    return new Response(JSON.stringify({ deployment: commit }));
+  });
+  assert.equal((await waitForDeployment({ ...rolloutClock(),
+    application: async () => ({ id: "production-app", image: reference })
+  })).sourceCommit, commit);
+});
+
+test("invalid expected deployment identities are refused before provider or network access", async () => {
+  for (const patch of [{ expectedImage: IMAGE_REPOSITORY + ":latest" }, { expectedCommit: "main" }]) {
+    await assert.rejects(waitForDeployment({ ...rolloutClock(), ...patch,
+      application: async () => assert.fail("Must not read provider state")
+    }), { name: "AssertionError" });
+  }
+});
+
 function receipts() {
   const tested = {
     schemaVersion: 1, evidenceKind: "exact-source-and-tested-artifact-manifest",

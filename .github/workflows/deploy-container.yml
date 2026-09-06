@@ -24,7 +24,9 @@ jobs:
       github.ref == 'refs/heads/production' &&
       vars.SITE_BEHAVIOR_LAB_PREBUILT_CONTAINER_DEPLOY == '1'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Includes a bounded 20-minute provider/runtime convergence check. Cloudflare
+    # can drain an old process for 15 minutes after accepting the new image.
+    timeout-minutes: 25
     steps:
       - name: Checkout the promoted revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

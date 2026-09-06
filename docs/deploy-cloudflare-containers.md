@@ -32,6 +32,14 @@ The deployment records the provider's selected image and the live scanner SHA,
 then requests the existing independent Production Health scan and R2 canary.
 That separate health result is required before declaring a rollout verified.
 
+Cloudflare accepts a deployment before its container rollout finishes. The
+readback therefore polls for the exact provider image and live scanner revision
+in the same attempt, returning as soon as both match. It allows at most 20 minutes
+for convergence, including Cloudflare's documented maximum 15-minute process
+drain, and fails without a success receipt if either identity remains wrong or
+unavailable. This does not change the rollout strategy or stop running scans to
+accelerate deployment. See [Cloudflare's rollout lifecycle](https://developers.cloudflare.com/containers/configuration/rollouts/).
+
 ### One-time cutover
 
 1. Store a dedicated Cloudflare API token as the repository Actions secret

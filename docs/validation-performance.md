@@ -116,9 +116,29 @@ existing release-evidence schema: main CI publishes the already smoke-tested
 image, an isolated signer binds its registry digest to the original receipt,
 and the production workflow verifies that evidence before deployment. See the
 [cutover procedure](deploy-cloudflare-containers.md#production-deployment-from-the-tested-image).
-Until the credential and single-writer cutover are verified live, removal of
-the observed 25-minute Cloudflare rebuild remains an expected gain, not a
-measured result. The following cache-only boundary describes the earlier change.
+The credential and single-writer cutover were exercised on `9f5330d`:
+
+- [Main CI](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/34002782043)
+  built and checked the container in 15m10s, then spent 1m37s publishing the same
+  tested image. The complete Docker job, including smoke/security checks and
+  evidence handling, took 19m20s. All required main gates passed before promotion.
+- The scanner's Workers Builds Git connection was disconnected; Pages kept its
+  production connection. The prebuilt deployment workflow now owns scanner
+  deployments, using the existing registry and instance capacity.
+- The [first deployment](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/34003795125/attempts/1)
+  applied the image in seconds but failed its immediate readback while Cloudflare
+  still returned the previous digest. The scanner subsequently served `9f5330d`.
+  The verifier now waits for provider and runtime convergence with a deadline.
+- A [retry of the same image](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/34003795125/attempts/2)
+  completed its job in 47 seconds, including attestation verification, deployment,
+  exact digest/SHA readback, and independent health dispatch. It performed no
+  Docker build. This retry started after the image had already rolled out, so
+  47 seconds is **not** a measurement of a fresh rollout's convergence time.
+
+The preceding Workers build of `c6fa959` took 23m21s. Removing that duplicate build
+is demonstrated; a controlled end-to-end speedup and complete Pages/scanner health
+verification are separate measurements. The cache-only boundary below describes
+the earlier change.
 
 PR validation, trusted main validation, and Cloudflare deployment still have
 distinct source and trust contexts. This change does not promote PR artifacts
