@@ -171,10 +171,15 @@ test("a rejected URL stays a field problem instead of erasing the homepage", () 
   const home = source("app/site-behavior-app.tsx");
   const submit = hook.slice(hook.indexOf("function handleSubmit"), hook.indexOf("function useExample"));
 
-  // The corpus hero is gated on `!error`, and clearUrlNotice only clears urlError, so
-  // mirroring a typo into `error` announced it twice and deleted the hero until the
-  // next successful scan.
-  assert.match(home, /!loaded && !loading && !error && !pendingScanAdmission && \(\s*<CorpusHero/);
+  // The library (the corpus numbers, the featured cards and the actions) renders
+  // whenever no report is loading or loaded. It is deliberately NOT gated on
+  // `error`: a failed scan raises the recovery banner beside the library rather
+  // than deleting it, and clearUrlNotice only clears urlError, so mirroring a
+  // typo into `error` would have announced it twice. The contract is that no
+  // URL-field problem can reach either gate.
+  assert.match(home, /!loaded && !loading && !activeScanJob && !pendingScanAdmission && \(\s*<EmptyState/);
+  assert.match(home, /\{highlights && <CorpusHero highlights=\{highlights\} \/>\}/);
+  assert.doesNotMatch(home, /urlError[^\n]*<EmptyState|urlError[^\n]*<CorpusHero/);
   assert.match(submit, /setUrlError\("Enter a public URL to scan/);
   assert.match(submit, /setUrlError\("Enter a valid public URL/);
   assert.doesNotMatch(submit, /setError\(/, "URL validation must not raise the scan-recovery banner");

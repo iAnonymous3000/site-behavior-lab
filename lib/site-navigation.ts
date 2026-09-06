@@ -35,7 +35,7 @@ export type SiteNavLink = {
  */
 export const SITE_PRIMARY_NAV: readonly SiteNavLink[] = [
   { href: "/", label: "Scan" },
-  { href: "/directory/", label: "Directory" },
+  { href: "/directory/", label: "Sites" },
   { href: "/catalog/", label: "Catalog" },
   { href: "/methodology/", label: "Methodology" },
   { href: "/glossary/", label: "Glossary" }

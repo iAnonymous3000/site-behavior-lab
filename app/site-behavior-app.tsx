@@ -9,8 +9,7 @@ import {
   Keyboard,
   Loader2,
   Network,
-  Radar,
-  Shield
+  Radar
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
@@ -369,23 +368,27 @@ export function SiteBehaviorApp({
               <StaticPublicPanel onUploadReport={loadReportFile} onUploadError={surfaceReportOperationError} />
             )}
 
+            {/* What the reader gets for the URL they type, beside the control
+                that produces it. This column used to hold a decorative card
+                restating the methodology page's thesis; the checks are what
+                a first-time reader needs to decide whether to run one. */}
             <section className="method-card" aria-labelledby="method-card-title">
-              <div className="method-icon">
-                <Shield size={20} aria-hidden="true" />
-              </div>
-              <div>
-                <h2 id="method-card-title">Evidence, then interpretation</h2>
-                <p>
-                  Reports disclose their scan conditions and exactly which evidence families were captured or
-                  unsupported. Recorded signals describe one visit, not a verdict about the site.
-                </p>
-              </div>
+              <p className="eyebrow">One controlled visit records</p>
+              <h2 id="method-card-title">Evidence, then interpretation</h2>
+              <ul className="method-list">
+                {SCAN_CHECKS.map((check) => (
+                  <li key={check.label}>
+                    <strong>{check.label}</strong>
+                    <span>{check.question}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="method-note">
+                Every report records its own conditions and which evidence families were captured, censored or
+                unsupported. Signals describe one visit, not a verdict about the site.
+              </p>
             </section>
           </section>
-
-        {corpusHighlights && corpusHighlights.attemptedSiteCount > 0 && !loaded && !loading && !error && !pendingScanAdmission && (
-          <CorpusHero highlights={corpusHighlights} />
-        )}
 
         <ScanRecoveryBanner
           bannerRef={recoveryBannerRef}
@@ -416,6 +419,7 @@ export function SiteBehaviorApp({
               staticReports={staticReports}
               staticReportsError={staticReportsError}
               homepageDiscovery={homepageDiscovery}
+              corpusHighlights={corpusHighlights}
               archiveRequested={archiveRequested}
               onLoadArchive={() => void loadStaticArchive()}
             />
@@ -515,16 +519,14 @@ function StaticPublicPanel({
   );
 }
 
+/**
+ * The library's numbers, as a strip under the library heading rather than a
+ * hero of their own. Same class names as before: the print stylesheet hides
+ * this block by name, and the guard that pins that reads the class here.
+ */
 function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
   return (
-    <section className="corpus-hero" aria-labelledby="corpus-hero-title">
-      <p className="eyebrow">Transparency index</p>
-      <h2 id="corpus-hero-title">What websites actually load: measured, not claimed.</h2>
-      <p className="corpus-hero-lead">
-        The public library covers {plural(highlights.loadedSiteCount, "successfully loaded site")} from controlled
-        visits. Each report records request rows, cookie records, and service-catalog matches from one visit:
-        reproducible evidence, not a privacy score or verdict.
-      </p>
+    <div className="corpus-hero">
       {highlights.topCategories.length > 0 && (
         <div className="corpus-hero-cats">
           {highlights.topCategories.map((category) => (
@@ -539,14 +541,6 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
           </span>
         </div>
       )}
-      <div className="corpus-hero-actions">
-        <a className="primary-button" href={staticAssetPath("/directory/")}>
-          See the breakdown by category
-        </a>
-        <a className="secondary-button" href="#report">
-          Browse the report library
-        </a>
-      </div>
       <details className="corpus-counting-disclosure">
         <summary>How coverage and category medians are counted</summary>
         <p>
@@ -555,7 +549,7 @@ function CorpusHero({ highlights }: { highlights: CorpusHighlights }) {
             : "Every one of them was measured under a single methodology cohort."} Requests are also evaluated with the open-source <code>adblock-rust</code> engine and Brave&rsquo;s default filter lists.
         </p>
       </details>
-    </section>
+    </div>
   );
 }
 
@@ -570,6 +564,7 @@ function EmptyState({
   staticReports,
   staticReportsError,
   homepageDiscovery,
+  corpusHighlights,
   archiveRequested,
   onLoadArchive
 }: {
@@ -584,35 +579,57 @@ function EmptyState({
   staticReports: StaticReportManifestEntry[] | null;
   staticReportsError: string | null;
   homepageDiscovery: HomepageDiscovery | null;
+  corpusHighlights: CorpusHighlights | null;
   archiveRequested: boolean;
   onLoadArchive: () => void;
 }) {
   const latestReport = homepageDiscovery?.latestReport ?? null;
+  const highlights =
+    corpusHighlights && corpusHighlights.attemptedSiteCount > 0 ? corpusHighlights : null;
   const archiveToolsRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (archiveRequested) archiveToolsRef.current?.focus();
   }, [archiveRequested]);
 
+  // The library is the second half of the product and used to be presented
+  // as the scan form's empty state: an icon, "Explore measured evidence", and
+  // the featured cards inside it. A first-time reader arrives for the
+  // evidence more often than for the scanner, so it is a section with its
+  // own heading, counts, and actions, and the tools it also carried sit at
+  // the end where a returning reader knows to look.
   return (
-    <section className={`empty-state${staticExport ? " static-library-state" : ""}`}>
-      <div className="empty-icon">
-        <Radar size={28} aria-hidden="true" />
+    <section
+      className={`empty-state${staticExport ? " static-library-state" : ""}`}
+      aria-labelledby="library-title"
+    >
+      <div className="page-section-heading">
+        <div>
+          <p className="eyebrow">Public library</p>
+          <h2 id="library-title">
+            {homepageDiscovery
+              ? highlights
+                ? `${plural(highlights.loadedSiteCount, "site")} measured, ${plural(
+                    homepageDiscovery.reportCount,
+                    "report"
+                  )} on record`
+                : `${plural(homepageDiscovery.reportCount, "public report")} on record`
+              : liveScanEnabled
+                ? "Ready to scan"
+                : "Saved site reports"}
+          </h2>
+        </div>
+        <p>
+          {homepageDiscovery
+            ? liveScanEnabled
+              ? "Reproducible evidence from controlled visits, not a score. Open a report, or scan a site above."
+              : "Reproducible evidence from controlled visits, not a score. Open a report, or open one shared with you."
+            : liveScanEnabled
+              ? "Run a controlled browser visit and inspect the observable behavior from that one session."
+              : "Open a saved report, or open a report file someone shared with you."}
+        </p>
       </div>
-      <h2>{homepageDiscovery ? "Explore measured evidence" : liveScanEnabled ? "Ready to scan" : "Saved site reports"}</h2>
-      <p>
-        {homepageDiscovery
-          ? `${plural(homepageDiscovery.reportCount, "public report")} ${
-              homepageDiscovery.reportCount === 1 ? "is" : "are"
-            } available now. Open existing evidence instantly, or ${
-              liveScanEnabled
-                ? "scan a site above for a new controlled visit."
-                : "open a report file someone shared with you."
-            }`
-          : liveScanEnabled
-            ? "Run a controlled browser visit and inspect the observable behavior from that one session."
-            : "Open a saved report, or open a report file someone shared with you."}
-      </p>
+      {highlights && <CorpusHero highlights={highlights} />}
       {homepageDiscovery && <HomepageFeaturedGallery groups={homepageDiscovery.featuredGroups} />}
       <div className="homepage-discovery-actions">
         {latestReport && (
@@ -685,7 +702,7 @@ function HomepageFeaturedGallery({ groups }: { groups: HomepageFeaturedGroup[] }
       <div className="featured-heading">
         <p className="eyebrow">Start here</p>
         <h3 id="featured-title">Real sites, already scanned</h3>
-        <p>Each category gets a place before any category receives a second card.</p>
+        <p>One lead finding per site, from its newest retained visit. Each category gets a place before any category receives a second card.</p>
       </div>
       <div className="homepage-featured-groups">
         {groups.map((group) => (

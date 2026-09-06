@@ -93,6 +93,27 @@
      directly beneath it and anchor targets clear both, so all three read this
      rather than restating a number that only one of them updates. */
   --topbar-h: 60px;
+
+  /* Spacing and type scales, so a page picks a step instead of a number.
+     The stylesheet carried 12.5px, 13.5px, 15px and 16px body sizes and
+     5, 7, 9, 10, 14, 18, 22 and 24px gaps chosen page by page, which is why
+     two pages that mean the same thing never quite looked the same. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: clamp(26px, 3.4vw, 32px);
+  --text-display: clamp(30px, 4.8vw, 46px);
 }
 
 /* ---- Tokens: dark ---- */
@@ -382,14 +403,6 @@ a {
   white-space: nowrap;
 }
 
-.brand-tagline {
-  color: var(--text-subtle);
-  font-size: 12px;
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .eyebrow {
   color: var(--accent-strong);
@@ -508,6 +521,108 @@ a {
   color: var(--text);
 }
 
+/* ---- Page header (shared) ----
+   One pattern for every route: breadcrumb when the page has a parent, eyebrow,
+   the single <h1>, a lede, then the actions a reader can take. Data pages sit
+   at the content measure and prose pages at the prose measure; the header
+   itself is the same on both, which is the point. */
+.page-header {
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  padding: var(--space-1) 0 var(--space-5);
+}
+
+.page-header h1 {
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0;
+  max-width: 24ch;
+  overflow-wrap: anywhere;
+}
+
+.page-header .lede {
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 68ch;
+}
+
+.page-header .lede + .lede {
+  margin-top: calc(var(--space-1) * -1);
+}
+
+.page-meta {
+  color: var(--text-subtle);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.page-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.page-breadcrumbs {
+  color: var(--text-subtle);
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-4);
+}
+
+.page-breadcrumbs ol {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.page-breadcrumbs a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.page-breadcrumbs a:hover {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* A section inside a page: eyebrow, heading, one line of context. The
+   directory, category, site-history and status pages each drew their own. */
+.page-section-heading {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.page-section-heading h2 {
+  font-size: var(--text-2xl);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: var(--space-1) 0 0;
+}
+
+.page-section-heading > p {
+  color: var(--text-subtle);
+  font-size: var(--text-sm);
+  margin: 0;
+  max-width: 48ch;
+}
+
 /* ---- Cards (shared) ---- */
 .scan-panel,
 .method-card,
@@ -554,36 +669,15 @@ a {
 }
 
 .corpus-hero {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  margin-bottom: 18px;
-  padding: 28px 28px 24px;
-}
-
-.corpus-hero h2 {
-  font-size: clamp(24px, 4vw, 34px);
-  letter-spacing: -0.02em;
-  line-height: 1.12;
-  margin: 6px 0 10px;
-  max-width: 22ch;
-}
-
-.corpus-hero-lead {
-  color: var(--text-muted);
-  font-size: 15px;
-  line-height: 1.5;
-  margin: 0 0 18px;
-  max-width: 68ch;
+  display: grid;
+  gap: var(--space-3);
 }
 
 .corpus-hero-cats {
   align-items: flex-end;
-  border-top: 1px solid var(--border);
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
-  padding-top: 18px;
+  gap: var(--space-5);
 }
 
 .corpus-hero-cat {
@@ -612,18 +706,8 @@ a {
   margin-left: auto;
 }
 
-.corpus-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
-}
-
 .corpus-counting-disclosure {
-  border-top: 1px solid var(--border);
   color: var(--text-muted);
-  margin-top: 18px;
-  padding-top: 14px;
 }
 
 .corpus-counting-disclosure summary {
@@ -641,10 +725,11 @@ a {
 }
 
 .scan-workbench {
+  align-items: start;
   display: grid;
-  gap: 16px;
+  gap: var(--space-4);
   grid-template-columns: minmax(0, 1fr) 340px;
-  margin-bottom: 18px;
+  margin-bottom: var(--space-4);
 }
 
 .scan-panel {
@@ -1200,38 +1285,52 @@ a {
 
 /* ---- Method card ---- */
 .method-card {
-  align-items: flex-start;
-  display: flex;
-  gap: 14px;
-  padding: 18px;
-}
-
-.method-icon {
-  align-items: center;
-  background: var(--accent-soft);
-  border-radius: 10px;
-  color: var(--accent-strong);
-  display: inline-flex;
-  flex: 0 0 auto;
-  height: 40px;
-  justify-content: center;
-  width: 40px;
+  align-self: start;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-4);
 }
 
 .method-card h2 {
-  font-size: 15px;
+  font-size: var(--text-md);
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
-.method-card p {
+.method-list {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.method-list li {
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 2px;
+  padding-top: var(--space-2);
+}
+
+.method-list strong {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.method-list span,
+.method-note {
   color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.55;
-  margin: 7px 0 0;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.method-note {
+  border-top: 1px solid var(--border);
+  margin: 0;
+  padding-top: var(--space-2);
 }
 
 /* ---- States ---- */
-.empty-state,
 .loading-state {
   align-items: center;
   display: flex;
@@ -1241,39 +1340,29 @@ a {
   text-align: center;
 }
 
-.empty-icon {
-  align-items: center;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  color: var(--accent);
-  display: inline-flex;
-  height: 60px;
-  justify-content: center;
-  margin-bottom: 6px;
-  width: 60px;
-}
-
-.empty-state h2,
 .loading-state h2 {
   font-size: 19px;
   margin: 0;
 }
 
-.empty-state p,
+/* The library: the corpus's numbers, the featured cards and the actions under
+   one heading. It used to be the scan form's empty state, centred around an
+   icon, with the cards nested inside. */
+.empty-state {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.empty-state > .page-section-heading {
+  margin-bottom: 0;
+}
+
 .loading-state p,
 .muted {
   color: var(--text-muted);
   line-height: 1.55;
   margin: 4px 0 0;
-}
-
-.static-library-state {
-  padding-top: 40px;
-}
-
-.static-library-state > p {
-  max-width: 620px;
 }
 
 .static-action-row {
@@ -2643,7 +2732,7 @@ a {
 }
 
 .homepage-featured-gallery {
-  margin-top: 20px;
+  margin: 0;
   text-align: left;
   width: 100%;
 }
@@ -2812,14 +2901,11 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  justify-content: center;
-  margin-top: 14px;
 }
 
 .homepage-tools-disclosure {
   border-top: 1px solid var(--border);
-  margin-top: 22px;
-  padding-top: 16px;
+  padding-top: var(--space-4);
   text-align: left;
   width: 100%;
 }
@@ -4813,6 +4899,29 @@ details[open] > summary .disclosure-chevron {
 }
 
 @media (max-width: 720px) {
+  /* Two columns of example chips instead of six stacked rows, which filled a
+     phone screen before the reader reached the run controls. */
+  .scan-examples {
+    display: grid;
+    gap: var(--space-1) var(--space-2);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scan-examples > span {
+    grid-column: 1 / -1;
+  }
+
+  .scan-examples button {
+    min-width: 0;
+  }
+
+  .scan-examples button small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
   /* The gutter itself, not the padding. `.app-shell > .topbar` is full-bleed
      via `margin-inline: calc(var(--gutter) * -1)`; overriding the padding with
      a literal left the bar cancelling 24px of a 14px gutter and pushed the page
@@ -4868,12 +4977,6 @@ details[open] > summary .disclosure-chevron {
     --topbar-h: 96px;
   }
 
-  /* The tagline is the page heading's job on the home route and dead weight
-     everywhere else once the bar has to fit a phone. */
-  .brand-tagline {
-    display: none;
-  }
-
   /* One column: the two-column grid stranded the timestamp alone against the
      right edge under a heading that had already wrapped. */
   .report-identity {
@@ -4927,7 +5030,6 @@ details[open] > summary .disclosure-chevron {
     flex-direction: column;
   }
 
-  .corpus-hero-actions,
   .homepage-discovery-actions,
   .public-mode-actions,
   .static-action-row,
@@ -4937,8 +5039,6 @@ details[open] > summary .disclosure-chevron {
     flex-direction: column;
   }
 
-  .corpus-hero-actions .primary-button,
-  .corpus-hero-actions .secondary-button,
   .homepage-discovery-actions .primary-button,
   .homepage-discovery-actions .secondary-button,
   .public-mode-actions .primary-button,
@@ -5139,8 +5239,6 @@ details[open] > summary .disclosure-chevron {
   /* Ubuntu's system font is slightly wider than macOS at this breakpoint.
      Let full-width actions shrink below their label's intrinsic width instead
      of pushing the page a few pixels past the viewport. */
-  .corpus-hero-actions > .primary-button,
-  .corpus-hero-actions > .secondary-button,
   .static-action-row > .primary-button,
   .static-action-row > .secondary-button {
     max-width: 100%;
