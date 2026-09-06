@@ -702,6 +702,10 @@ async function main() {
     await expectText(noScriptPage.locator(".report-identity"), "https://");
     await expectText(noScriptPage.locator("h1"), firstReport.domain);
     await expectText(noScriptPage.locator(".headline-title"), firstReport.headline);
+    await expectText(noScriptPage.locator(".findings-board"), "What this visit means");
+    if (await noScriptPage.locator(".findings-board .finding-card").count() === 0) {
+      fail("saved report findings are absent without JavaScript");
+    }
 
     const phaseReportHtmlPath = path.join(outDir, "reports", phaseReport.id, "index.html");
     const phaseReportHtml = await readFile(phaseReportHtmlPath, "utf8");
@@ -711,6 +715,24 @@ async function main() {
     await expectText(noScriptPage.getByRole("link", { name: "Open report JSON" }), "Open report JSON");
     await noScriptContext.close();
     pass("static report permalink ships a compact summary and direct download without JavaScript");
+
+    await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
+    const summaryFindings = await page.locator(".findings-board .finding-card").allTextContents();
+    const findingLink = page.locator('.findings-board a[href^="#evidence="]').first();
+    const findingHash = await findingLink.getAttribute("href");
+    if (!findingHash) fail("saved report findings expose no evidence navigation");
+    await findingLink.click();
+    await page.locator(".report-focus-target").waitFor();
+    if (new URL(page.url()).hash !== findingHash) fail("finding link lost its evidence destination");
+    await page.waitForFunction(
+      (expected) => JSON.stringify([...document.querySelectorAll(".findings-board .finding-card")].map(card => card.textContent)) === JSON.stringify(expected),
+      summaryFindings
+    );
+    const explorerFindings = await page.locator(".findings-board .finding-card").allTextContents();
+    if (JSON.stringify(summaryFindings) !== JSON.stringify(explorerFindings)) {
+      fail("saved report summary and loaded explorer disagree on their findings");
+    }
+    pass("server-rendered findings agree with the explorer and open their evidence");
 
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const exploreEvidence = page.getByRole("button", { name: "Explore full evidence" });
@@ -741,7 +763,8 @@ async function main() {
     if (!profileKey) fail(`cannot derive a canonical site profile from ${firstReport.domain}`);
     await page.goto(`${baseUrl}/sites/${encodeURIComponent(profileKey)}/`, { waitUntil: "networkidle" });
     await expectText(page.locator("h1"), profileKey);
-    await expectText(page.locator(".site-profile-page"), "Curated public corpus");
+    await expectText(page.locator(".site-profile-page .page-meta"), "contains reviewed reports published into the curated public corpus");
+    await expectText(page.locator(".site-profile-page .page-meta"), "a live rescan remains a standalone share report");
     const latestEvidenceHref = await page.getByRole("link", { name: "Open latest evidence" }).getAttribute("href");
     if (!latestEvidenceHref?.includes(`/reports/${firstReport.id}/`)) fail("site profile latest-evidence link is stale");
     const rescanHref = await page.getByRole("link", { name: "Scan this exact route again" }).getAttribute("href");
@@ -986,16 +1009,44 @@ async function main() {
     }
     await page.goto(`${baseUrl}/directory/`, { waitUntil: "networkidle" });
     await assertNoHorizontalOverflow(page, "static narrow-mobile directory");
-    const categorySelect = page.getByLabel("Browse a category");
-    const firstCategoryPath = await categorySelect.locator('option:not([value=""])').first().getAttribute("value");
-    if (!firstCategoryPath) fail("directory exposes no browsable category option");
     const directoryUrlBeforeSelection = page.url();
-    await categorySelect.selectOption(firstCategoryPath);
-    if (page.url() !== directoryUrlBeforeSelection) fail("directory category selection navigated without submit");
-    await page.getByRole("button", { name: "Browse category" }).click();
-    await page.waitForURL((url) => url.pathname.endsWith(firstCategoryPath));
+    const search = page.getByRole("searchbox", { name: "Find a site" });
+    const searchBox = await search.boundingBox();
+    if (!searchBox || searchBox.height > 64) fail("directory search stretches vertically on a narrow screen");
+    const siteRows = page.locator("table tbody tr");
+    const totalSiteRows = await siteRows.count();
+    const firstProfileHref = await siteRows.first().locator("th a").first().getAttribute("href");
+    const searchDomain = decodeURIComponent(firstProfileHref?.split("/").filter(Boolean).at(-1) ?? "");
+    if (!searchDomain) fail("directory has no searchable site profile");
+    for (const query of [searchDomain.toUpperCase(), `https://www.${searchDomain}/path?q=1#details`, `www.${searchDomain}/path`]) {
+      await search.fill(query);
+      await expectText(page.locator("#directory-search-status"), "1 matching site in the table below.");
+      if (await siteRows.count() !== 1) fail(`directory query ${query} disagrees with its matching count`);
+      if (await siteRows.first().locator("th a").first().getAttribute("href") !== firstProfileHref) {
+        fail("directory URL search returned a different site");
+      }
+      if (page.url() !== directoryUrlBeforeSelection) fail("directory search navigated on input");
+      if (await page.getByRole("search").getByRole("link").getAttribute("href") !== firstProfileHref) {
+        fail("directory exact-profile shortcut disagrees with the matching row");
+      }
+    }
+    await search.fill("no-such-site.invalid");
+    await expectText(page.locator("#directory-search-status"), "No scanned site matches.");
+    if (await siteRows.count() !== 0) fail("unmatched directory search retained stale rows");
+    await search.fill("");
+    await page.waitForFunction((count) => document.querySelectorAll("table tbody tr").length === count, totalSiteRows);
+    await assertNoHorizontalOverflow(page, "cleared narrow directory search");
+    await assertNoSeriousAxeViolations(page, "narrow directory search");
+    pass("directory URL search, matching count, empty state and profile shortcut agree without navigating");
+    const categoryLinks = page.getByRole("navigation", { name: "Browse a category" }).getByRole("link");
+    await assertMinimumTargetSize(categoryLinks, 34, "narrow category links");
+    const categoryLink = categoryLinks.first();
+    const firstCategoryPath = await categoryLink.getAttribute("href");
+    if (!firstCategoryPath) fail("directory exposes no browsable category link");
+    await categoryLink.click();
+    await page.waitForURL((url) => url.pathname === firstCategoryPath);
     await assertNoSeriousAxeViolations(page, "narrow category directory route");
-    pass("directory category navigation waits for explicit submit");
+    pass("directory category navigation follows an explicit link");
     pass("static directory fits a 320px viewport");
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const narrowReceiptDetails = page.locator("details.evidence-receipt-details");

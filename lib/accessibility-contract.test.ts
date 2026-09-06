@@ -72,12 +72,17 @@ test("the one shell exposes banner, main, and contentinfo as sibling landmarks",
   assert.match(home, /<section className="method-card" aria-labelledby="method-card-title">/);
 });
 
-test("directory selections wait for an explicit submit action", () => {
+test("directory input filters in place and never navigates on change", () => {
+  // A change filters the table the reader is looking at; only a link moves.
+  // The former controls navigated from a select and from the first search
+  // match on submit, which is why this guard used to pin a submit button.
   const controls = source("app/directory/directory-controls.tsx");
-  assert.doesNotMatch(controls, /useRouter/);
-  assert.match(controls, /<form className=\{`\$\{styles\.categoryControl\} \$\{styles\.searchForm\}`\} onSubmit=\{openSelectedCategory\}>/);
-  assert.match(controls, /<button disabled=\{!selectedCategory\} type="submit">Browse category<\/button>/);
+  assert.doesNotMatch(controls, /useRouter|window\.location|<form/);
+  assert.match(controls, /onChange=\{\(event\) => setQuery\(event\.target\.value\)\}/);
+  assert.match(controls, /<SiteEvidenceTable caption=\{caption\} externalQuery=\{normalizedQuery\} rows=\{rows\} \/>/);
   assert.match(controls, /id="directory-search-status" role="status"/);
+  // Categories are links in the page header, not a select.
+  assert.match(source("app/directory/directory-index.tsx"), /<nav className="category-chips" aria-label="Browse a category">/);
 });
 
 test("essential explanations and errors do not depend on pointer-only title tooltips", () => {

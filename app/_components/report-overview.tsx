@@ -11,10 +11,8 @@ import {
   Database,
   ExternalLink,
   Eye,
-  FileText,
   Fingerprint,
   Globe2,
-  Keyboard,
   Network,
   Radar,
   Shield,
@@ -22,16 +20,16 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { clientReportRuntime, staticAssetPath } from "../client-runtime";
+import { FindingsList } from "./findings-list";
 import {
   LatestClientOperation,
   MAX_CORPUS_STATS_JSON_BYTES,
   fetchJsonWithPolicy
 } from "@/lib/client-fetch-policy";
 import { isCorpusStats, type CorpusStats } from "@/lib/corpus-stats";
-import { buildFindings, type FindingIconKey } from "@/lib/report-findings";
+import { buildFindings } from "@/lib/report-findings";
 import type { HeadlineTone, ReportHeadline } from "@/lib/report-headline";
 import {
-  REPORT_SEVERITY_LABELS,
   claimCountValue,
   retainedCountLabel,
   type ReportFacts,
@@ -39,7 +37,6 @@ import {
 } from "@/lib/report-facts";
 import {
   buildEvidenceHash,
-  findingEvidenceLink,
   renderedEvidenceArm,
   requestTimingSummary,
   type EvidenceArm
@@ -260,21 +257,6 @@ function useCorpusStats(): CorpusStats | null {
   return corpus;
 }
 
-// Maps the findings engine's React-free icon keys to lucide components.
-const FINDING_ICONS: Record<FindingIconKey, typeof Eye> = {
-  globe: Globe2,
-  network: Network,
-  radar: Radar,
-  cookie: Cookie,
-  eye: Eye,
-  keyboard: Keyboard,
-  fingerprint: Fingerprint,
-  "shield-check": ShieldCheck,
-  check: CheckCircle2,
-  alert: AlertTriangle,
-  "file-text": FileText
-};
-
 export function FindingsBoard({
   view,
   facts,
@@ -291,56 +273,12 @@ export function FindingsBoard({
   const findings = buildFindings(view, corpus, facts, evidenceArm);
 
   return (
-    <section className="findings-board" id="findings">
-      <div className="findings-heading">
-        <div>
-          <p className="eyebrow">Plain-Language Findings</p>
-          <h2>What this visit means</h2>
-          <a className="glossary-link" href={staticAssetPath("/glossary/")}>
-            Unfamiliar terms are defined in the glossary
-          </a>
-        </div>
-        <span>{facts.display.run.conditions.automation}</span>
-      </div>
-      <div className="finding-list">
-        {findings.map((finding) => {
-          const Icon = FINDING_ICONS[finding.icon];
-          const evidenceLink = findingEvidenceLink(finding.id, evidenceArm);
-          return (
-            <article className={`finding-card tile-${finding.level}`} key={finding.id}>
-              <div className="finding-icon">
-                <Icon size={18} aria-hidden="true" />
-              </div>
-              <div>
-                {/* The card's rank had exactly one channel: a hue on the left
-                    border and the icon tint. The icon itself is chosen per
-                    FINDING, not per level, so five levels shared no shape and no
-                    text, and the prose never states the rank. Naming it is the
-                    second channel WCAG 1.4.1 asks for, and it also lets a reader
-                    scan the board for what matters without decoding colour. */}
-                <p className="finding-level">{REPORT_SEVERITY_LABELS[finding.level]}</p>
-                <h3>{finding.title}</h3>
-                <p className="finding-lead">{finding.lead}</p>
-                <p>{finding.detail}</p>
-                <div className="finding-meta">
-                  <span>{finding.evidence}</span>
-                  {finding.benchmark && <span>{finding.benchmark}</span>}
-                  {evidenceLink && (
-                    <a
-                      className="glossary-link"
-                      href={buildEvidenceHash(evidenceLink.target)}
-                      aria-label={`${evidenceLink.label} for ${finding.title}`}
-                    >
-                      {evidenceLink.label}
-                    </a>
-                  )}
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </section>
+    <FindingsList
+      findings={findings}
+      evidenceArm={evidenceArm}
+      automation={facts.display.run.conditions.automation}
+      glossaryHref={staticAssetPath("/glossary/")}
+    />
   );
 }
 

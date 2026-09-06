@@ -105,7 +105,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
   return (
     <SiteChrome activePath="/directory/">
       <div className="site-profile-page">
-      <nav className="report-breadcrumbs" aria-label="Breadcrumb">
+      <nav className="page-breadcrumbs" aria-label="Breadcrumb">
         <ol>
           <li><Link href="/">Home</Link></li>
           <li aria-hidden="true">/</li>
@@ -114,28 +114,28 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
           <li aria-current="page">{displayHost(profile.domain)}</li>
         </ol>
       </nav>
-      <header className="site-profile-header">
+      <header className="page-header">
         <p className="eyebrow">Curated public corpus · Site history</p>
         <h1>{displayHost(profile.domain)}</h1>
-        <p>{latest.headline}</p>
-        <div className="site-profile-actions">
+        <p className="lede">{latest.headline}</p>
+        <p className="page-meta">
+          {profile.entries.length} {profile.entries.length === 1 ? "report" : "reports"} retained. This timeline
+          contains reviewed reports published into the curated public corpus; a live rescan remains a standalone
+          share report until a later corpus publication includes it.
+        </p>
+        <div className="page-actions">
           <Link className="primary-button" href={rescanHref}>
             {exactRescanUrl ? "Scan this exact route again" : "Scan this site again"}
           </Link>
           <Link className="secondary-button" href={`${reportPagePath(latest.id)}/`}>
             Open latest evidence
           </Link>
-          <a className="topbar-link" href="#history">Browse report history</a>
+          <a className="topbar-link" href="#history">Report history</a>
           <a className="topbar-link" href={`${sitePagesBasePath()}${siteProfilePath(profile.domain)}/feed.xml`}>
             Atom feed
           </a>
         </div>
       </header>
-
-      <p className="site-profile-note">
-        This timeline contains reviewed reports published into the curated public corpus. A live rescan remains a
-        standalone share report until a later corpus publication includes it.
-      </p>
 
       <section className={`site-profile-current tone-${latest.tone}`} aria-labelledby="current-title">
         <div>
@@ -211,22 +211,55 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
             } listed below rather than joined to one line.`}
           </p>
         )}
-        <ol className="site-history-list">
-          {profile.entries.map((entry) => (
-            <li key={entry.id}>
-              <Link href={`${reportPagePath(entry.id)}/`}>
-                <span><strong>{formatDate(entry.scannedAt)}</strong> · {reportKindLabel(entry)} · {entry.device}</span>
-                <span>{entry.headline}</span>
-                <small>
-                  {!entry.requestEvidenceComplete && "at least "}{entry.thirdPartyRequests.toLocaleString()} third-party requests · {!entry.requestEvidenceComplete && "at least "}{entry.trackerRequests.toLocaleString()} third-party tracking-service requests · schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}
-                  {!entry.requestEvidenceComplete && (
-                    <> · <IncompleteEvidenceChip capped={entry.capped} failed={entry.runOutcome !== "complete"} /></>
-                  )}
-                </small>
-              </Link>
-            </li>
-          ))}
-        </ol>
+        {/* A table, not a list of cards. Seven cards for github.com carried
+            the identical headline sentence seven times while the numbers that
+            differ between visits sat in their small print; a reader comparing
+            visits reads down a column. The lead finding for each visit is
+            still one click away on the report itself. */}
+        <div className="site-history-table-wrap">
+          <table className="site-history-table">
+            <caption className="visually-hidden">
+              Every retained report for {displayHost(profile.domain)}, newest first: its date, what kind of visit
+              it was, its request counts as recorded, its third-party cookie count and its schema. Its request
+              counts are lower bounds where the visit was incomplete.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Visit</th>
+                <th scope="col">Kind</th>
+                <th scope="col" className="num">Third-party requests</th>
+                <th scope="col" className="num">Third-party tracking-service requests</th>
+                <th scope="col" className="num">Third-party cookies</th>
+                <th scope="col">Schema</th>
+              </tr>
+            </thead>
+            <tbody>
+              {profile.entries.map((entry) => (
+                <tr key={entry.id}>
+                  <th scope="row">
+                    <Link href={`${reportPagePath(entry.id)}/`}>{formatDate(entry.scannedAt)}</Link>
+                    {!entry.requestEvidenceComplete && (
+                      <div>
+                        <IncompleteEvidenceChip capped={entry.capped} failed={entry.runOutcome !== "complete"} />
+                      </div>
+                    )}
+                  </th>
+                  <td>{reportKindLabel(entry)} · {entry.device}</td>
+                  <td className="num">
+                    {!entry.requestEvidenceComplete && "at least "}{entry.thirdPartyRequests.toLocaleString()}
+                  </td>
+                  <td className="num">
+                    {!entry.requestEvidenceComplete && "at least "}{entry.trackerRequests.toLocaleString()}
+                  </td>
+                  <td className="num">
+                    {entry.cookieEvidenceComplete ? entry.thirdPartyCookies.toLocaleString() : "Not measured"}
+                  </td>
+                  <td>schema {entry.schemaVersion}{entry.schemaRevision ? `.r${entry.schemaRevision}` : ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
       </div>
     </SiteChrome>

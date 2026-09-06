@@ -65,9 +65,11 @@ export function SiteChrome({
             <span className="brand-mark">
               <FlaskConical size={20} aria-hidden="true" />
             </span>
+            {/* The wordmark alone. The thesis sentence that used to sit under it
+                on every route is the homepage's <h1>, and everywhere else it
+                competed with the page's own heading for the same line. */}
             <span className="brand-text">
               <span className="brand-name">Site Behavior Lab</span>
-              <span className="brand-tagline">See what a site does, not just what it says.</span>
             </span>
           </a>
           {/* A direct child of the header, not nested inside the actions: on a
