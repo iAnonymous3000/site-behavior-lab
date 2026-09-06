@@ -343,10 +343,14 @@ function securityEvent({
 
 async function completeCapture({
   candidateCommit = CANDIDATE,
-  repositoryRoot = process.cwd()
+  repositoryRoot = process.cwd(),
+  failedPostStatus,
+  recordObservation = () => undefined
 }: {
   candidateCommit?: string;
   repositoryRoot?: string;
+  failedPostStatus?: number;
+  recordObservation?: (observation: Record<string, unknown>) => void;
 } = {}) {
   const hosted = await script("waf-hosted-capture-lib.mjs");
   let clock = Date.parse("2026-08-01T16:00:00.000Z");
@@ -432,10 +436,11 @@ async function completeCapture({
     if (count === 11) {
       eventTimes.set(routeId, new Date(clock).toISOString());
       return new Response(null, {
-        status: 429,
+        status: routeId === "post-admission" ? failedPostStatus ?? 429 : 429,
         headers: {
           "cf-ray": `${routeId === "get-admission" ? GET_RAY : POST_RAY}-SJC`,
-          "retry-after": "10"
+          "retry-after": "10",
+          "set-cookie": "private-provider-cookie"
         }
       });
     }
@@ -448,6 +453,7 @@ async function completeCapture({
     rulesToken: RULES_TOKEN,
     analyticsToken: ANALYTICS_TOKEN,
     fetchImpl,
+    recordObservation,
     persistRaw: async (name: string, bytes: Uint8Array) => {
       assert.equal(raw.has(name), false);
       raw.set(name, Buffer.from(bytes));
@@ -462,6 +468,17 @@ async function completeCapture({
   });
   return { captured, providerRequests, raw, hosted };
 }
+
+test("failed WAF ceilings retain actual response observations without becoming passing evidence", async () => {
+  const observations: Record<string, unknown>[] = [];
+  await assert.rejects(completeCapture({ failedPostStatus: 400, recordObservation: (row) => observations.push(row) }), /must be exactly 429/);
+  assert.equal(observations.length, 22);
+  assert.equal(observations.at(-1)?.status, 400);
+  assert.equal(observations.at(-1)?.routeId, "post-admission");
+  assert.equal(observations.at(-1)?.ordinal, 11);
+  assert.deepEqual(Object.keys(observations[0]).sort(), ["observedAt", "ordinal", "retryAfterSeconds", "routeId", "status"]);
+  assert.doesNotMatch(JSON.stringify(observations), /private-provider-cookie|cf-ray|authorization|https:\/\//);
+});
 
 function testSha256(value: Buffer | string) {
   return createHash("sha256").update(value).digest("hex");

@@ -161,6 +161,7 @@ async function capture(options) {
   );
 
   const persistRaw = createPrivateSink(privateDirectory);
+  const observations = [];
   let captured;
   let captureError;
   try {
@@ -169,7 +170,8 @@ async function capture(options) {
       zoneId: environment.zoneId,
       rulesToken: environment.rulesToken,
       analyticsToken: environment.analyticsToken,
-      persistRaw
+      persistRaw,
+      recordObservation: (observation) => observations.push(observation)
     });
   } catch (error) {
     captureError = error;
@@ -187,7 +189,20 @@ async function capture(options) {
       }`
     );
   }
-  if (captureError) throw captureError;
+  if (captureError) {
+    // Private destruction succeeded above. This intentionally has neither a
+    // release receipt nor a provider manifest; archive/readiness cannot accept
+    // it as passing evidence. Do not serialize the error or response bodies.
+    mkdirSync(outputDirectory, { recursive: false, mode: 0o700 });
+    writeFileSync(path.join(outputDirectory, "failure.json"), `${JSON.stringify({
+      schemaVersion: 1,
+      artifactKind: "site-behavior-waf-failed-capture-diagnostic",
+      releaseEvidence: false,
+      candidateCommit,
+      observations
+    }, null, 2)}\n`, { flag: "wx", mode: 0o600 });
+    throw captureError;
+  }
   const result = writeSafeDirectory(outputDirectory, captured);
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }

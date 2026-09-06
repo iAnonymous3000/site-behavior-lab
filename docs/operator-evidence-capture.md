@@ -228,6 +228,14 @@ the exact `site-behavior-waf-ceiling-evidence-<run_id>-<run_attempt>` artifact.
 Release readiness accepts the WAF receipt only when this authenticated archive
 is digest-enumerated by the measurement carrier.
 
+Failed hosted attempts keep a separate `site-behavior-waf-ceiling-failure-*`
+artifact after private-response destruction succeeds. Its `failure.json`
+contains only the candidate, fixed route identifiers, attempt ordinals,
+timestamps, HTTP statuses and numeric Retry-After values. It preserves the
+actual unexpected response even when transcript validation fails. It contains
+no response bodies, credentials, raw Ray IDs or release receipt and cannot
+satisfy readiness. The workflow still fails on the original contradiction.
+
 ## Bounded, redacted log queries
 
 Export the provider readback to a file outside the repository. The capture

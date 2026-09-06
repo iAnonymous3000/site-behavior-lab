@@ -751,7 +751,7 @@ async function readRuleset({
   return parseCloudflareRulesetBytes(bytes);
 }
 
-function privateRayCapturingFetch(fetchImpl, privateRayIds) {
+function privateRayCapturingFetch(fetchImpl, privateRayIds, recordObservation, now) {
   const counts = new Map();
   return async (input, init) => {
     const url = new URL(input);
@@ -764,21 +764,33 @@ function privateRayCapturingFetch(fetchImpl, privateRayIds) {
     const count = (counts.get(route.id) ?? 0) + 1;
     counts.set(route.id, count);
     const response = await fetchImpl(input, init);
-    if (count === 11) {
-      privateRayIds.push(
-        normalizeBaseRayId(
-          response.headers.get("cf-ray"),
-          `${route.id} request 11 Cf-Ray`
-        )
-      );
+    try {
+      // Record only fixed fields before correlation/receipt validation can
+      // fail. A failed eleventh response is still an observation to preserve.
+      const retryAfter = response.headers.get("retry-after");
+      recordObservation({
+        routeId: route.id,
+        ordinal: count,
+        observedAt: currentInstant(now),
+        status: response.status,
+        retryAfterSeconds: /^[0-9]{1,4}$/.test(retryAfter ?? "") ? Number(retryAfter) : null
+      });
+      if (count === 11) {
+        privateRayIds.push(
+          normalizeBaseRayId(
+            response.headers.get("cf-ray"),
+            `${route.id} request 11 Cf-Ray`
+          )
+        );
+      }
+      return new Response(null, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers
+      });
+    } finally {
+      cancelResponseBodyDetached(response);
     }
-    const safeResponse = new Response(null, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers
-    });
-    cancelResponseBodyDetached(response);
-    return safeResponse;
   };
 }
 
@@ -927,6 +939,7 @@ export async function captureHostedWafEvidence({
   analyticsToken,
   fetchImpl = globalThis.fetch,
   persistRaw = async () => undefined,
+  recordObservation = () => undefined,
   now = () => new Date(),
   wait = (milliseconds) =>
     new Promise((resolve) => setTimeout(resolve, milliseconds)),
@@ -952,6 +965,7 @@ export async function captureHostedWafEvidence({
   );
   requireValue(typeof fetchImpl === "function", "a fetch implementation is required");
   requireValue(typeof persistRaw === "function", "a private raw-byte sink is required");
+  requireValue(typeof recordObservation === "function", "an observation sink is required");
   requireValue(
     Number.isSafeInteger(eventPollAttempts) &&
       eventPollAttempts >= 1 &&
@@ -985,7 +999,7 @@ export async function captureHostedWafEvidence({
       get: { headers: {} },
       post: { headers: {} }
     },
-    fetchImpl: privateRayCapturingFetch(fetchImpl, privateRayIds),
+    fetchImpl: privateRayCapturingFetch(fetchImpl, privateRayIds, recordObservation, now),
     now,
     wait
   });
