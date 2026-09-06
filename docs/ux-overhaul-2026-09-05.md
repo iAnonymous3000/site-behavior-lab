@@ -140,3 +140,41 @@ One commit per route or component group; each leaves both builds green.
 6. Site history timeline.
 7. Remaining pages onto the shared header; the status-page defect.
 8. Print pass, axe on every route in both themes, after-screenshots.
+
+## 8. Record of what changed
+
+Implemented on `ux-overhaul-2026-09-05`, one commit per step, each leaving
+both builds green.
+
+| Step | What changed | Measured |
+|---|---|---|
+| Tokens and shell | Spacing and type scales; a shared page header, breadcrumb and section heading; the top-bar tagline removed on every route; "Directory" renamed "Sites". | Homepage at 1280 wide: 2,760 px to 2,519 px. |
+| Home | One hero (thesis, form, the seven checks beside it); the library as a section with its own heading, the coverage and category numbers as a strip, the featured cards, the actions; tools disclosure last; example chips in two columns on a phone. | The mobile arrival screen reaches the run controls without scrolling past six stacked example rows. |
+| Report permalink | The findings board rendered by the server from the same `buildFindings` call the explorer uses, with the committed corpus statistics; the raw-evidence gate says what it gates. | github.com permalink: the board's nine cards visible with no click, 1,631 px to 3,541 px of content on arrival where a button used to be. Consistency rules over the committed corpus: 0 violations before, 0 after (the server path calls the same builder). |
+| Explorer | The header's actions under its title. | The comparison title no longer wraps one character per line. |
+| Sites | One search filtering the table in place with a status count and an exact-match profile link; categories as header links; the forms with disabled buttons removed. | Typing `github.com` leaves one row and one "Open github.com" link. |
+| Site history | Timeline as a table with the headline stated once. | github.com: 2,099 px to 1,784 px, seven repeated sentences to one. |
+| Remaining pages | Methodology, glossary, about, status, corrections, privacy, security, category and catalog on the shared header; the doubled rule under prose headers removed; the "94distinct sites" spacing defect on the status page fixed. | |
+| Accessibility | axe (WCAG 2.0 and 2.1 A and AA) over fourteen routes, light and dark, 1280 and 390 wide, with the explorer opened on the report routes. | One finding across the whole set, the "Open latest evidence" link distinguishable only by colour inside the evidence table's sentence; underlined. Zero after. |
+
+What was measured and held: every guard test that reads the app's source
+(15 files, 46 pinned surfaces) passes; where a change moved pinned
+structure (the homepage library gate, the directory controls, the summary
+slot, the shared table's owner) the guard moved with it and pins the new
+contract rather than the old shape.
+
+## 9. Left for a later pass
+
+- The explorer's evidence sections keep their order and their anchors; the
+  mobile explorer still runs to about 15,000 px with the section nav as its
+  map. Collapsing the rail cards into disclosures on narrow screens would
+  shorten it, and would change the print output, which prints them open;
+  not attempted here.
+- The category page and the catalog page keep their module stylesheets and
+  their own section headings; they adopt the header only.
+- The homepage's status pill ("Live", "Limited", "Checking") is the
+  scanner-health label the runtime tests pin; its copy was not redesigned.
+- The corrections notice and the headline banner both carry the correction
+  sentence on corrected reports (the banner's subhead is the correction's
+  own text by design); one of the two could yield, which is a copy decision
+  for the corrections ledger's owner rather than a layout change.
