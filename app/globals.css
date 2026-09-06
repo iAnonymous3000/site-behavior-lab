@@ -1092,8 +1092,10 @@ a {
    of the surrounding workbench layout. */
 .segmented-control.run-mode-control button {
   gap: 6px;
+  overflow-wrap: anywhere;
   padding: 0 6px;
-  white-space: nowrap;
+  /* Labels must fit the available cell with wider system fonts as well. */
+  white-space: normal;
 }
 
 @container (max-width: 380px) {

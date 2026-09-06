@@ -4,16 +4,26 @@ import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import test from "node:test";
+import test, { after } from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
 import { validatePagesReceipt, verifyPagesArtifact, assertPagesProject,
   assertPagesDeployment, waitForPagesDeployment } from "./published-pages-lib.mjs";
 import { buildDeploymentReceipt } from "./static-deployment-provenance.mjs";
 
 const digest = (bytes) => createHash("sha256").update(bytes).digest("hex");
-const commit = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
-const tree = execFileSync("git", ["rev-parse", "HEAD^{tree}"], { encoding: "utf8" }).trim();
-const deployment = buildDeploymentReceipt(commit);
+// Docker deliberately omits the checkout's .git directory. The provenance
+// contract needs real Git history, so own that history instead of borrowing it.
+const sourceFixture = await mkdtemp(path.join(tmpdir(), "sbl-pages-source-"));
+after(() => rm(sourceFixture, { recursive: true, force: true }));
+const sourceGit = (...args) => execFileSync("git", args, { cwd: sourceFixture, encoding: "utf8", env: {
+  ...process.env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: "/dev/null"
+} }).trim();
+sourceGit("init", "-q");
+sourceGit("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+  "-c", "commit.gpgsign=false", "commit", "--allow-empty", "-qm", "fixture");
+const commit = sourceGit("rev-parse", "HEAD");
+const tree = sourceGit("rev-parse", "HEAD^{tree}");
+const deployment = buildDeploymentReceipt(commit, { cwd: sourceFixture });
 const contents = {
   ".nojekyll": "", "_headers": "/*\n  X-Content-Type-Options: nosniff\n",
   "_next/static/fixture.js": "console.log(1);", "deployment.json": JSON.stringify(deployment),
@@ -52,7 +62,7 @@ function project() {
 test("the complete static artifact, including dotfiles, matches independent byte expectations", async (t) => {
   const directory = await fixture(t);
   const artifact = validatePagesReceipt(receipt(), { commit, tree });
-  await verifyPagesArtifact(directory, artifact, { commit });
+  await verifyPagesArtifact(directory, artifact, { commit, cwd: sourceFixture });
 });
 
 test("extra, missing, changed and symlinked files cannot accompany a genuine receipt", async (t) => {
@@ -64,7 +74,7 @@ test("extra, missing, changed and symlinked files cannot accompany a genuine rec
   ]) {
     const directory = await fixture(t);
     await mutate(directory);
-    await assert.rejects(verifyPagesArtifact(directory, receipt().artifacts[0], { commit }));
+    await assert.rejects(verifyPagesArtifact(directory, receipt().artifacts[0], { commit, cwd: sourceFixture }));
   }
 });
 

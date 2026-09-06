@@ -973,6 +973,17 @@ async function main() {
     await loadStaticArchive(page);
     await assertNoHorizontalOverflow(page, "static narrow-mobile archive");
     pass("static archive fits a 320px viewport");
+    if (liveScanApiBase) {
+      // Wider font metrics exposed the consent label escaping its grid cell
+      // on Linux. Exercise that layout independently of the host system font.
+      const widerRunModeFont = await page.addStyleTag({
+        content: ".run-mode-control button { font-family: monospace; }"
+      });
+      await assertNoHorizontalOverflow(page, "narrow scanner with wider run-mode labels");
+      await assertMinimumTargetSize(page.locator(".run-mode-control button"), 44, "narrow run-mode controls");
+      await widerRunModeFont.evaluate((element) => element.remove());
+      pass("narrow scanner fits wider run-mode labels and retains 44px targets");
+    }
     await page.goto(`${baseUrl}/directory/`, { waitUntil: "networkidle" });
     await assertNoHorizontalOverflow(page, "static narrow-mobile directory");
     const categorySelect = page.getByLabel("Browse a category");
