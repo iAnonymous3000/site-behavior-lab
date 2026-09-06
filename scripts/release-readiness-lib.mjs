@@ -31,6 +31,7 @@ import {
 import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { isDeepStrictEqual } from "node:util";
 import ts from "typescript";
 import {
   parseCanonicalRunnerDestructionReceiptBytes,
@@ -762,6 +763,16 @@ function evaluateCorpus(id, gate, rootDir, measurementContext, freezeContext, no
   } catch {
     return gateResult(id, gate, "fail", [`${gate.artifact} is not valid JSON`]);
   }
+  const corpusSchema = loadCompiled("corpus-stats", rootDir);
+  if (
+    typeof corpusSchema?.isCorpusStats !== "function" ||
+    corpus?.version !== corpusSchema.CORPUS_STATS_ARTIFACT_VERSION ||
+    !corpusSchema.isCorpusStats(corpus)
+  ) {
+    return gateResult(id, gate, "fail", [
+      "corpus artifact must pass the canonical current-version validator used by its consumers"
+    ]);
+  }
   const bindingReasons = boundExactEvidenceProblems(
     measurementContext,
     rootDir,
@@ -849,19 +860,8 @@ function evaluateCorpus(id, gate, rootDir, measurementContext, freezeContext, no
     if (derived.reasons.length > 0) {
       return gateResult(id, gate, "fail", derived.reasons);
     }
-    if (
-      bound[0].sampleSize !== derived.sampleSize ||
-      corpus.sampleSize !== derived.sampleSize
-    ) {
-      return gateResult(id, gate, "fail", [
-        `primary cohort sampleSize must equal the ${derived.sampleSize} distinct eligible post-freeze sites derived from the digest-bound reports`
-      ]);
-    }
-    if (bound[0].latestRunAt !== derived.latestRunAt) {
-      return gateResult(id, gate, "fail", [
-        `primary cohort latestRunAt ${String(bound[0].latestRunAt)} does not equal the bound-report value ${String(derived.latestRunAt)}`
-      ]);
-    }
+    const problems = boundCorpusCohortProblems(corpus, derived);
+    if (problems.length > 0) return gateResult(id, gate, "fail", problems);
   }
   return gateResult(id, gate, "pass", [`cohort ${bound[0].id} clears every metric denominator as the primary claim-backing cohort`]);
 }
@@ -875,30 +875,22 @@ export function deriveBoundCorpusCohort(
   const reader = loadCompiled("scan-report-reader", rootDir);
   const views = loadCompiled("scan-report-view", rootDir);
   const cohorts = loadCompiled("corpus-cohort", rootDir);
-  const siteDomains = loadCompiled("corpus-site-domain", rootDir);
-  const reservedDomains = loadCompiled("reserved-report-domains", rootDir);
-  const representatives = loadCompiled("corpus-representative", rootDir);
+  const builder = loadCompiled("corpus-stats-builder", rootDir);
   if (
     typeof reader?.readStoredScanReport !== "function" ||
     typeof views?.toReportView !== "function" ||
-    typeof views?.displayRunView !== "function" ||
-    typeof views?.familyCensoredOnRun !== "function" ||
-    typeof views?.runHitRequestRecordingCap !== "function" ||
     typeof cohorts?.corpusCohortIdentityForView !== "function" ||
-    typeof siteDomains?.corpusSiteKeyForRun !== "function" ||
-    typeof reservedDomains?.isReservedReportDomain !== "function" ||
-    typeof representatives?.preferCorpusRepresentative !== "function"
+    typeof builder?.createCorpusStatsAccumulator !== "function"
   ) {
     return {
-      reasons: [
-        "the freshly compiled canonical corpus reader and cohort modules are unavailable"
-      ],
+      reasons: ["the freshly compiled canonical corpus reader and aggregation modules are unavailable"],
       sampleSize: 0,
-      latestRunAt: null
+      latestRunAt: null,
+      metrics: {}
     };
   }
 
-  const bySite = new Map();
+  const accumulator = builder.createCorpusStatsAccumulator();
   for (const entry of boundEvidence(measurementContext, "featured-report")) {
     try {
       const report = readJson(path.join(rootDir, ...entry.path.split("/")));
@@ -926,53 +918,41 @@ export function deriveBoundCorpusCohort(
         continue;
       }
 
-      const run = views.displayRunView(view);
-      if (
-        run?.quality?.outcome !== "complete" ||
-        typeof run.status !== "number" ||
-        run.status >= 400
-      ) {
-        continue;
-      }
-      const domain = siteDomains.corpusSiteKeyForRun(run);
-      if (!domain || reservedDomains.isReservedReportDomain(domain)) continue;
-      if (
-        views.familyCensoredOnRun(run, "requests") ||
-        views.runHitRequestRecordingCap(run)
-      ) {
-        continue;
-      }
-      if (
-        run.conditions?.consentMode === "accept-all" ||
-        run.conditions?.consentMode === "reject-all"
-      ) {
-        continue;
-      }
-      const scannedAt = run.startedAt ?? view.scannedAt ?? "";
-      if (!Number.isFinite(Date.parse(scannedAt))) continue;
-      const id = path.posix.basename(entry.path, ".json");
-      const existing = bySite.get(domain);
-      if (
-        existing &&
-        !representatives.preferCorpusRepresentative(
-          { id, scannedAt },
-          existing
-        )
-      ) {
-        continue;
-      }
-      bySite.set(domain, { id, scannedAt });
+      accumulator.add(path.posix.basename(entry.path, ".json"), view);
     } catch (error) {
       reasons.push(
         `${entry.path} cannot be projected into the canonical corpus: ${String(error).slice(0, 180)}`
       );
     }
   }
-  const latestRunAt =
-    [...bySite.values()]
-      .map((site) => site.scannedAt)
-      .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null;
-  return { reasons, sampleSize: bySite.size, latestRunAt };
+  const cohort = accumulator.finish().cohorts.find((candidate) => candidate.id === primaryCohortId);
+  return {
+    reasons,
+    sampleSize: cohort?.sampleSize ?? 0,
+    latestRunAt: cohort?.latestRunAt ?? null,
+    metrics: cohort?.metrics ?? {}
+  };
+}
+
+/** Compare the published claim with the aggregate of its authenticated inputs.
+ * This checks internal consistency, not the accuracy of the instrument itself.
+ */
+export function boundCorpusCohortProblems(corpus, derived) {
+  const cohort = corpus.cohorts?.find((candidate) => candidate.id === corpus.primaryCohortId);
+  const problems = [];
+  if (cohort?.sampleSize !== derived.sampleSize || corpus.sampleSize !== derived.sampleSize) {
+    problems.push(`primary cohort sampleSize must equal the ${derived.sampleSize} distinct eligible post-freeze sites derived from the digest-bound reports`);
+  }
+  if (cohort?.latestRunAt !== derived.latestRunAt) {
+    problems.push(`primary cohort latestRunAt ${String(cohort?.latestRunAt)} does not equal the bound-report value ${String(derived.latestRunAt)}`);
+  }
+  // Compare all metric keys and every statistic, including unavailable metrics.
+  // An invented denominator or percentile cannot be justified by a site count.
+  if (!isDeepStrictEqual(cohort?.metrics, derived.metrics) ||
+      !isDeepStrictEqual(corpus.metrics, derived.metrics)) {
+    problems.push("primary cohort and top-level metric denominators and distributions must equal those derived from the digest-bound reports");
+  }
+  return problems;
 }
 
 function candidateInputProblems(
@@ -1290,6 +1270,7 @@ export function freshCompiledSchemaModules(rootDir) {
       "corpus-site-domain",
       "corpus-representative",
       "corpus-stats-builder",
+      "corpus-stats",
       "reserved-report-domains",
       "redaction-provenance"
     ]) {

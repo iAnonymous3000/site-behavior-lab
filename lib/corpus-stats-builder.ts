@@ -64,7 +64,26 @@ export type CorpusStatsBuildResult = {
 };
 
 export async function buildCorpusStats(reportsDir: string, now = new Date()): Promise<CorpusStatsBuildResult> {
-  const warnings: string[] = [];
+  const accumulator = createCorpusStatsAccumulator(now);
+  const dangling = await listDanglingStaticSidecarIds(reportsDir);
+  if (dangling.length > 0) throw new StaticReportBundleError(dangling[0], "dangling-sidecar");
+  for (const id of await listStaticReportCandidateIds(reportsDir)) {
+    const read = await readStaticReportBundle(reportsDir, id);
+    if (read.outcome !== "found") {
+      throw new StaticReportBundleError(id, read.outcome === "not-found" ? "missing-report" : read.reason);
+    }
+    accumulator.add(id, toReportView(read.stored));
+  }
+  return { stats: accumulator.finish(), warnings: [] };
+}
+
+/**
+ * Canonical aggregation of admitted report views. Callers must separately
+ * verify report structure and provenance; aggregation establishes neither.
+ * Shared by publication and the release gate so corrections, representative
+ * selection, metric availability and percentile meaning cannot drift.
+ */
+export function createCorpusStatsAccumulator(now = new Date()) {
   const byCohort = new Map<
     string,
     {
@@ -86,15 +105,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
   const coverageDomains = new Set<string>();
   const cappedDomains = new Set<string>();
 
-  const dangling = await listDanglingStaticSidecarIds(reportsDir);
-  if (dangling.length > 0) throw new StaticReportBundleError(dangling[0], "dangling-sidecar");
-
-  for (const id of await listStaticReportCandidateIds(reportsDir)) {
-    const read = await readStaticReportBundle(reportsDir, id);
-    if (read.outcome !== "found") {
-      throw new StaticReportBundleError(id, read.outcome === "not-found" ? "missing-report" : read.reason);
-    }
-
+  function add(id: string, view: ReturnType<typeof toReportView>): void {
     // Coverage spans the primary pair, while percentile metrics deliberately
     // use only the lead run. A comparison therefore covers its catalogued site
     // when either primary arm loaded successfully, and is cap-flagged when one
@@ -106,7 +117,6 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // Both arms were asked for the same URL, so the lead run's requested host
     // decides for the whole report whether the visit belongs to a site at all;
     // one asked for a generalized host belongs to none and counts nowhere.
-    const view = toReportView(read.stored);
     const result = displayRunView(view);
     const domain = corpusSiteKeyForRun({ domain: view.domain, conditions: result.conditions });
     const successfulRuns = view.runs.filter(
@@ -119,7 +129,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
 
     // Corrections exclude reports from distributions without erasing that a
     // visit was attempted and its document loaded.
-    if (publishedReportCorrections(id).suppressIndexing) continue;
+    if (publishedReportCorrections(id).suppressIndexing) return;
 
     // A run that answered with an HTTP error (403/401/429 bot walls, outages)
     // reflects an error page, not the site, and a null status means the main
@@ -127,10 +137,10 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // either way the near-zero counts would drag the percentile distribution
     // down and misrank every real site against it. The per-report pages
     // already disclose these as failed loads.
-    if (result.quality.outcome !== "complete" || typeof result.status !== "number" || result.status >= 400) continue;
+    if (result.quality.outcome !== "complete" || typeof result.status !== "number" || result.status >= 400) return;
 
     const leadDomain = corpusSiteKeyForRun(result);
-    if (!leadDomain || isReservedReportDomain(leadDomain)) continue;
+    if (!leadDomain || isReservedReportDomain(leadDomain)) return;
 
     // A run that hit the request-recording cap has activity counts that are
     // floors cut off mid-collection (and cookie/storage snapshots of an
@@ -150,7 +160,7 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // Both of those rules, plus the completion check above, live in
     // runInCorpusDistributionPopulation so the findings board applies exactly
     // the same population rule when it decides whether to show a percentile.
-    if (!runInCorpusDistributionPopulation(result)) continue;
+    if (!runInCorpusDistributionPopulation(result)) return;
 
     // One definition of "when this report was measured", shared with
     // lib/corpus-overview.ts, which ranks the same cohorts by view.scannedAt
@@ -164,12 +174,12 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     // representative report, which the export and the directory decide with
     // view.scannedAt too.
     const scannedAt = view.scannedAt ?? "";
-    if (!Number.isFinite(Date.parse(scannedAt))) continue;
+    if (!Number.isFinite(Date.parse(scannedAt))) return;
     const identity = corpusCohortIdentityForView(view);
     const cohort = byCohort.get(identity.id) ?? { identity, bySite: new Map() };
     if (!byCohort.has(identity.id)) byCohort.set(identity.id, cohort);
     const existing = cohort.bySite.get(leadDomain);
-    if (existing && !preferCorpusRepresentative({ id, scannedAt }, existing)) continue;
+    if (existing && !preferCorpusRepresentative({ id, scannedAt }, existing)) return;
     const facts = buildRunFacts(result);
 
     cohort.bySite.set(leadDomain, {
@@ -196,40 +206,40 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
     });
   }
 
-  const cohorts: CorpusStatsCohort[] = [...byCohort.values()]
-    .map(({ identity, bySite: sites }) => ({
-      ...identity,
-      sampleSize: sites.size,
-      latestRunAt:
-        [...sites.values()]
-          .map((site) => site.scannedAt)
-          .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null,
-      metrics: metricDistributions([...sites.values()])
-    }))
-    .sort((left, right) => left.id.localeCompare(right.id));
+  function finish(): CurrentCorpusStats {
+    const cohorts: CorpusStatsCohort[] = [...byCohort.values()]
+      .map(({ identity, bySite: sites }) => ({
+        ...identity,
+        sampleSize: sites.size,
+        latestRunAt:
+          [...sites.values()]
+            .map((site) => site.scannedAt)
+            .sort((left, right) => Date.parse(right) - Date.parse(left))[0] ?? null,
+        metrics: metricDistributions([...sites.values()])
+      }))
+      .sort((left, right) => left.id.localeCompare(right.id));
 
-  // Keep the historical top-level fields as a compatibility view for current
-  // findings consumers. It names exactly one cohort, never a pool, chosen by
-  // the shared selector the directory leaderboard also calls so the artifact
-  // and the rendered aggregate can never name different cohorts.
-  // Site keys travel with each candidate so the selector can refuse to hand the
-  // aggregate to a structurally narrower universe; `byCohort` already holds
-  // them, keyed exactly as the eligibility pass counted them.
-  const cohortSites = new Map(
-    [...byCohort.values()].map(({ identity, bySite }) => [identity.id, [...bySite.keys()]] as const)
-  );
-  const primary = selectPrimaryCorpusCohort(
-    cohorts.map((cohort) => ({
-      identity: cohort,
-      siteCount: cohort.sampleSize,
-      latestRunAt: cohort.latestRunAt,
-      sites: cohortSites.get(cohort.id) ?? []
-    })),
-    CORPUS_MIN_SAMPLE
-  )?.identity;
+    // Keep the historical top-level fields as a compatibility view for current
+    // findings consumers. It names exactly one cohort, never a pool, chosen by
+    // the shared selector the directory leaderboard also calls so the artifact
+    // and the rendered aggregate can never name different cohorts.
+    // Site keys travel with each candidate so the selector can refuse to hand the
+    // aggregate to a structurally narrower universe; `byCohort` already holds
+    // them, keyed exactly as the eligibility pass counted them.
+    const cohortSites = new Map(
+      [...byCohort.values()].map(({ identity, bySite }) => [identity.id, [...bySite.keys()]] as const)
+    );
+    const primary = selectPrimaryCorpusCohort(
+      cohorts.map((cohort) => ({
+        identity: cohort,
+        siteCount: cohort.sampleSize,
+        latestRunAt: cohort.latestRunAt,
+        sites: cohortSites.get(cohort.id) ?? []
+      })),
+      CORPUS_MIN_SAMPLE
+    )?.identity;
 
-  return {
-    stats: {
+    return {
       version: CORPUS_STATS_ARTIFACT_VERSION,
       generatedAt: now.toISOString(),
       metricContractVersion: METRIC_CONTRACT_VERSION,
@@ -240,9 +250,10 @@ export async function buildCorpusStats(reportsDir: string, now = new Date()): Pr
       ...(primary ? { primaryCohortId: primary.id } : {}),
       cohorts,
       metrics: primary?.metrics ?? {}
-    },
-    warnings
-  };
+    };
+  }
+
+  return { add, finish };
 }
 
 function metricDistributions(

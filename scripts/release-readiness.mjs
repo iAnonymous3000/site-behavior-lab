@@ -54,6 +54,8 @@ const failing = result.gates.filter((gate) => gate.status !== "pass").length;
 console.log(
   result.ready
     ? `\nRelease 1.0 readiness: READY (${result.gates.length}/${result.gates.length} gates pass).`
-    : `\nRelease 1.0 readiness: NOT READY (${failing} of ${result.gates.length} gates failing).`
+    : `\nRelease 1.0 readiness: NOT READY (${failing} of ${result.gates.length} gates unsatisfied; these may share missing prerequisites).`
 );
+console.log("Passing these checks establishes the configured release-evidence requirements, not detector error rates or representative mode accuracy.");
+console.log("CI validates code and artifacts; deployment health validates exercised operations. See docs/release-gates-audit-2026-09-05.md for the evidence boundaries and release sequence.");
 if (mode === "--check" && !result.ready) process.exit(1);

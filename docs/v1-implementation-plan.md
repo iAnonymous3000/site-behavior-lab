@@ -6,6 +6,9 @@ that supports the report's claims.
 
 The [schema and methodology audit](schema-methodology-audit-2026-09-05.md)
 records the end-to-end contract, reproduced gaps and compatibility decisions.
+The [gate audit](release-gates-audit-2026-09-05.md) separates code validation,
+operational evidence and claim qualification, and records the remaining release
+prerequisites without treating a failed-check count as independent defects.
 
 ## Implementation
 
@@ -45,9 +48,10 @@ readable; no measurement report or provenance sidecar is rewritten.
 
 The corrections ledger identifies 406 reports with overstated input-probe
 coverage, 95 with unreliable Amazon/Oracle mention results, and six with an
-unsupported X Purchase label. These sets overlap. Corrected reports retain their
-observations but no longer lead with the original findings or enter statistical
-distributions. A loaded document still counts toward descriptive corpus coverage.
+unsupported X Purchase label. These sets overlap. Active clarification notices
+constrain the affected claims while preserving usable measurements. The six
+reports marked corrected retain their observations but no longer lead with the
+original findings or enter statistical distributions. A loaded document still counts toward descriptive corpus coverage.
 JSON downloads from the explorer include a separate corrections file in a ZIP;
 raw JSON and its provenance remain independently available. Request CSVs carry
 all applicable clarification summaries. Request CSV downloads include the source
@@ -78,22 +82,28 @@ Keep the following mode decisions independent:
 | Blocker comparison | Use the pinned engine/list identity, record evaluated and actually blocked requests, and retain the one-pair descriptive limit. |
 | Consent comparison | Record attempted controls and registered choices across representative consent systems. Missing or unverified choices cannot become an accept/reject comparison. Keep the mode experimental. |
 
-Run the existing scanner-fidelity study lanes separately for each mode against
-the reviewed candidate, retain every attempt including failures, and publish
-mode-specific denominators and limitations. Do not use the historical corpus or
-acceptance fixtures as current-method qualification evidence.
+Use the scanner-fidelity lanes to collect attempts separately for each mode
+against the reviewed candidate, retain failures, and publish mode-specific
+denominators and limitations. Their automated invariants and repeatability
+scores do not establish accuracy: qualification also requires independently
+recorded expectations about the observed behaviors and attempted interventions.
+Do not use the historical corpus or acceptance fixtures as current-method
+qualification evidence.
 
-The repaired readiness evaluator still reports **NOT READY: 13 of 18 gates**
-without candidate/operator artifacts. The next release sequence is:
+Run `npm run release:readiness` for the current evidence state. Missing candidate
+and operator artifacts leave the release blocked; several checks share those
+prerequisites. The next release sequence is:
 
-1. Review and test the final commit, select the measurement candidate, and
-   complete the governed freeze and candidate binding.
+1. Review and test the measurement candidate and controlled-runner environment,
+   then activate the governed freeze. Candidate selection precedes collection;
+   the complete binding cannot be finalized before its evidence exists.
 2. Produce current-method observations and controlled publication/runner
    receipts against that candidate, preserving their provenance and denominators.
 3. Capture and verify release governance, R2 lifecycle, egress, WAF, log-retention,
    container-package and licensing evidence through their existing workflows.
-4. Require the readiness check and applicable mode qualification to pass before
-   tagging v1. Deployment health alone cannot satisfy these gates.
+4. Finalize and verify the candidate binding over the collected evidence and
+   release finalization files. Require the readiness check and applicable mode
+   qualification before tagging v1. Deployment health alone cannot satisfy them.
 
 ## Scope
 
