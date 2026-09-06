@@ -111,6 +111,15 @@ claiming a measured improvement.
 
 ### Release boundaries
 
+The prebuilt-container follow-up implements an artifact handoff using the
+existing release-evidence schema: main CI publishes the already smoke-tested
+image, an isolated signer binds its registry digest to the original receipt,
+and the production workflow verifies that evidence before deployment. See the
+[cutover procedure](deploy-cloudflare-containers.md#production-deployment-from-the-tested-image).
+Until the credential and single-writer cutover are verified live, removal of
+the observed 25-minute Cloudflare rebuild remains an expected gain, not a
+measured result. The following cache-only boundary describes the earlier change.
+
 PR validation, trusted main validation, and Cloudflare deployment still have
 distinct source and trust contexts. This change does not promote PR artifacts
 or manufacture a main-commit attestation from another revision's results.

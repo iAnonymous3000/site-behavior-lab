@@ -4,6 +4,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { lstat, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { ACCOUNT_ID, attestationArgs, validatePublishedContainer } from "./published-container-lib.mjs";
 
 const FULL_SHA = /^[0-9a-f]{40}$/;
 const PLACEHOLDER = "__SITE_BEHAVIOR_LAB_BUILD_COMMIT__";
@@ -17,9 +18,17 @@ function parseArgs(argv) {
   let check = false;
   let configFilename = DEFAULT_CONFIG_FILENAME;
   let sawConfig = false;
+  let publishedEvidence;
 
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
+    if (arg === "--published-evidence") {
+      if (publishedEvidence || !argv[index + 1] || argv[index + 1].startsWith("--")) {
+        throw new Error("--published-evidence requires exactly one receipt path");
+      }
+      publishedEvidence = path.resolve(argv[++index]);
+      continue;
+    }
     if (arg === "--check") {
       if (check) throw new Error("--check may only be provided once.");
       check = true;
@@ -39,7 +48,10 @@ function parseArgs(argv) {
     throw new Error(`Unknown argument: ${arg}`);
   }
 
-  return { check, configFilename };
+  if (publishedEvidence && configFilename !== DEFAULT_CONFIG_FILENAME) {
+    throw new Error("Published production image evidence cannot deploy a staging configuration");
+  }
+  return { check, configFilename, publishedEvidence };
 }
 
 function validateConfigFilename(filename) {
@@ -92,7 +104,7 @@ function resolveBuildCommit({ requireClean }) {
 }
 
 async function main() {
-  const { check, configFilename } = parseArgs(process.argv.slice(2));
+  const { check, configFilename, publishedEvidence } = parseArgs(process.argv.slice(2));
   const sourcePath = path.join(root, configFilename);
   const generatedPath = path.join(root, `wrangler.container.generated.${process.pid}.jsonc`);
   const sourceInfo = await lstat(sourcePath);
@@ -111,6 +123,26 @@ async function main() {
     }
   ).trim();
   const source = await readFile(sourcePath, "utf8");
+  let publishedImage;
+  if (publishedEvidence) {
+    const info = await lstat(publishedEvidence);
+    if (!info.isFile() || info.isSymbolicLink() || info.size > 1024 * 1024) {
+      throw new Error("Published image receipt must be a bounded regular file");
+    }
+    const receiptBytes = await readFile(publishedEvidence);
+    const tree = execFileSync("git", ["rev-parse", "HEAD^{tree}"], { encoding: "utf8" }).trim();
+    publishedImage = validatePublishedContainer(JSON.parse(receiptBytes), { commit, tree, configBytes: source });
+    if (!check) {
+      const gh = execFileSync(process.execPath, ["scripts/ensure-gh-attestation-verifier.mjs"], {
+        encoding: "utf8", timeout: 120_000
+      }).trim();
+      const results = JSON.parse(execFileSync(gh, attestationArgs(publishedEvidence, commit), {
+        encoding: "utf8", timeout: 120_000, maxBuffer: 4 * 1024 * 1024
+      }));
+      if (!Array.isArray(results) || results.length === 0) throw new Error("No verified main-CI attestation");
+      if (!(await readFile(publishedEvidence)).equals(receiptBytes)) throw new Error("Receipt changed during verification");
+    }
+  }
   const occurrences = source.split(PLACEHOLDER).length - 1;
   if (occurrences !== 1) {
     throw new Error(`Expected exactly one ${PLACEHOLDER} placeholder, found ${occurrences}.`);
@@ -124,15 +156,32 @@ async function main() {
   }
 
   try {
+    let generatedSource = source.replace(PLACEHOLDER, commit)
+      .replace(MEASUREMENT_PROOF_PLACEHOLDER, measurementCandidateProof);
+    if (publishedImage) {
+      const { parseConfigFileTextToJson } = await import("typescript");
+      const parsed = parseConfigFileTextToJson(sourcePath, generatedSource);
+      if (parsed.error || parsed.config?.name !== "site-behavior-lab-scanner" ||
+          parsed.config?.containers?.length !== 1 || parsed.config.containers[0].image !== "./Dockerfile") {
+        throw new Error("Unexpected production container configuration");
+      }
+      parsed.config.account_id = ACCOUNT_ID;
+      parsed.config.containers[0].image = publishedImage;
+      delete parsed.config.containers[0].image_vars;
+      generatedSource = `${JSON.stringify(parsed.config, null, 2)}\n`;
+    }
     await writeFile(
       generatedPath,
-      source
-        .replace(PLACEHOLDER, commit)
-        .replace(MEASUREMENT_PROOF_PLACEHOLDER, measurementCandidateProof),
+      generatedSource,
       { encoding: "utf8", mode: 0o600 }
     );
     if (check) {
       const generated = await readFile(generatedPath, "utf8");
+      if (publishedImage) {
+        if (JSON.parse(generated).containers[0].image !== publishedImage) throw new Error("Image reference changed");
+        console.log(`Published container config pins ${commit} and ${publishedImage}; structural check only.`);
+        return;
+      }
       if (
         !generated.includes(`"SITE_BEHAVIOR_LAB_BUILD_COMMIT": "${commit}"`) ||
         !generated.includes(
