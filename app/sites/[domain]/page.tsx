@@ -115,7 +115,7 @@ export default async function SiteProfilePage({ params }: { params: Promise<{ do
         </ol>
       </nav>
       <header className="page-header">
-        <p className="eyebrow">Site history · curated public corpus</p>
+        <p className="eyebrow">Curated public corpus · Site history</p>
         <h1>{displayHost(profile.domain)}</h1>
         <p className="lede">{latest.headline}</p>
         <p className="page-meta">
