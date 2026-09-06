@@ -13,6 +13,7 @@ import { serializeCanonicalEvidence } from "./operator-evidence-common.mjs";
 import { serializeWafCeilingEvidence } from "./waf-ceiling-evidence-lib.mjs";
 import {
   captureHostedWafEvidence,
+  preflightHostedWafProviderAccess,
   requiredHostedWafEnvironment,
   verifyWafHostedSafeDirectory
 } from "./waf-hosted-capture-lib.mjs";
@@ -22,6 +23,7 @@ const RAW_NAME = /^[a-z0-9][a-z0-9.-]{0,99}\.json$/;
 function usage() {
   return [
     "Usage:",
+    "  node scripts/waf-hosted-capture.mjs --preflight",
     "  node scripts/waf-hosted-capture.mjs --capture --candidate-commit <sha> --output-dir <new-directory> --private-dir <new-directory>",
     "  node scripts/waf-hosted-capture.mjs --verify --directory <directory>"
   ].join("\n");
@@ -193,6 +195,13 @@ async function capture(options) {
 async function main() {
   const args = process.argv.slice(2);
   const mode = args.shift();
+  if (mode === "--preflight") {
+    requireValue(args.length === 0, usage());
+    const environment = requiredHostedWafEnvironment(process.env);
+    const result = await preflightHostedWafProviderAccess(environment);
+    process.stdout.write(`${JSON.stringify(result)}\n`);
+    return;
+  }
   if (mode === "--capture") {
     const options = parsePairs(
       args,

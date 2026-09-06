@@ -7,6 +7,11 @@ on:
         description: Exact protected-main candidate currently deployed to production
         required: true
         type: string
+      preflight_only:
+        description: Check scoped provider access only; no production probes or release evidence
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -60,7 +65,17 @@ jobs:
       - name: Compile the shared canonical evidence serializer
         run: node node_modules/typescript/bin/tsc -p tsconfig.schema.json
 
+      - name: Check scoped provider access without producing release evidence
+        if: inputs.preflight_only
+        env:
+          RUNNER_ENVIRONMENT: ${{ runner.environment }}
+          WAF_RULES_API_TOKEN: ${{ secrets.WAF_RULES_API_TOKEN }}
+          WAF_ANALYTICS_API_TOKEN: ${{ secrets.WAF_ANALYTICS_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID || '' }}
+        run: node scripts/waf-hosted-capture.mjs --preflight
+
       - name: Capture, sanitize, and destroy private Cloudflare responses
+        if: ${{ !inputs.preflight_only }}
         env:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
           RUNNER_ENVIRONMENT: ${{ runner.environment }}
@@ -80,6 +95,7 @@ jobs:
             --directory "$RUNNER_TEMP/waf-ceiling-safe"
 
       - name: Upload only the privacy-safe receipt and manifest
+        if: ${{ !inputs.preflight_only }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: site-behavior-waf-ceiling-evidence-${{ github.run_id }}-${{ github.run_attempt }}

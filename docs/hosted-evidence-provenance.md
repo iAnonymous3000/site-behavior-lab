@@ -156,8 +156,8 @@ The WAF profile implements this boundary with separate
 non-secret `CLOUDFLARE_ZONE_ID` binding. The tokens must be distinct. The first
 has Zone WAF Read for only the production zone; the second has Zone
 Analytics Read restricted to only that zone. The
-adapter selects the human rule ref
-`scan-api-rate-limit` but publishes only the immutable provider rule API id and
+adapter selects the provider-assigned rule ref
+`dcfa52c1a2664133be6f4ae2a5d95d39` but publishes only the immutable provider rule API id and
 version. It queries only the six Security Events fields required for exact Ray
 correlation, rejects saturation or ambiguity, destroys every raw provider
 response before safe output exists, and uploads only `receipt.json` plus

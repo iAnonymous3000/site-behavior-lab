@@ -39,7 +39,9 @@ export const WAF_HOSTED_PRODUCER_CLOSURE_PATHS = Object.freeze([
   "tsconfig.schema.json"
 ]);
 export const WAF_HOSTED_RULE_PHASE = "http_ratelimit";
-export const WAF_HOSTED_RULE_REF = "scan-api-rate-limit";
+// Cloudflare assigns this API ref independently of the dashboard display name.
+// Read back from the production rule's displayed API request on 2026-09-06.
+export const WAF_HOSTED_RULE_REF = "dcfa52c1a2664133be6f4ae2a5d95d39";
 export const WAF_HOSTED_RULESET_ENDPOINT =
   "https://api.cloudflare.com/client/v4/zones/{zone_id}/rulesets/phases/http_ratelimit/entrypoint";
 export const WAF_HOSTED_GRAPHQL_ENDPOINT =
@@ -389,8 +391,11 @@ function normalizedExpression(value) {
 function expectedExpressions() {
   const forward = `${EXPECTED_EXPRESSION_PARTS[0]} or ${EXPECTED_EXPRESSION_PARTS[1]}`;
   const reverse = `${EXPECTED_EXPRESSION_PARTS[1]} or ${EXPECTED_EXPRESSION_PARTS[0]}`;
+  const host = `http.host eq "${new URL(PRODUCTION_WAF_ORIGIN).hostname}"`;
   return new Set(
-    [forward, reverse, `(${forward})`, `(${reverse})`].map(normalizedExpression)
+    [forward, reverse, `(${forward})`, `(${reverse})`,
+      `(${host} and (${forward}))`, `(${host} and (${reverse}))`
+    ].map(normalizedExpression)
   );
 }
 
@@ -883,6 +888,29 @@ export function buildWafHostedSanitizedManifest(
     sourceArtifacts: receipt.sourceArtifacts,
     receiptSha256: verdict.receiptDigest
   };
+}
+
+/** Provider access diagnostics only: no probes, release receipt, or manifest. */
+export async function preflightHostedWafProviderAccess({ zoneId, rulesToken, analyticsToken,
+  fetchImpl = globalThis.fetch, now = () => new Date() }) {
+  requireValue(ZONE_ID.test(zoneId ?? ""), "zoneId must be a lowercase Cloudflare zone id");
+  requireValue(TOKEN.test(rulesToken ?? "") && TOKEN.test(analyticsToken ?? "") && rulesToken !== analyticsToken,
+    "two distinct scoped Cloudflare API tokens are required");
+  // Responses stay in process memory; nothing raw is written or returned.
+  const persistRaw = async () => undefined;
+  const rulePolicy = await readRuleset({ fetchImpl, zoneId, rulesToken, persistRaw });
+  const endedAt = currentInstant(now);
+  const bytes = await providerRequest({ fetchImpl, url: WAF_HOSTED_GRAPHQL_ENDPOINT,
+    label: "Cloudflare Security Events preflight", rawName: "preflight.json", token: analyticsToken,
+    method: "POST", persistRaw, body: JSON.stringify({ query: WAF_HOSTED_SECURITY_EVENTS_QUERY,
+      variables: { zoneTag: zoneId, startedAt: new Date(Date.parse(endedAt) - 60_000).toISOString(), endedAt } }) });
+  const value = parseUtf8Json(bytes, "Cloudflare Security Events preflight");
+  requireValue(isRecord(value) && (value.errors == null || (Array.isArray(value.errors) && value.errors.length === 0)),
+    "Cloudflare Security Events preflight contains GraphQL errors");
+  const zones = value.data?.viewer?.zones;
+  requireValue(Array.isArray(zones) && zones.length === 1 && Array.isArray(zones[0]?.firewallEventsAdaptive),
+    "Cloudflare Security Events preflight did not return the selected zone's dataset");
+  return { providerAccess: "verified", rulePolicy, releaseEvidence: false };
 }
 
 export async function captureHostedWafEvidence({

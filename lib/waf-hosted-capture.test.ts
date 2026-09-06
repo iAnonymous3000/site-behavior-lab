@@ -221,7 +221,7 @@ function rulesetRule(overrides: Record<string, unknown> = {}) {
   return {
     id: RULE_ID,
     version: "7",
-    ref: "scan-api-rate-limit",
+    ref: "dcfa52c1a2664133be6f4ae2a5d95d39",
     enabled: true,
     action: "block",
     expression: EXPRESSION,
@@ -248,6 +248,53 @@ function rulesetResponse(rules = [rulesetRule()]) {
     }
   };
 }
+
+test("the production provider ref and exact host restriction are accepted without trusting a display name", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  const expression = `(http.host eq "scan.sitebehavior.org" and (${EXPRESSION}))`;
+  const actual = rulesetResponse([rulesetRule({ description: "scan-api-rate-limit", expression })]);
+  assert.equal(hosted.selectCloudflareWafRule(actual).ruleId, RULE_ID);
+  for (const changed of [
+    { ref: "scan-api-rate-limit" },
+    { expression: expression.replace("scan.sitebehavior.org", "other.sitebehavior.org") },
+    { expression: expression.replace('" and (', '" or (') }
+  ]) {
+    assert.throws(() => hosted.selectCloudflareWafRule(rulesetResponse([rulesetRule({ description: "scan-api-rate-limit", expression, ...changed })])));
+  }
+});
+
+test("provider preflight checks both scoped APIs without probes or publishable evidence", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  const calls: { url: string; authorization: string }[] = [];
+  const output = await hosted.preflightHostedWafProviderAccess({
+    zoneId: ZONE_ID, rulesToken: RULES_TOKEN, analyticsToken: ANALYTICS_TOKEN,
+    fetchImpl: async (url: string, init: RequestInit) => {
+      calls.push({ url: String(url), authorization: (init.headers as Record<string, string>).authorization });
+      return response(calls.length === 1 ? rulesetResponse() : { data: { viewer: { zones: [{ firewallEventsAdaptive: [{ privateField: "must-not-be-returned" }] }] } } });
+    }
+  });
+  assert.equal(calls.length, 2);
+  assert.ok(calls[0].url.startsWith("https://api.cloudflare.com/client/v4/zones/"));
+  assert.equal(calls[1].url, "https://api.cloudflare.com/client/v4/graphql");
+  assert.deepEqual(calls.map(call => call.authorization), [`Bearer ${RULES_TOKEN}`, `Bearer ${ANALYTICS_TOKEN}`]);
+  assert.deepEqual(output, { providerAccess: "verified", rulePolicy: hosted.selectCloudflareWafRule(rulesetResponse()), releaseEvidence: false });
+  assert.doesNotMatch(JSON.stringify(output), /must-not-be-returned|Bearer|artifactKind|receiptSha256/);
+});
+
+test("provider preflight refuses GraphQL authorization errors and missing datasets", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  for (const graphql of [{ errors: [{ message: "private provider error" }] }, { data: { viewer: { zones: [] } } }]) {
+    let calls = 0;
+    await assert.rejects(hosted.preflightHostedWafProviderAccess({
+      zoneId: ZONE_ID, rulesToken: RULES_TOKEN, analyticsToken: ANALYTICS_TOKEN,
+      fetchImpl: async () => response(++calls === 1 ? rulesetResponse() : graphql)
+    }), /GraphQL errors|selected zone's dataset/);
+  }
+  await assert.rejects(hosted.preflightHostedWafProviderAccess({
+    zoneId: ZONE_ID, rulesToken: RULES_TOKEN, analyticsToken: RULES_TOKEN,
+    fetchImpl: async () => { throw new Error("must not fetch with reused credentials"); }
+  }), /distinct scoped/);
+});
 
 function securityEvent({
   rayName,
@@ -625,7 +672,7 @@ async function wafArchiveFixture(
   };
 }
 
-test("ruleset selection resolves the human ref to immutable API rule identity", async () => {
+test("ruleset selection resolves the configured provider ref to immutable API rule identity", async () => {
   const hosted = await script("waf-hosted-capture-lib.mjs");
   const policy = hosted.selectCloudflareWafRule(rulesetResponse());
   assert.equal(policy.ruleId, RULE_ID);
@@ -989,7 +1036,7 @@ test("complete capture keeps tokens, zone id, and raw Ray IDs out of safe bytes"
   assert.equal(captured.receipt.candidateCommit, CANDIDATE);
   assert.equal(captured.receipt.deploymentCommit, CANDIDATE);
   assert.equal(captured.receipt.rulePolicy.ruleId, RULE_ID);
-  assert.equal(captured.manifest.ruleSelector.ref, "scan-api-rate-limit");
+  assert.equal(captured.manifest.ruleSelector.ref, "dcfa52c1a2664133be6f4ae2a5d95d39");
   assert.deepEqual(
     captured.manifest.producerClosure.files.map(
       (entry: { path: string }) => entry.path
@@ -1210,14 +1257,14 @@ test("hosted WAF archive rejects noncanonical, malformed, or stale producer mani
   }
 });
 
-test("operator docs distinguish the human rule ref from immutable API identity", () => {
+test("operator docs distinguish the provider rule ref from immutable API identity", () => {
   const operator = readFileSync(
     path.join(process.cwd(), "docs", "operator-evidence-capture.md"),
     "utf8"
   );
   assert.match(
     operator,
-    /human-authored ref `scan-api-rate-limit`[\s\S]*immutable \*\*rule API `id` and `version`\*\*/
+    /provider-assigned ref `dcfa52c1a2664133be6f4ae2a5d95d39`[\s\S]*immutable \*\*rule API `id` and `version`\*\*/
   );
   assert.match(
     operator,

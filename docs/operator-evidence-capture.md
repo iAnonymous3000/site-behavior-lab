@@ -72,13 +72,20 @@ from its trusted `github.sha`, or a live deployment different from that
 candidate.
 
 The adapter reads the zone `http_ratelimit` phase entrypoint, selects exactly one
-enabled rule by the human-authored ref `scan-api-rate-limit`, validates its
-exact route expression and ten-per-ten-second block policy, and then binds the
+enabled rule by the provider-assigned ref `dcfa52c1a2664133be6f4ae2a5d95d39`, validates its
+exact route expression (optionally restricted to `scan.sitebehavior.org`) and ten-per-ten-second block policy, and then binds the
 provider's immutable **rule API `id` and `version`**. The ref is only the
 selector; it is not the `ruleId` stored in the receipt or Security Events. The
 adapter also refuses an alternate counting expression, origin-only counting,
 or complexity-score counting; an empty Cloudflare `counting_expression` is
 accepted because it canonically means the rule expression.
+
+The dashboard name `scan-api-rate-limit` is not the API ref. Use the workflow's
+`preflight_only` input to check the two provider credentials and the configured
+rule before waiting for deployment. This makes no admission probes, writes no
+raw provider files, and uploads no artifact; a successful preflight cannot
+satisfy any release evidence gate. Full capture still requires the exact
+candidate to be deployed and both blocked requests to correlate with Security Events.
 
 For a local semantic rehearsal, prepare a non-secret rule-policy JSON object
 using the immutable provider identity/version, a ten-request limit, the
