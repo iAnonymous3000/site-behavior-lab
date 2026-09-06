@@ -986,16 +986,22 @@ async function main() {
     }
     await page.goto(`${baseUrl}/directory/`, { waitUntil: "networkidle" });
     await assertNoHorizontalOverflow(page, "static narrow-mobile directory");
-    const categorySelect = page.getByLabel("Browse a category");
-    const firstCategoryPath = await categorySelect.locator('option:not([value=""])').first().getAttribute("value");
-    if (!firstCategoryPath) fail("directory exposes no browsable category option");
-    const directoryUrlBeforeSelection = page.url();
-    await categorySelect.selectOption(firstCategoryPath);
-    if (page.url() !== directoryUrlBeforeSelection) fail("directory category selection navigated without submit");
-    await page.getByRole("button", { name: "Browse category" }).click();
+    // Categories are links in the page header (a category is a page), and the
+    // search filters the table in place: typing must never navigate, and the
+    // only way off the page is a link the reader chose.
+    const categoryLinks = page.getByRole("navigation", { name: "Browse a category" }).getByRole("link");
+    const firstCategoryPath = await categoryLinks.first().getAttribute("href");
+    if (!firstCategoryPath) fail("directory exposes no browsable category link");
+    await assertMinimumTargetSize(categoryLinks, 34, "narrow category links");
+    const directoryUrlBeforeTyping = page.url();
+    await page.getByLabel("Find a site").fill("zzz-no-such-site");
+    await page.getByRole("status").filter({ hasText: /No scanned site matches/ }).first().waitFor();
+    if (page.url() !== directoryUrlBeforeTyping) fail("directory search navigated on input");
+    await page.getByLabel("Find a site").fill("");
+    await categoryLinks.first().click();
     await page.waitForURL((url) => url.pathname.endsWith(firstCategoryPath));
     await assertNoSeriousAxeViolations(page, "narrow category directory route");
-    pass("directory category navigation waits for explicit submit");
+    pass("directory search filters in place and category links navigate only on click");
     pass("static directory fits a 320px viewport");
     await page.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
     const narrowReceiptDetails = page.locator("details.evidence-receipt-details");
