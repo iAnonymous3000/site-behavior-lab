@@ -492,13 +492,47 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      # Builds the exact deployable image once, preserves the v1/filesystem
-      # smoke, then restarts that image against a process-local S3-compatible
-      # endpoint with the production public-v2/R2 gates enabled.
+      - name: Set up Docker layer caching
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
+        with:
+          version: v0.37.0
+          driver-opts: image=moby/buildkit:v0.33.0
+
+      - name: Resolve exact container build inputs
+        id: container_inputs
+        run: |
+          set -euo pipefail
+          commit=$(git rev-parse HEAD)
+          test "$commit" = "$GITHUB_SHA"
+          proof=$(node scripts/measurement-candidate-build-proof.mjs)
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "proof=$proof" >> "$GITHUB_OUTPUT"
+
+      # Cache dependency/base layers, not a successful check result for another
+      # revision: the Dockerfile consumes the exact SHA before COPY and check.
+      # GitHub isolates PR caches from main. No registry credentials or image
+      # publication are needed; smoke and fresh Trivy scans use this local image.
+      - name: Build exact deployable Docker image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          push: false
+          provenance: false
+          tags: site-behavior-lab:smoke
+          build-args: |
+            SITE_BEHAVIOR_LAB_BUILD_COMMIT=${{ steps.container_inputs.outputs.commit }}
+            SITE_BEHAVIOR_LAB_VERIFIED_MEASUREMENT_CANDIDATE_PROOF=${{ steps.container_inputs.outputs.proof }}
+          cache-from: type=gha,scope=scanner-amd64-v1,version=2
+          cache-to: type=gha,scope=scanner-amd64-v1,version=2,mode=max
+
+      # Exercise the image just built, including v1/filesystem and public-v2/R2.
       - name: Smoke deployable Docker image
         run: npm run test:smoke:docker
         env:
           DOCKER_SMOKE_PUBLIC_R2: "1"
+          DOCKER_SMOKE_SKIP_BUILD: "1"
 
       # Scan the exact image produced and exercised by the smoke step. Both
       # fixed and unfixed HIGH/CRITICAL findings are blocking; disabling action

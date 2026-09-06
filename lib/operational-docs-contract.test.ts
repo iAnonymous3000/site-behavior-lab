@@ -102,14 +102,17 @@ test("current operator docs record the fresh WAF and seven-day log receipts", ()
 
   for (const document of [readme, goLive, evidenceSurvey]) {
     assert.match(document, /scanner non-production[\s\S]{0,40}(?:builds are )?disabled/i);
-    // Previews still BUILD, so "enabled" stays asserted; what changed on
-    // 2026-07-28 is that they are Access-restricted instead of public. Pin the
-    // new posture so the docs cannot drift back to calling them public.
-    assert.match(document, /Pages\s+automatic\s+preview\s+deployments[\s\S]{0,50}enabled/i);
     assert.match(document, /Access-(?:protected|restricted)/i);
     assert.doesNotMatch(document, /preview deployments are (?:currently )?enabled and\s+public/i);
   }
-  assert.doesNotMatch(readme, /non-production Pages builds (?:are )?disabled/i);
+  // The September dashboard recheck found automatic previews disabled. Keep
+  // the current operating contract separate from the dated July receipt:
+  // existing deployments still require Access even when new builds are off.
+  for (const document of [readme, goLive]) {
+    assert.match(document, /Pages\s+automatic\s+preview\s+deployments\s+are disabled/i);
+    assert.match(document, /existing preview deployments[\s\S]{0,60}Access-protected/i);
+    assert.doesNotMatch(document, /Pages\s+automatic\s+preview\s+deployments\s+are enabled/i);
+  }
   assert.match(
     evidenceSurvey,
     /2026-07-28 preview recheck[\s\S]{0,140}Pages\s+automatic preview deployments[\s\S]{0,80}Access-restricted/i
@@ -123,7 +126,8 @@ test("current operator docs record the fresh WAF and seven-day log receipts", ()
     goLive,
     /Container-log retention\/query verification, WAF-ceiling verification[\s\S]*remain external/i
   );
-  assert.doesNotMatch(evidenceSurvey, /Pages uses[\s\S]{0,60}previews disabled/i);
+  assert.match(evidenceSurvey, /2026-09-05 recheck[\s\S]{0,140}Pages\s+automatic\s+preview deployments are disabled/i);
+  assert.match(evidenceSurvey, /2026-09-05 recheck[\s\S]{0,220}existing preview deployments[\s\S]{0,60}Access-protected/i);
   assert.doesNotMatch(goLive, /receipt covers only\s+`POST \/api\/scan`/i);
 });
 
