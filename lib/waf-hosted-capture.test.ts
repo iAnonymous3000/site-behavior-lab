@@ -263,6 +263,17 @@ test("the production provider ref and exact host restriction are accepted withou
   }
 });
 
+test("counting keys have set semantics while missing, extra and duplicate keys are refused", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  const original = rulesetRule();
+  const reversed = rulesetRule({ ratelimit: { ...original.ratelimit, characteristics: ["ip.src", "cf.colo.id"] } });
+  assert.deepEqual(hosted.selectCloudflareWafRule(rulesetResponse([reversed])), hosted.selectCloudflareWafRule(rulesetResponse([original])));
+  assert.deepEqual(reversed.ratelimit.characteristics, ["ip.src", "cf.colo.id"]);
+  for (const characteristics of [["ip.src"], ["cf.colo.id", "ip.src", "http.host"], ["ip.src", "ip.src"]]) {
+    assert.throws(() => hosted.selectCloudflareWafRule(rulesetResponse([rulesetRule({ ratelimit: { ...original.ratelimit, characteristics } })])), /characteristics must be exactly/);
+  }
+});
+
 test("provider preflight checks both scoped APIs without probes or publishable evidence", async () => {
   const hosted = await script("waf-hosted-capture-lib.mjs");
   const calls: { url: string; authorization: string }[] = [];
@@ -294,6 +305,16 @@ test("provider preflight refuses GraphQL authorization errors and missing datase
     zoneId: ZONE_ID, rulesToken: RULES_TOKEN, analyticsToken: RULES_TOKEN,
     fetchImpl: async () => { throw new Error("must not fetch with reused credentials"); }
   }), /distinct scoped/);
+});
+
+test("provider preflight reports both independent failures in one run", async () => {
+  const hosted = await script("waf-hosted-capture-lib.mjs");
+  let calls = 0;
+  await assert.rejects(hosted.preflightHostedWafProviderAccess({
+    zoneId: ZONE_ID, rulesToken: RULES_TOKEN, analyticsToken: ANALYTICS_TOKEN,
+    fetchImpl: async () => response(++calls === 1 ? rulesetResponse([]) : { errors: [{ message: "private detail" }] })
+  }), /exactly one rule.*GraphQL errors/);
+  assert.equal(calls, 2);
 });
 
 function securityEvent({

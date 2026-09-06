@@ -460,9 +460,10 @@ export function selectCloudflareWafRule(rawValue) {
   );
   requireValue(
     Array.isArray(rule.ratelimit.characteristics) &&
-      JSON.stringify(rule.ratelimit.characteristics) ===
+      rule.ratelimit.characteristics.length === EXPECTED_CHARACTERISTICS.length &&
+      JSON.stringify([...rule.ratelimit.characteristics].sort()) ===
         JSON.stringify(EXPECTED_CHARACTERISTICS),
-    "selected WAF rule characteristics must be exactly cf.colo.id then ip.src"
+    "selected WAF rule characteristics must be exactly cf.colo.id and ip.src"
   );
   requireValue(
     rule.ratelimit.counting_expression === undefined ||
@@ -898,19 +899,25 @@ export async function preflightHostedWafProviderAccess({ zoneId, rulesToken, ana
     "two distinct scoped Cloudflare API tokens are required");
   // Responses stay in process memory; nothing raw is written or returned.
   const persistRaw = async () => undefined;
-  const rulePolicy = await readRuleset({ fetchImpl, zoneId, rulesToken, persistRaw });
-  const endedAt = currentInstant(now);
-  const bytes = await providerRequest({ fetchImpl, url: WAF_HOSTED_GRAPHQL_ENDPOINT,
-    label: "Cloudflare Security Events preflight", rawName: "preflight.json", token: analyticsToken,
-    method: "POST", persistRaw, body: JSON.stringify({ query: WAF_HOSTED_SECURITY_EVENTS_QUERY,
-      variables: { zoneTag: zoneId, startedAt: new Date(Date.parse(endedAt) - 60_000).toISOString(), endedAt } }) });
-  const value = parseUtf8Json(bytes, "Cloudflare Security Events preflight");
-  requireValue(isRecord(value) && (value.errors == null || (Array.isArray(value.errors) && value.errors.length === 0)),
-    "Cloudflare Security Events preflight contains GraphQL errors");
-  const zones = value.data?.viewer?.zones;
-  requireValue(Array.isArray(zones) && zones.length === 1 && Array.isArray(zones[0]?.firewallEventsAdaptive),
-    "Cloudflare Security Events preflight did not return the selected zone's dataset");
-  return { providerAccess: "verified", rulePolicy, releaseEvidence: false };
+  const checkAnalytics = async () => {
+    const endedAt = currentInstant(now);
+    const bytes = await providerRequest({ fetchImpl, url: WAF_HOSTED_GRAPHQL_ENDPOINT,
+      label: "Cloudflare Security Events preflight", rawName: "preflight.json", token: analyticsToken,
+      method: "POST", persistRaw, body: JSON.stringify({ query: WAF_HOSTED_SECURITY_EVENTS_QUERY,
+        variables: { zoneTag: zoneId, startedAt: new Date(Date.parse(endedAt) - 60_000).toISOString(), endedAt } }) });
+    const value = parseUtf8Json(bytes, "Cloudflare Security Events preflight");
+    requireValue(isRecord(value) && (value.errors == null || (Array.isArray(value.errors) && value.errors.length === 0)),
+      "Cloudflare Security Events preflight contains GraphQL errors");
+    const zones = value.data?.viewer?.zones;
+    requireValue(Array.isArray(zones) && zones.length === 1 && Array.isArray(zones[0]?.firewallEventsAdaptive),
+      "Cloudflare Security Events preflight did not return the selected zone's dataset");
+  };
+  const outcomes = await Promise.allSettled([
+    readRuleset({ fetchImpl, zoneId, rulesToken, persistRaw }), checkAnalytics()
+  ]);
+  const failures = outcomes.filter(outcome => outcome.status === "rejected");
+  if (failures.length) throw new Error(failures.map(outcome => outcome.reason.message).join("; "));
+  return { providerAccess: "verified", rulePolicy: outcomes[0].value, releaseEvidence: false };
 }
 
 export async function captureHostedWafEvidence({
