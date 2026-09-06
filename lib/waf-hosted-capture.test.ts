@@ -345,12 +345,22 @@ async function completeCapture({
   candidateCommit = CANDIDATE,
   repositoryRoot = process.cwd(),
   failedPostStatus,
-  recordObservation = () => undefined
+  getRetryAfter = "10",
+  failGetRequest,
+  securityEventsResponse,
+  recordProviderQuery = () => undefined,
+  recordObservation = () => undefined,
+  recordProviderObservation = () => undefined
 }: {
   candidateCommit?: string;
   repositoryRoot?: string;
   failedPostStatus?: number;
+  getRetryAfter?: string;
+  failGetRequest?: number;
+  securityEventsResponse?: unknown;
+  recordProviderQuery?: () => void;
   recordObservation?: (observation: Record<string, unknown>) => void;
+  recordProviderObservation?: (observation: Record<string, unknown>) => void;
 } = {}) {
   const hosted = await script("waf-hosted-capture-lib.mjs");
   let clock = Date.parse("2026-08-01T16:00:00.000Z");
@@ -390,12 +400,13 @@ async function completeCapture({
       url.origin === "https://api.cloudflare.com" &&
       url.pathname === "/client/v4/graphql"
     ) {
+      recordProviderQuery();
       providerRequests.push({
         path: url.pathname,
         authorization: new Headers(init?.headers).get("authorization"),
         body: typeof init?.body === "string" ? init.body : null
       });
-      return response({
+      return response(securityEventsResponse ?? {
         data: {
           viewer: {
             zones: [
@@ -432,6 +443,7 @@ async function completeCapture({
       method === "GET" ? "get-admission" : "post-admission";
     const count = (routeCounts.get(routeId) ?? 0) + 1;
     routeCounts.set(routeId, count);
+    if (method === "GET" && count === failGetRequest) throw new Error("fixture transport failure");
     clock += 100;
     if (count === 11) {
       eventTimes.set(routeId, new Date(clock).toISOString());
@@ -439,7 +451,7 @@ async function completeCapture({
         status: routeId === "post-admission" ? failedPostStatus ?? 429 : 429,
         headers: {
           "cf-ray": `${routeId === "get-admission" ? GET_RAY : POST_RAY}-SJC`,
-          "retry-after": "10",
+          "retry-after": method === "GET" ? getRetryAfter : "10",
           "set-cookie": "private-provider-cookie"
         }
       });
@@ -454,6 +466,7 @@ async function completeCapture({
     analyticsToken: ANALYTICS_TOKEN,
     fetchImpl,
     recordObservation,
+    recordProviderObservation,
     persistRaw: async (name: string, bytes: Uint8Array) => {
       assert.equal(raw.has(name), false);
       raw.set(name, Buffer.from(bytes));
@@ -478,6 +491,55 @@ test("failed WAF ceilings retain actual response observations without becoming p
   assert.equal(observations.at(-1)?.ordinal, 11);
   assert.deepEqual(Object.keys(observations[0]).sort(), ["observedAt", "ordinal", "retryAfterSeconds", "routeId", "status"]);
   assert.doesNotMatch(JSON.stringify(observations), /private-provider-cookie|cf-ray|authorization|https:\/\//);
+});
+
+test("provider correlation cannot turn a contradictory Retry-After into passing evidence", async () => {
+  const provider: Record<string, unknown>[] = [];
+  await assert.rejects(completeCapture({
+    getRetryAfter: "9",
+    recordProviderObservation: (row) => provider.push(row)
+  }), /retryAfterSeconds must equal rulePolicy\.mitigationTimeoutSeconds/);
+  assert.deepEqual(provider, [{
+    attempt: 1,
+    observedAt: "2026-08-01T16:00:23.200Z",
+    matchedRouteIds: ["get-admission", "post-admission"]
+  }]);
+  assert.doesNotMatch(JSON.stringify(provider), new RegExp(`${GET_RAY}|${POST_RAY}|${RULE_ID}|${ZONE_ID}|private-provider-cookie|https:`));
+});
+
+test("a bounded empty provider response preserves missing correlation and the original contradiction", async () => {
+  const provider: Record<string, unknown>[] = [];
+  let queries = 0;
+  await assert.rejects(completeCapture({
+    getRetryAfter: "9",
+    securityEventsResponse: { data: { viewer: { zones: [{ firewallEventsAdaptive: [] }] } } },
+    recordProviderQuery: () => { queries += 1; },
+    recordProviderObservation: (row) => provider.push(row)
+  }), /retryAfterSeconds must equal rulePolicy\.mitigationTimeoutSeconds/);
+  assert.equal(queries, 1);
+  assert.deepEqual(provider[0]?.matchedRouteIds, []);
+});
+
+test("failed provider reads cannot conceal the original response contradiction", async () => {
+  let queries = 0;
+  const provider: Record<string, unknown>[] = [];
+  await assert.rejects(completeCapture({
+    getRetryAfter: "9",
+    securityEventsResponse: { errors: [{ message: "private provider diagnostic" }] },
+    recordProviderQuery: () => { queries += 1; },
+    recordProviderObservation: (row) => provider.push(row)
+  }), /retryAfterSeconds must equal rulePolicy\.mitigationTimeoutSeconds/);
+  assert.equal(queries, 1);
+  assert.deepEqual(provider, []);
+});
+
+test("an incomplete probe does not query provider events with invented windows", async () => {
+  let queries = 0;
+  await assert.rejects(completeCapture({
+    failGetRequest: 3,
+    recordProviderQuery: () => { queries += 1; }
+  }), /get-admission request 3 failed before an HTTP response/);
+  assert.equal(queries, 0);
 });
 
 function testSha256(value: Buffer | string) {

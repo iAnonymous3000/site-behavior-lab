@@ -804,6 +804,7 @@ async function readSecurityEvents({
   persistRaw,
   now,
   wait,
+  recordProviderObservation,
   eventPollAttempts,
   eventPollIntervalMs
 }) {
@@ -847,6 +848,15 @@ async function readSecurityEvents({
         startedAt: probe.startedAt,
         completedAt: probe.completedAt
       }))
+    });
+    recordProviderObservation({
+      attempt,
+      observedAt: queryEndedAt,
+      matchedRouteIds: WAF_ROUTE_CONTRACT.filter((route) =>
+        normalized.events.some((event) =>
+          event.method === route.method && event.path === route.path
+        )
+      ).map((route) => route.id)
     });
     if (normalized.complete) {
       return {
@@ -940,6 +950,7 @@ export async function captureHostedWafEvidence({
   fetchImpl = globalThis.fetch,
   persistRaw = async () => undefined,
   recordObservation = () => undefined,
+  recordProviderObservation = () => undefined,
   now = () => new Date(),
   wait = (milliseconds) =>
     new Promise((resolve) => setTimeout(resolve, milliseconds)),
@@ -966,6 +977,7 @@ export async function captureHostedWafEvidence({
   requireValue(typeof fetchImpl === "function", "a fetch implementation is required");
   requireValue(typeof persistRaw === "function", "a private raw-byte sink is required");
   requireValue(typeof recordObservation === "function", "an observation sink is required");
+  requireValue(typeof recordProviderObservation === "function", "a provider observation sink is required");
   requireValue(
     Number.isSafeInteger(eventPollAttempts) &&
       eventPollAttempts >= 1 &&
@@ -990,36 +1002,55 @@ export async function captureHostedWafEvidence({
     persistRaw
   });
   const privateRayIds = [];
-  const transcript = await executeWafCeilingProbe({
-    baseUrl: PRODUCTION_WAF_ORIGIN,
-    candidateCommit,
-    deploymentCommit,
-    rulePolicy,
-    requestMaterial: {
-      get: { headers: {} },
-      post: { headers: {} }
-    },
-    fetchImpl: privateRayCapturingFetch(fetchImpl, privateRayIds, recordObservation, now),
-    now,
-    wait
-  });
+  let completedProbes;
+  let transcript;
+  let probeError;
+  try {
+    transcript = await executeWafCeilingProbe({
+      baseUrl: PRODUCTION_WAF_ORIGIN,
+      candidateCommit,
+      deploymentCommit,
+      rulePolicy,
+      requestMaterial: {
+        get: { headers: {} },
+        post: { headers: {} }
+      },
+      fetchImpl: privateRayCapturingFetch(fetchImpl, privateRayIds, recordObservation, now),
+      recordCompletedProbes: (probes) => { completedProbes = probes; },
+      now,
+      wait
+    });
+  } catch (error) {
+    probeError = error;
+  }
+  // An incomplete acquisition has no exact two-route window to correlate.
+  if (probeError && !completedProbes) throw probeError;
   requireValue(
     privateRayIds.length === WAF_ROUTE_CONTRACT.length,
     "both probe routes must retain one private Ray ID until provider correlation completes"
   );
-  const providerExport = await readSecurityEvents({
-    fetchImpl,
-    zoneId,
-    analyticsToken,
-    rulePolicy,
-    expectedRayIds: privateRayIds,
-    transcript,
-    persistRaw,
-    now,
-    wait,
-    eventPollAttempts,
-    eventPollIntervalMs
-  });
+  let providerExport;
+  try {
+    providerExport = await readSecurityEvents({
+      fetchImpl,
+      zoneId,
+      analyticsToken,
+      rulePolicy,
+      expectedRayIds: privateRayIds,
+      transcript: transcript ?? { probes: completedProbes },
+      persistRaw,
+      now,
+      wait,
+      recordProviderObservation,
+      eventPollAttempts,
+      eventPollIntervalMs
+    });
+  } catch (error) {
+    // Preserve the original response contradiction even if the independent
+    // provider query also fails. Neither failure produces a release receipt.
+    throw probeError ?? error;
+  }
+  if (probeError) throw probeError;
   const receipt = buildWafCeilingEvidence({
     probeTranscriptBytes: serializeWafProbeTranscript(transcript),
     providerEventsExportBytes: serializeCanonicalEvidence(providerExport)

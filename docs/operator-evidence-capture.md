@@ -236,6 +236,16 @@ actual unexpected response even when transcript validation fails. It contains
 no response bodies, credentials, raw Ray IDs or release receipt and cannot
 satisfy readiness. The workflow still fails on the original contradiction.
 
+When both bounded probes completed, capture still queries provider events even
+if a response contradicts the release contract. `providerObservations` records
+each successfully parsed query attempt, its time, and the fixed route IDs with
+an exact matching rule/action/request event. An empty route list means no match
+was observed in that query; it does not prove the WAF was absent. No query entry
+means there was no successfully validated provider response. Failed or
+incomplete correlation cannot conceal the original response contradiction,
+and even complete correlation cannot make that failed transcript acceptable.
+Interrupted probes do not query provider events using invented probe windows.
+
 ## Bounded, redacted log queries
 
 Export the provider readback to a file outside the repository. The capture

@@ -1239,10 +1239,12 @@ export async function executeWafCeilingProbe({
   rulePolicy,
   requestMaterial,
   fetchImpl = globalThis.fetch,
+  recordCompletedProbes = () => undefined,
   now = () => new Date(),
   wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds))
 }) {
   if (typeof fetchImpl !== "function") throw new Error("a fetch implementation is required");
+  if (typeof recordCompletedProbes !== "function") throw new Error("a completed-probe sink is required");
   const base = new URL(baseUrl);
   if (base.protocol !== "https:" || base.username || base.password || base.search || base.hash) {
     throw new Error("baseUrl must be a credential-free HTTPS origin");
@@ -1347,6 +1349,10 @@ export async function executeWafCeilingProbe({
       observations
     });
   }
+  // Capture is distinct from acceptance. Hosted diagnostics need the exact
+  // completed windows to query provider events even when validation refuses
+  // the responses below. The callback cannot mutate the validated observations.
+  recordCompletedProbes(structuredClone(probes));
   return buildWafProbeTranscript({
     candidateCommit,
     deploymentCommit,

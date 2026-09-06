@@ -162,6 +162,7 @@ async function capture(options) {
 
   const persistRaw = createPrivateSink(privateDirectory);
   const observations = [];
+  const providerObservations = [];
   let captured;
   let captureError;
   try {
@@ -171,7 +172,8 @@ async function capture(options) {
       rulesToken: environment.rulesToken,
       analyticsToken: environment.analyticsToken,
       persistRaw,
-      recordObservation: (observation) => observations.push(observation)
+      recordObservation: (observation) => observations.push(observation),
+      recordProviderObservation: (observation) => providerObservations.push(observation)
     });
   } catch (error) {
     captureError = error;
@@ -199,7 +201,8 @@ async function capture(options) {
       artifactKind: "site-behavior-waf-failed-capture-diagnostic",
       releaseEvidence: false,
       candidateCommit,
-      observations
+      observations,
+      providerObservations
     }, null, 2)}\n`, { flag: "wx", mode: 0o600 });
     throw captureError;
   }
