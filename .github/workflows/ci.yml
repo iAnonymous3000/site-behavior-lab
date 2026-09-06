@@ -710,7 +710,7 @@ jobs:
           retention-days: 90
 
   # This job never checks out or executes candidate code. OIDC and attestation
-  # writes are isolated here and are unavailable to pull-request code. The three
+  # writes are isolated here and are unavailable to pull-request code. The four
   # subjects include the original manifests and package inventory, plus the
   # same container receipt after registry publication. The published receipt
   # binds the tested local image to its immutable registry reference; a live

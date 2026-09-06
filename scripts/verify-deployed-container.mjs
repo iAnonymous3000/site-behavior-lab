@@ -5,6 +5,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { setTimeout } from "node:timers/promises";
 import { IMAGE_REPOSITORY } from "./published-container-lib.mjs";
+import { readResponseJsonWithinLimit, withHttpOperationDeadline } from "./http-response.mjs";
 
 const expected = process.env.EXPECTED_IMAGE;
 assert.ok(expected?.startsWith(`${IMAGE_REPOSITORY}@sha256:`));
@@ -20,8 +21,19 @@ assert.equal(matches[0].image, expected, "Cloudflare application targets a diffe
 let health;
 for (let attempt = 0; attempt < 12; attempt++) {
   try {
-    const response = await fetch("https://scan.sitebehavior.org/api/health", { signal: AbortSignal.timeout(10_000) });
-    if (response.ok) health = await response.json();
+    health = await withHttpOperationDeadline(
+      { timeoutMs: 10_000, label: "Deployed scanner health" },
+      async (signal) => {
+        const response = await fetch("https://scan.sitebehavior.org/api/health", {
+          cache: "no-store", redirect: "error", signal
+        });
+        const value = await readResponseJsonWithinLimit(response, {
+          maxBytes: 256 * 1024, label: "Deployed scanner health"
+        });
+        assert.ok(response.ok, `Scanner health returned HTTP ${response.status}`);
+        return value;
+      }
+    );
   } catch { /* bounded rollout polling; final mismatch is a failure */ }
   if (health?.deployment === process.env.GITHUB_SHA) break;
   await setTimeout(10_000);
