@@ -9,6 +9,64 @@ fronted by a Worker, with your existing Cloudflare Pages site as the UI/gallery 
 > plan** ($5/mo + metered container compute). The scanner code, Dockerfile, Shields engine,
 > and R2 report backend already exist; this is configuration.
 
+## Production deployment from the tested image
+
+The prebuilt deployment path replaces the second container build in Workers
+Builds. Trusted main CI still builds the Dockerfile, runs its complete checks,
+exercises filesystem and R2 modes, and enforces fresh vulnerability and package
+review gates. It then pushes that same local image to Cloudflare's existing
+registry. No image tarball is stored as a GitHub Actions artifact.
+
+The original release evidence and package inventory remain unchanged. A second
+receipt uses the existing release-evidence schema and adds the registry digest;
+the isolated attestation job refuses any other difference from the tested
+receipt. Source, source tree, image ID, filesystem layers, runtime, and the
+production configuration remain bound. All four subjects are attested only
+after the existing required CI jobs succeed.
+
+After promotion, `Deploy Tested Container` resolves a gated main-CI run for the
+exact `production` SHA, verifies the published receipt's attestation using the
+byte-pinned GitHub CLI, and deploys its immutable registry reference. It rejects
+PR/fork provenance, a different configuration, and superseded production runs.
+The deployment records the provider's selected image and the live scanner SHA,
+then requests the existing independent Production Health scan and R2 canary.
+That separate health result is required before declaring a rollout verified.
+
+### One-time cutover
+
+1. Store a dedicated Cloudflare API token as the repository Actions secret
+   `CLOUDFLARE_CONTAINER_DEPLOY_TOKEN`. Use the proven six-permission scope:
+   Containers, Cloudchamber, and Workers Scripts Edit; Account Settings Read;
+   User Memberships and User Details Read. Account permissions must select only
+   account `dea2502fea1fef952043925374196ae9`; no zone permissions. Keep the
+   existing Workers Builds token available until cutover succeeds.
+2. Merge the deployment change and require main CI, registry publication,
+   attestation, and production promotion to succeed. A missing token or failed
+   push fails CI and blocks promotion. The deployment switch initially stays
+   off, so the existing Workers Builds route continues during preparation.
+3. Disable the scanner's automatic Workers Builds production deployments and
+   ensure no old build remains queued or running. Pages continues watching
+   `production`; its branch and preview settings do not change.
+4. Set repository variable `SITE_BEHAVIOR_LAB_PREBUILT_CONTAINER_DEPLOY=1`, then
+   dispatch `deploy-container.yml` with `--ref production`. Require provider
+   digest readback, exact live revisions, and the deep Production Health result.
+   Future production pushes trigger this deployment workflow automatically.
+
+The switch is a deployment pause, not a fallback to rebuilding an unverified
+image. If deployment fails, leave production serving the prior image and retry
+the same workflow on `production`; it reuses the attested image. Wrangler's
+Worker/container update is not transactional, so inspect both identities after
+a failure. For a code rollback, revert on main and promote the newly tested
+revision through CI; do not rewind `production` or silently select an older tag.
+Keep previous known-good image digests during recovery. Re-enabling the old
+Workers Builds path requires first disabling this deployer to retain one writer.
+
+PR checks validate the handoff and rejection cases without receiving deployment
+credentials. They do not prove registry access or a live rollout. Record those
+results and before/after timings only after the cutover above succeeds. No larger
+runner or container instance is required; image transfer and registry retention
+still consume their normal resources.
+
 ## Does it fit? (verified against Cloudflare docs, 2026-06)
 
 Chromium needs ~2 GB RAM, and the Playwright base image is ~2-3 GB, and **a container

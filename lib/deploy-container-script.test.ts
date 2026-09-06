@@ -18,6 +18,7 @@ const MEASUREMENT_PROOF_SCRIPT = path.join(
 after(() => rmSync(FIXTURE_ROOT, { recursive: true, force: true }));
 mkdirSync(path.dirname(SCRIPT), { recursive: true });
 copyFileSync(path.join(ROOT, "scripts/deploy-container.mjs"), SCRIPT);
+copyFileSync(path.join(ROOT, "scripts/published-container-lib.mjs"), path.join(FIXTURE_ROOT, "scripts/published-container-lib.mjs"));
 copyFileSync(
   path.join(ROOT, "scripts/measurement-candidate-build-proof.mjs"),
   MEASUREMENT_PROOF_SCRIPT

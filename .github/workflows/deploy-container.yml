@@ -1,0 +1,90 @@
+name: Deploy Tested Container
+
+on:
+  push:
+    branches: [production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # Read exact main-CI evidence and dispatch the existing independent health run.
+  actions: write
+  attestations: read
+
+concurrency:
+  group: deploy-production-container
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy the attested production image
+    # Activate only after the existing Workers Builds trigger is disabled.
+    # This cutover switch prevents two independent production deployers racing.
+    if: >-
+      github.ref == 'refs/heads/production' &&
+      vars.SITE_BEHAVIOR_LAB_PREBUILT_CONTAINER_DEPLOY == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the promoted revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install deployment tools
+        run: npm ci
+
+      - name: Resolve the gated main image
+        id: candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/resolve-production-container.mjs
+
+      - name: Verify attestation and deploy the immutable image
+        if: steps.candidate.outputs.current == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_CONTAINER_DEPLOY_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: dea2502fea1fef952043925374196ae9
+          PUBLISHED_EVIDENCE: ${{ steps.candidate.outputs.evidence }}
+          WRANGLER_SEND_METRICS: "false"
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          node scripts/deploy-container.mjs --published-evidence "$PUBLISHED_EVIDENCE"
+
+      - name: Verify provider image and live scanner revision
+        if: steps.candidate.outputs.current == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_CONTAINER_DEPLOY_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: dea2502fea1fef952043925374196ae9
+          EXPECTED_IMAGE: ${{ steps.candidate.outputs.image }}
+          WRANGLER_SEND_METRICS: "false"
+        run: node scripts/verify-deployed-container.mjs
+
+      - name: Preserve deployment readback
+        if: steps.candidate.outputs.current == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: production-container-readback-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/production-container-readback.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Request independent production scan and R2 verification
+        if: steps.candidate.outputs.current == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run production-health.yml --ref production
