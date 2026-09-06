@@ -31,6 +31,25 @@ shared with the Browser Run worker via
 
 ## Gating model
 
+Before parsing a scan body, looking up recovery credentials, or contacting
+Siteverify, the Worker charges a separate admission-attempt budget in the
+existing singleton Durable Object. `POST /api/scan` and
+`GET /api/scan/admission` share a rolling ten-second allowance of ten attempts
+per client and 100 globally. Invalid requests count; changing route or
+credential does not reset the budget. Refusals return `429` and a remaining
+`Retry-After`; unavailable storage returns `503` before that work begins.
+OPTIONS and job polling retain their existing treatment. This budget does not
+consume scan tokens or change the number of browser runs a scan costs.
+
+Only Cloudflare's client-IP header selects an attempt identity, which is hashed
+before storage. At most 100 admitted-attempt rows remain; expired rows are
+removed on the next charge, and rejected identities create no rows. This adds
+SQLite operations to the existing Durable Object, with no new service or
+container. It is not a zero-cost claim or a bound on requests arriving at the
+Worker itself. WAF remains the outer abuse filter, and its provider evidence
+must still be qualified separately; the atomic limit does not turn a failed
+WAF capture into a passing receipt.
+
 The front Worker chooses one of three postures from its config:
 
 | Posture | Config | Behavior |

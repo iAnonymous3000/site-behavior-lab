@@ -21,6 +21,11 @@
 import { Container, getContainer } from "@cloudflare/containers";
 import { scanCorsHeaders } from "../lib/cors";
 import {
+  chargeAdmissionAttempt as chargeAdmissionAttemptInStore,
+  enforceAdmissionAttemptLimit,
+  isAdmissionAttempt
+} from "../lib/admission-attempt-limit";
+import {
   SCAN_ADMISSION_CAPABILITY_HEADER,
   SCAN_ADMISSION_COMMITMENT_HEADER,
   SCAN_ADMISSION_RECOVERY_PATH,
@@ -629,6 +634,13 @@ export class ScannerContainer extends Container<Env> {
     const now = Date.now();
     return this.ctx.storage.transactionSync(() =>
       chargePublicScanRateLimitInStore(this.ctx.storage.sql, input, now)
+    );
+  }
+
+  chargeAdmissionAttempt(input: { clientHash: string }): PublicScanRateLimitResult {
+    const now = Date.now();
+    return this.ctx.storage.transactionSync(() =>
+      chargeAdmissionAttemptInStore(this.ctx.storage.sql, input.clientHash, now)
     );
   }
 
@@ -2835,6 +2847,17 @@ export default {
     // widget the gate then requires, and every public scan 400s.
     if (request.method === "GET" && url.pathname === "/api/health") {
       return handleContainerHealthRequest(request, env);
+    }
+
+    // Charge attempts before parsing even invalid requests or consulting
+    // Siteverify. WAF propagation delays cannot bypass this atomic ceiling.
+    if (isAdmissionAttempt(request.method, url.pathname)) {
+      const refusal = await enforceAdmissionAttemptLimit(
+        request,
+        env.SITE_BEHAVIOR_LAB_ALLOWED_ORIGIN,
+        (clientHash) => getContainer(env.SCANNER).chargeAdmissionAttempt({ clientHash })
+      );
+      if (refusal) return refusal;
     }
 
     const isScanAdmissionRecovery = url.pathname === SCAN_ADMISSION_RECOVERY_PATH && !url.search;
