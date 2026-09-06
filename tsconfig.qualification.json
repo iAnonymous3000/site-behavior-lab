@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.schema.json",
+  "compilerOptions": { "outDir": "dist/qualification", "declaration": false },
+  "include": [
+    "lib/scanner.ts", "lib/scan-report-v2-runtime-builder.ts", "lib/report-store.ts",
+    "lib/scan-report-view.ts", "lib/report-consistency.ts", "lib/report-headline.ts"
+  ]
+}

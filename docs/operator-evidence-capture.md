@@ -65,8 +65,7 @@ For release evidence, use the dedicated `WAF Ceiling Evidence` workflow on the
 exact protected-main candidate that `/api/health` reports as deployed. Configure
 the `release-evidence` environment with two distinct least-privilege secrets:
 `WAF_RULES_API_TOKEN` has **Zone WAF Read** for only the production zone, while
-`WAF_ANALYTICS_API_TOKEN` has **Account Analytics Read** with its Zone Resources
-restricted to only that zone. Configure the non-secret repository variable
+`WAF_ANALYTICS_API_TOKEN` has **Zone Analytics Read** restricted to only that zone. Configure the non-secret repository variable
 `CLOUDFLARE_ZONE_ID`. The workflow refuses a
 missing or reused token, a non-GitHub-hosted runner, a candidate input different
 from its trusted `github.sha`, or a live deployment different from that

@@ -158,7 +158,7 @@
     "r2-lifecycle": {
       "kind": "lifecycle-receipt",
       "title": "A fresh lifecycle readback receipt shows one healthy reports/ backstop",
-      "receipt": "research/ops-receipts/r2-lifecycle-readback.json",
+      "receipt": "research/ops-receipts/v1-r2-lifecycle-readback.json",
       "maxAgeDays": 30
     },
     "release-receipt-archive": {

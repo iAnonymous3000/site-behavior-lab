@@ -154,8 +154,8 @@ response on the ephemeral runner.
 The WAF profile implements this boundary with separate
 `WAF_RULES_API_TOKEN` and `WAF_ANALYTICS_API_TOKEN` environment secrets and a
 non-secret `CLOUDFLARE_ZONE_ID` binding. The tokens must be distinct. The first
-has Zone WAF Read for only the production zone; the second has Account
-Analytics Read with its Zone Resources restricted to only that zone. The
+has Zone WAF Read for only the production zone; the second has Zone
+Analytics Read restricted to only that zone. The
 adapter selects the human rule ref
 `scan-api-rate-limit` but publishes only the immutable provider rule API id and
 version. It queries only the six Security Events fields required for exact Ray

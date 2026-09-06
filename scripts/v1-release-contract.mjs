@@ -38,7 +38,7 @@ const FIXED_EVIDENCE = Object.freeze({
   "research/measurement-candidate/site-behavior-lab-container-package-inventory.json": "container-package-inventory",
   "research/measurement-candidate/container-package-inventory.bundle.json": "container-package-attestation",
   "CONTAINER_IMAGE_PACKAGE_REVIEWS.json": "container-package-review",
-  "research/ops-receipts/r2-lifecycle-readback.json": "lifecycle-receipt",
+  "research/ops-receipts/v1-r2-lifecycle-readback.json": "lifecycle-receipt",
   [V1_QUALIFICATION_PATH]: "mode-qualification"
 });
 const OPERATORS = ["egress-backstop", "waf-ceilings", "log-retention", "container-image-licensing"];
@@ -98,6 +98,7 @@ export function v1ProfileProblems(manifest) {
   }
   if (manifest.gates?.["release-candidate-binding"]?.artifact !== V1_BINDING_PATH ||
       manifest.gates?.["mode-qualification"]?.artifact !== V1_QUALIFICATION_PATH ||
+      manifest.gates?.["r2-lifecycle"]?.receipt !== "research/ops-receipts/v1-r2-lifecycle-readback.json" ||
       manifest.gates?.["published-corpus-consistency"]?.artifact !== "public/corpus-stats.json") problems.push("v1 evidence paths must remain fixed");
   return problems;
 }

@@ -319,3 +319,12 @@ test("one manifest drives the inventory and all GitHub CLI verifier byte pins", 
     assert.match(asset.binarySha256, /^[a-f0-9]{64}$/);
   }
 });
+
+test("the deployed Container Worker dependency participates in runtime license review", () => {
+  const worker = readFileSync(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
+  assert.match(worker, /from "@cloudflare\/containers"/);
+  const inventory = JSON.parse(readFileSync(path.join(process.cwd(), "THIRD_PARTY_INVENTORY.json"), "utf8"));
+  const item = inventory.npm.find((entry: { name: string }) => entry.name === "@cloudflare/containers");
+  assert.ok(item, "deployed Containers SDK must be inventoried");
+  assert.equal(item.developmentOnly, false, "a Worker runtime import cannot bypass runtime review as build tooling");
+});

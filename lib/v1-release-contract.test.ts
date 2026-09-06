@@ -40,6 +40,7 @@ function fixture(t: { after: (callback: () => void) => void }) {
   git("init", "-b", "main"); git("config", "user.name", "Fixture Maintainer"); git("config", "user.email", "fixture@example.test");
   write("RELEASE_READINESS.json", manifest());
   write("app.js", "source version one\n");
+  write("research/ops-receipts/r2-lifecycle-readback.json", { historical: true });
   const candidate = commit("Candidate");
   const candidateTree = git("rev-parse", "HEAD^{tree}");
   gitMoment = "2026-09-06T10:10:00Z";
@@ -53,7 +54,7 @@ function fixture(t: { after: (callback: () => void) => void }) {
   add(canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH, "container-package-inventory", { fixture: "inventory" });
   add(canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH, "container-package-attestation", { fixture: "bundle" });
   add("CONTAINER_IMAGE_PACKAGE_REVIEWS.json", "container-package-review", { fixture: "review" });
-  add("research/ops-receipts/r2-lifecycle-readback.json", "lifecycle-receipt", { fixture: "lifecycle" });
+  add("research/ops-receipts/v1-r2-lifecycle-readback.json", "lifecycle-receipt", { fixture: "lifecycle" });
   for (const id of ["egress-backstop", "waf-ceilings", "log-retention", "container-image-licensing"]) {
     add(`research/ops-evidence/${id}.json`, "operator-evidence", { fixture: id });
     add(`research/ops-receipts/${id}-attestation.json`, "operator-attestation", { fixture: id });
@@ -125,6 +126,7 @@ test("v1 accepts an authenticated evidence-only carrier without a research freez
   const c = await contract(); const f = fixture(t); f.bind();
   const binding = c.verifyV1ReleaseBinding(f.root, f.instruments, f.options);
   assert.equal(binding.candidateCommit, f.candidate);
+  assert.deepEqual(JSON.parse(readFileSync(path.join(f.root, "research/ops-receipts/r2-lifecycle-readback.json"), "utf8")), { historical: true });
   assert.equal(f.calls.length, 2);
   for (const call of f.calls) {
     assert.equal(call.sourceDigest, f.candidate); assert.equal(call.signerDigest, f.candidate);

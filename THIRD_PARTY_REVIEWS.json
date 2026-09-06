@@ -22,7 +22,7 @@
       "ecosystem": "npm",
       "name": "@cloudflare/containers",
       "version": "0.3.7",
-      "runtime": false,
+      "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT OR Apache-2.0",
       "determinedLicense": null,

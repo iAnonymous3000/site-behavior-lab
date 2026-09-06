@@ -113,3 +113,42 @@ dependency and exact-image license reviews. In particular, the existing egress
 and log-retention gates still refuse caller-supplied provider evidence where a
 trusted hosted capture is unavailable. Those are concrete operational evidence
 gaps to close before v1, not reasons to restart the research calendar.
+
+## Collect controlled reference cases
+
+Run `npm run release:qualification:capture -- --output /private/tmp/v1-capture-<unique-name>`
+from committed, clean source. The parent directory must exist; the output must
+be a new directory outside the checkout. The command recompiles the production
+modules, binds their Git commit, and refuses changed source. It never overwrites
+an earlier attempt or writes reports into the published corpus.
+
+The controlled server records incoming HTTP requests before seeing any scanner
+output. Real Chromium visits five fixed scenarios through the existing explicit
+loopback transport seam. The capture checks the server's document status, script
+and image delivery, GPC header and page-realm observations, the delivered versus
+prevented analytics request, consent choices and scanner-induced input traffic.
+The input beacon proves an active probe caused traffic; it does not establish
+that typed data was transmitted. The blocking reference uses a reserved example
+domain and a generic filter rule, so no third-party analytics server is contacted.
+
+The same run commits each report through the managed filesystem store, reopens
+it, compares JSON export with stored bytes, and evaluates presentation meaning.
+For the failed document, an explicit non-reassuring load-failure headline is
+required. The frozen `blockedByShields` field denotes a filter match in
+classification mode; successful aborts are absent from delivered-request rows
+and counted in the explicit verification facts. The reference checks those
+meanings separately.
+
+Each case retains `report.json` when construction succeeds, `reference.json`,
+and `review-evidence.json` when the consumer checks complete. `capture.json`
+records every attempted case, contradiction and artifact digest. A failed case
+causes a nonzero exit, but its available evidence remains. The capture does not
+create a completed `review.json` or approve any reference. Public DNS, TLS,
+Cloudflare ingress, R2 and actual browser rendering remain separate validation
+obligations. These examples do not establish population accuracy or error rates.
+
+The v1 lifecycle receipt uses
+`research/ops-receipts/v1-r2-lifecycle-readback.json`. The older receipt at
+`research/ops-receipts/r2-lifecycle-readback.json` remains intact. A distinct path
+lets a fresh receipt be introduced after C without rewriting historical evidence
+or relaxing the evidence-only carrier rule.
