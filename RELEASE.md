@@ -1,5 +1,14 @@
 # Release integrity
 
+For the current `investigative-v1` profile, follow
+[the v1 qualification contract](docs/v1-release-qualification.md). It uses
+`research/v1-release-binding.json` with the existing externally selected
+`RELEASE_MEASUREMENT_BINDING_SHA256`. The research binding and measurement-freeze
+instructions below apply to the separate research programme. They do not impose
+its calendar, controlled-collection quotas or durable enablement on lean v1.
+All CI, exact-source attestation, release authority, promotion and live
+verification instructions still apply.
+
 ## Current release state
 
 Site Behavior Lab cuts curated milestones on its governed 0.x development line

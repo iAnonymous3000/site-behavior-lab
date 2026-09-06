@@ -19,8 +19,8 @@ prerequisites without treating a failed-check count as independent defects.
   measurement artifacts.
 - [x] Give missing scans a terminal outcome after checking for a saved report;
   preserve recoverable transport failures and require an explicit new scan.
-- [ ] Qualify advertised comparison modes independently on a representative
-  current-candidate sample. Consent is visibly experimental pending that evidence.
+- [ ] Qualify advertised comparison modes independently against bounded
+  current-candidate cases and independent references. Consent is visibly experimental pending that evidence.
 - [x] Repair fresh-source release verification, reconcile the approved v1
   recovery scope, and identify remaining candidate-bound operational evidence.
 
@@ -82,28 +82,21 @@ Keep the following mode decisions independent:
 | Blocker comparison | Use the pinned engine/list identity, record evaluated and actually blocked requests, and retain the one-pair descriptive limit. |
 | Consent comparison | Record attempted controls and registered choices across representative consent systems. Missing or unverified choices cannot become an accept/reject comparison. Keep the mode experimental. |
 
-Use the scanner-fidelity lanes to collect attempts separately for each mode
-against the reviewed candidate, retain failures, and publish mode-specific
-denominators and limitations. Their automated invariants and repeatability
-scores do not establish accuracy: qualification also requires independently
-recorded expectations about the observed behaviors and attempted interventions.
-Do not use the historical corpus or acceptance fixtures as current-method
-qualification evidence.
+Use the bounded cases and independent references specified in
+[v1 release qualification](v1-release-qualification.md). Scanner-fidelity
+invariants, fixture passes and healthy scans remain useful engineering evidence;
+none independently qualifies real-world accuracy.
 
-Run `npm run release:readiness` for the current evidence state. Missing candidate
-and operator artifacts leave the release blocked; several checks share those
-prerequisites. The next release sequence is:
+Run `npm run release:readiness` for the current evidence state. Select a tested
+candidate, collect the bounded mode review and authentic operational evidence,
+then finalize the evidence-only carrier. The executable `investigative-v1`
+contract no longer requires a scheduled freeze, two controlled publication
+cycles, a universal 50-site corpus floor, or enabling durable jobs.
 
-1. Review and test the measurement candidate and controlled-runner environment,
-   then activate the governed freeze. Candidate selection precedes collection;
-   the complete binding cannot be finalized before its evidence exists.
-2. Produce current-method observations and controlled publication/runner
-   receipts against that candidate, preserving their provenance and denominators.
-3. Capture and verify release governance, R2 lifecycle, egress, WAF, log-retention,
-   container-package and licensing evidence through their existing workflows.
-4. Finalize and verify the candidate binding over the collected evidence and
-   release finalization files. Require the readiness check and applicable mode
-   qualification before tagging v1. Deployment health alone cannot satisfy them.
+The existing benchmark floor still controls availability. Every published
+cohort must match the managed observations. The research programme and its
+historical records remain separate and unchanged. Missing qualification,
+provider proofs, distribution reviews or release provenance still block v1.
 
 ## Scope
 

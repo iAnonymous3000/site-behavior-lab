@@ -1,5 +1,12 @@
 # Release gates: purpose, evidence and remaining work
 
+**2026-09-06 scope update:** the table below records the earlier research-coupled
+contract. [V1 release qualification](v1-release-qualification.md) supersedes its
+v1 sequencing and universal collection requirements. The original manifest is
+preserved verbatim in `release-gate-history/research-program-2026-09-05.json`.
+The corpus consistency correction described here remains enforced, now across
+all published cohorts.
+
 The product turns a website visit into inspectable evidence. A useful gate must
 protect a concrete claim, contain a concrete operational risk, or preserve the
 ability to identify and interpret an artifact later. Its evidence must address

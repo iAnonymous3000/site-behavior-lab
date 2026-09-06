@@ -201,14 +201,13 @@ const repositoryHeadSkip = (() => {
 const EXPECTED_GATES: Record<string, string> = {
   "decisions-approved": "decisions",
   "release-tag-governance": "release-tag-governance",
-  "measurement-candidate-binding": "measurement-candidate-binding",
-  "measurement-freeze": "measurement-freeze",
+  "release-candidate-binding": "release-candidate-binding",
+  "mode-qualification": "mode-qualification",
   "compatibility-surface-pinned": "document-digest",
   "errata-resolution": "errata",
-  "current-method-corpus": "corpus",
+  "published-corpus-consistency": "published-corpus-consistency",
   "legal-review": "review-ledger",
-  "runner-cycles": "runner-receipts",
-  "controlled-publications": "controlled-publications",
+
   "r2-lifecycle": "lifecycle-receipt",
   "release-receipt-archive": "receipt-archive",
   "durable-soak": "durable-soak",
@@ -219,6 +218,7 @@ const EXPECTED_GATES: Record<string, string> = {
   "container-package-review": "container-package-review"
 };
 const EXPECTED_DECISIONS = [
+  "v1EvidenceScope",
   "claimBoundary",
   "stableApiClaim",
   "compatibilitySurface",
@@ -309,12 +309,11 @@ test("the committed manifest preserves its gate contract without requiring evide
     manifest.deferredGates["aa-repeatability"].directory,
     "research/aa-studies"
   );
-  assert.equal(
-    manifest.gates["measurement-candidate-binding"].requiredEvidenceCategories.includes(
-      "operator-evidence"
-    ),
-    true
-  );
+  assert.equal(manifest.releaseProfile, "investigative-v1");
+  assert.equal(manifest.gates["release-candidate-binding"].artifact, "research/v1-release-binding.json");
+  const research = JSON.parse(readFileSync(path.join(process.cwd(), "docs/release-gate-history/research-program-2026-09-05.json"), "utf8"));
+  assert.equal(research.gates["measurement-candidate-binding"].requiredEvidenceCategories.includes("operator-evidence"), true);
+  assert.equal(research.gates["runner-cycles"].minimumReceipts, 2);
   assert.deepEqual(
     Object.fromEntries(
       [
@@ -345,7 +344,7 @@ test("the committed manifest preserves its gate contract without requiring evide
   );
   assert.match(
     manifest.notice,
-    /release workflow for exact 1\.0\.0 and 1\.0\.0-rc\.N/
+    /lean investigative v1 requirements/
   );
   assert.doesNotMatch(manifest.notice, /advisory|until then/i);
 });
@@ -1912,7 +1911,7 @@ test("the aa evidence requirement follows the manifest: valid deferral drops it,
     "aa-producer-attestation"
   ];
   const committed = JSON.parse(
-    readFileSync(path.join(process.cwd(), "RELEASE_READINESS.json"), "utf8")
+    readFileSync(path.join(process.cwd(), "docs/release-gate-history/research-program-2026-09-05.json"), "utf8")
   );
   const leanCategories: string[] =
     committed.gates["measurement-candidate-binding"].requiredEvidenceCategories;
@@ -2295,11 +2294,11 @@ test("the attestation scaffold covers every release attestation without inventin
   assert.equal(egress.bindings.candidateCommit, "a".repeat(40));
   assert.equal(
     egress.bindings.collectionEnvironmentDigest,
-    "b".repeat(64)
+    undefined
   );
   assert.equal(
     egress.bindings.collectionProducerCommitsDigest,
-    "c".repeat(64)
+    undefined
   );
   assert.equal(
     egress.bindings.networkPolicyDigest,

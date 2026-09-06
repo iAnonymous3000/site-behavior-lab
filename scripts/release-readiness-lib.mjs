@@ -113,6 +113,11 @@ import {
   verifyHostedEvidenceDirectory
 } from "./hosted-evidence-provenance-lib.mjs";
 
+import {
+  V1_PROFILE, V1_BINDING_PATH, V1_QUALIFICATION_PATH, v1ProfileProblems,
+  verifyV1ReleaseBinding, v1QualificationProblems, publishedCorpusProblems
+} from "./v1-release-contract.mjs";
+
 const requireFromHere = createRequire(import.meta.url);
 const SHA256 = /^[0-9a-f]{64}$/;
 const FULL_GIT_SHA = /^[0-9a-f]{40}$/;
@@ -1344,6 +1349,25 @@ export function measurementCandidateBindingVerificationOptions(options = {}) {
 }
 
 function acquireMeasurementCandidate(manifest, rootDir, options = {}) {
+  if (manifest.releaseProfile === V1_PROFILE) {
+    const canonical = loadCompiled("measurement-candidate-binding", rootDir);
+    // Reuse only the producer-membership helper. Path/timestamp checks below
+    // retain their Git-based causal verification for this evidence carrier.
+    const module = canonical ? {
+      MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH: canonical.MEASUREMENT_CANDIDATE_PACKAGE_INVENTORY_PATH,
+      MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH: canonical.MEASUREMENT_CANDIDATE_PACKAGE_ATTESTATION_BUNDLE_PATH,
+      measurementCandidateAcceptsProducerCommit: canonical.measurementCandidateAcceptsProducerCommit
+    } : null;
+    try {
+      if (!canonical) throw new Error("fresh candidate verifier is unavailable");
+      const binding = verifyV1ReleaseBinding(rootDir, canonical);
+      return { configured: true, profile: V1_PROFILE, binding, module,
+        problems: binding ? [] : [`${V1_BINDING_PATH} does not exist`] };
+    } catch (error) {
+      return { configured: true, profile: V1_PROFILE, binding: null, module,
+        problems: [`v1 release candidate verification failed: ${String(error.message ?? error)}`] };
+    }
+  }
   const configured = Object.values(manifest.gates ?? {}).some(
     (gate) => gate?.kind === "measurement-candidate-binding"
   );
@@ -3854,13 +3878,15 @@ export function archivedReleaseGovernanceProblems(
   // governance receipt above was still fully verified.
   if (!requiresMeasurementBinding) return reasons;
 
-  const bindingBytes = gitRead(rootDir, [
-    "show",
-    `${sourceCommit}:${MEASUREMENT_CANDIDATE_BINDING_PATH}`
-  ]);
+  const archivedManifestBytes = gitRead(rootDir, ["show", `${sourceCommit}:RELEASE_READINESS.json`]);
+  let bindingPath = MEASUREMENT_CANDIDATE_BINDING_PATH;
+  try {
+    if (archivedManifestBytes && JSON.parse(archivedManifestBytes).releaseProfile === V1_PROFILE) bindingPath = V1_BINDING_PATH;
+  } catch { return [...reasons, "archived readiness manifest is invalid"]; }
+  const bindingBytes = gitRead(rootDir, ["show", `${sourceCommit}:${bindingPath}`]);
   if (bindingBytes === null) {
     reasons.push(
-      `${MEASUREMENT_CANDIDATE_BINDING_PATH} is unavailable at source.commit`
+      `${bindingPath} is unavailable at source.commit`
     );
     return reasons;
   }
@@ -3895,7 +3921,7 @@ export function archivedReleaseGovernanceProblems(
     }
   } catch (error) {
     reasons.push(
-      `${MEASUREMENT_CANDIDATE_BINDING_PATH} is invalid at source.commit: ${String(error).slice(0, 200)}`
+      `${bindingPath} is invalid at source.commit: ${String(error).slice(0, 200)}`
     );
   }
   return reasons;
@@ -5161,7 +5187,7 @@ function evaluateAttestation(
       "attestation evidenceCapturedAt must equal the canonical underlying evidence capturedAt"
     );
   }
-  if (id === "egress-backstop") {
+  if (id === "egress-backstop" && manifest.releaseProfile !== V1_PROFILE) {
     preflightIssues.push(
       ...egressCollectionBindingProblems(canonical.evidence, runnerContext)
     );
@@ -5564,6 +5590,20 @@ export function releaseAttestationScaffold(
       preCandidateDurableAttestationBindings(rootDir)
     );
   }
+  if (manifest.releaseProfile === V1_PROFILE) {
+    // Preparation must precede the final binding that includes this file.
+    // This is deliberately a non-passing scaffold: every statement is false
+    // and every human approval is absent. Release evaluation still authenticates
+    // the candidate, provider capture, chronology and completed attestation.
+    const canonical = acquireCanonicalOperatorEvidence(gateId, gate, rootDir, now);
+    if (canonical.problems.length || !canonical.bindings) {
+      throw new Error(`canonical operator evidence is required: ${canonical.problems.join("; ")}`);
+    }
+    return buildReleaseAttestationScaffold(manifest, gateId, canonical.bindings, {
+      evidenceCapturedAt: canonical.evidence.capturedAt,
+      evidenceRefs: [`${canonical.path}#sha256:${canonical.digest}`]
+    });
+  }
   const measurementContext = acquireMeasurementCandidate(manifest, rootDir);
   const candidateProblems = measurementCandidateProblems(measurementContext);
   if (candidateProblems.length > 0) {
@@ -5602,7 +5642,7 @@ export function releaseAttestationScaffold(
     );
   }
 
-  if (gateId === "egress-backstop") {
+  if (gateId === "egress-backstop" && manifest.releaseProfile !== V1_PROFILE) {
     const freezeGateEntry = Object.entries(manifest.gates ?? {}).find(
       ([, value]) => value?.kind === "measurement-freeze"
     );
@@ -5674,7 +5714,7 @@ export function evaluateReleaseReadiness(
   } catch {
     return { ready: false, manifestProblems: [`${READINESS_MANIFEST} is not valid JSON`], gates: [] };
   }
-  const manifestProblems = [];
+  const manifestProblems = v1ProfileProblems(manifest);
   if (manifest.artifactKind !== "site-behavior-release-readiness-manifest") {
     manifestProblems.push("wrong artifactKind");
   }
@@ -5727,6 +5767,26 @@ export function evaluateReleaseReadiness(
     let result;
     try {
       switch (gate.kind) {
+        case "release-candidate-binding": {
+          const reasons = measurementCandidateProblems(measurementContext);
+          result = gateResult(id, gate, reasons.length ? "fail" : "pass", reasons.length ? reasons : ["The complete candidate source and evidence-only carrier passed Git and Sigstore verification."]);
+          break;
+        }
+        case "mode-qualification": {
+          const reasons = [...measurementCandidateProblems(measurementContext)];
+          if (measurementContext.binding) reasons.push(...v1QualificationProblems(rootDir, measurementContext, loadCompiled("scan-report-reader", rootDir), now));
+          else if (!existsSync(path.join(rootDir, V1_QUALIFICATION_PATH))) reasons.push(`${V1_QUALIFICATION_PATH} does not exist`);
+          result = gateResult(id, gate, reasons.length ? "fail" : "pass", reasons.length ? reasons : ["The bounded mode review has retained references; population accuracy and detector error rates remain unestablished."]);
+          break;
+        }
+        case "published-corpus-consistency": {
+          const schema = loadCompiled("corpus-stats", rootDir);
+          const output = freshCompiledCache.get(rootDir)?.output;
+          const builder = output ? path.join(output, "lib/corpus-stats-builder.js") : requireFromHere.resolve("../.unit-test-dist/lib/corpus-stats-builder.js");
+          const reasons = publishedCorpusProblems(rootDir, builder, schema, now);
+          result = gateResult(id, gate, reasons.length ? "fail" : "pass", reasons.length ? reasons : ["Every published cohort equals the managed-report aggregation. The existing per-metric sample floor controls benchmark availability, not release readiness."]);
+          break;
+        }
         case "decisions":
           result = evaluateDecisions(
             id,

@@ -8775,7 +8775,7 @@ function verifyReleaseFinalization(
   );
 }
 
-function verifySourceEvidenceManifest(
+export function verifySourceEvidenceManifest(
   manifest: JsonRecord,
   candidateCommit: string,
   candidateTree: string,
@@ -8835,7 +8835,7 @@ function verifySourceEvidenceManifest(
   return container;
 }
 
-function verifyContainerPackageInventory(
+export function verifyContainerPackageInventory(
   inventory: JsonRecord,
   candidateCommit: string,
   container: JsonRecord
@@ -9132,7 +9132,7 @@ function verifyMeasurementFreezeReceiptWithCanonicalCli(
   );
 }
 
-function verifyAttestationWithGh(
+export function verifyAttestationWithGh(
   request: MeasurementCandidateAttestationRequest,
   rootDir: string
 ): void {

@@ -1164,7 +1164,7 @@ test("the release workflow tags only a promoted, CI-green revision and attests i
   );
   assert.match(
     measurementTrustRoot,
-    /contents\/research\/measurement-candidate-binding\.json\?ref=\$\{RELEASE_SHA\}/
+    /contents\/\$\{release_binding_path\}\?ref=\$\{RELEASE_SHA\}/
   );
   assert.match(measurementTrustRoot, /createHash\("sha256"\)\.update\(raw\)/);
   assert.match(measurementTrustRoot, /JSON\.stringify\(binding, null, 2\)/);
@@ -2348,7 +2348,7 @@ test("release trust-root snapshot and version classifier fail closed", async (t)
   const classify = releaseWorkflowShellStep(
     workflow,
     "Classify the release measurement-binding requirement",
-    "Verify the release policy names exactly this version"
+    "Select the release binding contract"
   );
   const root = await mkdtemp(path.join(os.tmpdir(), "site-behavior-release-trust-roots-"));
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -2425,7 +2425,7 @@ test("pre-authority measurement trust root rejects skeletons and skips all 0.x f
   const gh = path.join(bin, "gh");
   await writeFile(
     gh,
-    `#!/bin/sh\nset -eu\nprintf '%s\\n' "$*" >> "$GH_CALL_LOG"\ncase "$*" in\n  *contents/research/measurement-candidate-binding.json*) /bin/cat "$BINDING_FIXTURE" ;;\n  *git/commits/*) /bin/cat "$COMMIT_FIXTURE" ;;\n  *compare/*) /bin/cat "$COMPARE_FIXTURE" ;;\n  *) exit 97 ;;\nesac\n`
+    `#!/bin/sh\nset -eu\nprintf '%s\\n' "$*" >> "$GH_CALL_LOG"\ncase "$*" in\n  *contents/research/measurement-candidate-binding.json*|*contents/research/v1-release-binding.json*) /bin/cat "$BINDING_FIXTURE" ;;\n  *git/commits/*) /bin/cat "$COMMIT_FIXTURE" ;;\n  *compare/*) /bin/cat "$COMPARE_FIXTURE" ;;\n  *) exit 97 ;;\nesac\n`
   );
   await chmod(gh, 0o755);
 
@@ -2462,7 +2462,8 @@ test("pre-authority measurement trust root rejects skeletons and skips all 0.x f
     required: string,
     bindingBytes: string,
     selectedDigest: string,
-    githubCandidateTree: string = candidateTree
+    githubCandidateTree: string = candidateTree,
+    releaseBindingPath: string = "research/measurement-candidate-binding.json"
   ) => {
     const runnerTemp = await mkdtemp(path.join(root, "run-"));
     const bindingFixture = path.join(runnerTemp, "binding.json");
@@ -2498,7 +2499,8 @@ test("pre-authority measurement trust root rejects skeletons and skips all 0.x f
         RELEASE_VERSION: version,
         RELEASE_MEASUREMENT_BINDING_REQUIRED: required,
         RELEASE_MEASUREMENT_BINDING_SHA256: selectedDigest,
-        RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: governance
+        RELEASE_TAG_GOVERNANCE_RECEIPT_SHA256: governance,
+        RELEASE_BINDING_PATH: releaseBindingPath
       }
     });
     let calls = "";
@@ -2517,6 +2519,25 @@ test("pre-authority measurement trust root rejects skeletons and skips all 0.x f
   const missingPin = await run("1.0.0", "true", canonical(fullBinding), "");
   assert.equal(missingPin.result.status, 1);
   assert.equal(missingPin.calls, "", "missing v1 pins must fail before fetching");
+
+  const coreBinding = {
+    schemaVersion: 1, artifactKind: "site-behavior-v1-release-binding",
+    repository: fullBinding.repository, targetRelease: "1.0.0",
+    candidateCommit: candidate, candidateTree, evidence: fullBinding.evidence
+  };
+  const coreBytes = canonical(coreBinding);
+  const coreDigest = createHash("sha256").update(coreBytes).digest("hex");
+  const core = await run("1.0.0", "true", coreBytes, coreDigest, candidateTree, "research/v1-release-binding.json");
+  assert.equal(core.result.status, 0, core.result.stderr);
+  assert.match(core.calls, /contents\/research\/v1-release-binding\.json/);
+  const crossContract = await run("1.0.0", "true", coreBytes, coreDigest);
+  assert.equal(crossContract.result.status, 1, "a core binding cannot impersonate the legacy contract");
+  const invalidPath = await run("1.0.0", "true", coreBytes, coreDigest, candidateTree, "research/arbitrary.json");
+  assert.equal(invalidPath.result.status, 1);
+  assert.equal(invalidPath.calls, "");
+  const coreMismatch = await run("1.0.0", "true", coreBytes, "f".repeat(64), candidateTree, "research/v1-release-binding.json");
+  assert.equal(coreMismatch.result.status, 1);
+  assert.match(coreMismatch.result.stderr, /external maintainer pin/);
 
   const fullBytes = canonical(fullBinding);
   const mismatch = await run("1.0.0", "true", fullBytes, "f".repeat(64));

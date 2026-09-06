@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifactKind": "site-behavior-release-readiness-manifest",
   "targetRelease": "1.0.0",
-  "notice": "Single source of lean investigative v1 requirements. CI, exact-source attestation, promotion and live verification remain required. Historical research-program requirements are preserved in docs/release-gate-history/research-program-2026-09-05.json; they qualify scheduled research collections, not ordinary website investigation. Missing v1 evidence fails closed.",
+  "notice": "Single source enforced by scripts/release-readiness.mjs and the release workflow for exact 1.0.0 and 1.0.0-rc.N. Decisions carry recommended values but stay red until a human sets status to approved with decidedBy/decidedAt. Derived gates re-evaluate from committed evidence on every run; operator gates require an attestation file whose statements are all literally true. Governed 0.x release ceremonies remain unaffected by the 1.0 readiness check.",
   "decisions": {
     "claimBoundary": {
       "recommended": "investigative-evidence-requiring-independent-corroboration",
@@ -77,14 +77,6 @@
       "decidedBy": "iAnonymous3000",
       "decidedAt": "2026-09-05T17:54:05.369Z",
       "note": "Approved in the project task on 2026-09-05: v1 requires explicit loss/failure and safe retry; durable jobs and sharding remain disabled. Durable activation retains the existing replay and soak obligations."
-    },
-    "v1EvidenceScope": {
-      "selected": "investigative-v1",
-      "status": "approved",
-      "decidedBy": "iAnonymous3000",
-      "decidedAt": "2026-09-06T10:06:04.000Z",
-      "document": "docs/v1-release-qualification.md",
-      "note": "Approved in the project task: scope requirements to the shipped investigative claims, replace research calendar and collection quotas with bounded qualification, preserve provenance, operational safety, compatibility and distribution obligations. This approves the contract, not any missing evidence or a v1 release."
     }
   },
   "gates": {
@@ -98,8 +90,7 @@
         "reportRevisionR3",
         "calibrationCensoringPolicy",
         "wasmReproducibility",
-        "jobRecovery",
-        "v1EvidenceScope"
+        "jobRecovery"
       ]
     },
     "release-tag-governance": {
@@ -117,15 +108,32 @@
       ],
       "releaseWorkflow": ".github/workflows/release.yml"
     },
-    "release-candidate-binding": {
-      "kind": "release-candidate-binding",
-      "title": "Candidate source and evidence carrier are authenticated",
-      "artifact": "research/v1-release-binding.json"
+    "measurement-candidate-binding": {
+      "kind": "measurement-candidate-binding",
+      "title": "One Sigstore-verified candidate binds every post-freeze evidence carrier",
+      "artifact": "research/measurement-candidate-binding.json",
+      "requiredEvidenceCategories": [
+        "featured-report",
+        "featured-provenance",
+        "generated-report-index",
+        "generated-corpus-stats",
+        "runner-receipt",
+        "controlled-publication-manifest",
+        "controlled-publication-receipt",
+        "hosted-evidence-archive",
+        "measurement-freeze-receipt",
+        "lifecycle-receipt",
+        "operator-evidence",
+        "operator-attestation",
+        "release-tag-governance-receipt",
+        "release-policy-finalization",
+        "changelog-finalization"
+      ]
     },
-    "mode-qualification": {
-      "kind": "mode-qualification",
-      "title": "Advertised modes and incomplete coverage have a bounded independent review",
-      "artifact": "research/v1-qualification/review.json"
+    "measurement-freeze": {
+      "kind": "measurement-freeze",
+      "title": "The measurement freeze was activated on the verified candidate with no parked proposal",
+      "receipt": "research/ops-receipts/measurement-freeze-activation.json"
     },
     "compatibility-surface-pinned": {
       "kind": "document-digest",
@@ -144,16 +152,43 @@
       "resolvedBy": "reportRevisionR3",
       "requiredSelection": "no-r3-for-1.0"
     },
-    "published-corpus-consistency": {
-      "kind": "published-corpus-consistency",
-      "title": "Published distributions agree with every managed observation cohort",
-      "artifact": "public/corpus-stats.json"
+    "current-method-corpus": {
+      "kind": "corpus",
+      "title": "A current-method cohort clears every claim-bearing metric denominator",
+      "artifact": "public/corpus-stats.json",
+      "requiredCohort": {
+        "schemaVersion": 2,
+        "schemaRevision": 2
+      },
+      "minimumSitesPerMetric": 50,
+      "requiredMetrics": [
+        "thirdPartyRequests",
+        "thirdPartyDomains",
+        "cataloguedServiceRequests",
+        "trackingServiceRequests",
+        "thirdPartyCookies",
+        "fingerprintEvents"
+      ]
     },
     "legal-review": {
       "kind": "review-ledger",
       "title": "Every runtime third-party item has a completed review",
       "artifact": "THIRD_PARTY_REVIEWS.json",
       "inventory": "THIRD_PARTY_INVENTORY.json"
+    },
+    "runner-cycles": {
+      "kind": "runner-receipts",
+      "title": "At least two controlled-runner cycles carry verifying destruction receipts",
+      "directory": "research/runner-receipts",
+      "minimumReceipts": 2,
+      "expectedEnvironment": null,
+      "maxAgeDays": 45
+    },
+    "controlled-publications": {
+      "kind": "controlled-publications",
+      "title": "Exactly two controlled publication archives bind the runner cycles to every governed report",
+      "directory": "research/controlled-publications",
+      "requiredPublications": 2
     },
     "r2-lifecycle": {
       "kind": "lifecycle-receipt",
@@ -221,7 +256,7 @@
     },
     "egress-backstop": {
       "kind": "operator-attestation",
-      "title": "Independent production egress boundary proven against application-guard failure",
+      "title": "An independent network egress boundary exists and was tested with the app guard treated as failed",
       "evidence": "research/ops-evidence/egress-backstop.json",
       "attestation": "research/ops-receipts/egress-backstop-attestation.json",
       "maxAgeDays": 90,
@@ -231,6 +266,8 @@
         "networkPolicyDigest",
         "networkPolicyExportDigest",
         "failureProbeTranscriptDigest",
+        "collectionEnvironmentDigest",
+        "collectionProducerCommitsDigest",
         "effectiveSourceObservedAt"
       ],
       "requiredClaims": [
@@ -241,6 +278,10 @@
         {
           "id": "failed-app-guard-tested",
           "claim": "The independent boundary was tested while the application egress guard was deliberately treated as failed."
+        },
+        {
+          "id": "collection-egress-bound",
+          "claim": "The stable egress identity and region match the bound current-method collection candidate."
         }
       ]
     },
@@ -359,6 +400,5 @@
       "deferredAt": "2026-08-02T22:10:00.000Z",
       "reason": "Lean 1.0 scope: 1.0 publishes no detector error rates, and the approved claimBoundary decision classifies every report as investigative evidence requiring independent corroboration. This evidence program gates the 1.1 calibrated-claims release instead of 1.0. While this record stands, the measurement-candidate binding does not require this program's evidence for 1.0; evidence that is bound anyway is still fully verified, and the requirement reverts to full if this record is removed without restoring the gate. Restoring this gate to the 1.0 set is the reviewed enforcement edit that reverses the lean fork."
     }
-  },
-  "releaseProfile": "investigative-v1"
+  }
 }

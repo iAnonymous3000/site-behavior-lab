@@ -57,5 +57,5 @@ console.log(
     : `\nRelease 1.0 readiness: NOT READY (${failing} of ${result.gates.length} gates unsatisfied; these may share missing prerequisites).`
 );
 console.log("Passing these checks establishes the configured release-evidence requirements, not detector error rates or representative mode accuracy.");
-console.log("CI validates code and artifacts; deployment health validates exercised operations. See docs/release-gates-audit-2026-09-05.md for the evidence boundaries and release sequence.");
+console.log("CI validates code and artifacts; deployment health validates exercised operations. See docs/v1-release-qualification.md for the current evidence boundaries and release sequence.");
 if (mode === "--check" && !result.ready) process.exit(1);

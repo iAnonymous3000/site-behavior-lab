@@ -58,6 +58,7 @@ jobs:
       release_version: ${{ steps.release.outputs.release_version }}
       release_tag: ${{ steps.release.outputs.release_tag }}
       governance_receipt_sha256: ${{ steps.governance_selector.outputs.receipt_sha256 }}
+      release_binding_path: ${{ steps.binding_path.outputs.path }}
       measurement_binding_required: ${{ steps.measurement_binding_policy.outputs.binding_required }}
       measurement_binding_sha256: ${{ steps.measurement_binding_policy.outputs.binding_sha256 }}
       receipt_artifact_id: ${{ steps.receipt_artifact.outputs.artifact-id }}
@@ -216,6 +217,19 @@ jobs:
           printf 'binding_required=%s\n' "$binding_required" >> "$GITHUB_OUTPUT"
           printf 'binding_sha256=%s\n' "$binding_sha256" >> "$GITHUB_OUTPUT"
 
+      # A separate artifact keeps v1 qualification out of calibration readers.
+      # This fixed-path selection carries no authority: the whole binding is
+      # independently digest-authenticated again before the release App is used.
+      - name: Select the release binding contract
+        id: binding_path
+        run: |
+          set -euo pipefail
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const manifest = JSON.parse(require("node:fs").readFileSync("RELEASE_READINESS.json", "utf8"));
+          if (manifest.releaseProfile !== undefined && manifest.releaseProfile !== "investigative-v1") throw new Error("Unknown release profile");
+          console.log(`path=${manifest.releaseProfile === "investigative-v1" ? "research/v1-release-binding.json" : "research/measurement-candidate-binding.json"}`);
+          NODE
+
       - name: Verify the release policy names exactly this version
         run: |
           set -euo pipefail
@@ -319,9 +333,13 @@ jobs:
         id: freeze_context
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_BINDING_PATH: ${{ steps.binding_path.outputs.path }}
         run: |
           set -euo pipefail
           if [[ ! "$RELEASE_VERSION" =~ ^1\.0\.0(-rc\.[1-9][0-9]*)?$ ]]; then
+            exit 0
+          fi
+          if [[ "$RELEASE_BINDING_PATH" == "research/v1-release-binding.json" ]]; then
             exit 0
           fi
           context="$RUNNER_TEMP/measurement-freeze-artifact-context"
@@ -551,9 +569,13 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$RELEASE_VERSION" =~ ^1\.0\.0(-rc\.[1-9][0-9]*)?$ ]]; then
-            npm run release:readiness:check -- \
-              --live-artifact-context "$RUNNER_TEMP/measurement-freeze-artifact-context" \
-              --live-artifact-context-sha256 "$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256"
+            if [[ -n "$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256" ]]; then
+              npm run release:readiness:check -- \
+                --live-artifact-context "$RUNNER_TEMP/measurement-freeze-artifact-context" \
+                --live-artifact-context-sha256 "$SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE_ARTIFACT_CONTEXT_SHA256"
+            else
+              npm run release:readiness:check
+            fi
           fi
 
       - name: Install Chromium
@@ -1257,6 +1279,7 @@ jobs:
       # measurement-binding fetch at all.
       - name: Verify external measurement-binding trust root before release authority
         env:
+          RELEASE_BINDING_PATH: ${{ needs.prepare.outputs.release_binding_path }}
           GH_TOKEN: ${{ github.token }}
           RELEASE_SHA: ${{ needs.prepare.outputs.release_sha }}
           RELEASE_VERSION: ${{ needs.prepare.outputs.release_version }}
@@ -1284,9 +1307,15 @@ jobs:
           context="$RUNNER_TEMP/release-measurement-binding"
           install -d -m 0700 "$context"
           binding_path="$context/measurement-candidate-binding.json"
+          release_binding_path="${RELEASE_BINDING_PATH:-research/measurement-candidate-binding.json}"
+          case "$release_binding_path" in
+            research/measurement-candidate-binding.json|research/v1-release-binding.json) ;;
+            *) echo "::error title=Release refused::Unsupported release binding path."; exit 1 ;;
+          esac
+          export RELEASE_BINDING_PATH="$release_binding_path"
           gh api \
             -H "Accept: application/vnd.github.raw+json" \
-            "repos/${GITHUB_REPOSITORY}/contents/research/measurement-candidate-binding.json?ref=${RELEASE_SHA}" \
+            "repos/${GITHUB_REPOSITORY}/contents/${release_binding_path}?ref=${RELEASE_SHA}" \
             > "$binding_path"
           chmod 0400 "$binding_path"
           read -r candidate_commit candidate_tree < <(
@@ -1332,7 +1361,8 @@ jobs:
           if (`${JSON.stringify(binding, null, 2)}\n` !== text) {
             fail("The release measurement binding is not canonical JSON.");
           }
-          const topLevelKeys = [
+          const core = process.env.RELEASE_BINDING_PATH === "research/v1-release-binding.json";
+          const topLevelKeys = core ? ["schemaVersion", "artifactKind", "repository", "targetRelease", "candidateCommit", "candidateTree", "evidence"] : [
             "schemaVersion",
             "artifactKind",
             "repository",
@@ -1351,19 +1381,19 @@ jobs:
           if (
             !exactKeys(binding, topLevelKeys) ||
             binding.schemaVersion !== 1 ||
-            binding.artifactKind !==
-              "site-behavior-measurement-candidate-binding" ||
+            binding.artifactKind !== (core ? "site-behavior-v1-release-binding" :
+              "site-behavior-measurement-candidate-binding") ||
             binding.repository !== process.env.GITHUB_REPOSITORY ||
             binding.targetRelease !== "1.0.0" ||
             !/^[0-9a-f]{40}$/.test(binding.candidateCommit ?? "") ||
             !/^[0-9a-f]{40}$/.test(binding.candidateTree ?? "") ||
-            !isRecord(binding.measurementInputs) ||
+            (!core && (!isRecord(binding.measurementInputs) ||
             !isRecord(binding.measurementIdentity) ||
             !isRecord(binding.calibrationPolicy) ||
             !isRecord(binding.durablePrerequisite) ||
             !isRecord(binding.sourceEvidence) ||
             !isRecord(binding.attestationPolicy) ||
-            !Array.isArray(binding.calibrationStudies) ||
+            !Array.isArray(binding.calibrationStudies))) ||
             !Array.isArray(binding.evidence) ||
             binding.evidence.length < 1 ||
             binding.evidence.length > 10000
