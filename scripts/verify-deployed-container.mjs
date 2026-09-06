@@ -54,10 +54,15 @@ export async function waitForDeployment({
   let lastObservation = "No provider/runtime observation completed";
   while (remaining() > 0) {
     try {
-      const app = await application(Math.min(60_000, remaining()));
+      // Capture and check the budget once. A deadline crossed between two clock
+      // reads must never pass timeout: 0 to Node, where zero means unlimited.
+      const applicationBudget = Math.min(60_000, remaining());
+      if (applicationBudget <= 0) break;
+      const app = await application(applicationBudget);
       lastObservation = `Cloudflare image: ${app.image ?? "unavailable"}`;
-      if (app.image === expectedImage && remaining() > 0) {
-        const live = await health(Math.min(10_000, remaining()));
+      const healthBudget = Math.min(10_000, remaining());
+      if (app.image === expectedImage && healthBudget > 0) {
+        const live = await health(healthBudget);
         lastObservation += `; live revision: ${live?.deployment ?? "unavailable"}`;
         // Never combine a matching image from a previous attempt with a later
         // health response, or accept an observation completed after the deadline.

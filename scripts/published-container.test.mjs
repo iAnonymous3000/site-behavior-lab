@@ -104,6 +104,16 @@ test("read time consumes the overall budget and late matching responses are refu
   assert.equal(clock.now(), 100);
 });
 
+test("a deadline crossed before subprocess launch cannot disable its timeout", async () => {
+  const ticks = [0, 0, 100];
+  const budgets = [];
+  await assert.rejects(waitForDeployment({ ...rolloutClock(),
+    now: () => ticks.shift() ?? 100,
+    application: async (budget) => { budgets.push(budget); return { image: reference }; }
+  }), /did not converge/);
+  assert.deepEqual(budgets, [], "Expired work must not launch with Node's unlimited timeout: 0");
+});
+
 test("live readback rejects failed HTTP status, oversized bodies and duplicate JSON keys", async (t) => {
   const cases = [
     () => new Response(JSON.stringify({ deployment: commit }), { status: 503 }),
