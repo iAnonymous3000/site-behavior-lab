@@ -20,6 +20,17 @@ test("strings normalize to NFC so byte-different composed forms digest identical
   assert.equal(canonicalJson({ v: composed }), canonicalJson({ v: decomposed }));
 });
 
+test("ASCII fast path retains control escaping and all non-ASCII normalization cases", () => {
+  const strings = Array.from({ length: 128 }, (_, n) => String.fromCharCode(n));
+  strings.push("\u0080", "e\u0301", "\u1100\u1161", "😀", "\ud800", "\udfff", "\u2028\u2029");
+  for (const text of strings) {
+    assert.equal(canonicalJson(text), JSON.stringify(text.normalize("NFC")));
+  }
+  // Canonical key order is lexical, including keys JSON.stringify itself
+  // would reorder numerically. Faster native serialization must not change it.
+  assert.equal(canonicalJson({ "2": "b", "10": "a", "1": "z" }), '{"1":"z","10":"a","2":"b"}');
+});
+
 test("object keys must already be NFC; colliding and non-normalized keys are refused", () => {
   const composed = "caf\u00e9";
   const decomposed = "cafe\u0301";

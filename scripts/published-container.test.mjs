@@ -256,7 +256,7 @@ test("deployment verifies signatures before invoking Wrangler and generates only
     mkdirSync(path.join(root, "scripts"));
     mkdirSync(path.join(root, "node_modules/wrangler/bin"), { recursive: true });
     symlinkSync(path.resolve("node_modules/typescript"), path.join(root, "node_modules/typescript"));
-    for (const script of ["deploy-container.mjs", "published-container-lib.mjs", "measurement-candidate-build-proof.mjs"]) {
+    for (const script of ["deploy-container.mjs", "published-container-lib.mjs", "production-ci-lib.mjs", "verify-required-ci-jobs.mjs", "measurement-candidate-build-proof.mjs"]) {
       copyFileSync(path.join("scripts", script), path.join(root, "scripts", script));
     }
     const actualConfig = readFileSync("wrangler.container.jsonc");

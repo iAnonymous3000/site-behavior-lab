@@ -1,0 +1,68 @@
+name: Deploy Tested Pages
+
+on:
+  push:
+    branches: [production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+  attestations: read
+
+concurrency:
+  group: deploy-production-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy the attested production Pages export
+    if: >-
+      github.ref == 'refs/heads/production' &&
+      vars.SITE_BEHAVIOR_LAB_PREBUILT_PAGES_DEPLOY == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the promoted revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24.14.1
+          cache: npm
+
+      - name: Verify exact Node and npm runtime
+        run: |
+          test "$(node --version)" = "v24.14.1"
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install deployment tools
+        run: npm ci
+
+      - name: Verify and deploy the tested static artifact
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_CONTAINER_DEPLOY_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: dea2502fea1fef952043925374196ae9
+          WRANGLER_SEND_METRICS: "false"
+        run: node scripts/deploy-pages.mjs
+
+      - name: Preserve provider and live artifact readback
+        if: steps.pages.outputs.deployed == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: production-pages-readback-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/production-pages-readback.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Request independent production verification
+        if: steps.pages.outputs.deployed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run production-health.yml --ref production

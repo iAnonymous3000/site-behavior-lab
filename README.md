@@ -241,8 +241,11 @@ published at [`/api/health`](https://scan.sitebehavior.org/api/health) and
 [`/deployment.json`](https://sitebehavior.org/deployment.json).
 Scanner non-production builds are disabled. Pages automatic preview deployments
 are disabled; existing preview deployments remain Access-protected.
-Both Cloudflare projects enable build caching; the Pages wrapper retains only
-compiler caches across freshly generated exports.
+Main CI produces both deployment artifacts. The production workflows verify
+their exact-source attestations before uploading the tested Pages export or
+selecting the tested container digest. Cloudflare automatic builds are disabled
+after each artifact handoff is activated, avoiding a second build. The Pages
+wrapper retains only compiler caches across freshly generated CI exports.
 
 The hourly production synthetic is active (a neutral scan, a public r2 result,
 a persisted read-back, and a rendered report page), and the separate

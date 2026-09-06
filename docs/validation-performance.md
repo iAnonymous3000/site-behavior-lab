@@ -158,9 +158,9 @@ the earlier change.
 PR validation, trusted main validation, and Cloudflare deployment still have
 distinct source and trust contexts. This change does not promote PR artifacts
 or manufacture a main-commit attestation from another revision's results.
-Deploying tested artifacts directly would need to bind the provider's actual
-configuration and exact artifacts to the existing attestation and promotion
-chain. That is a separate deployment change, not a cache flag.
+The subsequent artifact handoffs bind the provider's actual configuration and
+exact artifacts to the existing attestation and promotion chain; the cache-only
+measurements above do not establish their deployment performance.
 
 Whole-corpus checks, static rendering of thousands of routes, and container
 validation remain the largest costs. Supply-chain advisory checks still obtain
@@ -168,3 +168,52 @@ fresh data. Published reports, provenance sidecars, frozen schemas, test
 coverage, and release thresholds are unchanged. A green PR establishes neither
 deployment nor real-world detector accuracy; final live rollout timings require
 a merged and promoted candidate plus independent live readback.
+
+## Completing the artifact handoff (2026-09-05)
+
+The next measured baseline is main `311e6754611604717aa3624079c1438eb1f5477b`.
+Its [CI run](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/34006560326)
+took 19m16s, including an 18m45s container job. The subsequent
+[scanner deployment](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/34007378620)
+took 7m05s, with about 6m26s waiting for provider/runtime convergence. Pages
+native deployment `43419e87-7c7b-4bf9-b7ec-c0cced9aeb86` took 9m16s, including
+8m26s in its build stage. The independent
+[deep health run](https://github.com/iAnonymous3000/site-behavior-lab/actions/runs/34007797518)
+passed the actual scan, persistence, readback, rendering and R2 delete lanes.
+
+The follow-up removes redundant work without storing validation outcomes:
+
+- Canonical strings skip NFC normalization only for ASCII, which is already NFC.
+- Strict JSON still checks every token and rejects escaped duplicate keys, but
+  leaves value-string decoding to the final native parser instead of doing it twice.
+- The managed reader reuses the original digest just computed by provenance
+  verification when checking the sanitizer fixed point. Every successful
+  admission still checks both provenance and the current sanitizer.
+- Static route discovery validates the corpus once, using fresh schema tools,
+  and supplies those IDs to the three isolated static routes. Runtime routes
+  and individual report rendering retain the managed reader.
+- CI transfers the complete browser-tested Pages export to its production
+  workflow. The existing isolated signer attests the byte manifest. Every
+  downloaded file is verified before upload; Cloudflare does not rebuild it.
+
+Three fresh-process local corpus samples on the same Node 24.14.1 machine:
+
+| Reader | Samples (seconds) | Median |
+| --- | --- | ---: |
+| Unchanged `311e675` | 24.070, 23.702, 24.705 | 24.070 s |
+| Optimized reader | 20.058, 19.155, 19.358 | 19.358 s |
+
+That is a **19.6% reduction** in the complete managed read. All samples admitted
+887 reports and produced the same fingerprint recorded above. An independent
+comparison against the prior compiled serializer also found identical canonical
+bytes for all 1,775 report, sidecar and index JSON files. This establishes output
+compatibility for this corpus; it does not establish real-world detector accuracy.
+
+The artifact handoff tests independently enumerate expected file bytes and
+exercise changed, extra, missing and symlinked content, wrong source/tree,
+invalid signatures, stale provider state, and delayed responses. They prove
+refusal behavior, not Cloudflare access. Actual rollout timings and live proof
+must be recorded after activation. Container rollout keeps the existing gradual
+strategy and process drain; there is no evidence that forcibly terminating scans
+would be an acceptable performance improvement. Runner sizes, container capacity,
+release thresholds and published report/schema history are unchanged.

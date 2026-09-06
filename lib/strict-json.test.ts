@@ -10,6 +10,18 @@ test("strict JSON accepts ordinary nested values", () => {
   assert.deepEqual(parseStrictJson('{"a":[1,true,null,{"b":"x"}]}'), { a: [1, true, null, { b: "x" }] });
 });
 
+test("string scanning preserves native JSON decoding without relaxing escape or whitespace grammar", () => {
+  for (const text of ["", "ASCII", "\\\"/\b\f\n\r\t", "cafe\u0301", "😀", "\ud800", "\udfff", "\u0000\u001f"]) {
+    const wire = JSON.stringify({ [text]: [text, { value: text }] });
+    assert.deepEqual(parseStrictJson(wire), JSON.parse(wire));
+  }
+  for (const wire of ['"\\u12"', '"\\uZZZZ"', '"\\v"', '"a\nb"', '"unterminated',
+    '\u00a0{"a":1}', '[true,\u000bfalse]', '{"\\u0061":1,"a":2}',
+    '{"a":1,"\\u0061":2}', '{"😀":1,"\\ud83d\\ude00":2}']) {
+    assert.throws(() => parseStrictJson(wire), StrictJsonError, wire);
+  }
+});
+
 test("strict JSON rejects duplicate keys at every depth including escaped aliases", () => {
   for (const wire of [
     '{"a":1,"a":2}',

@@ -50,7 +50,9 @@ class JsonScanner {
   }
 
   whitespace(): void {
-    while (this.index < this.text.length && /[\u0009\u000a\u000d\u0020]/.test(this.text[this.index])) {
+    while (this.index < this.text.length) {
+      const code = this.text.charCodeAt(this.index);
+      if (code !== 0x09 && code !== 0x0a && code !== 0x0d && code !== 0x20) break;
       this.index += 1;
     }
   }
@@ -67,7 +69,7 @@ class JsonScanner {
       return this.array(depth + 1);
     }
     if (token === '"') {
-      this.string();
+      this.string(false);
       return;
     }
     if (token === "t") return this.literal("true");
@@ -108,14 +110,19 @@ class JsonScanner {
     }
   }
 
-  private string(): string {
+  private string(decode = true): string {
     const start = this.index;
+    let escaped = false;
     this.index += 1;
     for (;;) {
       if (this.index >= this.text.length) throw new StrictJsonError("invalid-json");
       const code = this.text.charCodeAt(this.index);
       if (code === 0x22) {
         this.index += 1;
+        // Values are decoded once by the final JSON.parse. Only member names
+        // need decoding here to detect aliases such as "a" and "\u0061".
+        if (!decode) return "";
+        if (!escaped) return this.text.slice(start + 1, this.index - 1);
         try {
           return JSON.parse(this.text.slice(start, this.index)) as string;
         } catch {
@@ -124,6 +131,7 @@ class JsonScanner {
       }
       if (code < 0x20) throw new StrictJsonError("invalid-json");
       if (code === 0x5c) {
+        escaped = true;
         this.index += 1;
         if (this.index >= this.text.length) throw new StrictJsonError("invalid-json");
         const escape = this.text[this.index];

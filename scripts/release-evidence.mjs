@@ -567,7 +567,7 @@ function safeArtifactDirectory(root, value, flag) {
   return { absolute: realAbsolute, relative: relative.split(path.sep).join("/") };
 }
 
-async function directoryManifest(directory) {
+export async function directoryManifest(directory) {
   const rootInfo = await lstat(directory);
   if (!rootInfo.isDirectory() || rootInfo.isSymbolicLink()) {
     throw new Error("Release artifact root must be a real directory, not a file or symbolic link");

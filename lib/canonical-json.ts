@@ -39,7 +39,12 @@ function serialize(value: unknown, path: string[], encodedKeys: Map<string, stri
   if (value === null) return "null";
   const type = typeof value;
 
-  if (type === "string") return JSON.stringify((value as string).normalize("NFC"));
+  if (type === "string") {
+    const text = value as string;
+    // ASCII is already NFC. URLs and fixed report vocabularies dominate the
+    // corpus; reserve Unicode normalization for strings that can need it.
+    return JSON.stringify(/[^\x00-\x7f]/.test(text) ? text.normalize("NFC") : text);
+  }
   if (type === "boolean") return value ? "true" : "false";
   if (type === "number") {
     if (!Number.isFinite(value as number)) {

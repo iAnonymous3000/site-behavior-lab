@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 
-export const REPOSITORY = "iAnonymous3000/site-behavior-lab";
+import { REPOSITORY } from "./production-ci-lib.mjs";
+export { REPOSITORY, validMainRun, attestationArgs } from "./production-ci-lib.mjs";
 export const ACCOUNT_ID = "dea2502fea1fef952043925374196ae9";
 export const IMAGE_REPOSITORY = `registry.cloudflare.com/${ACCOUNT_ID}/site-behavior-lab-scanner`;
 export const PUBLISHED_EVIDENCE = "site-behavior-lab-published-container-evidence.json";
@@ -57,20 +58,4 @@ export function validatePublishedContainer(receipt, { commit, tree, configBytes 
   const reference = assertPublishedImageIdentity(receipt, tested);
   assert.equal(receipt.artifacts[0].sourceCommit, commit);
   return reference;
-}
-
-export function validMainRun(run, commit) {
-  return Number.isSafeInteger(run?.id) && run.id > 0 &&
-    Number.isSafeInteger(run.run_attempt) && run.run_attempt > 0 &&
-    run.repository?.full_name === REPOSITORY && run.head_repository?.full_name === REPOSITORY &&
-    run.head_sha === commit && run.head_branch === "main" &&
-    run.path === ".github/workflows/ci.yml" &&
-    ["push", "workflow_dispatch"].includes(run.event);
-}
-
-export function attestationArgs(file, commit) {
-  return ["attestation", "verify", file, "--repo", REPOSITORY,
-    "--signer-workflow", `${REPOSITORY}/.github/workflows/ci.yml`,
-    "--source-ref", "refs/heads/main", "--source-digest", commit,
-    "--signer-digest", commit, "--deny-self-hosted-runners", "--format", "json"];
 }

@@ -13,6 +13,7 @@ import {
   writeFile
 } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDeploymentReceipt, resolveExactStaticDeploymentCommit } from "./static-deployment-provenance.mjs";
@@ -64,8 +65,7 @@ const staticReportRouteMode = 'export const dynamic = "force-static";';
 const staticReportRouteImplementation = `${staticReportRouteMode}
 
 export async function generateStaticParams() {
-  const { listStaticReportIds } = await import("@/lib/static-report-files");
-  const ids = await listStaticReportIds();
+  const ids = __VERIFIED_STATIC_REPORT_IDS__;
   return ids.map((id) => ({ id }));
 }`;
 
@@ -125,7 +125,7 @@ async function copyTrackedTree(sourceRoot, destinationRoot) {
   }
 }
 
-async function prepareStaticReportRouteMode(destinationRoot) {
+async function prepareStaticReportRouteMode(destinationRoot, reportIds) {
   // Runtime shares are expiry-bound and must be request-rendered. Pages has no
   // runtime store: its isolated, exact-HEAD worktree alone converts these three
   // copied routes to static generation for the committed public corpus. The
@@ -143,7 +143,8 @@ async function prepareStaticReportRouteMode(destinationRoot) {
     if (source.includes("export async function generateStaticParams")) {
       throw new Error(`Runtime report route unexpectedly exports static params: ${relativePath}`);
     }
-    await writeFile(routePath, source.replace(runtimeReportRouteMode, staticReportRouteImplementation));
+    await writeFile(routePath, source.replace(runtimeReportRouteMode,
+      staticReportRouteImplementation.replace("__VERIFIED_STATIC_REPORT_IDS__", JSON.stringify(reportIds))));
   }
 }
 
@@ -205,7 +206,6 @@ async function main() {
   await rm(workDir, { recursive: true, force: true });
   await rm(outDir, { recursive: true, force: true });
   await copyTrackedTree(rootDir, workDir);
-  await prepareStaticReportRouteMode(workDir);
   await symlink(nodeModulesDir, path.join(workDir, "node_modules"), "dir");
   await attachPagesCompilerCache(rootDir, workDir);
 
@@ -252,6 +252,16 @@ async function main() {
       SITE_BEHAVIOR_LAB_SCHEMA_DIST_READY: "1"
     }
   });
+
+  // Audit the isolated corpus once for route discovery, using the freshly
+  // compiled managed reader. All three routes receive these same validated
+  // IDs instead of each re-reading and sanitizing the entire corpus inside
+  // Next's page-data workers. Per-report rendering still uses the managed
+  // reader; no admissions, report objects, or results survive this build.
+  const require = createRequire(import.meta.url);
+  const { listStaticReportIds } = require(path.join(workDir, "dist/schema/lib/static-report-files.js"));
+  const reportIds = await listStaticReportIds(workDir);
+  await prepareStaticReportRouteMode(workDir, reportIds);
 
   // Static Pages has no runtime health route, so publish the same exact source
   // provenance the container exposes. Production monitoring compares this

@@ -97,12 +97,29 @@ export function readManagedReport(input: {
     };
   }
 
-  // A sidecar is an attestation, not authority to skip the sanitizer. Frozen
+  const share = reportRead.stored.report.share;
+  if (share && !isCanonicalReportShare(share, input.reportId)) {
+    return failure("share-id-mismatch");
+  }
+
+  if (input.sidecarContents === null) return failure("no-sidecar");
+  let sidecar: unknown;
+  try {
+    sidecar = parseStrictJson(input.sidecarContents, SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES);
+  } catch {
+    return failure("invalid-sidecar-json");
+  }
+
+  const provenance = matchProvenance(publicReport, sidecar, input.reportId);
+  if (provenance.status !== "matched") return provenanceFailure(provenance);
+  // matchProvenance just recomputed the original wire digest. Reuse that
+  // verified value for the fixed-point comparison; do not hash the same
+  // object twice. A matching sidecar never permits skipping the sanitizer. Frozen
   // v1 must already be a fixed point of the current public transform or a
   // forged/current-version sidecar could bless raw legacy bytes.
   if (
     reportRead.stored.schemaVersion === 1 &&
-    publicReportDigest(redactScanReportV1(reportRead.stored.report).report) !== publicReportDigest(publicReport)
+    publicReportDigest(redactScanReportV1(reportRead.stored.report).report) !== provenance.entry.publicDigest
   ) {
     return failure("redaction-not-idempotent");
   }
@@ -119,7 +136,7 @@ export function readManagedReport(input: {
   ) {
     try {
       const redacted = redactPublicScanReportV2R2(reportRead.stored.report);
-      if (publicReportDigest(redacted) !== publicReportDigest(publicReport)) {
+      if (publicReportDigest(redacted) !== provenance.entry.publicDigest) {
         return failure("redaction-not-idempotent");
       }
     } catch (error) {
@@ -127,21 +144,6 @@ export function readManagedReport(input: {
     }
   }
 
-  const share = reportRead.stored.report.share;
-  if (share && !isCanonicalReportShare(share, input.reportId)) {
-    return failure("share-id-mismatch");
-  }
-
-  if (input.sidecarContents === null) return failure("no-sidecar");
-  let sidecar: unknown;
-  try {
-    sidecar = parseStrictJson(input.sidecarContents, SERVER_STORED_PROVENANCE_SIDECAR_MAX_BYTES);
-  } catch {
-    return failure("invalid-sidecar-json");
-  }
-
-  const provenance = matchProvenance(publicReport, sidecar, input.reportId);
-  if (provenance.status !== "matched") return provenanceFailure(provenance);
   if (
     reportRead.stored.schemaVersion === 2 &&
     embeddedRedactionVersions(reportRead.stored).some(

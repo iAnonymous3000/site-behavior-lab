@@ -19,6 +19,9 @@ after(() => rmSync(FIXTURE_ROOT, { recursive: true, force: true }));
 mkdirSync(path.dirname(SCRIPT), { recursive: true });
 copyFileSync(path.join(ROOT, "scripts/deploy-container.mjs"), SCRIPT);
 copyFileSync(path.join(ROOT, "scripts/published-container-lib.mjs"), path.join(FIXTURE_ROOT, "scripts/published-container-lib.mjs"));
+for (const file of ["production-ci-lib.mjs", "verify-required-ci-jobs.mjs"]) {
+  copyFileSync(path.join(ROOT, "scripts", file), path.join(FIXTURE_ROOT, "scripts", file));
+}
 copyFileSync(
   path.join(ROOT, "scripts/measurement-candidate-build-proof.mjs"),
   MEASUREMENT_PROOF_SCRIPT

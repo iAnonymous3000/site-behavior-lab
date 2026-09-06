@@ -27,6 +27,12 @@ const basePath = normalizeBasePath(
 );
 const liveScanApiBase = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE?.trim() || "";
 const openAccessScanner = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_OPEN_ACCESS === "1";
+const scannerFixture = process.env.STATIC_SMOKE_SCANNER_FIXTURE === "1" ? {
+  ok: true, status: "ok", runtime: "static-smoke-fixture", scansAvailable: true,
+  openAccess: true, turnstile: true,
+  capabilities: { singleScan: true, gpcComparison: true, shieldsComparison: true,
+    consentComparison: true, savedReports: true, savedReportPages: true, scheduledRescans: false }
+} : null;
 const archivePageSize = 24;
 const maxHomeHtmlBytes = 160 * 1024;
 const maxReportHtmlBytes = 200 * 1024;
@@ -148,6 +154,7 @@ function fail(message) {
 // server-side (no CORS), so it reflects the scanner regardless of the browser's
 // allow-list; treat an unreachable scanner as "no Shields".
 async function scannerAdvertisesShields(apiBase) {
+  if (scannerFixture) return scannerFixture.capabilities.shieldsComparison;
   try {
     const { response, value: health } = await fetchJsonResource(
       `${apiBase.replace(/\/+$/, "")}/api/health`,
@@ -164,6 +171,7 @@ async function scannerAdvertisesShields(apiBase) {
 
 async function scannerAdvertisesScheduledRescans(apiBase) {
   if (!apiBase) return false;
+  if (scannerFixture) return scannerFixture.capabilities.scheduledRescans;
   try {
     const { response, value: health } = await fetchJsonResource(
       `${apiBase.replace(/\/+$/, "")}/api/health`,
@@ -176,6 +184,23 @@ async function scannerAdvertisesScheduledRescans(apiBase) {
   } catch {
     return false;
   }
+}
+
+async function installScannerFixture(context) {
+  if (!scannerFixture) return;
+  if (!liveScanApiBase) fail("scanner UI fixture requires the production scan API build setting");
+  await context.route(`${liveScanApiBase}/**`, (route) => {
+    const request = route.request();
+    if (request.method() !== "GET" || new URL(request.url()).pathname !== "/api/health") {
+      return route.abort();
+    }
+    return route.fulfill({ status: 200, contentType: "application/json",
+      headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(scannerFixture) });
+  });
+  // No CAPTCHA is solved and no token is minted by static contract checks.
+  await context.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({
+    contentType: "application/javascript", body: "window.turnstile={render:()=>0,remove:()=>{},reset:()=>{}};"
+  }));
 }
 
 async function fetchJsonResource(url, init, label, maxBytes) {
@@ -219,6 +244,10 @@ async function main() {
   const baseUrl = `http://127.0.0.1:${address.port}${basePath || ""}`;
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  await installScannerFixture(context);
+  if (scannerFixture) {
+    pass("static scanner UI uses test-only health; no live scan or Turnstile verification is performed");
+  }
   const page = await context.newPage();
   const failedStaticPrefetches = new Set();
   page.on("response", (response) => {
@@ -507,7 +536,7 @@ async function main() {
       // requires the scanner's CORS to allow this origin, otherwise the browser's
       // health fetch fails and the "Live" assertion above never passes.)
       const shieldsExpected = await scannerAdvertisesShields(liveScanApiBase);
-      const shieldsEnabled = await page.locator(".segmented-control button", { hasText: "Shields" }).isEnabled();
+      const shieldsEnabled = await page.getByRole("button", { name: "Blocker comparison (Brave Shields)", exact: true }).isEnabled();
       if (shieldsExpected && !shieldsEnabled) {
         fail("scanner advertises shieldsComparison but the Shields button is disabled");
       }
@@ -729,6 +758,15 @@ async function main() {
     await openHomepageTools(page);
     const reportUploadLabel = page.locator("label.file-button", { hasText: "Open report file" }).first();
     const reportUploadInput = reportUploadLabel.locator('input[type="file"]');
+    async function importFreshReport(file) {
+      // In the production UI, the empty-state picker unmounts when a report
+      // opens. Start each independent import case from its real entry point;
+      // this also prevents request filters leaking between fixture cases.
+      await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
+      await openHomepageTools(page);
+      await reportUploadInput.setInputFiles(file);
+      await page.locator(".report-header").waitFor({ state: "visible" });
+    }
     await reportUploadInput.evaluate((input) => input.focus());
     const uploadFocusShadow = await reportUploadLabel.evaluate((label) => getComputedStyle(label).boxShadow);
     if (uploadFocusShadow === "none") fail("file upload button has no visible keyboard focus treatment");
@@ -803,9 +841,9 @@ async function main() {
     if ((await requestTableRegion.getAttribute("tabindex")) !== "0") {
       fail("request log horizontal scroller is not keyboard-focusable");
     }
-    await page.getByRole("button", { name: "Third-party" }).click();
+    await page.getByRole("button", { name: "Third-party", exact: true }).click();
     await expectRequestRowCount(page, 2);
-    await page.getByRole("button", { name: "Catalog matches" }).click();
+    await page.getByRole("button", { name: "Catalog matches", exact: true }).click();
     await expectRequestRowCount(page, 1);
     await page.getByLabel("Resource type").selectOption("script");
     await expectRequestRowCount(page, 0);
@@ -813,13 +851,13 @@ async function main() {
 
     const legacyOmitted = JSON.parse(await readFile(singleReportFixture, "utf8"));
     for (const key of ["fingerprintDetections", "pixelEvents", "cnameCloaks", "privacyPolicy"]) delete legacyOmitted[key];
-    await reportUploadInput.setInputFiles({ name: "legacy-omitted.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacyOmitted)) });
+    await importFreshReport({ name: "legacy-omitted.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacyOmitted)) });
     await expectText(page.locator("#pixels"), "did not record pixel evidence");
     await expectText(page.locator("#signals"), "Heuristic and listener evidence is unavailable or incomplete; only retained observations are shown.");
     pass("legacy omitted detector evidence remains visibly unavailable after browser import");
 
     legacyOmitted.pixelEvents = [{ platform: "Meta", product: "Meta Pixel", requests: 1, events: [], advancedMatching: [] }];
-    await reportUploadInput.setInputFiles({ name: "endpoint-only.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacyOmitted)) });
+    await importFreshReport({ name: "endpoint-only.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(legacyOmitted)) });
     await page.getByRole("heading", { name: "Advertising pixel endpoints were observed", exact: true }).waitFor();
     await expectText(page.locator("#pixels"), "no named event retained");
     if (await page.getByText(/reported specific named events/).count()) fail("endpoint-only evidence became a named-event claim");
@@ -827,7 +865,7 @@ async function main() {
 
     const failedVisit = JSON.parse(await readFile(singleReportFixture, "utf8"));
     failedVisit.summary.status = 403;
-    await reportUploadInput.setInputFiles({ name: "failed-visit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(failedVisit)) });
+    await importFreshReport({ name: "failed-visit.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(failedVisit)) });
     await expectText(page.locator(".report-header .capped-chip"), "visit failed");
     await expectText(page.locator("#request-evidence-explanation"), "cannot establish absence");
     const csvDownloadPromise = page.waitForEvent("download");
@@ -845,7 +883,7 @@ async function main() {
 
     const correctedId = corrections.entries.find(event => event.state === "corrected")?.reportIds[0];
     if (!correctedId) fail("correction roundtrip smoke needs a published corrected report");
-    await reportUploadInput.setInputFiles(path.join(rootDir, "public", "reports", `${correctedId}.json`));
+    await importFreshReport(path.join(rootDir, "public", "reports", `${correctedId}.json`));
     await page.getByText("Public evidence correction", { exact: true }).waitFor();
     const reportDownloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "JSON + corrections (ZIP)", exact: true }).click();
@@ -856,9 +894,7 @@ async function main() {
     if (JSON.parse(retainedJson).share?.id !== correctedId) fail("local re-export erased the correction identity");
     const retainedNotices = JSON.parse(execFileSync("unzip", ["-p", reportArchive, "corrections.json"], { encoding: "utf8" }));
     if (!retainedNotices.subjectEvents.some(event => event.state === "corrected")) fail("export lost the correction notice");
-    await page.goto(`${baseUrl}/`, { waitUntil: "networkidle" });
-    await openHomepageTools(page);
-    await reportUploadInput.setInputFiles({ name: "reopened-report.json", mimeType: "application/json", buffer: retainedJson });
+    await importFreshReport({ name: "reopened-report.json", mimeType: "application/json", buffer: retainedJson });
     await page.getByText("Public evidence correction", { exact: true }).waitFor();
     if (await page.getByRole("link", { name: "Share", exact: true }).count()) fail("local re-export enabled an unverified share link");
     pass("corrected report retains its identity and notices across browser import, export and reopen");
@@ -894,7 +930,9 @@ async function main() {
       args: ["--blink-settings=primaryPointerType=4,availablePointerTypes=6"]
     });
     try {
-      const hybridPointerPage = await hybridPointerBrowser.newPage({ viewport: { width: 1024, height: 900 } });
+      const hybridPointerContext = await hybridPointerBrowser.newContext({ viewport: { width: 1024, height: 900 } });
+      await installScannerFixture(hybridPointerContext);
+      const hybridPointerPage = await hybridPointerContext.newPage();
       await hybridPointerPage.goto(`${baseUrl}/reports/${phaseReport.id}/`, { waitUntil: "networkidle" });
       const pointerMedia = await hybridPointerPage.evaluate(() => ({
         primaryFine: matchMedia("(pointer: fine)").matches,

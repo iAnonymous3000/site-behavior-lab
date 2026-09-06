@@ -24,7 +24,7 @@ test("runtime report HTML, RSC, metadata, and social images opt out of persisten
     assert.doesNotMatch(source, /export async function generateStaticParams/);
   }
   assert.match(pagesBuild, /runtimeReportRouteFiles[\s\S]*page\.tsx[\s\S]*opengraph-image\.tsx[\s\S]*twitter-image\.tsx/);
-  assert.match(pagesBuild, /prepareStaticReportRouteMode\(workDir\)/);
-  assert.match(pagesBuild, /source\.replace\(runtimeReportRouteMode, staticReportRouteImplementation\)/);
-  assert.match(pagesBuild, /staticReportRouteImplementation[\s\S]*generateStaticParams[\s\S]*listStaticReportIds/);
+  assert.match(pagesBuild, /source\.replace\(runtimeReportRouteMode,\s*staticReportRouteImplementation\.replace/);
+  assert.match(pagesBuild, /const reportIds = await listStaticReportIds\(workDir\)/);
+  assert.match(pagesBuild, /await prepareStaticReportRouteMode\(workDir, reportIds\)/);
 });
