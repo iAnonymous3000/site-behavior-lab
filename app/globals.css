@@ -2982,19 +2982,31 @@ a {
   padding: 16px 0 24px;
 }
 
+/* Prose pages share the page-header pattern; only the measure differs. */
 .legal-header {
-  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  padding: var(--space-1) 0 var(--space-5);
 }
 
 .legal-header h1 {
-  font-size: clamp(26px, 4vw, 36px);
-  letter-spacing: -0.02em;
-  margin: 4px 0 12px;
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0;
+  max-width: 24ch;
+  overflow-wrap: anywhere;
 }
 
-.legal-header p {
+.legal-header p:not(.eyebrow) {
   color: var(--text-muted);
-  margin: 0 0 12px;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 68ch;
 }
 
 .legal-back a {
@@ -3011,6 +3023,13 @@ a {
   border-top: 1px solid var(--border);
   margin-top: 28px;
   padding-top: 24px;
+}
+
+/* The header already draws the rule above the first section. */
+.legal-header + .legal-section {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .legal-section h2 {
@@ -3312,36 +3331,10 @@ a {
   padding: 8px 0 24px;
 }
 
-.site-profile-header {
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 20px;
-  padding-bottom: 24px;
-}
-
-.site-profile-page > .report-breadcrumbs {
-  margin-bottom: 18px;
-}
-
-.site-profile-header h1 {
-  font-size: clamp(32px, 6vw, 54px);
-  letter-spacing: -0.035em;
-  margin: 6px 0 8px;
-  overflow-wrap: anywhere;
-}
-
-.site-profile-header > p:not(.eyebrow),
 .site-profile-current p,
 .site-profile-note {
   color: var(--text-muted);
   line-height: 1.55;
-}
-
-.site-profile-actions {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
 }
 
 .site-profile-current,
@@ -3423,23 +3416,68 @@ a {
   text-align: right;
 }
 
-.site-history-list a {
-  background: var(--surface-2);
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  color: inherit;
-  display: grid;
-  gap: 5px;
-  padding: 14px 16px;
+/* The evidence timeline as a table: one row per retained report, numbers in
+   columns a reader can run an eye down. */
+.site-history-table-wrap {
+  margin-top: var(--space-4);
+  overflow-x: auto;
+}
+
+.site-history-table {
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  width: 100%;
+}
+
+.site-history-table th,
+.site-history-table td {
+  border-top: 1px solid var(--border);
+  padding: var(--space-3) var(--space-2);
+  text-align: left;
+  vertical-align: top;
+}
+
+.site-history-table thead th {
+  border-top: 0;
+  color: var(--text-subtle);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  padding-top: 0;
+  text-transform: uppercase;
+}
+
+.site-history-table th.num,
+.site-history-table td.num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.site-history-table tbody th {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.site-history-table tbody th a {
+  color: var(--accent-strong);
   text-decoration: none;
 }
 
-.site-history-list a:hover {
-  border-color: var(--border-strong);
+.site-history-table tbody th a:hover {
+  text-decoration: underline;
 }
 
-.site-history-list small {
-  color: var(--text-subtle);
+.site-history-table tbody th > div {
+  margin-top: var(--space-1);
+  white-space: normal;
+}
+
+.site-history-table td {
+  color: var(--text-muted);
 }
 
 .site-sparkline {

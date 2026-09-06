@@ -102,7 +102,7 @@ export default async function StatusPage() {
             </div>
             <p className="status-value">{formatUtc(latestAggregateEvidence)}</p>
             <p>
-              {overview.siteCount.toLocaleString()} distinct sites make up the measurement cohort this
+              {overview.siteCount.toLocaleString()}{" "}distinct sites make up the measurement cohort this
               page&apos;s aggregates describe, and the date above is the newest eligible evidence inside that same
               cohort; {overview.coverageSiteCount.toLocaleString()} sites have at least one
               successful load.
