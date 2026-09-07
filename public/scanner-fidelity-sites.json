@@ -1,7 +1,9 @@
 {
   "_note": "Sites the scanner-fidelity check visits. NOT a corpus: nothing here is published, ranked, or counted in any statistic. The list only has to exercise the page shapes that fixtures cannot: long link labels, non-English policy links, heavy request logs, consent walls, bot walls, and near-empty documents. Membership is deliberately boring and stable so a failure means the SCANNER changed, not that the web did.",
-  "version": 1,
+  "version": 2,
   "sites": [
+    { "url": "https://microsoft.com/", "shape": "redirects and private-suffix hosting catalog entries" },
+    { "url": "https://www.reddit.com/", "shape": "HTTP-200 network-security interstitial or ordinary community page" },
     { "url": "https://example.com/", "shape": "near-empty document" },
     { "url": "https://codeberg.org/", "shape": "clean non-profit, no third-party requests" },
     { "url": "https://www.eff.org/", "shape": "clean, long link labels" },

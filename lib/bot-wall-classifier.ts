@@ -58,6 +58,11 @@ const BOT_WALL_BODY_SIGNATURES = [
   /\benable javascript and cookies to continue\b/i,
   /\baccess to this page has been denied because we believe you are using automation tools\b/i,
   /\b(?:unusual|automated) traffic (?:has been detected|from your computer network)\b/i,
+  // Reddit can serve its network-security refusal with HTTP 200 and no
+  // challenge title. Its denial and appeal instructions are separate cues;
+  // neither phrase alone turns a successful visit into a soft block.
+  /\byou(?:'ve| have) been blocked by network security\b/i,
+  /\bif you think you(?:'ve| have) been blocked by mistake,? file a ticket below\b/i,
   // Press-and-hold interstitials (PerimeterX/HUMAN and similar). The gesture
   // phrase alone is ordinary UI language, so the human/robot context is
   // required before it counts as a challenge.

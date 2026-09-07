@@ -314,7 +314,7 @@ wire digest, not the evidence.
 
 Every r2 report records the exact instrument it was measured with. The base
 Node methodology is
-`shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2`,
+`shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2`,
 and production r2 reports extend it with the phase-kernel, boundary-state,
 consent, resource-budget, proxy-traffic, service-worker-block,
 detector-accountability, service-role-taxonomy, GPC worker-application,

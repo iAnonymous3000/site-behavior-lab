@@ -177,7 +177,9 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v8-pixel-coverage-active-lists-2026-08-15",
       "node-v8-pixel-coverage-active-no-adblock",
       "node-v9-catalog-suffix-active-lists-2026-08-15",
-      "node-v9-catalog-suffix-active-no-adblock"
+      "node-v9-catalog-suffix-active-no-adblock",
+      "node-v10-network-security-active-lists-2026-08-15",
+      "node-v10-network-security-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -336,7 +338,7 @@ test("the detector-v6 identity preserves the v4 resource-budget rows and the clo
     (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
   );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v8-pixel-coverage-active-lists-2026-08-15"
+    (tuple) => tuple.id === "node-v10-network-security-active-lists-2026-08-15"
   );
   assert.equal(historical?.methodologyVersion, HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION);
   assert.equal(

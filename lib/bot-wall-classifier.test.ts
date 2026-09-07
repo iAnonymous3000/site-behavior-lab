@@ -146,6 +146,19 @@ test("an unavailable content collector makes page-subject validity unknown", () 
   );
 });
 
+test("Reddit's observed HTTP-200 network-security denial needs both cues on a sparse page", () => {
+  const denial = "You've been blocked by network security.";
+  const appeal = "If you think you've been blocked by mistake, file a ticket below and we'll look into it.";
+  const signals = { pageTitle: "", status: 200, navigationSettled: true, totalRequests: 2 };
+  assert.equal(classifyPageSubject({ ...signals, pageText: `${denial}\n${appeal}\nFile a ticket` }),
+    SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_STATE);
+  for (const pageText of [denial, appeal, "Network security: how to file a ticket."]) {
+    assert.equal(classifyPageSubject({ ...signals, pageText }), "normal", pageText);
+  }
+  assert.equal(classifyPageSubject({ ...signals, totalRequests: 80,
+    pageTitle: "How to appeal Reddit blocks", pageText: `${denial} ${appeal}` }), "normal");
+});
+
 test("a blocking consent interstitial needs both a wall title and wall body", () => {
   assert.equal(
     isLikelyBotWallPage({

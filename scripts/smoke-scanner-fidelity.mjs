@@ -26,7 +26,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { readResponseTextWithinLimit } from "./http-response.mjs";
+import { readScannerFidelityResponse } from "./scanner-fidelity-response.mjs";
 import { ensureRenderBridge, evaluateScanBody } from "./scanner-fidelity-invariants.mjs";
 import {
   boundedInteger,
@@ -64,7 +64,6 @@ const MIN_REPEATABLE_TARGETS = boundedInteger(process.env.SCANNER_FIDELITY_MIN_R
   label: "SCANNER_FIDELITY_MIN_REPEATABLE_TARGETS"
 });
 const SCAN_TIMEOUT_MS = 180_000;
-const SCAN_RESPONSE_MAX_BYTES = 32 * 1024 * 1024;
 const MODES = new Set(["single", "shields", "gpc", "consent"]);
 if (!MODES.has(MODE)) {
   throw new Error("SCANNER_FIDELITY_MODE must be single, shields, gpc, or consent.");
@@ -102,23 +101,9 @@ async function scan(url) {
     body: JSON.stringify(payload),
     signal: AbortSignal.timeout(SCAN_TIMEOUT_MS)
   });
-  // Bounded, like every other first-party script here: a scan report from a
-  // heavy site is large, and an unbounded read of a remote body is exactly the
-  // hazard the repository's response policy exists to prevent.
-  let body;
-  try {
-    const text = await readResponseTextWithinLimit(response, {
-      maxBytes: SCAN_RESPONSE_MAX_BYTES,
-      label: `scan ${url}`
-    });
-    body = JSON.parse(text);
-  } catch (error) {
-    return { ok: false, reason: `unreadable response (HTTP ${response.status}): ${String(error).slice(0, 120)}` };
-  }
-  if (!response.ok || body.ok === false) {
-    return { ok: false, reason: body.error ?? `HTTP ${response.status}` };
-  }
-  return { ok: true, report: body.report ?? body };
+  // Server errors and unreadable wires must fail the run, even when enough
+  // other targets answered to meet the ordinary coverage threshold.
+  return readScannerFidelityResponse(response, `scan ${url}`);
 }
 
 const sitesPath = path.join(rootDir, SITES_FILE);

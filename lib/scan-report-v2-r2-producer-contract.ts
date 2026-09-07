@@ -416,9 +416,13 @@ const NODE_6C78_TLDTS_749_NORMALIZATION =
 const PAGEGRAPH_6C78_TLDTS_749_NORMALIZATION =
   `${V4_NORMALIZATION_PREFIX}6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266${PAGEGRAPH_TLDTS_749_NORMALIZATION_SUFFIX}`;
 
+const HISTORICAL_NODE_V7_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
+const HISTORICAL_NODE_V7_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
+
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  [HISTORICAL_NODE_V7_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V7_METHODOLOGY]),
   [HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION]: Object.freeze([
     HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
     HISTORICAL_DETECTOR_V4_RESOURCE_BUDGET_V2_NODE_R2_METHODOLOGY_VERSION,
@@ -788,8 +792,6 @@ const HISTORICAL_DETECTOR_V6_FIELDS: NodeTupleFields = Object.freeze({
 });
 
 /** Closed v7 identity: pixel decoding did not disclose unsupported bodies. */
-const HISTORICAL_NODE_V7_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
-const HISTORICAL_NODE_V7_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
 const HISTORICAL_NODE_V7_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: Object.freeze({
     "version": "node-detectors-v7",
@@ -840,48 +842,48 @@ const HISTORICAL_NODE_V7_FIELDS: NodeTupleFields = Object.freeze({
 // Exact shipped producer identity before catalog public-suffix metadata was retained.
 const HISTORICAL_NODE_V8_FIELDS: NodeTupleFields = Object.freeze({
   detectorRegistry: Object.freeze({
-  "version": "node-detectors-v8",
-  "digest": "fcd25504e7d18811478b440fbd738a01cacfdb8e4811099edc5be62d84402947"
-} as const),
+    "version": "node-detectors-v8",
+    "digest": "fcd25504e7d18811478b440fbd738a01cacfdb8e4811099edc5be62d84402947"
+  } as const),
   detectorVersions: Object.freeze({
-  "fingerprint-heuristics": "fingerprint-observer@3",
-  "keystroke-exfiltration": "synthetic-sentinel@4",
-  "cname-uncloaking": "dns-cname-chain@4",
-  "pixel-events": "pixel-request-decoder@5",
-  "consent-banner": "consent-control-and-state@2",
-  "privacy-policy": "policy-text-cross-check@6"
-} as const),
+    "fingerprint-heuristics": "fingerprint-observer@3",
+    "keystroke-exfiltration": "synthetic-sentinel@4",
+    "cname-uncloaking": "dns-cname-chain@4",
+    "pixel-events": "pixel-request-decoder@5",
+    "consent-banner": "consent-control-and-state@2",
+    "privacy-policy": "policy-text-cross-check@6"
+  } as const),
   detectorStatusContractVersion: "detector-status-v2",
   detectorObligations: Object.freeze({
-  "version": "detector-obligations-v1",
-  "digest": "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
-} as const),
+    "version": "detector-obligations-v1",
+    "digest": "fb8bd07786fdb71c02ffdf1eca40a73b8974c691c6d4ef3c89230ad5314c22a3"
+  } as const),
   serviceRoleTaxonomy: Object.freeze({
-  "version": "service-role-taxonomy-v1",
-  "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
-} as const),
+    "version": "service-role-taxonomy-v1",
+    "digest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67"
+  } as const),
   trackerCatalog: Object.freeze({
-  "source": "Hand-curated service catalog",
-  "version": "hand-curated-2026.08",
-  "entries": 146,
-  "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
-} as const),
+    "source": "Hand-curated service catalog",
+    "version": "hand-curated-2026.08",
+    "entries": 146,
+    "digest": "e94970de235fc80254de8ed99b94316a252e52aa1c2e748c8fbfc3c093b908f4"
+  } as const),
   publicLimits: Object.freeze({
-  "phases": 16,
-  "warnings": 64,
-  "requests": 1000,
-  "cookieRecords": 1000,
-  "cookieMutations": 2000,
-  "storageRecords": 1000,
-  "storageMutations": 2000,
-  "fingerprintEvents": 1000,
-  "fingerprintDetections": 256,
-  "cnameCloaks": 256,
-  "pixelEvents": 512,
-  "consentObservations": 32,
-  "policyClaims": 32,
-  "policyEntities": 100
-} as const),
+    "phases": 16,
+    "warnings": 64,
+    "requests": 1000,
+    "cookieRecords": 1000,
+    "cookieMutations": 2000,
+    "storageRecords": 1000,
+    "storageMutations": 2000,
+    "fingerprintEvents": 1000,
+    "fingerprintDetections": 256,
+    "cnameCloaks": 256,
+    "pixelEvents": 512,
+    "consentObservations": 32,
+    "policyClaims": 32,
+    "policyEntities": 100
+  } as const),
   phaseOmissionContractVersion: "phase-omission-v2",
 });
 
@@ -922,7 +924,7 @@ function nodeTuple(
   });
 }
 
-// Closed v7/v8 rows retain their exact literals; catalog suffix handling defines v9.
+// Closed rows retain their exact literals; network-security subject checks define v10.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V7_METHODOLOGY ||
   String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V7_NORMALIZATION ||
@@ -931,14 +933,14 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v9-catalog-suffix-active-lists-2026-08-15",
+        "node-v10-network-security-active-lists-2026-08-15",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
       ),
       nodeTuple(
-        "node-v9-catalog-suffix-active-no-adblock",
+        "node-v10-network-security-active-no-adblock",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
@@ -1259,6 +1261,15 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   nodeTuple("node-v8-pixel-coverage-active-no-adblock", HISTORICAL_NODE_V7_NORMALIZATION,
     HISTORICAL_NODE_V7_METHODOLOGY, HISTORICAL_NODE_V8_FIELDS,
     null
+  ),
+  // Local acceptance reports from the catalog fix retain their exact producer.
+  nodeTuple("node-v9-catalog-suffix-active-lists-2026-08-15",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1",
+    HISTORICAL_NODE_V7_METHODOLOGY, HISTORICAL_NODE_V8_FIELDS, HISTORICAL_R2_LISTS_2026_08_15_ADBLOCK_IDENTITY
+  ),
+  nodeTuple("node-v9-catalog-suffix-active-no-adblock",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1",
+    HISTORICAL_NODE_V7_METHODOLOGY, HISTORICAL_NODE_V8_FIELDS, null
   ),
   ...ACTIVE_NODE_TUPLES
 ]);

@@ -771,6 +771,7 @@ function previousNodeScannerDisclosure(
  * A Playwright or methodology move therefore ADDS the outgoing identity here.
  */
 const HISTORICAL_NODE_SCANNER_METHODOLOGIES: readonly string[] = Object.freeze([
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2",
   "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.0+subject-validity-v2+detector-coverage-v2"
 ]);
 
