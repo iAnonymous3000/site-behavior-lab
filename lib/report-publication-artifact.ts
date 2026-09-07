@@ -5,7 +5,7 @@ import path from "node:path";
 import { TextDecoder } from "node:util";
 import { canonicalJson } from "./canonical-json";
 import { buildCorpusStats } from "./corpus-stats-builder";
-import { writeNewFileDurably } from "./exact-atomic-file";
+import { replaceUtf8FileAtomically, writeNewFileDurably } from "./exact-atomic-file";
 import { acquireReportCorpusLock } from "./report-corpus-lock";
 import {
   assertReportPublicationRequest,
@@ -210,6 +210,27 @@ export async function inspectReportPublicationArtifact(input: {
   }
 
   return { manifest, reportIds, totalBytes };
+}
+
+/**
+ * Run only after the CLI proves a clean exact-source checkout. Committed
+ * indexes can predate changes to headline/aggregate builders: rebuild these
+ * derived caches from managed reports, never from downloaded artifact caches.
+ * Both builders must succeed before either cache is replaced. Publication
+ * still validates the complete base and artifact snapshots independently.
+ */
+export async function refreshReportPublicationBase(checkoutRoot: string): Promise<void> {
+  const reportsDir = path.join(checkoutRoot, "public", "reports");
+  const lock = await acquireReportCorpusLock(reportsDir, "refresh-publication-base");
+  try {
+    const now = new Date();
+    const { manifest } = await buildStaticReportManifest(reportsDir, now);
+    const { stats } = await buildCorpusStats(reportsDir, now);
+    await replaceUtf8FileAtomically(path.join(reportsDir, "index.json"), `${JSON.stringify(manifest, null, 2)}\n`, STATIC_REPORT_MANIFEST_JSON_MAX_BYTES);
+    await replaceUtf8FileAtomically(path.join(checkoutRoot, "public", "corpus-stats.json"), `${JSON.stringify(stats, null, 2)}\n`, CORPUS_STATS_JSON_MAX_BYTES);
+  } finally {
+    await lock.release();
+  }
 }
 
 export async function publishReportPublicationArtifact(input: {

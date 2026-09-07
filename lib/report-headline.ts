@@ -417,7 +417,11 @@ function buildUncorrectedReportHeadline(
     return finish(
       "warn",
       `${domain}'s observed ${products} requests contained populated identifier fields.`,
-      `An advertising pixel on ${domain} attached populated fields that the platform designates for personal identifiers (${fields}) to observed requests. The scanner records only that they were filled, never their values, so their contents, hashing, successful delivery, and eventual use are not verified.${extraNote}`
+      `An advertising pixel on ${domain} attached populated fields that the platform designates for personal identifiers (${fields}) to observed requests. The scanner records only that they were filled, never their values, so their contents, hashing, successful delivery, and eventual use are not verified.${extraNote}`,
+      undefined,
+      undefined,
+      undefined,
+      "Observed ad-pixel requests had populated fields designated for personal identifiers. The scanner records that they were filled, never their values; their contents, hashing, successful delivery, and eventual use are unverified."
     );
   }
 

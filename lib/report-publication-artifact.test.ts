@@ -12,7 +12,8 @@ import { redactScanReportV1 } from "./redact-scan-report-v1";
 import {
   inspectReportPublicationArtifact,
   prepareReportPublicationArtifact,
-  publishReportPublicationArtifact
+  publishReportPublicationArtifact,
+  refreshReportPublicationBase
 } from "./report-publication-artifact";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
 import { buildStaticReportManifest } from "./static-report-manifest";
@@ -495,3 +496,29 @@ async function writeCanonicalSnapshot(root: string, reports: ReadonlyMap<string,
   assert.deepEqual(statsWarnings, []);
   await writeFile(path.join(root, "public", "corpus-stats.json"), `${JSON.stringify(stats, null, 2)}\n`);
 }
+
+
+test("trusted base refresh repairs stale derived facts while preserving report and provenance bytes", async () => {
+  const root = path.join(testRoot, "checkout");
+  await writeCanonicalSnapshot(root, new Map([[BASE_ID, makeReport("base.example.com", "2026-07-09T10:00:00.000Z")]]));
+  const reports = path.join(root, "public", "reports");
+  const reportPath = path.join(reports, `${BASE_ID}.json`);
+  const provenancePath = path.join(reports, committedSidecarFilename(BASE_ID));
+  const reportBefore = await readFile(reportPath);
+  const provenanceBefore = await readFile(provenancePath);
+  const statsBefore = JSON.parse(await readFile(path.join(root, "public", "corpus-stats.json"), "utf8"));
+  await writeFile(path.join(reports, "index.json"), '{"generatedAt":"2026-07-12T00:00:00.000Z","reports":[]}');
+  await writeFile(path.join(root, "public", "corpus-stats.json"), '{"sampleSize":999}');
+  await refreshReportPublicationBase(root);
+  const index = JSON.parse(await readFile(path.join(reports, "index.json"), "utf8"));
+  const stats = JSON.parse(await readFile(path.join(root, "public", "corpus-stats.json"), "utf8"));
+  assert.equal(index.reports.length, 1);
+  assert.equal(stats.sampleSize, statsBefore.sampleSize);
+  assert.notEqual(stats.sampleSize, 999);
+  assert.deepEqual(await readFile(reportPath), reportBefore);
+  assert.deepEqual(await readFile(provenancePath), provenanceBefore);
+  // Rebuilding caches must never rescue malformed or unmanaged evidence.
+  await writeFile(reportPath, '{}');
+  await assert.rejects(() => refreshReportPublicationBase(root));
+  assert.deepEqual(JSON.parse(await readFile(path.join(reports, "index.json"), "utf8")), index);
+});

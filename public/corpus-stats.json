@@ -1,12 +1,12 @@
 {
   "version": 4,
-  "generatedAt": "2026-09-05T18:09:00.843Z",
+  "generatedAt": "2026-09-07T05:34:32.428Z",
   "metricContractVersion": "metric-contract-v1",
   "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
-  "sampleSize": 94,
+  "sampleSize": 88,
   "coverageSiteCount": 98,
   "cappedSiteCount": 5,
-  "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1%2Bsubject-validity-v2%2Bdetector-coverage-v2:producer-unrecorded:gpc-off:catalog-legacy-metadata-hash-5a5b8699d87581ae2f9b4a98d622df2b6c78a9259fad43d922b1cb6eda677526:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+  "primaryCohortId": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1%2Bsubject-validity-v3%2Bdetector-coverage-v2:producer-unrecorded:gpc-off:catalog-legacy-metadata-hash-5a5b8699d87581ae2f9b4a98d622df2b6c78a9259fad43d922b1cb6eda677526:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
   "cohorts": [
     {
       "id": "v1:legacy-v1-methodology-unspecified:producer-unrecorded:gpc-on:catalog-legacy-metadata-hash-c015b2fb2d86a8aa1e015c740cb967f433f4c6301c0f4a010592f41f30945593:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
@@ -447,6 +447,79 @@
       }
     },
     {
+      "id": "v1:shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1%2Bsubject-validity-v3%2Bdetector-coverage-v2:producer-unrecorded:gpc-off:catalog-legacy-metadata-hash-5a5b8699d87581ae2f9b4a98d622df2b6c78a9259fad43d922b1cb6eda677526:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "schemaVersion": 1,
+      "schemaRevision": null,
+      "methodologyVersion": "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2",
+      "methodologyOrigin": "legacy-derived",
+      "producer": null,
+      "gpc": false,
+      "trackerCatalogDigest": "5a5b8699d87581ae2f9b4a98d622df2b6c78a9259fad43d922b1cb6eda677526",
+      "trackerCatalogOrigin": "legacy-metadata-hash",
+      "serviceRoleTaxonomyVersion": "service-role-taxonomy-v1",
+      "serviceRoleTaxonomyDigest": "dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67",
+      "metricContractVersion": "metric-contract-v1",
+      "metricContractDigest": "19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
+      "sampleSize": 88,
+      "latestRunAt": "2026-09-07T05:23:50.432Z",
+      "metrics": {
+        "thirdPartyRequests": {
+          "count": 88,
+          "min": 0,
+          "max": 649,
+          "p50": 22,
+          "p75": 113,
+          "p90": 185,
+          "p95": 248
+        },
+        "thirdPartyDomains": {
+          "count": 88,
+          "min": 0,
+          "max": 139,
+          "p50": 5,
+          "p75": 16,
+          "p90": 37,
+          "p95": 49
+        },
+        "cataloguedServiceRequests": {
+          "count": 88,
+          "min": 0,
+          "max": 241,
+          "p50": 5,
+          "p75": 23,
+          "p90": 69,
+          "p95": 78
+        },
+        "trackingServiceRequests": {
+          "count": 88,
+          "min": 0,
+          "max": 241,
+          "p50": 4,
+          "p75": 21,
+          "p90": 53,
+          "p95": 78
+        },
+        "thirdPartyCookies": {
+          "count": 88,
+          "min": 0,
+          "max": 174,
+          "p50": 0,
+          "p75": 5,
+          "p90": 17,
+          "p95": 30
+        },
+        "fingerprintEvents": {
+          "count": 67,
+          "min": 0,
+          "max": 544,
+          "p50": 0,
+          "p75": 2,
+          "p90": 36,
+          "p95": 116
+        }
+      }
+    },
+    {
       "id": "v2-r2:shields-request-context-v2-adblock-rust-0.13.0-request-method-v1%2Bphase-kernel-v1%2Bboundary-state-v1%2Bconsent-r2-v1%2Bresource-budget-v1:node-playwright:gpc-off:catalog-recorded-b7d4991063310a81b56342ca7ad949723e785704326179e1658335d7af2f88cf:roles-service-role-taxonomy-v1-dfccf71d4119c154e71bf7908dd2914557e8fc981951941594b16b00b712ed67:metrics-metric-contract-v1-19bd5b62d1530480481080a1f208d2664e3769ac16300560a1f3df5894eb9680",
       "schemaVersion": 2,
       "schemaRevision": 2,
@@ -668,52 +741,52 @@
   ],
   "metrics": {
     "thirdPartyRequests": {
-      "count": 94,
+      "count": 88,
       "min": 0,
-      "max": 844,
-      "p50": 29,
-      "p75": 118,
-      "p90": 244,
-      "p95": 453
+      "max": 649,
+      "p50": 22,
+      "p75": 113,
+      "p90": 185,
+      "p95": 248
     },
     "thirdPartyDomains": {
-      "count": 94,
+      "count": 88,
       "min": 0,
-      "max": 140,
-      "p50": 6,
-      "p75": 17,
+      "max": 139,
+      "p50": 5,
+      "p75": 16,
       "p90": 37,
-      "p95": 66
+      "p95": 49
     },
     "cataloguedServiceRequests": {
-      "count": 94,
+      "count": 88,
       "min": 0,
-      "max": 315,
+      "max": 241,
       "p50": 5,
       "p75": 23,
       "p90": 69,
-      "p95": 166
+      "p95": 78
     },
     "trackingServiceRequests": {
-      "count": 94,
+      "count": 88,
       "min": 0,
-      "max": 315,
+      "max": 241,
       "p50": 4,
-      "p75": 23,
-      "p90": 63,
-      "p95": 165
+      "p75": 21,
+      "p90": 53,
+      "p95": 78
     },
     "thirdPartyCookies": {
-      "count": 94,
+      "count": 88,
       "min": 0,
-      "max": 162,
+      "max": 174,
       "p50": 0,
       "p75": 5,
       "p90": 17,
-      "p95": 52
+      "p95": 30
     },
     "fingerprintEvents": {
-      "count": 71,
+      "count": 67,
       "min": 0,
       "max": 544,
       "p50": 0,

@@ -146,6 +146,21 @@ npm run start -- --port 3100
 BASE_URL=http://127.0.0.1:3100 npm run scan:featured
 ```
 
+Ordinary refreshes retry catalog entries once their temporary deferral expires.
+The acquisition and publisher jobs independently read the immutable GitHub run
+creation date and use it as `FEATURED_ACQUISITION_DATE`, so a midnight boundary
+or publication rerun cannot change the selected targets. Malformed deferrals
+still fail validation. During a governed measurement freeze, expired deferrals
+still require explicit adjudication against the actual current date; ordinary
+retry behavior does not alter the frozen sampling frame or completeness gates.
+
+Before admitting new data, the publisher rebuilds its base manifest and corpus
+statistics from the managed reports in its clean, exact-source checkout. This
+prevents old derived headline or aggregate fields from blocking collection after
+a reader improvement. It then validates both complete snapshots and exact
+request binding, and copies only declared new report/provenance pairs. Existing
+published report bytes remain immutable.
+
 Filter and tune with `FEATURED_CATEGORIES` (comma-separated category ids), `FEATURED_LIMIT`, `FEATURED_COMPARE_SHIELDS` (the Shields off/on comparison; takes precedence over the other modes), `FEATURED_COMPARE_CONSENT` (the consent accept/reject comparison; takes precedence over GPC), `FEATURED_COMPARE_GPC` (default `true`, the GPC off/on comparison), `FEATURED_DEVICE`, and `FEATURED_DELAY_MS`. Edit the catalog in `public/featured-sites.json`, then re-run the scan to refresh the gallery.
 
 > **Preview a corpus run before publishing.** The workflow pushes the new reports to a per-attempt `automation/*` branch and opens a pull request against the branch it runs on, so the corpus never lands anywhere without review. Dispatch it from `main` or a staging branch (in **Actions > Scan Featured Sites**, choose the branch under "Use workflow from"); the proposal PR is the staging surface. Pages previews are Access-protected in the current deployment; review the staged branch through that protected preview or locally (`npm run build:pages` on the branch), check the gallery, `/directory/`, and whether the corpus cleared `CORPUS_MIN_SAMPLE` (the run's job summary reports the report and distinct-site counts), then merge the proposal if its base is `main`; the trusted CI, attestation, and promotion chain runs only on `main`, so a proposal merged into any other branch stays a preview and publishes nothing.
@@ -273,3 +288,20 @@ BASE_URL=http://127.0.0.1:3100 npm run test:smoke
 
 If the server has `SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN` set, pass the same value to the smoke runner as `SMOKE_SCAN_ACCESS_TOKEN`.
 
+## Status-page freshness
+
+`/status/snapshot.json` is generated from the same committed reports, cohort
+builders, filter metadata, and installed toolchain pins as the status page. It
+is served without caching. An open status page fetches it every minute and when
+the tab becomes visible; a failed or invalid fetch keeps the last available
+facts and marks their freshness unverified. Retrieval time never substitutes
+for a measurement date.
+
+Corpus freshness includes one latest eligible visit per distinct site in the
+named aggregate cohort, with separate current, stale, and unknown counts.
+Historical reports remain historical. A healthy endpoint, a fresh filter list,
+or a successful refresh workflow does not establish that every target was
+measured: blocked/failed visits remain missing coverage. Automation prepares
+validated proposals; reviewed publication and deployment are still required
+before their evidence reaches the public status page. Installed toolchain
+versions are disclosed separately from upstream upgrade availability.

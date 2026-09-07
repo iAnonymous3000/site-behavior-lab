@@ -99,7 +99,7 @@ export function LiveDeploymentStatus() {
     : evaluation.state === "aligned"
       ? "Endpoints aligned"
       : evaluation.state === "rolling-out"
-        ? "Rolling out"
+        ? "Possible rollout"
         : evaluation.state === "degraded"
           ? "Degraded"
           : evaluation.state === "stale"

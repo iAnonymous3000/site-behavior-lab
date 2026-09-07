@@ -1,3 +1,4 @@
+export { featuredSiteUnavailability, FEATURED_UNAVAILABILITY_MAX_DAYS } from "../lib/featured-scan-availability.ts";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -30,19 +31,9 @@ export function featuredRefreshCatalogSlug(environment) {
 export function featuredRefreshMarker(catalogSlug) {
   return `<!-- site-behavior-lab:featured-corpus-refresh:${catalogSlug} -->`;
 }
-const FEATURED_UNAVAILABLE_REASONS = new Set([
-  "automation-blocked",
-  "navigation-incomplete",
-  "authentication-required",
-  "access-denied",
-  "rate-limited"
-]);
-const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-const DAY_MS = 24 * 60 * 60 * 1_000;
 export const FEATURED_CATALOG_VERSION_FLOOR = 2;
 export const FEATURED_CATALOG_COVERAGE_FLOOR = 0.8;
 export const FEATURED_ACTIVE_SITE_FLOOR = 50;
-export const FEATURED_UNAVAILABILITY_MAX_DAYS = 28;
 
 /**
  * Preserve the child scanner's final public-safe error without copying an
@@ -134,47 +125,6 @@ export function featuredScanRetryReason(diagnostic) {
     return "transport failure";
   }
   return null;
-}
-
-/**
- * Validate a versioned, public catalog deferral. Expired or malformed entries
- * fail closed so a target cannot disappear from the active denominator
- * indefinitely without an explicit review.
- */
-export function featuredSiteUnavailability(site, today = new Date().toISOString().slice(0, 10)) {
-  if (!site || typeof site !== "object" || Array.isArray(site) || site.scanAvailability === undefined) return null;
-  const value = site.scanAvailability;
-  const domain = typeof site.domain === "string" && site.domain.trim() ? site.domain.trim() : "unknown site";
-  const invalid = () => {
-    throw new Error(`Invalid scanAvailability metadata for ${domain}.`);
-  };
-  if (!value || typeof value !== "object" || Array.isArray(value)) return invalid();
-  if (value.status !== "temporarily-unavailable" || !FEATURED_UNAVAILABLE_REASONS.has(value.reason)) return invalid();
-  if (!validIsoDate(value.observedAt) || !validIsoDate(value.reviewAfter) || !validIsoDate(today)) return invalid();
-  const observedAt = Date.parse(`${value.observedAt}T00:00:00.000Z`);
-  const reviewAfter = Date.parse(`${value.reviewAfter}T00:00:00.000Z`);
-  if (
-    value.observedAt > today ||
-    value.reviewAfter <= value.observedAt ||
-    value.reviewAfter < today ||
-    reviewAfter - observedAt > FEATURED_UNAVAILABILITY_MAX_DAYS * DAY_MS
-  ) {
-    return invalid();
-  }
-  const workflowRunIds = Array.isArray(value.workflowRunIds) ? [...new Set(value.workflowRunIds)] : [];
-  if (
-    workflowRunIds.length < 2 ||
-    !workflowRunIds.every((id) => typeof id === "string" && /^\d{6,20}$/.test(id))
-  ) {
-    return invalid();
-  }
-  return {
-    status: value.status,
-    reason: value.reason,
-    observedAt: value.observedAt,
-    reviewAfter: value.reviewAfter,
-    workflowRunIds
-  };
 }
 
 /**
@@ -557,11 +507,6 @@ export function buildFeaturedRefreshIssueReport({ failed, summary, branch, serve
   return `${lines.join("\n")}\n`;
 }
 
-function validIsoDate(value) {
-  if (typeof value !== "string" || !ISO_DATE_PATTERN.test(value)) return false;
-  const parsed = new Date(`${value}T00:00:00.000Z`);
-  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
-}
 
 export function isAuthoritativeFeaturedRefresh(environment) {
   return (

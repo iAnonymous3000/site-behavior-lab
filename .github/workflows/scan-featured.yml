@@ -155,6 +155,7 @@ jobs:
     name: Populate Featured Gallery
     permissions:
       contents: read
+      actions: read
     outputs:
       publication_artifact_id: ${{ steps.publication_artifact.outputs.artifact-id }}
       publication_artifact_digest: ${{ steps.publication_artifact.outputs.artifact-digest }}
@@ -182,6 +183,11 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24.14.1
+
+      - name: Pin catalog eligibility to this workflow run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/pin-featured-acquisition-date.mjs
 
       - name: Verify pinned Node and npm
         run: |
@@ -474,6 +480,11 @@ jobs:
         with:
           node-version: 24.14.1
           cache: npm
+
+      - name: Pin catalog eligibility to this workflow run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/pin-featured-acquisition-date.mjs
 
       - name: Verify pinned Node and npm
         run: |

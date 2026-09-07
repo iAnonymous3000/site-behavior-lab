@@ -250,7 +250,7 @@ test("featured request selection is exact-SHA catalog bounded and honors filters
     gpcEnabled: false
   });
 
-  const full = await featuredReportPublicationRequest(process.cwd(), {} as NodeJS.ProcessEnv);
+  const full = await featuredReportPublicationRequest(process.cwd(), { FEATURED_ACQUISITION_DATE: "2026-08-10" } as NodeJS.ProcessEnv);
   // The August re-adjudication kept Coinbase temporarily unavailable after
   // both required scheduled cycles repeated the same automation-blocked
   // disposition. The trusted publication request must honor that governed

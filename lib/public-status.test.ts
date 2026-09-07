@@ -70,7 +70,7 @@ test("live status distinguishes degraded, stale, and unknown evidence", () => {
 });
 
 test("a fresh revision mid-rollout is not reported as degraded", () => {
-  // Pages publishes in about a minute while the scanner rebuilds its container,
+  // Pages and the scanner deploy their tested artifacts at different times,
   // so every promotion produces a revision mismatch for several minutes. Badging
   // that "degraded" trains readers to ignore the badge.
   const evaluation = evaluateLiveDeployment(
@@ -85,7 +85,7 @@ test("a fresh revision mid-rollout is not reported as degraded", () => {
 });
 
 test("a mismatch past the rollout window, or beside an unhealthy scanner, stays degraded", () => {
-  // Same mismatch, but the revision is far older than any rollout takes.
+  // Same mismatch, but the commit is outside the recent-revision allowance.
   const stuck = evaluateLiveDeployment(
     { schemaVersion: 1, deployment: SHA, revisionCommittedAt: new Date(NOW - 3 * 60 * 60_000).toISOString() },
     scanner({ deployment: "b".repeat(40) }),
@@ -96,7 +96,7 @@ test("a mismatch past the rollout window, or beside an unhealthy scanner, stays 
   // the only one carrying a date. The health endpoint exposes a bare SHA, so
   // claiming the rollout as a whole is overdue would assert more than this
   // evidence supports when the scanner is the surface that moved first.
-  assert.match(stuck.summary, /the revision the site publishes is older than the expected rollout window/);
+  assert.match(stuck.summary, /site commit is older than the recent-revision allowance/);
 
   // Inside the window, but the scanner is not healthy: the rollout excuse must
   // not launder a real fault.

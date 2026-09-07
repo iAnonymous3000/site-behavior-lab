@@ -1,3 +1,4 @@
+import { activeFeaturedSiteUnavailability } from "./featured-scan-availability";
 import { constants as fsConstants } from "node:fs";
 import { open } from "node:fs/promises";
 import path from "node:path";
@@ -44,7 +45,8 @@ export function singleReportPublicationRequest(
 
 export async function featuredReportPublicationRequest(
   checkoutRoot: string,
-  environment: NodeJS.ProcessEnv = process.env
+  environment: NodeJS.ProcessEnv = process.env,
+  today = new Date().toISOString().slice(0, 10)
 ): Promise<ReportPublicationRequest> {
   const relativeCatalog = environment.FEATURED_SITES_FILE?.trim() || "public/featured-sites.json";
   if (!ALLOWED_FEATURED_CATALOGS.has(relativeCatalog)) {
@@ -68,11 +70,7 @@ export async function featuredReportPublicationRequest(
   }
   const limit = positiveIntegerOrZero(environment.FEATURED_LIMIT);
   if (limit > 0) sites = sites.slice(0, limit);
-  // The acquisition orchestrator excludes every valid temporary-unavailability
-  // entry. If one expires without a reviewed catalog edit, acquisition itself
-  // fails closed; treating metadata presence as excluded here cannot admit a
-  // target that the exact-SHA orchestrator did not select.
-  sites = sites.filter((site) => site.scanAvailability === undefined);
+  sites = sites.filter((site) => activeFeaturedSiteUnavailability(site, environment, today) === null);
   if (sites.length === 0) throw new Error("Trusted featured publication selected no catalog targets.");
 
   const axis = comparisonAxis(environment, "FEATURED");

@@ -4,6 +4,7 @@ import { listStaticReportCandidateIds } from "./static-report-files";
 import {
   prepareReportPublicationArtifact,
   publishReportPublicationArtifact,
+  refreshReportPublicationBase,
   type ReportPublicationKind,
   type ReportPublicationMode
 } from "./report-publication-artifact";
@@ -68,6 +69,7 @@ async function main(): Promise<void> {
   const expectedRequest = options.publicationKind === "single"
     ? singleReportPublicationRequest(process.env)
     : await featuredReportPublicationRequest(root, process.env);
+  await refreshReportPublicationBase(root);
   const published = await publishReportPublicationArtifact({
     checkoutRoot: root,
     artifactDir: options.artifactDir,

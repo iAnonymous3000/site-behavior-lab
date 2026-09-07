@@ -11,6 +11,7 @@
  *   SITE_BEHAVIOR_LAB_SCAN_ACCESS_TOKEN  Forwarded to the scanner when set.
  *   FEATURED_SITES_FILE               Catalog to scan, relative to repo root (default public/featured-sites.json).
  *                                     Set to public/corpus-seed-sites.json to scan the corpus de-bias seed list.
+ *   FEATURED_ACQUISITION_DATE         Trusted workflow creation date; pins ordinary deferral eligibility across jobs.
  *   FEATURED_CATEGORIES               Comma-separated category ids to include (default: all).
  *   FEATURED_LIMIT                    Max number of sites to scan (default: all).
  *   FEATURED_COMPARE_SHIELDS          "true"/"false" Shields off/on comparison per site (default: false; takes precedence over consent and GPC).
@@ -37,6 +38,7 @@
  * active. Temporarily unavailable entries stay in that denominator.
  */
 
+import { activeFeaturedSiteUnavailability } from "../lib/featured-scan-availability.ts";
 import { spawn } from "node:child_process";
 import { appendFile, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -49,7 +51,6 @@ import {
   featuredCatalogVersion,
   featuredMinimumSuccessRate,
   featuredScanRetryReason,
-  featuredSiteUnavailability,
   featuredTransientRetryLimit,
   isFullFeaturedCatalogSelection,
   summarizeFailureTaxonomy
@@ -448,7 +449,7 @@ export function selectSites(config, environment = process.env, today = new Date(
   const sites = [];
   const unavailable = [];
   for (const site of candidates) {
-    const availability = featuredSiteUnavailability(site, today);
+    const availability = activeFeaturedSiteUnavailability(site, environment, today);
     if (availability && !includeUnavailable) {
       unavailable.push({ site: site.domain, ...availability });
       continue;

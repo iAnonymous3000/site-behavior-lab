@@ -209,3 +209,23 @@ test("every committed OG report has bounded, non-truncated subhead copy", () => 
     if (headline.subhead.length <= og.OG_REPORT_SUBHEAD_MAX_CHARACTERS) assert.equal(subhead, headline.subhead, name);
   }
 });
+
+
+test("identifier-field social copy keeps its complete evidence boundary", () => {
+  const og = loadOgReportCardModule();
+  const view = toReportView({ schemaVersion: 2, schemaRevision: 2, report: makeShieldsInterventionReportV2R2() });
+  for (const run of view.runs) {
+    run.domain = "long-shop.example.invalid";
+    run.evidence.pixelEvents = [{
+      platform: "Meta", product: "Meta Pixel", events: ["PageView"],
+      advancedMatching: ["email", "phone", "external_id"], requests: 1
+    }];
+  }
+  const headline = buildReportHeadline(view);
+  assert.ok(headline.subheadPrimaryClaim.length > og.OG_REPORT_SUBHEAD_MAX_CHARACTERS);
+  const compact = og.buildReportCardSubhead(view, headline);
+  assert.ok(compact.length <= og.OG_REPORT_SUBHEAD_MAX_CHARACTERS);
+  assert.match(compact, /fields designated for personal identifiers/);
+  assert.match(compact, /never their values/);
+  assert.match(compact, /contents, hashing, successful delivery, and eventual use are unverified/);
+});

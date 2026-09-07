@@ -13,11 +13,10 @@ export const PUBLIC_STATUS_MAX_CORPUS_AGE_MS = 8 * 24 * 60 * 60_000;
 export const PUBLIC_STATUS_MAX_FILTER_LIST_AGE_MS = 8 * 24 * 60 * 60_000;
 export const PUBLIC_STATUS_UI_REFRESH_MS = 60_000;
 /**
- * How long after a revision's commit a Pages/scanner mismatch still counts as
- * a rollout in progress rather than a fault. Pages publishes in about a minute
- * while the scanner rebuilds its container image, so EVERY promotion produces
- * a mismatch for several minutes. Reporting that as "degraded" trains readers
- * to ignore the badge, which is worse than showing nothing.
+ * Recent commits allow a possible rollout while otherwise healthy endpoints
+ * differ. Both surfaces deploy prebuilt CI artifacts; their deployment times
+ * can differ. The commit date is only a bounded allowance, not evidence of
+ * when a deployment actually began.
  */
 export const PUBLIC_STATUS_MAX_ROLLOUT_MS = 45 * 60_000;
 
@@ -112,11 +111,10 @@ export function evaluateLiveDeployment(
   const scannerUnhealthy =
     !scanner.ok || scanner.status !== "ok" || !scanner.scansAvailable || scanner.warnings.length > 0;
 
-  // A revision mismatch on its own is the NORMAL state during a promotion: the
-  // static site publishes long before the scanner finishes rebuilding. Call it
-  // a rollout only while the site's revision is genuinely recent and the
-  // scanner is otherwise healthy; a mismatch that outlives the rollout window,
-  // or one alongside an unhealthy scanner, is a real fault.
+  // Healthy endpoints can briefly differ while their tested artifacts deploy.
+  // Only allow a possible rollout for a recent site revision. An older commit
+  // or an unhealthy scanner requires attention; commit age alone cannot prove
+  // how long a deployment has been running.
   const rolloutAgeMs = revisionAgeMs(pagesRevisionCommittedAt, nowMs);
   const withinRolloutWindow = rolloutAgeMs !== null && rolloutAgeMs <= PUBLIC_STATUS_MAX_ROLLOUT_MS;
   if (pagesDeployment !== scanner.deployment && !scannerUnhealthy) {
@@ -124,7 +122,7 @@ export function evaluateLiveDeployment(
       return {
         state: "rolling-out",
         summary:
-          "A new revision is rolling out. The static site publishes before the scanner finishes rebuilding, so the two briefly serve different revisions; the scanner is healthy and serving scans.",
+          "The site has a recent source revision and the healthy scanner serves a different one. Tested artifacts may still be rolling out; these receipts do not establish when either deployment began.",
         pagesDeployment,
         scannerDeployment: scanner.deployment,
         checkedAt: scanner.timestamp
@@ -149,7 +147,7 @@ export function evaluateLiveDeployment(
             ? "The public site and scanner are serving different source revisions, and the scanner also reports a degraded posture or unavailable scans."
             : rolloutAgeMs === null
               ? "The public site and scanner are serving different source revisions, and the site receipt carries no usable revision date, so how long they have differed is unknown."
-              : "The public site and scanner are serving different source revisions, and the revision the site publishes is older than the expected rollout window, so this is not an in-progress publish of that revision."
+              : "The public site and scanner are serving different source revisions. The site commit is older than the recent-revision allowance; these receipts do not establish when either deployment began."
           : "The scanner reports a degraded posture or unavailable scans.",
       pagesDeployment,
       scannerDeployment: scanner.deployment,
@@ -160,7 +158,7 @@ export function evaluateLiveDeployment(
   return {
     state: "aligned",
     summary:
-      "The public site receipt and scanner health endpoint expose the same fresh source revision; the scanner response reports scans available and no warnings. This check does not submit a scan or verify report persistence.",
+      "The public site receipt and fresh scanner health response identify the same source revision. The scanner reports scans available and no warnings. This check does not submit a scan or verify report persistence.",
     pagesDeployment,
     scannerDeployment: scanner.deployment,
     checkedAt: scanner.timestamp
