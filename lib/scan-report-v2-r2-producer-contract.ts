@@ -512,8 +512,8 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-08-15T05:18:29.332Z",
-  manifestDigest: "83cbcffc98c65083d7bd08e7c0224dfbb4360ba52a2c39a3345ca671051eb5c6",
+  fetchedAt: "2026-09-07T04:11:08.142Z",
+  manifestDigest: "72487242a444a911e669f41ceda3571c0eed9758e93679d6f3d3cb851de5a41c",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -924,6 +924,10 @@ function nodeTuple(
   });
 }
 
+// Exact producer used in production before the September filter refresh.
+const HISTORICAL_NODE_V10_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
+const HISTORICAL_NODE_V10_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
+
 // Closed rows retain their exact literals; network-security subject checks define v10.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
   String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V7_METHODOLOGY ||
@@ -933,18 +937,11 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v10-network-security-active-lists-2026-08-15",
+        "node-v10-network-security-active-lists-2026-09-07",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
-      ),
-      nodeTuple(
-        "node-v10-network-security-active-no-adblock",
-        NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
-        NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
-        ACTIVE_NODE_FIELDS,
-        null
       )
     ])
   : Object.freeze([]);
@@ -1270,6 +1267,16 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
   nodeTuple("node-v9-catalog-suffix-active-no-adblock",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1",
     HISTORICAL_NODE_V7_METHODOLOGY, HISTORICAL_NODE_V8_FIELDS, null
+  ),
+  // The outgoing list and no-list modes remain closed to their exact source
+  // identity. A list-only refresh does not mint a second no-list producer.
+  nodeTuple("node-v10-network-security-active-lists-2026-08-15",
+    HISTORICAL_NODE_V10_NORMALIZATION, HISTORICAL_NODE_V10_METHODOLOGY,
+    HISTORICAL_NODE_V8_FIELDS, HISTORICAL_R2_LISTS_2026_08_15_ADBLOCK_IDENTITY
+  ),
+  nodeTuple("node-v10-network-security-active-no-adblock",
+    HISTORICAL_NODE_V10_NORMALIZATION, HISTORICAL_NODE_V10_METHODOLOGY,
+    HISTORICAL_NODE_V8_FIELDS, null
   ),
   ...ACTIVE_NODE_TUPLES
 ]);

@@ -179,7 +179,8 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v9-catalog-suffix-active-lists-2026-08-15",
       "node-v9-catalog-suffix-active-no-adblock",
       "node-v10-network-security-active-lists-2026-08-15",
-      "node-v10-network-security-active-no-adblock"
+      "node-v10-network-security-active-no-adblock",
+      "node-v10-network-security-active-lists-2026-09-07"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -851,4 +852,11 @@ test("changed Brave rules are still a different measurement identity", () => {
     engineVersion: "adblock-rust-0.0.0-not-the-pinned-engine"
   };
   assert.throws(() => assertR2ProducerContract(engineRun), R2ProducerContractError);
+});
+
+// Captured from the deployed 978030c source before refreshing filter inputs.
+test("September filter adoption preserves both outgoing production identities exactly", () => {
+  const ids = ["node-v10-network-security-active-lists-2026-08-15","node-v10-network-security-active-no-adblock"];
+  const rows = ids.map((id) => NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === id));
+  assert.equal(sha256Hex(canonicalJson(rows)), "a10f39d204897537247464e10a1e9dfbef75aedb5794151ed93849665d71871c");
 });

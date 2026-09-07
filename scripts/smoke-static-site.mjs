@@ -429,6 +429,39 @@ async function main() {
       fail("published metric contract does not expose a valid, self-consistent identity");
     }
 
+    // An already-open status page must pick up every field of a new published
+    // snapshot. Invalid refreshes retain the last evidence with an explicit
+    // unverified state, never erase it or claim the old snapshot was refreshed.
+    const statusSnapshotUrl = `${baseUrl}/status/snapshot.json`;
+    const { response: statusResponse, value: statusSnapshot } = await fetchJsonResource(
+      statusSnapshotUrl, {}, "public status snapshot", 64 * 1024
+    );
+    if (!statusResponse.ok || statusSnapshot.schemaVersion !== 1 ||
+        statusSnapshot.sourceRevision !== deployment.deployment ||
+        statusSnapshot.aggregateSiteDates.length !== statusSnapshot.siteCount) {
+      fail("status snapshot does not describe this exact static artifact and its measured sites");
+    }
+    const statusPage = await context.newPage();
+    await statusPage.goto(`${baseUrl}/status/`, { waitUntil: "networkidle" });
+    await expectText(statusPage.locator("main"), "Published evidence is checked every minute");
+    const refreshedStatus = { ...statusSnapshot, filterSourceCount: 37, catalogVersion: "status-smoke-new-catalog" };
+    await statusPage.route(statusSnapshotUrl, (route) => route.fulfill({ json: refreshedStatus }));
+    await statusPage.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+    await statusPage.getByText("status-smoke-new-catalog", { exact: true }).waitFor({ timeout: 10_000 });
+    await expectText(statusPage.locator("main"), "37 source files");
+    await expectText(statusPage.locator("main"), "status-smoke-new-catalog");
+    await statusPage.unroute(statusSnapshotUrl);
+    await statusPage.route(statusSnapshotUrl, (route) => route.fulfill({ json: { schemaVersion: 99 } }));
+    await statusPage.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+    await statusPage.locator(".status-card .state-unknown").nth(1).waitFor({ timeout: 10_000 });
+    await expectText(statusPage.locator("main"), "The latest published evidence has not been verified");
+    await expectText(statusPage.locator("main"), "status-smoke-new-catalog");
+    await expectText(statusPage.locator(".status-card").first(), "Unknown");
+    await expectText(statusPage.locator(".status-card").last(), "Unknown");
+    await statusPage.unroute(statusSnapshotUrl);
+    await statusPage.close();
+    pass("status refresh updates published facts and discloses an invalid refresh");
+
     const { response: corpusJsonResponse, value: corpus } = await fetchJsonResource(
       `${baseUrl}/corpus.json`,
       {},

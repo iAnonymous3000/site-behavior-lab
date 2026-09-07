@@ -221,7 +221,7 @@ test("methodology dates never render a broken Date object", () => {
 });
 
 test("the status card never claims one cohort backs every corpus aggregate while the homepage counts several", async () => {
-  const status = source("app/status/page.tsx");
+  const status = ["app/status/page.tsx", "lib/status-snapshot-server.ts", "app/status/status-evidence.tsx"].map(source).join("\n");
   const home = source("app/page.tsx");
 
   // Both surfaces must count published cohorts from the SAME category pages.

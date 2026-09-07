@@ -8,9 +8,9 @@ import {
   type FreshnessState
 } from "@/lib/public-status";
 
-export function StatusFreshness({ timestamp, maxAgeMs }: { timestamp: string | null; maxAgeMs: number }) {
+export function StatusFreshness({ timestamp, maxAgeMs, verified = true }: { timestamp: string | null; maxAgeMs: number; verified?: boolean }) {
   const [state, setState] = useState<FreshnessState>("unknown");
-  const refresh = useCallback(() => setState(freshnessState(timestamp, maxAgeMs)), [maxAgeMs, timestamp]);
+  const refresh = useCallback(() => setState(verified ? freshnessState(timestamp, maxAgeMs) : "unknown"), [maxAgeMs, timestamp, verified]);
 
   useEffect(() => {
     refresh();
