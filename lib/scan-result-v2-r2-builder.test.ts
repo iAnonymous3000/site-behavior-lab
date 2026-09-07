@@ -141,6 +141,30 @@ test("real Node producer output is an exact managed-sanitizer fixed point", () =
   assert.equal(prepared.manifest.reportId, `20260721-${"e".repeat(32)}`);
 });
 
+test("Azure hosting requests retain service counts through building, persistence and rereading", () => {
+  const input = baseInput();
+  for (const host of ["customer.b02.azurefd.net", "customer.azureedge.net"]) {
+    input.evidence.requests.push({
+      ...input.evidence.requests[0],
+      id: input.evidence.requests.length + 1,
+      url: `https://${host}/api/catalog`,
+      domain: host,
+      resourceType: "fetch",
+      thirdParty: true,
+      tracker: findTrackerMatch(host)
+    });
+  }
+  const report = buildNodeScanReportV2R2(input);
+  assert.equal(report.run.summary.counts.knownTrackerRequests, 2);
+  assert.deepEqual(report.run.evidence.requests.slice(1).map((request) => request.tracker?.domain), [
+    "azurefd.net", "azureedge.net"
+  ]);
+  const bundle = prepareScanReportBundle(report);
+  const stored = JSON.parse(bundle.reportWire);
+  assert.equal(stored.run.summary.counts.knownTrackerRequests, 2);
+  assert.equal(publicReportDigest(redactPublicScanReportV2R2(stored)), publicReportDigest(stored));
+});
+
 function comparisonInput(
   axis: "gpc" | "shields" | "consent",
   executedFirst: "baseline" | "variant"

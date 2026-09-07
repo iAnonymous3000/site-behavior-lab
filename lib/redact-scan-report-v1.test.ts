@@ -15,7 +15,9 @@ import {
   assertKnownPixelEventVocabulary,
   redactPixelEvents,
   redactScanReportV1,
-  redactScanResultV1
+  redactScanResultV1,
+  redactTrackerMatch,
+  RedactionPass
 } from "./redact-scan-report-v1";
 import { scannerDisclosure } from "./scan-condition-disclosure";
 import {
@@ -27,7 +29,8 @@ import {
 } from "./scan-runtime";
 import { readStoredScanReport } from "./scan-report-reader";
 import { makeScanReportV1 } from "./scan-report-v2-fixtures";
-import { findTrackerMatch } from "./tracker-catalog";
+import { canonicalTrackerCatalogContents, findTrackerMatch } from "./tracker-catalog";
+import { redactHostnameV2 } from "./redaction-v2";
 import type { ScanResult } from "./types";
 
 const TOKEN_HOST = "a8f3c9d2e1b4f6a7.google-analytics.com";
@@ -515,6 +518,34 @@ test("subdomain-specific curated tracker matches survive an idempotent public bo
   assert.equal(first.cnameCloaks?.[0].tracker.entity, "Meta");
   assert.deepEqual(first.privacyPolicy?.mentionedEntities, ["Meta"]);
   assert.equal(JSON.stringify(second), JSON.stringify(first));
+});
+
+test("every catalog service survives repeated public boundaries on observed subdomains", () => {
+  const entries = JSON.parse(canonicalTrackerCatalogContents()) as Array<{ domain: string }>;
+  for (const { domain } of entries) {
+    for (const host of [domain, `tenant.${domain}`, `customer.region.${domain}`]) {
+      if (redactHostnameV2(host).value === "{invalid-host}") continue;
+      const original = findTrackerMatch(host);
+      assert.ok(original, host);
+      const first = redactTrackerMatch(original, new RedactionPass(), host);
+      assert.ok(first, host);
+      const second = redactTrackerMatch(first, new RedactionPass(), redactHostnameV2(host).value);
+      assert.deepEqual(second, first, host);
+      assert.equal(first.entity, original.entity, host);
+      assert.notEqual(first.domain, "{invalid-host}", host);
+    }
+  }
+});
+
+test("catalog suffix metadata does not admit forged matches or expose observed tenant labels", () => {
+  const azure = findTrackerMatch("private-customer.b02.azurefd.net")!;
+  const first = redactTrackerMatch(azure, new RedactionPass(), "private-customer.b02.azurefd.net");
+  assert.equal(first?.domain, "azurefd.net");
+  assert.equal(redactHostnameV2("private-customer.b02.azurefd.net").value, "{label}.b02.azurefd.net");
+  for (const host of ["{label}.notazurefd.net", "{label}.azurefd.net.example.com", "{invalid-host}"]) {
+    assert.equal(redactTrackerMatch(azure, new RedactionPass(), host), null, host);
+  }
+  assert.equal(redactTrackerMatch({ ...azure, entity: "Made up service" }, new RedactionPass(), "{label}.b02.azurefd.net"), null);
 });
 
 test("legacy fingerprint sanitization drops detections that become structurally invalid", () => {

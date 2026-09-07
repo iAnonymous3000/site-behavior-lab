@@ -63,6 +63,8 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
+    // Catalog public-suffix metadata is now retained; prior admitted bytes stay unchanged.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1",
     // V1 probe disclosure widening; no previously admitted string is removed.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1",
     // First deployed v4 identity. Retired by scanner-warning-patterns-v4,
@@ -107,6 +109,8 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.9+node-evidence-policy-v1+r2-http-status-compat-v1"
   ]),
   "pagegraph-import": Object.freeze([
+    // Catalog public-suffix metadata is now retained; prior admitted bytes stay unchanged.
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6c78c05523e1f16c88264d0144af33587bd6dc11e04d337a6af2d58190639266+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:dbb6c25e0645a6a98c2290d562f931ccfe065cf0ab1feded4798920024d312a3+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:6e87d9833c274788638c00887eb2dc1f3edd6e45ea5137ac07871279b24ec40b+tldts@7.4.9+pagegraph-request-evidence-v1+r2-http-status-compat-v1",

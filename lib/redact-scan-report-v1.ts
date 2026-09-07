@@ -30,6 +30,7 @@ import {
 import {
   addRedactionCounters,
   emptyRedactionCounters,
+  INVALID_HOST_MARKER,
   redactCookieName,
   redactHostnameV2,
   redactPageTitle,
@@ -207,6 +208,13 @@ const CURATED_TRACKER_MATCHES = (JSON.parse(canonicalTrackerCatalogContents()) a
     const match = findTrackerMatch(entry.domain);
     return match === null ? [] : [match];
   });
+// A catalog suffix is reviewed instrument metadata, not an observed tenant
+// hostname. Some hosting entries (azurefd.net / azureedge.net) are themselves
+// public suffixes and therefore have no registrable domain. Keep those exact
+// catalog constants; the request URL and hostname still use the normal policy.
+const CURATED_PUBLIC_SUFFIXES = new Set(CURATED_TRACKER_MATCHES
+  .filter((entry) => redactHostnameV2(entry.domain).value === INVALID_HOST_MARKER)
+  .map((entry) => entry.domain));
 
 /**
  * Own-property lookup only. `PIXEL_PRODUCTS[platform]` on a plain object
@@ -406,6 +414,7 @@ export const PUBLIC_STRING_POLICY_DIGEST = sha256Hex(
     scannerEgress: [...SAFE_SCANNER_EGRESS].sort(),
     adblockSource: SAFE_ADBLOCK_SOURCE,
     historicalTrackerCatalogs: HISTORICAL_TRACKER_CATALOGS,
+    curatedPublicSuffixes: [...CURATED_PUBLIC_SUFFIXES].sort(),
     chromiumVersionPattern: CHROMIUM_VERSION.source,
     chromiumUserAgentPattern: CHROMIUM_USER_AGENT.source,
     fixedWarnings: [...FIXED_SCANNER_WARNINGS].sort(),
@@ -917,7 +926,9 @@ export function redactTrackerMatch(
     return null;
   }
   return {
-    domain: pass.hostname(tracker.domain),
+    domain: tracker.confidence === "curated" && CURATED_PUBLIC_SUFFIXES.has(tracker.domain)
+      ? tracker.domain
+      : pass.hostname(tracker.domain),
     entity: tracker.entity,
     category: tracker.category,
     confidence: tracker.confidence,
@@ -930,7 +941,12 @@ export function redactTrackerMatch(
 function markerAwareCuratedTrackerMatch(observedHost: string, tracker: TrackerMatch): TrackerMatch | null {
   const publicObserved = redactHostnameV2(observedHost).value;
   for (const candidate of CURATED_TRACKER_MATCHES) {
-    const publicCandidate: TrackerMatch = { ...candidate, domain: redactHostnameV2(candidate.domain).value };
+    const publicCandidate: TrackerMatch = {
+      ...candidate,
+      domain: CURATED_PUBLIC_SUFFIXES.has(candidate.domain)
+        ? candidate.domain
+        : redactHostnameV2(candidate.domain).value
+    };
     if (canonicalJson(publicCandidate) !== canonicalJson(tracker)) continue;
     if (publicObserved === publicCandidate.domain || publicObserved.endsWith(`.${publicCandidate.domain}`)) {
       return tracker;

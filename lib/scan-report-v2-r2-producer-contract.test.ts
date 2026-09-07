@@ -175,7 +175,9 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v7-active-probe-v2-active-lists-2026-08-15",
       "node-v7-active-probe-v2-active-no-adblock",
       "node-v8-pixel-coverage-active-lists-2026-08-15",
-      "node-v8-pixel-coverage-active-no-adblock"
+      "node-v8-pixel-coverage-active-no-adblock",
+      "node-v9-catalog-suffix-active-lists-2026-08-15",
+      "node-v9-catalog-suffix-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -668,6 +670,11 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
     catalog: serviceRoleTracker,
     mixedVersion: "hand-curated-2026.07"
   });
+  oracle.push({
+    normalizationVersion: `${V4_PREFIX}980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1`,
+    catalog: serviceRoleTracker,
+    mixedVersion: "hand-curated-2026.07"
+  });
   assert.equal(PAGEGRAPH_R2_PRODUCER_TUPLES.length, oracle.length + 1);
   assert.equal(Object.isFrozen(PAGEGRAPH_R2_PRODUCER_TUPLES), true);
   const activeMethodologySuffix = active.provenance.methodologyVersion.slice(
@@ -701,7 +708,7 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
 
 test("closed PageGraph epochs are pinned literals that still match the live identity today", () => {
   const closedIds = PAGEGRAPH_R2_PRODUCER_TUPLES.filter(
-    (tuple) => tuple.id !== "pagegraph-v4-active"
+    (tuple) => tuple.id !== "pagegraph-v4-catalog-suffix-active"
   ).map((tuple) => tuple.id);
   assert.equal(closedIds.length > 0, true);
   // (a) The frozen registry digest is this exact hex, and it is the sha256 of
@@ -753,7 +760,7 @@ test("closed PageGraph epochs are pinned literals that still match the live iden
   );
   // Every closed row names the frozen identity, never the live constants.
   for (const tuple of PAGEGRAPH_R2_PRODUCER_TUPLES) {
-    if (tuple.id === "pagegraph-v4-active") continue;
+    if (tuple.id === "pagegraph-v4-catalog-suffix-active") continue;
     assert.deepEqual(
       tuple.detectorRegistry,
       {
