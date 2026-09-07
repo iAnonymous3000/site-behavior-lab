@@ -1,0 +1,4011 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.paypal.com/",
+  "scannedAt": "2026-09-07T10:30:36.428Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4722,
+      "firstPartyDomain": "www.paypal.com",
+      "totalRequests": 106,
+      "thirdPartyRequests": 94,
+      "knownTrackerRequests": 1,
+      "thirdPartyDomains": 6,
+      "cookies": 14,
+      "thirdPartyCookies": 1,
+      "storageEntries": 3,
+      "fingerprintEvents": 2,
+      "shieldsBlockedRequests": 13
+    },
+    "conditions": {
+      "requestedUrl": "https://www.paypal.com/",
+      "finalUrl": "https://www.paypal.com/us/home",
+      "scannedAt": "2026-09-07T10:30:31.681Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.paypal.com/",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 52
+      },
+      {
+        "id": 2,
+        "url": "https://www.paypal.com/us/home",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 84
+      },
+      {
+        "id": 3,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 249
+      },
+      {
+        "id": 4,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 250
+      },
+      {
+        "id": 5,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 250
+      },
+      {
+        "id": 6,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 250
+      },
+      {
+        "id": 7,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 250
+      },
+      {
+        "id": 8,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 250
+      },
+      {
+        "id": 9,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 250
+      },
+      {
+        "id": 10,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 251
+      },
+      {
+        "id": 11,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 251
+      },
+      {
+        "id": 12,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 251
+      },
+      {
+        "id": 13,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 251
+      },
+      {
+        "id": 14,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 251
+      },
+      {
+        "id": 15,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 16,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 17,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 18,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 19,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 252
+      },
+      {
+        "id": 20,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 21,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 22,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/us/en/{seg}/{seg}?quality=&width=&format=",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 253
+      },
+      {
+        "id": 23,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 306
+      },
+      {
+        "id": 24,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 307
+      },
+      {
+        "id": 25,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 307
+      },
+      {
+        "id": 26,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 27,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 28,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 29,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 324
+      },
+      {
+        "id": 30,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 332
+      },
+      {
+        "id": 31,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 333
+      },
+      {
+        "id": 32,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 33,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 334
+      },
+      {
+        "id": 34,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 35,
+        "url": "https://www.paypal.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 36,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 528
+      },
+      {
+        "id": 37,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 620
+      },
+      {
+        "id": 38,
+        "url": "https://www.paypal.com/{seg}/privacy/{seg}/{seg}",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 620
+      },
+      {
+        "id": 39,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 661
+      },
+      {
+        "id": 40,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 672
+      },
+      {
+        "id": 41,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 673
+      },
+      {
+        "id": 42,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 674
+      },
+      {
+        "id": 43,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 674
+      },
+      {
+        "id": 44,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 675
+      },
+      {
+        "id": 45,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 676
+      },
+      {
+        "id": 46,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 676
+      },
+      {
+        "id": 47,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 677
+      },
+      {
+        "id": 48,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 677
+      },
+      {
+        "id": 49,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 678
+      },
+      {
+        "id": 50,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 678
+      },
+      {
+        "id": 51,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 678
+      },
+      {
+        "id": 52,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 679
+      },
+      {
+        "id": 53,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 679
+      },
+      {
+        "id": 54,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 682
+      },
+      {
+        "id": 55,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 682
+      },
+      {
+        "id": 56,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 686
+      },
+      {
+        "id": 57,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 686
+      },
+      {
+        "id": 58,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 687
+      },
+      {
+        "id": 59,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 687
+      },
+      {
+        "id": 60,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 688
+      },
+      {
+        "id": 61,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 688
+      },
+      {
+        "id": 62,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 688
+      },
+      {
+        "id": 63,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 689
+      },
+      {
+        "id": 64,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 689
+      },
+      {
+        "id": 65,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 690
+      },
+      {
+        "id": 66,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 690
+      },
+      {
+        "id": 67,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 690
+      },
+      {
+        "id": 68,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 691
+      },
+      {
+        "id": 69,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 695
+      },
+      {
+        "id": 70,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 695
+      },
+      {
+        "id": 71,
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=&hl=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 696
+      },
+      {
+        "id": 72,
+        "url": "https://www.googletagmanager.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 697
+      },
+      {
+        "id": 73,
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "browser-intake-us5-datadoghq.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 723
+      },
+      {
+        "id": 74,
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "browser-intake-us5-datadoghq.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 726
+      },
+      {
+        "id": 75,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 798
+      },
+      {
+        "id": 76,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 856
+      },
+      {
+        "id": 77,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1024
+      },
+      {
+        "id": 78,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 1029
+      },
+      {
+        "id": 79,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1078
+      },
+      {
+        "id": 80,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1080
+      },
+      {
+        "id": 81,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?hl=&v=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1274
+      },
+      {
+        "id": 82,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1285
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1287
+      },
+      {
+        "id": 84,
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "browser-intake-us5-datadoghq.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1289
+      },
+      {
+        "id": 85,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1313
+      },
+      {
+        "id": 86,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/us/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 1468
+      },
+      {
+        "id": 87,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 1608
+      },
+      {
+        "id": 88,
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "browser-intake-us5-datadoghq.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1814
+      },
+      {
+        "id": 89,
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "browser-intake-us5-datadoghq.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1815
+      },
+      {
+        "id": 90,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1903
+      },
+      {
+        "id": 91,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1904
+      },
+      {
+        "id": 92,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 1912
+      },
+      {
+        "id": 93,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1922
+      },
+      {
+        "id": 94,
+        "url": "https://www.paypal.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1945
+      },
+      {
+        "id": 95,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1961
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2007
+      },
+      {
+        "id": 97,
+        "url": "https://www.paypal.com/{seg}/privacy/{seg}/cookies",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2013
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2014
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2016
+      },
+      {
+        "id": 100,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.recaptcha.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 2052
+      },
+      {
+        "id": 101,
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "browser-intake-us5-datadoghq.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2058
+      },
+      {
+        "id": 102,
+        "url": "https://www.paypal.com/{seg}/{seg}",
+        "domain": "www.paypal.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2168
+      },
+      {
+        "id": 103,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.recaptcha.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 2174
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.paypal.com/{seg}",
+        "domain": "{label}.paypal.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2305
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.paypal.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.paypal.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2316
+      },
+      {
+        "id": 106,
+        "url": "https://browser-intake-us5-datadoghq.com/api/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "browser-intake-us5-datadoghq.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 202,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2423
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.paypalobjects.com",
+        "requests": 75,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "font",
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "browser-intake-us5-datadoghq.com",
+        "requests": 7,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          202
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.recaptcha.net",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "www.paypal.com",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.paypal.com",
+        "requests": 5,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": "www.recaptcha.net",
+        "path": "/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "__cf_bm",
+        "domain": ".{label}.paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.paypal.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 30
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 32
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.paypalobjects.com/"
+          ],
+          "totalListenerCalls": 442
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.paypalobjects.com/"
+          ],
+          "totalListenerCalls": 274
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.paypal.com/{seg}/privacy/{seg}",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 14753
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://www.paypal.com/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 4873,
+      "firstPartyDomain": "www.paypal.com",
+      "totalRequests": 93,
+      "thirdPartyRequests": 86,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 11,
+      "thirdPartyCookies": 1,
+      "storageEntries": 3,
+      "fingerprintEvents": 2,
+      "shieldsBlockedRequests": 27
+    },
+    "conditions": {
+      "requestedUrl": "https://www.paypal.com/",
+      "finalUrl": "https://www.paypal.com/us/home",
+      "scannedAt": "2026-09-07T10:30:36.428Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.paypal.com/",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 62
+      },
+      {
+        "id": 2,
+        "url": "https://www.paypal.com/us/home",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 85
+      },
+      {
+        "id": 3,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 4,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 5,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 6,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 7,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 8,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 9,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 263
+      },
+      {
+        "id": 10,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 11,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 12,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 13,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 14,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 15,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 16,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 17,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 18,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 19,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 20,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 264
+      },
+      {
+        "id": 21,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 265
+      },
+      {
+        "id": 22,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/us/en/{seg}/{seg}?quality=&width=&format=",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 265
+      },
+      {
+        "id": 23,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 361
+      },
+      {
+        "id": 24,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 362
+      },
+      {
+        "id": 25,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 26,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 27,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 365
+      },
+      {
+        "id": 28,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 365
+      },
+      {
+        "id": 29,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 365
+      },
+      {
+        "id": 30,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 365
+      },
+      {
+        "id": 31,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 366
+      },
+      {
+        "id": 32,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 367
+      },
+      {
+        "id": 33,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 367
+      },
+      {
+        "id": 34,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 368
+      },
+      {
+        "id": 35,
+        "url": "https://www.paypal.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 368
+      },
+      {
+        "id": 36,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 423
+      },
+      {
+        "id": 37,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 687
+      },
+      {
+        "id": 38,
+        "url": "https://www.paypal.com/{seg}/privacy/{seg}/{seg}",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 688
+      },
+      {
+        "id": 39,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 702
+      },
+      {
+        "id": 40,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 758
+      },
+      {
+        "id": 41,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 759
+      },
+      {
+        "id": 42,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 759
+      },
+      {
+        "id": 43,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 760
+      },
+      {
+        "id": 44,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 760
+      },
+      {
+        "id": 45,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 763
+      },
+      {
+        "id": 46,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 764
+      },
+      {
+        "id": 47,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 765
+      },
+      {
+        "id": 48,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 766
+      },
+      {
+        "id": 49,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 767
+      },
+      {
+        "id": 50,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 767
+      },
+      {
+        "id": 51,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 767
+      },
+      {
+        "id": 52,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 53,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 768
+      },
+      {
+        "id": 54,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 55,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 769
+      },
+      {
+        "id": 56,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 781
+      },
+      {
+        "id": 57,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 782
+      },
+      {
+        "id": 58,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 786
+      },
+      {
+        "id": 59,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 786
+      },
+      {
+        "id": 60,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 787
+      },
+      {
+        "id": 61,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 787
+      },
+      {
+        "id": 62,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 787
+      },
+      {
+        "id": 63,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 64,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 65,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 66,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 67,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 68,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 69,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 70,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 789
+      },
+      {
+        "id": 71,
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=&hl=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{n}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 790
+      },
+      {
+        "id": 75,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 796
+      },
+      {
+        "id": 80,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 915
+      },
+      {
+        "id": 81,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 937
+      },
+      {
+        "id": 82,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1141
+      },
+      {
+        "id": 83,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1215
+      },
+      {
+        "id": 84,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1217
+      },
+      {
+        "id": 85,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?hl=&v=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1427
+      },
+      {
+        "id": 86,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1440
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1441
+      },
+      {
+        "id": 88,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1466
+      },
+      {
+        "id": 89,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/us/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 1738
+      },
+      {
+        "id": 90,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 1828
+      },
+      {
+        "id": 93,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1918
+      },
+      {
+        "id": 94,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 1925
+      },
+      {
+        "id": 97,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypal.com/us/home",
+          "initiatorDomain": "www.paypal.com"
+        },
+        "startedAtMs": 1937
+      },
+      {
+        "id": 99,
+        "url": "https://www.paypal.com/{seg}/privacy/{seg}/cookies",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2134
+      },
+      {
+        "id": 108,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2208
+      },
+      {
+        "id": 109,
+        "url": "https://www.paypal.com/{seg}/{seg}/{seg}",
+        "domain": "www.paypal.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2210
+      },
+      {
+        "id": 112,
+        "url": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.paypalobjects.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2270
+      },
+      {
+        "id": 113,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.recaptcha.net",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 2308
+      },
+      {
+        "id": 117,
+        "url": "https://www.paypal.com/{seg}/{seg}",
+        "domain": "www.paypal.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.paypalobjects.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.paypalobjects.com"
+        },
+        "startedAtMs": 2453
+      },
+      {
+        "id": 118,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.recaptcha.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 2457
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.paypalobjects.com",
+        "requests": 75,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "font",
+          "image",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.recaptcha.net",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "www.paypal.com",
+        "requests": 7,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": "www.recaptcha.net",
+        "path": "/{seg}",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.paypal.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.paypal.com",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 2
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 30
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 32
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "webgl.getParameter.UNMASKED_RENDERER_WEBGL",
+        "count": 1
+      },
+      {
+        "api": "webgl.getParameter.UNMASKED_VENDOR_WEBGL",
+        "count": 1
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.paypalobjects.com/"
+          ],
+          "totalListenerCalls": 442
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://www.paypalobjects.com/"
+          ],
+          "totalListenerCalls": 274
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.paypal.com/{seg}/privacy/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 14753
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://www.paypal.com/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 106,
+      "after": 93,
+      "delta": -13
+    },
+    "thirdPartyRequests": {
+      "before": 94,
+      "after": 86,
+      "delta": -8
+    },
+    "knownTrackerRequests": {
+      "before": 1,
+      "after": 0,
+      "delta": -1
+    },
+    "thirdPartyDomains": {
+      "before": 6,
+      "after": 4,
+      "delta": -2
+    },
+    "cookies": {
+      "before": 14,
+      "after": 11,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "browser-intake-us5-datadoghq.com",
+        "requests": 7,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.paypal.com",
+        "requests": 5,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".{label}.paypal.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".paypal.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "browser-intake-us5-datadoghq.com",
+        "requests": 7,
+        "tracker": null,
+        "initiator": "www.paypalobjects.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.paypalobjects.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 13,
+      "after": 27,
+      "delta": 14
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://www.paypal.com/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.paypal.com/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260907-a548ee7863d843bbe549969a4970d052",
+    "path": "/reports/20260907-a548ee7863d843bbe549969a4970d052/",
+    "jsonPath": "/reports/20260907-a548ee7863d843bbe549969a4970d052.json"
+  }
+}
