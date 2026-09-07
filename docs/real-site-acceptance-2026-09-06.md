@@ -6,6 +6,8 @@ Catalog suffixes are instrument metadata. The reviewed `azurefd.net` and `azuree
 
 Visual review found a separate defect that structural checks missed: Reddit served a network-security block page with HTTP 200 and two requests, yet the old subject classifier called it normal. Subject validity v3 recognizes its specific denial and appeal instructions together on a sparse page. A single phrase or a normal-sized article quoting those instructions is insufficient. This is a suspected block classification, not an attempt to evade it. Historical reports retain the methodology that originally interpreted them.
 
+The corpus's reviewed current-methodology literal advances with the classifier. Historical cohorts keep their original identities and population-continuity requirements; this does not promote r2 reports into the published benchmark generation.
+
 The real-site fidelity driver also treated endpoint 500 responses as skipped targets, allowing enough unrelated successful sites to produce a green run. Endpoint 5xx and unreadable response bodies now fail the driver. A target's HTTP error inside a valid measurement remains a report to validate. Microsoft and Reddit are included in the regular fidelity target set.
 
 ## Acceptance scope
@@ -15,5 +17,7 @@ The local operational sweep exercised 15 URLs: Microsoft apex and www, Walmart, 
 Every case required an API report, successful persistence and reread, identical canonical evidence across those boundaries, schema/semantic acceptance, and consistent report-view/headline/findings/JSON-LD results. The sweep ran on local macOS Chromium with isolated S3-compatible test storage and normal scanner safety controls. It is not proof of Cloudflare's network behavior; production verification is separate.
 
 Three real-scan PDF evidence bundles covered Microsoft single (226 request rows), Microsoft blocker comparison (448 rows), and BBC consent comparison (345 rows). All 1,019 references appeared once in visit order, with recorded timings and resource types. Bundled JSON matched the stored bytes, all package hashes matched, PDF source/correction digests matched, and bookmarks, reading structure and links survived. Sample cover and evidence pages were inspected visually.
+
+Final targeted rechecks covered Microsoft single, mobile and blocker comparison, BBC consent, and Reddit single and GPC comparison. All six cases persisted and reopened. Both Reddit comparison arms retained the suspected-block classification and skipped active probes. Two further PDF bundles preserved all six Reddit request rows and explicitly described an incomplete visit to an unverified document; the cover was inspected visually.
 
 These checks establish specific operational and internal-consistency properties. They do not establish detector error rates, universal site accessibility, the behavior of an ordinary human visit, or that sparse/HTTP-200 responses are always normal pages. Reddit's initial false-normal result is an explicit counterexample to treating an invariant-clean report as independently proven accurate. Coverage losses and unsuccessful visits must remain visible, and broader calibration remains separate.

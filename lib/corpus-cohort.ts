@@ -148,7 +148,7 @@ export const MAX_DROPPED_SITE_SHARE = 0.1;
  * deliberate, diff-visible act.
  */
 export const CURRENT_MEASUREMENT_LINE_METHODOLOGY =
-  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2";
+  "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2";
 
 /** v1 stays the deployed benchmark generation; the line lives inside it. */
 export function isOnCurrentMeasurementLine(identity: CorpusCohortIdentity): boolean {

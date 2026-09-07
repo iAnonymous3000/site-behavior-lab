@@ -374,6 +374,10 @@ test("the current-line literal equals what new reports will record, so an epoch 
   assert.equal(CURRENT_MEASUREMENT_LINE_METHODOLOGY, NODE_SCANNER_METHODOLOGY_VERSION);
   assert.equal(isOnCurrentMeasurementLine(identity({ id: "x", methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY })), true);
   assert.equal(isOnCurrentMeasurementLine(identity({ id: "x", methodologyVersion: "previous-era-method" })), false);
+  assert.equal(isOnCurrentMeasurementLine(identity({
+    id: "subject-validity-v2",
+    methodologyVersion: "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2"
+  })), false);
   // The line lives inside the v1 benchmark generation only.
   assert.equal(
     isOnCurrentMeasurementLine(identity({ id: "x", schemaVersion: 2, methodologyVersion: CURRENT_MEASUREMENT_LINE_METHODOLOGY })),
