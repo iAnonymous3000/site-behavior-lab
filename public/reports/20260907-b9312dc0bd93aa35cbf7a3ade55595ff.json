@@ -1,0 +1,1404 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.torproject.org/",
+  "scannedAt": "2026-09-07T13:38:57.954Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 3393,
+      "firstPartyDomain": "www.torproject.org",
+      "totalRequests": 36,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.torproject.org/",
+      "finalUrl": "https://www.torproject.org/",
+      "scannedAt": "2026-09-07T13:39:01.059Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.torproject.org/",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 51
+      },
+      {
+        "id": 2,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 692
+      },
+      {
+        "id": 3,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 694
+      },
+      {
+        "id": 4,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 695
+      },
+      {
+        "id": 5,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 695
+      },
+      {
+        "id": 6,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 697
+      },
+      {
+        "id": 7,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 697
+      },
+      {
+        "id": 8,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 698
+      },
+      {
+        "id": 9,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 698
+      },
+      {
+        "id": 10,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 698
+      },
+      {
+        "id": 11,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 698
+      },
+      {
+        "id": 12,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 698
+      },
+      {
+        "id": 13,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 699
+      },
+      {
+        "id": 14,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 699
+      },
+      {
+        "id": 15,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 699
+      },
+      {
+        "id": 16,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 699
+      },
+      {
+        "id": 17,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 701
+      },
+      {
+        "id": 18,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1201
+      },
+      {
+        "id": 19,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1201
+      },
+      {
+        "id": 20,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1202
+      },
+      {
+        "id": 21,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1202
+      },
+      {
+        "id": 22,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1203
+      },
+      {
+        "id": 23,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1203
+      },
+      {
+        "id": 24,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1203
+      },
+      {
+        "id": 25,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1204
+      },
+      {
+        "id": 26,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1204
+      },
+      {
+        "id": 27,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1204
+      },
+      {
+        "id": 28,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1205
+      },
+      {
+        "id": 29,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1205
+      },
+      {
+        "id": 30,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 2143
+      },
+      {
+        "id": 31,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 2143
+      },
+      {
+        "id": 32,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 2144
+      },
+      {
+        "id": 33,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 2145
+      },
+      {
+        "id": 34,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 2146
+      },
+      {
+        "id": 35,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 2148
+      },
+      {
+        "id": 36,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 2149
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.torproject.org",
+        "requests": 36,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 3098,
+      "firstPartyDomain": "www.torproject.org",
+      "totalRequests": 36,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 0
+    },
+    "conditions": {
+      "requestedUrl": "https://www.torproject.org/",
+      "finalUrl": "https://www.torproject.org/",
+      "scannedAt": "2026-09-07T13:38:57.954Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.torproject.org/",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 45
+      },
+      {
+        "id": 2,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 565
+      },
+      {
+        "id": 3,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 566
+      },
+      {
+        "id": 4,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 566
+      },
+      {
+        "id": 5,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 567
+      },
+      {
+        "id": 6,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 569
+      },
+      {
+        "id": 7,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 569
+      },
+      {
+        "id": 8,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 569
+      },
+      {
+        "id": 9,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 570
+      },
+      {
+        "id": 10,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 570
+      },
+      {
+        "id": 11,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 571
+      },
+      {
+        "id": 12,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 572
+      },
+      {
+        "id": 13,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 572
+      },
+      {
+        "id": 14,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 572
+      },
+      {
+        "id": 15,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 573
+      },
+      {
+        "id": 16,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 573
+      },
+      {
+        "id": 17,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 573
+      },
+      {
+        "id": 18,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 991
+      },
+      {
+        "id": 19,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 993
+      },
+      {
+        "id": 20,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 994
+      },
+      {
+        "id": 21,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 994
+      },
+      {
+        "id": 22,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 995
+      },
+      {
+        "id": 23,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 995
+      },
+      {
+        "id": 24,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 996
+      },
+      {
+        "id": 25,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 996
+      },
+      {
+        "id": 26,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 996
+      },
+      {
+        "id": 27,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 997
+      },
+      {
+        "id": 28,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 997
+      },
+      {
+        "id": 29,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 997
+      },
+      {
+        "id": 30,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1821
+      },
+      {
+        "id": 31,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1821
+      },
+      {
+        "id": 32,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1822
+      },
+      {
+        "id": 33,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1823
+      },
+      {
+        "id": 34,
+        "url": "https://www.torproject.org/static/{seg}/home/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1823
+      },
+      {
+        "id": 35,
+        "url": "https://www.torproject.org/static/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1824
+      },
+      {
+        "id": 36,
+        "url": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.torproject.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.torproject.org/static/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.torproject.org"
+        },
+        "startedAtMs": 1825
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.torproject.org",
+        "requests": 36,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 36,
+      "after": 36,
+      "delta": 0
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals."
+  ],
+  "share": {
+    "id": "20260907-b9312dc0bd93aa35cbf7a3ade55595ff",
+    "path": "/reports/20260907-b9312dc0bd93aa35cbf7a3ade55595ff/",
+    "jsonPath": "/reports/20260907-b9312dc0bd93aa35cbf7a3ade55595ff.json"
+  }
+}
