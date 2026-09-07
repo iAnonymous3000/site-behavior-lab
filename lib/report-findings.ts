@@ -321,8 +321,9 @@ export function buildFindings(
   const trackingCnameCloaks = run.evidence.cnameCloaks.filter((cloak) =>
     isTrackingTrackerMatch(cloak.tracker)
   );
+  const namedTrackingCnameCloaks = trackingCnameCloaks.filter((cloak) => cloak.tracker.confidence === "curated");
   const trackingCnameNames = Array.from(
-    new Set(trackingCnameCloaks.map((cloak) => cloak.tracker.entity))
+    new Set(namedTrackingCnameCloaks.map((cloak) => cloak.tracker.entity))
   ).sort();
   const trackingCnameNameSet = new Set(trackingCnameNames);
   const catalogReach = facts.identity.coverage;
@@ -592,19 +593,24 @@ export function buildFindings(
 
   const cnameCloaks = trackingCnameCloaks;
   if (cnameCloaks.length > 0) {
-    const vendors = humanList(Array.from(new Set(cnameCloaks.map((cloak) => cloak.tracker.entity))));
+    const listMatches = cnameCloaks.filter((cloak) => cloak.tracker.confidence === "shields-list");
     findings.push({
       id: "cname-cloaking",
       icon: "radar",
       level: "warn",
-      title: `${plural(cnameCloaks.length, "tracker")} hidden behind a first-party subdomain`,
-      lead: `${humanList(cnameCloaks.map((cloak) => cloak.host))} look like part of ${
-        run.domain
-      }, but DNS shows ${cnameCloaks.length === 1 ? "it is" : "they are"} actually ${vendors} (CNAME cloaking).`,
+      title: `${plural(cnameCloaks.length, "first-party DNS alias", "first-party DNS aliases")} matched tracking checks`,
+      lead: [
+        trackingCnameNames.length > 0
+          ? `Recorded DNS aliases resolve to catalogued tracking-related services: ${humanList(trackingCnameNames)}.`
+          : "",
+        listMatches.length > 0
+          ? `${plural(listMatches.length, "resolved target")} matched Brave filter lists; those matches do not identify the operators.`
+          : ""
+      ].filter(Boolean).join(" "),
       detail:
-        "CNAME cloaking disguises a third-party tracker as a first-party subdomain, so it slips past request-URL matching (this scanner's default, and Blacklight's) and many third-party-cookie protections. Found by following each first-party subdomain's DNS CNAME chain to a known tracking service.",
+        "The scanner followed DNS CNAME chains from first-party subdomains and checked resolved targets against the service catalog and Brave filter lists. These matches do not establish a request's purpose, profiling, or an intent to conceal tracking. A filter-list match alone is not a verified service identity or proof of tracking.",
       evidence: humanList(
-        cnameCloaks.map((cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.entity})`),
+        cnameCloaks.map((cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.confidence === "curated" ? `${cloak.tracker.entity}; catalog match` : "Brave filter-list match; operator unverified"})`),
         4
       ),
       claim: findingClaim(facts, "cname-cloaking", "presence")
@@ -900,9 +906,9 @@ export function buildFindings(
     // one company are two rows here. Calling them registrable-domain
     // boundaries overstated how many separate parties the visit reached.
     evidence:
-      trackingEntities.length === 0 && trackingCnameCloaks.length > 0
+      trackingEntities.length === 0 && namedTrackingCnameCloaks.length > 0
         ? humanList(
-            trackingCnameCloaks.map(
+            namedTrackingCnameCloaks.map(
               (cloak) => `${cloak.host} → ${cloak.cname} (${cloak.tracker.entity})`
             ),
             4

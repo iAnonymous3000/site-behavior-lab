@@ -205,6 +205,45 @@ test("identity coverage unions catalog, CMP, reviewed ownership, and CNAME namer
   ]);
 });
 
+test("a CNAME filter-list match retains its signal without naming the domain as an operator", () => {
+  // A real Walmart report records this shape: the Shields fallback puts its
+  // domain in the entity field. It never established a company identity.
+  const alias = {
+    host: "{label}.www.walmart.com",
+    cname: "{label}.{label}.{label}.com.akadns.net",
+    tracker: {
+      domain: "com.akadns.net",
+      entity: "com.akadns.net",
+      category: "tracking (Brave Shields list)",
+      confidence: "shields-list" as const
+    }
+  };
+  const legacy = makeV1Result();
+  legacy.cnameCloaks = [alias];
+  const current = makePublicSingleReportV2R2();
+  current.run.evidence.cnameCloaks = [alias];
+  for (const view of [viewFromV1Report(legacy), viewFromV2(current, 2)]) {
+    const { facts, findings, headline, violations } = validateReportPresentation(view);
+    assert.deepEqual(violations, []);
+    for (const names of [facts.display.identity.allNames, facts.display.identity.outsideNames,
+      facts.display.identity.sameOrganizationNames, facts.display.identity.cnameNames]) {
+      assert.equal(names.includes(alias.tracker.entity), false);
+    }
+    assert.deepEqual(facts.display.run.evidence.cnameCloaks, [alias]);
+    const card = findings.find(finding => finding.id === "cname-cloaking");
+    assert.ok(card);
+    assert.equal(card.level, "warn", "retain the filter-list review signal");
+    assert.match(card.lead, /matched Brave filter lists/);
+    assert.match(card.detail, /not a verified service identity or proof of tracking/);
+    assert.match(card.evidence, /com\.akadns\.net \(Brave filter-list match; operator unverified\)/);
+    assert.doesNotMatch(`${card.title} ${card.lead}`, /tracker hidden|actually|com\.akadns/);
+    const services = findings.find(finding => finding.id === "third-party-services");
+    assert.ok(services);
+    assert.doesNotMatch(`${services.title} ${services.lead} ${services.evidence}`, /com\.akadns/);
+    assert.equal(headline.semantic.reassuring, false);
+  }
+});
+
 test("a shared framework endpoint names the standard, not an operator, in identity coverage", () => {
   const result = makeV1Result();
   result.domains = [

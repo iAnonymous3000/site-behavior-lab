@@ -829,7 +829,10 @@ function identityFacts(run: RunView): RunIdentityFacts {
     });
   }
 
-  const cnameAliases = run.evidence.cnameCloaks.map((cloak) => ({
+  // The Shields fallback records a domain in the entity slot. A filter-list
+  // match does not identify an operator; retain it in the evidence and signal
+  // finding, but never add that placeholder to the union of named operators.
+  const cnameAliases = run.evidence.cnameCloaks.filter((cloak) => cloak.tracker.confidence === "curated").map((cloak) => ({
     host: cloak.host,
     cname: cloak.cname,
     name: cloak.tracker.entity,

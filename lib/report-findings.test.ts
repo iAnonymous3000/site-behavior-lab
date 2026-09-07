@@ -1242,7 +1242,7 @@ test("surfaces CNAME-cloaked trackers as their own finding, and omits it when th
   const cloakedFindings = buildFindings(viewFromV1Report(cloaked), null);
   const card = byId(cloakedFindings, "cname-cloaking");
   assert.equal(card.level, "warn");
-  assert.match(card.title, /1 tracker hidden behind a first-party subdomain/);
+  assert.equal(card.title, "1 first-party DNS alias matched tracking checks");
   assert.match(card.lead, /Eulerian/);
   assert.match(card.evidence, /metrics\.shop\.example → shop\.eulerian\.net/);
   assert.doesNotMatch(`${card.title} ${card.lead} ${card.evidence}`, /Sentry|errors\.shop\.example/);

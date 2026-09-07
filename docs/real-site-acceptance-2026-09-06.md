@@ -10,6 +10,8 @@ The corpus's reviewed current-methodology literal advances with the classifier. 
 
 The real-site fidelity driver also treated endpoint 500 responses as skipped targets, allowing enough unrelated successful sites to produce a green run. Endpoint 5xx and unreadable response bodies now fail the driver. A target's HTTP error inside a valid measurement remains a report to validate. Microsoft and Reddit are included in the regular fidelity target set.
 
+A deployed Walmart control scan exposed an interpretation defect: a Shields-only CNAME match used `com.akadns.net` as an entity placeholder, and the renderer treated it as an identified tracking company. The shared identity union now admits named CNAME operators only from curated catalog matches. Filter-list matches remain visible as review signals, with their recorded DNS targets and an explicit unknown-operator qualification. The findings distinguish DNS resolution and matching from proof of tracking or an intent to conceal it. This changes interpretation without rewriting the recorded evidence.
+
 ## Acceptance scope
 
 The local operational sweep exercised 15 URLs: Microsoft apex and www, Walmart, Example Domain, Wikipedia Privacy, EFF, GitHub, weather.gov, The Guardian, BBC News, WebMD, Home Depot, LinkedIn, Reddit, and The New York Times. It included Microsoft mobile, GPC and blocker comparisons and a BBC consent comparison: 19 cases / 22 visits, plus targeted rechecks after the subject-classifier fix.
