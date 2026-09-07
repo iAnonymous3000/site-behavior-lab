@@ -1,4 +1,5 @@
 "use client";
+import { useEvidenceIds } from "./print-mode";
 
 import { useId, useMemo, useState } from "react";
 import {
@@ -77,6 +78,7 @@ function CausalityGraph({
       }),
     [requestEvidenceState, run]
   );
+  const evidenceId = useEvidenceIds();
   const headingId = useId();
   const scrollDescriptionId = useId();
   if (!model) return null;
@@ -84,7 +86,7 @@ function CausalityGraph({
     // Say the section was withheld and why. A silently missing map is
     // indistinguishable from a visit where nothing was attributed.
     return (
-      <section className="data-section causal-graph-card" id="causal-map" aria-labelledby={headingId}>
+      <section className="data-section causal-graph-card" id={evidenceId("causal-map")} aria-labelledby={headingId}>
         <div className="section-heading">
           <h2 id={headingId}>Request attribution map</h2>
           <span className="muted">Withheld because its retained rows do not reconcile with the report totals.</span>
@@ -127,7 +129,7 @@ function CausalityGraph({
   return (
     <section
       className={`data-section causal-graph-card${focused ? " is-focused" : ""}`}
-      id="causal-map"
+      id={evidenceId("causal-map")}
     >
       <div className="section-heading">
         <h2 id={headingId}>Request attribution map</h2>

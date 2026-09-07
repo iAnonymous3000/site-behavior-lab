@@ -68,6 +68,9 @@ export type CoverageBoundaryEntry = {
  * DOES reach the page is missing from this list.
  */
 export const COVERAGE_BOUNDARY_SOURCES: readonly string[] = [
+  // This browser visits only our report page. Keep its DOM preparation under
+  // the same conservative injection audit; PDF work must not bypass the guard.
+  "lib/report-pdf.ts",
   "lib/bounded-page-collector.ts",
   "lib/consent-interaction.ts",
   "lib/consent-verification.ts",

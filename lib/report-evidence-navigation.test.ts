@@ -152,8 +152,8 @@ test("report components wire neutral comparisons, deep-link filters, and a non-d
   assert.doesNotMatch(timeline, /role="img"/);
   assert.match(timeline, /Open the request log for exact timing and request details/);
 
-  assert.match(tables, /id="domain-evidence"/);
-  assert.match(tables, /id="request-evidence"/);
+  assert.match(tables, /id=\{evidenceId\("domain-evidence"\)\}/);
+  assert.match(tables, /id=\{evidenceId\("request-evidence"\)\}/);
   assert.match(tables, /setSignalFilter\(evidenceTarget\.signal \?\? "all"\)/);
   assert.match(tables, /detailsRef\.current\.open = true/);
 

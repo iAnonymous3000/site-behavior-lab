@@ -1,4 +1,5 @@
 "use client";
+import { useEvidenceIds } from "./print-mode";
 
 import { AlertTriangle, ChevronDown, Cookie, Database } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -20,6 +21,7 @@ import { familyUnsupportedOnRun, type RunView } from "@/lib/scan-report-views";
  * views return null rather than presenting derived stand-ins as recorded fact.
  */
 export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
+  const evidenceId = useEvidenceIds();
   const printComplete = usePrintComplete();
   const evidence = useMemo(() => buildVisitPhaseEvidence(run), [run]);
   const [ledgerOpened, setLedgerOpened] = useState(false);
@@ -42,11 +44,11 @@ export function VisitPhasesAndStateChanges({ run }: { run: RunView }) {
   ].filter((family): family is string => family !== null);
 
   return (
-    <section className="data-section visit-phase-evidence" id="visit-phases" aria-labelledby="visit-phases-title">
+    <section className="data-section visit-phase-evidence" id={evidenceId("visit-phases")} aria-labelledby={evidenceId("visit-phases-title")}>
       <div className="section-heading visit-phase-heading">
         <div>
           <p className="eyebrow">Recorded visit structure</p>
-          <h2 id="visit-phases-title">Visit phases &amp; state changes</h2>
+          <h2 id={evidenceId("visit-phases-title")}>Visit phases &amp; state changes</h2>
         </div>
         <span className="count-badge">{plural(evidence.phases.length, "phase")}</span>
       </div>

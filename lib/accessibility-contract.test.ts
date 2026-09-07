@@ -128,11 +128,11 @@ test("links that retarget the tab say so in their accessible name", () => {
     announced += (contents.match(/className="visually-hidden">[^<]*opens in a new tab/g) ?? []).length;
   }
 
-  // 9 since the permalink PDF control joined the scan-result one. Both open a
+  // 10 with the evidence package beside the permalink PDF preview. Both open a
   // new tab: the response is now Content-Disposition: inline, so the tab shows
   // the document in the browser's viewer, and a render that takes tens of
   // seconds or refuses outright never costs the reader the page they were on.
-  assert.equal(retargeted, 9, "the set of tab-retargeting links changed; announce the new one too");
+  assert.equal(retargeted, 10, "the set of tab-retargeting links changed; announce the new one too");
   assert.equal(announced, retargeted, "every target=\"_blank\" link needs a new-tab announcement");
 });
 

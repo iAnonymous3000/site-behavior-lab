@@ -1,3 +1,5 @@
+import { sha256Hex } from "@/lib/sha256";
+import { publishedReportCorrectionWire } from "@/lib/published-report-corrections";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -69,7 +71,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function PrintableReportPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PrintableReportPage({ params, searchParams }: {
+  params: Promise<{ id: string }>; searchParams: Promise<{ sha256?: string }>;
+}) {
   await requireFreshRuntimeReportRequest();
   const { id } = await params;
   const result = await readStoredReportForRequest(id);
@@ -83,6 +87,10 @@ export default async function PrintableReportPage({ params }: { params: Promise<
     );
   }
 
+  const expected = (await searchParams).sha256;
+  if (expected && expected !== result.wireSha256) {
+    throw new Error("The source evidence changed before PDF rendering. Reopen the report and retry.");
+  }
   const view = toReportView(result.stored);
   const headline = buildReportHeadline(view);
   const correction = reportCorrections(correctionsLedger, id);
@@ -91,7 +99,7 @@ export default async function PrintableReportPage({ params }: { params: Promise<
   const jsonUrl = `${siteOrigin()}/api/reports/${id}`;
 
   return (
-    <div className="app-shell report-page-shell">
+    <div className="app-shell report-page-shell printable-report">
       <main aria-label={reportPageTitle(headline)}>
         {/* The context block carries this page's one <h1> (the site), matching
             the interactive route. It used to render a second heading here with
@@ -109,15 +117,28 @@ export default async function PrintableReportPage({ params }: { params: Promise<
           loaded={loadedReportFromStored(result.stored)}
           liveApiServesReportPages={false}
           printComplete
+          printGuide={
+            <section className="print-document-guide">
+              <h2>How to use this report</h2>
+              <p>Read the findings and measurement limits first, then inspect the evidence for each recorded visit.
+                Comparisons include both visits, even where a difference cannot be interpreted.</p>
+              <p>Keep this PDF with its evidence package: the source JSON, correction context, export receipt and SHA256SUMS.
+                The package preserves source bytes and the correction context at export time. Hashes check file consistency;
+                they do not establish independent measurement accuracy or a signed attestation.</p>
+              <p>Correction context SHA-256: <code>{sha256Hex(publishedReportCorrectionWire(id))}</code></p>
+              <p>Renderer revision: <code>{/^[a-f0-9]{40}$/.test(process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT ?? "")
+                ? process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT : "not recorded (local build)"}</code></p>
+            </section>
+          }
         />
         {/* Provenance follows the evidence it certifies, as on the interactive
             route, so a printed report reads in the same order as the screen. */}
         <ReportEvidenceReceipt
+          evidenceSha256={result.wireSha256}
           id={id}
           jsonHref={jsonUrl}
           permanent={committed}
           provenanceHref={committed ? `${siteBaseUrl()}/reports/${id}.provenance.json` : null}
-          reportUrl={reportUrl}
           view={view}
         />
         {/* This route renders no .app-footer, so the standing scope caveat the

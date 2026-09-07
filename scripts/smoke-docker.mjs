@@ -19,6 +19,7 @@ import {
 } from "./smoke-deployed-scanner-report.mjs";
 import { REPORT_PDF_MAX_BYTES } from "../lib/report-pdf-limits.ts";
 import { pdfPageCount, pdfText, pdfTextIncludes } from "./pdf-text-lib.mjs";
+import { assertReportExportAcceptance } from "./report-export-acceptance.mjs";
 import { startSmokeR2Server } from "./smoke-r2-server.mjs";
 
 process.on("uncaughtException", (error) => {
@@ -64,6 +65,7 @@ const seccompProfile = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 
 const runningContainers = new Set();
 let smokeR2 = null;
+let pdfCorpusChecked = false;
 
 try {
   await assertDockerAvailable();
@@ -438,6 +440,10 @@ async function assertReportPdfRoute(baseUrl, reportId, wire, expectedRequestRows
   }
 
   await assertPdfCapturedTheSettledPage(baseUrl);
+  if (!pdfCorpusChecked) {
+    await assertReportExportAcceptance(baseUrl);
+    pdfCorpusChecked = true;
+  }
 
   console.log(
     `Report PDF route rendered ${pages} pages carrying ${renderedUrls} URLs, the request table ` +

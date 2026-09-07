@@ -10,3 +10,8 @@ const noCorrections = reportCorrections(ledger, "");
 export function publishedReportCorrections(reportId?: string | null) {
   return contexts.get(reportId ?? "") ?? noCorrections;
 }
+
+/** Stable export-time correction bytes, shared by the PDF and its evidence package. */
+export function publishedReportCorrectionWire(reportId: string): string {
+  return JSON.stringify(publishedReportCorrections(reportId), null, 2) + "\n";
+}

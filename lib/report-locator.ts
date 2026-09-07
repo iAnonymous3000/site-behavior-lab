@@ -87,12 +87,10 @@ export function reportPdfApiPath(id: string): string {
  * That is the same capability the share permalink already turns on, so this
  * follows `locateReport`'s rule rather than inventing a second one.
  *
- * Deliberately null for a committed report on the static export, even though
- * the scan origin would usually answer for it. That origin's committed corpus
- * is baked into its image, so a report committed since the last image build
- * would 404 there, and an export button that sometimes 404s is worse than no
- * button. Freshly scanned reports have no such gap: they live in the store the
- * scan origin reads.
+ * The caller must establish renderer capability. Our deployed static library
+ * declares its container renderer at build time; generic static/API-only
+ * deployments do not. Saved-page exports also bind the expected source digest,
+ * so staggered Pages/container deployments refuse a mismatched measurement.
  */
 export function reportPdfLocation(id: string, runtime: ReportRuntime): string | null {
   if (!REPORT_ID_PATTERN.test(id)) return null;

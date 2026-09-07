@@ -1,4 +1,5 @@
-import { publishedReportCorrections } from "@/lib/published-report-corrections";
+import { sha256Hex } from "@/lib/sha256";
+import { publishedReportCorrections, publishedReportCorrectionWire } from "@/lib/published-report-corrections";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { CLAIM_BOUNDARY, claimBoundaryParagraph } from "@/lib/claim-boundary";
@@ -24,7 +25,6 @@ import { printableReportHref, reportPdfHref, sitePagesBasePath } from "@/lib/sit
 import { displayHost, displayPublicUrl } from "@/lib/text-format";
 
 const SOURCE_REPOSITORY = "https://github.com/iAnonymous3000/site-behavior-lab";
-const STATIC_EXPORT = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT === "1";
 
 /**
  * Server-rendered identity, activation and verification surface for a saved
@@ -154,19 +154,23 @@ export function ReportPageContext({
 export function ReportEvidenceReceipt({
   id,
   jsonHref,
+  evidenceSha256,
   permanent,
   provenanceHref,
-  reportUrl,
   view
 }: {
   id: string;
   jsonHref: string;
+  evidenceSha256?: string;
   permanent: boolean;
   provenanceHref: string | null;
-  reportUrl: string;
   view: ReportView;
 }) {
   const detectorScope = reportDetectorScope(view);
+  const pdfHref = reportPdfHref(id);
+  const exportQuery = new URLSearchParams({ correctionsSha256: sha256Hex(publishedReportCorrectionWire(id)) });
+  if (evidenceSha256) exportQuery.set("sha256", evidenceSha256);
+  const boundPdfHref = pdfHref && `${pdfHref}?${exportQuery}`;
   return (
     <section className="evidence-receipt" id="receipt" aria-labelledby="evidence-receipt-title">
         <p className="evidence-receipt-retention">
@@ -185,40 +189,16 @@ export function ReportEvidenceReceipt({
               <a className="secondary-button" href={sitePagesBasePath() + "/corrections.json"}>Download corrections with this JSON</a>
             )}
             {provenanceHref && <a className="secondary-button" href={provenanceHref}>Open provenance sidecar</a>}
-            {/* Container-only. The printable rendering is excluded from the
-                static export by serverOnlyAppDirs, so linking it on Pages would
-                ship a dead link on every committed report. Same signal the
-                build uses, so the two cannot disagree. */}
-            {!STATIC_EXPORT && (
-              <>
-                <a className="secondary-button" href={printableReportHref(reportUrl)}>
-                  Printable version
-                </a>
-                {/* Renders that same printable page server-side. The PDF is a
-                    rendering of the evidence, not the evidence: the JSON wire
-                    stays canonical, and the footer inside the document says so.
-
-                    Deliberately no `download` attribute. The response is
-                    Content-Disposition: inline, so this opens the browser's PDF
-                    viewer rather than dropping a file, and a refusal (the
-                    renderer is busy, the report is too large) stays visible
-                    instead of becoming a failed download with no reason.
-
-                    Opens beside the report, never over it, matching the control
-                    in report-header.tsx: a render can take tens of seconds on a
-                    large report, and replacing the reader's page with a blank
-                    tab that may still refuse is the worst of both. */}
-                <a
-                  className="secondary-button"
-                  href={reportPdfHref(id)}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  Open PDF
-                  <span className="visually-hidden"> (opens in a new tab)</span>
-                </a>
-              </>
+            {pdfHref && (
+              <a className="secondary-button" href={printableReportHref(`${new URL(pdfHref).origin}/reports/${id}/`)}>Printable version</a>
             )}
+            {boundPdfHref && <>
+              <a className="secondary-button" href={`${boundPdfHref}&download=bundle`}
+                target="_blank" rel="noopener">Download PDF + evidence<span className="visually-hidden"> (opens in a new tab)</span></a>
+              <a className="secondary-button" href={boundPdfHref}
+                target="_blank" rel="noopener">Open PDF<span className="visually-hidden"> (opens in a new tab)</span></a>
+            </>}
+
           </div>
         </div>
 

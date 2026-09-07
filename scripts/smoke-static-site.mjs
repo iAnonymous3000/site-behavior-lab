@@ -685,10 +685,37 @@ async function main() {
       fail("saved report evidence is absent from the generated initial HTML");
     }
     if (reportHtml.includes("scan-workbench")) fail("generated report HTML contains the scanner workbench");
-    // The printable rendering is container-only (serverOnlyAppDirs), so a link
-    // to it here would be dead on every committed report Pages serves.
-    if (/href="[^"]*\/print\/?"/.test(reportHtml)) {
-      fail("generated report HTML links the container-only printable route");
+    // Pages has no printable/API routes. A declared container renderer must
+    // supply all three controls; undeclared deployments must supply none.
+    const documentLinks = page.locator(".evidence-receipt").getByRole("link", {
+      name: /^(Printable version|Download PDF \+ evidence|Open PDF)/
+    });
+    const hasDocumentRenderer = process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED === "1" && liveScanApiBase !== "";
+    if (await documentLinks.count() !== (hasDocumentRenderer ? 3 : 0)) {
+      fail("saved report document controls do not match the declared renderer capability");
+    }
+    for (const link of await documentLinks.all()) {
+      const href = await link.getAttribute("href");
+      const target = new URL(href, baseUrl);
+      if (!href.startsWith("https://") || target.origin !== new URL(liveScanApiBase).origin) {
+        fail("saved report document link does not point to the configured HTTPS renderer");
+      }
+      if ((await link.textContent()).startsWith("Printable version")) {
+        if (target.pathname !== `/reports/${firstReport.id}/print/`) fail("printable link names the wrong report");
+      } else {
+        if (target.pathname !== `/api/reports/${firstReport.id}/pdf` ||
+            !sha256Pattern.test(target.searchParams.get("sha256") ?? "") ||
+            !sha256Pattern.test(target.searchParams.get("correctionsSha256") ?? "")) {
+          fail("PDF control is not bound to this report's source and correction context");
+        }
+        const bundle = (await link.textContent()).startsWith("Download PDF + evidence");
+        if (bundle !== (target.searchParams.get("download") === "bundle")) fail("document control requests the wrong format");
+      }
+    }
+    for (const match of reportHtml.matchAll(/href="([^"]*\/print\/?)"/g)) {
+      if (!hasDocumentRenderer || new URL(match[1], baseUrl).origin !== new URL(liveScanApiBase).origin) {
+        fail("generated report HTML links a printable route outside its configured renderer");
+      }
     }
     if (reportHtml.includes('"evidence":{"requests"')) fail("generated report HTML inlines raw request evidence");
     await assertStaticRouteBudgets(reportHtmlPath, {

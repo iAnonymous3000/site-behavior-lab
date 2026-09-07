@@ -7,13 +7,18 @@ export function reportExportBundle(
 ): Uint8Array {
   const files: [string, string][] = [["report.json", reportJson], ["corrections.json", correctionsJson]];
   if (requestLog) files.push([requestLog.arm ? `${requestLog.arm}-requests.csv` : "requests.csv", requestLog.csv]);
+  return evidenceZip(files);
+}
+
+/** Stored ZIP: no PDF rewriting, compression library, or loss of tags/bookmarks. */
+export function evidenceZip(files: readonly (readonly [string, string | Uint8Array])[]): Uint8Array {
   const encoder = new TextEncoder();
   const chunks: Uint8Array[] = [];
   const directory: Uint8Array[] = [];
   let offset = 0;
   for (const [filename, content] of files) {
     const name = encoder.encode(filename);
-    const data = encoder.encode(content);
+    const data = typeof content === "string" ? encoder.encode(content) : content;
     let crc = 0xffffffff;
     for (const byte of data) {
       crc ^= byte;

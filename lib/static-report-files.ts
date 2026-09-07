@@ -91,6 +91,7 @@ export type StaticReportBundleReadResult =
       id: string;
       stored: StoredScanReport;
       wire: string;
+      sidecarWire: string;
       provenance: RedactionProvenanceEntry;
     }
   | { outcome: "not-found" }
@@ -165,6 +166,8 @@ export async function readStaticReportBundle(
     id,
     stored: managed.stored,
     wire: managed.wire,
+    // A successful managed read has validated this required sidecar.
+    sidecarWire: sidecarContents!,
     provenance: managed.provenance
   };
 }

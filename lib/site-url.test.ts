@@ -122,9 +122,22 @@ test("reportPdfHref roots the API route at the origin, never at the Pages base p
   try {
     const id = `20260101-${"a".repeat(32)}`;
     assert.equal(reportPdfHref(id), `https://scan.sitebehavior.org/api/reports/${id}/pdf`);
-    assert.doesNotMatch(reportPdfHref(id), /site-behavior-lab\/api/);
+    assert.doesNotMatch(reportPdfHref(id)!, /site-behavior-lab\/api/);
   } finally {
     restore("NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL", previousOrigin);
     restore("NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PAGES_BASE_PATH", previousBasePath);
   }
+});
+
+test("static PDF links require an explicit renderer capability and resolve outside the Pages path", () => {
+  const names = ["NEXT_PUBLIC_SITE_BEHAVIOR_LAB_STATIC_EXPORT", "NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED", "NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE"];
+  const previous = names.map(name => process.env[name]);
+  try {
+    process.env[names[0]] = "1";
+    delete process.env[names[1]];
+    assert.equal(reportPdfHref("example"), null);
+    process.env[names[1]] = "1";
+    process.env[names[2]] = "https://scan.sitebehavior.org";
+    assert.equal(reportPdfHref("example"), "https://scan.sitebehavior.org/api/reports/example/pdf");
+  } finally { names.forEach((name, index) => restore(name, previous[index])); }
 });

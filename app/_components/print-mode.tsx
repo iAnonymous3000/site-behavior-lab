@@ -35,3 +35,14 @@ export function PrintCompleteProvider({
 export function usePrintComplete(): boolean {
   return useContext(PrintCompleteContext);
 }
+
+const PrintVisitContext = createContext("");
+export function PrintVisitProvider({ children, arm }: { children: ReactNode; arm: string }) {
+  return <PrintVisitContext.Provider value={arm}>{children}</PrintVisitContext.Provider>;
+}
+/** Keep both printed visits addressable without duplicate DOM IDs. */
+export function useEvidenceIds() {
+  const arm = useContext(PrintVisitContext);
+  return (id: string) => arm ? `${arm}-${id}` : id;
+}
+export function usePrintVisit() { return useContext(PrintVisitContext); }

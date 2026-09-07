@@ -47,6 +47,8 @@ export * from "./scan-report-views";
  * ephemeral results, `public` is the only persistable form.
  */
 export type LoadedReport = {
+  /** Exact managed bytes already verified by the saved page. Never taken from an imported object's fields. */
+  canonicalEvidence?: { wire: string; sha256: string };
   /** Local imports retain recorded identity but cannot offer an unverified permalink. Never serialized. */
   localOnly?: true;
 } & (

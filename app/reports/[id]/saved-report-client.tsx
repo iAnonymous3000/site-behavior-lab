@@ -95,7 +95,10 @@ export function SavedReportClient({
         if (read.loaded.wire.share?.id !== id) {
           throw new Error("The evidence response did not match this report page.");
         }
-        return read.loaded;
+        return { ...read.loaded, canonicalEvidence: {
+          wire: new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes),
+          sha256: expectedEvidenceSha256
+        } };
       },
       {
         onStart: () => {

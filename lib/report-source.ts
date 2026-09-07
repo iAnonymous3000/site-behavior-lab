@@ -21,6 +21,8 @@ export type ReportSourceReadResult =
       stored: StoredScanReport;
       wire: string;
       wireSha256: string;
+      /** Present only for a committed report; exact validated sidecar bytes. */
+      provenanceWire?: string;
       origin: "committed" | "share-store";
     }
   | { outcome: "not-found" }
@@ -60,6 +62,7 @@ async function readCommittedReport(id: string, rootDir: string): Promise<ReportS
     stored: read.stored,
     wire: read.wire,
     wireSha256: sha256Hex(read.wire),
+    provenanceWire: read.sidecarWire,
     origin: "committed"
   };
 }

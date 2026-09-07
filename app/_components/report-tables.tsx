@@ -1,4 +1,5 @@
 "use client";
+import { useEvidenceIds, usePrintVisit } from "./print-mode";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar } from "lucide-react";
@@ -106,6 +107,7 @@ function roleTag(
 }
 
 function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunFacts }) {
+  const evidenceId = useEvidenceIds();
   const printComplete = usePrintComplete();
   const [query, setQuery] = useState("");
   const detailsRef = useRef<HTMLDetailsElement>(null);
@@ -124,7 +126,7 @@ function DomainTable({ domains, facts }: { domains: DomainSummary[]; facts: RunF
   }, [evidenceTarget]);
 
   return (
-    <details id="domain-evidence" ref={detailsRef} className="data-section disclosure" open>
+    <details id={evidenceId("domain-evidence")} ref={detailsRef} className="data-section disclosure" open>
       <summary className="section-heading">
         <h2>Domain evidence</h2>
         <span className="count-badge">{plural(domains.length, "recorded domain")}</span>
@@ -219,6 +221,8 @@ function RequestTable({
   phases: PhaseSpan[] | null;
   facts: RunFacts;
 }) {
+  const evidenceId = useEvidenceIds();
+  const printVisit = usePrintVisit();
   const printComplete = usePrintComplete();
   const [opened, setOpened] = useState(false);
   const [query, setQuery] = useState("");
@@ -321,7 +325,7 @@ function RequestTable({
 
   return (
     <details
-      id="request-evidence"
+      id={evidenceId("request-evidence")}
       ref={detailsRef}
       className="data-section disclosure"
       // onToggle never fires for an element that mounts already open, so the
@@ -418,6 +422,7 @@ function RequestTable({
             </button>
           </p>
         )}
+      {printComplete && <p className="print-row-key">Request references name this visit's retained JSON rows in order (B = baseline, V = variant, S = single). R0001 is the first request row.</p>}
       <div
         className={`table-wrap request-table${hasPhases ? " has-phase-column" : ""}`}
         role="region"
@@ -431,7 +436,8 @@ function RequestTable({
           </caption>
           <thead>
             <tr>
-              <th scope="col">Time</th>
+              {printComplete && <th scope="col" className="request-ref">Ref</th>}
+              <th scope="col" className="time-cell">Time</th>
               {hasPhases && <th scope="col" title="The recorded visit phase this request belongs to; the phase table above shows its span">Phase</th>}
               <th scope="col">Status</th>
               <th scope="col">Type</th>
@@ -444,11 +450,12 @@ function RequestTable({
             {/* Keyed with the index: v2 evidence rows are phase-tagged, so one
                 request id can legitimately appear in several phases. */}
             {shown.map((request, index) => (
-              <tr key={`${request.id}:${index}`}>
+              <tr key={`${request.id}:${index}`} data-request-row>
+                {printComplete && <td className="request-ref"><code>{`${printVisit ? printVisit[0].toUpperCase() : "S"}:R${String(index + 1).padStart(4, "0")}`}</code></td>}
                 <td className="mono time-cell" data-label="Time">{request.startedAtMs.toLocaleString("en-US")}ms</td>
                 {hasPhases && (
                   <td data-label="Phase">
-                    {requestPhaseLabel(request, phaseLabels)}
+                    {printComplete ? (requestPhaseId(request) === null ? "Not recorded" : `P${requestPhaseId(request)}`) : requestPhaseLabel(request, phaseLabels)}
                   </td>
                 )}
                 <td data-label="Status">

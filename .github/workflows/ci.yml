@@ -372,6 +372,7 @@ jobs:
       # Test the actual production browser configuration, including root paths.
       SITE_BEHAVIOR_LAB_PAGES_BASE_PATH: ""
       NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SCAN_API_BASE: https://scan.sitebehavior.org
+      NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED: "1"
       NEXT_PUBLIC_SITE_BEHAVIOR_LAB_TURNSTILE_SITE_KEY: 0x4AAAAAADo4etedrrGyi43a
       # UI contract checks use explicit test responses. Live service health is
       # independently verified after deployment, never a prerequisite to fix it.

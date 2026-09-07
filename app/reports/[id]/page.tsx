@@ -152,13 +152,13 @@ export default async function SavedReportPage({ params }: { params: Promise<{ id
         }
         receipt={
           <ReportEvidenceReceipt
+            evidenceSha256={result.wireSha256}
             id={id}
             jsonHref={jsonUrl}
             permanent={result.origin === "committed"}
             provenanceHref={
               result.origin === "committed" ? `${siteBaseUrl()}/reports/${id}.provenance.json` : null
             }
-            reportUrl={reportUrl}
             view={view}
           />
         }

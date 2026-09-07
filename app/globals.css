@@ -5661,3 +5661,42 @@ details[open] > summary .disclosure-chevron {
     overflow-wrap: anywhere;
   }
 }
+
+/* The document has its own reading scale; wide evidence never shrinks the whole report. */
+.export-error { padding: 12px; border: 1px solid var(--sig-loud); color: var(--sig-loud); }
+@media print {
+  .printable-report { font-size: 10pt; line-height: 1.4; max-width: 100%; }
+  .printable-report :is(.report-main, .report-sidebar, .report-grid, .causal-graph-scroll, .table-wrap) { min-width: 0 !important; max-width: 100%; }
+  .printable-report .causal-graph { min-width: 0 !important; width: 100% !important; height: auto; }
+  .printable-report table { min-width: 0 !important; }
+  .printable-report :is(p, li, dt, dd, td, th, .finding-description, .finding-evidence) { font-size: 10pt !important; line-height: 1.4; }
+  .printable-report :is(span, code, small, a) { font-size: inherit; }
+  .printable-report h1 { font-size: 24pt; }
+  .printable-report h2 { font-size: 14pt; break-after: avoid; }
+  .printable-report h3 { font-size: 12pt; break-after: avoid; }
+  .printable-report .report-breadcrumbs { display: none !important; }
+  .printable-report .print-document-guide { margin: 16pt 0; border-block: 1px solid #8b968d; padding: 10pt 0; }
+  .printable-report .print-visit { break-before: page; }
+  .printable-report .print-visit-heading { break-inside: avoid; border-bottom: 2px solid #333; margin-bottom: 12pt; }
+  .printable-report :is(.finding-card, .headline-banner, .metric-card, .comparison-heading, .findings-heading) { break-inside: avoid; }
+  .printable-report :is(.comparison-heading, .findings-heading, .section-heading) { break-after: avoid; }
+  .printable-report :is(.findings-board, .comparison-card, .viz-card) { break-inside: auto; }
+  .printable-report .report-evidence-tables { page: evidence; }
+  .printable-report .report-evidence-tables :is(td, th, p) { font-size: 9pt !important; }
+  .printable-report .report-evidence-tables :is(td, th) { padding: 4pt; line-height: 1.3; }
+  .printable-report .request-table th { width: auto !important; }
+  .printable-report .request-table .request-ref,
+  .printable-report .request-table .time-cell { width: 8% !important; white-space: nowrap; }
+  .printable-report .request-table th:last-child { width: 29% !important; }
+  .printable-report .request-table.has-phase-column th:nth-child(3) { width: 6% !important; }
+  .printable-report .request-table:not(.has-phase-column) th:nth-child(3),
+  .printable-report .request-table.has-phase-column th:nth-child(4) { width: 7% !important; white-space: nowrap; }
+  .printable-report .request-table td.url-cell { width: auto; }
+  .printable-report .print-row-key { padding-inline: 12px; }
+  .printable-report .print-evidence-footer { font-size: 10pt; }
+  .printable-report .visit-phase-table th { width: auto !important; }
+  .printable-report .visit-phase-table th:first-child { width: 19% !important; }
+  .printable-report .visit-phase-table th:nth-child(2) { width: 19% !important; }
+  .printable-report .visit-phase-table :is(td, th) { font-size: 9pt !important; padding: 4pt; }
+  @page evidence { size: letter landscape; margin: 16mm 12mm; }
+}

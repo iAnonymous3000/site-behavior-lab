@@ -1,4 +1,5 @@
 "use client";
+import { useEvidenceIds } from "./print-mode";
 
 import {
   AlertOctagon,
@@ -85,10 +86,8 @@ export function reportSharePath(share: ReportShare | null | undefined, liveApiSe
  * The PDF download URL for this report, or null when no reachable origin can
  * render one.
  *
- * Same shape as `reportSharePath` and for the same reason: a freshly scanned
- * report lives only behind the scan API, so its PDF is rendered there, while a
- * committed report on the static export has no renderer to reach at all. The
- * `apiBacked` test is what separates the two, exactly as it does above.
+ * Live scans use the API's observed capability. The public static library can
+ * additionally declare its configured container renderer at build time.
  */
 export function reportPdfHref(
   share: ReportShare | null | undefined,
@@ -96,7 +95,9 @@ export function reportPdfHref(
 ): string | null {
   if (!share?.id) return null;
   const runtime: ReportRuntime = { ...clientReportRuntime(), liveApiServesReportPages };
-  if (runtime.staticExport && !share.jsonPath.startsWith("/api/")) return null;
+  if (runtime.staticExport && process.env.NEXT_PUBLIC_SITE_BEHAVIOR_LAB_PDF_EXPORT_ENABLED === "1") {
+    runtime.liveApiServesReportPages = true;
+  }
   return reportPdfLocation(share.id, runtime);
 }
 
@@ -303,6 +304,7 @@ function ToneIcon({ tone }: { tone: HeadlineTone }) {
 }
 
 export function MetricGrid({ facts }: { facts: RunFacts }) {
+  const evidenceId = useEvidenceIds();
   const run = facts.run;
   // Catalog classification is deliberately separate from CMP/ownership/CNAME
   // operator identity.
@@ -486,7 +488,7 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
   ];
 
   return (
-    <section className="numbers-section" id="numbers">
+    <section className="numbers-section" id={evidenceId("numbers")}>
       <div className="numbers-heading">
         <p className="eyebrow">By the numbers</p>
         <span>Recorded counts and evidence availability from this one visit. The findings above interpret them.</span>
@@ -511,6 +513,7 @@ export function MetricGrid({ facts }: { facts: RunFacts }) {
 }
 
 export function TrafficViz({ facts }: { facts: RunFacts }) {
+  const evidenceId = useEvidenceIds();
   const run = facts.run;
   const total = run.counts.totalRequests;
   const {
@@ -526,7 +529,7 @@ export function TrafficViz({ facts }: { facts: RunFacts }) {
   const pct = (n: number) => (total > 0 ? `${Math.round((n / total) * 10000) / 100}%` : "0%");
 
   return (
-    <section className="viz-card" id="traffic">
+    <section className="viz-card" id={evidenceId("traffic")}>
       <h2>{facts.evidence.requests.state === "censored" ? "Retained request composition & timeline" : "Request composition & timeline"}</h2>
       <div
         className="party-bar"

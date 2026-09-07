@@ -170,7 +170,7 @@ export function ReportHeader({
             <a
               aria-describedby="pdf-export-description"
               className="secondary-button"
-              href={pdfHref}
+              href={`${pdfHref}?download=bundle`}
               // Opens beside the report, never over it. This control also
               // renders on the live scan result, where the report exists only
               // in React state and has no permalink to come back to: a refusal
@@ -182,15 +182,14 @@ export function ReportHeader({
               rel="noopener"
             >
               <Download size={17} aria-hidden="true" />
-              PDF
+              PDF + evidence
               <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
             {/* Inside the conditional with its button: a description left
                 behind when the button is absent is an orphan node that nothing
                 references. */}
             <span className="visually-hidden" id="pdf-export-description">
-              Opens the complete report as a PDF in a new tab, where you can read it before saving. The
-              scanner renders it on request, which takes a few seconds.
+              Downloads a ZIP containing the PDF for every recorded visit, exact source JSON, correction context and file hashes. The scanner renders it on request.
             </span>
           </>
         )}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { clientReportRuntime } from "../client-runtime";
 import { CausalityGraph } from "./causality-graph";
 import { ComparisonPanel } from "./comparison-panel";
 import { FindingsBoard, HeadlineBanner, MetricGrid, TrafficViz } from "./report-overview";
@@ -16,14 +17,14 @@ import {
   TopThirdParties,
   Warnings
 } from "./report-tables";
-import { PrintCompleteProvider } from "./print-mode";
+import { PrintCompleteProvider, PrintVisitProvider, useEvidenceIds } from "./print-mode";
 import { VisitPhasesAndStateChanges } from "./visit-phases-and-state-changes";
 import { shareForLoadedReport } from "@/lib/client-report-reader";
 import { consentChoiceLabel } from "@/lib/consent-interaction";
 import { requestLogRecordingState, requestLogToCsv } from "@/lib/csv-export";
 import { consentVerificationSummary } from "@/lib/report-consent-copy";
 import { buildReportHeadline } from "@/lib/report-headline";
-import { buildReportFacts } from "@/lib/report-facts";
+import { buildReportFacts, type RunFacts } from "@/lib/report-facts";
 import { parseEvidenceHash } from "@/lib/report-evidence-navigation";
 import {
   displayableScreenshot,
@@ -51,7 +52,8 @@ import { publishedReportCorrections } from "@/lib/published-report-corrections";
 export function ReportRenderer({
   loaded,
   liveApiServesReportPages,
-  printComplete = false
+  printComplete = false,
+  printGuide
 }: {
   loaded: LoadedReport;
   liveApiServesReportPages: boolean;
@@ -61,7 +63,13 @@ export function ReportRenderer({
    * what it renders today.
    */
   printComplete?: boolean;
+  printGuide?: ReactNode;
 }) {
+  useEffect(() => {
+    if (!printComplete) return;
+    document.documentElement.dataset.reportPrintReady = "true";
+    return () => { delete document.documentElement.dataset.reportPrintReady; };
+  }, [printComplete]);
   const reportView = loaded.view;
   const reportFacts = useMemo(() => buildReportFacts(reportView), [reportView]);
   const headline = useMemo(
@@ -106,30 +114,19 @@ export function ReportRenderer({
   const displayedFacts =
     arms && reportFacts.arms ? reportFacts.arms[displayedArmLabel] : reportFacts.display;
   const displayedRun = displayedFacts.run;
-  const screenshot = displayableScreenshot(displayedRun.screenshot);
-  // The capture itself is right to keep: it is the reader's only direct look at
-  // what the scanner actually hit. What was missing is the caption. A block page
-  // scaled into the sidebar column is often near-blank, which reads either as a
-  // broken image or as a claim that the site is a blank page.
-  const screenshotFailureStatus =
-    displayedFacts.subject.kind === "http-error" ? displayedFacts.subject.status : null;
-  const screenshotSubjectUnverified = displayedFacts.subject.kind === "unverified";
-  const screenshotSoftBlock = displayedFacts.subject.kind === "interstitial";
-  const screenshotFailedLoad = !displayedFacts.subject.describesSubject;
-  const screenshotSubject =
-    screenshotFailureStatus !== null
-      ? `the HTTP ${screenshotFailureStatus} error or block page returned by ${displayHost(displayedRun.domain)}`
-      : screenshotSubjectUnverified
-        ? `an unverified page subject returned while scanning ${displayHost(displayedRun.domain)}`
-        : screenshotSoftBlock
-          ? `the suspected challenge or soft-block page returned by ${displayHost(displayedRun.domain)}`
-          : screenshotFailedLoad
-            ? `the page ${displayHost(displayedRun.domain)} returned on a load that did not complete`
-            : displayHost(displayedRun.domain);
-
+  const [exportError, setExportError] = useState<string | null>(null);
+  async function exportWire() {
+    const { reportWireForDownload } = await import("@/lib/client-report-export");
+    return reportWireForDownload(loaded, { ...clientReportRuntime(), liveApiServesReportPages });
+  }
+  async function exportWithFeedback(operation: () => Promise<void>) {
+    setExportError(null);
+    try { await operation(); } catch (error) {
+      setExportError(error instanceof Error ? error.message : "The report could not be exported. Please retry.");
+    }
+  }
   async function downloadReport() {
-    const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
-    const wire = JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2);
+    const wire = await exportWire();
     const corrections = publishedReportCorrections(reportView.reportId);
     if (corrections.subjectEvents.length || corrections.replacementEvents.length) {
       const { reportExportBundle } = await import("@/lib/report-export-bundle");
@@ -144,12 +141,11 @@ export function ReportRenderer({
   }
 
   async function downloadCsv() {
-    const { publicWireForExportOrPersistence } = await import("@/lib/scan-report-view");
     const { reportExportBundle } = await import("@/lib/report-export-bundle");
     const corrections = publishedReportCorrections(reportView.reportId);
     const csv = requestLogToCsv(displayedRun.evidence.requests, requestLogRecordingState(displayedRun), corrections.subjectEvents);
     const bundle = reportExportBundle(
-      JSON.stringify(publicWireForExportOrPersistence(loaded), null, 2),
+      await exportWire(),
       JSON.stringify(corrections, null, 2),
       { csv, arm: arms ? displayedArmLabel : null }
     );
@@ -182,27 +178,18 @@ export function ReportRenderer({
     { id: "conditions", label: "Conditions" }
   ];
 
-  return (
-    <PrintCompleteProvider value={printComplete}>
-      <p className="visually-hidden" role="status" aria-live="polite">
-        {`Scan report ready for ${displayHost(primaryRun.domain)}: ${plural(
-          primaryRun.evidence.requests.length,
-          "recorded request row"
-        )}.${reportFacts.display.subject.describesSubject ? "" : " The requested page was not established."}`}
-      </p>
-      <ReportSectionNav sections={sections} />
-      <section className="report-grid">
-        <div className="report-main">
+  const overview = (<>
           <ReportHeader
             share={shareForLoadedReport(loaded)}
             view={reportView}
             runFacts={displayedFacts}
             evidenceFacts={displayedFacts}
             csvArmLabel={arms ? armDisplayLabel(reportView, displayedArmLabel) : null}
-            onDownload={() => void downloadReport()}
-            onDownloadCsv={downloadCsv}
+            onDownload={() => void exportWithFeedback(downloadReport)}
+            onDownloadCsv={() => void exportWithFeedback(downloadCsv)}
             liveApiServesReportPages={liveApiServesReportPages}
           />
+          {exportError && <p role="alert" className="export-error">{exportError}</p>}
           <HeadlineBanner
             share={shareForLoadedReport(loaded)}
             headline={headline}
@@ -212,16 +199,7 @@ export function ReportRenderer({
           {reportView.reportType === "comparison" && (
             <ComparisonPanel view={reportView} facts={reportFacts} />
           )}
-          {arms && (
-            /* The switcher itself is a control and does not print, and every
-               table below shows exactly one arm. On paper that would leave a
-               comparison report silently showing one visit's numbers with no
-               statement of which, so the arm is named in print-only text. */
-            <p className="print-only">
-              {`Evidence below is from the ${armDisplayLabel(reportView, displayedArmLabel)} visit. The other visit's evidence is not printed; open the report online to switch arms.`}
-            </p>
-          )}
-          {arms && (
+          {arms && !printComplete && (
             <div className="arm-switcher" role="group" aria-label="Which visit's evidence the tables below show">
               <span>Evidence shown:</span>
               {(["baseline", "variant"] as const).map((arm) => (
@@ -240,18 +218,82 @@ export function ReportRenderer({
               </p>
             </div>
           )}
+  </>);
+
+  return (
+    <PrintCompleteProvider value={printComplete}>
+      <p className="visually-hidden" role="status" aria-live="polite">
+        {`Scan report ready for ${displayHost(primaryRun.domain)}: ${plural(
+          primaryRun.evidence.requests.length,
+          "recorded request row"
+        )}.${reportFacts.display.subject.describesSubject ? "" : " The requested page was not established."}`}
+      </p>
+      <ReportSectionNav sections={sections} />
+      {printComplete && <>
+        {overview}
+        <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />
+        {printGuide}
+      </>}
+      {printComplete && reportFacts.arms ? (
+        (["baseline", "variant"] as const).map((arm) => (
+          <PrintVisitProvider key={arm} arm={arm}>
+            <RunEvidence reportView={reportView} displayedFacts={reportFacts.arms![arm]} arm={arm} printComplete />
+          </PrintVisitProvider>
+        ))
+      ) : (
+        <RunEvidence reportView={reportView} displayedFacts={displayedFacts}
+          arm={arms ? displayedArmLabel : undefined} printComplete={printComplete} overview={printComplete ? undefined : overview} />
+      )}
+    </PrintCompleteProvider>
+  );
+}
+
+/** Shared per-visit evidence: the screen selects one; paper renders every visit. */
+function RunEvidence({ reportView, displayedFacts, arm, printComplete, overview }: {
+  reportView: ReportView; displayedFacts: RunFacts; arm?: "baseline" | "variant"; printComplete: boolean; overview?: ReactNode;
+}) {
+  const evidenceId = useEvidenceIds();
+  const displayedRun = displayedFacts.run;
+  const screenshot = displayableScreenshot(displayedRun.screenshot);
+  // The capture itself is right to keep: it is the reader's only direct look at
+  // what the scanner actually hit. What was missing is the caption. A block page
+  // scaled into the sidebar column is often near-blank, which reads either as a
+  // broken image or as a claim that the site is a blank page.
+  const screenshotFailureStatus =
+    displayedFacts.subject.kind === "http-error" ? displayedFacts.subject.status : null;
+  const screenshotSubjectUnverified = displayedFacts.subject.kind === "unverified";
+  const screenshotSoftBlock = displayedFacts.subject.kind === "interstitial";
+  const screenshotFailedLoad = !displayedFacts.subject.describesSubject;
+  const screenshotSubject =
+    screenshotFailureStatus !== null
+      ? `the HTTP ${screenshotFailureStatus} error or block page returned by ${displayHost(displayedRun.domain)}`
+      : screenshotSubjectUnverified
+        ? `an unverified page subject returned while scanning ${displayHost(displayedRun.domain)}`
+        : screenshotSoftBlock
+          ? `the suspected challenge or soft-block page returned by ${displayHost(displayedRun.domain)}`
+          : screenshotFailedLoad
+            ? `the page ${displayHost(displayedRun.domain)} returned on a load that did not complete`
+            : displayHost(displayedRun.domain);
+
+  return (
+    <section className={printComplete ? "print-visit" : undefined} data-evidence-arm={arm ?? "single"}>
+      {printComplete && <header className="print-visit-heading">
+        <h2>{arm ? armDisplayLabel(reportView, arm) : "Recorded visit"} — evidence</h2>
+        <p>{displayedRun.startedAt ?? "Visit time not recorded"} · {runQualitySummary(displayedRun)}</p>
+        <p>Retained observations from this visit. Missing measurements do not establish absence of activity.</p>
+      </header>}
+      <section className="report-grid">
+        <div className="report-main">
+          {overview}
           <CausalityGraph
             run={displayedRun}
             requestEvidenceState={displayedFacts.evidence.requests.state}
-            arm={arms ? displayedArmLabel : undefined}
+            arm={arm}
           />
           <MetricGrid facts={displayedFacts} />
           <TrafficViz facts={displayedFacts} />
           <VisitPhasesAndStateChanges run={displayedRun} />
-          {/* The labels the report-level warning list was prefixed with, so the
-              caveats can be grouped by the visit that recorded them instead of
-              restating the prefix on every line. */}
-          <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />
+          {!printComplete && <Warnings warnings={reportView.warnings} runLabels={reportView.comparison?.runLabels ?? null} />}
         </div>
 
         <aside className="report-sidebar" aria-label="Supporting report evidence">
@@ -286,7 +328,7 @@ export function ReportRenderer({
             </section>
           )}
 
-          <section className="side-card" id="third-parties">
+          <section className="side-card" id={evidenceId("third-parties")}>
             <h2>Top Third Parties</h2>
             <TopThirdParties facts={displayedFacts} />
           </section>
@@ -294,13 +336,13 @@ export function ReportRenderer({
           {(displayedRun.evidence.pixelEvents.length > 0 || displayedFacts.claims["pixel-events"].blockers.some(
             (blocker) => blocker !== "subject-not-established"
           )) && (
-            <section className="side-card" id="pixels">
+            <section className="side-card" id={evidenceId("pixels")}>
               <h2>Advertising Pixels</h2>
               <PixelEventsList pixels={displayedRun.evidence.pixelEvents} facts={displayedFacts} corrected={publishedReportCorrections(reportView.reportId).suppressIndexing} />
             </section>
           )}
 
-          <section className="side-card" id="cookies">
+          <section className="side-card" id={evidenceId("cookies")}>
             <h2>Cookies</h2>
             <CookieList
               cookies={displayedRun.evidence.cookies}
@@ -308,7 +350,7 @@ export function ReportRenderer({
             />
           </section>
 
-          <section className="side-card" id="storage">
+          <section className="side-card" id={evidenceId("storage")}>
             <h2>Storage</h2>
             <StorageList
               storage={displayedRun.evidence.storage}
@@ -316,7 +358,7 @@ export function ReportRenderer({
             />
           </section>
 
-          <section className="side-card" id="signals">
+          <section className="side-card" id={evidenceId("signals")}>
             <h2>Browser Behavior Signals</h2>
             <FingerprintList
               events={displayedRun.evidence.fingerprintEvents}
@@ -325,7 +367,7 @@ export function ReportRenderer({
             />
           </section>
 
-          <section className="side-card methodology" id="conditions">
+          <section className="side-card methodology" id={evidenceId("conditions")}>
             <h2>Methodology</h2>
             <dl>
               <div><dt>Schema</dt><dd>{schemaProvenanceLabel(reportView)}</dd></div>
@@ -402,7 +444,7 @@ export function ReportRenderer({
           />
         </div>
       </section>
-    </PrintCompleteProvider>
+    </section>
   );
 }
 

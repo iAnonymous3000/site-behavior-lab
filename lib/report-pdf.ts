@@ -1,3 +1,4 @@
+import { publicLibraryOrigin, siteBaseUrl } from "./site-url";
 import { chromium, type Browser } from "playwright";
 import { browserProcessEnvironment } from "./browser-process-env";
 import { chromiumSandboxEnabled } from "./chromium-sandbox";
@@ -72,6 +73,7 @@ const IDLE_SHUTDOWN_MS = 60_000;
  */
 type RenderPage = {
   setDefaultTimeout(timeout: number): void;
+  evaluate<T, A>(fn: (arg: A) => T | Promise<T>, arg: A): Promise<T>;
   goto(
     url: string,
     options: { waitUntil: "networkidle"; timeout: number }
@@ -235,7 +237,7 @@ export function assertRenderedPdfWithinCeiling(byteLength: number): void {
   }
   if (byteLength > REPORT_PDF_MAX_BYTES) {
     throw new ReportPdfUnavailableError(
-      "This report renders larger than the export ceiling; print the page from your browser instead.",
+      "This report renders larger than the export ceiling; open the Printable version from the report and print that page instead.",
       413
     );
   }
@@ -252,11 +254,13 @@ export async function renderReportPdf(
   id: string,
   {
     signal,
+    expectedWireSha256,
     browserForTests,
     renderTimeoutMsForTests,
     pageCloseTimeoutMsForTests
   }: {
     signal?: AbortSignal;
+    expectedWireSha256?: string;
     /** Drives the render against a stub browser. Production never supplies this. */
     browserForTests?: RenderBrowser;
     /** Shortens only the render deadline, so a wedged render is testable. */
@@ -302,7 +306,8 @@ export async function renderReportPdf(
         page = opened;
         opened.setDefaultTimeout(renderTimeoutMs);
 
-        const response = await opened.goto(`${selfOrigin()}/reports/${id}/print`, {
+        const query = expectedWireSha256 ? `?sha256=${encodeURIComponent(expectedWireSha256)}` : "";
+        const response = await opened.goto(`${selfOrigin()}/reports/${id}/print${query}`, {
           // NOT "load". The findings board resolves its severity basis from a
           // client-side corpus fetch, and a document captured at `load` states
           // "fixed reference thresholds, not measured population percentiles"
@@ -319,6 +324,21 @@ export async function renderReportPdf(
             response?.status() === 404 ? 404 : 502
           );
         }
+
+        // Only navigation is loopback. Links carried out of the renderer must
+        // resolve for a recipient on another computer, including evidence filters.
+        await opened.evaluate(async ({ libraryOrigin, reportUrl }) => {
+          while (document.documentElement.dataset.reportPrintReady !== "true") {
+            await new Promise(resolve => setTimeout(resolve, 25));
+          }
+          for (const anchor of document.querySelectorAll<HTMLAnchorElement>("a[href]")) {
+            const href = anchor.getAttribute("href")!;
+            if (href.startsWith("#evidence=")) anchor.href = reportUrl + href;
+            else if (href.startsWith("/") && !href.startsWith("//")) anchor.href = new URL(href, libraryOrigin).href;
+          }
+          // Hydration, fonts and image decoding must finish before pagination.
+          return document.fonts.ready.then(() => undefined);
+        }, { libraryOrigin: publicLibraryOrigin(), reportUrl: `${siteBaseUrl()}/reports/${id}/` });
 
         // The page's own print stylesheet owns pagination, margins and what is
         // hidden: app/globals.css declares `@page { size: letter; margin: 14mm 12mm }`
@@ -350,7 +370,7 @@ export async function renderReportPdf(
         signal,
         createTimeoutError: () =>
           new ReportPdfUnavailableError(
-            "This report took too long to render; print the page from your browser instead.",
+            "This report took too long to render; open the Printable version from the report and print that page instead.",
             504
           )
       }

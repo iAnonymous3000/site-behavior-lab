@@ -1,3 +1,7 @@
+import { reportDocumentBundle } from "@/lib/report-document-bundle";
+import { sha256Hex } from "@/lib/sha256";
+import { publishedReportCorrectionWire } from "@/lib/published-report-corrections";
+import { siteBaseUrl } from "@/lib/site-url";
 import { NextResponse } from "next/server";
 import { toPublicError } from "@/lib/public-errors";
 import { readStoredReportForId } from "@/lib/report-source";
@@ -73,13 +77,36 @@ async function handleReportPdf(
 
     // Charged here, not with the read limit: this is the point past which a
     // browser navigation and a PDF write are actually going to happen.
-    assertReportPdfRateLimit(clientKey);
 
     // A reader who navigates away should not keep the single render slot busy
     // producing a document nobody will receive.
-    const pdf = await renderReportPdf(id, { signal: request.signal });
+    const expected = new URL(request.url).searchParams.get("sha256");
+    if (expected && expected !== result.wireSha256) {
+      return NextResponse.json({ ok: false, error: "The renderer does not hold the evidence shown on this page yet. Retry after deployment finishes." }, { status: 409 });
+    }
+    const corrections = publishedReportCorrectionWire(id);
+    const expectedCorrections = new URL(request.url).searchParams.get("correctionsSha256");
+    if (expectedCorrections && expectedCorrections !== sha256Hex(corrections)) {
+      return NextResponse.json({ ok: false, error: "The renderer has different correction context. Retry after deployment finishes." }, { status: 409 });
+    }
+    assertReportPdfRateLimit(clientKey);
+    const pdf = await renderReportPdf(id, { signal: request.signal, expectedWireSha256: result.wireSha256 });
     const filename = reportPdfFilename(id, toReportView(result.stored).domain);
 
+    if (new URL(request.url).searchParams.get("download") === "bundle") {
+      const commit = process.env.SITE_BEHAVIOR_LAB_BUILD_COMMIT ?? "";
+      const bundle = reportDocumentBundle({
+        id, pdf, wire: result.wire,
+        corrections, provenanceWire: result.provenanceWire,
+        exportedAt: new Date().toISOString(), rendererCommit: /^[a-f0-9]{40}$/.test(commit) ? commit : null,
+        reportUrl: `${siteBaseUrl()}/reports/${id}/`
+      });
+      return new NextResponse(Buffer.from(bundle), { headers: {
+        "content-type": "application/zip", "content-length": String(bundle.byteLength),
+        "content-disposition": `attachment; filename="${filename.replace(/\.pdf$/, "-evidence.zip")}"`,
+        "x-robots-tag": "noindex, nofollow"
+      } });
+    }
     return new NextResponse(Buffer.from(pdf), {
       headers: {
         "content-type": "application/pdf",

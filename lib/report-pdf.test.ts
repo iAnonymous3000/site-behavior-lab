@@ -78,7 +78,7 @@ test("the byte ceiling refuses rather than truncates, and an empty render is a f
     (error: unknown) => {
       assert.ok(error instanceof ReportPdfUnavailableError);
       assert.equal(error.status, 413, "an oversize render is a size refusal, not a server fault");
-      assert.match(error.message, /print the page from your browser/, "the reader needs a way forward");
+      assert.match(error.message, /Printable version/, "the reader needs a way forward");
       return true;
     }
   );
@@ -196,6 +196,7 @@ test("the render is bounded, and a render that never returns does not keep the s
     async newPage() {
       return {
         setDefaultTimeout() {},
+        async evaluate() { return undefined as never; },
         async goto() {
           return { ok: () => true, status: () => 200 };
         },
@@ -251,6 +252,7 @@ test("an abandoned request stops holding the only render slot", async () => {
     async newPage() {
       return {
         setDefaultTimeout() {},
+        async evaluate() { return undefined as never; },
         async goto() {
           return { ok: () => true, status: () => 200 };
         },
@@ -291,6 +293,7 @@ test("a failed render evicts the memoized browser before the slot is freed", asy
     async newPage() {
       return {
         setDefaultTimeout() {},
+        async evaluate() { return undefined as never; },
         async goto() {
           return { ok: () => true, status: () => 200 };
         },
@@ -340,6 +343,7 @@ test("a refusal that proves the browser is healthy keeps it memoized", async () 
     async newPage() {
       return {
         setDefaultTimeout() {},
+        async evaluate() { return undefined as never; },
         async goto() {
           return { ok: () => false, status: () => 404 };
         },
@@ -377,6 +381,7 @@ test("a reader navigating away closes its page but keeps the shared renderer", a
     async newPage() {
       return {
         setDefaultTimeout() {},
+        async evaluate() { return undefined as never; },
         async goto() {
           return { ok: () => true, status: () => 200 };
         },
@@ -426,6 +431,7 @@ test("a page that will not close still condemns the browser", async () => {
     async newPage() {
       return {
         setDefaultTimeout() {},
+        async evaluate() { return undefined as never; },
         async goto() {
           return { ok: () => true, status: () => 200 };
         },
