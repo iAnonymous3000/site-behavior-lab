@@ -1,0 +1,3323 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.chase.com/",
+  "scannedAt": "2026-09-14T10:48:50.459Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 8813,
+      "firstPartyDomain": "www.chase.com",
+      "totalRequests": 86,
+      "thirdPartyRequests": 9,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 4,
+      "cookies": 19,
+      "thirdPartyCookies": 0,
+      "storageEntries": 10,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.chase.com/",
+      "finalUrl": "https://www.chase.com/",
+      "scannedAt": "2026-09-14T10:48:41.621Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.chase.com/",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1451
+      },
+      {
+        "id": 2,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1539
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1539
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1540
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1540
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1540
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1541
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1541
+      },
+      {
+        "id": 9,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1543
+      },
+      {
+        "id": 10,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1561
+      },
+      {
+        "id": 11,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1562
+      },
+      {
+        "id": 12,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1562
+      },
+      {
+        "id": 13,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1562
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1563
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1563
+      },
+      {
+        "id": 16,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1563
+      },
+      {
+        "id": 17,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1633
+      },
+      {
+        "id": 18,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1634
+      },
+      {
+        "id": 19,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1635
+      },
+      {
+        "id": 20,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1636
+      },
+      {
+        "id": 21,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1638
+      },
+      {
+        "id": 22,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1644
+      },
+      {
+        "id": 23,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1645
+      },
+      {
+        "id": 24,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1647
+      },
+      {
+        "id": 25,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1647
+      },
+      {
+        "id": 26,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1648
+      },
+      {
+        "id": 27,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1649
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.go-mpulse.net/{seg}/{seg}",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1655
+      },
+      {
+        "id": 29,
+        "url": "https://static.chasecdn.com/{seg}/{seg}",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1806
+      },
+      {
+        "id": 30,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1806
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.go-mpulse.net/api/{seg}?%5Bredacted%5D=&t=&v=",
+        "domain": "{label}.go-mpulse.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.go-mpulse.net/{seg}/{seg}",
+          "initiatorDomain": "{label}.go-mpulse.net"
+        },
+        "startedAtMs": 1824
+      },
+      {
+        "id": 32,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 2033
+      },
+      {
+        "id": 33,
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 2035
+      },
+      {
+        "id": 34,
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 2036
+      },
+      {
+        "id": 35,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2094
+      },
+      {
+        "id": 36,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2095
+      },
+      {
+        "id": 37,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2095
+      },
+      {
+        "id": 38,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2096
+      },
+      {
+        "id": 39,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2099
+      },
+      {
+        "id": 40,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2100
+      },
+      {
+        "id": 41,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2100
+      },
+      {
+        "id": 42,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2101
+      },
+      {
+        "id": 43,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2102
+      },
+      {
+        "id": 44,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2102
+      },
+      {
+        "id": 45,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2103
+      },
+      {
+        "id": 46,
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 2137
+      },
+      {
+        "id": 47,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2146
+      },
+      {
+        "id": 48,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2152
+      },
+      {
+        "id": 49,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2158
+      },
+      {
+        "id": 50,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2158
+      },
+      {
+        "id": 51,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2214
+      },
+      {
+        "id": 52,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 2261
+      },
+      {
+        "id": 53,
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "static.chasecdn.com"
+        },
+        "startedAtMs": 2320
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "static.chasecdn.com"
+        },
+        "startedAtMs": 2332
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2738
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.chase.com/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2761
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2763
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2770
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2771
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2783
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.online-metrix.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2787
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2787
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.{label}.{label}.online-metrix.net/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.{label}.online-metrix.net",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2798
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2861
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3265
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 3267
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 3270
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3272
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 3278
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 3280
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3319
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3543
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3544
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3544
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3545
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3545
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3547
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3548
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3549
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3549
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3550
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 3593
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 3841
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 4848
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 4850
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 4851
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.chasecdn.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.online-metrix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.{label}.online-metrix.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.chase.com",
+        "requests": 40,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "font",
+          "script",
+          "other",
+          "document",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.chase.com",
+        "requests": 37,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 94
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 45
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 23
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 88
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 64
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "cnameCloaks": [
+      {
+        "host": "{label}.chase.com",
+        "cname": "{label}.online-metrix.net",
+        "tracker": {
+          "domain": "online-metrix.net",
+          "entity": "online-metrix.net",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 46453
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+      "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+      "This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 12516,
+      "firstPartyDomain": "www.chase.com",
+      "totalRequests": 81,
+      "thirdPartyRequests": 5,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 19,
+      "thirdPartyCookies": 0,
+      "storageEntries": 10,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.chase.com/",
+      "finalUrl": "https://www.chase.com/",
+      "scannedAt": "2026-09-14T10:48:50.459Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.chase.com/",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 52
+      },
+      {
+        "id": 2,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 197
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 198
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 200
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 200
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 200
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 200
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 200
+      },
+      {
+        "id": 9,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 200
+      },
+      {
+        "id": 10,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 11,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 12,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 13,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 16,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 17,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 266
+      },
+      {
+        "id": 18,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 270
+      },
+      {
+        "id": 19,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 270
+      },
+      {
+        "id": 20,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 271
+      },
+      {
+        "id": 21,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 271
+      },
+      {
+        "id": 22,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 273
+      },
+      {
+        "id": 23,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 273
+      },
+      {
+        "id": 24,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 25,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 26,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 27,
+        "url": "https://www.chase.com/{seg}/{seg}/static/{seg}/app/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 30,
+        "url": "https://static.chasecdn.com/{seg}/{seg}",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 434
+      },
+      {
+        "id": 31,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 434
+      },
+      {
+        "id": 32,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 613
+      },
+      {
+        "id": 33,
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 615
+      },
+      {
+        "id": 34,
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 616
+      },
+      {
+        "id": 35,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 671
+      },
+      {
+        "id": 36,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 671
+      },
+      {
+        "id": 37,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 672
+      },
+      {
+        "id": 38,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 672
+      },
+      {
+        "id": 39,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 673
+      },
+      {
+        "id": 40,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/home",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 674
+      },
+      {
+        "id": 41,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 674
+      },
+      {
+        "id": 42,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 675
+      },
+      {
+        "id": 43,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 675
+      },
+      {
+        "id": 44,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 675
+      },
+      {
+        "id": 45,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 676
+      },
+      {
+        "id": 46,
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 716
+      },
+      {
+        "id": 47,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 724
+      },
+      {
+        "id": 48,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 728
+      },
+      {
+        "id": 49,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 728
+      },
+      {
+        "id": 50,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 729
+      },
+      {
+        "id": 51,
+        "url": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "static.chasecdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "static.chasecdn.com"
+        },
+        "startedAtMs": 741
+      },
+      {
+        "id": 52,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 784
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.chasecdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "static.chasecdn.com"
+        },
+        "startedAtMs": 843
+      },
+      {
+        "id": 54,
+        "url": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.chase.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.chase.com"
+        },
+        "startedAtMs": 1098
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1124
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1146
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1147
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1147
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1149
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1150
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1216
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1584
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1655
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1658
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1661
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1668
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1669
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1695
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1930
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1931
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1932
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1932
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1934
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1935
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1936
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1936
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1937
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1938
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 1988
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 2230
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 9234
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 9236
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.chase.com/{seg}",
+        "domain": "{label}.chase.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.chase.com/{seg}",
+          "initiatorDomain": "{label}.chase.com"
+        },
+        "startedAtMs": 9236
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.chasecdn.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.chase.com",
+        "requests": 39,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "font",
+          "script",
+          "other",
+          "document",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.chase.com",
+        "requests": 37,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "image",
+          "script",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.chase.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.chase.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 94
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 45
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 64
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 39
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 23
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:hex-like]",
+        "valueBytes": 46
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 88
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 64
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 36
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "cnameCloaks": [
+      {
+        "host": "{label}.chase.com",
+        "cname": "{label}.online-metrix.net",
+        "tracker": {
+          "domain": "online-metrix.net",
+          "entity": "online-metrix.net",
+          "category": "tracking (Brave Shields list)",
+          "confidence": "shields-list"
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 46453
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+      "The page did not reach network idle before the scan window ended.",
+      "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+      "This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+      "Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 86,
+      "after": 81,
+      "delta": -5
+    },
+    "thirdPartyRequests": {
+      "before": 9,
+      "after": 5,
+      "delta": -4
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 4,
+      "after": 1,
+      "delta": -3
+    },
+    "cookies": {
+      "before": 19,
+      "after": 19,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 10,
+      "after": 10,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.{label}.{label}.online-metrix.net",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.online-metrix.net",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.chase.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.go-mpulse.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.go-mpulse.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.online-metrix.net",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.chase.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+    "No blocking: The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+    "No blocking: This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    "No blocking: Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Blocked a request that could not be verified as public: https://{label}.chase.com/{seg}/api/{seg}/{seg}/{seg}",
+    "Brave-list blocking: The page did not reach network idle before the scan window ended.",
+    "Brave-list blocking: The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+    "Brave-list blocking: This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: Resolved 1 first-party subdomain that is a CNAME alias for a third-party tracker (CNAME cloaking), which request-URL matching alone would miss.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.chase.com/{seg}/{seg}/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260914-b0d8a4f4616eeda5edc00bbcbed87528",
+    "path": "/reports/20260914-b0d8a4f4616eeda5edc00bbcbed87528/",
+    "jsonPath": "/reports/20260914-b0d8a4f4616eeda5edc00bbcbed87528.json"
+  }
+}
