@@ -1,0 +1,4848 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.who.int/",
+  "scannedAt": "2026-09-14T14:21:10.553Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 9328,
+      "firstPartyDomain": "www.who.int",
+      "totalRequests": 122,
+      "thirdPartyRequests": 51,
+      "knownTrackerRequests": 12,
+      "thirdPartyDomains": 18,
+      "cookies": 18,
+      "thirdPartyCookies": 3,
+      "storageEntries": 5,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 19
+    },
+    "conditions": {
+      "requestedUrl": "https://www.who.int/",
+      "finalUrl": "https://www.who.int/",
+      "scannedAt": "2026-09-14T14:21:01.210Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.who.int/",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 44
+      },
+      {
+        "id": 2,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 820
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 820
+      },
+      {
+        "id": 4,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 821
+      },
+      {
+        "id": 5,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 821
+      },
+      {
+        "id": 6,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 822
+      },
+      {
+        "id": 7,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 822
+      },
+      {
+        "id": 8,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 824
+      },
+      {
+        "id": 9,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 824
+      },
+      {
+        "id": 10,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 825
+      },
+      {
+        "id": 11,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 825
+      },
+      {
+        "id": 12,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 825
+      },
+      {
+        "id": 13,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 917
+      },
+      {
+        "id": 14,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 918
+      },
+      {
+        "id": 15,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 918
+      },
+      {
+        "id": 16,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 919
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 919
+      },
+      {
+        "id": 18,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 920
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.cdn.telerik.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdn.telerik.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 949
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.cdn.telerik.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdn.telerik.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1073
+      },
+      {
+        "id": 21,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1082
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1113
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1172
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1214
+      },
+      {
+        "id": 25,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1250
+      },
+      {
+        "id": 26,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1285
+      },
+      {
+        "id": 27,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1329
+      },
+      {
+        "id": 28,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1330
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.{label}.sitefinity.com/{seg}/{seg}",
+        "domain": "cdn.{label}.sitefinity.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1337
+      },
+      {
+        "id": 30,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1338
+      },
+      {
+        "id": 31,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1340
+      },
+      {
+        "id": 32,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1340
+      },
+      {
+        "id": 33,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1341
+      },
+      {
+        "id": 34,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1341
+      },
+      {
+        "id": 35,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1341
+      },
+      {
+        "id": 36,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1341
+      },
+      {
+        "id": 37,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1341
+      },
+      {
+        "id": 38,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1342
+      },
+      {
+        "id": 39,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1342
+      },
+      {
+        "id": 40,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1342
+      },
+      {
+        "id": 41,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1342
+      },
+      {
+        "id": 42,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1342
+      },
+      {
+        "id": 43,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1343
+      },
+      {
+        "id": 44,
+        "url": "https://cdn.fundraiseup.com/{seg}/{seg}",
+        "domain": "cdn.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1343
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.cdn.telerik.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdn.telerik.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1343
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.cdn.telerik.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdn.telerik.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1343
+      },
+      {
+        "id": 47,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1344
+      },
+      {
+        "id": 48,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1353
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 1385
+      },
+      {
+        "id": 50,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1646
+      },
+      {
+        "id": 51,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1647
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1647
+      },
+      {
+        "id": 53,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1648
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1648
+      },
+      {
+        "id": 55,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1650
+      },
+      {
+        "id": 56,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1650
+      },
+      {
+        "id": 57,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1651
+      },
+      {
+        "id": 58,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1651
+      },
+      {
+        "id": 59,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1651
+      },
+      {
+        "id": 60,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1652
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.fontawesome.com"
+        },
+        "startedAtMs": 1652
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 1652
+      },
+      {
+        "id": 63,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1683
+      },
+      {
+        "id": 64,
+        "url": "https://cdn.fundraiseup.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1684
+      },
+      {
+        "id": 65,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1684
+      },
+      {
+        "id": 66,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1685
+      },
+      {
+        "id": 67,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1685
+      },
+      {
+        "id": 68,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1685
+      },
+      {
+        "id": 69,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1685
+      },
+      {
+        "id": 70,
+        "url": "https://fndrsp.net/{seg}",
+        "domain": "fndrsp.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.fundraiseup.com/{seg}/{seg}",
+          "initiatorDomain": "cdn.fundraiseup.com"
+        },
+        "startedAtMs": 1829
+      },
+      {
+        "id": 71,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1941
+      },
+      {
+        "id": 72,
+        "url": "https://www.google-analytics.com/{seg}",
+        "domain": "www.google-analytics.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1943
+      },
+      {
+        "id": 73,
+        "url": "https://www.clarity.ms/{seg}/{seg}",
+        "domain": "www.clarity.ms",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1943
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.monsido.com/{seg}/{seg}",
+        "domain": "{label}.monsido.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1943
+      },
+      {
+        "id": 75,
+        "url": "https://www.google.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 1944
+      },
+      {
+        "id": 76,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&%5Bredacted%5D=&t=&cid=&tid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.google-analytics.com/{seg}",
+          "initiatorDomain": "www.google-analytics.com"
+        },
+        "startedAtMs": 2145
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.{label}.sitefinity.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.{label}.sitefinity.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 2152
+      },
+      {
+        "id": 78,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 2224
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.clarity.ms/{seg}/{seg}",
+        "domain": "{label}.clarity.ms",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.clarity.ms/{seg}/{seg}",
+          "initiatorDomain": "www.clarity.ms"
+        },
+        "startedAtMs": 2227
+      },
+      {
+        "id": 80,
+        "url": "https://cdn.fundraiseup.com/{seg}/{seg}",
+        "domain": "cdn.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.fundraiseup.com/{seg}/{seg}",
+          "initiatorDomain": "cdn.fundraiseup.com"
+        },
+        "startedAtMs": 2680
+      },
+      {
+        "id": 81,
+        "url": "https://cdn.fundraiseup.com/{seg}/{seg}",
+        "domain": "cdn.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.fundraiseup.com/{seg}/{seg}",
+          "initiatorDomain": "cdn.fundraiseup.com"
+        },
+        "startedAtMs": 2680
+      },
+      {
+        "id": 82,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2699
+      },
+      {
+        "id": 83,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2700
+      },
+      {
+        "id": 84,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2803
+      },
+      {
+        "id": 85,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2804
+      },
+      {
+        "id": 86,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2805
+      },
+      {
+        "id": 87,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2805
+      },
+      {
+        "id": 88,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2805
+      },
+      {
+        "id": 89,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2805
+      },
+      {
+        "id": 90,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2806
+      },
+      {
+        "id": 91,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2817
+      },
+      {
+        "id": 92,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2818
+      },
+      {
+        "id": 93,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2818
+      },
+      {
+        "id": 94,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2821
+      },
+      {
+        "id": 95,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2822
+      },
+      {
+        "id": 96,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2825
+      },
+      {
+        "id": 97,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2826
+      },
+      {
+        "id": 98,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2826
+      },
+      {
+        "id": 99,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2845
+      },
+      {
+        "id": 100,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2846
+      },
+      {
+        "id": 101,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2846
+      },
+      {
+        "id": 102,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2847
+      },
+      {
+        "id": 103,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2847
+      },
+      {
+        "id": 104,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2847
+      },
+      {
+        "id": 105,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2847
+      },
+      {
+        "id": 106,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2848
+      },
+      {
+        "id": 107,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2848
+      },
+      {
+        "id": 108,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2855
+      },
+      {
+        "id": 109,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.fundraiseup.com/{seg}",
+          "initiatorDomain": "static.fundraiseup.com"
+        },
+        "startedAtMs": 2869
+      },
+      {
+        "id": 110,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.fundraiseup.com/{seg}",
+          "initiatorDomain": "static.fundraiseup.com"
+        },
+        "startedAtMs": 2869
+      },
+      {
+        "id": 111,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.fundraiseup.com/{seg}",
+          "initiatorDomain": "static.fundraiseup.com"
+        },
+        "startedAtMs": 2870
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.clarity.ms/{seg}",
+        "domain": "{label}.clarity.ms",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.clarity.ms/{seg}/{seg}",
+          "initiatorDomain": "{label}.clarity.ms"
+        },
+        "startedAtMs": 2976
+      },
+      {
+        "id": 113,
+        "url": "https://static.fundraiseup.com/{seg}/{seg}/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 3014
+      },
+      {
+        "id": 114,
+        "url": "https://www.who.int/api/news/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 3141
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.monsido.com/{seg}/{seg}",
+        "domain": "{label}.monsido.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.monsido.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.monsido.com"
+        },
+        "startedAtMs": 3142
+      },
+      {
+        "id": 116,
+        "url": "https://tracking.monsido.com/?%5Bredacted%5D=",
+        "domain": "tracking.monsido.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 3142
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.clarity.ms/{seg}",
+        "domain": "{label}.clarity.ms",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "startedAtMs": 3142
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.bing.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.bing.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": null,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "startedAtMs": 3176
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.monsido.com/{seg}/settings/{seg}",
+        "domain": "{label}.monsido.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.monsido.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.monsido.com"
+        },
+        "startedAtMs": 3178
+      },
+      {
+        "id": 120,
+        "url": "https://fndrsp.net/{seg}",
+        "domain": "fndrsp.net",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.fundraiseup.com/{seg}/{seg}",
+          "initiatorDomain": "cdn.fundraiseup.com"
+        },
+        "startedAtMs": 3855
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.clarity.ms/{seg}",
+        "domain": "{label}.clarity.ms",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.clarity.ms/{seg}/{seg}",
+          "initiatorDomain": "{label}.clarity.ms"
+        },
+        "startedAtMs": 4148
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.clarity.ms/{seg}",
+        "domain": "{label}.clarity.ms",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.clarity.ms/{seg}/{seg}",
+          "initiatorDomain": "{label}.clarity.ms"
+        },
+        "startedAtMs": 6866
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.clarity.ms",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "image"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.clarity.ms",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": false,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "static.fundraiseup.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.cdn.telerik.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "other"
+        ]
+      },
+      {
+        "domain": "cdn.fundraiseup.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.cloudflare.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.monsido.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.fontawesome.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "fndrsp.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.{label}.sitefinity.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.sitefinity.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "tracking.monsido.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "www.who.int",
+        "requests": 51,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.who.int",
+        "requests": 20,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.clarity.ms",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".clarity.ms",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.clarity.ms",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 277
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 130
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 121
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 6
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 125
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "paste"
+          ],
+          "listenerTargets": [
+            "document"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.{label}.sitefinity.com/",
+            "https://{label}.clarity.ms/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 6
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://{label}.monsido.com/",
+            "https://cdn.fundraiseup.com/",
+            "https://cdn.{label}.sitefinity.com/",
+            "https://{label}.cloudflare.com/",
+            "https://{label}.cdn.telerik.com/",
+            "https://{label}.clarity.ms/",
+            "https://static.fundraiseup.com/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 73
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.who.int/about/policies/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Microsoft"
+      ],
+      "unmentionedEntities": [
+        "Microsoft Clarity",
+        "Google"
+      ],
+      "policyTextLength": 32936
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://www.who.int/about/policies/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 8046,
+      "firstPartyDomain": "www.who.int",
+      "totalRequests": 102,
+      "thirdPartyRequests": 31,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 8,
+      "cookies": 8,
+      "thirdPartyCookies": 0,
+      "storageEntries": 4,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 4
+    },
+    "conditions": {
+      "requestedUrl": "https://www.who.int/",
+      "finalUrl": "https://www.who.int/",
+      "scannedAt": "2026-09-14T14:21:10.553Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.who.int/",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 53
+      },
+      {
+        "id": 2,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 4,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 5,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 6,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 7,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 8,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 9,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 10,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 11,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 326
+      },
+      {
+        "id": 12,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 327
+      },
+      {
+        "id": 13,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 456
+      },
+      {
+        "id": 14,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 456
+      },
+      {
+        "id": 15,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 457
+      },
+      {
+        "id": 16,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 457
+      },
+      {
+        "id": 17,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 458
+      },
+      {
+        "id": 18,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 459
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.cdn.telerik.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdn.telerik.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 494
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.cdn.telerik.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdn.telerik.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 507
+      },
+      {
+        "id": 21,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 508
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 508
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 511
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.cloudflare.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.cloudflare.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 511
+      },
+      {
+        "id": 25,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 512
+      },
+      {
+        "id": 26,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 512
+      },
+      {
+        "id": 27,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 512
+      },
+      {
+        "id": 28,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 514
+      },
+      {
+        "id": 29,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 515
+      },
+      {
+        "id": 30,
+        "url": "https://www.who.int/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 31,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 516
+      },
+      {
+        "id": 32,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 517
+      },
+      {
+        "id": 33,
+        "url": "https://cdn.{label}.sitefinity.com/{seg}/{seg}",
+        "domain": "cdn.{label}.sitefinity.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 518
+      },
+      {
+        "id": 34,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 521
+      },
+      {
+        "id": 35,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 521
+      },
+      {
+        "id": 36,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 522
+      },
+      {
+        "id": 37,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 522
+      },
+      {
+        "id": 38,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 522
+      },
+      {
+        "id": 39,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 522
+      },
+      {
+        "id": 40,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 523
+      },
+      {
+        "id": 41,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 523
+      },
+      {
+        "id": 42,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 523
+      },
+      {
+        "id": 43,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 523
+      },
+      {
+        "id": 44,
+        "url": "https://cdn.fundraiseup.com/{seg}/{seg}",
+        "domain": "cdn.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 523
+      },
+      {
+        "id": 45,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 524
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.cdn.telerik.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdn.telerik.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 524
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.cdn.telerik.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.cdn.telerik.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 524
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 563
+      },
+      {
+        "id": 50,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 702
+      },
+      {
+        "id": 51,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 704
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 705
+      },
+      {
+        "id": 53,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 705
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 706
+      },
+      {
+        "id": 55,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 706
+      },
+      {
+        "id": 56,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 707
+      },
+      {
+        "id": 57,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 707
+      },
+      {
+        "id": 58,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 708
+      },
+      {
+        "id": 59,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 708
+      },
+      {
+        "id": 60,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 709
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.fontawesome.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.fontawesome.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.fontawesome.com"
+        },
+        "startedAtMs": 709
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 713
+      },
+      {
+        "id": 63,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 736
+      },
+      {
+        "id": 64,
+        "url": "https://cdn.fundraiseup.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 736
+      },
+      {
+        "id": 65,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 737
+      },
+      {
+        "id": 66,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 737
+      },
+      {
+        "id": 67,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 737
+      },
+      {
+        "id": 68,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 737
+      },
+      {
+        "id": 69,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 737
+      },
+      {
+        "id": 72,
+        "url": "https://cdn.fundraiseup.com/{seg}/{seg}",
+        "domain": "cdn.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.fundraiseup.com/{seg}/{seg}",
+          "initiatorDomain": "cdn.fundraiseup.com"
+        },
+        "startedAtMs": 1832
+      },
+      {
+        "id": 73,
+        "url": "https://cdn.fundraiseup.com/{seg}/{seg}",
+        "domain": "cdn.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.fundraiseup.com/{seg}/{seg}",
+          "initiatorDomain": "cdn.fundraiseup.com"
+        },
+        "startedAtMs": 1834
+      },
+      {
+        "id": 74,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1849
+      },
+      {
+        "id": 75,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 1849
+      },
+      {
+        "id": 76,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1957
+      },
+      {
+        "id": 77,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1958
+      },
+      {
+        "id": 78,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1959
+      },
+      {
+        "id": 79,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1959
+      },
+      {
+        "id": 80,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1959
+      },
+      {
+        "id": 81,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1960
+      },
+      {
+        "id": 82,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1960
+      },
+      {
+        "id": 83,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1973
+      },
+      {
+        "id": 84,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1974
+      },
+      {
+        "id": 85,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1975
+      },
+      {
+        "id": 86,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1976
+      },
+      {
+        "id": 87,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1979
+      },
+      {
+        "id": 88,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1980
+      },
+      {
+        "id": 89,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1980
+      },
+      {
+        "id": 90,
+        "url": "https://www.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1980
+      },
+      {
+        "id": 91,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2000
+      },
+      {
+        "id": 92,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2000
+      },
+      {
+        "id": 93,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2001
+      },
+      {
+        "id": 94,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2001
+      },
+      {
+        "id": 95,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2001
+      },
+      {
+        "id": 96,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2002
+      },
+      {
+        "id": 97,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2002
+      },
+      {
+        "id": 98,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2002
+      },
+      {
+        "id": 99,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2003
+      },
+      {
+        "id": 100,
+        "url": "https://cdn.who.int/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.who.int",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2003
+      },
+      {
+        "id": 101,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.fundraiseup.com/{seg}",
+          "initiatorDomain": "static.fundraiseup.com"
+        },
+        "startedAtMs": 2016
+      },
+      {
+        "id": 102,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.fundraiseup.com/{seg}",
+          "initiatorDomain": "static.fundraiseup.com"
+        },
+        "startedAtMs": 2017
+      },
+      {
+        "id": 103,
+        "url": "https://static.fundraiseup.com/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://static.fundraiseup.com/{seg}",
+          "initiatorDomain": "static.fundraiseup.com"
+        },
+        "startedAtMs": 2018
+      },
+      {
+        "id": 104,
+        "url": "https://static.fundraiseup.com/{seg}/{seg}/{seg}",
+        "domain": "static.fundraiseup.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2154
+      },
+      {
+        "id": 105,
+        "url": "https://www.who.int/api/news/{seg}",
+        "domain": "www.who.int",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.who.int/{seg}",
+          "initiatorDomain": "www.who.int"
+        },
+        "startedAtMs": 2212
+      }
+    ],
+    "domains": [
+      {
+        "domain": "static.fundraiseup.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "{label}.cdn.telerik.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "other"
+        ]
+      },
+      {
+        "domain": "cdn.fundraiseup.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.cloudflare.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.fontawesome.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "cdn.{label}.sitefinity.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.who.int",
+        "requests": 51,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "cdn.who.int",
+        "requests": 20,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".who.int",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.who.int",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 121
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:uuid-like]",
+        "valueBytes": 1961
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 130
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 125
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "documentElement",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.fundraiseup.com/",
+            "https://cdn.{label}.sitefinity.com/",
+            "https://{label}.cloudflare.com/",
+            "https://{label}.cdn.telerik.com/",
+            "https://static.fundraiseup.com/"
+          ],
+          "totalListenerCalls": 75
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.who.int/about/policies/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 32929
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://www.who.int/about/policies/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 122,
+      "after": 102,
+      "delta": -20
+    },
+    "thirdPartyRequests": {
+      "before": 51,
+      "after": 31,
+      "delta": -20
+    },
+    "knownTrackerRequests": {
+      "before": 12,
+      "after": 0,
+      "delta": -12
+    },
+    "thirdPartyDomains": {
+      "before": 18,
+      "after": 8,
+      "delta": -10
+    },
+    "cookies": {
+      "before": 18,
+      "after": 8,
+      "delta": -10
+    },
+    "thirdPartyCookies": {
+      "before": 3,
+      "after": 0,
+      "delta": -3
+    },
+    "storageEntries": {
+      "before": 5,
+      "after": 4,
+      "delta": -1
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.clarity.ms",
+        "requests": 5,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.monsido.com",
+        "requests": 3,
+        "tracker": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "fndrsp.net",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.sitefinity.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "{label}.bing.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "bing.com",
+          "entity": "Microsoft",
+          "category": "advertising / analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "tracking.monsido.com",
+        "requests": 1,
+        "tracker": null
+      },
+      {
+        "domain": "www.clarity.ms",
+        "requests": 1,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Microsoft Clarity",
+        "requests": 6,
+        "domains": 2
+      },
+      {
+        "entity": "Google",
+        "requests": 5,
+        "domains": 2
+      },
+      {
+        "entity": "Microsoft",
+        "requests": 1,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".{label}.clarity.ms",
+        "thirdParty": true
+      },
+      {
+        "name": "MUID",
+        "domain": ".clarity.ms",
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.clarity.ms",
+        "thirdParty": true
+      },
+      {
+        "name": "_ga",
+        "domain": ".who.int",
+        "thirdParty": false
+      },
+      {
+        "name": "_gcl_au",
+        "domain": ".who.int",
+        "thirdParty": false
+      },
+      {
+        "name": "_gid",
+        "domain": ".who.int",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".who.int",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:uuid-like]"
+      }
+    ],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.clarity.ms",
+        "requests": 3,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.clarity.ms",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.monsido.com",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "{label}.monsido.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "fndrsp.net",
+        "requests": 2,
+        "tracker": null,
+        "initiator": "cdn.fundraiseup.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.clarity.ms",
+        "requests": 1,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "initiator": "www.clarity.ms",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.monsido.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.clarity.ms",
+        "requests": 1,
+        "tracker": {
+          "domain": "clarity.ms",
+          "entity": "Microsoft Clarity",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.google-analytics.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.who.int",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 19,
+      "after": 4,
+      "delta": -15
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: Read the site's privacy policy (https://www.who.int/about/policies/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.who.int/about/policies/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260914-7b08068a547c49b0c83b4420ed6ad551",
+    "path": "/reports/20260914-7b08068a547c49b0c83b4420ed6ad551/",
+    "jsonPath": "/reports/20260914-7b08068a547c49b0c83b4420ed6ad551.json"
+  }
+}

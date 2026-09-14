@@ -2,8 +2,8 @@
   "$schema": "https://sitebehavior.org/transparency-log.schema.json",
   "schemaVersion": 1,
   "chainAlgorithm": "sha256-canon-v1",
-  "entryCount": 1026,
-  "head": "1aae8dc51d0e3f1b6f6a109a3baab480de4237a93cf450f4578de51c1d186258",
+  "entryCount": 1062,
+  "head": "09a04c19817d5c583eb0f260ca3f9cc4942ef672ca725376f6403f0e7a4a2780",
   "entries": [
     {
       "sequence": 0,
@@ -7186,6 +7186,258 @@
       "reportWireSha256": "bef63e82d21c6e3f3fbff8228b8681b5d522c1498a049e167a00cadd06bb656d",
       "publicDigest": "d38af8f90447ea172d8a4a04bb47915eeacab732f646f90e3e27276c40b04f25",
       "entryDigest": "1aae8dc51d0e3f1b6f6a109a3baab480de4237a93cf450f4578de51c1d186258"
+    },
+    {
+      "sequence": 1026,
+      "reportId": "20260914-063e2d8a4a6790a53023dac09cbe1531",
+      "reportWireSha256": "5ec3853b46197912560d6ebb3c0d9d99a68e41790a263ca45b7f6c748d93ebf8",
+      "publicDigest": "27effae5e6a8e2eea594737c380a73351cd1fa3d048c1382742860775f59b4ff",
+      "entryDigest": "f2e573ef2877c8bab2eee93c17cd9a8c4aee8f6697cf1f9af7de9ae99356649e"
+    },
+    {
+      "sequence": 1027,
+      "reportId": "20260914-0f6294ba2408853409bb76a0ca7376ff",
+      "reportWireSha256": "2050b700d23811f541fb75b132acb19eee44d2921c9449cd77d03dc504711b55",
+      "publicDigest": "42fcda3fd8a3e4fd4dc516adefa3291e1dcbe8be01685c0ed6430d41e75acf09",
+      "entryDigest": "50a1821b44f7d3dc98e4d5105731720a9ca3e449827a26e8d70bcbc5dd41e662"
+    },
+    {
+      "sequence": 1028,
+      "reportId": "20260914-18037b488de5b96c33ead93b8b6f9039",
+      "reportWireSha256": "d9e9463ba450fb9080b22c6a888af35179e0a04d9c96a7dc550c0e388afc4c77",
+      "publicDigest": "27be653a34dcba08832b6a4b1eb9120ba21c5ecfccedc6ab7ed7a1b80f876316",
+      "entryDigest": "2cec21fd5934aeefae3d92d5fc67e4fed82f51e599b4afd447d444d20b0807fe"
+    },
+    {
+      "sequence": 1029,
+      "reportId": "20260914-1bae50553438e68e3ae23eae4190e4a6",
+      "reportWireSha256": "da6abb4ec1115ef6b17bc24215d35cecb80fd90a35063c4a7e5044c7bce87286",
+      "publicDigest": "986026067ee47afe680ac3117f2f14a335ef447a87b816c22bf655f2895b0cda",
+      "entryDigest": "f06eb6499ecb6b08a3411dd20f61c19cb9406179fb83da063b3e387c6ce999ea"
+    },
+    {
+      "sequence": 1030,
+      "reportId": "20260914-1f39c3ff4e5898730490a8251194d2d4",
+      "reportWireSha256": "c29c36b54ee7100be4e168619d5417fb4d0545e03c0250c387801f4666833534",
+      "publicDigest": "557c9a232a2876bdc6cd52da9721960008316195aa5718ef64a38dae466e23c2",
+      "entryDigest": "608ae5a8d2045ff0b1aec70938b07b940c34ca40ae4a602949f67d0689a8d01a"
+    },
+    {
+      "sequence": 1031,
+      "reportId": "20260914-211359778bab7566f5db464b723e4f9c",
+      "reportWireSha256": "b19f81557f668bcbfa02b16b1b50310d6ae0dde66777e7a88f2156c79950cf83",
+      "publicDigest": "af6fe53bd05ee4eb011b249b778c5ab12974e99c2107cce2a2ef2eb664f35f48",
+      "entryDigest": "96ed3d5452602569c955115f93f835e4ee8e2fc7d87769e4bfa69601913965e7"
+    },
+    {
+      "sequence": 1032,
+      "reportId": "20260914-2af911687988bc30cc74d0e453fd1b4d",
+      "reportWireSha256": "af9e02dacd264b015d05d79da7384442336b611680537791b96b52f58bbcc4ee",
+      "publicDigest": "5d2eaaefbc141898a28264e6cd6c1933e489de89d73be9b451f92f935700de3d",
+      "entryDigest": "1b4d05636ce431b42350358bdd8ea7ed7b36cccdc998649511c0462fdd7fd260"
+    },
+    {
+      "sequence": 1033,
+      "reportId": "20260914-31b7f0dafaabd82bcd950120d2baac1b",
+      "reportWireSha256": "c20651663eac3f7dc59765bc85e380b3d66e8e6537bc93e95e3babb86e574bf4",
+      "publicDigest": "07358bdbdd438bdbad313de6031cab2b0fc745dc8cbfb575bdff8c0b1e1d93d4",
+      "entryDigest": "c83be2a08e02e8189cedf4a3ce94b0769abcebcf4ff8d07bf1fb702523017d98"
+    },
+    {
+      "sequence": 1034,
+      "reportId": "20260914-45fa4d85341fbac4d552ee956dc600f1",
+      "reportWireSha256": "75420cbe17d30b2301f83498a48debf68eaebc37160f07360509194c8e0b6c9b",
+      "publicDigest": "6331dd34329c5a7649d018cd24fcb9d399f47ddb88269f9f8382f0da2b04f98a",
+      "entryDigest": "149603392433296f897d0addef22971871b1417e1982b9a6fbb18b17eae3415e"
+    },
+    {
+      "sequence": 1035,
+      "reportId": "20260914-4c8c2f389d872cdfc0a944b71a82009a",
+      "reportWireSha256": "c444c89ba6a2218c946af9c8840c3bc07d8bfd751b1721740dfbaf7c84707c5c",
+      "publicDigest": "6a729d82e4acc04e9d800349bd48560a6ebb9a6d55afc48209c07022f414ee7c",
+      "entryDigest": "2e2e1d6e98a36775ee135b20b82d28f4acc5809a0bd98c86104de62dfc1b8b5a"
+    },
+    {
+      "sequence": 1036,
+      "reportId": "20260914-5ddbb54f99350556b95277c2d06943e9",
+      "reportWireSha256": "1d7c4c5a33eaf8d624e996a49b9fb6d6737f82508f2a9399b126932369dbd40b",
+      "publicDigest": "24b977159844ac6676f5155df1e7f2b4f5ebb3fd9c827fcd6a7be0c3f2778958",
+      "entryDigest": "f8bcfd07dbda04462bc326501cff1746cb5eb0dc1174a354d3aaebb940de5463"
+    },
+    {
+      "sequence": 1037,
+      "reportId": "20260914-6130716f185390bb561920264bb9a2ec",
+      "reportWireSha256": "89f40e87f079f43980c13344e0537c1ad606ac57d0469a696a8eb8e5506c028b",
+      "publicDigest": "9f188c8212e6e6d8d8835896600fe0b4091525b951e3f153fa9a168cd2c84f33",
+      "entryDigest": "d027bce017b4fe7ab8845407c033df2182a6e8326d8148c17d755d02f85e0321"
+    },
+    {
+      "sequence": 1038,
+      "reportId": "20260914-65c09bc0c5bda3b8581d21ad50a9ea25",
+      "reportWireSha256": "d116bc2c8473a458cce7fff5a0a1ea0f61201e8a44c21de6201db0c3d6067ad0",
+      "publicDigest": "cec22bdb1cbbc62db6164c28837923bc899739157fa6d194d53a4c1831ff328e",
+      "entryDigest": "3722a0c28621377558ef5b21a733a032c76807d6e80316a246bd942e9c743e17"
+    },
+    {
+      "sequence": 1039,
+      "reportId": "20260914-66b7e0d2770e41abe26e54f23148257f",
+      "reportWireSha256": "6dc1ffaec6603752d5fcee54472d8db8e991858dcea2b0f8f09028f13f2d31bd",
+      "publicDigest": "bc391d60291a45c391ebdcb01de7bd8461a44e845fd27d17e61fca3bd4c896db",
+      "entryDigest": "460d88a7157c761c601117bb152f58ffd60cf920e9f6d99de03c034f4a90f16e"
+    },
+    {
+      "sequence": 1040,
+      "reportId": "20260914-76d57f4b8e50fe06dbc351cb2669a935",
+      "reportWireSha256": "3503bc8075c5ab2b4536952ae22f55cfffbf8417e0320c6e4c9064145da9440b",
+      "publicDigest": "25df7600331b38b983da9700a6e665e22764b8ea3f64f176bf2e695eb940a0a7",
+      "entryDigest": "3a157dc7d81ea5c86e2666330d60db6399b28bb6782f8b916dbaea3fd0cf52be"
+    },
+    {
+      "sequence": 1041,
+      "reportId": "20260914-7b08068a547c49b0c83b4420ed6ad551",
+      "reportWireSha256": "d2ca2d23c4a4848cd3ab325e4eae2737a67837acd2d620927fb95049618484ce",
+      "publicDigest": "a55fd7a2d1604844826acaf8372e3dae417816556fb1f6d877f3f03341d27dbc",
+      "entryDigest": "694e82e5769f60b99d79685739bc371d9ebb56756a4e947336ed27accabfd87c"
+    },
+    {
+      "sequence": 1042,
+      "reportId": "20260914-7b2e3e05b39fa0a5fd7792c9c31d9293",
+      "reportWireSha256": "90f62367b89d3b47ea5aaa66e8c651947d333b839031e9bc2edd70de9ad563ad",
+      "publicDigest": "038796e73f7207a37c428592ba9bc6abac787b285ac173a5538a39ddbd6b5024",
+      "entryDigest": "4b6032ec886ce99307685a98a5e8bace64a8038eb8b009f6bd40abb81285e45b"
+    },
+    {
+      "sequence": 1043,
+      "reportId": "20260914-7f0bc36d50d61c2c2bb87bf6d53ff08e",
+      "reportWireSha256": "c760d5ca897c796b7de322604f9f6e949673f4f1064e2e1603d5aa5beb63378d",
+      "publicDigest": "eeb0d90708804edf793fe3676495baa99be3e1b8129fab175195d6cd0812400a",
+      "entryDigest": "d313503f4f648a2a6fe43a02856dc00b506dfc12322495fbf7af6aac5eccb153"
+    },
+    {
+      "sequence": 1044,
+      "reportId": "20260914-81c7ba65eefd244813864b819b1f5683",
+      "reportWireSha256": "ab986396901e6ae29927623a27031d063760351e5fb2889250897bac75a0285a",
+      "publicDigest": "378b806bb2f0bc3ac731e31e05cc1a8c1952851ff87cce69f49f03f78c71843d",
+      "entryDigest": "ac7d4530f34b8e0276704884b703b27a3bd104c6aa07f0b0428f7bbeea316f1c"
+    },
+    {
+      "sequence": 1045,
+      "reportId": "20260914-82f94297b7872eaa9c87fd5f290965d6",
+      "reportWireSha256": "45b4c46464ace0227c758142fa4e0632dc6863f9562a5aa9e35b30d4037f56ac",
+      "publicDigest": "ce622e975ca94c4dcf1f4c3691ed4f392c0122df2109f777517fc2363b9560cb",
+      "entryDigest": "7db2ae9ccac69d20c0ba9bb43830e816a9688083b939d80c4dcacbc0778d2132"
+    },
+    {
+      "sequence": 1046,
+      "reportId": "20260914-869e59c9995485d13a9d140dc63d135f",
+      "reportWireSha256": "895152ec6745afd36864eab092556475e72bb90edb12e48ad32890306cd56f72",
+      "publicDigest": "2caeabc839c00bfb18f5ce32a276424b3f4ed4ebc8af26a97ecacf7471490b15",
+      "entryDigest": "e0ed7a044e5cd766f82446a0ac521f99bcb53314b5279f603d3bcdd6598e1cf8"
+    },
+    {
+      "sequence": 1047,
+      "reportId": "20260914-88a9e8515f8bf1ab5a2002638a6a74f1",
+      "reportWireSha256": "69571c319c03486a734cb29f678b8e0e1e680063eeaa3654c7062c1e2f93f314",
+      "publicDigest": "f4576c4c7ca68bf2614de5e4b0136515f44e15140f9bfbc3ff0a4a33508cb35b",
+      "entryDigest": "ab3be0e86684bd316b8fa30dfee43138593f0b26ba14cac157f27dd6010d682c"
+    },
+    {
+      "sequence": 1048,
+      "reportId": "20260914-89f55b4958c8a2c847d1fc0803b98a37",
+      "reportWireSha256": "3790797736453084e37cef76e48d98a04264cd06a88391317e70ad0fe15172ac",
+      "publicDigest": "b51a07a973db179423114b746c548db4a64daa23513ae57ab4a696c946282be1",
+      "entryDigest": "c24843a4565f9c995ddcfacede11101f27973bb601402a299ae95e8e65c23bc3"
+    },
+    {
+      "sequence": 1049,
+      "reportId": "20260914-a03ac04b3ec1daae8dedc5b2f425c529",
+      "reportWireSha256": "beaf0e0b48f456d8529f0db7785a9bd5e8e9939a4c12449d8e2c2a7d43b96791",
+      "publicDigest": "3df973fdb908bdc900c3a67c6e46d9d1ab0e91d03c9cabaa48b34a29b0334861",
+      "entryDigest": "5ae00e34581890c571247d81a3ba4a2636dab33e9d68696cd55c74ba5ef6b5b2"
+    },
+    {
+      "sequence": 1050,
+      "reportId": "20260914-bcd5e0bf7abd5ff23724d1889d41caea",
+      "reportWireSha256": "0739951ec941a48351bccdfd33f803b5cf19991ba1b2b7b60e45f876830d8f3c",
+      "publicDigest": "7d9e9c8bfec3c95cc2e84138414e6b53d4d7467ae248f6b5d7793a5a4efe3d19",
+      "entryDigest": "de30d539102190908d7c4d7cdd85fbdeb117f080abe33d31bae4a90312c180db"
+    },
+    {
+      "sequence": 1051,
+      "reportId": "20260914-be8ef74ed844c0715cb19222885f514c",
+      "reportWireSha256": "adf4bc443525b42167df6bcf82b65bad2dc8aa6664398529cf841a77aef08d73",
+      "publicDigest": "1cafa959cbb99c7cee0c255b6caba66b7bdcff0ddf098a1336070bafc230d895",
+      "entryDigest": "5de12c6ad8f4245ea4c9221b3e6c750e854d0a190cb1bab1bbbec3fe73afd048"
+    },
+    {
+      "sequence": 1052,
+      "reportId": "20260914-cc7781a241337f826149c047a4dcda0b",
+      "reportWireSha256": "09bc8cd31a629e0e6bbd914eaa57f04bef8670862c58ce26476f4dd65766a02a",
+      "publicDigest": "e47f4692cb079756291e7ecf80a72bdcfa464a99dcfebf7284fad4a9c27d9041",
+      "entryDigest": "1c3ba061c03c2bbc0721daf67a03948591166246ab723c43b39a09047d03d5c9"
+    },
+    {
+      "sequence": 1053,
+      "reportId": "20260914-d885f37ec5e367b2878a862c78c6fc88",
+      "reportWireSha256": "4a449674c73e278fc2191050f5769fa4fe5f183219fe3513de152a0c6fda9885",
+      "publicDigest": "4d8c7c0def1adc4d6ec49a464565218cb8d1c546575d233c2ac871e2c57f37ad",
+      "entryDigest": "027b6ce9b5d193d60c643d872c1809c0ef2dffaf581277934bc71300659101f3"
+    },
+    {
+      "sequence": 1054,
+      "reportId": "20260914-dc2866c5f93f0fd5efbacd0aaf548131",
+      "reportWireSha256": "db709b029e82628d90468be3562aabf3b2b44b7cb4d137fe058927acabad31b5",
+      "publicDigest": "4245fec9ac27228bacc726ff62fff81edb20466cde61b614639732e4670fc30a",
+      "entryDigest": "74e2f0e0d4156d81ad36b5ee114371ea170b7d65bebec96fd2ba8b8e9b80c9f0"
+    },
+    {
+      "sequence": 1055,
+      "reportId": "20260914-e29c662cc9a33b0bbcffbb70c6ac9bd8",
+      "reportWireSha256": "bfde52b1af8639de4c757e6d5ece125beff72522b1bfbceb6ba65e63f95a45d3",
+      "publicDigest": "b4de696e4157efb4dbaa8c3793af2311c9fef255aa0d56a7828c2ebf48e054ba",
+      "entryDigest": "8b96df8a0352949bd08989645306dfd66ed69eea99b1ddfce37e1e8e32057053"
+    },
+    {
+      "sequence": 1056,
+      "reportId": "20260914-e9847a637746c3d0643a64388fc32ded",
+      "reportWireSha256": "cbc71e0cfb8d0c17145051c137e6357126252eab866a0136f4b06a5e9cb99a3f",
+      "publicDigest": "f4a9c047d340af28a03b00f44013e3725da98f592c12e94f3864f7f782ff8c92",
+      "entryDigest": "fa7f44b70bdf41d6e3f47a1e73f6573a49c5d4f68f20b003655ae8ff211a86d0"
+    },
+    {
+      "sequence": 1057,
+      "reportId": "20260914-efa32520671352aa35447d5c0a92950f",
+      "reportWireSha256": "961b95443688c8f52bb2cb9b0d20019bf253eeee71fdef6a848d5d8d43cb2386",
+      "publicDigest": "4d4b4b96d39ac119499300303f9e28386591072d1b66488ccc2046801dc914c3",
+      "entryDigest": "022ae665f99a8980a78bc0e12e54dbf3425c397c38bf7afeb5a1436c83eb736f"
+    },
+    {
+      "sequence": 1058,
+      "reportId": "20260914-f0000eecfcec4f97a6fee1219ba89f50",
+      "reportWireSha256": "0bbe68c599ca4a0e292c59f41fe8a1a06c72a2bd14f12d3ac3f074be230e4d79",
+      "publicDigest": "988482281ed2eff4f4fd9b9900e8c9ab5ed591d9b9e63afb8391137a4b6b2c26",
+      "entryDigest": "08fdf1df691e804fc1b7f8da179e6bf9f81c4b0bf619edc0def2f3dfd28aa41e"
+    },
+    {
+      "sequence": 1059,
+      "reportId": "20260914-f267e940361a82b4f93e9de689621403",
+      "reportWireSha256": "052148b170b506aae4ca77f73a28e68cccc59ebc4b0521bddba56d47bae14ae3",
+      "publicDigest": "6aa9fef41bcef81cd2b068a899643fe64bba381adf878c8992988853248f681c",
+      "entryDigest": "46b73c61f2f9bab1b9b08080b8f52a6d52f4f03edf24c989dc4ebac338aa49a7"
+    },
+    {
+      "sequence": 1060,
+      "reportId": "20260914-f8117b1426fdb67814f7d64cb4049ee3",
+      "reportWireSha256": "6c973f17a7852892aedc5afc8692fdd3ca9b92e756496f92a8f17fea89cc7121",
+      "publicDigest": "26ba241c4bdc2fd91aedf66ab78f70ce16f87c9f4f19d59b3a89b581b0dff5c2",
+      "entryDigest": "814057b62c7f8f99bcaceccafc6840391bb05632e40b5846a27186d9180bda9c"
+    },
+    {
+      "sequence": 1061,
+      "reportId": "20260914-f9438d53cc2a2ad6175683e5fb804669",
+      "reportWireSha256": "8dca32d8f24628cd96bae7634ceea242eed87150c375b6ad8b815c8939c2cbd7",
+      "publicDigest": "66b7b0e3ed6bc4a560229538e24a4ef62f2b19084fbacdea47275bc641ab435a",
+      "entryDigest": "09a04c19817d5c583eb0f260ca3f9cc4942ef672ca725376f6403f0e7a4a2780"
     }
   ],
   "anchors": [
