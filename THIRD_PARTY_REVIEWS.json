@@ -1194,10 +1194,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/env@16.2.12",
+      "key": "npm:@next/env@16.3.3",
       "ecosystem": "npm",
       "name": "@next/env",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1208,10 +1208,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-darwin-arm64@16.2.12",
+      "key": "npm:@next/swc-darwin-arm64@16.3.3",
       "ecosystem": "npm",
       "name": "@next/swc-darwin-arm64",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1222,10 +1222,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-darwin-x64@16.2.12",
+      "key": "npm:@next/swc-darwin-x64@16.3.3",
       "ecosystem": "npm",
       "name": "@next/swc-darwin-x64",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1236,10 +1236,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-arm64-gnu@16.2.12",
+      "key": "npm:@next/swc-linux-arm64-gnu@16.3.3",
       "ecosystem": "npm",
       "name": "@next/swc-linux-arm64-gnu",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1250,10 +1250,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-arm64-musl@16.2.12",
+      "key": "npm:@next/swc-linux-arm64-musl@16.3.3",
       "ecosystem": "npm",
       "name": "@next/swc-linux-arm64-musl",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1264,10 +1264,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-x64-gnu@16.2.12",
+      "key": "npm:@next/swc-linux-x64-gnu@16.3.3",
       "ecosystem": "npm",
       "name": "@next/swc-linux-x64-gnu",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1278,10 +1278,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-linux-x64-musl@16.2.12",
+      "key": "npm:@next/swc-linux-x64-musl@16.3.3",
       "ecosystem": "npm",
       "name": "@next/swc-linux-x64-musl",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1292,10 +1292,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-win32-arm64-msvc@16.2.12",
+      "key": "npm:@next/swc-win32-arm64-msvc@16.3.3",
       "ecosystem": "npm",
       "name": "@next/swc-win32-arm64-msvc",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1306,10 +1306,10 @@
       "notes": null
     },
     {
-      "key": "npm:@next/swc-win32-x64-msvc@16.2.12",
+      "key": "npm:@next/swc-win32-x64-msvc@16.3.3",
       "ecosystem": "npm",
       "name": "@next/swc-win32-x64-msvc",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -1390,10 +1390,10 @@
       "notes": null
     },
     {
-      "key": "npm:@swc/helpers@0.5.15",
+      "key": "npm:@swc/helpers@0.5.23",
       "ecosystem": "npm",
       "name": "@swc/helpers",
-      "version": "0.5.15",
+      "version": "0.5.23",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -1880,10 +1880,10 @@
       "notes": null
     },
     {
-      "key": "npm:next@16.2.12",
+      "key": "npm:next@16.3.3",
       "ecosystem": "npm",
       "name": "next",
-      "version": "16.2.12",
+      "version": "16.3.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
