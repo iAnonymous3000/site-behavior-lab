@@ -1,0 +1,6039 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.pinterest.com/",
+  "scannedAt": "2026-09-14T11:07:39.180Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 16467,
+      "firstPartyDomain": "www.pinterest.com",
+      "totalRequests": 166,
+      "thirdPartyRequests": 135,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 6,
+      "cookies": 8,
+      "thirdPartyCookies": 0,
+      "storageEntries": 3,
+      "fingerprintEvents": 5,
+      "shieldsBlockedRequests": 9
+    },
+    "conditions": {
+      "requestedUrl": "https://www.pinterest.com/",
+      "finalUrl": "https://www.pinterest.com/",
+      "scannedAt": "2026-09-14T11:07:56.792Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.pinterest.com/",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 49
+      },
+      {
+        "id": 2,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 476
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 477
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 480
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 18,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 481
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 482
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 483
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 483
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 483
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 483
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 483
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 483
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 484
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 484
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 484
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 484
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 484
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 484
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 485
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 485
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 485
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 485
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 485
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 485
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 486
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 486
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 486
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 486
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 486
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 486
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 487
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 487
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 491
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 491
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 492
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 492
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 492
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 493
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 493
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 493
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 494
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 494
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 494
+      },
+      {
+        "id": 64,
+        "url": "https://accounts.google.com/{seg}/{seg}?hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 518
+      },
+      {
+        "id": 65,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 955
+      },
+      {
+        "id": 66,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 956
+      },
+      {
+        "id": 67,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 957
+      },
+      {
+        "id": 68,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 960
+      },
+      {
+        "id": 69,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 961
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1074
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1074
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1075
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.pinterest.com/{seg}",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1080
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1084
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1084
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1084
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1084
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1084
+      },
+      {
+        "id": 79,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1122
+      },
+      {
+        "id": 80,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1201
+      },
+      {
+        "id": 81,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1202
+      },
+      {
+        "id": 82,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1204
+      },
+      {
+        "id": 83,
+        "url": "https://www.pinterest.com/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "manifest",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1205
+      },
+      {
+        "id": 84,
+        "url": "https://www.pinterest.com/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1209
+      },
+      {
+        "id": 85,
+        "url": "https://www.pinterest.com/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1209
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1210
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1210
+      },
+      {
+        "id": 88,
+        "url": "https://accounts.google.com/{seg}/{seg}",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://accounts.google.com/{seg}/{seg}",
+          "initiatorDomain": "accounts.google.com"
+        },
+        "startedAtMs": 1228
+      },
+      {
+        "id": 89,
+        "url": "https://www.pinterest.com/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1335
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1342
+      },
+      {
+        "id": 91,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1362
+      },
+      {
+        "id": 92,
+        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&width=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://accounts.google.com/{seg}/{seg}",
+          "initiatorDomain": "accounts.google.com"
+        },
+        "startedAtMs": 1492
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1500
+      },
+      {
+        "id": 94,
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1501
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1515
+      },
+      {
+        "id": 96,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1598
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1613
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1614
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1615
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1616
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1631
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1633
+      },
+      {
+        "id": 103,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1642
+      },
+      {
+        "id": 104,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1643
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/de/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1643
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1644
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1663
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1663
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1664
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1664
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1684
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1685
+      },
+      {
+        "id": 113,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1685
+      },
+      {
+        "id": 114,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1686
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1686
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1687
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1687
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1687
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1691
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1692
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1694
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1694
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1695
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1695
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1696
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1696
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1734
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1749
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1750
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1751
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1751
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1752
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1753
+      },
+      {
+        "id": 134,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1754
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1794
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1794
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1795
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1795
+      },
+      {
+        "id": 139,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1796
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1797
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1797
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1797
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1798
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1798
+      },
+      {
+        "id": 145,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1965
+      },
+      {
+        "id": 146,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 2014
+      },
+      {
+        "id": 147,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2015
+      },
+      {
+        "id": 148,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?hl=&v=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 2157
+      },
+      {
+        "id": 149,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 2171
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 2172
+      },
+      {
+        "id": 151,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2201
+      },
+      {
+        "id": 152,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 2561
+      },
+      {
+        "id": 153,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 2562
+      },
+      {
+        "id": 154,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 5982
+      },
+      {
+        "id": 155,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 5983
+      },
+      {
+        "id": 156,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 5983
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.google.com/{seg}?%5Bredacted%5D=&format=",
+        "domain": "{label}.google.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 8893
+      },
+      {
+        "id": 158,
+        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&width=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://accounts.google.com/{seg}/{seg}",
+          "initiatorDomain": "accounts.google.com"
+        },
+        "startedAtMs": 8899
+      },
+      {
+        "id": 159,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 8929
+      },
+      {
+        "id": 160,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 8946
+      },
+      {
+        "id": 161,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 9142
+      },
+      {
+        "id": 162,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 9144
+      },
+      {
+        "id": 163,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 11134
+      },
+      {
+        "id": 164,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 13847
+      },
+      {
+        "id": 165,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 13848
+      },
+      {
+        "id": 166,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 13908
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 120,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "font",
+          "image",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.recaptcha.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "www.pinterest.com",
+        "requests": 29,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "other",
+          "fetch",
+          "xhr",
+          "manifest"
+        ]
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".pinterest.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 145
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 51
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.createDynamicsCompressor",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.createOscillator",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 2
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "audio-fingerprinting",
+        "heuristic": "audio-rendering-v1",
+        "count": 1,
+        "evidence": {
+          "apis": [
+            "audio.OfflineAudioContext.createDynamicsCompressor",
+            "audio.OfflineAudioContext.createOscillator",
+            "audio.OfflineAudioContext.startRendering"
+          ],
+          "offlineRenderCalls": 1,
+          "oscillatorCalls": 1,
+          "compressorCalls": 1,
+          "analyserCalls": 0
+        }
+      },
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 240,
+          "maxCanvasHeight": 110,
+          "maxDistinctTextCharacters": 18,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://accounts.google.com/",
+            "https://{label}.pinimg.com/",
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 42
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://accounts.google.com/",
+            "https://{label}.pinimg.com/",
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 111
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://{label}.pinterest.com/en/privacy-policy",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "states and have enabled an opt-out preferences signal (such as Global Privacy Control), we will respect this preference when you use Pinterest."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 177025
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://{label}.pinterest.com/en/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 17590,
+      "firstPartyDomain": "www.pinterest.com",
+      "totalRequests": 168,
+      "thirdPartyRequests": 145,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 5,
+      "cookies": 8,
+      "thirdPartyCookies": 0,
+      "storageEntries": 3,
+      "fingerprintEvents": 5,
+      "shieldsBlockedRequests": 11
+    },
+    "conditions": {
+      "requestedUrl": "https://www.pinterest.com/",
+      "finalUrl": "https://www.pinterest.com/",
+      "scannedAt": "2026-09-14T11:07:39.180Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.pinterest.com/",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 43
+      },
+      {
+        "id": 2,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 352
+      },
+      {
+        "id": 3,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 352
+      },
+      {
+        "id": 4,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 353
+      },
+      {
+        "id": 5,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 6,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 8,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 9,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 10,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 12,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 13,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 16,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 18,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 19,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 20,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 21,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 22,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 23,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 25,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 26,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 27,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 28,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 29,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 30,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 356
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 46,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 47,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 48,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 50,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 51,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 357
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 358
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 358
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 358
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 358
+      },
+      {
+        "id": 57,
+        "url": "https://accounts.google.com/{seg}/{seg}?hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 391
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 573
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 574
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 575
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 575
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 575
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 576
+      },
+      {
+        "id": 66,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 841
+      },
+      {
+        "id": 67,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "other",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 842
+      },
+      {
+        "id": 68,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 842
+      },
+      {
+        "id": 70,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 852
+      },
+      {
+        "id": 71,
+        "url": "https://www.pinterest.com/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "manifest",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1093
+      },
+      {
+        "id": 72,
+        "url": "https://www.pinterest.com/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 404,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1094
+      },
+      {
+        "id": 73,
+        "url": "https://www.pinterest.com/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1095
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1096
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1097
+      },
+      {
+        "id": 76,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1097
+      },
+      {
+        "id": 77,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1099
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1099
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1099
+      },
+      {
+        "id": 80,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1100
+      },
+      {
+        "id": 81,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1104
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1104
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinterest.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1105
+      },
+      {
+        "id": 84,
+        "url": "https://www.recaptcha.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1106
+      },
+      {
+        "id": 85,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1117
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1118
+      },
+      {
+        "id": 87,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1118
+      },
+      {
+        "id": 88,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1119
+      },
+      {
+        "id": 90,
+        "url": "https://accounts.google.com/{seg}/{seg}",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://accounts.google.com/{seg}/{seg}",
+          "initiatorDomain": "accounts.google.com"
+        },
+        "startedAtMs": 1175
+      },
+      {
+        "id": 91,
+        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&width=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://accounts.google.com/{seg}/{seg}",
+          "initiatorDomain": "accounts.google.com"
+        },
+        "startedAtMs": 1203
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1288
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1324
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1325
+      },
+      {
+        "id": 96,
+        "url": "https://www.pinterest.com/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1331
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1334
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1353
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1354
+      },
+      {
+        "id": 100,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1358
+      },
+      {
+        "id": 101,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1373
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1396
+      },
+      {
+        "id": 103,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1468
+      },
+      {
+        "id": 104,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?%5Bredacted%5D=&hl=&v=&size=&cb=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1558
+      },
+      {
+        "id": 105,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1581
+      },
+      {
+        "id": 106,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1582
+      },
+      {
+        "id": 107,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1582
+      },
+      {
+        "id": 108,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1583
+      },
+      {
+        "id": 109,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1583
+      },
+      {
+        "id": 110,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1585
+      },
+      {
+        "id": 111,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1585
+      },
+      {
+        "id": 112,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 1585
+      },
+      {
+        "id": 113,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1629
+      },
+      {
+        "id": 114,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1630
+      },
+      {
+        "id": 115,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1646
+      },
+      {
+        "id": 116,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1663
+      },
+      {
+        "id": 117,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1680
+      },
+      {
+        "id": 118,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1692
+      },
+      {
+        "id": 119,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1692
+      },
+      {
+        "id": 120,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1693
+      },
+      {
+        "id": 121,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1693
+      },
+      {
+        "id": 122,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1697
+      },
+      {
+        "id": 123,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1717
+      },
+      {
+        "id": 124,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1719
+      },
+      {
+        "id": 125,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1761
+      },
+      {
+        "id": 126,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1761
+      },
+      {
+        "id": 127,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1761
+      },
+      {
+        "id": 128,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1762
+      },
+      {
+        "id": 129,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1765
+      },
+      {
+        "id": 130,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1766
+      },
+      {
+        "id": 131,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1766
+      },
+      {
+        "id": 132,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1766
+      },
+      {
+        "id": 133,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1879
+      },
+      {
+        "id": 134,
+        "url": "https://www.recaptcha.net/{seg}/{seg}/{seg}?hl=&v=",
+        "domain": "www.recaptcha.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1899
+      },
+      {
+        "id": 135,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/de/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1916
+      },
+      {
+        "id": 136,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1916
+      },
+      {
+        "id": 137,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1917
+      },
+      {
+        "id": 138,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1917
+      },
+      {
+        "id": 139,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.gstatic.com"
+        },
+        "startedAtMs": 1923
+      },
+      {
+        "id": 140,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.recaptcha.net/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.recaptcha.net"
+        },
+        "startedAtMs": 1923
+      },
+      {
+        "id": 141,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1935
+      },
+      {
+        "id": 142,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1936
+      },
+      {
+        "id": 143,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1937
+      },
+      {
+        "id": 144,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1938
+      },
+      {
+        "id": 145,
+        "url": "https://www.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.gstatic.com",
+        "method": "GET",
+        "resourceType": "other",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1972
+      },
+      {
+        "id": 146,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1989
+      },
+      {
+        "id": 147,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1992
+      },
+      {
+        "id": 148,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1992
+      },
+      {
+        "id": 149,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 1992
+      },
+      {
+        "id": 150,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2032
+      },
+      {
+        "id": 151,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2041
+      },
+      {
+        "id": 152,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2041
+      },
+      {
+        "id": 153,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2042
+      },
+      {
+        "id": 154,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2043
+      },
+      {
+        "id": 155,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2045
+      },
+      {
+        "id": 156,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{seg}/{n}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2045
+      },
+      {
+        "id": 157,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2045
+      },
+      {
+        "id": 158,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2046
+      },
+      {
+        "id": 159,
+        "url": "https://{label}.pinimg.com/{seg}/{n}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2046
+      },
+      {
+        "id": 160,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}/{n}/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.pinterest.com/",
+          "initiatorDomain": "www.pinterest.com"
+        },
+        "startedAtMs": 2046
+      },
+      {
+        "id": 163,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 5886
+      },
+      {
+        "id": 164,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 5887
+      },
+      {
+        "id": 165,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 5887
+      },
+      {
+        "id": 166,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 9409
+      },
+      {
+        "id": 168,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 9431
+      },
+      {
+        "id": 169,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 9431
+      },
+      {
+        "id": 170,
+        "url": "https://{label}.pinimg.com/{seg}/{seg}",
+        "domain": "{label}.pinimg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 9431
+      },
+      {
+        "id": 171,
+        "url": "https://accounts.google.com/{seg}/{seg}?size=&%5Bredacted%5D=&width=&hl=",
+        "domain": "accounts.google.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "provenance": {
+          "initiatorUrl": "https://accounts.google.com/{seg}/{seg}",
+          "initiatorDomain": "accounts.google.com"
+        },
+        "startedAtMs": 9725
+      },
+      {
+        "id": 172,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 9754
+      },
+      {
+        "id": 176,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 10946
+      },
+      {
+        "id": 177,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 14389
+      },
+      {
+        "id": 178,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.pinimg.com/{seg}/{seg}",
+          "initiatorDomain": "{label}.pinimg.com"
+        },
+        "startedAtMs": 14390
+      },
+      {
+        "id": 179,
+        "url": "https://www.pinterest.com/{seg}/{seg}/{seg}",
+        "domain": "www.pinterest.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 14734
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.pinimg.com",
+        "requests": 131,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "script",
+          "font",
+          "image",
+          "media",
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "www.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "image",
+          "other"
+        ]
+      },
+      {
+        "domain": "accounts.google.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "document"
+        ]
+      },
+      {
+        "domain": "www.recaptcha.net",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "document"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "www.pinterest.com",
+        "requests": 22,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204,
+          404
+        ],
+        "resourceTypes": [
+          "document",
+          "other",
+          "fetch",
+          "manifest",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.pinterest.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".pinterest.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "{label}.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.pinterest.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 145
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 51
+      },
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 5
+      }
+    ],
+    "fingerprintEvents": [
+      {
+        "api": "audio.OfflineAudioContext.createDynamicsCompressor",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.createOscillator",
+        "count": 1
+      },
+      {
+        "api": "audio.OfflineAudioContext.startRendering",
+        "count": 1
+      },
+      {
+        "api": "canvas.toDataURL",
+        "count": 2
+      }
+    ],
+    "fingerprintDetections": [
+      {
+        "kind": "audio-fingerprinting",
+        "heuristic": "audio-rendering-v1",
+        "count": 1,
+        "evidence": {
+          "apis": [
+            "audio.OfflineAudioContext.createDynamicsCompressor",
+            "audio.OfflineAudioContext.createOscillator",
+            "audio.OfflineAudioContext.startRendering"
+          ],
+          "offlineRenderCalls": 1,
+          "oscillatorCalls": 1,
+          "compressorCalls": 1,
+          "analyserCalls": 0
+        }
+      },
+      {
+        "kind": "canvas-fingerprinting",
+        "heuristic": "openwpm-canvas-v1",
+        "count": 1,
+        "evidence": {
+          "readApis": [
+            "canvas.toDataURL"
+          ],
+          "maxCanvasWidth": 240,
+          "maxCanvasHeight": 110,
+          "maxDistinctTextCharacters": 18,
+          "maxTextWriteCalls": 2
+        }
+      },
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "input",
+            "keydown",
+            "keypress",
+            "keyup",
+            "paste"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://accounts.google.com/",
+            "https://{label}.pinimg.com/",
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 42
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "input",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "pointerdown",
+            "pointermove",
+            "pointerup",
+            "scroll",
+            "selectionchange",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://accounts.google.com/",
+            "https://{label}.pinimg.com/",
+            "https://www.gstatic.com/"
+          ],
+          "totalListenerCalls": 107
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://{label}.pinterest.com/en/privacy-policy",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "states and have enabled an opt-out preferences signal (such as Global Privacy Control), we will respect this preference when you use Pinterest."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 177025
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://{label}.pinterest.com/en/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 166,
+      "after": 168,
+      "delta": 2
+    },
+    "thirdPartyRequests": {
+      "before": 135,
+      "after": 145,
+      "delta": 10
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 6,
+      "after": 5,
+      "delta": -1
+    },
+    "cookies": {
+      "before": 8,
+      "after": 8,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 3,
+      "after": 3,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.pinterest.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "removedProvenance": [
+      {
+        "domain": "{label}.google.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{invalid-url}",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 9,
+      "after": 11,
+      "delta": 2
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: Read the site's privacy policy (https://{label}.pinterest.com/en/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The page did not reach network idle before the scan window ended.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.pinterest.com/en/privacy-policy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260914-2b0c0a12c931a2deaa03862e9bec19aa",
+    "path": "/reports/20260914-2b0c0a12c931a2deaa03862e9bec19aa/",
+    "jsonPath": "/reports/20260914-2b0c0a12c931a2deaa03862e9bec19aa.json"
+  }
+}
