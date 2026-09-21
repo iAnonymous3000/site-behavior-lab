@@ -1,0 +1,2955 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.grindr.com/",
+  "scannedAt": "2026-09-21T11:00:13.507Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 3361,
+      "firstPartyDomain": "www.grindr.com",
+      "totalRequests": 68,
+      "thirdPartyRequests": 65,
+      "knownTrackerRequests": 4,
+      "thirdPartyDomains": 12,
+      "cookies": 9,
+      "thirdPartyCookies": 0,
+      "storageEntries": 6,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 10
+    },
+    "conditions": {
+      "requestedUrl": "https://www.grindr.com/",
+      "finalUrl": "https://www.grindr.com/",
+      "scannedAt": "2026-09-21T11:00:10.130Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.grindr.com/",
+        "domain": "www.grindr.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 42
+      },
+      {
+        "id": 2,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 119
+      },
+      {
+        "id": 3,
+        "url": "https://unpkg.com/{seg}/{seg}/{seg}",
+        "domain": "unpkg.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 119
+      },
+      {
+        "id": 4,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 119
+      },
+      {
+        "id": 5,
+        "url": "https://cdn.jsdelivr.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.jsdelivr.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 120
+      },
+      {
+        "id": 6,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 120
+      },
+      {
+        "id": 7,
+        "url": "https://d3e54v103j8qbb.cloudfront.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "d3e54v103j8qbb.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 120
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 143
+      },
+      {
+        "id": 9,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 169
+      },
+      {
+        "id": 10,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 174
+      },
+      {
+        "id": 11,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 175
+      },
+      {
+        "id": 12,
+        "url": "https://assets.grindr.com/static/{seg}/{seg}",
+        "domain": "assets.grindr.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 13,
+        "url": "https://unpkg.com/{seg}/{seg}/{seg}",
+        "domain": "unpkg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 14,
+        "url": "https://assets.grindr.com/static/{seg}/{seg}",
+        "domain": "assets.grindr.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.jsdelivr.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.jsdelivr.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 178
+      },
+      {
+        "id": 16,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 178
+      },
+      {
+        "id": 17,
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 178
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 215
+      },
+      {
+        "id": 19,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 216
+      },
+      {
+        "id": 20,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 216
+      },
+      {
+        "id": 21,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 22,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 23,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 24,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 25,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 26,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 27,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 220
+      },
+      {
+        "id": 28,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 220
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 221
+      },
+      {
+        "id": 30,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 221
+      },
+      {
+        "id": 31,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 221
+      },
+      {
+        "id": 32,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 222
+      },
+      {
+        "id": 33,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 223
+      },
+      {
+        "id": 34,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 223
+      },
+      {
+        "id": 35,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 231
+      },
+      {
+        "id": 36,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 231
+      },
+      {
+        "id": 37,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 232
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 232
+      },
+      {
+        "id": 39,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 233
+      },
+      {
+        "id": 40,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 233
+      },
+      {
+        "id": 41,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 234
+      },
+      {
+        "id": 42,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 234
+      },
+      {
+        "id": 43,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 234
+      },
+      {
+        "id": 44,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 235
+      },
+      {
+        "id": 45,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 235
+      },
+      {
+        "id": 46,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 235
+      },
+      {
+        "id": 47,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 236
+      },
+      {
+        "id": 48,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 236
+      },
+      {
+        "id": 49,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 236
+      },
+      {
+        "id": 50,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 237
+      },
+      {
+        "id": 51,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 240
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 241
+      },
+      {
+        "id": 53,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 241
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 364
+      },
+      {
+        "id": 60,
+        "url": "https://cdn.ketchjs.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.ketchjs.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "{label}.ketchcdn.com"
+        },
+        "startedAtMs": 420
+      },
+      {
+        "id": 61,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 527
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.ketchjs.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.ketchjs.com"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 63,
+        "url": "https://analytics.google.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "analytics.google.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 772
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?v=&%5Bredacted%5D=&tid=&cid=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 772
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.ketchjs.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.ketchjs.com"
+        },
+        "startedAtMs": 788
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.ketchcdn.com",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://cdn.ketchjs.com/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.ketchjs.com"
+        },
+        "startedAtMs": 812
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 814
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.ketchcdn.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.ketchcdn.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "startedAtMs": 942
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "ping"
+        ]
+      },
+      {
+        "domain": "cdn.{label}.website-files.com",
+        "requests": 42,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.ketchcdn.com",
+        "requests": 6,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "ping"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "unpkg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.jsdelivr.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ajax.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "d3e54v103j8qbb.cloudfront.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "cdn.ketchjs.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "assets.grindr.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.grindr.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "usprivacy",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 176
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 204
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 1280
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 776
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]",
+        "valueBytes": 48
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]",
+        "valueBytes": 328
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "other"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.ketchjs.com/",
+            "https://cdn.{label}.website-files.com/",
+            "https://d3e54v103j8qbb.cloudfront.net/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 50
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "scroll",
+            "touchmove",
+            "touchstart",
+            "visibilitychange",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "other",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.ketchjs.com/",
+            "https://cdn.{label}.website-files.com/",
+            "https://d3e54v103j8qbb.cloudfront.net/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 24
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://{label}.grindr.com/{seg}/privacy",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "Depending on your jurisdiction, we also honor the Global Privacy Control (\"GPC\"), a universal opt-out preference signal that communicates your privacy preferences to the website you visit."
+        }
+      ],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 369028
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://{label}.grindr.com/{seg}/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 2521,
+      "firstPartyDomain": "www.grindr.com",
+      "totalRequests": 57,
+      "thirdPartyRequests": 54,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 7,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://www.grindr.com/",
+      "finalUrl": "https://www.grindr.com/",
+      "scannedAt": "2026-09-21T11:00:13.507Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.grindr.com/",
+        "domain": "www.grindr.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 53
+      },
+      {
+        "id": 2,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 122
+      },
+      {
+        "id": 3,
+        "url": "https://unpkg.com/{seg}/{seg}/{seg}",
+        "domain": "unpkg.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 123
+      },
+      {
+        "id": 4,
+        "url": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "ajax.googleapis.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 5,
+        "url": "https://cdn.jsdelivr.net/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.jsdelivr.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 6,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 123
+      },
+      {
+        "id": 7,
+        "url": "https://d3e54v103j8qbb.cloudfront.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "d3e54v103j8qbb.cloudfront.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 124
+      },
+      {
+        "id": 8,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 155
+      },
+      {
+        "id": 9,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 161
+      },
+      {
+        "id": 10,
+        "url": "https://fonts.googleapis.com/{seg}?%5Bredacted%5D=",
+        "domain": "fonts.googleapis.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://ajax.googleapis.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "ajax.googleapis.com"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 11,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 12,
+        "url": "https://assets.grindr.com/static/{seg}/{seg}",
+        "domain": "assets.grindr.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 13,
+        "url": "https://unpkg.com/{seg}/{seg}/{seg}",
+        "domain": "unpkg.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 14,
+        "url": "https://assets.grindr.com/static/{seg}/{seg}",
+        "domain": "assets.grindr.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 15,
+        "url": "https://cdn.jsdelivr.net/{seg}/{seg}/{seg}/{seg}",
+        "domain": "cdn.jsdelivr.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 169
+      },
+      {
+        "id": 18,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 214
+      },
+      {
+        "id": 19,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 215
+      },
+      {
+        "id": 20,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 21,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 22,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://cdn.{label}.website-files.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "cdn.{label}.website-files.com"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 23,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 24,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 220
+      },
+      {
+        "id": 25,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 220
+      },
+      {
+        "id": 26,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 222
+      },
+      {
+        "id": 27,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 223
+      },
+      {
+        "id": 28,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 223
+      },
+      {
+        "id": 29,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 224
+      },
+      {
+        "id": 30,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 224
+      },
+      {
+        "id": 31,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 224
+      },
+      {
+        "id": 32,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 225
+      },
+      {
+        "id": 33,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 225
+      },
+      {
+        "id": 34,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 225
+      },
+      {
+        "id": 35,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 226
+      },
+      {
+        "id": 36,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 226
+      },
+      {
+        "id": 37,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 230
+      },
+      {
+        "id": 38,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 232
+      },
+      {
+        "id": 39,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 233
+      },
+      {
+        "id": 40,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 233
+      },
+      {
+        "id": 41,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 233
+      },
+      {
+        "id": 42,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 234
+      },
+      {
+        "id": 43,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 237
+      },
+      {
+        "id": 44,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 241
+      },
+      {
+        "id": 45,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 241
+      },
+      {
+        "id": 46,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 47,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 48,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 242
+      },
+      {
+        "id": 49,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 243
+      },
+      {
+        "id": 50,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 243
+      },
+      {
+        "id": 51,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 243
+      },
+      {
+        "id": 52,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 244
+      },
+      {
+        "id": 53,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 244
+      },
+      {
+        "id": 54,
+        "url": "https://cdn.{label}.website-files.com/{seg}/{seg}",
+        "domain": "cdn.{label}.website-files.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.grindr.com/",
+          "initiatorDomain": "www.grindr.com"
+        },
+        "startedAtMs": 244
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 283
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 286
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 287
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 287
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://fonts.googleapis.com/{seg}",
+          "initiatorDomain": "fonts.googleapis.com"
+        },
+        "startedAtMs": 288
+      }
+    ],
+    "domains": [
+      {
+        "domain": "cdn.{label}.website-files.com",
+        "requests": 42,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "image",
+          "script",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 5,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "unpkg.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet",
+          "script"
+        ]
+      },
+      {
+        "domain": "cdn.jsdelivr.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "ajax.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "d3e54v103j8qbb.cloudfront.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "fonts.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "stylesheet"
+        ]
+      },
+      {
+        "domain": "assets.grindr.com",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.grindr.com",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "__cf_bm",
+        "domain": ".grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.grindr.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "scroll",
+            "touchmove",
+            "touchstart",
+            "wheel"
+          ],
+          "listenerTargets": [
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.{label}.website-files.com/",
+            "https://d3e54v103j8qbb.cloudfront.net/"
+          ],
+          "totalListenerCalls": 11
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://{label}.grindr.com/{seg}/privacy",
+      "claims": [
+        {
+          "kind": "honors-gpc",
+          "quote": "Depending on your jurisdiction, we also honor the Global Privacy Control (\"GPC\"), a universal opt-out preference signal that communicates your privacy preferences to the website you visit."
+        }
+      ],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 369028
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://{label}.grindr.com/{seg}/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 68,
+      "after": 57,
+      "delta": -11
+    },
+    "thirdPartyRequests": {
+      "before": 65,
+      "after": 54,
+      "delta": -11
+    },
+    "knownTrackerRequests": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyDomains": {
+      "before": 12,
+      "after": 7,
+      "delta": -5
+    },
+    "cookies": {
+      "before": 9,
+      "after": 2,
+      "delta": -7
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 6,
+      "after": 0,
+      "delta": -6
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.ketchcdn.com",
+        "requests": 6,
+        "tracker": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.ketchjs.com",
+        "requests": 1,
+        "tracker": null
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 4,
+        "domains": 3
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".grindr.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".grindr.com",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".grindr.com",
+        "thirdParty": false
+      },
+      {
+        "name": "usprivacy",
+        "domain": ".grindr.com",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [
+      {
+        "area": "localStorage",
+        "key": "[redacted:long-token]"
+      },
+      {
+        "area": "localStorage",
+        "key": "[redacted]"
+      }
+    ],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.ketchcdn.com",
+        "requests": 3,
+        "tracker": null,
+        "initiator": "cdn.ketchjs.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.ketchcdn.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.grindr.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "analytics.google.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "analytics.google.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.ketchjs.com",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.ketchcdn.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.grindr.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 10,
+      "after": 2,
+      "delta": -8
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://{label}.grindr.com/{seg}/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://{label}.grindr.com/{seg}/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260921-f40d46ae4ddd4192c6fd669ccac92b1b",
+    "path": "/reports/20260921-f40d46ae4ddd4192c6fd669ccac92b1b/",
+    "jsonPath": "/reports/20260921-f40d46ae4ddd4192c6fd669ccac92b1b.json"
+  }
+}

@@ -1,0 +1,3110 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.nasa.gov/",
+  "scannedAt": "2026-09-21T11:13:15.395Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5584,
+      "firstPartyDomain": "www.nasa.gov",
+      "totalRequests": 79,
+      "thirdPartyRequests": 10,
+      "knownTrackerRequests": 8,
+      "thirdPartyDomains": 6,
+      "cookies": 6,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 9
+    },
+    "conditions": {
+      "requestedUrl": "https://www.nasa.gov/",
+      "finalUrl": "https://www.nasa.gov/",
+      "scannedAt": "2026-09-21T11:13:20.615Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.nasa.gov/",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 54
+      },
+      {
+        "id": 2,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 110
+      },
+      {
+        "id": 3,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 111
+      },
+      {
+        "id": 4,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 115
+      },
+      {
+        "id": 5,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 116
+      },
+      {
+        "id": 6,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 116
+      },
+      {
+        "id": 7,
+        "url": "https://{label}.digitalgov.gov/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 116
+      },
+      {
+        "id": 8,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 117
+      },
+      {
+        "id": 9,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 118
+      },
+      {
+        "id": 10,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 125
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 126
+      },
+      {
+        "id": 12,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 126
+      },
+      {
+        "id": 13,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 14,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 147
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 16,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 17,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 151
+      },
+      {
+        "id": 18,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 152
+      },
+      {
+        "id": 19,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 152
+      },
+      {
+        "id": 20,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 152
+      },
+      {
+        "id": 21,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 153
+      },
+      {
+        "id": 22,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 153
+      },
+      {
+        "id": 23,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 154
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 154
+      },
+      {
+        "id": 25,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 154
+      },
+      {
+        "id": 26,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 155
+      },
+      {
+        "id": 27,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 155
+      },
+      {
+        "id": 28,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 158
+      },
+      {
+        "id": 29,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 159
+      },
+      {
+        "id": 30,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 159
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 160
+      },
+      {
+        "id": 32,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 33,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 34,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 35,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 36,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 37,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 38,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 39,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 40,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 42,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 43,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 44,
+        "url": "https://cdn.parsely.com/{seg}/{seg}/{seg}?ver=",
+        "domain": "cdn.parsely.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 45,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 46,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 47,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 48,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 49,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 168
+      },
+      {
+        "id": 50,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 169
+      },
+      {
+        "id": 51,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 169
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.digitalgov.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.digitalgov.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://{label}.digitalgov.gov/{seg}",
+          "initiatorDomain": "{label}.digitalgov.gov"
+        },
+        "startedAtMs": 169
+      },
+      {
+        "id": 53,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.digitalgov.gov/{seg}",
+          "initiatorDomain": "{label}.digitalgov.gov"
+        },
+        "startedAtMs": 173
+      },
+      {
+        "id": 54,
+        "url": "https://www.googletagmanager.com/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 173
+      },
+      {
+        "id": 55,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 181
+      },
+      {
+        "id": 56,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 183
+      },
+      {
+        "id": 57,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/{seg}",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 289
+      },
+      {
+        "id": 58,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/{seg}",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 290
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 290
+      },
+      {
+        "id": 60,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 291
+      },
+      {
+        "id": 61,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 291
+      },
+      {
+        "id": 62,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 63,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 64,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 292
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 293
+      },
+      {
+        "id": 66,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 293
+      },
+      {
+        "id": 67,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 296
+      },
+      {
+        "id": 68,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 296
+      },
+      {
+        "id": 69,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 297
+      },
+      {
+        "id": 70,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 297
+      },
+      {
+        "id": 71,
+        "url": "https://api.parsely.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "api.parsely.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 437
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.parsely.com/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.parsely.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 438
+      },
+      {
+        "id": 73,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 466
+      },
+      {
+        "id": 74,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 467
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/{seg}",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 472
+      },
+      {
+        "id": 76,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 633
+      },
+      {
+        "id": 77,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 633
+      },
+      {
+        "id": 78,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 799
+      },
+      {
+        "id": 79,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 2248
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "cdn.parsely.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "api.parsely.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "{label}.parsely.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.nasa.gov",
+        "requests": 51,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "font",
+          "image",
+          "script",
+          "media"
+        ]
+      },
+      {
+        "domain": "assets.{label}.nasa.gov",
+        "requests": 10,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.nasa.gov",
+        "requests": 8,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "_ga",
+        "domain": ".nasa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nasa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nasa.gov",
+        "path": "/",
+        "sameSite": "Strict",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.nasa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.nasa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.nasa.gov",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "change",
+            "keydown",
+            "keyup"
+          ],
+          "listenerTargets": [
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.parsely.com/",
+            "https://{label}.digitalgov.gov/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 5
+        }
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1,
+        "evidence": {
+          "eventTypes": [
+            "click",
+            "keydown",
+            "keyup",
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "scroll",
+            "visibilitychange"
+          ],
+          "listenerTargets": [
+            "body",
+            "document",
+            "window"
+          ],
+          "thirdPartyOrigins": [
+            "https://cdn.parsely.com/",
+            "https://{label}.digitalgov.gov/",
+            "https://www.googletagmanager.com/"
+          ],
+          "totalListenerCalls": 22
+        }
+      }
+    ],
+    "privacyPolicy": {
+      "url": "https://www.nasa.gov/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [
+        "Parse.ly"
+      ],
+      "policyTextLength": 38264
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://www.nasa.gov/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 5207,
+      "firstPartyDomain": "www.nasa.gov",
+      "totalRequests": 68,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 3
+    },
+    "conditions": {
+      "requestedUrl": "https://www.nasa.gov/",
+      "finalUrl": "https://www.nasa.gov/",
+      "scannedAt": "2026-09-21T11:13:15.395Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.nasa.gov/",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 44
+      },
+      {
+        "id": 2,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 3,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 101
+      },
+      {
+        "id": 4,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 102
+      },
+      {
+        "id": 5,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 103
+      },
+      {
+        "id": 6,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 103
+      },
+      {
+        "id": 8,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 103
+      },
+      {
+        "id": 9,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 104
+      },
+      {
+        "id": 10,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 11,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 112
+      },
+      {
+        "id": 12,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 113
+      },
+      {
+        "id": 13,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 113
+      },
+      {
+        "id": 14,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 15,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 16,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 127
+      },
+      {
+        "id": 17,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 18,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 128
+      },
+      {
+        "id": 19,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 129
+      },
+      {
+        "id": 20,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 129
+      },
+      {
+        "id": 21,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 131
+      },
+      {
+        "id": 22,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 131
+      },
+      {
+        "id": 23,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 24,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 132
+      },
+      {
+        "id": 25,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 26,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 27,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 28,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 29,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 135
+      },
+      {
+        "id": 30,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 136
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 136
+      },
+      {
+        "id": 32,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 136
+      },
+      {
+        "id": 33,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 136
+      },
+      {
+        "id": 34,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 136
+      },
+      {
+        "id": 35,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 137
+      },
+      {
+        "id": 36,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 137
+      },
+      {
+        "id": 37,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{n}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 38,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 39,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 40,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 138
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 42,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 139
+      },
+      {
+        "id": 43,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 142
+      },
+      {
+        "id": 45,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 143
+      },
+      {
+        "id": 46,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 143
+      },
+      {
+        "id": 47,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 48,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 49,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 144
+      },
+      {
+        "id": 50,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 51,
+        "url": "https://www.nasa.gov/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 53,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 154
+      },
+      {
+        "id": 54,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 156
+      },
+      {
+        "id": 55,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/{seg}",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 56,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/{seg}",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 274
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 321
+      },
+      {
+        "id": 58,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 322
+      },
+      {
+        "id": 59,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 323
+      },
+      {
+        "id": 60,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 324
+      },
+      {
+        "id": 61,
+        "url": "https://assets.{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "assets.{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 325
+      },
+      {
+        "id": 63,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 326
+      },
+      {
+        "id": 64,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 65,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 66,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 67,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 68,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 449
+      },
+      {
+        "id": 69,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 450
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.nasa.gov/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.nasa.gov",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.nasa.gov/{seg}",
+          "initiatorDomain": "www.nasa.gov"
+        },
+        "startedAtMs": 461
+      },
+      {
+        "id": 71,
+        "url": "https://www.nasa.gov/{seg}/{seg}/{n}/{n}/{seg}",
+        "domain": "www.nasa.gov",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3251
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.nasa.gov",
+        "requests": 50,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "font",
+          "image",
+          "script",
+          "media"
+        ]
+      },
+      {
+        "domain": "assets.{label}.nasa.gov",
+        "requests": 10,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.nasa.gov",
+        "requests": 8,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image",
+          "xhr"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.nasa.gov/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 38264
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://www.nasa.gov/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 79,
+      "after": 68,
+      "delta": -11
+    },
+    "thirdPartyRequests": {
+      "before": 10,
+      "after": 0,
+      "delta": -10
+    },
+    "knownTrackerRequests": {
+      "before": 8,
+      "after": 0,
+      "delta": -8
+    },
+    "thirdPartyDomains": {
+      "before": 6,
+      "after": 0,
+      "delta": -6
+    },
+    "cookies": {
+      "before": 6,
+      "after": 0,
+      "delta": -6
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.parsely.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "api.parsely.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "cdn.parsely.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 5,
+        "domains": 2
+      },
+      {
+        "entity": "Parse.ly",
+        "requests": 3,
+        "domains": 3
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".nasa.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".nasa.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.nasa.gov",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": "www.nasa.gov",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [
+      {
+        "kind": "input-monitoring",
+        "heuristic": "input-listener-coverage-v1",
+        "count": 1
+      },
+      {
+        "kind": "session-recording",
+        "heuristic": "interaction-listener-coverage-v1",
+        "count": 1
+      }
+    ],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "www.nasa.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.digitalgov.gov",
+        "requests": 1,
+        "tracker": null,
+        "initiator": "{label}.digitalgov.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.parsely.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "initiator": "www.nasa.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "api.parsely.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "initiator": "www.nasa.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "cdn.parsely.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "parsely.com",
+          "entity": "Parse.ly",
+          "category": "audience analytics",
+          "confidence": "curated"
+        },
+        "initiator": "www.nasa.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.digitalgov.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.nasa.gov",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 9,
+      "after": 3,
+      "delta": -6
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: Read the site's privacy policy (https://www.nasa.gov/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.nasa.gov/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260921-9e43aa68a42b110b1470344ab58944c0",
+    "path": "/reports/20260921-9e43aa68a42b110b1470344ab58944c0/",
+    "jsonPath": "/reports/20260921-9e43aa68a42b110b1470344ab58944c0.json"
+  }
+}
