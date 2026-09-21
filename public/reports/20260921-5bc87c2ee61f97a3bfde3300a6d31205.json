@@ -1,0 +1,3231 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://archive.org/",
+  "scannedAt": "2026-09-21T14:23:44.770Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 11383,
+      "firstPartyDomain": "archive.org",
+      "totalRequests": 101,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://archive.org/",
+      "finalUrl": "https://archive.org/",
+      "scannedAt": "2026-09-21T14:23:53.036Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://archive.org/",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 47
+      },
+      {
+        "id": 2,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 217
+      },
+      {
+        "id": 3,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 4,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 5,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 219
+      },
+      {
+        "id": 6,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 220
+      },
+      {
+        "id": 7,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 220
+      },
+      {
+        "id": 8,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 220
+      },
+      {
+        "id": 9,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 220
+      },
+      {
+        "id": 10,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 221
+      },
+      {
+        "id": 11,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 454
+      },
+      {
+        "id": 12,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 456
+      },
+      {
+        "id": 13,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 456
+      },
+      {
+        "id": 14,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 456
+      },
+      {
+        "id": 15,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 457
+      },
+      {
+        "id": 16,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 457
+      },
+      {
+        "id": 17,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 457
+      },
+      {
+        "id": 18,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 458
+      },
+      {
+        "id": 19,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 458
+      },
+      {
+        "id": 20,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 458
+      },
+      {
+        "id": 21,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 459
+      },
+      {
+        "id": 22,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 459
+      },
+      {
+        "id": 23,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 459
+      },
+      {
+        "id": 24,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 463
+      },
+      {
+        "id": 25,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 463
+      },
+      {
+        "id": 26,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 464
+      },
+      {
+        "id": 27,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 464
+      },
+      {
+        "id": 28,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 464
+      },
+      {
+        "id": 29,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 465
+      },
+      {
+        "id": 30,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 465
+      },
+      {
+        "id": 31,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 465
+      },
+      {
+        "id": 32,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 465
+      },
+      {
+        "id": 33,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 466
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.archive.org/{seg}/{seg}",
+        "domain": "{label}.archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 469
+      },
+      {
+        "id": 35,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 682
+      },
+      {
+        "id": 36,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 37,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 683
+      },
+      {
+        "id": 38,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 684
+      },
+      {
+        "id": 39,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 684
+      },
+      {
+        "id": 40,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 685
+      },
+      {
+        "id": 41,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 685
+      },
+      {
+        "id": 42,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 685
+      },
+      {
+        "id": 43,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 685
+      },
+      {
+        "id": 44,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 685
+      },
+      {
+        "id": 45,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 686
+      },
+      {
+        "id": 46,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 686
+      },
+      {
+        "id": 47,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 687
+      },
+      {
+        "id": 48,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 687
+      },
+      {
+        "id": 49,
+        "url": "https://{label}.archive.org/api/{n}/{seg}",
+        "domain": "{label}.archive.org",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 699
+      },
+      {
+        "id": 50,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 700
+      },
+      {
+        "id": 51,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 700
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.archive.org/{seg}",
+        "domain": "{label}.archive.org",
+        "method": "POST",
+        "resourceType": "ping",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 707
+      },
+      {
+        "id": 53,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 707
+      },
+      {
+        "id": 54,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 708
+      },
+      {
+        "id": 55,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 708
+      },
+      {
+        "id": 56,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 709
+      },
+      {
+        "id": 57,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 736
+      },
+      {
+        "id": 58,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 809
+      },
+      {
+        "id": 59,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 874
+      },
+      {
+        "id": 60,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 875
+      },
+      {
+        "id": 61,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 1276
+      },
+      {
+        "id": 62,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 1575
+      },
+      {
+        "id": 63,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1730
+      },
+      {
+        "id": 64,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 1980
+      },
+      {
+        "id": 65,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 1981
+      },
+      {
+        "id": 66,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 1983
+      },
+      {
+        "id": 67,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 2339
+      },
+      {
+        "id": 68,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 2340
+      },
+      {
+        "id": 69,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 2341
+      },
+      {
+        "id": 70,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 2342
+      },
+      {
+        "id": 71,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 3157
+      },
+      {
+        "id": 72,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 3159
+      },
+      {
+        "id": 73,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3160
+      },
+      {
+        "id": 74,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3160
+      },
+      {
+        "id": 75,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3160
+      },
+      {
+        "id": 76,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3161
+      },
+      {
+        "id": 77,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3161
+      },
+      {
+        "id": 78,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3161
+      },
+      {
+        "id": 79,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3163
+      },
+      {
+        "id": 80,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3163
+      },
+      {
+        "id": 81,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3163
+      },
+      {
+        "id": 82,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3164
+      },
+      {
+        "id": 83,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3167
+      },
+      {
+        "id": 84,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3168
+      },
+      {
+        "id": 85,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3168
+      },
+      {
+        "id": 86,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3168
+      },
+      {
+        "id": 87,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3169
+      },
+      {
+        "id": 88,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3169
+      },
+      {
+        "id": 89,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3169
+      },
+      {
+        "id": 90,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3170
+      },
+      {
+        "id": 91,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3170
+      },
+      {
+        "id": 92,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3171
+      },
+      {
+        "id": 93,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3173
+      },
+      {
+        "id": 94,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3173
+      },
+      {
+        "id": 95,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3173
+      },
+      {
+        "id": 96,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3174
+      },
+      {
+        "id": 97,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3174
+      },
+      {
+        "id": 98,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3175
+      },
+      {
+        "id": 99,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3175
+      },
+      {
+        "id": 100,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 3175
+      },
+      {
+        "id": 101,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 6316
+      }
+    ],
+    "domains": [
+      {
+        "domain": "archive.org",
+        "requests": 98,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.archive.org",
+        "requests": 3,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          204,
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "fetch",
+          "ping"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".archive.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".archive.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The page did not reach network idle before the scan window ended.",
+      "This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 8259,
+      "firstPartyDomain": "archive.org",
+      "totalRequests": 100,
+      "thirdPartyRequests": 0,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 0,
+      "cookies": 2,
+      "thirdPartyCookies": 0,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 2
+    },
+    "conditions": {
+      "requestedUrl": "https://archive.org/",
+      "finalUrl": "https://archive.org/",
+      "scannedAt": "2026-09-21T14:23:44.770Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://archive.org/",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 42
+      },
+      {
+        "id": 2,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 163
+      },
+      {
+        "id": 3,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 163
+      },
+      {
+        "id": 4,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 5,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 164
+      },
+      {
+        "id": 6,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 7,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 8,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 165
+      },
+      {
+        "id": 9,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 166
+      },
+      {
+        "id": 10,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 167
+      },
+      {
+        "id": 11,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 391
+      },
+      {
+        "id": 12,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 392
+      },
+      {
+        "id": 13,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 392
+      },
+      {
+        "id": 14,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 393
+      },
+      {
+        "id": 15,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 393
+      },
+      {
+        "id": 16,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 393
+      },
+      {
+        "id": 17,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 394
+      },
+      {
+        "id": 18,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 394
+      },
+      {
+        "id": 19,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 395
+      },
+      {
+        "id": 20,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 397
+      },
+      {
+        "id": 21,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 397
+      },
+      {
+        "id": 22,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 397
+      },
+      {
+        "id": 23,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 398
+      },
+      {
+        "id": 24,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 398
+      },
+      {
+        "id": 25,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 398
+      },
+      {
+        "id": 26,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 402
+      },
+      {
+        "id": 27,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 402
+      },
+      {
+        "id": 28,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 402
+      },
+      {
+        "id": 29,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 403
+      },
+      {
+        "id": 30,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 403
+      },
+      {
+        "id": 31,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 403
+      },
+      {
+        "id": 32,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 404
+      },
+      {
+        "id": 33,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 404
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.archive.org/{seg}/{seg}",
+        "domain": "{label}.archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 408
+      },
+      {
+        "id": 36,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 653
+      },
+      {
+        "id": 37,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 654
+      },
+      {
+        "id": 38,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 655
+      },
+      {
+        "id": 39,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 655
+      },
+      {
+        "id": 40,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 655
+      },
+      {
+        "id": 41,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 656
+      },
+      {
+        "id": 42,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 658
+      },
+      {
+        "id": 43,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 658
+      },
+      {
+        "id": 44,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 659
+      },
+      {
+        "id": 45,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 659
+      },
+      {
+        "id": 46,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 660
+      },
+      {
+        "id": 47,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 660
+      },
+      {
+        "id": 48,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 660
+      },
+      {
+        "id": 49,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 661
+      },
+      {
+        "id": 50,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 666
+      },
+      {
+        "id": 51,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 666
+      },
+      {
+        "id": 53,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 672
+      },
+      {
+        "id": 54,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 673
+      },
+      {
+        "id": 55,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 673
+      },
+      {
+        "id": 56,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 674
+      },
+      {
+        "id": 57,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 729
+      },
+      {
+        "id": 58,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 811
+      },
+      {
+        "id": 59,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 815
+      },
+      {
+        "id": 60,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "{invalid-url}"
+        },
+        "startedAtMs": 816
+      },
+      {
+        "id": 61,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 819
+      },
+      {
+        "id": 62,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 821
+      },
+      {
+        "id": 63,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 823
+      },
+      {
+        "id": 64,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 823
+      },
+      {
+        "id": 65,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 886
+      },
+      {
+        "id": 66,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 893
+      },
+      {
+        "id": 67,
+        "url": "https://archive.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 896
+      },
+      {
+        "id": 68,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 901
+      },
+      {
+        "id": 69,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 902
+      },
+      {
+        "id": 70,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 909
+      },
+      {
+        "id": 71,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 910
+      },
+      {
+        "id": 72,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 1501
+      },
+      {
+        "id": 73,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://archive.org/{seg}/{seg}",
+          "initiatorDomain": "archive.org"
+        },
+        "startedAtMs": 1504
+      },
+      {
+        "id": 74,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1504
+      },
+      {
+        "id": 75,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1504
+      },
+      {
+        "id": 76,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1505
+      },
+      {
+        "id": 77,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1505
+      },
+      {
+        "id": 78,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1505
+      },
+      {
+        "id": 79,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1505
+      },
+      {
+        "id": 80,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1505
+      },
+      {
+        "id": 81,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1506
+      },
+      {
+        "id": 82,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1509
+      },
+      {
+        "id": 83,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1509
+      },
+      {
+        "id": 84,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1509
+      },
+      {
+        "id": 85,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1510
+      },
+      {
+        "id": 86,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1510
+      },
+      {
+        "id": 87,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1510
+      },
+      {
+        "id": 88,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1511
+      },
+      {
+        "id": 89,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1511
+      },
+      {
+        "id": 90,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1512
+      },
+      {
+        "id": 91,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1512
+      },
+      {
+        "id": 92,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1513
+      },
+      {
+        "id": 93,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1513
+      },
+      {
+        "id": 94,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1513
+      },
+      {
+        "id": 95,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1514
+      },
+      {
+        "id": 96,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1514
+      },
+      {
+        "id": 97,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1514
+      },
+      {
+        "id": 98,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1515
+      },
+      {
+        "id": 99,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1518
+      },
+      {
+        "id": 100,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1519
+      },
+      {
+        "id": 101,
+        "url": "https://archive.org/{seg}/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1519
+      },
+      {
+        "id": 102,
+        "url": "https://archive.org/{seg}/{seg}",
+        "domain": "archive.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 4801
+      }
+    ],
+    "domains": [
+      {
+        "domain": "archive.org",
+        "requests": 99,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          302
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "fetch",
+          "image"
+        ]
+      },
+      {
+        "domain": "{label}.archive.org",
+        "requests": 1,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".archive.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".archive.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 101,
+      "after": 100,
+      "delta": -1
+    },
+    "thirdPartyRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "knownTrackerRequests": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "thirdPartyDomains": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "cookies": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [],
+    "addedEntities": [],
+    "removedEntities": [],
+    "addedCookies": [],
+    "removedCookies": [],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [],
+    "shieldsBlockedRequests": {
+      "before": 2,
+      "after": 2,
+      "delta": 0
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: This scan typed a synthetic test value into 2 form fields with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured."
+  ],
+  "share": {
+    "id": "20260921-5bc87c2ee61f97a3bfde3300a6d31205",
+    "path": "/reports/20260921-5bc87c2ee61f97a3bfde3300a6d31205/",
+    "jsonPath": "/reports/20260921-5bc87c2ee61f97a3bfde3300a6d31205.json"
+  }
+}

@@ -1,0 +1,2314 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.mozilla.org/",
+  "scannedAt": "2026-09-21T14:23:30.142Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 3085,
+      "firstPartyDomain": "www.mozilla.org",
+      "totalRequests": 60,
+      "thirdPartyRequests": 8,
+      "knownTrackerRequests": 4,
+      "thirdPartyDomains": 3,
+      "cookies": 3,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mozilla.org/",
+      "finalUrl": "https://www.mozilla.org/{seg}",
+      "scannedAt": "2026-09-21T14:23:32.988Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mozilla.org/",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 47
+      },
+      {
+        "id": 2,
+        "url": "https://www.mozilla.org/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 90
+      },
+      {
+        "id": 3,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 4,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 145
+      },
+      {
+        "id": 5,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 6,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 7,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 148
+      },
+      {
+        "id": 8,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 149
+      },
+      {
+        "id": 9,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 149
+      },
+      {
+        "id": 10,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 149
+      },
+      {
+        "id": 11,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 150
+      },
+      {
+        "id": 12,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 150
+      },
+      {
+        "id": 13,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 173
+      },
+      {
+        "id": 14,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 178
+      },
+      {
+        "id": 15,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 188
+      },
+      {
+        "id": 16,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 194
+      },
+      {
+        "id": 17,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 18,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 208
+      },
+      {
+        "id": 19,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 218
+      },
+      {
+        "id": 20,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 227
+      },
+      {
+        "id": 21,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 260
+      },
+      {
+        "id": 22,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 262
+      },
+      {
+        "id": 23,
+        "url": "https://www.googletagmanager.com/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 24,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 335
+      },
+      {
+        "id": 25,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 336
+      },
+      {
+        "id": 26,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 336
+      },
+      {
+        "id": 27,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 337
+      },
+      {
+        "id": 28,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 337
+      },
+      {
+        "id": 29,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 337
+      },
+      {
+        "id": 30,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 341
+      },
+      {
+        "id": 31,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 341
+      },
+      {
+        "id": 32,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 342
+      },
+      {
+        "id": 33,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 342
+      },
+      {
+        "id": 34,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 342
+      },
+      {
+        "id": 35,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 343
+      },
+      {
+        "id": 36,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 343
+      },
+      {
+        "id": 37,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 38,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 39,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 344
+      },
+      {
+        "id": 40,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 41,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 42,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 345
+      },
+      {
+        "id": 43,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 44,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 346
+      },
+      {
+        "id": 45,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 46,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 347
+      },
+      {
+        "id": 47,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 353
+      },
+      {
+        "id": 48,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 353
+      },
+      {
+        "id": 49,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 50,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 51,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 52,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 360
+      },
+      {
+        "id": 53,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 360
+      },
+      {
+        "id": 54,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 513
+      },
+      {
+        "id": 55,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 514
+      },
+      {
+        "id": 56,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 575
+      },
+      {
+        "id": 57,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=&%5Bredacted%5D=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 576
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.mozilla.org/{seg}/{seg}",
+        "domain": "{label}.mozilla.org",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 711
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.mozilla.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 720
+      },
+      {
+        "id": 60,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 810
+      }
+    ],
+    "domains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.mozilla.org",
+        "requests": 50,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font"
+        ]
+      },
+      {
+        "domain": "{label}.mozilla.org",
+        "requests": 2,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "fetch",
+          "document"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".mozilla.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".mozilla.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".mozilla.org",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      }
+    ],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.mozilla.org/{seg}/privacy/{seg}",
+      "claims": [],
+      "mentionedEntities": [
+        "Google"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 17679
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Read the site's privacy policy (https://www.mozilla.org/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 2835,
+      "firstPartyDomain": "www.mozilla.org",
+      "totalRequests": 54,
+      "thirdPartyRequests": 4,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 1,
+      "cookies": 0,
+      "thirdPartyCookies": 0,
+      "storageEntries": 1,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 1
+    },
+    "conditions": {
+      "requestedUrl": "https://www.mozilla.org/",
+      "finalUrl": "https://www.mozilla.org/{seg}",
+      "scannedAt": "2026-09-21T14:23:30.142Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.mozilla.org/",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 302,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 46
+      },
+      {
+        "id": 2,
+        "url": "https://www.mozilla.org/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "startedAtMs": 88
+      },
+      {
+        "id": 3,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 349
+      },
+      {
+        "id": 4,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 350
+      },
+      {
+        "id": 5,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 350
+      },
+      {
+        "id": 6,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 350
+      },
+      {
+        "id": 7,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 351
+      },
+      {
+        "id": 8,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 352
+      },
+      {
+        "id": 9,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 10,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 354
+      },
+      {
+        "id": 11,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 355
+      },
+      {
+        "id": 12,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 355
+      },
+      {
+        "id": 13,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 399
+      },
+      {
+        "id": 14,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 399
+      },
+      {
+        "id": 15,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 415
+      },
+      {
+        "id": 16,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 416
+      },
+      {
+        "id": 17,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 428
+      },
+      {
+        "id": 18,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 435
+      },
+      {
+        "id": 19,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 443
+      },
+      {
+        "id": 20,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 457
+      },
+      {
+        "id": 21,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 489
+      },
+      {
+        "id": 22,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 491
+      },
+      {
+        "id": 24,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 565
+      },
+      {
+        "id": 25,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 569
+      },
+      {
+        "id": 26,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 570
+      },
+      {
+        "id": 27,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 570
+      },
+      {
+        "id": 28,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 570
+      },
+      {
+        "id": 29,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 571
+      },
+      {
+        "id": 30,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 571
+      },
+      {
+        "id": 31,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 572
+      },
+      {
+        "id": 32,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 572
+      },
+      {
+        "id": 33,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 572
+      },
+      {
+        "id": 34,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 573
+      },
+      {
+        "id": 35,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 573
+      },
+      {
+        "id": 36,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 574
+      },
+      {
+        "id": 37,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 574
+      },
+      {
+        "id": 38,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 574
+      },
+      {
+        "id": 39,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 575
+      },
+      {
+        "id": 40,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 575
+      },
+      {
+        "id": 41,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 575
+      },
+      {
+        "id": 42,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 576
+      },
+      {
+        "id": 43,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 576
+      },
+      {
+        "id": 44,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 577
+      },
+      {
+        "id": 45,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 577
+      },
+      {
+        "id": 46,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 578
+      },
+      {
+        "id": 47,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 586
+      },
+      {
+        "id": 48,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 586
+      },
+      {
+        "id": 49,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 588
+      },
+      {
+        "id": 50,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 588
+      },
+      {
+        "id": 51,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 588
+      },
+      {
+        "id": 52,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 589
+      },
+      {
+        "id": 53,
+        "url": "https://www.mozilla.org/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.mozilla.org",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.mozilla.org/{seg}",
+          "initiatorDomain": "www.mozilla.org"
+        },
+        "startedAtMs": 589
+      },
+      {
+        "id": 54,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 734
+      },
+      {
+        "id": 55,
+        "url": "https://transcend-cdn.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "transcend-cdn.com",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://transcend-cdn.com/{seg}/{seg}/{seg}",
+          "initiatorDomain": "transcend-cdn.com"
+        },
+        "startedAtMs": 735
+      }
+    ],
+    "domains": [
+      {
+        "domain": "transcend-cdn.com",
+        "requests": 4,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "stylesheet",
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.mozilla.org",
+        "requests": 50,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "script",
+          "stylesheet",
+          "image",
+          "font"
+        ]
+      }
+    ],
+    "cookies": [],
+    "storage": [
+      {
+        "area": "sessionStorage",
+        "key": "[redacted]",
+        "valueBytes": 1
+      }
+    ],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.mozilla.org/{seg}/privacy/{seg}",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 17679
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "Read the site's privacy policy (https://www.mozilla.org/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 60,
+      "after": 54,
+      "delta": -6
+    },
+    "thirdPartyRequests": {
+      "before": 8,
+      "after": 4,
+      "delta": -4
+    },
+    "knownTrackerRequests": {
+      "before": 4,
+      "after": 0,
+      "delta": -4
+    },
+    "thirdPartyDomains": {
+      "before": 3,
+      "after": 1,
+      "delta": -2
+    },
+    "cookies": {
+      "before": 3,
+      "after": 0,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 1,
+      "after": 1,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 3,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.mozilla.org",
+        "requests": 2,
+        "tracker": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 4,
+        "domains": 2
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".mozilla.org",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".mozilla.org",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.mozilla.org",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 5,
+      "after": 1,
+      "delta": -4
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"Brave-list blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: Read the site's privacy policy (https://www.mozilla.org/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.mozilla.org/{seg}/privacy/{seg}) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260921-d89d56f341589a9ccb834b01994c321e",
+    "path": "/reports/20260921-d89d56f341589a9ccb834b01994c321e/",
+    "jsonPath": "/reports/20260921-d89d56f341589a9ccb834b01994c321e.json"
+  }
+}

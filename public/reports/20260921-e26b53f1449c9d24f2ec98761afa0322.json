@@ -1,0 +1,4110 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "reportType": "comparison",
+  "comparisonType": "shields",
+  "title": "Brave-list blocking off/on comparison",
+  "runLabels": {
+    "baseline": "No blocking",
+    "variant": "Brave-list blocking"
+  },
+  "requestedUrl": "https://www.stanford.edu/",
+  "scannedAt": "2026-09-21T14:25:14.539Z",
+  "device": "desktop",
+  "baseline": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 12452,
+      "firstPartyDomain": "www.stanford.edu",
+      "totalRequests": 104,
+      "thirdPartyRequests": 68,
+      "knownTrackerRequests": 8,
+      "thirdPartyDomains": 11,
+      "cookies": 10,
+      "thirdPartyCookies": 5,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 8
+    },
+    "conditions": {
+      "requestedUrl": "https://www.stanford.edu/",
+      "finalUrl": "https://www.stanford.edu/",
+      "scannedAt": "2026-09-21T14:25:02.069Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "classification",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields classification only. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 42
+      },
+      {
+        "id": 2,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 167
+      },
+      {
+        "id": 3,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 168
+      },
+      {
+        "id": 4,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 168
+      },
+      {
+        "id": 5,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 168
+      },
+      {
+        "id": 6,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 168
+      },
+      {
+        "id": 7,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 170
+      },
+      {
+        "id": 8,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 170
+      },
+      {
+        "id": 9,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 171
+      },
+      {
+        "id": 10,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 171
+      },
+      {
+        "id": 11,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 176
+      },
+      {
+        "id": 12,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 177
+      },
+      {
+        "id": 13,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 178
+      },
+      {
+        "id": 14,
+        "url": "https://{label}.contentsquare.net/{seg}/{seg}",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 180
+      },
+      {
+        "id": 15,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 180
+      },
+      {
+        "id": 16,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 181
+      },
+      {
+        "id": 17,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 181
+      },
+      {
+        "id": 18,
+        "url": "https://www.googletagmanager.com/{seg}/{seg}?id=",
+        "domain": "www.googletagmanager.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 181
+      },
+      {
+        "id": 19,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 181
+      },
+      {
+        "id": 20,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 182
+      },
+      {
+        "id": 21,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 183
+      },
+      {
+        "id": 22,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 184
+      },
+      {
+        "id": 23,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 184
+      },
+      {
+        "id": 24,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 184
+      },
+      {
+        "id": 25,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 184
+      },
+      {
+        "id": 26,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 185
+      },
+      {
+        "id": 27,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 185
+      },
+      {
+        "id": 28,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 185
+      },
+      {
+        "id": 29,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 186
+      },
+      {
+        "id": 30,
+        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 189
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 192
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 193
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 193
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 195
+      },
+      {
+        "id": 35,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 349
+      },
+      {
+        "id": 36,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 350
+      },
+      {
+        "id": 37,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 350
+      },
+      {
+        "id": 38,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 351
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 381
+      },
+      {
+        "id": 40,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 41,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 42,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 43,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 386
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 451
+      },
+      {
+        "id": 45,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 302,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 519
+      },
+      {
+        "id": 46,
+        "url": "https://static.doubleclick.net/{seg}/{seg}",
+        "domain": "static.doubleclick.net",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 520
+      },
+      {
+        "id": 47,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 520
+      },
+      {
+        "id": 48,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 588
+      },
+      {
+        "id": 49,
+        "url": "https://www.stanford.edu/api/search/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 606
+      },
+      {
+        "id": 50,
+        "url": "https://www.stanford.edu/api/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 607
+      },
+      {
+        "id": 51,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 665
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.contentsquare.net/settings/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.contentsquare.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://{label}.contentsquare.net/{seg}/{seg}",
+          "initiatorDomain": "{label}.contentsquare.net"
+        },
+        "startedAtMs": 730
+      },
+      {
+        "id": 53,
+        "url": "https://{label}.{label}.doubleclick.net/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "{label}.{label}.doubleclick.net",
+        "method": "GET",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 776
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 816
+      },
+      {
+        "id": 55,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 852
+      },
+      {
+        "id": 56,
+        "url": "https://www.youtube.com/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1389
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1390
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1391
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1392
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1393
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1393
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1394
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1394
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1400
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1400
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1435
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1436
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1437
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1438
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1440
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1440
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1441
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1441
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1444
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1444
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1444
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1446
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1446
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1446
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1448
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1448
+      },
+      {
+        "id": 82,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1452
+      },
+      {
+        "id": 83,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1452
+      },
+      {
+        "id": 84,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1452
+      },
+      {
+        "id": 85,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1466
+      },
+      {
+        "id": 86,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1466
+      },
+      {
+        "id": 87,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1468
+      },
+      {
+        "id": 88,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1469
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1531
+      },
+      {
+        "id": 90,
+        "url": "https://www.stanford.edu/api/search/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1546
+      },
+      {
+        "id": 91,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1576
+      },
+      {
+        "id": 92,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1580
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1581
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1593
+      },
+      {
+        "id": 95,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1595
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1607
+      },
+      {
+        "id": 97,
+        "url": "https://www.youtube.com/{seg}?%5Bredacted%5D=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1626
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1631
+      },
+      {
+        "id": 99,
+        "url": "https://jnn-pa.googleapis.com/{seg}/{seg}/{seg}",
+        "domain": "jnn-pa.googleapis.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1727
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1738
+      },
+      {
+        "id": 101,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 1739
+      },
+      {
+        "id": 102,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 3813
+      },
+      {
+        "id": 103,
+        "url": "https://www.google-analytics.com/{seg}/{seg}?v=&tid=&%5Bredacted%5D=&cid=",
+        "domain": "www.google-analytics.com",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "provenance": {
+          "initiatorUrl": "https://www.googletagmanager.com/{seg}/{seg}",
+          "initiatorDomain": "www.googletagmanager.com"
+        },
+        "startedAtMs": 8503
+      },
+      {
+        "id": 104,
+        "url": "https://www.stanford.edu/api/search/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 9103
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.contentsquare.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          302,
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          204
+        ],
+        "resourceTypes": [
+          "fetch"
+        ]
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "blockedByShields": true,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.storyblok.com",
+        "requests": 45,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "image",
+          "media"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 11,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": true,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "image",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.ytimg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "jnn-pa.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.stanford.edu",
+        "requests": 36,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "_ga",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": false,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": false,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.stanford.edu/privacy",
+      "claims": [],
+      "mentionedEntities": [
+        "Google",
+        "Contentsquare"
+      ],
+      "unmentionedEntities": [],
+      "policyTextLength": 393240
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "The page did not reach network idle before the scan window ended.",
+      "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://www.stanford.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "variant": {
+    "ok": true,
+    "schemaVersion": 1,
+    "reportType": "single",
+    "summary": {
+      "pageTitle": "",
+      "status": 200,
+      "durationMs": 12631,
+      "firstPartyDomain": "www.stanford.edu",
+      "totalRequests": 99,
+      "thirdPartyRequests": 63,
+      "knownTrackerRequests": 0,
+      "thirdPartyDomains": 6,
+      "cookies": 7,
+      "thirdPartyCookies": 5,
+      "storageEntries": 0,
+      "fingerprintEvents": 0,
+      "shieldsBlockedRequests": 5
+    },
+    "conditions": {
+      "requestedUrl": "https://www.stanford.edu/",
+      "finalUrl": "https://www.stanford.edu/",
+      "scannedAt": "2026-09-21T14:25:14.539Z",
+      "chromiumVersion": "151.0.7922.34",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+      "timezone": "UTC",
+      "locale": "en-US",
+      "language": "en-US",
+      "viewport": {
+        "width": 1440,
+        "height": 980,
+        "isMobile": false
+      },
+      "gpcEnabled": false,
+      "consentMode": "observe",
+      "automation": "playwright-chromium",
+      "headless": true,
+      "scannerEgress": "github-actions-ubuntu",
+      "shieldsMode": "block-simulation",
+      "adblock": {
+        "active": true,
+        "source": "Brave default ad-block lists",
+        "lists": 31,
+        "fetchedAt": "2026-09-07T04:11:08.142Z"
+      },
+      "trackerCatalog": {
+        "source": "Hand-curated service catalog",
+        "version": "hand-curated-2026.08",
+        "region": "US-biased",
+        "entries": 146,
+        "curatedOverrides": 146,
+        "license": "AGPL-3.0-or-later"
+      },
+      "scannerDisclosure": "Automated Chromium scan using Playwright 1.62.1 from github-actions-ubuntu with browser 151.0.7922.34, timezone UTC, locale en-US, the listed viewport, and Brave Shields block simulation. Brave-list matching uses each route-evaluated request's initiating document (the parent document for a subframe navigation), under methodology shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2; main-frame navigations are not blocked or counted as matches, and redirect follow-up URLs that Playwright does not re-route are not independently evaluated. Treat results as reproducible evidence for this scan configuration, not a universal claim about all visitors."
+    },
+    "requests": [
+      {
+        "id": 1,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 54
+      },
+      {
+        "id": 2,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 175
+      },
+      {
+        "id": 3,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 176
+      },
+      {
+        "id": 4,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 177
+      },
+      {
+        "id": 5,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 178
+      },
+      {
+        "id": 6,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 178
+      },
+      {
+        "id": 7,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 179
+      },
+      {
+        "id": 8,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 179
+      },
+      {
+        "id": 9,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 179
+      },
+      {
+        "id": 10,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 181
+      },
+      {
+        "id": 13,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 185
+      },
+      {
+        "id": 14,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 185
+      },
+      {
+        "id": 15,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 185
+      },
+      {
+        "id": 16,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 186
+      },
+      {
+        "id": 17,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 186
+      },
+      {
+        "id": 18,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 186
+      },
+      {
+        "id": 19,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 187
+      },
+      {
+        "id": 20,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 187
+      },
+      {
+        "id": 21,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 189
+      },
+      {
+        "id": 22,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 190
+      },
+      {
+        "id": 23,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 190
+      },
+      {
+        "id": 24,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 191
+      },
+      {
+        "id": 25,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 191
+      },
+      {
+        "id": 26,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 191
+      },
+      {
+        "id": 27,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 192
+      },
+      {
+        "id": 28,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 192
+      },
+      {
+        "id": 29,
+        "url": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 192
+      },
+      {
+        "id": 30,
+        "url": "https://www.youtube.com/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "document",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 31,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 32,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 201
+      },
+      {
+        "id": 33,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 202
+      },
+      {
+        "id": 34,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 204
+      },
+      {
+        "id": 35,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 327
+      },
+      {
+        "id": 36,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 327
+      },
+      {
+        "id": 37,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 328
+      },
+      {
+        "id": 38,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 329
+      },
+      {
+        "id": 39,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 330
+      },
+      {
+        "id": 40,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 340
+      },
+      {
+        "id": 41,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "stylesheet",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 341
+      },
+      {
+        "id": 42,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 342
+      },
+      {
+        "id": 43,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 342
+      },
+      {
+        "id": 44,
+        "url": "https://{label}.gstatic.com/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.gstatic.com",
+        "method": "GET",
+        "resourceType": "font",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 372
+      },
+      {
+        "id": 47,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 506
+      },
+      {
+        "id": 48,
+        "url": "https://www.google.com/{seg}/{seg}/{seg}",
+        "domain": "www.google.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 570
+      },
+      {
+        "id": 49,
+        "url": "https://www.stanford.edu/api/search/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 587
+      },
+      {
+        "id": 50,
+        "url": "https://www.stanford.edu/api/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 588
+      },
+      {
+        "id": 51,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 646
+      },
+      {
+        "id": 52,
+        "url": "https://{label}.ytimg.com/{seg}/{seg}/{seg}",
+        "domain": "{label}.ytimg.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 688
+      },
+      {
+        "id": 53,
+        "url": "https://www.youtube.com/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1228
+      },
+      {
+        "id": 54,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1228
+      },
+      {
+        "id": 55,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1229
+      },
+      {
+        "id": 56,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1230
+      },
+      {
+        "id": 57,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1230
+      },
+      {
+        "id": 58,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1231
+      },
+      {
+        "id": 59,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1231
+      },
+      {
+        "id": 60,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "image",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1231
+      },
+      {
+        "id": 61,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1237
+      },
+      {
+        "id": 62,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1239
+      },
+      {
+        "id": 63,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1239
+      },
+      {
+        "id": 64,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1243
+      },
+      {
+        "id": 65,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1244
+      },
+      {
+        "id": 66,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1244
+      },
+      {
+        "id": 67,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1249
+      },
+      {
+        "id": 68,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1249
+      },
+      {
+        "id": 69,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1251
+      },
+      {
+        "id": 70,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1251
+      },
+      {
+        "id": 71,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1251
+      },
+      {
+        "id": 72,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1253
+      },
+      {
+        "id": 73,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1253
+      },
+      {
+        "id": 74,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1253
+      },
+      {
+        "id": 75,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1254
+      },
+      {
+        "id": 76,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1254
+      },
+      {
+        "id": 77,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1256
+      },
+      {
+        "id": 78,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1256
+      },
+      {
+        "id": 79,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1259
+      },
+      {
+        "id": 80,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1259
+      },
+      {
+        "id": 81,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1259
+      },
+      {
+        "id": 82,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1270
+      },
+      {
+        "id": 83,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1272
+      },
+      {
+        "id": 84,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1273
+      },
+      {
+        "id": 85,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1273
+      },
+      {
+        "id": 86,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1294
+      },
+      {
+        "id": 87,
+        "url": "https://www.stanford.edu/api/search/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "POST",
+        "resourceType": "fetch",
+        "status": 204,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1303
+      },
+      {
+        "id": 88,
+        "url": "https://www.stanford.edu/",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1350
+      },
+      {
+        "id": 89,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1355
+      },
+      {
+        "id": 90,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1364
+      },
+      {
+        "id": 91,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1365
+      },
+      {
+        "id": 93,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1393
+      },
+      {
+        "id": 94,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1458
+      },
+      {
+        "id": 95,
+        "url": "https://jnn-pa.googleapis.com/{seg}/{seg}/{seg}",
+        "domain": "jnn-pa.googleapis.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "startedAtMs": 1486
+      },
+      {
+        "id": 96,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1486
+      },
+      {
+        "id": 97,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1494
+      },
+      {
+        "id": 98,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1495
+      },
+      {
+        "id": 99,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1511
+      },
+      {
+        "id": 100,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": null,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1512
+      },
+      {
+        "id": 101,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}",
+        "domain": "www.youtube.com",
+        "method": "GET",
+        "resourceType": "script",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 1539
+      },
+      {
+        "id": 102,
+        "url": "https://{label}.storyblok.com/{seg}/{n}/{seg}/{seg}/{seg}",
+        "domain": "{label}.storyblok.com",
+        "method": "GET",
+        "resourceType": "media",
+        "status": 206,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 1543
+      },
+      {
+        "id": 103,
+        "url": "https://www.youtube.com/{seg}/{seg}/{seg}?%5Bredacted%5D=",
+        "domain": "www.youtube.com",
+        "method": "POST",
+        "resourceType": "xhr",
+        "status": 200,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.youtube.com/{seg}/{seg}/{seg}/{seg}/{seg}/{seg}",
+          "initiatorDomain": "www.youtube.com"
+        },
+        "startedAtMs": 3544
+      },
+      {
+        "id": 104,
+        "url": "https://www.stanford.edu/api/search/{seg}",
+        "domain": "www.stanford.edu",
+        "method": "GET",
+        "resourceType": "fetch",
+        "status": 200,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "provenance": {
+          "initiatorUrl": "https://www.stanford.edu/{seg}/static/{seg}/{seg}",
+          "initiatorDomain": "www.stanford.edu"
+        },
+        "startedAtMs": 9262
+      }
+    ],
+    "domains": [
+      {
+        "domain": "{label}.storyblok.com",
+        "requests": 49,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          206
+        ],
+        "resourceTypes": [
+          "image",
+          "media"
+        ]
+      },
+      {
+        "domain": "www.youtube.com",
+        "requests": 10,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "document",
+          "stylesheet",
+          "script",
+          "xhr"
+        ]
+      },
+      {
+        "domain": "{label}.gstatic.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "font"
+        ]
+      },
+      {
+        "domain": "www.google.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "script"
+        ]
+      },
+      {
+        "domain": "{label}.ytimg.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "image"
+        ]
+      },
+      {
+        "domain": "jnn-pa.googleapis.com",
+        "requests": 1,
+        "thirdParty": true,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200
+        ],
+        "resourceTypes": [
+          "xhr"
+        ]
+      },
+      {
+        "domain": "www.stanford.edu",
+        "requests": 36,
+        "thirdParty": false,
+        "tracker": null,
+        "blockedByShields": false,
+        "statuses": [
+          200,
+          204
+        ],
+        "resourceTypes": [
+          "document",
+          "font",
+          "stylesheet",
+          "script",
+          "fetch"
+        ]
+      }
+    ],
+    "cookies": [
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted:long-token]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".youtube.com",
+        "path": "/",
+        "sameSite": "None",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": true
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": false,
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".www.stanford.edu",
+        "path": "/",
+        "sameSite": "Lax",
+        "secure": true,
+        "httpOnly": true,
+        "session": true,
+        "thirdParty": false
+      }
+    ],
+    "storage": [],
+    "fingerprintEvents": [],
+    "fingerprintDetections": [],
+    "privacyPolicy": {
+      "url": "https://www.stanford.edu/privacy",
+      "claims": [],
+      "mentionedEntities": [],
+      "unmentionedEntities": [],
+      "policyTextLength": 393240
+    },
+    "screenshot": null,
+    "warnings": [
+      "This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+      "Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+      "Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+      "The page did not reach network idle before the scan window ended.",
+      "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+      "This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+      "Read the site's privacy policy (https://www.stanford.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+    ]
+  },
+  "diff": {
+    "totalRequests": {
+      "before": 104,
+      "after": 99,
+      "delta": -5
+    },
+    "thirdPartyRequests": {
+      "before": 68,
+      "after": 63,
+      "delta": -5
+    },
+    "knownTrackerRequests": {
+      "before": 8,
+      "after": 0,
+      "delta": -8
+    },
+    "thirdPartyDomains": {
+      "before": 11,
+      "after": 6,
+      "delta": -5
+    },
+    "cookies": {
+      "before": 10,
+      "after": 7,
+      "delta": -3
+    },
+    "thirdPartyCookies": {
+      "before": 5,
+      "after": 5,
+      "delta": 0
+    },
+    "storageEntries": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "fingerprintEvents": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "addedDomains": [],
+    "removedDomains": [
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "{label}.contentsquare.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        }
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        }
+      }
+    ],
+    "addedEntities": [],
+    "removedEntities": [
+      {
+        "entity": "Google",
+        "requests": 6,
+        "domains": 4
+      },
+      {
+        "entity": "Contentsquare",
+        "requests": 2,
+        "domains": 1
+      }
+    ],
+    "addedCookies": [],
+    "removedCookies": [
+      {
+        "name": "_ga",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      },
+      {
+        "name": "[redacted]",
+        "domain": ".stanford.edu",
+        "thirdParty": false
+      }
+    ],
+    "addedStorageKeys": [],
+    "removedStorageKeys": [],
+    "addedFingerprinting": [],
+    "removedFingerprinting": [],
+    "addedProvenance": [],
+    "removedProvenance": [
+      {
+        "domain": "{label}.{label}.doubleclick.net",
+        "requests": 2,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.youtube.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.google-analytics.com",
+        "requests": 2,
+        "tracker": {
+          "domain": "google-analytics.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.googletagmanager.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.contentsquare.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "initiator": "www.stanford.edu",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "{label}.contentsquare.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "contentsquare.net",
+          "entity": "Contentsquare",
+          "category": "session replay / behavior analytics",
+          "confidence": "curated"
+        },
+        "initiator": "{label}.contentsquare.net",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "static.doubleclick.net",
+        "requests": 1,
+        "tracker": {
+          "domain": "doubleclick.net",
+          "entity": "Google",
+          "category": "advertising",
+          "confidence": "curated"
+        },
+        "initiator": "www.youtube.com",
+        "script": null,
+        "injectedBy": null
+      },
+      {
+        "domain": "www.googletagmanager.com",
+        "requests": 1,
+        "tracker": {
+          "domain": "googletagmanager.com",
+          "entity": "Google",
+          "category": "analytics / tag management",
+          "confidence": "curated"
+        },
+        "initiator": "www.stanford.edu",
+        "script": null,
+        "injectedBy": null
+      }
+    ],
+    "shieldsBlockedRequests": {
+      "before": 8,
+      "after": 5,
+      "delta": -3
+    }
+  },
+  "warnings": [
+    "Brave-list blocking comparison runs should be collected under matched crawl conditions, and the blocking run is a simulation with Brave's engine and default lists in this scanner's browser, not a live Brave visit. Differences can still reflect timing, experiments, cache state, consent state, or bot detection.",
+    "The two visits ran in randomized order; the \"No blocking\" visit ran first.",
+    "No blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "No blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "No blocking: The page did not reach network idle before the scan window ended.",
+    "No blocking: The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+    "No blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "No blocking: Read the site's privacy policy (https://www.stanford.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading.",
+    "Brave-list blocking: This report is one automated, headless Chromium visit from a fixed en-US / UTC profile, with no scrolling, clicking, or consent interaction. Sites can behave differently for real users, browsers, regions, accounts, or network locations.",
+    "Brave-list blocking: Counts are a lower bound: trackers that load only after interaction or consent are not observed; Service Workers are blocked, and Web Worker or WebSocket traffic may be incomplete. Service labels use a US-biased hand-curated catalog, so regional services may be under-labeled. Cookie and storage figures are an end-of-visit snapshot, with storage keys read from the top frame only.",
+    "Brave-list blocking: Brave Shields block simulation was enabled; matching requests were aborted before loading and are not included in request totals.",
+    "Brave-list blocking: The page did not reach network idle before the scan window ended.",
+    "Brave-list blocking: The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.",
+    "Brave-list blocking: This scan typed a synthetic test value into 1 form field with native form submission blocked. Focus, input and blur handlers may run and send requests. The value is synthetic and is not stored. Observed requests during typing and the following wait are included in the request log. Teardown-only transmissions are not measured.",
+    "Brave-list blocking: Read the site's privacy policy (https://www.stanford.edu/privacy) and compared its text against this visit's observed behavior. Policy checks are an automated text match with the matched sentences quoted, not a legal reading."
+  ],
+  "share": {
+    "id": "20260921-e26b53f1449c9d24f2ec98761afa0322",
+    "path": "/reports/20260921-e26b53f1449c9d24f2ec98761afa0322/",
+    "jsonPath": "/reports/20260921-e26b53f1449c9d24f2ec98761afa0322.json"
+  }
+}
