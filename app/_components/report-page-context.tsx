@@ -12,6 +12,7 @@ import { committedDetectorCalibrationReaderClaims } from "@/lib/detector-calibra
 import { COVERAGE_BOUNDARY_PATH, coverageBoundarySentence } from "@/lib/detector-coverage-boundary";
 import { reportActivation } from "@/lib/report-trust";
 import { degradedRunNotice, runQualitySummary } from "@/lib/scan-report-censorship";
+import { crossSiteLandingLines, crossSiteLandingNote } from "@/lib/report-subject-landing";
 import {
   completedVisitsPhrase,
   displayRunView,
@@ -91,7 +92,16 @@ export function ReportPageContext({
             {runVisitLabel(run)} <span className="report-provenance">{schemaProvenanceLabel(view)}</span>
           </p>
           <h1>{displayHost(run.domain)}</h1>
-          <p className="report-url">{displayPublicUrl(run.conditions.requestedUrl)}</p>
+          <p className="report-url">
+            <span className="report-url-label">Requested address</span>
+            {displayPublicUrl(run.conditions.requestedUrl)}
+          </p>
+          {/* The heading names where the visit LANDED. When that is another
+              site, say so here, beside the address that was asked for,
+              rather than leave a reader to reconcile the two. */}
+          {crossSiteLandingLines(view).map((line) => (
+            <p className="report-identity-landing" key={line}>{line}</p>
+          ))}
         </div>
         <p className="report-identity-when">{formatTimestamp(run.startedAt ?? view.scannedAt)}</p>
         <p className="report-identity-quality">{runQualitySummary(run)}</p>
@@ -298,6 +308,7 @@ function RunReceipt({ run }: { run: RunView }) {
   const provenance = run.provenance;
   const toolchain = run.toolchainIdentity;
   const label = runVisitLabel(run);
+  const landingNote = crossSiteLandingNote(run);
 
   return (
     <section className="evidence-receipt-run" aria-label={label}>
@@ -305,6 +316,7 @@ function RunReceipt({ run }: { run: RunView }) {
       <dl>
         <ReceiptFact term="Started"><time dateTime={run.startedAt ?? undefined}>{formatTimestamp(run.startedAt)}</time></ReceiptFact>
         <ReceiptFact term="Run quality"><span>{runQualitySummary(run)}</span></ReceiptFact>
+        {landingNote && <ReceiptFact term="Requested site"><span>{landingNote}</span></ReceiptFact>}
         <ReceiptFact term="Scanner"><span>{run.conditions.automation}</span></ReceiptFact>
         <ReceiptFact term="Browser"><span>{run.conditions.browserVersion ?? "not recorded"}</span></ReceiptFact>
         <ReceiptFact term="Redaction"><span>{run.redactionVersion === null ? "not recorded by this schema" : `version ${run.redactionVersion}`}</span></ReceiptFact>

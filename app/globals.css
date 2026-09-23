@@ -2149,6 +2149,22 @@ a {
   color: var(--accent-strong);
 }
 
+/* Names which address a URL line shows: the permalink prints the requested one
+   under its heading, the report header the recorded final one. */
+.report-url-label {
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+}
+
+/* A visit that landed on a different site than the one requested. */
+.report-identity-landing {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  margin: 8px 0 0;
+  max-width: 92ch;
+}
+
 .request-evidence-explanation {
   color: var(--text-muted);
   font-size: 12px;

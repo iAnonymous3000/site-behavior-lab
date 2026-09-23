@@ -115,6 +115,9 @@ export function ReportHeader({
           )}
         </p>
         <h2>{title || displayHost(run.domain)}</h2>
+        {/* Labeled because the permalink also prints the REQUESTED address,
+            and after a redirect the two differ. */}
+        <span className="report-url-label">Recorded final address</span>{" "}
         {finalUrl ? (
           <a href={finalUrl} target="_blank" rel="noreferrer">
             {displayPublicUrl(run.conditions.finalUrl)}

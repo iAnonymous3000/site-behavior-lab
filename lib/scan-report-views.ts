@@ -122,6 +122,12 @@ export type RunConditionsView = {
   requestedUrl: string;
   finalUrl: string;
   /**
+   * The requested subject's registrable domain as the v2 subject block
+   * recorded it; the observed one is the run's `domain`. null on v1, which
+   * recorded URLs only.
+   */
+  requestedRegistrableDomain: string | null;
+  /**
    * v2 subject URLs are privacy-generalized route shapes (origin +
    * "/reports/:id"), never a page that exists to navigate to; v1 URLs are the
    * scrubbed exact origin + path. Renderers must not emit an anchor when
@@ -522,6 +528,7 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
     conditions: {
       requestedUrl: `${run.subject.requested.origin}${run.subject.requested.routeShape}`,
       finalUrl: `${run.subject.observed.origin}${run.subject.observed.routeShape}`,
+      requestedRegistrableDomain: run.subject.requested.registrableDomain,
       urlsAreRouteShapes: true,
       automation: run.conditions.automation,
       playwrightVersion: recordedPlaywrightVersion(run.provenance.methodologyVersion),
@@ -677,6 +684,7 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
     conditions: {
       requestedUrl: result.conditions.requestedUrl,
       finalUrl: result.conditions.finalUrl,
+      requestedRegistrableDomain: null,
       urlsAreRouteShapes: false,
       automation: result.conditions.automation,
       playwrightVersion: recordedPlaywrightVersion(result.conditions.scannerDisclosure),
