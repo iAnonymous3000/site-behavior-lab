@@ -31,6 +31,7 @@ import {
 } from "./comparison-eligibility";
 import { summarizeDomains } from "./domain-summaries";
 import { recordedPlaywrightVersion } from "./legacy-methodology";
+import { mergePixelEventSummaries } from "./pixel-event-merge";
 import type {
   CnameCloak,
   ComparisonDiff,
@@ -510,7 +511,11 @@ function runViewFromV2(run: ScanRunV2 | ScanRunV2R2, label: RunView["label"]): R
       storageMutations: run.evidence.storageMutations.map((mutation) => ({ ...mutation })),
       fingerprintEvents: run.evidence.fingerprintEvents,
       fingerprintDetections: run.evidence.fingerprintDetections,
-      pixelEvents: run.evidence.pixelEvents,
+      // The wire keeps one row per (platform, phase); every view reader counts
+      // a row as a platform, so a pixel that fired in two phases would be named
+      // twice with each phase's count read as the visit's total. No reader
+      // uses a pixel row's phase.
+      pixelEvents: mergePixelEventSummaries(run.evidence.pixelEvents),
       cnameCloaks: run.evidence.cnameCloaks,
       privacyPolicy: run.evidence.privacyPolicy ?? null
     },
