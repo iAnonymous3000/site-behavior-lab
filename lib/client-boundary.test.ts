@@ -31,6 +31,28 @@ test("homepage keeps the evidence renderer outside its initial route module", ()
   assert.doesNotMatch(app, /from "\.\/_components\/(?:report-header|report-overview|report-tables|comparison-panel|causality-graph)"/);
 });
 
+test("homepage reads cohort differences without the corpus-cohort report graph", () => {
+  // corpus-cohort imports the version-aware report views and the comparison
+  // modules; one runtime import of it cost the homepage about 15,900 gzip bytes.
+  const importClauses = (source: string, specifier: RegExp) =>
+    [...source.matchAll(/^import\s+([\s\S]*?)\s+from\s+"([^"]+)";/gm)]
+      .filter((match) => specifier.test(match[2]))
+      .map((match) => match[1]);
+  const app = readFileSync(path.join(root, "app", "site-behavior-app.tsx"), "utf8");
+  assert.deepEqual(importClauses(app, /^@\/lib\/corpus-cohort-differences$/), ["{ corpusCohortDifferences }"]);
+  for (const clause of importClauses(app, /^@\/lib\/corpus-cohort$/)) {
+    assert.match(clause, /^type\s/, "the homepage may import corpus-cohort only as a type");
+  }
+  const differences = readFileSync(path.join(root, "lib", "corpus-cohort-differences.ts"), "utf8");
+  for (const clause of importClauses(differences, /./)) {
+    assert.match(clause, /^type\s/, "corpus-cohort-differences must stay free of runtime imports");
+  }
+  assert.match(
+    readFileSync(path.join(root, "lib", "corpus-cohort.ts"), "utf8"),
+    /^export \{ corpusCohortDifferences \} from "\.\/corpus-cohort-differences";$/m
+  );
+});
+
 test("report pages pass compact server output instead of serializing stored evidence into the client", () => {
   const page = readFileSync(path.join(root, "app", "reports", "[id]", "page.tsx"), "utf8");
   assert.doesNotMatch(page, /stored=\{result\.stored\}/);

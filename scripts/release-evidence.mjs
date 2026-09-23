@@ -290,14 +290,26 @@ async function releaseMetadata(root) {
     throw new Error("Release policy requires one explicit Unreleased changelog section");
   }
   const escapedVersion = policy.version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Any dated heading for this version, bracketed or not, is a release claim.
   const datedSections = [
     ...changelog.matchAll(new RegExp(`^## \\[?${escapedVersion}\\]?\\s+-\\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\\s*$`, "gm"))
+  ];
+  // The tag ceremony in release.yml reads only `## [version] - date`, so a
+  // released changelog must use exactly that form. Accepting a bare heading
+  // here let 0.6.0 pass main CI while the ceremony would refuse it.
+  const ceremonySections = [
+    ...changelog.matchAll(new RegExp(`^## \\[${escapedVersion}\\] - ([0-9]{4}-[0-9]{2}-[0-9]{2})\\s*$`, "gm"))
   ];
   if (!released && datedSections.length !== 0) {
     throw new Error("Development changelog must not claim a dated release for the current version");
   }
-  if (released && (datedSections.length !== 1 || datedSections[0][1] !== policy.releaseDate)) {
-    throw new Error("A released changelog must carry exactly one dated section for its own version and date");
+  if (
+    released &&
+    (datedSections.length !== 1 || ceremonySections.length !== 1 || ceremonySections[0][1] !== policy.releaseDate)
+  ) {
+    throw new Error(
+      "A released changelog must carry exactly one dated section for its own version and date, headed `## [version] - date`"
+    );
   }
 
   const repository = normalizeRepository(packageManifest?.repository?.url);

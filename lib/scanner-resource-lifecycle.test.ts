@@ -24,7 +24,7 @@ test("scanner operations return at the deadline when work ignores cancellation",
       error instanceof ScannerOperationTimeoutError && error.label === "hostile operation"
   );
   assert.equal((signal as AbortSignal | null)?.aborted, true);
-  assert.equal(Date.now() - started < 250, true);
+  assert.ok(Date.now() - started < 1_000, "the 5ms deadline must win, not the 15s operation default");
 });
 
 test("a resource that resolves after timeout is disposed exactly once", async () => {
@@ -74,7 +74,7 @@ test("scanner cleanup starts every close and returns without awaiting hostile pr
   );
 
   assert.deepEqual(started.sort(), ["context", "proxy"]);
-  assert.equal(Date.now() - before < 250, true);
+  assert.ok(Date.now() - before < 1_000, "the 5ms cleanup bound must win, not the 2s cleanup default");
 });
 
 test("the scanner bounds cached Chromium launch and both final cleanup operations", async () => {

@@ -82,11 +82,11 @@ export default function PrivacyPage() {
           report. The scanned site sees traffic from the scanner&rsquo;s infrastructure, not from your IP address.
         </p>
         <p>
-          A run can make additional bounded navigations. Consent verification may reload the page once after a click;
-          the input probe may navigate to a blank page at the end so unload beacons fire; and policy analysis may open
-          the site&rsquo;s disclosed privacy-policy page through the same SSRF guard after the main request log is frozen.
-          Reload- and policy-phase requests are excluded from the main counts. Unload beacons sent by the measured page
-          during the input probe remain part of the recorded evidence.
+          A run can make additional bounded navigations. Consent verification may reload the page once after a click,
+          and policy analysis may open the site&rsquo;s disclosed privacy-policy page through the same SSRF guard after
+          the main request log is frozen. Reload- and policy-phase requests are excluded from the main counts. The input
+          probe never navigates away from the measured page, so a transmission the page would send only while being
+          torn down is not measured.
         </p>
         <p>
           When optional restart-safe execution is enabled, a scanner or coordinator failure can abandon an attempt and

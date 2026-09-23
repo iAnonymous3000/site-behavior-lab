@@ -92,8 +92,11 @@ async function assertReceiptFollowingCitation(root: string): Promise<void> {
     "m"
   );
   if (policy.status === "released") {
-    const dated = changelog.match(datedForVersion);
-    assert.notEqual(dated, null, "a released changelog must carry its dated section");
+    // The bracketed form is the only one the tag ceremony in release.yml reads.
+    const dated = changelog.match(
+      new RegExp(`^## \\[${policy.version.replace(/\./g, "\\.")}\\] - (\\d{4}-\\d{2}-\\d{2})$`, "m")
+    );
+    assert.notEqual(dated, null, "a released changelog must carry its dated section as `## [version] - date`");
     assert.equal(dated![1], policy.releaseDate);
   } else {
     assert.doesNotMatch(changelog, datedForVersion);
@@ -1477,6 +1480,17 @@ test("the released state is verified, not merely permitted", { skip: hostToolcha
   const changelogRefused = runEvidence(wrongChangelog.root, ["--static-dir", "out"]);
   assert.notEqual(changelogRefused.status, 0);
   assert.match(changelogRefused.stderr, /released changelog must carry exactly one dated section/);
+
+  // The ceremony's own regex requires brackets; a bare dated heading must fail
+  // here too, not first at the tag job.
+  const bareHeading = await makeFixture(t, {
+    policy: releasedPolicy(),
+    citation,
+    changelog: changelog.replace("## [0.1.0] - 2026-07-25", "## 0.1.0 - 2026-07-25")
+  });
+  const bareRefused = runEvidence(bareHeading.root, ["--static-dir", "out"]);
+  assert.notEqual(bareRefused.status, 0, "a bracketless released heading must be refused");
+  assert.match(bareRefused.stderr, /headed `## \[version\] - date`/);
 
   // A tag that names a different version than the policy is refused.
   const strayTag = await makeFixture(t, { policy: releasedPolicy(), citation, changelog });

@@ -29,6 +29,16 @@ test("public corpus copy describes current retention and correction-ledger pins"
   assert.match(source("app/privacy/page.tsx"), /reports cited by[\s\S]*the corrections ledger are pinned/i);
 });
 
+// The input probe stopped navigating away to flush unload beacons, and
+// SBL-CORR-2026-001 retired the coverage claim in 406 reports. Reader-facing
+// copy must not describe teardown transmissions as measured again.
+test("public copy does not claim the input probe measures unload-time transmissions", () => {
+  const privacy = source("app/privacy/page.tsx");
+  assert.doesNotMatch(privacy, /unload beacons fire|Unload beacons sent by the measured page/i);
+  assert.match(privacy, /input\s+probe never navigates away/);
+  assert.doesNotMatch(source("app/site-behavior-app.tsx"), /during typing, blur, or unload/);
+});
+
 test("catalog copy scopes official references to entity identity, not suffixes or categories", () => {
   const page = source("app/catalog/page.tsx");
   const provenance = source("lib/tracker-catalog-provenance.ts");

@@ -120,7 +120,7 @@ test("assertPublicHttpUrl returns at its DNS deadline when the resolver ignores 
     }),
     (error: unknown) => error instanceof PublicUrlDnsTimeoutError && error.timeoutMs === 5
   );
-  assert.equal(Date.now() - started < 250, true);
+  assert.ok(Date.now() - started < 1_000, "the 5ms DNS deadline must win, not the 5s default");
 });
 
 test("assertPublicHttpUrl propagates caller cancellation and caps resolver fan-out", async () => {

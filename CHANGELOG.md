@@ -9,7 +9,7 @@ public API or a 1.0 release.
 
 Changes after the prepared 0.6.0 milestone will be recorded here.
 
-## 0.6.0 - 2026-09-06
+## [0.6.0] - 2026-09-06
 
 Prepared milestone: the governed tag and release receipt are pending. This
 date records the source declaration, not a completed release. The latest

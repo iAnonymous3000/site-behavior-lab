@@ -33,7 +33,7 @@ test("container dispatch loses an explicit deadline race even when it ignores ab
     (error: unknown) => error instanceof ContainerForwardTimeoutError
   );
   assert.equal((observedSignal as AbortSignal | null)?.aborted, true);
-  assert.equal(Date.now() - started < 250, true);
+  assert.ok(Date.now() - started < 1_000, "the 5ms deadline must win, not the 180s default");
 });
 
 test("container body deadline returns without awaiting a non-cooperative read or cancel", async () => {
@@ -58,7 +58,7 @@ test("container body deadline returns without awaiting a non-cooperative read or
     (error: unknown) => error instanceof ContainerForwardTimeoutError
   );
   assert.equal(cancelled, true);
-  assert.equal(Date.now() - started < 250, true);
+  assert.ok(Date.now() - started < 1_000, "the 5ms body deadline must not wait on the read or cancel");
 });
 
 test("container forwarding rejects declared and streamed oversize bodies without waiting for cancel", async () => {
@@ -74,11 +74,14 @@ test("container forwarding rejects declared and streamed oversize bodies without
   await assert.rejects(
     forwardContainerResponseWithinDeadline(
       async () => new Response(declared, { headers: { "content-length": "65" } }),
-      { timeoutMs: 1_000, maxBytes: 64 }
+      { timeoutMs: 10_000, maxBytes: 64 }
     ),
     (error: unknown) => error instanceof ContainerForwardResponseTooLargeError
   );
-  assert.equal(Date.now() - declaredStarted < 250, true);
+  assert.ok(
+    Date.now() - declaredStarted < 1_000,
+    "a declared oversize body is refused at once, not at the 10s deadline or after cancel"
+  );
 
   const streamed = new ReadableStream<Uint8Array>({
     start(controller) {

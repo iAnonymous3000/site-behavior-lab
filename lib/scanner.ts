@@ -1946,9 +1946,9 @@ export async function scanSiteWithMeasurement(
     }
 
     // Privacy-policy link candidates were part of the tentatively captured
-    // trusted-subject bundle above. The keystroke probe may navigate away to
-    // flush unload beacons, so the policy page itself is visited later from
-    // this frozen list, after the request log has been snapshotted.
+    // trusted-subject bundle above. The policy page itself is visited later
+    // from this frozen list, after the request log has been snapshotted, so
+    // its requests never enter the measured visit.
     const policyLinks = subjectStateTrusted ? tentativePolicyLinks : [];
     const policyLinksTruncated = subjectStateTrusted && tentativePolicyLinksTruncated;
     const policyLinksFailed = subjectStateTrusted && tentativePolicyLinksFailed;

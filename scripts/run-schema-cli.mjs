@@ -46,6 +46,10 @@ const TARGETS = {
   ],
   "operator-evidence-verify": ["scripts", "verify-operator-evidence.mjs"],
   "operator-evidence-waf": ["scripts", "capture-waf-ceilings.mjs"],
+  // The readiness evaluator re-derives the calibration-policy disposition
+  // through the compiled contract, and release.yml runs it right after
+  // `npm ci`, where no dist/schema exists yet.
+  "release-readiness": ["scripts", "release-readiness.mjs"],
   "release-tag-governance-capture": [
     "scripts",
     "capture-release-tag-governance.mjs"
