@@ -72,7 +72,8 @@ The withdrawn 0.50 base-rate assumption is not replaced by another
 assumption. Prevalence for the declared scope is estimated from the
 PRECOMMITTED DISJOINT PILOT, preregistered here in full:
 
-- **Partition, not prefix.** The universe builder fixes ONE sampling frame
+- **Partition, not prefix.** The universe builder
+  (`scripts/calibration-candidate-universe-build.mjs`) fixes ONE sampling frame
   (the first pilotSize + poolSize scoped survivors in source order) and
   splits MEMBERSHIP by a seeded Fisher-Yates shuffle
   (`seeded-fisher-yates-sha256-v1`). A prefix pilot would confound the

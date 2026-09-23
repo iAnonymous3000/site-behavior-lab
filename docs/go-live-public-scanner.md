@@ -598,6 +598,36 @@ must contain no fault-injection hook and must use the normal CI-gated promotion,
 canary, soak, and rollback path. This runbook does not authorize that flip or a
 deployment by itself.
 
+After that flag-only change `F` is merged, and its CI run, its production
+promotion, and a governed `production-health.yml` run on `F` have all succeeded
+(health `ok` with no warnings, durable jobs requested, enabled, and `ready`, and
+deployment exactly `F`), write the durable-enable transition receipt:
+
+```bash
+npm run durable:transition-receipt -- --evidence <bundle.json>
+```
+
+The command holds no credential and makes no network call, and no workflow
+assembles its bundle. The bundle is one JSON object with
+`transition.fromCommit` (the replay deployment commit, `F`'s direct parent),
+`transition.toCommit` (`F`), `replay.deploymentCommit`,
+`stagingTeardownRecordedAt`, `secrets` (`checkedAt`, `durableJobsKeyPresent`,
+`durableJobsInternalTokenPresent`), `changeControl.pullRequestResponse` (the
+merged pull request's API response), the exact authenticated Actions run
+responses `ciRun`, `promotionRun` (with the deployed artifact's
+`deploymentDigest`), and `productionHealthRun`, the captured
+`productionHealthPayload`, and `recordedAt`. It recomputes the replay
+receipt-set digest from the committed receipts under
+`research/ops-receipts/durable-replay/`, refuses unless the recorded instants
+run in the order replay, staging teardown, secrets check, merge, CI, promotion,
+production health, recording, and writes
+`research/ops-receipts/durable-enable-transition.json` exactly once, printing
+the sha256 to pin in the candidate binding's
+`durablePrerequisite.transition`. Do not merge that file while `F` is frozen for
+the durable soak. Like the staging teardown receipt, commit it through normal
+review after the soak completes and before candidate `C` is selected; candidate
+verification reads it from `C` itself.
+
 The soak is quantified, not advisory: SEVEN days (168 hours) of hourly
 production health with durable readiness `ready` is the declared target, and
 twenty-four hours is the hard minimum ONLY when the window also contains a real

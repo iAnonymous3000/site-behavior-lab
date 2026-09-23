@@ -923,8 +923,12 @@ authoritative gate list):
   ```
 
   For the pre-candidate durable soak, the command directly verifies the two
-  replay receipts, exact Git 0-to-1 config transition, transition receipt,
-  and current enabled config, so it can fill the transition-derived durable
+  replay receipts, exact Git 0-to-1 config transition, transition receipt
+  (written once by
+  `npm run durable:transition-receipt -- --evidence <bundle.json>`; see the
+  durable flip in
+  [`docs/go-live-public-scanner.md`](docs/go-live-public-scanner.md)), and
+  current enabled config, so it can fill the transition-derived durable
   bindings before candidate C exists. Copy the exact `ledger_sha256` printed by
   the authenticated soak-ledger aggregation into the scaffold's
   `ledgerSha256` placeholder; the hosted-evidence verifier re-derives and
