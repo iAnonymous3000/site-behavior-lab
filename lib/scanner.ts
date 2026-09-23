@@ -98,6 +98,7 @@ import {
 import { extractPolicyTextFromPdf, MAX_POLICY_PDF_BYTES, MAX_POLICY_PDF_PARSE_MS } from "./policy-pdf";
 import {
   startPublicScanProxy,
+  type BlockedProxyTarget,
   type PublicScanProxyDiagnostics,
   type ResolvePublicHost
 } from "./public-scan-proxy";
@@ -1084,6 +1085,20 @@ export async function scanSiteWithMeasurement(
       }
     };
     page.on("response", recordResponse);
+    // Every endpoint the main-frame navigation requested: the target and each
+    // redirect hop. Route handlers never see redirect hops; request events do.
+    // Read only by the goto failure classification below.
+    const navigationEndpoints = new Set<string>();
+    const addNavigationEndpoint = (url: string) => {
+      const endpoint = proxyEndpointKey(url);
+      if (endpoint !== null) navigationEndpoints.add(endpoint);
+    };
+    addNavigationEndpoint(targetUrl.toString());
+    page.on("request", (request) => {
+      if (request.isNavigationRequest() && safeRequestFrame(request) === safeMainFrame(page)) {
+        addNavigationEndpoint(request.url());
+      }
+    });
 
     options.onProgress?.("navigating");
     const response = await page
@@ -1093,13 +1108,11 @@ export async function scanSiteWithMeasurement(
       })
       .catch((error: unknown) => {
         throwIfScanAborted(options.signal);
-        // Only an actual guard block ("non-public-address") may be described as
-        // one: the proxy also records DNS failures, refused upstream connects,
-        // and policy refusals, none of which prove a private-network target.
-        if (scanProxy.blockedTargets.some((blocked) => blocked.reason === "non-public-address")) {
+        const failure = classifyNavigationFailure(error, scanProxy.blockedTargets, navigationEndpoints);
+        if (failure === "private-target") {
           throw new PublicScanError("The page could not be loaded because it resolved to a local or private network address.", 400, "private-target");
         }
-        if (isTimeoutError(error)) {
+        if (failure === "page-load-timeout") {
           throw new PublicScanError("The page did not load before the scan timeout.", 504, "page-load-timeout");
         }
         // Navigation failures (TLS/HTTP2 errors, connection resets, sites that
@@ -4297,6 +4310,58 @@ export function isTimeoutError(error: unknown): boolean {
   // lose the class. A normalized URL cannot contain the literal spaces this
   // pattern requires, so it cannot be spoofed by the target.
   return /Timeout \d+ms exceeded/i.test(error.message);
+}
+
+/**
+ * Why a main-frame navigation failed, for the one error its requester sees.
+ *
+ * A timeout is classified first. When the navigation itself is refused by the
+ * connect-time guard, the proxy refuses at once and the navigation fails fast
+ * with a network error, never a timeout; a page that stalls was served from a
+ * public address, whatever its scripts then tried to reach.
+ *
+ * Only an actual guard block ("non-public-address") may be described as one:
+ * the proxy also records DNS failures, refused upstream connects, and policy
+ * refusals, none of which prove a private-network target. And the block must
+ * have hit an endpoint the main-frame navigation requested (the target or a
+ * redirect hop). Page scripts open connections routing never sees, such as a
+ * WebSocket to ws://127.0.0.1 used as a localhost port probe, and the proxy
+ * refusing that says nothing about where the page itself resolved.
+ */
+export function classifyNavigationFailure(
+  error: unknown,
+  blockedTargets: readonly BlockedProxyTarget[],
+  navigationEndpoints: ReadonlySet<string>
+): "page-load-timeout" | "private-target" | "load-failed" {
+  if (isTimeoutError(error)) return "page-load-timeout";
+  const blockedNavigation = blockedTargets.some((blocked) => {
+    if (blocked.reason !== "non-public-address") return false;
+    const endpoint = proxyEndpointKey(blocked.target);
+    return endpoint !== null && navigationEndpoints.has(endpoint);
+  });
+  return blockedNavigation ? "private-target" : "load-failed";
+}
+
+const DEFAULT_ENDPOINT_PORTS: Readonly<Record<string, string>> = {
+  "http:": "80",
+  "https:": "443",
+  "ws:": "80",
+  "wss:": "443"
+};
+
+/**
+ * Host and port, never protocol: the proxy labels a CONNECT tunnel https://
+ * whatever it carries, so each URL supplies its own default port and the
+ * protocols are not compared. Null for anything unparseable.
+ */
+export function proxyEndpointKey(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const port = parsed.port || DEFAULT_ENDPOINT_PORTS[parsed.protocol];
+    return port && parsed.hostname ? `${parsed.hostname}:${port}` : null;
+  } catch {
+    return null;
+  }
 }
 
 // A navigation failure reason safe for operator logs: the Chromium net error

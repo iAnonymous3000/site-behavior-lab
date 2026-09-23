@@ -23,6 +23,7 @@ import {
   boundedPolicyTextFromWire,
   browserProcessEnvironment,
   captureProbeRequest,
+  classifyNavigationFailure,
   completedKeystrokeProbeOutcome,
   closeSharedBrowserForTests,
   createContextOptions,
@@ -52,6 +53,7 @@ import {
   scanTimeout,
   ScanWarningCollector,
   probeKeystrokeExfiltration,
+  proxyEndpointKey,
   sameScanSubjectUrl,
   typeSentinelIntoFields,
   type KeystrokeProbeLifecycle,
@@ -4000,6 +4002,123 @@ test("scanSite forces loopback literals through the connect-time proxy", { timeo
   } finally {
     await closeSharedBrowserForTests();
   }
+});
+
+test("scanSite blames a private target reached through a main-frame redirect hop", { timeout: 20_000 }, async () => {
+  // Route handlers never see redirect hops, so the hop reaches the
+  // connect-time proxy directly; the failure classification must still count
+  // it as part of the navigation.
+  const upstream = createServer((_request, response) => {
+    response.writeHead(302, { location: "http://10.1.2.3/" });
+    response.end();
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    await assert.rejects(
+      () =>
+        scanSite(
+          { url: "http://hop.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+          {
+            publicUrlAlreadyVerified: true,
+            verifyPublicUrl: async () => undefined,
+            resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+            connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+            resolveCnameChain: async () => []
+          }
+        ),
+      (error) =>
+        error instanceof PublicScanError &&
+        error.status === 400 &&
+        error.failureCause === "private-target"
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a public page that stalls after a loopback WebSocket probe is a load timeout, not a private target", { timeout: 60_000 }, async () => {
+  // Playwright routing cannot see WebSockets, so the probe reaches the
+  // connect-time proxy and is refused there as non-public-address. That block
+  // is correct and says nothing about the page, which was served from a
+  // public address and then never reached domcontentloaded. This takes the
+  // full navigation timeout by construction.
+  const upstream = createServer((_request, response) => {
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.write(
+      '<!doctype html><title>Stall</title><script>try{new WebSocket("ws://127.0.0.1:45678/")}catch(e){}</script><p>loading'
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  try {
+    await assert.rejects(
+      () =>
+        scanSite(
+          { url: "http://stall.test/", device: "desktop", gpcEnabled: false, consentMode: "observe" },
+          {
+            publicUrlAlreadyVerified: true,
+            verifyPublicUrl: async () => undefined,
+            resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+            connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+            resolveCnameChain: async () => []
+          }
+        ),
+      (error) =>
+        error instanceof PublicScanError &&
+        error.status === 504 &&
+        error.failureCause === "page-load-timeout" &&
+        !/local or private network address/.test(error.message)
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    upstream.closeAllConnections();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a navigation failure is blamed on a private target only when the navigation hit the block", () => {
+  const timeout = Object.assign(new Error("page.goto: Timeout 30000ms exceeded."), { name: "TimeoutError" });
+  const reset = new Error("page.goto: net::ERR_CONNECTION_RESET at http://stall.test/");
+  const navigation = new Set(["stall.test:80", "10.1.2.3:80"]);
+  const loopbackProbe = { target: "https://127.0.0.1:45678/", reason: "non-public-address" } as const;
+  const redirectHop = { target: "http://10.1.2.3/", reason: "non-public-address" } as const;
+
+  // An unrelated page-initiated probe never turns a failure into a private target.
+  assert.equal(classifyNavigationFailure(timeout, [loopbackProbe], navigation), "page-load-timeout");
+  assert.equal(classifyNavigationFailure(reset, [loopbackProbe], navigation), "load-failed");
+  // A block on the navigation chain does, unless the navigation timed out.
+  assert.equal(classifyNavigationFailure(reset, [loopbackProbe, redirectHop], navigation), "private-target");
+  assert.equal(classifyNavigationFailure(timeout, [redirectHop], navigation), "page-load-timeout");
+  // Other proxy refusals on the navigation chain prove nothing about its network.
+  assert.equal(
+    classifyNavigationFailure(reset, [{ target: "http://10.1.2.3/", reason: "resolution-failed" }], navigation),
+    "load-failed"
+  );
+  assert.equal(classifyNavigationFailure(reset, [], navigation), "load-failed");
+});
+
+test("proxy endpoints compare host and port under each URL's own default port", () => {
+  // A 443 CONNECT is labelled without a port; a CONNECT to any other port keeps
+  // it under an https:// label whatever the tunnel carries.
+  assert.equal(proxyEndpointKey("https://Example.com/"), "example.com:443");
+  assert.equal(proxyEndpointKey("https://example.com:443/path?q=1"), "example.com:443");
+  assert.equal(proxyEndpointKey("http://example.com/"), "example.com:80");
+  assert.equal(proxyEndpointKey("https://127.0.0.1:80/"), "127.0.0.1:80");
+  assert.equal(proxyEndpointKey("ws://127.0.0.1/"), "127.0.0.1:80");
+  assert.equal(proxyEndpointKey("wss://[::1]/"), "[::1]:443");
+  assert.notEqual(proxyEndpointKey("https://127.0.0.1:45678/"), proxyEndpointKey("http://127.0.0.1/"));
+  assert.equal(proxyEndpointKey("unknown"), null);
+  assert.equal(proxyEndpointKey("data:text/html,x"), null);
 });
 
 test("frozen Shields facts stay commensurable when a straggler lands after the boundary", () => {
