@@ -6,7 +6,7 @@ import { AlertTriangle, CheckCircle2, ChevronDown, Database, Fingerprint, Radar 
 import { requestProvenanceSearchText, requestProvenanceSummary } from "@/lib/report-findings";
 import { visitPhaseLabel } from "@/lib/report-phase-evidence";
 import { displayHost, displayPublicUrl, hostMatchesQuery, plural } from "@/lib/text-format";
-import { detectionEvidence, detectionLabel, pixelFieldLabel } from "@/lib/report-insights";
+import { detectionEvidence, detectionLabel, isSingleSignalWebglDetection, pixelFieldLabel } from "@/lib/report-insights";
 import { isReviewedCookieName, isReviewedStorageKey } from "@/lib/public-name-policy";
 import { PRINT_ROW_CAPS } from "@/lib/print-row-caps";
 import { usePrintComplete } from "./print-mode";
@@ -893,7 +893,9 @@ function FingerprintList({
         <div key={detection.kind}>
           <Fingerprint
             className={
-              detection.kind === "session-recording" || detection.kind === "input-monitoring"
+              detection.kind === "session-recording" ||
+              detection.kind === "input-monitoring" ||
+              isSingleSignalWebglDetection(detection)
                 ? "ico-neutral"
                 : "ico-warn"
             }

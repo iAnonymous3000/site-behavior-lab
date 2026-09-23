@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { chromium } from "playwright";
+import { isFingerprintDetectionSummary } from "./fingerprint-detection-guard";
 import {
   collectFingerprintObservationsWithCoverage,
   fingerprintObserverInitScript
 } from "./fingerprint-observer";
+import { DETECTOR_VERSIONS } from "./measurement-kernel";
+import { isSingleSignalWebglDetection } from "./report-insights";
 import type { FingerprintDetectionSummary } from "./types";
 
 // The production API returns observations plus frame-coverage counters; these
@@ -1431,6 +1434,14 @@ test("fingerprintObserverInitScript flags WebGL entropy reads", () => {
 });
 
 test("fingerprintObserverInitScript requires both WebGL parameter and pixel entropy signals", () => {
+  // This predicate is measurement identity. 4be4fed (2026-07-20) changed it
+  // from OR to AND under the same heuristic id, and reports measured before
+  // then carry detections the current rule would not emit; the reader tells
+  // them apart only by evidence shape (isSingleSignalWebglDetection). Pinned
+  // beside the detector version: changing the rule needs a version bump and
+  // a reader that keys on it, so re-pin both together.
+  assert.equal(DETECTOR_VERSIONS["fingerprint-heuristics"], "fingerprint-observer@3");
+
   const parameterHarness = installWebglHarness();
   try {
     fingerprintObserverInitScript();
@@ -1451,6 +1462,41 @@ test("fingerprintObserverInitScript requires both WebGL parameter and pixel entr
     assert.deepEqual(readSnapshot(pixelHarness.window).detections, []);
   } finally {
     pixelHarness.restore();
+  }
+
+  const bothHarness = installWebglHarness();
+  let emitted: FingerprintDetectionSummary[];
+  try {
+    fingerprintObserverInitScript();
+    const bothContext = new bothHarness.WebGL();
+    bothContext.getParameter(37446);
+    bothContext.readPixels();
+    emitted = readSnapshot(bothHarness.window).detections;
+  } finally {
+    bothHarness.restore();
+  }
+  assert.equal(emitted.length, 1);
+  assert.equal(isSingleSignalWebglDetection(emitted[0]), false);
+
+  // The two shapes the earlier rule emitted. Historical wires carrying them
+  // must still read, and the reader must present them as that earlier rule.
+  const earlierRuleShapes: FingerprintDetectionSummary[] = [
+    {
+      kind: "webgl-fingerprinting",
+      heuristic: "webgl-entropy-read-v1",
+      count: 1,
+      evidence: { readApis: [], parameters: ["webgl.getParameter.UNMASKED_RENDERER_WEBGL"], getParameterCalls: 1, readPixelsCalls: 0 }
+    },
+    {
+      kind: "webgl-fingerprinting",
+      heuristic: "webgl-entropy-read-v1",
+      count: 1,
+      evidence: { readApis: ["webgl2.readPixels"], parameters: [], getParameterCalls: 0, readPixelsCalls: 1 }
+    }
+  ];
+  for (const shape of earlierRuleShapes) {
+    assert.equal(isFingerprintDetectionSummary(shape), true);
+    assert.equal(isSingleSignalWebglDetection(shape), true);
   }
 });
 

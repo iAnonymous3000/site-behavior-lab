@@ -15,6 +15,7 @@ import {
   scanPageSubjectUnverified,
   scanSuspectedChallengeOrSoftBlock,
   shieldsRunMeasurement,
+  singleSignalWebglDetections,
   trackerEntitySummaries,
   trackerOwnershipBreakdown,
   type CrossSiteListenerDetection,
@@ -194,6 +195,8 @@ export type RunSignalFacts = {
     eventCount: number;
     apiFamilies: number;
     highEntropyDetections: FingerprintDetectionSummary[];
+    /** WebGL detections recorded under the earlier single-signal rule: an observation, never a heuristic match. */
+    singleSignalWebglDetections: FingerprintDetectionSummary[];
     sessionRecording: CrossSiteListenerDetection | undefined;
     inputMonitoring: CrossSiteListenerDetection | undefined;
     sessionReplayNames: string[];
@@ -373,6 +376,7 @@ export function buildRunFacts(run: RunView): RunFacts {
   ) as Record<EvidenceFamily, EvidenceFamilyFact>;
   const identity = identityFacts(run);
   const highEntropy = highEntropyDetections(run.evidence);
+  const singleSignalWebgl = singleSignalWebglDetections(run.evidence);
   const sessionRecording = crossSiteListenerDetection(run.evidence, "session-recording");
   const inputMonitoring = crossSiteListenerDetection(run.evidence, "input-monitoring");
   const sessionReplayNames = identity.trackingEntities
@@ -395,10 +399,12 @@ export function buildRunFacts(run: RunView): RunFacts {
       eventCount: run.counts.fingerprintEvents,
       apiFamilies: new Set(run.evidence.fingerprintEvents.map((event) => event.api)).size,
       highEntropyDetections: highEntropy,
+      singleSignalWebglDetections: singleSignalWebgl,
       sessionRecording,
       inputMonitoring,
       sessionReplayNames,
-      apiActivityObserved: run.counts.fingerprintEvents > 0 || highEntropy.length > 0,
+      apiActivityObserved:
+        run.counts.fingerprintEvents > 0 || highEntropy.length > 0 || singleSignalWebgl.length > 0,
       listenerCoverageObserved: Boolean(sessionRecording || inputMonitoring),
       replayVendorObserved: sessionReplayNames.length > 0
     },
@@ -926,7 +932,7 @@ function observedSeverity(
     metricSeverity(cookieCount, 5, 12),
     signals.fingerprint.highEntropyDetections.length > 0
       ? "warn"
-      : signals.fingerprint.eventCount > 0
+      : signals.fingerprint.eventCount > 0 || signals.fingerprint.singleSignalWebglDetections.length > 0
         ? "info"
         : "ok",
     signals.fingerprint.listenerCoverageObserved ? (listenerCorroborated ? "warn" : "info") : "ok",

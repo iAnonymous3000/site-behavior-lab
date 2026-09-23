@@ -219,9 +219,36 @@ export function trackingServiceRequests(result: Pick<ScanResult, "requests">): n
   );
 }
 
-/** High-entropy fingerprinting detections (canvas/WebGL/audio/WebRTC), excluding listener-coverage signals. */
+/**
+ * A WebGL detection recorded under the observer's earlier single-signal rule.
+ * Until 2026-07-20 the observer emitted "webgl-entropy-read-v1" on a WebGL
+ * parameter read OR a pixel readback; since then it requires both, under the
+ * same heuristic id and (on v1) with no detector version to tell the rules
+ * apart. No current producer can emit a detection missing either signal, so
+ * the evidence shape alone identifies the earlier rule, and the shared guard
+ * keeps accepting it so those historical wires still read.
+ */
+export function isSingleSignalWebglDetection(detection: FingerprintDetectionSummary): boolean {
+  return (
+    detection.kind === "webgl-fingerprinting" &&
+    (detection.evidence.parameters.length === 0 || detection.evidence.readPixelsCalls === 0)
+  );
+}
+
+/**
+ * High-entropy fingerprinting detections (canvas/WebGL/audio/WebRTC), excluding
+ * listener-coverage signals and WebGL detections that only satisfied the
+ * earlier single-signal rule (see {@link singleSignalWebglDetections}).
+ */
 export function highEntropyDetections(result: Pick<ScanResult, "fingerprintDetections">): FingerprintDetectionSummary[] {
-  return (result.fingerprintDetections ?? []).filter((detection) => HIGH_ENTROPY_FINGERPRINT_KINDS.has(detection.kind));
+  return (result.fingerprintDetections ?? []).filter(
+    (detection) => HIGH_ENTROPY_FINGERPRINT_KINDS.has(detection.kind) && !isSingleSignalWebglDetection(detection)
+  );
+}
+
+/** WebGL detections that match only the earlier single-signal rule; presented at info level, never as a heuristic match. */
+export function singleSignalWebglDetections(result: Pick<ScanResult, "fingerprintDetections">): FingerprintDetectionSummary[] {
+  return (result.fingerprintDetections ?? []).filter(isSingleSignalWebglDetection);
 }
 
 /**
@@ -511,7 +538,11 @@ export function fingerprintDetection<K extends FingerprintDetectionSummary["kind
 export function detectionLabel(detection: FingerprintDetectionSummary): string {
   if (detection.kind === "canvas-fingerprinting") return "Canvas fingerprinting heuristic";
   if (detection.kind === "canvas-font-fingerprinting") return "Canvas font probing heuristic";
-  if (detection.kind === "webgl-fingerprinting") return "WebGL entropy-read heuristic";
+  if (detection.kind === "webgl-fingerprinting") {
+    return isSingleSignalWebglDetection(detection)
+      ? "WebGL entropy-read heuristic (earlier single-signal rule)"
+      : "WebGL entropy-read heuristic";
+  }
   if (detection.kind === "audio-fingerprinting") return "Offline audio rendering heuristic";
   if (detection.kind === "webrtc-fingerprinting") return "WebRTC peer-connection probing";
   if (detection.kind === "session-recording") return "Session-recording listener coverage";

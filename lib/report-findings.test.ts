@@ -12,7 +12,7 @@ import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import { buildReportFacts } from "./report-facts";
 import { buildFindings, provenanceChangeText, requestProvenanceSummary, type Finding, type FindingIconKey } from "./report-findings";
 import { buildReportHeadline } from "./report-headline";
-import { HEADLINE_PLATFORMS, isTrackingTrackerMatch } from "./report-insights";
+import { HEADLINE_PLATFORMS, detectionLabel, isTrackingTrackerMatch } from "./report-insights";
 import { COMPARED_POLICY_CLAIM_KINDS } from "./privacy-policy";
 import { reviewedOwnershipRelationship } from "./reviewed-ownership";
 import type { CorpusStats } from "./corpus-stats";
@@ -36,6 +36,7 @@ import {
   displayRunView,
   familyCensoredOnRun,
   requestEvidenceState,
+  toReportView,
   viewFromV1Report,
   viewFromV2
 } from "./scan-report-views";
@@ -2711,6 +2712,116 @@ test("phase-split fingerprint rows are counted and named as distinct APIs, like 
   assert.match(card.lead, /^10 high-entropy API calls appeared/);
   assert.equal(card.evidence, `${facts.display.signals.fingerprint.apiFamilies} API families recorded.`);
   assert.match(card.detail, /Top calls: canvas\.toDataURL and webgl\.getParameter\./);
+});
+
+function committedReportView(id: string): ReturnType<typeof toReportView> {
+  const raw: unknown = JSON.parse(readFileSync(path.join(process.cwd(), "public", "reports", `${id}.json`), "utf8"));
+  const read = readStoredScanReport(raw);
+  if (!read.ok) assert.fail(`reader rejected committed report ${id}`);
+  return toReportView(read.stored);
+}
+
+function onlyWebglDetection(run: ReturnType<typeof displayRunView>): Extract<FingerprintDetectionSummary, { kind: "webgl-fingerprinting" }> {
+  const webgl = run.evidence.fingerprintDetections.filter(
+    (detection): detection is Extract<FingerprintDetectionSummary, { kind: "webgl-fingerprinting" }> =>
+      detection.kind === "webgl-fingerprinting"
+  );
+  assert.equal(webgl.length, 1);
+  return webgl[0];
+}
+
+test("committed WebGL detections under the earlier single-signal rule read at info, never as a heuristic match", () => {
+  // 4be4fed (2026-07-20) changed the observer's webgl-entropy-read-v1 rule
+  // from a parameter read OR a pixel readback to both, under the same id and
+  // with no detector version on v1. 64 committed v1 reports carry detections
+  // that satisfy only the old rule, and this card published each one as a
+  // warn-level "WebGL entropy-read heuristic matched".
+  const walgreens = committedReportView("20260625-101b951ee4e7aed62382f4a50d68bab9");
+  const walgreensLead = displayRunView(walgreens);
+  const parameterOnly = onlyWebglDetection(walgreensLead);
+  // Pin the wire shape, so this stays a single-signal case if the fixture moves.
+  assert.deepEqual(parameterOnly.evidence.parameters, ["webgl.getParameter.UNMASKED_RENDERER_WEBGL"]);
+  assert.equal(parameterOnly.evidence.readPixelsCalls, 0);
+  const walgreensFacts = buildReportFacts(walgreens);
+  assert.deepEqual(walgreensFacts.display.signals.fingerprint.highEntropyDetections, []);
+  assert.deepEqual(walgreensFacts.display.signals.fingerprint.singleSignalWebglDetections, [parameterOnly]);
+  for (const arm of ["baseline", "variant"] as const) {
+    const card = byId(buildFindings(walgreens, null, walgreensFacts, arm), "fingerprint-apis");
+    assert.equal(card.level, "info", `${arm} arm`);
+    assert.equal(card.title, "WebGL entropy-read heuristic matched only under the earlier single-signal rule");
+    assert.doesNotMatch(card.lead, /behavioral heuristics? matched/);
+    assert.match(card.detail, /before 2026-07-20 .* either a WebGL parameter read or a pixel readback, and the current rule requires both/);
+    assert.equal(card.evidence, "1 parameter read and 0 pixel readbacks; parameters: webgl.getParameter.UNMASKED_RENDERER_WEBGL");
+    assert.equal(card.claim?.mode, "presence");
+  }
+  assert.equal(detectionLabel(parameterOnly), "WebGL entropy-read heuristic (earlier single-signal rule)");
+  assert.doesNotMatch(buildReportHeadline(walgreens, walgreensFacts).subhead, /browser-fingerprinting heuristic/);
+
+  // The other single-signal shape, beside heuristics the current rules match:
+  // the card stays warn for those, and the WebGL entry is labelled, not counted.
+  const capitalone = committedReportView("20260625-28adfab8a3cbd996023906f34147e0ee");
+  const pixelOnly = onlyWebglDetection(displayRunView(capitalone));
+  assert.deepEqual(pixelOnly.evidence.parameters, []);
+  assert.equal(pixelOnly.evidence.readPixelsCalls, 1);
+  const capitaloneCard = byId(buildFindings(capitalone, null), "fingerprint-apis");
+  assert.equal(capitaloneCard.level, "warn");
+  assert.equal(capitaloneCard.title, "Behavioral fingerprinting heuristics matched");
+  assert.equal(
+    capitaloneCard.lead,
+    "3 behavioral heuristics matched: Canvas fingerprinting heuristic, Canvas font probing heuristic and WebRTC peer-connection probing."
+  );
+  assert.match(capitaloneCard.detail, /The WebGL detection satisfied only the earlier single-signal rule/);
+  assert.match(
+    capitaloneCard.evidence,
+    /WebGL entropy-read heuristic \(earlier single-signal rule\): 0 parameter reads and 1 pixel readback$/
+  );
+
+  // Keyed on evidence shape, not on the report: the same run with both
+  // signals is a current-rule match and warns under the plain label.
+  const bothSignals = committedReportView("20260625-101b951ee4e7aed62382f4a50d68bab9");
+  const bothRun = displayRunView(bothSignals);
+  const upgraded = onlyWebglDetection(bothRun);
+  upgraded.evidence.readPixelsCalls = 1;
+  const bothCard = byId(buildFindings(bothSignals, null), "fingerprint-apis");
+  assert.equal(bothCard.level, "warn");
+  assert.equal(bothCard.title, "WebGL entropy-read heuristic matched");
+});
+
+test("a single-signal WebGL detection keeps an info floor with no recorded API events", () => {
+  // Out of highEntropyDetections it must not fall to "ok": a run whose only
+  // recorded behavior is this detection would otherwise read as calm and
+  // publish "the fingerprint observer recorded no instrumented API events".
+  const result = makeResult({
+    firstPartyDomain: "quiet.example",
+    fingerprintDetections: [
+      {
+        kind: "webgl-fingerprinting",
+        heuristic: "webgl-entropy-read-v1",
+        count: 1,
+        evidence: { readApis: ["webgl.readPixels"], parameters: [], getParameterCalls: 0, readPixelsCalls: 1 }
+      }
+    ]
+  });
+  const view = viewFromV1Report(result);
+  const facts = buildReportFacts(view);
+  assert.equal(facts.display.strongestObservedSeverity, "info");
+  assert.equal(facts.display.calmEligible, false);
+  assert.equal(facts.display.signals.fingerprint.apiActivityObserved, true);
+  const card = byId(buildFindings(view, null, facts), "fingerprint-apis");
+  assert.equal(card.level, "info");
+  assert.equal(card.incompleteOnly, undefined);
+  assert.match(card.title, /earlier single-signal rule/);
+  const headline = buildReportHeadline(view, facts);
+  assert.equal(headline.semantic.reassuring, false);
+  assert.doesNotMatch(`${headline.subhead} ${headline.caveat ?? ""}`, /recorded no instrumented API events/);
+
+  // With another instrument short, the headline lists the completed
+  // measurements' absences; the fingerprint observer is not one of them.
+  const censored = viewFromV1Report({ ...result, warnings: [PIXEL_DECODE_CAPTURE_LOSS_WARNING] });
+  const censoredHeadline = buildReportHeadline(censored);
+  assert.equal(censoredHeadline.semantic.story, "incomplete-evidence");
+  assert.equal(censoredHeadline.semantic.absenceClaims.includes("fingerprint-apis"), false);
+  assert.doesNotMatch(censoredHeadline.subhead, /recorded no instrumented API events/);
 });
 
 test("an incomplete pixel-body read never publishes a no-identifier-fields claim", () => {

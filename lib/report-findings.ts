@@ -229,6 +229,10 @@ const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 /** Appended to any absence claim whose evidence family was censored. */
 const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
 
+/** The rule a single-signal WebGL detection satisfied (see isSingleSignalWebglDetection). */
+const SINGLE_SIGNAL_WEBGL_RULE =
+  "before 2026-07-20 the scanner recorded the WebGL heuristic after either a WebGL parameter read or a pixel readback, and the current rule requires both";
+
 // Reader words for the recorded session-recording event types, in the order a
 // card names them. The producing gate accepts any five of a sixteen-event
 // vocabulary, so a fixed list of categories in the card would publish listener
@@ -1278,6 +1282,12 @@ export function buildFindings(
 
   const highEntropyDetections = facts.signals.fingerprint.highEntropyDetections;
   const highEntropyDetectionLabels = highEntropyDetections.map(detectionLabel);
+  // A WebGL detection that satisfied only the observer's earlier single-signal
+  // rule is shown for review at info level and never counted as a heuristic
+  // match, so it can neither raise this card to warn nor name itself in the
+  // matched-heuristics lead.
+  const singleSignalWebglDetections = facts.signals.fingerprint.singleSignalWebglDetections;
+  const singleSignalWebglOnly = highEntropyDetections.length === 0 && singleSignalWebglDetections.length > 0;
   // v2 rows are phase-tagged: the consent producer writes one row per (api,
   // phase), so rows are not APIs. Name each API once, in first-seen order, and
   // count families from the same distinct set the metric grid prints.
@@ -1318,6 +1328,7 @@ export function buildFindings(
     ...(!detectorUnsupported &&
     detectorCensored &&
     highEntropyDetections.length === 0 &&
+    singleSignalWebglDetections.length === 0 &&
     run.counts.fingerprintEvents === 0
       ? { incompleteOnly: true as const }
       : {}),
@@ -1326,7 +1337,7 @@ export function buildFindings(
         ? "info"
         : highEntropyDetections.length > 0
         ? "warn"
-        : run.counts.fingerprintEvents > 0 || detectorCensored
+        : run.counts.fingerprintEvents > 0 || detectorCensored || singleSignalWebglOnly
           ? "info"
           : "ok",
     title:
@@ -1336,6 +1347,8 @@ export function buildFindings(
         ? highEntropyDetections.length === 1
           ? `${highEntropyDetectionLabels[0]} matched`
           : "Behavioral fingerprinting heuristics matched"
+        : singleSignalWebglOnly
+          ? "WebGL entropy-read heuristic matched only under the earlier single-signal rule"
         : run.counts.fingerprintEvents > 0
           ? "Fingerprint-like browser APIs were called"
           : scopedAbsenceTitle(facts, "fingerprint-apis", "No fingerprint-like API calls observed"),
@@ -1347,6 +1360,8 @@ export function buildFindings(
             highEntropyDetections.length,
             "behavioral heuristic"
           )} matched${detectorCensored ? " in retained evidence" : ""}: ${humanList(highEntropyDetectionLabels, 5)}.`
+        : singleSignalWebglOnly
+          ? `${detectorCensored ? "In retained evidence, a" : "A"} WebGL detection satisfied only the earlier single-signal rule, so it is shown as an observation, not counted as a heuristic match.`
         : run.counts.fingerprintEvents > 0
           ? fingerprintEventLead
           : "The scan did not observe the instrumented high-entropy browser APIs.",
@@ -1354,7 +1369,13 @@ export function buildFindings(
       detectorUnsupported
         ? "The report's zero-valued fingerprint fields are schema placeholders for an unavailable measurement, not an observed absence of fingerprint-like behavior."
         : highEntropyDetections.length > 0
-        ? "These heuristics look for behavior patterns such as canvas readback after drawing, repeated canvas font measurement, WebGL entropy reads, offline audio rendering, or WebRTC peer-connection setup. They are review prompts for this visit, not proof of cross-site identity tracking."
+        ? `These heuristics look for behavior patterns such as canvas readback after drawing, repeated canvas font measurement, WebGL entropy reads, offline audio rendering, or WebRTC peer-connection setup. They are review prompts for this visit, not proof of cross-site identity tracking.${
+            singleSignalWebglDetections.length > 0
+              ? ` The WebGL detection satisfied only the earlier single-signal rule (${SINGLE_SIGNAL_WEBGL_RULE}), so it is listed in the evidence but not counted among these heuristics.`
+              : ""
+          }`
+        : singleSignalWebglOnly
+          ? `Only the earlier single-signal rule matched: ${SINGLE_SIGNAL_WEBGL_RULE}. WebGL calls can be legitimate (charts, graphics, maps), so this is a review prompt for this visit, not proof of fingerprinting.`
         : run.counts.fingerprintEvents > 0
           ? `These calls can be legitimate (charts, graphics, media), so the count is observational, not a severity score, and it excludes Web and Service Workers. Top calls: ${humanList(topFingerprintApis)}.`
           : `This is an observation layer, not proof that fingerprinting is impossible.${detectorCensored ? CENSORED_ABSENCE_NOTE : ""}`,
@@ -1362,14 +1383,23 @@ export function buildFindings(
       detectorUnsupported
         ? "Unsupported by the request-only PageGraph r2 producer."
         : highEntropyDetections.length > 0
-        ? humanList(highEntropyDetections.map(detectionEvidence), 4)
+        ? humanList(
+            [
+              ...highEntropyDetections.map(detectionEvidence),
+              ...singleSignalWebglDetections.map((detection) => `${detectionLabel(detection)}: ${detectionEvidence(detection)}`)
+            ],
+            // The detail promises the single-signal entry is listed here.
+            4 + singleSignalWebglDetections.length
+          )
+        : singleSignalWebglOnly
+          ? humanList(singleSignalWebglDetections.map(detectionEvidence), 4)
         : fingerprintEventEvidence,
     claim: findingClaim(
       facts,
       "fingerprint-apis",
       detectorUnsupported
         ? "unavailable"
-        : highEntropyDetections.length > 0 || run.counts.fingerprintEvents > 0
+        : highEntropyDetections.length > 0 || singleSignalWebglOnly || run.counts.fingerprintEvents > 0
           ? "presence"
           : "absence"
     )

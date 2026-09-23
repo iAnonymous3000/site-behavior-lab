@@ -1012,7 +1012,8 @@ function buildUncorrectedReportHeadline(
   if (
     facts.claims["fingerprint-apis"].allowed &&
     run.counts.fingerprintEvents === 0 &&
-    highEntropy.length === 0
+    highEntropy.length === 0 &&
+    facts.signals.fingerprint.singleSignalWebglDetections.length === 0
   ) {
     completedAbsenceClaims.push("fingerprint-apis");
     completedAbsenceParts.push(
