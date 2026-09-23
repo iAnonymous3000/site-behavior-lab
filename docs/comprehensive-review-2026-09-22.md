@@ -128,6 +128,26 @@ for the maintainer, best taken once, together with the pending toolchain epoch
 (#9: Playwright 1.63, adblock-rust 0.13.3, tldts 7.4.13) and the Brave list
 adoption in #232. The designs below are the verifiers' corrected versions.
 
+**Update, 2026-09-23.** On review, the reasoning above overstated one
+constraint. v1 comparison pairs already treat detector findings as raw-only
+(detector versions are unknown on v1), and the one corpus metric fed by these
+detectors, `fingerprintEvents`, admits a run only when the fingerprinting family
+is uncensored. So a detector fix that keeps runs with lost listener attribution
+censored leaves every corpus population unchanged and needs no cohort split,
+which is how the v8 pixel epoch landed. The first four rows below (fingerprint,
+pixel, policy landing and aliases) were therefore fixed as detector epoch
+`node-detectors-v9`: `fd2685f`, `98b1f27`, `7641a99`, `64fc001`, with the
+identity bookkeeping in `8078dd7` (outgoing producer rows closed to their exact
+literals, one new admitted warning for listener-only loss) and review fixes in
+`f7370fb` (policy text excludes script and style content, so a vendor loader on
+the policy page never counts as a mention), `3d0e554` and `de39348`. The
+policy check now fails closed more often; `3ff1487` states that recall cost.
+The remaining rows change what v1 reports pool (the subject's HTTP status,
+request counts after a probe-aborted navigation) or are low severity; they wait
+for the toolchain epoch in #9, which also requires the staging A/B described in
+docs/toolchain-epoch.md. The Brave list snapshot of 2026-09-21 was adopted
+separately in `e249350`, as the playbook asks.
+
 | Finding | Severity | Identity change | Corrected design |
 |---|---|---|---|
 | Listener stack saturation discards a frame's whole fingerprint snapshot; about a quarter of corpus visits since 2026-08-07 publish no fingerprint evidence the observer recorded (citi.com, capitalone.com) | medium | observer `@4`; the v1 capture-loss warning wording is an admitted public string | Latch a listener-attribution flag only at the saturation exit (not the integrity exits); carry it through snapshot normalization; keep canvas, font, WebGL, audio and WebRTC detections; record the fingerprinting loss and mark the heuristics partial; reword or add the v1 warning under the normalization-widening ritual |
