@@ -266,6 +266,14 @@ export const COVERAGE_BOUNDARY_ENTRIES: readonly CoverageBoundaryEntry[] = [
     absentIdentifiers: ["navigator.permissions", "permissions.query"]
   },
   {
+    id: "offscreen-canvas-2d",
+    label: "2D canvas work on an OffscreenCanvas",
+    reason: "not-instrumented",
+    explanation:
+      "A script can draw text, measure fonts, read pixels, or export an image through the 2D context of an OffscreenCanvas. The scanner watches those operations only on page canvases, so canvas and font fingerprinting done on an OffscreenCanvas is not observed. WebGL on an OffscreenCanvas is observed, because it shares the WebGL prototype the scanner watches. Canvas and WebGL use inside a worker realm is not observed.",
+    absentIdentifiers: ["OffscreenCanvasRenderingContext2D", "convertToBlob"]
+  },
+  {
     id: "script-integrity-drift",
     label: "Third-party script integrity over time",
     reason: "not-instrumented",
