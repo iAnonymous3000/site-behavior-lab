@@ -28,14 +28,26 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
   (was v1.62.1-noble at `dcc5531e`), whose Node 24.18.1 and npm 11.16.0
   become Node 24.20.0 and npm 11.19.0; adblock-rust 0.13.2 to 0.13.3, with
   the vendored WASM rebuilt from the locked Cargo graph (`aa0df933` to
-  `4034076e`); and tldts 7.4.10 to 7.4.13. New Node reports record the
+  `4034076e`); and tldts 7.4.10 to 7.4.13. The inputs are frozen as of the
+  tldts 7.4.13 cut: tldts 7.4.14 (published 2026-09-21) and 7.4.15
+  (2026-09-23) are excluded and wait for a later epoch. New Node reports
+  record the
   `shields-request-context-v2-adblock-rust-0.13.3-request-method-v1-playwright-1.63.0+subject-validity-v3+detector-coverage-v2`
   base methodology and the `tldts@7.4.13` normalization, and the reviewed
   corpus line advances to that methodology. Detector versions do not move.
   Published reports keep their recorded identities: the outgoing Node and
   PageGraph producer rows are closed to their exact literals, the outgoing
-  normalization stays readable, and committed v1 reports that name the
-  outgoing methodology stay fixed points. The engine differential found no
+  normalization identity stays accepted, and committed v1 reports that name
+  the outgoing methodology stay fixed points. The tldts move is not a
+  widening. Every stored report is re-redacted with the new engine when it is
+  read, whatever its era, so one holding a host whose redaction the new
+  engine changes fails closed instead of being served: a label below a
+  removed suffix rule that is now generalized, a direct child of a newly
+  wildcarded zone such as `*.eth.limo`, or a host that is now a suffix itself
+  such as `cloud.run`. No committed report holds such a host. For the live
+  store the owner accepted that instead of remediating: shares expire after 7
+  days and the storage bucket deletes them at 8, so only reports saved in the
+  8 days before the deploy can be affected. The engine differential found no
   changed block decision and the public-suffix refresh no changed parse over
   the committed corpus; neither is a replay of live traffic.
 - Detector epoch `node-detectors-v9` revises three detectors.

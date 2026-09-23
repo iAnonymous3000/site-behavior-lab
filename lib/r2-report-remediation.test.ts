@@ -14,7 +14,8 @@ import { buildProvenanceEntry } from "./redaction-provenance";
 import { buildReportShare } from "./report-locator";
 import {
   MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
-  REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX
+  REDACTION_V3_TO_V4_NORMALIZATION_SUFFIX,
+  SUPERSEDED_R2_NORMALIZATIONS
 } from "./scan-report-v2-normalization";
 import { buildFingerprints } from "./scan-report-v2-fingerprints";
 import { makePublicSingleReportV2, makeScanReportV1 } from "./scan-report-v2-fixtures";
@@ -24,7 +25,8 @@ import {
 } from "./scan-report-v2-r2-fixtures";
 import {
   MIGRATABLE_REDACTION_VERSION,
-  r2ReportRuns
+  r2ReportRuns,
+  redactPublicScanReportV2R2
 } from "./scan-report-v2-r2-remediation";
 import {
   HISTORICAL_NODE_R2_V3_ADBLOCK_ENGINE_VERSION,
@@ -33,7 +35,8 @@ import {
   HISTORICAL_NODE_R2_V3_DETECTOR_REGISTRY_VERSION,
   HISTORICAL_NODE_R2_V3_DETECTOR_VERSIONS,
   HISTORICAL_NODE_R2_V3_METHODOLOGY_VERSION,
-  HISTORICAL_NODE_R2_V3_TRACKER_CATALOG
+  HISTORICAL_NODE_R2_V3_TRACKER_CATALOG,
+  NODE_R2_PRODUCER_TUPLES
 } from "./scan-report-v2-r2-producer-contract";
 import type { ScanRunV2R2 } from "./scan-report-v2-r2";
 
@@ -646,3 +649,112 @@ function legacyV3R2Report() {
   assert.equal(publicReportDigest(report), before);
   return clone;
 }
+
+test("the planner and reader refuse a stored report holding a host the tldts@7.4.13 refresh moved", () => {
+  // The 2026-09 toolchain epoch keeps accepting the tldts@7.4.10 identity, but
+  // the managed reader re-sanitizes every stored v4 report with the current
+  // engine. These are the exact bytes the 7.4.10 engine published for hosts in
+  // the three failing categories of changed zone (see the
+  // SUPERSEDED_R2_NORMALIZATIONS entry). Under 7.4.13 none is a fixed point,
+  // so the remediation Worker's dry run (which runs this planner) must count
+  // each as an issue, and the reader must refuse it rather than serve bytes
+  // the current sanitizer would change. The controls stay readable.
+  const retired = SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].find((normalization) =>
+    normalization.includes(
+      "public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+"
+    )
+  );
+  assert.notEqual(retired, undefined);
+  const tuple = NODE_R2_PRODUCER_TUPLES.find(
+    (candidate) => candidate.normalizationVersion === retired && candidate.adblockIdentity === null
+  );
+  assert.notEqual(tuple, undefined);
+
+  function storedWithRequestHost(domain: string) {
+    const report = makePublicSingleReportV2R2();
+    const run = report.run;
+    run.privacy.redactionVersion = REDACTION_VERSION;
+    run.toolchain.normalizationVersion = retired!;
+    run.provenance.methodologyVersion = tuple!.methodologyVersion;
+    run.provenance.detectorRegistry = { ...tuple!.detectorRegistry };
+    run.toolchain.trackerCatalog = { ...tuple!.trackerCatalog };
+    run.toolchain.adblock = null;
+    for (const id of Object.keys(run.detectors) as Array<keyof typeof run.detectors>) {
+      run.detectors[id] = { ...run.detectors[id], version: tuple!.detectorVersions[id] };
+    }
+    run.evidence.requests.push({
+      id: 2,
+      url: "https://cdn.tracker-example.com/app.js",
+      domain: "cdn.tracker-example.com",
+      method: "GET",
+      resourceType: "script",
+      status: 200,
+      thirdParty: true,
+      tracker: null,
+      startedAtMs: 20,
+      phaseId: 0
+    });
+    run.fingerprints = buildFingerprints({
+      conditions: run.conditions,
+      provenance: run.provenance,
+      toolchain: run.toolchain,
+      detectors: run.detectors
+    });
+    // Sanitize under the current engine first, then substitute the bytes the
+    // 7.4.10 engine published, so the host is the only difference.
+    const stored = redactPublicScanReportV2R2(report);
+    if (stored.reportType !== "single") throw new Error("fixture invariant");
+    const request = stored.run.evidence.requests.find((entry) => entry.id === 2);
+    if (!request) throw new Error("fixture invariant");
+    request.url = `https://${domain}/{seg}`;
+    request.domain = domain;
+    const sidecar = buildProvenanceEntry({
+      reportId: REPORT_ID,
+      publicReport: stored,
+      writtenAt: CLOCK.createdAt,
+      createdAt: CLOCK.createdAt,
+      expiresAt: CLOCK.expiresAt
+    });
+    return { reportContents: JSON.stringify(stored), sidecarContents: JSON.stringify(sidecar) };
+  }
+
+  for (const [domain, readable] of [
+    // A direct child of a wildcard-added zone is now a suffix.
+    ["{label}.eth.limo", false],
+    ["{label}.cursorusercontent.com", false],
+    // adaptable.app is no longer a suffix, so its label is generalized.
+    ["myapp.adaptable.app", false],
+    // An exact host that was a registrable domain and is now a suffix.
+    ["cloud.run", false],
+    ["eastus-01.azurewebsites.net", false],
+    // Controls: deeper and allowlisted hosts in the same zones are unchanged,
+    // including an app host below an added Azure region rule.
+    ["{label}.{label}.eth.limo", true],
+    ["api.cloud.run", true],
+    ["api.adaptable.app", true],
+    ["{label}.eastus-01.azurewebsites.net", true],
+    ["cdn.tracker-example.com", true]
+  ] as const) {
+    const { reportContents, sidecarContents } = storedWithRequestHost(domain);
+    const read = readManagedReport({ reportId: REPORT_ID, reportContents, sidecarContents, retention: CLOCK });
+    const plan = planR2ReportRemediation({
+      reportId: REPORT_ID,
+      reportContents,
+      sidecarContents,
+      retentionSource: METADATA_SOURCE,
+      writtenAt: WRITTEN_AT,
+      now: WRITTEN_AT
+    });
+    if (readable) {
+      assert.equal(read.ok, true, domain);
+      assert.equal(plan.ok && plan.action, "current", domain);
+    } else {
+      assert.deepEqual(read.ok ? "ok" : read.reason, "redaction-not-idempotent", domain);
+      assert.deepEqual(
+        plan.ok ? plan.action : plan.issue,
+        "redaction-not-idempotent",
+        domain
+      );
+    }
+  }
+});

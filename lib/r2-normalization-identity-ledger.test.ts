@@ -38,7 +38,10 @@ import {
  *      in the published corpus and the reviewed allowlists.
  *   3. For a narrowing: STOP. Published reports need remediation before the
  *      identity may move; see docs/scan-report-v2-rfc.md and the remediation
- *      CLI.
+ *      CLI. The one exception is an engine refresh the owner accepts without
+ *      remediation, recorded in its SUPERSEDED_R2_NORMALIZATIONS entry with
+ *      everything that file's docblock requires (the tldts 7.4.10 to 7.4.13
+ *      move is one). Stored reports it changes fail closed on read.
  *   4. Check every producer tuple that references an ACTIVE or computed
  *      constant (the node-v4-*-active-* family in
  *      scan-report-v2-r2-producer-contract.ts): tuples that described the OLD

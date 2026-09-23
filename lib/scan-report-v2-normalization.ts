@@ -38,7 +38,7 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
 
 /**
  * Identities this generation has already published and retired without
- * remediating a single byte. Two kinds of change qualify, and nothing else.
+ * remediating a single byte. Three kinds of change qualify, and nothing else.
  *
  * A WIDENING of the sanitizer's public-string vocabulary admits strings the
  * older pass replaced with a placeholder, so every report the older pass
@@ -54,27 +54,78 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
  * differentially before adding the entry, never assume it from a patch-level
  * version bump.
  *
+ * A public-suffix engine refresh that CAN remove admitted strings qualifies
+ * only as a recorded owner exception. An entry is not a readability guarantee:
+ * the managed reader re-runs the current sanitizer over every stored
+ * redaction-v4 r2 report whatever normalization it declares, so a stored report
+ * holding a host whose redaction the new engine changes fails closed as
+ * redaction-not-idempotent. Such an entry needs, in its own comment, the
+ * complete set of host shapes that stop being fixed points, the committed
+ * corpus proof that none of them is published, the retention bound on the live
+ * store, and the owner's acceptance of orphaning the stored reports that hold
+ * one. Short of all four, remediate.
+ *
  * Exact strings, never a pattern, for the same reason the v3 set is exact: an
  * unreviewed or self-declared identity must fail closed rather than be blessed
- * by inference. Only add an entry for a change that cannot remove a string from
- * the admitted set; anything that can REQUIRES remediation instead.
+ * by inference. Outside that recorded exception, only add an entry for a
+ * change that cannot remove a string from the admitted set; anything that can
+ * REQUIRES remediation instead.
  */
 export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
   Record<ObserverKind, readonly string[]>
 > = Object.freeze({
   "node-playwright": Object.freeze([
     // Retired by the 2026-09 toolchain epoch, which moved the public-suffix
-    // engine to tldts@7.4.13 under the same policy digest. tldts-core 7.4.13
-    // ships the same JavaScript as 7.4.10 and tldts changes only its suffix
-    // trie (94 rules added, 8 removed). Every host-like token and URL in the
-    // committed reports, their provenance sidecars, the index, the allowlists,
-    // the tracker catalogs and every other tracked text file parses to the
-    // same domain, suffix and ICANN/private flags and redacts to the same
-    // bytes under both engines, and none falls inside a changed rule's zone,
-    // so every committed report stays a fixed point. A live report holding a
-    // host under a removed rule (adaptable.app, xnbay.com, datacenter.fi,
-    // vps.hrsn.au, or directly under aivencloud.com) would not; the committed
-    // corpus is the evidence this entry rests on.
+    // engine to tldts@7.4.13 under the same policy digest. This is the
+    // recorded owner exception in the docblock above, not a widening: it
+    // removes admitted strings. tldts-core 7.4.13 ships the same JavaScript as
+    // 7.4.10 and tldts changes only its suffix trie: 94 rules added (6
+    // wildcard, 88 exact) and 8 removed. The authoritative list is the rule
+    // diff between the two tldts tries. By category, a host the 7.4.10
+    // sanitizer published:
+    // 1. under one of the 8 removed rules stops being a fixed point when a
+    //    label the older engine kept whole as part of the registrable domain
+    //    is now generalized or moved: "myapp.adaptable.app" becomes
+    //    "{label}.adaptable.app". A host whose labels below the new
+    //    registrable domain are all ones the allowlist keeps stays fixed
+    //    (api.adaptable.app, www.xnbay.com; not www.u2.xnbay.com, whose u2 is
+    //    generalized). Below aivencloud.com only direct children fail, all of
+    //    them, because *.aivencloud.com replaces it;
+    // 2. that is a direct child of one of the 6 wildcard-added zones
+    //    (*.eth.limo, *.eth.link, *.p.azurewebsites.net,
+    //    *.cursorusercontent.com, *.builtwithrocket.new, *.aivencloud.com)
+    //    stops being a fixed point: "{label}.eth.limo" is now a suffix and
+    //    redacts to "{invalid-host}";
+    // 3. below one of the 88 exact added rules STAYS a fixed point. This is
+    //    the form most likely in live reports, because Azure's newer default
+    //    App Service hostnames sit under the 71 added
+    //    "<region>-01.azurewebsites.net" rules: the older engine already
+    //    published them as "{label}.<region>-01.azurewebsites.net", which the
+    //    new one reads as a registrable domain and leaves alone;
+    // 4. equal to one of those exact rules, now a suffix itself, stops being
+    //    a fixed point for 84 of the 88 (cloud.run, scw.site, the bare Azure
+    //    region hosts, among others); the other 4 were published as
+    //    "{label}.<parent>" and stay fixed.
+    // readManagedReport enters its fixed-point branch on the redaction
+    // version alone, never the normalization, so every stored redaction-v4 r2
+    // report of every era, not only cb7064 ones, is re-redacted with the new
+    // engine when read, and one holding a host in category 1, 2 or 4 fails
+    // closed as redaction-not-idempotent instead of being served. Read-time
+    // party grouping of a host kept whole under a changed zone also follows
+    // the new engine (api.cloud.run groups as itself, no longer under
+    // cloud.run).
+    // Committed corpus: every host-like token and URL in the committed
+    // reports, their provenance sidecars, the index, the allowlists, the
+    // tracker catalogs and every other tracked text file parses to the same
+    // domain, suffix and ICANN/private flags and redacts to the same bytes
+    // under both engines, and none falls inside a changed rule's zone, so
+    // every committed report stays a fixed point. Live store: the application
+    // stops serving a share at its 7-day expiry and the bucket's
+    // reports-retention-backstop-8d rule deletes the reports/ prefix at 8 days
+    // (research/ops-receipts/r2-lifecycle-readback.json; the owner read the
+    // rule back with wrangler for this epoch), so exposure is bounded to
+    // reports saved in the 8 days before the deploy that hold such a host.
+    // The owner accepted orphaning those reports instead of remediating them.
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:cb7064a154022024d8ffa25c110de6feff64f2b0ecbd375b14a24ff17105059d+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1",
     // Retired by node-detectors-v9, which admits the fingerprint
     // listener-attribution disclosure beside the unreadable-frame one. Only a
@@ -157,9 +208,11 @@ export function currentR2NormalizationForObserver(observer: ObserverKind): strin
 }
 
 /**
- * True for an identity this generation may READ unchanged: the active one, or
- * one it superseded by widening. Producing a fresh report still requires the
- * active identity; this only governs already-published bytes.
+ * True for an identity this generation ACCEPTS on already-published bytes: the
+ * active one, or one it superseded (see SUPERSEDED_R2_NORMALIZATIONS). This
+ * gates the declared identity only; each report must still be a fixed point of
+ * the current sanitizer to be read. Producing a fresh report still requires
+ * the active identity.
  */
 export function isReadableR2Normalization(observer: ObserverKind, source: string): boolean {
   return (
