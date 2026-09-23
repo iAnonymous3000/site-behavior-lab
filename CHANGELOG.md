@@ -29,9 +29,11 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
   page is itself a policy, so a link that lands on the site root or back on a
   scanned page with no policy path, a redirect that drops the policy path, a
   not-found or error page, or a page with no policy wording records a failed
-  policy read; it also matches mentions by catalog entity, adds the trade
-  names Yahoo, Segment, Smart AdServer, Rubicon Project and Clarity by
-  Microsoft, and no longer counts the word "clarity" as naming Microsoft. It
+  policy read; it also matches mentions by catalog entity, adds trade names
+  such as Yahoo, Twilio Segment (as Twilio, segment.io or segment.com, never
+  the bare word), Smart AdServer, Rubicon Project and Microsoft Clarity (as
+  clarity.ms or Clarity by Microsoft), and no longer counts the word
+  "clarity" as naming Microsoft. It
   reads the policy text without the page's script, style, noscript and
   template content, so a vendor loader in the policy page's body (Clarity,
   Segment, Google Analytics, the Meta Pixel, Bing UET) no longer counts as
