@@ -100,7 +100,7 @@ test("current operator docs record the fresh WAF and seven-day log receipts", ()
     assert.doesNotMatch(document, /recovery-route WAF[\s\S]{0,40}(?:missing|pending|required)/i);
   }
 
-  for (const document of [readme, goLive, evidenceSurvey]) {
+  for (const document of [readme, operations, goLive, evidenceSurvey]) {
     assert.match(document, /scanner non-production[\s\S]{0,40}(?:builds are )?disabled/i);
     assert.match(document, /Access-(?:protected|restricted)/i);
     assert.doesNotMatch(document, /preview deployments are (?:currently )?enabled and\s+public/i);
@@ -108,11 +108,27 @@ test("current operator docs record the fresh WAF and seven-day log receipts", ()
   // The September dashboard recheck found automatic previews disabled. Keep
   // the current operating contract separate from the dated July receipt:
   // existing deployments still require Access even when new builds are off.
-  for (const document of [readme, goLive]) {
+  for (const document of [readme, operations, goLive]) {
     assert.match(document, /Pages\s+automatic\s+preview\s+deployments\s+are disabled/i);
     assert.match(document, /existing preview deployments[\s\S]{0,60}Access-protected/i);
     assert.doesNotMatch(document, /Pages\s+automatic\s+preview\s+deployments\s+are enabled/i);
   }
+  // docs/operations.md kept the pre-cutover posture after the README moved on:
+  // previews "still build", production was "Cloudflare Pages and the scanner's
+  // Workers Builds", and the reference Pages site built itself from Git. Main
+  // CI now builds both artifacts, and the two Deploy Tested workflows are the
+  // only production writers.
+  assert.match(source(".github/workflows/deploy-pages.yml"), /^name: Deploy Tested Pages$/m);
+  assert.match(source(".github/workflows/deploy-container.yml"), /^name: Deploy Tested Container$/m);
+  assert.match(operations, /`Deploy Tested Pages`/);
+  assert.match(operations, /`Deploy Tested Container`/);
+  assert.doesNotMatch(operations, /preview deployments remain enabled/i);
+  assert.doesNotMatch(operations, /do not describe them as disabled/i);
+  assert.doesNotMatch(operations, /scanner's Workers Builds\)/i);
+  assert.doesNotMatch(operations, /via its Git integration/i);
+  assert.doesNotMatch(operations, /triggers Cloudflare Pages to rebuild/i);
+  assert.doesNotMatch(operations, /through that protected preview/i);
+  assert.doesNotMatch(operations, /stays a preview/i);
   assert.match(
     evidenceSurvey,
     /2026-07-28 preview recheck[\s\S]{0,140}Pages\s+automatic preview deployments[\s\S]{0,80}Access-restricted/i
