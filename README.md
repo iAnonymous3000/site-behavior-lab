@@ -81,7 +81,8 @@ and a printable PDF. Reports produced by the public instance are stored for a
 bounded window; a curated corpus of committed reports under `public/reports/`
 drives the site directory, per-site history pages, category pages, and the
 corpus percentiles a report is ranked against. Each publication is appended to
-a transparency log whose head is periodically anchored with OpenTimestamps.
+a transparency log whose head is anchored with OpenTimestamps through a weekly
+proposal that a maintainer merges.
 
 ## What a report proves, and what it does not
 
@@ -276,9 +277,9 @@ corresponding release gates stay open until they are re-captured.
 Scheduled automation: featured-site rescans run weekly in two legs (the
 gallery catalog and the de-bias seed catalog), each opening a pull request that
 a human must approve and merge (never hand-merged); a weekly run submits the
-current transparency-log head to OpenTimestamps calendars and proposes the
-anchor in a pull request, which a human must approve and merge before the
-published log carries it; production health is checked every quarter hour and
+current transparency-log head to OpenTimestamps calendars and adds the anchor
+to one standing anchor proposal, which a human must approve and merge before
+the published log carries it; production health is checked every quarter hour and
 hourly; Dependabot proposals get their derived manifests regenerated
 automatically but still need a human. The weekly Brave Shields list refresh
 fetches and validates the lists, then force-updates one proposal branch,
@@ -356,8 +357,10 @@ identity change and follows `RELEASE.md`, not a routine edit.
   `CHANGELOG.md`: what a tag claims and what still blocks 1.0.
 - `docs/pagegraph-adapter.md`, `docs/native-shields-differential.md`:
   research-only importers and comparisons that never write public reports.
-- `docs/critical-use-audit-2026-09-01.md`: the most recent audit against the
-  critical-use definition, with what was found, fixed, and deliberately left.
+- `docs/comprehensive-review-2026-09-22.md`: the most recent review of the
+  whole repository, with what was found, fixed, deliberately left for the next
+  measurement epoch, and refuted. `docs/critical-use-audit-2026-09-01.md` is
+  the earlier audit against the critical-use definition.
 
 ## Contributing, security, license
 

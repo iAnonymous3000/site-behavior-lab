@@ -7,7 +7,82 @@ public API or a 1.0 release.
 
 ## Unreleased
 
-Changes after the prepared 0.6.0 milestone will be recorded here.
+Changes after the prepared 0.6.0 milestone are recorded here. The 0.6.0 tag,
+when it is cut, will also contain them, because the ceremony tags a commit on
+`main` at or after the declaration. The full review behind most of these
+entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-review-2026-09-22.md).
+
+### Security
+
+- next moves to 16.3.6 and the sharp override to 0.35.4, past
+  GHSA-2xp9-vwfh-vxw4 (critical, Image Optimization API) and
+  GHSA-rgj7-g3m4-5g8c (high, bundled libheif), which had made npm audit and
+  both Trivy scans fail.
+
+### Changed
+
+- Subject validity v3 recognizes a network-security interstitial served with
+  HTTP 200 (a denial and appeal page on a sparse document) as a suspected
+  block, and the reviewed corpus line follows it. Historical cohorts keep
+  their identities.
+- Catalog hosting suffixes (`azurefd.net`, `azureedge.net`) survive report
+  persistence under a new normalization identity, with the outgoing producer
+  tuples closed.
+- A Shields filter-list CNAME match no longer names an operator; only curated
+  catalog matches do.
+- PDF exports carry every request row in visit order and can be verified
+  independently of the viewer.
+- Category pages state that their rows come from the page's one measurement
+  cohort and disclose when listed sites have newer eligible visits outside it.
+  Category rows count a site's retained reports the way the directory and
+  profile do.
+- Report titles give up the date before the domain, so no committed title is
+  cut; comparison kind and report reference always remain.
+- A verified consent pair leads with the Reject-all visit its findings board
+  describes; pair-framed share text and social cards no longer show one
+  visit's unlabeled counts; a permalink discloses when the visit landed on a
+  different site than requested.
+- The anchoring workflow extends one proposal branch instead of opening a new
+  pull request for the same log head each week, carrying pending proofs
+  forward.
+- React 19.3, lucide-react 1.47, and the development tooling (Node and Worker
+  types, axe, Wrangler) are updated. The Worker sources are typechecked only
+  in their own program, which was the cause of the type failures in #228.
+
+### Fixed
+
+- The privacy page and homepage no longer say the input probe flushes unload
+  beacons; teardown-only transmissions are not measured.
+- The homepage's initial JavaScript no longer includes the report-view and
+  comparison modules (198 KB to 182 KB gzip before the React update).
+- The changelog heading uses the bracketed form the tag ceremony requires, and
+  main CI now checks the same form.
+- The release-readiness scripts build the schema contract they need, so a
+  fresh checkout (including the 1.0 ceremony) no longer fails
+  `decisions-approved` with a false reason.
+- A consent arm's uncatalogued cross-site hosts are scored with the fixed
+  thresholds instead of rendering a green bottom line; the fingerprint card
+  counts distinct APIs; a pixel firing in two phases is named once; pair
+  comparability reasons no longer show raw wire tokens; a v1 consent
+  comparison whose click left the site is refused.
+- A page that stalls after opening a loopback connection is reported as a
+  load timeout, not a private-network target. Watch creation stops before
+  redeeming a Turnstile token when encrypted watches are disabled.
+- The homepage calls its successfully loaded site count that, not "measured";
+  keyless generalized-host rows no longer date the status page's aggregate.
+- The coverage boundary discloses that OffscreenCanvas 2D work is not
+  observed.
+- Reports from 2026-06-25 to 2026-07-06 whose WebGL detections match only the
+  single-signal rule the observer dropped on 2026-07-20 label them as such and
+  no longer rank them at warn level; three bing.com reports that recorded the
+  homepage as the privacy policy no longer show omission cards over its text.
+- Documentation: the Brave list refresh and transparency anchoring are
+  described as they run, the operations runbook matches the tested-artifact
+  deployment, all eleven methodology components are listed, contributors are
+  told to use `npm ci`, and 37 broken links are fixed.
+- Worker source-shape tests fail when a marker is missing; deadline tests no
+  longer fail under load; unreachable helpers, exports and a never-emitted
+  failure cause are removed.
 
 ## [0.6.0] - 2026-09-06
 
