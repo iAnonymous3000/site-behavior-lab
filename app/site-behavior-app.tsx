@@ -29,10 +29,8 @@ import {
   clientReportRuntime,
   staticAssetPath
 } from "./client-runtime";
-import {
-  corpusCohortDifferences,
-  type CorpusCohortIdentity
-} from "@/lib/corpus-cohort";
+import { corpusCohortDifferences } from "@/lib/corpus-cohort-differences";
+import type { CorpusCohortIdentity } from "@/lib/corpus-cohort";
 import { committedReportLocation } from "@/lib/report-locator";
 import { HEADLINE_PLATFORMS } from "@/lib/headline-platforms";
 import { humanList } from "@/lib/text-format";
