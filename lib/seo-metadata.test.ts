@@ -32,7 +32,7 @@ test("report metadata is concise, report-specific, and retains the evidence cave
       scannedAt: "2026-07-20T10:11:12.000Z",
       reportType: "single"
     }),
-    /scan · 2026-07-20 · 76543210$/
+    /^a-very-long-customer-portal… scan · 76543210$/
   );
 
   const secondTitle = reportMetadataTitle({
@@ -53,6 +53,54 @@ test("report metadata is concise, report-specific, and retains the evidence cave
     }),
     /^\*\.example\.com scan/
   );
+
+  // The domain names the subject, so it is the last part of the title given
+  // up: the date goes first, and the kind and report ref always stay (the ref
+  // keeps same-day reports of one site distinct). The Shields and consent
+  // suffixes used to leave 12 characters, cutting 279 committed titles to
+  // "wikipedia.o… Shields · 2026-09-07 · 8944b222".
+  for (const domain of ["wikipedia.org", "news.ycombinator.com", "bankofamerica.com"]) {
+    for (const comparisonAxis of ["shields", "consent", "gpc", null]) {
+      const titles = ["20260907-cb7678697af703e7ab1991f28944b222", "20260907-0123456789abcdef0123456789abcdef"].map(
+        (reportId) =>
+          reportMetadataTitle({
+            domain,
+            reportId,
+            scannedAt: "2026-09-07T05:34:32.428Z",
+            reportType: "comparison",
+            comparisonAxis
+          })
+      );
+      for (const rendered of titles) {
+        assert.ok(rendered.startsWith(`${domain} `), `${rendered}: the domain must stay whole`);
+        assert.doesNotMatch(rendered, /…/);
+        assert.match(rendered, / (?:Shields|consent|GPC|comparison) (?:· 2026-09-07 )?· [0-9a-f]{8}$/);
+        assert.ok(`${rendered}${SITE_TITLE_SUFFIX}`.length <= REPORT_RENDERED_TITLE_MAX_LENGTH, rendered);
+      }
+      assert.notEqual(titles[0], titles[1], `${domain} ${comparisonAxis}: same-day reports retain distinct titles`);
+    }
+  }
+  // A domain that fits beside the date keeps it.
+  assert.equal(
+    reportMetadataTitle({
+      domain: "bumble.com",
+      reportId: "20260625-07f93c51a267eb1795f563aa96b2167f",
+      scannedAt: "2026-06-25T00:00:00.000Z",
+      reportType: "comparison",
+      comparisonAxis: "shields"
+    }),
+    "bumble.com Shields · 2026-06-25 · 96b2167f"
+  );
+  // A genuinely overlong host is still cut, after the date has been given up.
+  const overlong = reportMetadataTitle({
+    domain: "a-very-long-customer-portal-subdomain.example.test",
+    reportId: "20260720-fedcba9876543210",
+    scannedAt: "2026-07-20T10:11:12.000Z",
+    reportType: "comparison",
+    comparisonAxis: "shields"
+  });
+  assert.equal(overlong, "a-very-long-customer-por… Shields · 76543210");
+  assert.ok(`${overlong}${SITE_TITLE_SUFFIX}`.length <= REPORT_RENDERED_TITLE_MAX_LENGTH, overlong);
 
   // Built from the real headline builder, never a hand-written claim: the
   // claim-bearing candidates this replaced were exercised only by a synthetic

@@ -67,9 +67,14 @@ export function reportMetadataTitle(input: {
             : "comparison";
   const date = isoDate(input.scannedAt);
   const reportRef = input.reportId.replace(/[^a-z0-9]/giu, "").toLowerCase().slice(-8) || "report";
-  const suffix = ` ${kind}${date ? ` · ${date}` : ""} · ${reportRef}`;
+  const host = displayHost(input.domain);
+  // The domain names the subject, so it is the last part given up. The date
+  // goes first; the kind and the ref always stay, since the ref is what keeps
+  // two same-day reports of one site on one axis distinct.
+  const datedSuffix = ` ${kind}${date ? ` · ${date}` : ""} · ${reportRef}`;
+  const suffix = host.length <= REPORT_TITLE_MAX_LENGTH - datedSuffix.length ? datedSuffix : ` ${kind} · ${reportRef}`;
   const domainBudget = Math.max(1, REPORT_TITLE_MAX_LENGTH - suffix.length);
-  return `${conciseMetadataText(displayHost(input.domain), domainBudget)}${suffix}`;
+  return `${conciseMetadataText(host, domainBudget)}${suffix}`;
 }
 
 /**
