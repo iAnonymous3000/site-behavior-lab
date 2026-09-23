@@ -402,7 +402,15 @@ const COMPARABILITY_DIMENSION_NAMES: Record<string, string> = {
   adblockManifest: "the filter-list snapshot",
   shieldsMode: "the Shields measurement mode",
   trackerCatalog: "the tracker-catalog snapshot",
-  "consent-banner": "the consent-banner state",
+  // Bare detector ids name the detector's recorded VERSION (both the
+  // detector-findings and consent-verification families compare
+  // detectors[id].version under them); `detectorStatus.<id>` names its status.
+  "fingerprint-heuristics": "the fingerprint-heuristics detector version",
+  "keystroke-exfiltration": "the keystroke-exfiltration detector version",
+  "cname-uncloaking": "the cname-uncloaking detector version",
+  "pixel-events": "the pixel-events detector version",
+  "consent-banner": "the consent-banner detector version",
+  "privacy-policy": "the privacy-policy detector version",
   "consent-interpreter": "the consent-platform interpreter"
 };
 
@@ -438,6 +446,14 @@ export function describeComparabilityReason(reason: string): string {
   const unknown = reason.match(/^unknown-dimension:(.+)$/);
   if (unknown) {
     return `The pair did not record ${comparabilityDimensionName(unknown[1])} for both visits, and an unrecorded condition never counts as matching.`;
+  }
+  // The two pair-level digests are whole-setup fingerprints, not versioned
+  // dependencies: name what differed instead of quoting the digest's key.
+  if (reason === "dependency-digest-mismatch:measurementEnvironment") {
+    return "The two visits recorded different measurement environments (browser, device, network egress, toolchain, detector, or methodology versions), so their difference can come from the setup rather than the declared condition.";
+  }
+  if (reason === "dependency-digest-mismatch:conditionFingerprint") {
+    return "The two visits ran under different recorded conditions (for example GPC, Brave-list blocking, consent mode, device, or locale), so they are not repeat visits of one setup.";
   }
   const digest = reason.match(/^dependency-digest-mismatch:(.+)$/);
   if (digest) {

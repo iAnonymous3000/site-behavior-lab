@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
   createConsentComparisonReport,
@@ -19,6 +21,7 @@ import {
   NODE_PLAYWRIGHT_VERSION,
   NODE_SCANNER_METHODOLOGY_VERSION
 } from "./legacy-methodology";
+import { DETECTOR_IDS } from "./scan-report-v2";
 import {
   makeInterventionComparisonReportV2,
   makeTemporalComparisonReportV2
@@ -458,6 +461,57 @@ test("v2 decision reasons are reader-facing sentences, never recorded tokens", (
   // No raw vocabulary token may reach a reader through the decision.
   for (const family of Object.values(decision.families)) {
     for (const reason of family.reasons) assert.doesNotMatch(reason, /^[a-z-]+(:|$)/);
+  }
+});
+
+test("every comparability token the evaluators can emit reads as a sentence, never a quoted wire token", () => {
+  // Enumerated from the evaluators' own source, not restated here, so a new
+  // emitted dimension without a reader name fails this test instead of
+  // reaching readers as the quoted fallback. The pair-level digest tokens
+  // (measurementEnvironment, conditionFingerprint) and the bare detector ids
+  // used to render as 'different versions of the recorded "conditionFingerprint"
+  // condition' on the gallery's temporal comparison.
+  const sources = ["scan-report-v2-evaluators.ts", "scan-report-v2-r2-evaluators.ts"].map((file) =>
+    readFileSync(path.join(process.cwd(), "lib", file), "utf8")
+  );
+  const tokens = new Set<string>();
+  const vocabulary =
+    /^(?:subject-mismatch|design-invalid|(?:run-failed|family-censored|arm-verification-failed|arm-verification-inconclusive|unknown-dimension|dependency-digest-mismatch|dependency-version-mismatch):.+)$/;
+  for (const source of sources) {
+    for (const [, token] of source.matchAll(/"([a-z-]+(?::[A-Za-z.-]+)?)"/g)) tokens.add(token);
+    for (const [, prefix] of source.matchAll(/`([a-z-]+):\$\{arm\}`/g)) {
+      for (const side of ["baseline", "variant"]) tokens.add(`${prefix}:${side}`);
+    }
+    for (const [, name] of source.matchAll(/digestReason\("([A-Za-z.-]+)"/g)) {
+      tokens.add(`unknown-dimension:${name}`);
+      tokens.add(`dependency-digest-mismatch:${name}`);
+    }
+    for (const [, name] of source.matchAll(/^\s*\["([A-Za-z.]+)", a\./gm)) tokens.add(`unknown-dimension:${name}`);
+    for (const [, prefix, status] of source.matchAll(/`([a-z-]+):(detectorStatus\.)?\$\{id\}`/g)) {
+      for (const id of DETECTOR_IDS) tokens.add(`${prefix}:${status ?? ""}${id}`);
+    }
+  }
+  const tokenList = [...tokens].filter((token) => vocabulary.test(token));
+  assert.ok(tokenList.includes("subject-mismatch") && tokenList.includes("arm-verification-failed:baseline"));
+  // Floors, so a source refactor that defeats the patterns cannot pass on nothing.
+  assert.ok(tokenList.includes("dependency-digest-mismatch:measurementEnvironment"));
+  assert.ok(tokenList.includes("dependency-digest-mismatch:conditionFingerprint"));
+  assert.ok(tokenList.includes("unknown-dimension:egress.region"));
+  assert.ok(tokenList.includes("dependency-version-mismatch:consent-interpreter"));
+  assert.ok(tokenList.includes("run-failed:variant"));
+  for (const id of DETECTOR_IDS) {
+    assert.ok(tokenList.includes(`dependency-version-mismatch:${id}`), id);
+    assert.ok(tokenList.includes(`unknown-dimension:detectorStatus.${id}`), id);
+  }
+  assert.ok(tokenList.length >= 40, `only ${tokenList.length} tokens enumerated`);
+
+  for (const token of tokenList) {
+    const sentence = describeComparabilityReason(token);
+    assert.equal(sentence.includes('"'), false, `${token} fell through to a quoted sentence: ${sentence}`);
+    assert.doesNotMatch(sentence, /recorded comparability evaluation named/, token);
+    assert.doesNotMatch(sentence, /record the recorded/, token);
+    assert.doesNotMatch(sentence, /measurementEnvironment|conditionFingerprint|detectorStatus/, token);
+    assert.match(sentence, /^[A-Z].*\.$/, token);
   }
 });
 
