@@ -39,7 +39,7 @@
     {
       "path": "tools/adblock-wasm/Cargo.lock",
       "bytes": 16224,
-      "sha256": "101584a7cea0ccd4cd67fcbe0024e1e4364682f647f41152a7c68e4fa7363e8d"
+      "sha256": "c745cfc603b1f621238abda26953f56219fa711e0c23b8960c3f82e79fcbdb6e"
     },
     {
       "path": "tools/adblock-wasm/src/lib.rs",
@@ -60,8 +60,8 @@
     },
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm",
-      "bytes": 2000522,
-      "sha256": "aa0df9333b0355123792200ddad6e4584a26ef0b40c69e89ee94743a27721610"
+      "bytes": 2006098,
+      "sha256": "4034076ed79f1b8aa7c023c03ec87b7c3c84ae01c447097d4d9650b93a4a1082"
     },
     {
       "path": "lib/adblock-wasm/sbl_adblock_wasm_bg.wasm.d.ts",

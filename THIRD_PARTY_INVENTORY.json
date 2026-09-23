@@ -11,7 +11,7 @@
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
-      "sha256": "101584a7cea0ccd4cd67fcbe0024e1e4364682f647f41152a7c68e4fa7363e8d"
+      "sha256": "c745cfc603b1f621238abda26953f56219fa711e0c23b8960c3f82e79fcbdb6e"
     },
     "cargoManifest": {
       "path": "tools/adblock-wasm/Cargo.toml",
@@ -2058,10 +2058,10 @@
   "cargo": [
     {
       "name": "adblock",
-      "version": "0.13.2",
+      "version": "0.13.3",
       "kind": "third-party",
       "source": "registry+https://github.com/rust-lang/crates.io-index",
-      "checksum": "77420e48225975c472eaea1b7c767af6caebea02d910043b0af7a1271d47ec9c",
+      "checksum": "f44b96a666a23c12acad7c688bfe8638a7094e7eabe765b09a6864ab991c676d",
       "license": "UNKNOWN",
       "licenseStatus": "unknown-not-recorded-in-cargo-lock",
       "licenseEvidence": null

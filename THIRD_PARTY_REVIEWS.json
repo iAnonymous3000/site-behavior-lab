@@ -2342,10 +2342,10 @@
       "notes": null
     },
     {
-      "key": "cargo:adblock@0.13.2",
+      "key": "cargo:adblock@0.13.3",
       "ecosystem": "cargo",
       "name": "adblock",
-      "version": "0.13.2",
+      "version": "0.13.3",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": null,

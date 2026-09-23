@@ -7,7 +7,7 @@
  * remains legacy-derived and self-reported.
  */
 
-export const NODE_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.2";
+export const NODE_ADBLOCK_ENGINE_VERSION = "adblock-rust-0.13.3";
 export const NODE_PLAYWRIGHT_VERSION = "1.63.0";
 export const NODE_SHIELDS_REQUEST_CONTEXT_VERSION = `shields-request-context-v2-${NODE_ADBLOCK_ENGINE_VERSION}-request-method-v1`;
 export const NODE_SCANNER_METHODOLOGY_VERSION =

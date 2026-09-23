@@ -28,8 +28,8 @@ const COMMIT = "b".repeat(40);
 const ACTIVE_ENGINE: AdblockEngineStatus = {
   active: true,
   engine: "loaded",
-  version: "adblock-rust-0.13.2",
-  engineVersion: "adblock-rust-0.13.2",
+  version: "adblock-rust-0.13.3",
+  engineVersion: "adblock-rust-0.13.3",
   source: "Brave default ad-block lists",
   lists: 31,
   fetchedAt: NOW,
