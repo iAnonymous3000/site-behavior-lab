@@ -2146,10 +2146,10 @@
       "notes": null
     },
     {
-      "key": "npm:tldts@7.4.10",
+      "key": "npm:tldts@7.4.13",
       "ecosystem": "npm",
       "name": "tldts",
-      "version": "7.4.10",
+      "version": "7.4.13",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",
@@ -2160,10 +2160,10 @@
       "notes": null
     },
     {
-      "key": "npm:tldts-core@7.4.10",
+      "key": "npm:tldts-core@7.4.13",
       "ecosystem": "npm",
       "name": "tldts-core",
-      "version": "7.4.10",
+      "version": "7.4.13",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "MIT",

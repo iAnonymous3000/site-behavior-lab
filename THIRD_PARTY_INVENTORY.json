@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "a254b2a69ab70750b2278d43f6b93bdaeef891aef2d2d9bcd43537f1c75d1f33"
+      "sha256": "c6fdff6a024de9d78c5f8c00cdfe9f0e1e87f582da0d38475454d794636c2380"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -1888,25 +1888,25 @@
     },
     {
       "name": "tldts",
-      "version": "7.4.10",
+      "version": "7.4.13",
       "lockPath": "node_modules/tldts",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/tldts/-/tldts-7.4.10.tgz",
-      "integrity": "sha512-GgouD1B+sWwvkaEq8vXC15DjQitxbvs12oIXELpconwm+Tg3zfcEv4jgzq3vtKverDXsg3VI8aRgNL2Nra0Iog==",
+      "resolved": "https://registry.npmjs.org/tldts/-/tldts-7.4.13.tgz",
+      "integrity": "sha512-iHtaIWWIbMDkCeJdTBzZFGgbluE5J+oHlb2g7+oAz1S1gpuVpabRZdQyd471Vl8UUkcz2vXSL8xZH2kyCe8tfA==",
       "developmentOnly": false,
       "optional": false
     },
     {
       "name": "tldts-core",
-      "version": "7.4.10",
+      "version": "7.4.13",
       "lockPath": "node_modules/tldts-core",
       "license": "MIT",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/tldts-core/-/tldts-core-7.4.10.tgz",
-      "integrity": "sha512-KnQjp53ZekKgm/r3l+u8kJGGzYgrWdP8+Mql7a4vijh2WE0IrZWspQj/TpTxDho/YxO+AnOZnIjQcCD+q6iJsw==",
+      "resolved": "https://registry.npmjs.org/tldts-core/-/tldts-core-7.4.13.tgz",
+      "integrity": "sha512-mbYsrih5FRtGxs3Usvl/PqwJsNpp+jsmrdFviiK02teHDG0/HebBG/pqCylje3kzgXYzuLoHJF/0mz9W53t8Xg==",
       "developmentOnly": false,
       "optional": false
     },
