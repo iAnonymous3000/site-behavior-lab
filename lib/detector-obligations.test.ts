@@ -60,6 +60,10 @@ test("the obligation contract keeps every accountability registry epoch active",
     {
       detectorRegistryVersion: "node-detectors-v8",
       detectorRegistryDigest: "fcd25504e7d18811478b440fbd738a01cacfdb8e4811099edc5be62d84402947"
+    },
+    {
+      detectorRegistryVersion: "node-detectors-v9",
+      detectorRegistryDigest: "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
     }
   ]);
   assert.equal(
@@ -74,7 +78,7 @@ test("the obligation contract keeps every accountability registry epoch active",
     DETECTOR_OBLIGATION_TARGET_REGISTRIES[2],
     HISTORICAL_WRAPPED_VISIT_DETECTOR_OBLIGATION_TARGET_REGISTRY
   );
-  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[5], DETECTOR_OBLIGATION_TARGET_REGISTRY);
+  assert.equal(DETECTOR_OBLIGATION_TARGET_REGISTRIES[6], DETECTOR_OBLIGATION_TARGET_REGISTRY);
   assert.equal(Object.isFrozen(DETECTOR_OBLIGATION_TARGET_REGISTRIES), true);
 });
 

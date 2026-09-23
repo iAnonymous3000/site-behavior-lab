@@ -22,6 +22,8 @@ import {
 import { scannerDisclosure } from "./scan-condition-disclosure";
 import {
   aggregateByteBudgetWarning,
+  FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
+  FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
@@ -359,6 +361,16 @@ test("the incomplete pixel-decoder disclosure survives the public boundary", () 
 
   const { report } = redactScanResultV1(input);
   assert.deepEqual(report.warnings, [PIXEL_DECODE_CAPTURE_LOSS_WARNING]);
+});
+
+test("both fingerprint-observer disclosures survive the public boundary", () => {
+  // The frame line stays admitted for every report that carries it; the
+  // listener line is the fingerprint-observer@4 widening beside it.
+  const input = sensitiveSingle();
+  input.warnings = [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING];
+
+  const { report } = redactScanResultV1(input);
+  assert.deepEqual(report.warnings, [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING, FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING]);
 });
 
 test("the incomplete synthetic-input probe disclosure survives the public boundary", () => {

@@ -42,6 +42,7 @@ import {
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
 import { formatCount } from "./text-format";
+import { findTrackerMatch } from "./tracker-catalog";
 import {
   SCAN_REPORT_SCHEMA_VERSION,
   type DomainSummary,
@@ -1964,6 +1965,56 @@ test("frozen-v1 policy arrays retain actual tracking entities and discard non-tr
   assert.match(card.detail, /not automatically a violation/);
   assert.match(card.evidence, /0 of 1 observed tracking company named in the policy/);
   assert.equal(card.claim?.mode, "presence");
+});
+
+test("policy alias misses are unknown per entity until the cross-check version that could name it", () => {
+  // @6 re-keyed Amazon and Oracle; @7 added the trade names the other five are
+  // usually written under. The Trade Desk is written as its catalog name, so
+  // its misses count at every version. An exact "@6" test re-hedged Amazon and
+  // Oracle on every @7 report.
+  const hosts: Record<string, string> = {
+    "Amazon Ads": "amazon-adsystem.com",
+    "Oracle Advertising": "bluekai.com",
+    "Twilio Segment": "segment.com",
+    "Yahoo Advertising": "adtech.de",
+    Equativ: "smartadserver.com",
+    Magnite: "magnite.com",
+    "Microsoft Clarity": "clarity.ms",
+    "The Trade Desk": "adsrvr.org"
+  };
+  // One entity per visit, so each verdict is read from its own card.
+  const unknownAt = (version: string): string[] =>
+    Object.entries(hosts).filter(([entity, host]) => {
+      const report = makePublicSingleReportV2R2();
+      const id = report.run.evidence.requests.length + 1;
+      const tracker = findTrackerMatch(host);
+      assert.equal(tracker?.entity, entity, host);
+      report.run.evidence.requests.push({
+        id, url: `https://${host}/{seg}`, domain: host, method: "GET", resourceType: "script", status: 200,
+        thirdParty: true, tracker, startedAtMs: 20 + id, phaseId: 0
+      });
+      report.run.evidence.privacyPolicy = {
+        url: "https://shop.example.com/privacy",
+        claims: [],
+        mentionedEntities: [],
+        unmentionedEntities: [entity],
+        policyTextLength: 5000
+      };
+      report.run.detectors["privacy-policy"] = { version, status: "complete", phaseId: 0 };
+      const card = byId(buildFindings(viewFromV2(report, 2), null), "privacy-policy");
+      const unknown = /historical alias matcher was incomplete/.test(card.evidence);
+      // Exactly one of the two readings: an unknown mention is never also
+      // published as a company the policy does not appear to name.
+      assert.equal(card.evidence.includes("0 of 1 observed tracking company named"), !unknown, `${version} ${entity}`);
+      return unknown;
+    }).map(([entity]) => entity).sort();
+  const reKeyed = ["Amazon Ads", "Oracle Advertising"];
+  const tradeNamed = ["Equativ", "Magnite", "Microsoft Clarity", "Twilio Segment", "Yahoo Advertising"];
+  assert.deepEqual(unknownAt("policy-text-cross-check@5"), [...reKeyed, ...tradeNamed].sort());
+  assert.deepEqual(unknownAt("policy-text-cross-check@6"), tradeNamed);
+  assert.deepEqual(unknownAt("policy-text-cross-check@7"), []);
+  assert.deepEqual(unknownAt("policy-text-cross-check@12"), []);
+  assert.deepEqual(unknownAt("pagegraph-import-unsupported@1"), [...reKeyed, ...tradeNamed].sort());
 });
 
 test("frozen-v1 unclassified services cannot create a tracking-company policy claim", () => {

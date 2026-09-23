@@ -21,6 +21,27 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
 
 ### Changed
 
+- Detector epoch `node-detectors-v9` revises three detectors.
+  `pixel-request-decoder@6` reads multipart form bodies (a page's `FormData`
+  beacon) field by field instead of reading them as complete forms with no
+  events, and records a multipart body it cannot read completely as a decoding
+  gap. `policy-text-cross-check@7` reads a privacy policy only when the landed
+  page is itself a policy, so a link that lands on the site root or back on a
+  scanned page with no policy path, a redirect that drops the policy path, a
+  not-found page, or a page with no policy wording records a failed policy
+  read; it also matches mentions by catalog entity, adds the trade names
+  Yahoo, Segment, Smart AdServer, Rubicon Project and Clarity by Microsoft,
+  and no longer counts the word "clarity" as naming Microsoft.
+  `fingerprint-observer@4` keeps a frame's canvas, WebGL, audio and WebRTC
+  evidence when only its listener attribution is bounded, withholds that
+  frame's session-recording and input-monitoring findings, and says so in a
+  new admitted warning that readers censor exactly like the unreadable-frame
+  warning. Published reports keep their recorded detector versions: the
+  outgoing producer rows are closed to their exact identities, the outgoing
+  normalization identity stays readable, and a report from an earlier
+  cross-check version treats a missed mention of Twilio Segment, Yahoo
+  Advertising, Equativ, Magnite or Microsoft Clarity as unknown rather than as
+  an omission.
 - Subject validity v3 recognizes a network-security interstitial served with
   HTTP 200 (a denial and appeal page on a sparse document) as a suspected
   block, and the reviewed corpus line follows it. Historical cohorts keep

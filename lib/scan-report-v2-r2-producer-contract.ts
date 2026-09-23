@@ -418,10 +418,22 @@ const PAGEGRAPH_6C78_TLDTS_749_NORMALIZATION =
 
 const HISTORICAL_NODE_V7_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
 const HISTORICAL_NODE_V7_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v2+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
+// Exact producer used in production before the September filter refresh, and
+// the production producer until node-detectors-v9. Declared here, above the
+// methodology map that names it, so module evaluation never reads it early.
+const HISTORICAL_NODE_V10_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
+const HISTORICAL_NODE_V10_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
 
 export const HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION: Readonly<
   Record<string, readonly string[]>
 > = Object.freeze({
+  // The 4273 identity closed when node-detectors-v9 admitted the fingerprint
+  // listener-attribution disclosure. It ran the subject-validity-v2 catalog
+  // suffix rows first and the subject-validity-v3 network-security rows after.
+  [HISTORICAL_NODE_V10_NORMALIZATION]: Object.freeze([
+    HISTORICAL_NODE_V7_METHODOLOGY,
+    HISTORICAL_NODE_V10_METHODOLOGY
+  ]),
   [HISTORICAL_NODE_V7_NORMALIZATION]: Object.freeze([HISTORICAL_NODE_V7_METHODOLOGY]),
   [HISTORICAL_NODE_R2_2026_08_04_NORMALIZATION_VERSION]: Object.freeze([
     HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION,
@@ -523,6 +535,19 @@ export const HISTORICAL_R2_LISTS_2026_08_15_ADBLOCK_IDENTITY = Object.freeze({
   lists: 31,
   fetchedAt: "2026-08-15T05:18:29.332Z",
   manifestDigest: "83cbcffc98c65083d7bd08e7c0224dfbb4360ba52a2c39a3345ca671051eb5c6",
+  engineVersion: "adblock-rust-0.13.2"
+} satisfies NonNullable<Toolchain["adblock"]>);
+
+/**
+ * Frozen copy of the September 7 list snapshot, as the node-detectors-v8
+ * production rows published it. The live constant above keeps moving with
+ * each adoption; this closed copy never does.
+ */
+export const HISTORICAL_R2_LISTS_2026_09_07_ADBLOCK_IDENTITY = Object.freeze({
+  source: "Brave default ad-block lists",
+  lists: 31,
+  fetchedAt: "2026-09-07T04:11:08.142Z",
+  manifestDigest: "72487242a444a911e669f41ceda3571c0eed9758e93679d6f3d3cb851de5a41c",
   engineVersion: "adblock-rust-0.13.2"
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -924,24 +949,29 @@ function nodeTuple(
   });
 }
 
-// Exact producer used in production before the September filter refresh.
-const HISTORICAL_NODE_V10_NORMALIZATION = "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+node-evidence-policy-v1+r2-http-status-compat-v1";
-const HISTORICAL_NODE_V10_METHODOLOGY = "shields-request-context-v2-adblock-rust-0.13.2-request-method-v1-playwright-1.62.1+subject-validity-v3+detector-coverage-v2+phase-kernel-v2+boundary-state-v1+consent-r2-v4+resource-budget-v2+proxy-traffic-v1+service-worker-block-v1+detector-accountability-v1+service-role-taxonomy-v1+gpc-worker-application-v2+active-probe-v2+auxiliary-context-block-v1";
-
-// Closed rows retain their exact literals; network-security subject checks define v10.
+// Closed rows retain their exact literals; detector epoch node-detectors-v9
+// (fingerprint-observer@4, pixel-request-decoder@6, policy-text-cross-check@7)
+// and its listener-attribution disclosure define v11.
 const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
-  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V7_METHODOLOGY ||
-  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V7_NORMALIZATION ||
-  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V7_FIELDS);
+  String(NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION) !== HISTORICAL_NODE_V10_METHODOLOGY ||
+  String(NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION) !== HISTORICAL_NODE_V10_NORMALIZATION ||
+  canonicalJson(ACTIVE_NODE_FIELDS) !== canonicalJson(HISTORICAL_NODE_V8_FIELDS);
 
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v10-network-security-active-lists-2026-09-07",
+        "node-v11-detectors-v9-active-lists-2026-09-07",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,
         NODE_R2_CURRENT_ADBLOCK_IDENTITY
+      ),
+      nodeTuple(
+        "node-v11-detectors-v9-active-no-adblock",
+        NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
+        NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
+        ACTIVE_NODE_FIELDS,
+        null
       )
     ])
   : Object.freeze([]);
@@ -1278,6 +1308,13 @@ export const NODE_R2_PRODUCER_TUPLES: readonly NodeR2ProducerTuple[] = Object.fr
     HISTORICAL_NODE_V10_NORMALIZATION, HISTORICAL_NODE_V10_METHODOLOGY,
     HISTORICAL_NODE_V8_FIELDS, null
   ),
+  // The node-detectors-v8 production producer after the September filter
+  // adoption, closed to its exact source identity by node-detectors-v9. Its
+  // no-list mode is the row above, which the adoption did not re-mint.
+  nodeTuple("node-v10-network-security-active-lists-2026-09-07",
+    HISTORICAL_NODE_V10_NORMALIZATION, HISTORICAL_NODE_V10_METHODOLOGY,
+    HISTORICAL_NODE_V8_FIELDS, HISTORICAL_R2_LISTS_2026_09_07_ADBLOCK_IDENTITY
+  ),
   ...ACTIVE_NODE_TUPLES
 ]);
 
@@ -1339,7 +1376,13 @@ export const PAGEGRAPH_R2_PRODUCER_TUPLES: readonly PageGraphR2ProducerTuple[] =
     "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:980a41d7ebd83e46269be8565bfa4547185d2282415884d39b7592752064df26+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
     HISTORICAL_R2_2026_08_TRACKER_CATALOG
   ),
-  pageGraphTuple("pagegraph-v4-catalog-suffix-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
+  // Closed by the listener-attribution disclosure that node-detectors-v9
+  // admitted; the public-string policy digest is shared by both observers.
+  pageGraphTuple("pagegraph-v4-catalog-suffix-active",
+    "redaction-v4+allowlists-v3:269f631f04090ce582644ee3cf0e5c5b6bb425dc4929bc283607b808bc9322a9+public-string-policy-v3:42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1",
+    HISTORICAL_R2_2026_08_TRACKER_CATALOG
+  ),
+  pageGraphTuple("pagegraph-v4-listener-warning-active", PAGEGRAPH_R2_NORMALIZATION_VERSION, ACTIVE_TRACKER_CATALOG, {
     methodologyVersion: PAGEGRAPH_R2_METHODOLOGY_VERSION,
     publicLimits: PAGEGRAPH_R2_PUBLIC_LIMITS,
     detectorRegistry: PAGEGRAPH_REGISTRY,

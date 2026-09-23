@@ -229,6 +229,31 @@ const DOUBLECLICK_REMARKETING_HOST = /(^|\.)stats\.g\.doubleclick\.net$/;
 /** Appended to any absence claim whose evidence family was censored. */
 const CENSORED_ABSENCE_NOTE = " Evidence collection was cut short, so this covers only what was recorded before the cutoff.";
 
+/**
+ * The first policy-text-cross-check version whose alias table can name each
+ * entity the way policies commonly do. @6 re-keyed Amazon and Oracle from
+ * parent-company names to their catalog entities; @7 keyed the rest by catalog
+ * entity and added the trade names these five are usually written under
+ * (Segment, Yahoo, Smart AdServer, Rubicon Project, Clarity). A non-match from
+ * an older run is unknown for that entity, never an omission. Entities whose
+ * catalog name is the common spelling are absent: their old misses stand.
+ */
+const POLICY_ALIAS_RELIABLE_FROM: Readonly<Record<string, number>> = {
+  "Amazon Ads": 6,
+  "Oracle Advertising": 6,
+  "Twilio Segment": 7,
+  "Yahoo Advertising": 7,
+  Equativ: 7,
+  Magnite: 7,
+  "Microsoft Clarity": 7
+};
+
+/** The recorded cross-check ordinal; v1 and non-Node producers count as oldest. */
+function policyCrossCheckOrdinal(version: string | undefined): number {
+  const match = /^policy-text-cross-check@([1-9][0-9]{0,3})$/.exec(version ?? "");
+  return match ? Number(match[1]) : 0;
+}
+
 /** The rule a single-signal WebGL detection satisfied (see isSingleSignalWebglDetection). */
 const SINGLE_SIGNAL_WEBGL_RULE =
   "before 2026-07-20 the scanner recorded the WebGL heuristic after either a WebGL parameter read or a pixel readback, and the current rule requires both";
@@ -710,7 +735,7 @@ export function buildFindings(
       level: "info",
       title: "Privacy-policy cross-check not established",
       lead: "The page this scan recorded as the privacy policy is a homepage (the root of its site), not a policy document, so no policy text was compared against this visit's evidence. That is a limit of the automated check, not a finding about the site either way.",
-      detail: `The scanner reads whatever document the page's privacy-policy link leads to; here that was a site root, for example because the link redirects to or points at the homepage. Company mentions and policy statements recorded from that text are not used.${
+      detail: `The scanner that recorded this visit read whatever document the page's privacy-policy link led to; here that was a site root, for example because the link redirected to or pointed at the homepage. Company mentions and policy statements recorded from that text are not used.${
         policyReadNoteShown ? " The measurement note that the privacy policy was read refers to this homepage text." : ""
       }`,
       evidence: `Page recorded as the policy: ${policy.url} (the site root); no policy text compared.`,
@@ -776,8 +801,10 @@ export function buildFindings(
     const policyUnmentionedEntityNames = new Set(policy.unmentionedEntities);
     // Earlier instruments used parent-company keys that did not match the
     // catalog. A historical non-match cannot support an omission accusation.
-    const unreliablePolicyAliases = run.detectors?.["privacy-policy"]?.version === "policy-text-cross-check@6"
-      ? [] : ["Amazon Ads", "Oracle Advertising"];
+    const policyDetectorOrdinal = policyCrossCheckOrdinal(run.detectors?.["privacy-policy"]?.version);
+    const unreliablePolicyAliases = Object.keys(POLICY_ALIAS_RELIABLE_FROM).filter(
+      (entity) => policyDetectorOrdinal < POLICY_ALIAS_RELIABLE_FROM[entity]!
+    );
     const unknownPolicyMentions = trackingNames.filter(entity =>
       unreliablePolicyAliases.includes(entity) && policyUnmentionedEntityNames.has(entity));
     for (const entity of unknownPolicyMentions) policyUnmentionedEntityNames.delete(entity);

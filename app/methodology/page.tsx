@@ -101,9 +101,10 @@ export default function MethodologyPage() {
         <p>
           Advertising-pixel evidence distinguishes an observed endpoint, a retained event label, and a populated
           identifier field. A label such as Purchase does not verify a purchase or successful delivery. Current
-          decoding records unreadable, malformed, unsupported, and partially decoded bodies as coverage gaps
-          while retaining supported observations. Older decoders did not record every such gap; missing labels
-          or identifier fields in historical evidence cannot establish their absence from the original traffic.
+          decoding reads multipart form bodies field by field and records unreadable, malformed, unsupported,
+          and partially decoded bodies as coverage gaps while retaining supported observations. Older decoders
+          did not record every such gap; missing labels or identifier fields in historical evidence cannot
+          establish their absence from the original traffic.
           Optional evidence omitted from a legacy report remains unrecorded, even when its table is empty.
         </p>
         <p>

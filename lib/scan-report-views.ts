@@ -16,6 +16,7 @@ import {
   type ComparisonDecision
 } from "./comparison-decision";
 import {
+  runHitFingerprintListenerAttributionLoss,
   runHitFingerprintObserverCaptureLoss,
   runHitGpcWorkerCaptureLoss,
   runHitInvalidUpstreamResponseCaptureLoss,
@@ -632,8 +633,12 @@ function runViewFromV1(result: ScanResult, label: RunView["label"], scannedAt: s
   if (runHitUnsettledRoutedRequests(result)) reasons.push("capture-loss:unsettled-routed-requests");
   if (runHitProxyTrafficBudget(result)) reasons.push("budget-exhausted:proxy-traffic");
   // Not a budget: the instrument itself did not run. Scoped to the families it
-  // actually covers rather than censoring the whole run.
-  if (runHitFingerprintObserverCaptureLoss(result)) reasons.push("capture-loss:fingerprint-observer");
+  // actually covers rather than censoring the whole run. A read frame whose
+  // listener attribution was bounded takes the same reason, so both warnings
+  // censor the same families and leave the same corpus population.
+  if (runHitFingerprintObserverCaptureLoss(result) || runHitFingerprintListenerAttributionLoss(result)) {
+    reasons.push("capture-loss:fingerprint-observer");
+  }
   if (runHitPixelDecodeCaptureLoss(result)) reasons.push("capture-loss:pixel-decode");
   if (runHitKeystrokeProbeCaptureLoss(result)) reasons.push("capture-loss:keystroke-probe");
   return {

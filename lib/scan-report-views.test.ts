@@ -30,9 +30,17 @@ import {
 } from "./scan-report-views";
 import { runCensorshipNotes } from "./scan-report-censorship";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
-import { runRequestEvidenceCapped } from "./comparison-eligibility";
-import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
+  runHitFingerprintListenerAttributionLoss,
+  runHitFingerprintObserverCaptureLoss,
+  runRequestEvidenceCapped
+} from "./comparison-eligibility";
+import { createCorpusStatsAccumulator } from "./corpus-stats-builder";
+import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
+import { buildReportFacts } from "./report-facts";
+import {
+  FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
+  FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
@@ -350,6 +358,74 @@ test("an incomplete v1 pixel-body read censors detector output only", () => {
   assert.equal(familyCensoredOnRun(run, "cookies"), false);
   assert.equal(familyCensoredOnRun(run, "storage"), false);
   assert.equal(familyCensoredOnRun(run, "fingerprinting"), false);
+});
+
+test("a v1 listener-attribution line censors fingerprinting exactly as the unreadable-frame line", () => {
+  // fingerprint-observer@4 reads a frame whose listener attribution was
+  // bounded, so the frame line would be false there and the scanner writes the
+  // listener line instead. Both must leave the same benchmark gate and the
+  // same corpus population. Each variant runs through the real view, facts
+  // and corpus accumulator, never a hand-built view.
+  assert.equal(runHitFingerprintObserverCaptureLoss({ warnings: [FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING] }), false);
+  assert.equal(runHitFingerprintListenerAttributionLoss({ warnings: [FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING] }), false);
+  assert.equal(runHitFingerprintListenerAttributionLoss({ warnings: [FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING] }), true);
+
+  const outcome = (warnings: string[]) => {
+    const report = makeScanReportV1() as ScanResult;
+    report.summary.firstPartyDomain = "listener-fixture.net";
+    report.conditions.requestedUrl = "https://listener-fixture.net/";
+    report.conditions.finalUrl = "https://listener-fixture.net/";
+    report.summary.totalRequests = 12;
+    report.summary.thirdPartyRequests = 5;
+    report.summary.fingerprintEvents = 4;
+    report.fingerprintEvents = [{ api: "canvas.toDataURL", count: 4 }];
+    report.warnings = warnings;
+    const view = viewFromV1Report(report);
+    const run = view.runs[0];
+    const facts = buildReportFacts(view).display;
+    const corpus = createCorpusStatsAccumulator(new Date("2026-09-23T00:00:00.000Z"));
+    corpus.add(`20260709-${"f".repeat(32)}`, view);
+    return {
+      run,
+      reasons: run.quality.reasons,
+      censored: ["requests", "cookies", "storage", "fingerprinting", "detector-output"].map((family) =>
+        familyCensoredOnRun(run, family as Parameters<typeof familyCensoredOnRun>[1])
+      ),
+      claims: {
+        fingerprint: facts.claims["fingerprint-apis"],
+        listeners: facts.claims["session-recording-input-monitoring"],
+        requests: facts.claims["third-party-services"]
+      },
+      cohorts: corpus.finish().cohorts
+    };
+  };
+  const clean = outcome([]);
+  const frame = outcome([FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING]);
+  const listener = outcome([FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING]);
+
+  assert.deepEqual(listener.reasons, ["capture-loss:fingerprint-observer"]);
+  assert.deepEqual(listener.reasons, frame.reasons);
+  assert.deepEqual(listener.censored, frame.censored);
+  assert.deepEqual(listener.censored, [false, false, false, true, true]);
+  assert.deepEqual(listener.claims, frame.claims);
+  assert.equal(listener.claims.fingerprint.benchmarkAllowed, false);
+  assert.deepEqual(listener.claims.fingerprint.blockers, ["family-censored"]);
+  assert.equal(clean.claims.fingerprint.benchmarkAllowed, true);
+  // The corpus: identical cohorts for both lines, the run still measured for
+  // requests, and fingerprintEvents admitted only when neither line is present.
+  assert.deepEqual(listener.cohorts, frame.cohorts);
+  assert.equal(listener.cohorts.length, 1);
+  assert.equal(listener.cohorts[0]?.metrics.thirdPartyRequests?.count, 1);
+  assert.equal(listener.cohorts[0]?.metrics.fingerprintEvents, undefined);
+  assert.equal(clean.cohorts[0]?.metrics.fingerprintEvents?.count, 1);
+
+  // Only the prose differs, and each says what its own line says.
+  const frameNotes = runCensorshipNotes(frame.run).join(" ");
+  const listenerNotes = runCensorshipNotes(listener.run).join(" ");
+  assert.match(frameNotes, /could not read every frame/);
+  assert.doesNotMatch(listenerNotes, /could not read every frame/);
+  assert.match(listenerNotes, /could not attribute every event listener/);
+  assert.doesNotMatch(listenerNotes, /capture-loss:/);
 });
 
 test("a timed-out v1 synthetic-input probe censors detector and request evidence", () => {

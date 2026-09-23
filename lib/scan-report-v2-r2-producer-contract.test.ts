@@ -8,6 +8,7 @@ import {
   type PageGraphCaptureMetadataV1
 } from "./pagegraph-v2-r2-builder";
 import {
+  isReadableR2Normalization,
   MIGRATABLE_REDACTION_V3_NORMALIZATIONS,
   SUPERSEDED_R2_NORMALIZATIONS
 } from "./scan-report-v2-normalization";
@@ -38,6 +39,7 @@ import {
   HISTORICAL_PAGEGRAPH_R2_EXPECTED_DETECTORS,
   HISTORICAL_PAGEGRAPH_R2_METHODOLOGY_VERSION,
   HISTORICAL_R2_LISTS_2026_08_04_ADBLOCK_IDENTITY,
+  NODE_R2_CURRENT_ADBLOCK_IDENTITY,
   NODE_R2_PRODUCER_TUPLES,
   NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
   PAGEGRAPH_R2_DETECTOR_REGISTRY_DIGEST,
@@ -180,7 +182,9 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v9-catalog-suffix-active-no-adblock",
       "node-v10-network-security-active-lists-2026-08-15",
       "node-v10-network-security-active-no-adblock",
-      "node-v10-network-security-active-lists-2026-09-07"
+      "node-v10-network-security-active-lists-2026-09-07",
+      "node-v11-detectors-v9-active-lists-2026-09-07",
+      "node-v11-detectors-v9-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
   assert.equal(Object.isFrozen(NODE_R2_PRODUCER_TUPLES), true);
@@ -339,7 +343,7 @@ test("the detector-v6 identity preserves the v4 resource-budget rows and the clo
     (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
   );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v10-network-security-active-lists-2026-08-15"
+    (tuple) => tuple.id === "node-v11-detectors-v9-active-lists-2026-09-07"
   );
   assert.equal(historical?.methodologyVersion, HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION);
   assert.equal(
@@ -678,6 +682,11 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
     catalog: serviceRoleTracker,
     mixedVersion: "hand-curated-2026.07"
   });
+  oracle.push({
+    normalizationVersion: `${V4_PREFIX}42735187d5a7121bacd36074418a138c64dfb0eb5575b5983a134398670e5384+tldts@7.4.10+pagegraph-request-evidence-v1+r2-http-status-compat-v1`,
+    catalog: serviceRoleTracker,
+    mixedVersion: "hand-curated-2026.07"
+  });
   assert.equal(PAGEGRAPH_R2_PRODUCER_TUPLES.length, oracle.length + 1);
   assert.equal(Object.isFrozen(PAGEGRAPH_R2_PRODUCER_TUPLES), true);
   const activeMethodologySuffix = active.provenance.methodologyVersion.slice(
@@ -711,7 +720,7 @@ test("every exact PageGraph normalization row replays and mixed tracker identiti
 
 test("closed PageGraph epochs are pinned literals that still match the live identity today", () => {
   const closedIds = PAGEGRAPH_R2_PRODUCER_TUPLES.filter(
-    (tuple) => tuple.id !== "pagegraph-v4-catalog-suffix-active"
+    (tuple) => tuple.id !== "pagegraph-v4-listener-warning-active"
   ).map((tuple) => tuple.id);
   assert.equal(closedIds.length > 0, true);
   // (a) The frozen registry digest is this exact hex, and it is the sha256 of
@@ -763,7 +772,7 @@ test("closed PageGraph epochs are pinned literals that still match the live iden
   );
   // Every closed row names the frozen identity, never the live constants.
   for (const tuple of PAGEGRAPH_R2_PRODUCER_TUPLES) {
-    if (tuple.id === "pagegraph-v4-catalog-suffix-active") continue;
+    if (tuple.id === "pagegraph-v4-listener-warning-active") continue;
     assert.deepEqual(
       tuple.detectorRegistry,
       {
@@ -859,4 +868,113 @@ test("September filter adoption preserves both outgoing production identities ex
   const ids = ["node-v10-network-security-active-lists-2026-08-15","node-v10-network-security-active-no-adblock"];
   const rows = ids.map((id) => NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === id));
   assert.equal(sha256Hex(canonicalJson(rows)), "a10f39d204897537247464e10a1e9dfbef75aedb5794151ed93849665d71871c");
+});
+
+// Captured by executing the tables at 32328b2c, the last node-detectors-v8
+// source, before the v9 detector epoch closed them.
+test("the detectors-v9 epoch preserves every outgoing production identity exactly", () => {
+  const ids = ["node-v10-network-security-active-lists-2026-09-07", "node-v10-network-security-active-no-adblock"];
+  const rows = ids.map((id) => NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === id));
+  assert.equal(sha256Hex(canonicalJson(rows)), "bf69046092173a1afceb277cd5a960fbe456becb5b3e559ed83776a2526ce688");
+  const pagegraph = PAGEGRAPH_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "pagegraph-v4-catalog-suffix-active");
+  assert.equal(sha256Hex(canonicalJson(pagegraph)), "fdea8ca72fa8fd2e835a3e3be514a9c55705f33134eb809e27d154eb8b4686f8");
+});
+
+test("the live Node producer is accepted with and without the Brave lists", () => {
+  // Until v11 the active identity had no no-list row of its own: it matched
+  // a closed v10 row byte for byte. Once the identity moves, a missing active
+  // no-list row would reject every scan that ran without the lists.
+  const withLists = makeScanRunV2R2();
+  assert.notEqual(withLists.toolchain.adblock, null);
+  assert.doesNotThrow(() => assertR2ProducerContract(withLists));
+  const withoutLists = makeScanRunV2R2();
+  withoutLists.toolchain.adblock = null;
+  assert.doesNotThrow(() => assertR2ProducerContract(withoutLists));
+  const live = NODE_R2_PRODUCER_TUPLES.filter(
+    (tuple) =>
+      tuple.normalizationVersion === withLists.toolchain.normalizationVersion &&
+      tuple.methodologyVersion === withLists.provenance.methodologyVersion &&
+      canonicalJson(tuple.detectorRegistry) === canonicalJson(withLists.provenance.detectorRegistry)
+  );
+  assert.deepEqual(live.map((tuple) => tuple.adblockIdentity === null), [false, true]);
+});
+
+test("every closed v4 producer row names a normalization readers still accept", () => {
+  // A retired identity stays readable only through SUPERSEDED_R2_NORMALIZATIONS.
+  // A closed row whose identity is missing there replays in the producer
+  // contract yet fails remediation as an unreviewed identity. v3 identities are
+  // governed by the migration table instead.
+  for (const [observer, rows] of [
+    ["node-playwright", NODE_R2_PRODUCER_TUPLES],
+    ["pagegraph-import", PAGEGRAPH_R2_PRODUCER_TUPLES]
+  ] as const) {
+    for (const tuple of rows) {
+      if (tuple.normalizationVersion.startsWith("redaction-v3+")) continue;
+      assert.equal(isReadableR2Normalization(observer, tuple.normalizationVersion), true, tuple.id);
+    }
+  }
+});
+
+test("every superseded Node row is paired with its own methodology for remediation replay", () => {
+  // Remediation replays each superseded identity once per methodology this map
+  // names, so a row missing from the map is never replayed and a map pair with
+  // no row replays nothing. Both directions must hold for every retirement.
+  const superseded = new Set(SUPERSEDED_R2_NORMALIZATIONS["node-playwright"]);
+  for (const tuple of NODE_R2_PRODUCER_TUPLES) {
+    if (!superseded.has(tuple.normalizationVersion)) continue;
+    assert.equal(
+      HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION[tuple.normalizationVersion]?.includes(tuple.methodologyVersion),
+      true,
+      `${tuple.id} is not paired with its methodology`
+    );
+  }
+  for (const [normalization, methodologies] of Object.entries(HISTORICAL_NODE_R2_V4_METHODOLOGIES_BY_NORMALIZATION)) {
+    for (const methodology of methodologies) {
+      assert.equal(
+        NODE_R2_PRODUCER_TUPLES.some(
+          (tuple) => tuple.normalizationVersion === normalization && tuple.methodologyVersion === methodology
+        ),
+        true,
+        `${normalization} + ${methodology} names no producer row`
+      );
+    }
+  }
+});
+
+test("closed v10 reports keep their exact detector identity when v11 moves three detectors", () => {
+  const closed = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v10-network-security-active-lists-2026-09-07");
+  const current = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v11-detectors-v9-active-lists-2026-09-07");
+  assert.ok(closed && current);
+  assert.deepEqual(closed.detectorRegistry, {
+    version: "node-detectors-v8", digest: "fcd25504e7d18811478b440fbd738a01cacfdb8e4811099edc5be62d84402947"
+  });
+  assert.deepEqual(current.detectorRegistry, {
+    version: "node-detectors-v9", digest: "b15c8281f0db49b91a46427ffee63e44bf7bbbfc0a9878069c2bb1098b6d4715"
+  });
+  const moved = { "fingerprint-heuristics": ["fingerprint-observer@3", "fingerprint-observer@4"],
+    "pixel-events": ["pixel-request-decoder@5", "pixel-request-decoder@6"],
+    "privacy-policy": ["policy-text-cross-check@6", "policy-text-cross-check@7"] } as const;
+  for (const [id, [before, after]] of Object.entries(moved) as Array<[keyof typeof moved, readonly [string, string]]>) {
+    assert.equal(closed.detectorVersions[id], before, id);
+    assert.equal(current.detectorVersions[id], after, id);
+  }
+  assert.equal(closed.methodologyVersion, current.methodologyVersion, "no methodology component moved");
+  assert.notEqual(closed.normalizationVersion, current.normalizationVersion, "the admitted listener disclosure widens the vocabulary");
+  assert.equal(SUPERSEDED_R2_NORMALIZATIONS["node-playwright"].includes(closed.normalizationVersion), true);
+  // The closed row keeps the September 7 list snapshot as a literal, never the
+  // live constant a later adoption will move (the digest pin above holds its
+  // value; this holds its independence).
+  assert.equal(current.adblockIdentity, NODE_R2_CURRENT_ADBLOCK_IDENTITY);
+  assert.notEqual(closed.adblockIdentity, NODE_R2_CURRENT_ADBLOCK_IDENTITY);
+  assert.equal(closed.adblockIdentity?.fetchedAt, "2026-09-07T04:11:08.142Z");
+  assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(closed)));
+  assert.doesNotThrow(() => assertR2ProducerContract(runForTuple(current)));
+  for (const id of Object.keys(moved) as Array<keyof typeof moved>) {
+    const hybrid = runForTuple(closed);
+    hybrid.detectors[id].version = current.detectorVersions[id];
+    assert.throws(() => assertR2ProducerContract(hybrid), R2ProducerContractError, id);
+  }
+  const relabeled = runForTuple(closed);
+  relabeled.toolchain.normalizationVersion = current.normalizationVersion;
+  assert.throws(() => assertR2ProducerContract(relabeled), R2ProducerContractError);
 });

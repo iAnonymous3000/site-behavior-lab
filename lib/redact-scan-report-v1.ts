@@ -45,6 +45,7 @@ import { MIN_POLICY_TEXT_LENGTH } from "./privacy-policy";
 import { scannerDisclosure, type ScanConditionsProfile } from "./scan-condition-disclosure";
 import { PUBLIC_SCANNER_EGRESS_LABELS } from "./scanner-egress";
 import {
+  FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
@@ -345,6 +346,9 @@ const FIXED_SCANNER_WARNINGS = new Set([
   INVALID_UPSTREAM_RESPONSE_WARNING,
   UNSETTLED_ROUTED_REQUEST_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
+  // fingerprint-observer@4: every frame read, listener attribution bounded.
+  // Admitted beside the frame warning, which stays for unreadable frames.
+  FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING,
   GPC_WORKER_CAPTURE_LOSS_WARNING,

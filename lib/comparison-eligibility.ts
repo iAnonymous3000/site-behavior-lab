@@ -43,6 +43,8 @@ const UPLOAD_BYTE_CAP_WARNING_FRAGMENT = "stopped forwarding additional request 
 // fragments to the producer's exact warning vocabulary.
 const GPC_WORKER_CAPTURE_LOSS_WARNING_FRAGMENT = "Web Workers while applying the simulated GPC signal";
 const FINGERPRINT_OBSERVER_WARNING_FRAGMENT = "in-page fingerprint observer could not read one or more frames";
+const FINGERPRINT_LISTENER_ATTRIBUTION_WARNING_FRAGMENT =
+  "could not attribute every event listener to the script that registered it";
 const PIXEL_DECODE_WARNING_FRAGMENT =
   "recognized advertising-pixel request bodies could not be read in full";
 const KEYSTROKE_PROBE_INCOMPLETE_WARNING_FRAGMENT =
@@ -493,6 +495,17 @@ export function runHitUnsettledRoutedRequests(run: Pick<ScanResult, "warnings">)
  */
 export function runHitFingerprintObserverCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(FINGERPRINT_OBSERVER_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy run's fingerprint observer read every frame but bounded
+ * listener attribution in at least one (fingerprint-observer@4). The frame
+ * warning above is never emitted for this state, so this is the only v1
+ * channel for it. Readers censor the fingerprinting family for it exactly as
+ * for an unreadable frame, through the same quality reason.
+ */
+export function runHitFingerprintListenerAttributionLoss(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.some((warning) => warning.includes(FINGERPRINT_LISTENER_ATTRIBUTION_WARNING_FRAGMENT));
 }
 
 /**

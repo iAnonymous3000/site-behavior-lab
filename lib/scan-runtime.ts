@@ -50,6 +50,20 @@ export const KEYSTROKE_PROBE_INCOMPLETE_WARNING =
 export const FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING =
   "The in-page fingerprint observer could not read one or more frames, so fingerprint-like API calls and heuristics for this visit are incomplete.";
 /**
+ * Every frame was read, but at least one could not attribute every event
+ * listener to the script that registered it (fingerprint-observer@4 bounds
+ * listener attribution instead of discarding the frame). Its canvas, WebGL,
+ * audio and WebRTC evidence and its event counts were kept; only the
+ * session-recording and input-monitoring summaries were withheld.
+ *
+ * The frame warning above would be false here, since the frame was read. v1
+ * readers still censor the whole fingerprinting family for this line exactly
+ * as they do for that one, so the published population is unchanged. It must
+ * never contain the frame warning's recognition fragment.
+ */
+export const FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING =
+  "The in-page fingerprint observer read every frame but could not attribute every event listener to the script that registered it, so session-recording and input-monitoring findings for this visit are incomplete.";
+/**
  * A recognized advertising-pixel request carried a body that the scanner
  * could not read or interpret completely. v2 records the same fact in the
  * `detector-output` capture-loss ledger; v1 needs this stable warning so its

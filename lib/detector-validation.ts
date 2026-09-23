@@ -98,7 +98,7 @@ export const DETECTOR_VALIDATION_FIXTURES: readonly DetectorValidationFixture[] 
     file: "lib/fingerprint-observer.test.ts",
     testName: "a wrapper chain deeper than the stack bound records coverage loss instead of a clean read",
     verifies:
-      "A wrapper chain that saturates the bounded stack capture without resolving attribution records fingerprint coverage loss instead of a clean, complete read."
+      "A wrapper chain that saturates the bounded stack capture keeps the frame readable and counts it as listener-attribution loss instead of a clean, complete read."
   },
   {
     detector: "fingerprint-heuristics",

@@ -69,6 +69,7 @@ import {
   createNodeScanMeasurementEnvelope
 } from "./node-scan-measurement";
 import {
+  FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   PIXEL_DECODE_CAPTURE_LOSS_WARNING
@@ -1787,7 +1788,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@6",
+      version: "policy-text-cross-check@7",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1813,7 +1814,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
     );
     assert.equal(zillow.result.summary.status, 403);
     assert.deepEqual(zillow.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@6",
+      version: "policy-text-cross-check@7",
       status: "skipped",
       reason: "load-failed"
     });
@@ -1835,7 +1836,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       options
     );
     assert.deepEqual(policyCap.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@6",
+      version: "policy-text-cross-check@7",
       status: "skipped",
       reason: "evidence-cap-reached"
     });
@@ -1907,7 +1908,7 @@ test("HTTP-200 robot pages and unavailable subject collectors fail quality and s
       reason: "load-failed"
     });
     assert.deepEqual(unavailable.measurement.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@6",
+      version: "policy-text-cross-check@7",
       status: "skipped",
       reason: "load-failed"
     });
@@ -2366,7 +2367,7 @@ for (const pixelBodyCase of pixelBodyCases) {
 
       assert.equal(result.warnings.includes(PIXEL_DECODE_CAPTURE_LOSS_WARNING), true);
       assert.deepEqual(measurement.measurement.detectors["pixel-events"], {
-        version: "pixel-request-decoder@5",
+        version: "pixel-request-decoder@6",
         status: "partial",
         reason: pixelBodyCase.reason,
         phaseId: 0
@@ -2495,7 +2496,7 @@ test("scanSite marks fingerprint coverage partial when a poisoned main frame is 
       }
     );
     assert.deepEqual(staged!.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@3",
+      version: "fingerprint-observer@4",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -2588,7 +2589,7 @@ test("passive fingerprint loss remains causal when the consent snapshot is later
     assert.deepEqual(
       staged.measurement.detectors["fingerprint-heuristics"],
       {
-        version: "fingerprint-observer@3",
+        version: "fingerprint-observer@4",
         status: "partial",
         reason: "scan-failed",
         phaseId: consentPhase.phaseId
@@ -2788,9 +2789,10 @@ test("a saturated listener stack publishes the frame's canvas and WebGL evidence
       );
     }
     // The listener claim stays censored, on every channel the reader uses:
-    // the detector status, the capture-loss ledger, and the v1 warning.
+    // the detector status, the capture-loss ledger, and the v1 warning. Every
+    // frame was read, so the v1 line is the listener one, never the frame one.
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@3",
+      version: "fingerprint-observer@4",
       status: "partial",
       reason: "scan-failed",
       phaseId: 0
@@ -2799,7 +2801,12 @@ test("a saturated listener stack publishes the frame's canvas and WebGL evidence
       staged.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "fingerprint-observer"),
       [{ family: "fingerprinting", phaseId: 0, kind: "dropped", count: 1, detail: "fingerprint-observer" }]
     );
-    assert.equal(result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING), true);
+    assert.equal(result.warnings.includes(FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING), true);
+    assert.equal(
+      result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING),
+      false,
+      "a frame that was read must not be disclosed as unreadable"
+    );
 
     // Population invariant: the corpus admits a run's fingerprintEvents only
     // when facts.claims["fingerprint-apis"].benchmarkAllowed holds, so this
@@ -2820,6 +2827,8 @@ test("a saturated listener stack publishes the frame's canvas and WebGL evidence
     assert.equal(r2Facts.claims["fingerprint-apis"].exactCountAllowed, false);
     assert.deepEqual([...r2Facts.claims["fingerprint-apis"].blockers].sort(), ["detector-incomplete", "family-censored"]);
     assert.equal(r2Facts.claims["session-recording-input-monitoring"].allowed, false);
+    // The admitted listener line survives the public r2 boundary verbatim.
+    assert.equal(r2View.runs[0].warnings.includes(FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING), true);
     const v1Facts = buildReportFacts(viewFromV1Report(result)).display;
     assert.equal(v1Facts.claims["fingerprint-apis"].benchmarkAllowed, false);
     assert.deepEqual(v1Facts.claims["fingerprint-apis"].blockers, ["family-censored"]);
@@ -2919,7 +2928,7 @@ test("a passive read with bounded listener attribution cannot credit a later rec
       "no fingerprint detection may be credited to the consent phase"
     );
     assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
-      version: "fingerprint-observer@3",
+      version: "fingerprint-observer@4",
       status: "partial",
       reason: "scan-failed",
       phaseId: consentPhase.phaseId
@@ -3033,6 +3042,11 @@ test("an ordinary upstream subresource failure does not censor request evidence"
       result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING),
       false,
       "complete fingerprint frame coverage must not be disclosed as a capture loss"
+    );
+    assert.equal(
+      result.warnings.includes(FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING),
+      false,
+      "complete listener attribution must not be disclosed as a capture loss"
     );
     assert.equal(
       staged!.measurement.qualityFacts.captureLoss.some(
@@ -3176,7 +3190,7 @@ test("a direct PDF privacy policy completes through the bounded scan proxy", { t
     assert.ok(result.privacyPolicy, "the PDF policy produced a stored cross-check summary");
     assert.ok((result.privacyPolicy?.policyTextLength ?? 0) >= 500);
     assert.deepEqual(staged!.measurement.detectors["privacy-policy"], {
-      version: "policy-text-cross-check@6",
+      version: "policy-text-cross-check@7",
       status: "complete",
       phaseId: 2
     });
@@ -3243,8 +3257,8 @@ test("a PDF privacy policy link that redirects or is missing cannot crash the pr
 
   try {
     for (const [route, expected] of [
-      ["/", { version: "policy-text-cross-check@6", status: "complete", phaseId: 2 }],
-      ["/missing", { version: "policy-text-cross-check@6", status: "failed", reason: "load-failed", phaseId: 2 }]
+      ["/", { version: "policy-text-cross-check@7", status: "complete", phaseId: 2 }],
+      ["/missing", { version: "policy-text-cross-check@7", status: "failed", reason: "load-failed", phaseId: 2 }]
     ] as const) {
       const { measurement: staged } = await scanSiteWithMeasurement(
         { url: `http://policy-pdf-hop.test${route}`, device: "desktop", gpcEnabled: false, consentMode: "observe" },

@@ -113,6 +113,7 @@ import {
   collectBoundedPageHeadings,
   collectBoundedPageTitle,
   collectStorageEntriesWithCoverage,
+  FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING,
   FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING,
   INVALID_UPSTREAM_RESPONSE_WARNING,
   KEYSTROKE_PROBE_INCOMPLETE_WARNING,
@@ -1878,8 +1879,14 @@ export async function scanSiteWithMeasurement(
     // v1 has no quality block, so without a warning a run whose observer never
     // executed looks exactly like a run that looked and found nothing, and the
     // report publishes an unhedged "No fingerprint-like API calls observed".
-    if (fingerprintFrameCoverage !== "complete" || fingerprintListenerAttributionLost) {
+    // An unreadable frame keeps the frame warning, which already covers any
+    // bounded listener attribution beside it. When every frame was read and
+    // only listener attribution was bounded, that warning would be false, so
+    // the listener line says what was lost; v1 readers censor both alike.
+    if (fingerprintFrameCoverage !== "complete") {
       warnings.add(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING);
+    } else if (fingerprintListenerAttributionLost) {
+      warnings.add(FINGERPRINT_LISTENER_ATTRIBUTION_LOSS_WARNING);
     }
     const fingerprintCoverageIncomplete =
       fingerprintFrameCoverage === "partial" ||

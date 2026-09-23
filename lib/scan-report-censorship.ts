@@ -1,5 +1,9 @@
 import { RESPONSE_BYTE_CAPTURE_LOSS_DETAIL } from "./capture-loss-detail-contract";
 import { captureLossDetailNote } from "./capture-loss-presentation";
+import {
+  runHitFingerprintListenerAttributionLoss,
+  runHitFingerprintObserverCaptureLoss
+} from "./comparison-eligibility";
 import type { CaptureLossEntry } from "./scan-report-v2";
 import {
   runHitRequestRecordingCap,
@@ -32,6 +36,9 @@ const QUALITY_REASON_NOTES: Record<string, string> = {
   "capture-loss:page-subject-validity":
     "the bounded page-content collector was unavailable or unreadable, so the scanner could not verify the rendered document"
 };
+
+const FINGERPRINT_LISTENER_ATTRIBUTION_NOTE =
+  "the in-page fingerprint observer could not attribute every event listener to the script that registered it, so the fingerprinting evidence is incomplete";
 
 const RESPONSE_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate response-byte budget/;
 const UPLOAD_BYTE_LIMIT_WARNING = /reaching the ([1-9][0-9,]* MiB) aggregate upload-byte budget/;
@@ -84,6 +91,15 @@ function ownNote(table: Readonly<Record<string, string>>, key: string): string |
  * party capture-loss details are rendered below from their semantic registry.
  */
 function qualityReasonNote(run: RunView, reason: string): string {
+  // One legacy reason, two v1 warnings. When only the listener line produced
+  // it, every frame was read, so the frame wording would be false.
+  if (
+    reason === "capture-loss:fingerprint-observer" &&
+    runHitFingerprintListenerAttributionLoss(run) &&
+    !runHitFingerprintObserverCaptureLoss(run)
+  ) {
+    return FINGERPRINT_LISTENER_ATTRIBUTION_NOTE;
+  }
   const mapped = ownNote(QUALITY_REASON_NOTES, reason);
   if (mapped) return mapped;
   const budget = reason.startsWith("budget-exhausted:") ? reason.slice("budget-exhausted:".length) : null;
