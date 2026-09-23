@@ -3,30 +3,30 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { createComparisonReport } from "./compare-reports";
-import { buildCorpusStats } from "./corpus-stats-builder";
-import { loadCorpusOverview } from "./corpus-overview";
-import { runInCorpusDistributionPopulation, type RunView } from "./scan-report-view";
-import { LEGACY_V1_METHODOLOGY_UNSPECIFIED, NODE_SCANNER_METHODOLOGY_VERSION } from "./legacy-methodology";
+import { createComparisonReport } from "../compare-reports";
+import { buildCorpusStats } from "../corpus-stats-builder";
+import { loadCorpusOverview } from "../corpus-overview";
+import { runInCorpusDistributionPopulation, type RunView } from "../scan-report-view";
+import { LEGACY_V1_METHODOLOGY_UNSPECIFIED, NODE_SCANNER_METHODOLOGY_VERSION } from "../legacy-methodology";
 import {
   METRIC_CONTRACT_DIGEST,
   METRIC_CONTRACT_VERSION
-} from "./metric-contract";
-import { buildProvenanceEntry, committedSidecarFilename } from "./redaction-provenance";
-import { redactScanReportV1 } from "./redact-scan-report-v1";
-import { REDACTION_VERSION } from "./redaction-v2";
-import { buildStaticReportShare } from "./report-locator";
-import { scannerDisclosure } from "./scan-condition-disclosure";
-import { evaluateQuality } from "./scan-report-v2-evaluators";
-import { currentR2NormalizationForObserver } from "./scan-report-v2-normalization";
-import { buildFingerprints } from "./scan-report-v2-fingerprints";
-import { makePublicSingleReportV2R2 } from "./scan-report-v2-r2-fixtures";
+} from "../metric-contract";
+import { buildProvenanceEntry, committedSidecarFilename } from "../redaction-provenance";
+import { redactScanReportV1 } from "../redact-scan-report-v1";
+import { REDACTION_VERSION } from "../redaction-v2";
+import { buildStaticReportShare } from "../report-locator";
+import { scannerDisclosure } from "../scan-condition-disclosure";
+import { evaluateQuality } from "../scan-report-v2-evaluators";
+import { currentR2NormalizationForObserver } from "../scan-report-v2-normalization";
+import { buildFingerprints } from "../scan-report-v2-fingerprints";
+import { makePublicSingleReportV2R2 } from "../scan-report-v2-r2-fixtures";
 import {
   r2ReportRuns,
   redactPublicScanReportV2R2
-} from "./scan-report-v2-r2-remediation";
-import { makeScanReportV1 } from "./scan-report-v2-fixtures";
-import type { ScanReport, ScanResult } from "./types";
+} from "../scan-report-v2-r2-remediation";
+import { makeScanReportV1 } from "../scan-report-v2-fixtures";
+import type { ScanReport, ScanResult } from "../types";
 
 let reportsDir = "";
 

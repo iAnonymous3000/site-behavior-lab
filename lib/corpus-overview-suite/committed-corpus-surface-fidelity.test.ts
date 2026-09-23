@@ -2,31 +2,31 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
-import { readLoadedReport } from "./client-report-reader";
+import { readLoadedReport } from "../client-report-reader";
 import {
   buildCorpusExportPayload,
   buildCorpusExportRows,
   CORPUS_EXPORT_SCHEMA_VERSION
-} from "./corpus-export";
-import { corpusCohortIdentityForView } from "./corpus-cohort";
-import { KNOWN_CAPTURE_LOSS_DETAILS } from "./capture-loss-presentation";
-import { loadCorpusOverview } from "./corpus-overview";
-import { corpusSiteDomainKey, corpusSiteKeyForRun } from "./corpus-site-domain";
-import { isCorpusStats, type CorpusStats } from "./corpus-stats";
-import { serializeJsonLd } from "./jsonld-script";
-import { isReservedReportDomain } from "./reserved-report-domains";
-import { validateReportPresentation } from "./report-consistency";
-import { trackingServiceRequests } from "./report-insights";
+} from "../corpus-export";
+import { corpusCohortIdentityForView } from "../corpus-cohort";
+import { KNOWN_CAPTURE_LOSS_DETAILS } from "../capture-loss-presentation";
+import { loadCorpusOverview } from "../corpus-overview";
+import { corpusSiteDomainKey, corpusSiteKeyForRun } from "../corpus-site-domain";
+import { isCorpusStats, type CorpusStats } from "../corpus-stats";
+import { serializeJsonLd } from "../jsonld-script";
+import { isReservedReportDomain } from "../reserved-report-domains";
+import { validateReportPresentation } from "../report-consistency";
+import { trackingServiceRequests } from "../report-insights";
 import {
   METRIC_CONTRACT_DIGEST,
   METRIC_CONTRACT_VERSION
-} from "./metric-contract";
-import { buildReportDataset } from "./report-jsonld";
+} from "../metric-contract";
+import { buildReportDataset } from "../report-jsonld";
 import {
   loadedReportFromStored,
   publicWireForExportOrPersistence
-} from "./scan-report-view";
-import { readStoredScanReport, type StoredScanReport } from "./scan-report-reader";
+} from "../scan-report-view";
+import { readStoredScanReport, type StoredScanReport } from "../scan-report-reader";
 import {
   comparisonArmViews,
   displayRunView,
@@ -34,24 +34,24 @@ import {
   runHitRequestRecordingCap,
   type ReportView,
   type RunView
-} from "./scan-report-views";
-import { runCensorshipNotes } from "./scan-report-censorship";
+} from "../scan-report-views";
+import { runCensorshipNotes } from "../scan-report-censorship";
 import {
   listStaticReportCandidateIds,
   readStaticReportBundle
-} from "./static-report-files";
-import { buildStaticReportManifest } from "./static-report-manifest";
+} from "../static-report-files";
+import { buildStaticReportManifest } from "../static-report-manifest";
 import {
   comparisonHistoryPairingKey,
   temporalPairingKey
-} from "./temporal-deltas";
+} from "../temporal-deltas";
 import {
   comparisonHistoryCohortForStoredReport,
   consentClicksForView,
   temporalCohortForStoredReport
-} from "./temporal-report-identity";
-import { sha256Hex } from "./sha256";
-import type { StaticReportManifestEntry } from "./types";
+} from "../temporal-report-identity";
+import { sha256Hex } from "../sha256";
+import type { StaticReportManifestEntry } from "../types";
 
 // A STRUCTURAL floor, deliberately far below the corpus's real size. The
 // corpus legitimately moves in both directions inside reviewed automation/*

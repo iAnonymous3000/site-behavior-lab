@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import { loadStatusSnapshot } from "./status-snapshot-server";
-import { corpusFreshnessCounts, readStatusSnapshot } from "./status-snapshot";
-import { PUBLIC_STATUS_MAX_CORPUS_AGE_MS } from "./public-status";
+import { loadStatusSnapshot } from "../status-snapshot-server";
+import { corpusFreshnessCounts, readStatusSnapshot } from "../status-snapshot";
+import { PUBLIC_STATUS_MAX_CORPUS_AGE_MS } from "../public-status";
 
 test("published status derives its counts and installed inputs from committed evidence", async () => {
   const snapshot = await loadStatusSnapshot();

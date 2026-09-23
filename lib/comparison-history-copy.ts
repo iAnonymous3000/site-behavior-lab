@@ -8,9 +8,10 @@
  * the pairing "deliberately omits the ad-block source, list count and
  * snapshot" over pairs whose v1 identity binds source and list count and
  * lets only the snapshot date drift. One constant per era, rendered verbatim
- * by both surfaces, closes that class; lib/comparison-history-copy.test.ts
- * pins both consumers to these constants and checks the sentence selected
- * for the committed corpus's pairs against their actual schema era.
+ * by both surfaces, closes that class;
+ * lib/corpus-overview-suite/comparison-history-copy.test.ts pins both
+ * consumers to these constants and checks the sentence selected for the
+ * committed corpus's pairs against their actual schema era.
  *
  * Kept dependency-free: the archive gallery is a client component, so this
  * module must not pull server-only or report modules into its bundle.

@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { entryEligibleForCorpusRollups, loadCorpusOverview } from "./corpus-overview";
-import { SITE_TRUST_LINKS } from "./site-navigation";
-import { buildCategoryEvidencePages } from "./directory-view";
+import { entryEligibleForCorpusRollups, loadCorpusOverview } from "../corpus-overview";
+import { SITE_TRUST_LINKS } from "../site-navigation";
+import { buildCategoryEvidencePages } from "../directory-view";
 
 const root = process.cwd();
 

@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { siteProfileComparableVisitsNote } from "./comparable-visits-note";
-import { COMPARISON_HISTORY_IDENTITY_SENTENCES } from "./comparison-history-copy";
-import { loadCorpusOverview } from "./corpus-overview";
-import { comparisonHistoryKeyEra } from "./temporal-deltas";
+import { siteProfileComparableVisitsNote } from "../comparable-visits-note";
+import { COMPARISON_HISTORY_IDENTITY_SENTENCES } from "../comparison-history-copy";
+import { loadCorpusOverview } from "../corpus-overview";
+import { comparisonHistoryKeyEra } from "../temporal-deltas";
 
 const root = process.cwd();
 const source = (file: string): string => readFileSync(path.join(root, file), "utf8");

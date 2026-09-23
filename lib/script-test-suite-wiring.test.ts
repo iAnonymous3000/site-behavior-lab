@@ -82,3 +82,47 @@ test("the calibration ceremony suites run after the launcher that builds dist/sc
     "node --test scripts/calibration-acquisition-authorization-lib.test.mjs scripts/calibration-label-roster-lib.test.mjs scripts/calibration-assemble-custody-lib.test.mjs"
   );
 });
+
+/**
+ * The `.unit-test-dist/lib/*.test.js` glob does not recurse, so a test file in
+ * a subdirectory of lib/ compiles and then runs only if some reachable npm
+ * script names its directory's glob. lib/corpus-overview-suite/ relies on
+ * that: each of its files reads the committed corpus through
+ * loadCorpusOverview, which caches one read per process, so
+ * test:corpus-overview runs the group in ONE process (--test-isolation=none)
+ * instead of paying a whole-corpus read per file, and the main glob never
+ * runs those files a second time.
+ *
+ * One process means the files are no longer isolated from each other.
+ * Top-level hooks cross file boundaries: corpus-stats-builder.test.ts's
+ * top-level beforeEach/afterEach already wrap every test in the group (they
+ * create and remove a temp directory the other files never read, which is
+ * harmless). A stub, chdir, global patch, or state-changing top-level hook
+ * added to any file in the group would reach every later file too.
+ */
+test("every lib test directory runs in an npm script that test:unit reaches", () => {
+  const reachable = commandsReachableFromTestUnit().join("\n");
+  const directories = new Set<string>();
+  const walk = (relative: string) => {
+    for (const entry of readdirSync(path.join(root, relative), { withFileTypes: true })) {
+      if (entry.isDirectory()) walk(`${relative}/${entry.name}`);
+      else if (entry.name.endsWith(".test.ts")) directories.add(relative);
+    }
+  };
+  walk("lib");
+  assert.ok(directories.has("lib"), "the lib suites could not be located");
+  assert.ok(directories.has("lib/corpus-overview-suite"), "the shared-corpus group could not be located");
+
+  for (const directory of directories) {
+    assert.ok(
+      reachable.includes(`.unit-test-dist/${directory}/*.test.js`),
+      `${directory}/*.test.ts compiles but runs in no npm script reachable from test:unit, so it guards nothing in CI`
+    );
+  }
+
+  const group = commandsReachableFromTestUnit().filter((command) =>
+    command.includes(".unit-test-dist/lib/corpus-overview-suite/*.test.js")
+  );
+  assert.equal(group.length, 1, "the shared-corpus group must run exactly once");
+  assert.match(group[0], /node --test --test-isolation=none /, "the group only shares its corpus read in one process");
+});
