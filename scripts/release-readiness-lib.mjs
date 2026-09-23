@@ -368,15 +368,30 @@ function calibrationCensoringDecisionProblems(
     );
   }
   let expectedDisposition = null;
+  let policyArtifact = null;
   try {
-    expectedDisposition = calibrationPolicyDispositionSha256(
-      decision.policyArtifactSha256,
-      JSON.parse(readFileSync(policyAbsolute, "utf8"))
-    );
+    policyArtifact = JSON.parse(readFileSync(policyAbsolute, "utf8"));
   } catch {
     problems.push(
       "the censoring-policy assignments artifact could not be parsed for the disposition digest"
     );
+  }
+  if (policyArtifact !== null) {
+    // A parsed artifact can still fail here for an environmental reason (the
+    // digest needs the compiled dist/schema contract). Report that reason
+    // rather than blaming the artifact, which parsed.
+    try {
+      expectedDisposition = calibrationPolicyDispositionSha256(
+        decision.policyArtifactSha256,
+        policyArtifact
+      );
+    } catch (error) {
+      problems.push(
+        `the censoring-policy disposition digest could not be computed: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   }
   if (expectedDisposition !== null && decision.dispositionSha256 !== expectedDisposition) {
     problems.push(
