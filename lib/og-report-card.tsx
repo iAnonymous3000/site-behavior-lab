@@ -3,6 +3,7 @@ import { publishedReportCorrections } from "./published-report-corrections";
 import {
   buildReportHeadline,
   type HeadlineTone,
+  type ReportHeadline,
   type ReportHeadlineStat
 } from "./report-headline";
 import type { ReportView } from "./scan-report-views";
@@ -42,7 +43,7 @@ export function renderReportCard(view: ReportView): ImageResponse {
   const cardCaveat = publishedReportCorrections(view.reportId).currentSubjectEvent
     ? "Read the report and public correction together before using these findings." : headline.caveat;
   const accent = TONE_HEX[headline.tone];
-  const stats = headline.stats.slice(0, 3);
+  const stats = buildReportCardStats(headline);
   const headlineSize = headline.headline.length > 64 ? 50 : headline.headline.length > 44 ? 58 : 66;
   const subheadSize = subhead.length > 240 ? 18 : subhead.length > 180 ? 22 : 26;
 
@@ -127,6 +128,17 @@ export function renderReportCard(view: ReportView): ImageResponse {
     ),
     { ...OG_SIZE }
   );
+}
+
+/**
+ * The stat chips the card shows. A pair-framed headline describes a difference
+ * between two visits, and its chips are one arm's counts with no arm label, so
+ * beside that sentence they read as the other visit's numbers. The card's
+ * subhead already carries both visits' figures for those branches; the chips
+ * are omitted rather than left unattributed.
+ */
+export function buildReportCardStats(headline: Pick<ReportHeadline, "stats" | "semantic">): ReportHeadlineStat[] {
+  return headline.semantic.runScope === "pair" ? [] : headline.stats.slice(0, 3);
 }
 
 /** Permanent social cards always name both the observed site and scan date. */

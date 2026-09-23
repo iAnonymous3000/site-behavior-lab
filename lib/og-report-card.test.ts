@@ -15,6 +15,7 @@ type OgReportCardModule = {
   OG_REPORT_SUBHEAD_MAX_CHARACTERS: number;
   buildReportCardSubhead: (view: ReportView, headline?: ReportHeadline) => string;
   buildReportCardAttribution: (view: ReportView, domain?: string) => string;
+  buildReportCardStats: (headline: ReportHeadline) => ReportHeadline["stats"];
 };
 
 const reportsDir = path.join(process.cwd(), "public", "reports");
@@ -210,6 +211,34 @@ test("every committed OG report has bounded, non-truncated subhead copy", () => 
   }
 });
 
+test("committed pair-framed cards and share text carry no unlabeled one-arm chips", () => {
+  // The Shields "fewer third-party requests in the visit configured for
+  // Brave-list blocking" headline sits over the no-blocking arm's chips. On
+  // the card and in the share text, with no visit label, those read as the
+  // blocking visit's numbers (bumble.com: "38 cross-site requests" beside a
+  // blocking visit that recorded none). Checked over every committed report,
+  // so the pair-scoped set is asserted non-empty rather than passing on none.
+  const og = loadOgReportCardModule();
+  let pairScoped = 0;
+  let chipped = 0;
+  for (const name of readdirSync(reportsDir).filter((entry) => reportFilePattern.test(entry))) {
+    const headline = buildReportHeadline(readReportView(name));
+    const chips = og.buildReportCardStats(headline);
+    if (headline.semantic.runScope !== "pair") {
+      assert.deepEqual(chips, headline.stats.slice(0, 3), name);
+      if (chips.length > 0) chipped += 1;
+      continue;
+    }
+    pairScoped += 1;
+    assert.ok(headline.stats.length > 0, `${name}: the page banner keeps its captioned chips`);
+    assert.deepEqual(chips, [], `${name}: pair-framed card rendered one arm's chips`);
+    for (const stat of headline.stats) {
+      assert.equal(headline.shareText.includes(`${stat.value} ${stat.label}`), false, `${name}: ${headline.shareText}`);
+    }
+  }
+  assert.ok(pairScoped > 0, "the committed corpus must exercise a pair-framed headline");
+  assert.ok(chipped > 0, "the committed corpus must exercise a chipped card");
+});
 
 test("identifier-field social copy keeps its complete evidence boundary", () => {
   const og = loadOgReportCardModule();

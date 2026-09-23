@@ -10,7 +10,7 @@ import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import type { CorpusStats } from "./corpus-stats";
 import { validateReportPresentation } from "./report-consistency";
 import { displayableScreenshot } from "./report-insights";
-import { buildReportHeadline, reportPageTitle } from "./report-headline";
+import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "./report-headline";
 import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
 import { R2_NAVIGATION_STATUS_UNREPRESENTABLE } from "./scan-report-v2-http-status";
@@ -422,6 +422,7 @@ test("a large GPC reduction over a still-loud pair is not reassuring", () => {
   assert.equal(headline.tone, "info");
   assert.equal(headline.semantic.reassuring, false);
   assert.match(headline.subhead, /Both visits still recorded review-worthy activity of their own/);
+  assertPairShareTextCarriesNoChips(headline);
 });
 
 test("the GPC alarm counts tracking companies from the GPC-on visit, not the baseline", () => {
@@ -504,7 +505,27 @@ test("frames a Shields comparison as the observed paired-visit difference", () =
   // Pair-framed with lead-run stat chips: the switcher default stays on the
   // lead (baseline) run, so no focus arm is declared.
   assert.equal(headline.focusArm, undefined);
+  assertPairShareTextCarriesNoChips(headline);
 });
+
+/**
+ * A pair-framed headline states a difference between two visits, while its
+ * stat chips are one arm's counts with no arm label. The page captions them
+ * ("Baseline visit"); the share text travels alone, so placing them after the
+ * difference sentence read as the blocking or GPC visit's numbers.
+ */
+function assertPairShareTextCarriesNoChips(headline: ReportHeadline): void {
+  assert.equal(headline.semantic.runScope, "pair");
+  assert.ok(headline.stats.length > 0, "the fixture must carry chips for the share text to omit");
+  for (const stat of headline.stats) {
+    assert.equal(
+      headline.shareText.includes(`${stat.value} ${stat.label}`),
+      false,
+      `pair-scoped share text quoted an unlabeled chip: ${headline.shareText}`
+    );
+  }
+  assert.ok(headline.shareText.startsWith(`${headline.headline} ${headline.caveat}`));
+}
 
 test("a Shields comparison names the direct engine blocks separately from the reduction", () => {
   const baseline = makeResult({

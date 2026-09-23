@@ -270,7 +270,10 @@ function buildUncorrectedReportHeadline(
       caveat: reportCaveat,
       stats: resolvedStats,
       domain,
-      shareText: buildShareText(headline, resolvedStats, reportCaveat),
+      // A pair-framed sentence describes a difference between two visits, while
+      // the chips are one arm's counts with no arm label. The page captions them
+      // with its visit label; the share text travels alone, so it quotes none.
+      shareText: buildShareText(headline, runScope === "pair" ? [] : resolvedStats, reportCaveat),
       semantic: {
         story: "observed-activity",
         reassuring: tone === "calm",
