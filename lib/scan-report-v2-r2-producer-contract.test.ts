@@ -183,7 +183,7 @@ test("Node producer rows are complete, immutable, and individually replayable", 
       "node-v10-network-security-active-lists-2026-08-15",
       "node-v10-network-security-active-no-adblock",
       "node-v10-network-security-active-lists-2026-09-07",
-      "node-v11-detectors-v9-active-lists-2026-09-07",
+      "node-v11-detectors-v9-active-lists-2026-09-21",
       "node-v11-detectors-v9-active-no-adblock"
   ];
   assert.deepEqual(NODE_R2_PRODUCER_TUPLES.map((tuple) => tuple.id), expectedTupleIds);
@@ -343,7 +343,7 @@ test("the detector-v6 identity preserves the v4 resource-budget rows and the clo
     (tuple) => tuple.id === "node-v6-6c78-tldts7410-lists-2026-08-15"
   );
   const active = NODE_R2_PRODUCER_TUPLES.find(
-    (tuple) => tuple.id === "node-v11-detectors-v9-active-lists-2026-09-07"
+    (tuple) => tuple.id === "node-v11-detectors-v9-active-lists-2026-09-21"
   );
   assert.equal(historical?.methodologyVersion, HISTORICAL_RESOURCE_BUDGET_V1_NODE_R2_METHODOLOGY_VERSION);
   assert.equal(
@@ -943,7 +943,7 @@ test("every superseded Node row is paired with its own methodology for remediati
 
 test("closed v10 reports keep their exact detector identity when v11 moves three detectors", () => {
   const closed = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v10-network-security-active-lists-2026-09-07");
-  const current = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v11-detectors-v9-active-lists-2026-09-07");
+  const current = NODE_R2_PRODUCER_TUPLES.find((tuple) => tuple.id === "node-v11-detectors-v9-active-lists-2026-09-21");
   assert.ok(closed && current);
   assert.deepEqual(closed.detectorRegistry, {
     version: "node-detectors-v8", digest: "fcd25504e7d18811478b440fbd738a01cacfdb8e4811099edc5be62d84402947"

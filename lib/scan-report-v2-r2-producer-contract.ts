@@ -524,8 +524,8 @@ export const HISTORICAL_NODE_R2_V4_ADBLOCK_IDENTITY = Object.freeze({
 export const NODE_R2_CURRENT_ADBLOCK_IDENTITY = Object.freeze({
   source: "Brave default ad-block lists",
   lists: 31,
-  fetchedAt: "2026-09-07T04:11:08.142Z",
-  manifestDigest: "72487242a444a911e669f41ceda3571c0eed9758e93679d6f3d3cb851de5a41c",
+  fetchedAt: "2026-09-21T12:45:16.395Z",
+  manifestDigest: "7e42412ee50d641b83699aff20bb2d2151a36b5419121f7245ab0dec5b243a9f",
   engineVersion: NODE_ADBLOCK_ENGINE_VERSION
 } satisfies NonNullable<Toolchain["adblock"]>);
 
@@ -960,7 +960,7 @@ const ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT =
 const ACTIVE_NODE_TUPLES: readonly NodeR2ProducerTuple[] = ACTIVE_NODE_WIRE_IDENTITY_IS_DISTINCT
   ? Object.freeze([
       nodeTuple(
-        "node-v11-detectors-v9-active-lists-2026-09-07",
+        "node-v11-detectors-v9-active-lists-2026-09-21",
         NODE_SCAN_REPORT_V2_R2_NORMALIZATION_VERSION,
         NODE_SCAN_REPORT_V2_R2_METHODOLOGY_VERSION,
         ACTIVE_NODE_FIELDS,

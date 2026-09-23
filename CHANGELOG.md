@@ -48,6 +48,10 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
   cross-check version treats a missed mention of Twilio Segment, Yahoo
   Advertising, Equativ, Magnite or Microsoft Clarity as unknown rather than as
   an omission.
+- The Shields simulation uses the Brave default filter lists fetched
+  2026-09-21 (31 lists, manifest `7e42412e`), adopted from the weekly refresh
+  proposal. The September 7 snapshot stays readable as a closed producer
+  identity.
 - Subject validity v3 recognizes a network-security interstitial served with
   HTTP 200 (a denial and appeal page on a sparse document) as a suspected
   block, and the reviewed corpus line follows it. Historical cohorts keep
