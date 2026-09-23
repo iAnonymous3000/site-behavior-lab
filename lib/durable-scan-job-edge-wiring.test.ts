@@ -2,35 +2,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
-
-/**
- * These tests assert on the SHAPE of worker source, so every one of them is a
- * marker lookup away from becoming vacuous: `indexOf` answers a missing marker
- * with -1, `slice(start, -1)` silently widens to almost the whole file, and
- * `-1 < anything` is trivially true. A rename then leaves the assertion green
- * while it no longer constrains the region it names. That is exactly how two
- * bounded-fetch guards here survived `gateDurableScanJobControlRequest`
- * becoming `refuseUnauthorizedDurableScanJobControl`: both widened to ~48 kB
- * and were satisfied by an unrelated copy of the pattern elsewhere in the file.
- *
- * Every marker lookup goes through these, so the next rename fails loudly and
- * names the marker it could not find.
- */
-function requireIndex(source: string, marker: string, label = "source"): number {
-  const index = source.indexOf(marker);
-  assert.ok(index >= 0, `${label} no longer contains ${JSON.stringify(marker)}; the assertion below constrains nothing until this marker is updated`);
-  return index;
-}
-
-function sliceBetween(source: string, startMarker: string, endMarker: string, label = "source"): string {
-  const start = requireIndex(source, startMarker, label);
-  const end = requireIndex(source, endMarker, label);
-  assert.ok(
-    end > start,
-    `${label}: ${JSON.stringify(endMarker)} precedes ${JSON.stringify(startMarker)}, so the intended region is empty`
-  );
-  return source.slice(start, end);
-}
+// These tests assert on the SHAPE of worker source, so every marker lookup
+// goes through lib/source-markers.ts: a rename then fails loudly and names the
+// marker instead of leaving a vacuous `-1 < n` or a widened slice green.
+import { requireIndex, requireLastIndex, sliceBetween, sliceToNext } from "./source-markers";
 import type { DurableScanJobPreparation } from "./durable-scan-job-contract";
 import {
   awaitDurableScanJobAdmissionStep,
@@ -614,8 +589,9 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   assert.match(container, /peekPublicScanRateLimit\(input: PublicScanRateLimitCharge\)/);
 
   for (const method of ["heartbeatDurableJob", "beginPublishingDurableJob", "resolveDurableJob"] as const) {
-    const start = container.indexOf(`async ${method}`);
-    assert.ok(start >= 0, `the container no longer declares async ${method}`);
+    const start = requireIndex(container, `async ${method}`, "container");
+    // A method with no later `async` method runs to the end of the class
+    // slice, so -1 is handled deliberately here.
     const next = container.indexOf("\n  async ", start + 1);
     const body = container.slice(start, next === -1 ? undefined : next);
     assert.ok(start >= 0, `${method} must remain a Durable Object RPC`);
@@ -646,10 +622,7 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
   );
   assert.doesNotMatch(source, /charge(?:PublicScanRateLimit|DurableJobReadRateLimit)\(\{[\s\S]{0,500}?now: Date\.now\(\)/);
   assert.match(container, /createdAt: preparation\.payload\.admittedAt/);
-  const admission = container.slice(
-    requireIndex(container, "async admitDurablePreparation", "container"),
-    container.indexOf("findDurableJob", requireIndex(container, "async admitDurablePreparation", "container"))
-  );
+  const admission = sliceToNext(container, "async admitDurablePreparation", "findDurableJob", "container");
   assert.ok(
     requireIndex(admission, "publicScanRateLimitChargeMatchesCost", "admission") < requireIndex(admission, "createDurableScanJobAdmission", "admission"),
     "cost drift must fail before encryption, scheduling, quota, or row mutation"
@@ -666,9 +639,10 @@ test("Durable Object RPC mutations own time and return plain conflict envelopes"
     requireIndex(admission, "commitIdempotentScanAdmission", "admission") < requireIndex(admission, "admitDurableScanJob(this.ctx.storage.sql, admission)", "admission"),
     "idempotency, quota, and row admission must execute in one final transaction"
   );
+  const finalTransactionStart = requireLastIndex(admission, "this.ctx.storage.transactionSync", "admission");
   const finalAdmissionTransaction = admission.slice(
-    admission.lastIndexOf("this.ctx.storage.transactionSync"),
-    admission.indexOf("} catch (error)", admission.lastIndexOf("this.ctx.storage.transactionSync"))
+    finalTransactionStart,
+    requireIndex(admission, "} catch (error)", "admission", finalTransactionStart)
   );
   assert.match(finalAdmissionTransaction, /commitIdempotentScanAdmission/);
   assert.match(finalAdmissionTransaction, /admitDurableScanJob/);
@@ -784,10 +758,7 @@ test("Worker health performs the edge key upgrade and fail-closed downgrade", as
   // `private durableEncryptionKey` also appears before the purge method, so
   // this end marker must be the first one AFTER the start, not the first in
   // the file.
-  const purgeStart = requireIndex(source, "private purgeDurableScanJobState");
-  const purgeEnd = source.indexOf("private durableEncryptionKey", purgeStart);
-  assert.ok(purgeEnd > purgeStart, "no method declaration follows purgeDurableScanJobState; update the end marker");
-  const purge = source.slice(purgeStart, purgeEnd);
+  const purge = sliceToNext(source, "private purgeDurableScanJobState", "private durableEncryptionKey", "source");
   assert.match(purge, /purgeDurableReplayFaults\(this\.ctx\.storage\.sql, now\)/);
 });
 

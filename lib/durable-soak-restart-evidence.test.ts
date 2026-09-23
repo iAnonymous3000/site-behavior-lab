@@ -12,6 +12,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
+import { sliceToNext } from "./source-markers";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ScriptExports = Record<string, any>;
@@ -723,19 +724,17 @@ test("capture CLI is fail-closed and the edge exposes only request-bound restart
       ) ?? []
     ).length >= 2
   );
-  const method = edge.slice(
-    edge.indexOf("  readDurableRestartEvidence(input:"),
-    edge.indexOf(
-      "  /**\n   * Charge the poll's read budget",
-      edge.indexOf("  readDurableRestartEvidence(input:")
-    )
+  const method = sliceToNext(
+    edge,
+    "  readDurableRestartEvidence(input:",
+    "  /**\n   * Charge the poll's read budget",
+    "cloudflare/container-worker.ts"
   );
-  const snapshotMapper = edge.slice(
-    edge.indexOf("function durableRestartEvidenceSnapshot("),
-    edge.indexOf(
-      "type DurableScanJobCancellationResult",
-      edge.indexOf("function durableRestartEvidenceSnapshot(")
-    )
+  const snapshotMapper = sliceToNext(
+    edge,
+    "function durableRestartEvidenceSnapshot(",
+    "type DurableScanJobCancellationResult",
+    "cloudflare/container-worker.ts"
   );
   assert.match(
     snapshotMapper,

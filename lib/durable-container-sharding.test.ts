@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import path from "node:path";
 import { test } from "node:test";
+import { sliceBetween } from "./source-markers";
 import {
   DURABLE_CONTAINER_MAX_SHARDS,
   durableContainerShardingPlan,
@@ -207,16 +208,20 @@ test("all job-scoped execution calls share one server-owned resolver and quotas 
   );
   assert.deepEqual(privateCalls, ["jobId", "claim.jobId", "snapshot.jobId"]);
 
-  const resolver = source.slice(
-    source.indexOf("private privateContainerRequest"),
-    source.indexOf("private ensureDurableReconciliationBackoffStore")
+  const resolver = sliceBetween(
+    source,
+    "private privateContainerRequest",
+    "private ensureDurableReconciliationBackoffStore",
+    "cloudflare/container-worker.ts"
   );
   assert.match(resolver, /findDurableContainerShardRoute\(this\.ctx\.storage\.sql, jobId\)/);
   assert.match(resolver, /containerRoute\.containerName === null[\s\S]*this\.containerFetch\(request\)[\s\S]*getContainer\(this\.env\.SCANNER, containerRoute\.containerName\)\.fetch\(request\)/);
 
-  const forwarder = source.slice(
-    source.indexOf("function forwardToContainer"),
-    source.indexOf("function frontDoorOrigin")
+  const forwarder = sliceBetween(
+    source,
+    "function forwardToContainer",
+    "function frontDoorOrigin",
+    "cloudflare/container-worker.ts"
   );
   assert.match(
     forwarder,

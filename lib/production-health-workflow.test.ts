@@ -4,6 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { requireIndex, sliceBetween } from "./source-markers";
 import {
   PRODUCTION_SYNTHETIC_TARGET,
   PRODUCTION_SYNTHETIC_TARGETS,
@@ -37,6 +38,8 @@ function productionSyntheticAdmissionBody(url: string): Record<string, unknown> 
   assert.equal(result.status, 0, result.stderr);
   return JSON.parse(result.stdout) as Record<string, unknown>;
 }
+const WORKFLOW = ".github/workflows/production-health.yml";
+const WORKER = "cloudflare/container-worker.ts";
 const workflow = readFileSync(path.join(root, ".github", "workflows", "production-health.yml"), "utf8");
 const containerConfig = readFileSync(path.join(root, "wrangler.container.jsonc"), "utf8");
 const containerWorker = readFileSync(path.join(root, "cloudflare", "container-worker.ts"), "utf8");
@@ -175,13 +178,9 @@ test("the committed production config satisfies the monitor's own activation inv
 });
 
 test("production health requires the exact durable-jobs posture for both reviewed flag states", () => {
-  const enabledStart = workflow.indexOf('if (expectedDurableJobs === "1") {');
-  const disabledStart = workflow.indexOf('} else if (expectedDurableJobs === "0") {', enabledStart);
-  const postureEnd = workflow.indexOf('assertPosture(schema?.$id', disabledStart);
-
-  assert.notEqual(enabledStart, -1);
-  assert.notEqual(disabledStart, -1);
-  assert.notEqual(postureEnd, -1);
+  const enabledStart = requireIndex(workflow, 'if (expectedDurableJobs === "1") {', WORKFLOW);
+  const disabledStart = requireIndex(workflow, '} else if (expectedDurableJobs === "0") {', WORKFLOW, enabledStart);
+  const postureEnd = requireIndex(workflow, 'assertPosture(schema?.$id', WORKFLOW, disabledStart);
 
   const enabledBranch = workflow.slice(enabledStart, disabledStart);
   assert.match(enabledBranch, /durableJobs\?\.requested === true/);
@@ -194,21 +193,19 @@ test("production health requires the exact durable-jobs posture for both reviewe
   assert.match(disabledBranch, /durableJobs\?\.enabled === false/);
   assert.match(disabledBranch, /durableJobs\?\.readiness === "disabled"/);
 
-  const unconditionalPosture = workflow.slice(
-    workflow.indexOf('assertPosture(health?.checks?.v2ShadowEmission'),
-    enabledStart
+  const unconditionalPosture = sliceBetween(
+    workflow,
+    'assertPosture(health?.checks?.v2ShadowEmission',
+    'if (expectedDurableJobs === "1") {',
+    WORKFLOW
   );
   assert.match(unconditionalPosture, /durableJobs\?\.faultInjection === undefined/);
 });
 
 test("production health requires exact encrypted-watch readiness and capability posture", () => {
-  const enabledStart = workflow.indexOf('if (expectedEncryptedWatches === "1") {');
-  const disabledStart = workflow.indexOf('} else if (expectedEncryptedWatches === "0") {', enabledStart);
-  const postureEnd = workflow.indexOf('assertPosture(schema?.$id', disabledStart);
-
-  assert.notEqual(enabledStart, -1);
-  assert.notEqual(disabledStart, -1);
-  assert.notEqual(postureEnd, -1);
+  const enabledStart = requireIndex(workflow, 'if (expectedEncryptedWatches === "1") {', WORKFLOW);
+  const disabledStart = requireIndex(workflow, '} else if (expectedEncryptedWatches === "0") {', WORKFLOW, enabledStart);
+  const postureEnd = requireIndex(workflow, 'assertPosture(schema?.$id', WORKFLOW, disabledStart);
 
   const enabledBranch = workflow.slice(enabledStart, disabledStart);
   assert.match(enabledBranch, /encryptedWatches\?\.requested === true/);
@@ -225,13 +222,9 @@ test("production health requires exact encrypted-watch readiness and capability 
 });
 
 test("production health requires the exact effective container-sharding topology", () => {
-  const enabledStart = workflow.indexOf('if (expectedContainerSharding === "1") {');
-  const disabledStart = workflow.indexOf('} else if (expectedContainerSharding === "0") {', enabledStart);
-  const postureEnd = workflow.indexOf('if (expectedEncryptedWatches === "1") {', disabledStart);
-
-  assert.notEqual(enabledStart, -1);
-  assert.notEqual(disabledStart, -1);
-  assert.notEqual(postureEnd, -1);
+  const enabledStart = requireIndex(workflow, 'if (expectedContainerSharding === "1") {', WORKFLOW);
+  const disabledStart = requireIndex(workflow, '} else if (expectedContainerSharding === "0") {', WORKFLOW, enabledStart);
+  const postureEnd = requireIndex(workflow, 'if (expectedEncryptedWatches === "1") {', WORKFLOW, disabledStart);
 
   const enabledBranch = workflow.slice(enabledStart, disabledStart);
   assert.match(enabledBranch, /expectedDurableJobs === "1"/);
@@ -316,15 +309,9 @@ test("the activated production synthetic proves scan execution plus remote repor
   assert.match(containerWorker, /constantTimeEqual\(suppliedMonitorToken, expectedMonitorToken\)/);
   assert.match(containerWorker, /isProductionSyntheticMonitorToken\(expectedMonitorToken\)/);
   assert.match(containerWorker, /isProductionSyntheticScanPayload\(payload\)/);
-  const scanHeaders = containerWorker.slice(
-    containerWorker.indexOf("function scanForwardHeaders("),
-    containerWorker.indexOf("function forwardToContainer(")
-  );
+  const scanHeaders = sliceBetween(containerWorker, "function scanForwardHeaders(", "function forwardToContainer(", WORKER);
   assert.match(scanHeaders, /headers\.delete\(SYNTHETIC_MONITOR_TOKEN_HEADER\)/);
-  const centralForwarder = containerWorker.slice(
-    containerWorker.indexOf("function forwardToContainer("),
-    containerWorker.indexOf("function frontDoorOrigin(")
-  );
+  const centralForwarder = sliceBetween(containerWorker, "function forwardToContainer(", "function frontDoorOrigin(", WORKER);
   assert.match(centralForwarder, /headers\.delete\(SYNTHETIC_MONITOR_TOKEN_HEADER\)/);
 
   // Build the fixture with the SAME producer the monitor posts with, never by
@@ -384,9 +371,11 @@ test("production health keeps the public ingress preflight separate from the ope
   assert.match(workflow, /scanSubmitted === false/);
 
   assert.match(containerWorker, /url\.pathname === "\/api\/health\/public-ingress"/);
-  const preflight = containerWorker.slice(
-    containerWorker.indexOf("async function publicIngressPreflightResponse("),
-    containerWorker.indexOf("/** Overlay the front Worker's gate decision")
+  const preflight = sliceBetween(
+    containerWorker,
+    "async function publicIngressPreflightResponse(",
+    "/** Overlay the front Worker's gate decision",
+    WORKER
   );
   assert.match(preflight, /scope: "public"/);
   assert.match(preflight, /peekPublicScanRateLimit/);
@@ -461,9 +450,11 @@ test("an unactivated operator canary is a disclosed gap, never a production inci
   // PRODUCTION_R2_DELETE_CANARY_REQUIRED is set, so the un-set state is the
   // documented starting position. Hard-failing on it made the :07 lane red
   // every hour while production itself was healthy.
-  const activation = workflow.slice(
-    workflow.indexOf("- name: Resolve R2 delete-canary activation"),
-    workflow.indexOf("- name: Run isolated production R2 write/read/delete canary")
+  const activation = sliceBetween(
+    workflow,
+    "- name: Resolve R2 delete-canary activation",
+    "- name: Run isolated production R2 write/read/delete canary",
+    WORKFLOW
   );
   assert.match(activation, /if \[\[ "\$PRODUCTION_R2_DELETE_CANARY_REQUIRED" != "1" \]\]; then\n\s+echo "configured=false"/);
   assert.match(activation, /::warning title=Operator R2 delete canary not activated::/);

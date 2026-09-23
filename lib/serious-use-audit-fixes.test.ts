@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { isPublicIpAddress } from "./ip-safety";
 import { normalizeScanUrl } from "./scan-prefill";
+import { requireIndex, sliceBetween, sliceToNext } from "./source-markers";
 
 /**
  * Regression guards for the 12 Aug serious-use audit.
@@ -107,9 +108,10 @@ test("a post-click settle failure cannot be published as an un-clicked consent p
  */
 test("the Shields pair subhead carries no baseline-only extras", () => {
   const headline = source("lib/report-headline.ts");
+  const label = "lib/report-headline.ts";
   const shieldsSubhead = headline.slice(
-    headline.indexOf("recorded ${plural(removed, \"fewer third-party request\")} in the visit configured"),
-    headline.indexOf("story: \"comparison\"", headline.indexOf("Brave's ad-block engine"))
+    requireIndex(headline, "recorded ${plural(removed, \"fewer third-party request\")} in the visit configured", label),
+    requireIndex(headline, "story: \"comparison\"", label, requireIndex(headline, "Brave's ad-block engine", label))
   );
   assert.ok(shieldsSubhead.length > 0, "the Shields pair branch must still be findable");
   assert.doesNotMatch(
@@ -121,7 +123,11 @@ test("the Shields pair subhead carries no baseline-only extras", () => {
 
 test("a transient corpus-stats failure stays retryable for the next mount", () => {
   const overview = source("app/_components/report-overview.tsx");
-  const onError = overview.slice(overview.indexOf("onError: () => {"), overview.indexOf("setCorpus(null);\n        }") + 40);
+  const label = "app/_components/report-overview.tsx";
+  const onError = overview.slice(
+    requireIndex(overview, "onError: () => {", label),
+    requireIndex(overview, "setCorpus(null);\n        }", label) + 40
+  );
   assert.ok(onError.length > 0);
   assert.doesNotMatch(
     onError,
@@ -159,9 +165,11 @@ test("the third-party badge names every metric that set the card's level", () =>
 
 test("a browser that cannot open a context is dropped from the cache, not closed", () => {
   const scanner = source("lib/scanner.ts");
-  const block = scanner.slice(
-    scanner.indexOf("context = await withScanTimeoutDisposing("),
-    scanner.indexOf("throwIfScanAborted(options.signal);", scanner.indexOf("context = await withScanTimeoutDisposing("))
+  const block = sliceToNext(
+    scanner,
+    "context = await withScanTimeoutDisposing(",
+    "throwIfScanAborted(options.signal);",
+    "lib/scanner.ts"
   );
   assert.match(block, /sharedBrowser = null;/, "a wedged browser must leave the cache");
   assert.match(block, /browserLaunchPromise = null;/);
@@ -179,9 +187,11 @@ test("a browser that cannot open a context is dropped from the cache, not closed
  */
 test("the Shields stat is denominated by requests the engine actually evaluated", () => {
   const overview = source("app/_components/report-overview.tsx");
-  const shields = overview.slice(
-    overview.indexOf('label: "Matched Shields lists"'),
-    overview.indexOf("icon: shieldsMeasurement.origin", overview.indexOf('label: "Matched Shields lists"'))
+  const shields = sliceToNext(
+    overview,
+    'label: "Matched Shields lists"',
+    "icon: shieldsMeasurement.origin",
+    "app/_components/report-overview.tsx"
   );
   assert.ok(shields.length > 0, "the Shields stat block must still be findable");
   // The detail line lives in one shared builder now; the stat must render
@@ -218,9 +228,11 @@ test("the Shields stat is denominated by requests the engine actually evaluated"
  */
 test("the degraded-run notice scopes its lower-bound claim to what was censored", () => {
   const views = source("lib/scan-report-censorship.ts");
-  const notice = views.slice(
-    views.indexOf("export function degradedRunNotice"),
-    views.indexOf("export function runQualitySummary")
+  const notice = sliceBetween(
+    views,
+    "export function degradedRunNotice",
+    "export function runQualitySummary",
+    "lib/scan-report-censorship.ts"
   );
   assert.ok(notice.length > 0);
   assert.match(notice, /failed\.length > 0/, "a failed visit and a censored family must read differently");
@@ -250,8 +262,7 @@ test("the exported PDF is navigable and tagged", () => {
   // Bound the slice FROM the call site: assertRenderedPdfWithinCeiling is also
   // defined earlier in the file, so an unanchored indexOf returns a position
   // before the call and yields an empty slice that matches nothing.
-  const start = pdf.indexOf("await opened.pdf({");
-  const call = pdf.slice(start, pdf.indexOf("});", start));
+  const call = sliceToNext(pdf, "await opened.pdf({", "});", "lib/report-pdf.ts");
   assert.ok(call.length > 0, "the pdf() call must still be findable");
   assert.match(call, /outline: true/, "bookmarks come from the document's own headings");
   assert.match(call, /tagged: true/, "a screen reader needs the structure tree");
@@ -268,7 +279,7 @@ test("the exported PDF is navigable and tagged", () => {
  */
 test("the printed request log keeps units whole and gives the URL column room", () => {
   const css = source("app/globals.css");
-  const print = css.slice(css.indexOf("@media print"));
+  const print = css.slice(requireIndex(css, "@media print", "app/globals.css"));
   assert.match(print, /\.request-table td\.time-cell[\s\S]{0,200}white-space: nowrap/);
   assert.match(print, /\.request-table td\.time-cell[\s\S]{0,200}overflow-wrap: normal/);
   assert.match(print, /\.request-table td\.url-cell[\s\S]{0,80}width: 4\d%/);

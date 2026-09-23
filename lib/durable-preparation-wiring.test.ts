@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
+import { assertOrdered, requireIndex, sliceToNext } from "./source-markers";
 
+const WORKER = "cloudflare/container-worker.ts";
 const worker = readFileSync(path.join(process.cwd(), "cloudflare", "container-worker.ts"), "utf8");
 const model = readFileSync(path.join(process.cwd(), "docs", "scan-job-model.md"), "utf8");
 
@@ -10,25 +12,26 @@ test("the durable admission path reserves a preparation slot before it buys any 
   // The whole value of the bound is its position. Reserving after the crossing
   // to Node would bound nothing: the DNS resolution and preparation the replay
   // was buying would already have happened.
-  const reserve = worker.indexOf("reserveDurablePreparationSlot({");
-  const recovery = worker.indexOf("findCommittedScanAdmission(scanAdmissionKey)");
-  const deferGate = worker.indexOf('"defer",');
-  const submit = worker.indexOf("submitDurableScanJob(");
-
-  assert.ok(recovery > 0 && reserve > 0 && deferGate > 0 && submit > 0);
-  assert.ok(
-    recovery < reserve,
+  const reserve = "reserveDurablePreparationSlot({";
+  assertOrdered(
+    worker,
+    ["findCommittedScanAdmission(scanAdmissionKey)", reserve],
+    WORKER,
     "an honest retry must recover its committed admission before any reservation is attempted"
   );
-  assert.ok(reserve < deferGate, "the slot must be held before the deferred quota peek");
-  assert.ok(reserve < submit, "the slot must be held before the crossing to Node preparation");
+  assertOrdered(worker, [reserve, '"defer",'], WORKER, "the slot must be held before the deferred quota peek");
+  assertOrdered(
+    worker,
+    [reserve, "submitDurableScanJob("],
+    WORKER,
+    "the slot must be held before the crossing to Node preparation"
+  );
 });
 
 test("the slot is released on every exit path, and a cleanup failure never becomes the caller's error", () => {
-  const reserve = worker.indexOf("reserveDurablePreparationSlot({");
-  const tail = worker.slice(reserve);
-  const release = tail.indexOf("releaseDurablePreparationSlot({");
-  assert.ok(release > 0, "the reservation must be released");
+  const tail = worker.slice(requireIndex(worker, "reserveDurablePreparationSlot({", WORKER));
+  // The reservation must be released.
+  const release = requireIndex(tail, "releaseDurablePreparationSlot({", "the reservation's tail");
 
   // The release must sit in a finally, so an aborted deadline or a refused
   // commit frees the capability instead of stranding it for the full window.
@@ -48,7 +51,7 @@ test("a concurrent replay is refused as concurrency, and exhaustion as unavailab
 });
 
 test("the reservation is bound to the admission deadline, never a free-running timer", () => {
-  const reserve = worker.indexOf("reserveDurablePreparationSlot({");
+  const reserve = requireIndex(worker, "reserveDurablePreparationSlot({", WORKER);
   const call = worker.slice(reserve, reserve + 300);
   assert.match(call, /capabilityHash: scanAdmissionKey\.capabilityHash/);
   assert.match(call, /expiresAt: commitNotAfter/);
@@ -57,8 +60,12 @@ test("the reservation is bound to the admission deadline, never a free-running t
 test("the Durable Object takes the slot inside one transaction", () => {
   // A read-then-write across the RPC boundary would reintroduce exactly the
   // race the reservation exists to close.
-  const method = worker.slice(worker.indexOf("reserveDurablePreparationSlot(input:"));
-  const body = method.slice(0, method.indexOf("releaseDurablePreparationSlot(input:"));
+  const body = sliceToNext(
+    worker,
+    "reserveDurablePreparationSlot(input:",
+    "releaseDurablePreparationSlot(input:",
+    WORKER
+  );
   assert.match(body, /this\.ctx\.storage\.transactionSync\(/);
   assert.match(body, /reserveDurablePreparationInStore\(/);
 });

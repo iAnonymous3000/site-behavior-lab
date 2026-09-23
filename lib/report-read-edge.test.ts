@@ -10,19 +10,9 @@ import {
   parsePublicReportReadPath,
   refusePublicReportRouteMethod
 } from "./report-read-edge";
+import { requireIndex } from "./source-markers";
 
 const REPORT_ID = `20260721-${"a".repeat(32)}`;
-
-/**
- * A marker lookup that answers -1 makes every slice and ordering assertion
- * below vacuous (`-1 < anything` is true, `slice(-1, ...)` widens to the whole
- * file). Fail on the missing marker instead, naming it.
- */
-function requireIndex(source: string, marker: string): number {
-  const index = source.indexOf(marker);
-  assert.ok(index >= 0, `container-worker.ts no longer contains ${JSON.stringify(marker)}; update this marker`);
-  return index;
-}
 
 test("the edge recognizes every storage/rendering report representation with the canonical id", () => {
   assert.deepEqual(parsePublicReportReadPath("GET", `/reports/${REPORT_ID}`), {

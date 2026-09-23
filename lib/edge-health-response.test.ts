@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
+import { sliceBetween } from "./source-markers";
 import {
   DurableScanJobInternalResponseInvalidUtf8Error,
   DurableScanJobInternalResponseTooLargeError
@@ -92,18 +93,18 @@ test("edge health accepts only an unambiguous shared health contract", () => {
 
 test("the only caller of these helpers records the fault and stops asserting transience", async () => {
   const source = await readFile(path.join(process.cwd(), "cloudflare/container-worker.ts"), "utf8");
-  const marker = (name: string): number => {
-    const index = source.indexOf(name);
-    assert.ok(index >= 0, `cloudflare/container-worker.ts no longer contains ${JSON.stringify(name)}`);
-    return index;
-  };
-  const handler = source.slice(
-    marker("async function handleContainerHealthRequest("),
-    marker("async function patchHealthResponse(")
+  const worker = "cloudflare/container-worker.ts";
+  const handler = sliceBetween(
+    source,
+    "async function handleContainerHealthRequest(",
+    "async function patchHealthResponse(",
+    worker
   );
-  const overlay = source.slice(
-    marker("async function patchHealthResponse("),
-    marker("export async function durableJobsEdgeHealthCheck(")
+  const overlay = sliceBetween(
+    source,
+    "async function patchHealthResponse(",
+    "export async function durableJobsEdgeHealthCheck(",
+    worker
   );
 
   // A bare catch published seven materially different faults as one unlogged

@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { PublicScanError, toPublicError } from "./public-errors";
+import { requireIndex } from "./source-markers";
 import {
   isScanFailureCause,
   scanFailureNotice,
@@ -160,8 +161,7 @@ test("the client no longer infers a cause by matching the server's prose", () =>
   // matching over the message would restore every mis-map above, and every one
   // of them would still pass its own unit test.
   const source = readFileSync(path.join(root, "lib", "scan-client-orchestration.ts"), "utf8");
-  const start = source.indexOf("export function friendlyScanError");
-  assert.ok(start > 0, "friendlyScanError must exist");
+  const start = requireIndex(source, "export function friendlyScanError", "lib/scan-client-orchestration.ts");
   const body = source.slice(start, start + 1400);
   for (const forbidden of ["lower.includes", "toLowerCase()"]) {
     assert.equal(
