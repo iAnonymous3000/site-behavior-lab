@@ -606,16 +606,35 @@ export function extractPolicyClaims(policyText: string): PrivacyPolicyClaim[] {
 // Common alternate names a policy might use for a catalogued entity. Matching
 // is deliberately generous here: a false "mentioned" only reduces flagging,
 // while an entity is reported unmentioned only when no alias appears at all.
-const ENTITY_ALIASES: Record<string, string[]> = {
+//
+// Keyed by the catalog's exact entity string. A key replaces the exact-name
+// fallback, so each list must still match the catalog name itself. Without a
+// key, a multi-word catalog name is the only spelling that counts: "Twilio
+// Segment", "Yahoo Advertising" and "Equativ" are names vendor lists rarely
+// write, and a policy naming "Segment.io", "Yahoo" or "Smart AdServer" was
+// published as never naming the company.
+//
+// Only reviewed trade names and domains belong here, never an ordinary word:
+// "clarity" made "for clarity, ..." count as naming Microsoft, and "segment"
+// is a word real policies use in its plain sense. privacy-policy.test.ts holds
+// the list of known collisions and checks every key against the catalog.
+export const ENTITY_ALIASES: Readonly<Record<string, readonly string[]>> = {
   Meta: ["facebook", "instagram"],
   X: ["twitter", "x corp"],
   Google: ["google", "doubleclick", "youtube"],
-  Microsoft: ["microsoft", "bing", "clarity"],
+  Microsoft: ["microsoft", "bing"],
+  "Microsoft Clarity": ["microsoft clarity", "clarity.ms"],
   "Amazon Ads": ["amazon"],
   "Oracle Advertising": ["oracle", "bluekai"],
   Adobe: ["adobe"],
   LinkedIn: ["linkedin"],
-  TikTok: ["tiktok", "bytedance"]
+  TikTok: ["tiktok", "bytedance"],
+  "Yahoo Advertising": ["yahoo", "verizon media"],
+  "The Trade Desk": ["trade desk", "tradedesk"],
+  "Twilio Segment": ["twilio", "segment.io", "segment.com"],
+  DoubleVerify: ["doubleverify"],
+  Equativ: ["equativ", "smart adserver", "smartadserver"],
+  Magnite: ["magnite", "rubicon project", "rubiconproject", "telaria"]
 };
 
 /**
@@ -627,9 +646,15 @@ const ENTITY_ALIASES: Record<string, string[]> = {
  * merely withholds an accusation, an under-match invents one, so these patterns
  * lean toward matching.
  */
-const ENTITY_NAME_PATTERNS: Record<string, RegExp[]> = {
+export const ENTITY_NAME_PATTERNS: Readonly<Record<string, readonly RegExp[]>> = {
   Meta: [/\bmeta\s+platforms?\b/i, /\bmeta\s+pixel\b/i, /\bMeta\b(?!\s*(?:tag|data|description|element))/],
-  X: [/\bX\b(?!\s*[),.]?\s*(?:axis|ray))/]
+  X: [/\bX\b(?!\s*[),.]?\s*(?:axis|ray))/],
+  // The product's own "Clarity by Microsoft" wording. A bare "Clarity" cannot
+  // be told apart from a sentence that opens "Clarity, ..." or "For clarity".
+  "Microsoft Clarity": [/\bClarity\s+(?:by|from)\s+Microsoft\b/],
+  // "Double Verify" spelled apart, capitalized as a name: a lowercase "we
+  // double verify your email" is an ordinary verb phrase.
+  DoubleVerify: [/\bDouble\s+Verify\b/]
 };
 
 /** Split observed tracking entities into those the policy names and those it never mentions. */

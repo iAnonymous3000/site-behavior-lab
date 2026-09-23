@@ -5,6 +5,8 @@ import { test } from "node:test";
 import {
   buildPrivacyPolicySummary,
   classifyEntityMentions,
+  ENTITY_ALIASES,
+  ENTITY_NAME_PATTERNS,
   extractPolicyClaims,
   isCurrentlyCheckablePolicyClaim,
   isAllowedPrivacyPolicyUrl,
@@ -14,6 +16,8 @@ import {
   policyUrlIsSiteRoot,
   privacyPolicyDocumentQualifies
 } from "./privacy-policy";
+import { isTrackingRelatedEntity } from "./service-role";
+import { trackerCatalogRecords } from "./tracker-catalog";
 
 const PAD = " Lorem ipsum privacy boilerplate.".repeat(30);
 
@@ -697,4 +701,78 @@ test("a policy naming Meta by its own name is a mention, not an accusation", () 
 
   const xAxis = classifyEntityMentions("charts plot time on the x axis of the dashboard", ["X"]);
   assert.deepEqual(xAxis.unmentioned, ["X"]);
+});
+
+function catalogTrackingEntities(): string[] {
+  const categories = new Map<string, string[]>();
+  for (const record of trackerCatalogRecords()) {
+    categories.set(record.entity, [...(categories.get(record.entity) ?? []), record.category]);
+  }
+  return [...categories].filter(([, entityCategories]) => isTrackingRelatedEntity(entityCategories)).map(([entity]) => entity);
+}
+
+// Words a vendor happens to share with ordinary English. A case-insensitive
+// alias on any of them turns plain prose into a claim that the policy named a
+// company: "clarity" made "For clarity, we..." read as naming Microsoft.
+const ORDINARY_WORD_ALIAS_COLLISIONS = ["clarity", "segment", "meta", "x", "oath", "rubicon", "smart", "trade"];
+
+test("entity aliases are keyed by current catalog tracking entities and avoid ordinary words", () => {
+  const tracking = new Set(catalogTrackingEntities());
+  for (const key of [...Object.keys(ENTITY_ALIASES), ...Object.keys(ENTITY_NAME_PATTERNS)]) {
+    assert.ok(tracking.has(key), `alias key "${key}" is not a current catalog entity with a tracking role`);
+  }
+  for (const [entity, aliases] of Object.entries(ENTITY_ALIASES)) {
+    for (const alias of aliases) {
+      assert.equal(ORDINARY_WORD_ALIAS_COLLISIONS.includes(alias), false, `${entity} alias "${alias}" is an ordinary word`);
+    }
+  }
+
+  // Through the matcher itself, so a case-sensitive name pattern is held to
+  // the same bar: plain prose using these words names no company at all.
+  const prose =
+    "For clarity, this segment of the page uses meta tags. Clarity matters to us. " +
+    "Segment totals appear on the x axis. We take an oath to keep smart, fair trade policies. " +
+    "We double verify your email address.";
+  assert.deepEqual(classifyEntityMentions(prose, [...tracking]).mentioned, []);
+});
+
+test("every catalog tracking entity is named by its own catalog name", () => {
+  // A key replaces the exact-name fallback, so a key whose aliases omit the
+  // catalog spelling would stop matching the company's own name.
+  for (const entity of catalogTrackingEntities()) {
+    assert.deepEqual(
+      classifyEntityMentions(`Our partners include ${entity} and others.`, [entity]).mentioned,
+      [entity],
+      entity
+    );
+  }
+});
+
+test("reviewed trade names name their catalog entities, and ordinary clarity names none", () => {
+  for (const [text, entity] of [
+    ["Our advertising partners include Yahoo.", "Yahoo Advertising"],
+    ["Ads are served by Verizon Media.", "Yahoo Advertising"],
+    ["We buy media through Trade Desk.", "The Trade Desk"],
+    ["Customer data flows through Segment.io.", "Twilio Segment"],
+    ["Customer data is processed by Twilio.", "Twilio Segment"],
+    ["Ad verification by DoubleVerify.", "DoubleVerify"],
+    ["Ad verification by Double Verify.", "DoubleVerify"],
+    ["We work with Smart AdServer.", "Equativ"],
+    ["We work with Rubicon Project and Telaria.", "Magnite"],
+    ["Session replay by Microsoft Clarity.", "Microsoft Clarity"],
+    ["Session replay by Clarity by Microsoft.", "Microsoft Clarity"],
+    ["Requests go to clarity.ms for analytics.", "Microsoft Clarity"]
+  ] as const) {
+    assert.deepEqual(classifyEntityMentions(text, [entity]).mentioned, [entity], text);
+  }
+
+  for (const text of ["For clarity, we do not sell data.", "Clarity, we believe, builds trust."]) {
+    assert.deepEqual(
+      classifyEntityMentions(text, ["Microsoft", "Microsoft Clarity"]),
+      { mentioned: [], unmentioned: ["Microsoft", "Microsoft Clarity"] },
+      text
+    );
+  }
+  // Naming the product still names its parent company.
+  assert.deepEqual(classifyEntityMentions("We use Microsoft Clarity.", ["Microsoft"]).mentioned, ["Microsoft"]);
 });
