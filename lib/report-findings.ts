@@ -1271,7 +1271,10 @@ export function buildFindings(
 
   const highEntropyDetections = facts.signals.fingerprint.highEntropyDetections;
   const highEntropyDetectionLabels = highEntropyDetections.map(detectionLabel);
-  const topFingerprintApis = run.evidence.fingerprintEvents.slice(0, 3).map((event) => event.api);
+  // v2 rows are phase-tagged: the consent producer writes one row per (api,
+  // phase), so rows are not APIs. Name each API once, in first-seen order, and
+  // count families from the same distinct set the metric grid prints.
+  const topFingerprintApis = Array.from(new Set(run.evidence.fingerprintEvents.map((event) => event.api))).slice(0, 3);
   const fingerprintEventLead = fingerprintClaim.exactCountAllowed
     ? `${plural(
         run.counts.fingerprintEvents,
@@ -1291,7 +1294,7 @@ export function buildFindings(
         )}; this is not an exact total.`;
   const fingerprintEventEvidence = fingerprintClaim.exactCountAllowed
     ? `${plural(
-        run.evidence.fingerprintEvents.length,
+        facts.signals.fingerprint.apiFamilies,
         "API family",
         "API families"
       )} recorded.`

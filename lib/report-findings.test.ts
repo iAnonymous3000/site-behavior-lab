@@ -2688,6 +2688,31 @@ test("a partial fingerprint detector never presents retained API counts as exact
   assert.doesNotMatch(card.lead, /^3 high-entropy API calls appeared/);
 });
 
+test("phase-split fingerprint rows are counted and named as distinct APIs, like the metric grid", () => {
+  // The consent producer writes one row per (api, phase) when an API was
+  // called on both the passive load and the post-choice reload. The metric
+  // grid counts distinct APIs; the card counted rows, so the same page said
+  // "4 API families" beside a grid of 2 and listed one API twice.
+  const report = makeConsentInterventionReportV2R2();
+  const baseline = report.baseline;
+  const rows = [
+    { api: "canvas.toDataURL", count: 3, phaseId: 0 },
+    { api: "canvas.toDataURL", count: 2, phaseId: 2 },
+    { api: "webgl.getParameter", count: 4, phaseId: 0 },
+    { api: "webgl.getParameter", count: 1, phaseId: 2 }
+  ];
+  baseline.evidence.fingerprintEvents = rows;
+  baseline.summary.counts.fingerprintEvents = rows.reduce((total, row) => total + row.count, 0);
+
+  const view = viewFromV2(report, 2);
+  const facts = buildReportFacts(view);
+  assert.equal(facts.display.signals.fingerprint.apiFamilies, 2);
+  const card = byId(buildFindings(view, null, facts), "fingerprint-apis");
+  assert.match(card.lead, /^10 high-entropy API calls appeared/);
+  assert.equal(card.evidence, `${facts.display.signals.fingerprint.apiFamilies} API families recorded.`);
+  assert.match(card.detail, /Top calls: canvas\.toDataURL and webgl\.getParameter\./);
+});
+
 test("an incomplete pixel-body read never publishes a no-identifier-fields claim", () => {
   const result = makeResult({ firstPartyDomain: "shop.example" });
   result.pixelEvents = [
