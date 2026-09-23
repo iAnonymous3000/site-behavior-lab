@@ -177,11 +177,13 @@ file or any blocker policy changes without a reviewed contract update.
 That check is an integrity contract, not a reproducible-build receipt. The
 current binary identifies rustc 1.96.1 commit
 `31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd` and wasm-bindgen 0.2.126, but it
-also embeds the original host's Cargo registry paths. The historical build did
-not record a separately verifiable wasm-pack/wasm-bindgen CLI invocation, and
-CI does not rebuild the binary. A local offline rebuild reached the locked Rust
-compile and then could not run the missing generator without installing it, so
-the committed bytes cannot currently be derived from checked inputs alone.
+also embeds the building host's Cargo registry paths. The adblock-rust 0.13.3
+rebuild recorded its wasm-pack command and generator versions in the commit
+that vendored it, and clean rebuilds with that command on that host produced
+the vendored bytes. Those bytes also depend on the wasm-opt (binaryen 117)
+that wasm-pack took from its local tool cache without a pinned or reviewed
+source, and CI does not rebuild the binary, so the committed bytes cannot
+currently be derived from checked inputs alone.
 
 Do not call this artifact reproducible until one reviewed change does all of
 the following:
