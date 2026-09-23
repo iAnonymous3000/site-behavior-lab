@@ -82,8 +82,9 @@ later:
   pruned, not withdrawn. A withdrawal appears in `public/corrections.json`.
 - **Anchors cover a prefix, not the whole log.** An OpenTimestamps anchor bounds
   the entries beneath the head it names. Entries published after the newest
-  anchor have no external time bound until the next anchoring run, and a fresh
-  anchor is a calendar's promise until its Bitcoin attestation completes.
+  anchor carry no anchor in the published log until a human merges an anchor
+  proposal for a later head, and a fresh anchor is a calendar's promise until
+  its Bitcoin attestation completes.
 
 ## Anchor it yourself if the matter is adversarial
 

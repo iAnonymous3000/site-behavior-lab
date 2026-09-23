@@ -165,9 +165,10 @@ done
   report was published, never that it still is.
 - **Anchors cover a prefix of the log, not all of it.** An OpenTimestamps anchor
   bounds only the entries beneath the head it names. Entries published after the
-  newest anchor have no external time bound until the next weekly anchoring run
-  (`.github/workflows/anchor-transparency-log.yml`), and CI holds that gap under
-  a declared ceiling rather than assuming it is zero.
+  newest anchor carry no anchor in the published log until a human merges one of
+  the weekly anchor proposals that `.github/workflows/anchor-transparency-log.yml`
+  opens, and CI holds that gap under a declared ceiling rather than assuming it
+  is zero.
 - **The chain proves the bytes, not the visit.** The attestation shows CI built
   these bytes at this SHA. For CI-lane scans the same run performed the visit;
   the receipt states which lane produced it. It does not independently prove

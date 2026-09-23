@@ -274,8 +274,10 @@ operator receipts recorded in the runbook, not on committed evidence, and the
 corresponding release gates stay open until they are re-captured.
 
 Scheduled automation: featured-site rescans run weekly and open a pull request
-that a human must approve and merge (never hand-merged); the transparency-log
-head is anchored weekly; production health is checked every quarter hour and
+that a human must approve and merge (never hand-merged); a weekly run submits
+the current transparency-log head to OpenTimestamps calendars and proposes the
+anchor in a pull request, which a human must approve and merge before the
+published log carries it; production health is checked every quarter hour and
 hourly; Dependabot proposals get their derived manifests regenerated
 automatically but still need a human. The weekly Brave Shields list refresh
 is currently disabled by the operator while a reliability sweep characterizes
@@ -305,7 +307,8 @@ npm run verify:report -- <report-id>
 That replays the digest chain from the committed report to the transparency
 log; add `--from <dir>` to check bytes you saved yourself. Anchors cover a
 prefix of the log: entries published since the most recently anchored head
-have no external time bound until the next anchoring run. Read
+carry no anchor in the published log until an anchor proposal for a later
+head is merged. Read
 `docs/verify-a-report.md` and `docs/evidence-custody.md` before relying on a
 report, and note that a printed copy is a rendering whose footer carries the
 wire digest, not the evidence.

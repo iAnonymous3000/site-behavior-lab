@@ -15,9 +15,11 @@ import { listStaticReportCandidateIds, readStaticReportBundle } from "./static-r
  * How many published entries may sit above the newest anchored head.
  *
  * Derived, not guessed: the busiest week in the committed log published 152
- * entries (2026 W30), and .github/workflows/anchor-transparency-log.yml runs
- * weekly. The ceiling is two peak weeks plus headroom, so one missed anchoring
- * run never fails an unrelated pull request, while a month of silence does.
+ * entries (2026 W30), and .github/workflows/anchor-transparency-log.yml
+ * proposes an anchor weekly, which reaches the log only when a human merges
+ * the proposal. The ceiling is two peak weeks plus headroom, so one missed or
+ * unmerged proposal never fails an unrelated pull request, while a month
+ * without a merged anchor does.
  * Raising it is a decision about how long publications may go unwitnessed;
  * make it deliberately.
  */
@@ -157,10 +159,11 @@ test("the anchored prefix of the log is disclosed, not assumed", async () => {
   const anchored = Math.max(...log.anchors.map((anchor) => anchor.entryCount));
   const unanchored = log.entries.length - anchored;
 
-  // Not a failure: entries published after the newest anchor legitimately have
-  // no external time bound until the next anchoring run. This asserts the gap
-  // stays bounded, so "the log is anchored" never quietly becomes a statement
-  // about a small anchored prefix of a much longer log.
+  // Not a failure: entries published after the newest anchor legitimately
+  // carry no anchor in the published log until an anchor proposal for a later
+  // head is merged. This asserts the gap stays bounded, so "the log is
+  // anchored" never quietly becomes a statement about a small anchored prefix
+  // of a much longer log.
   assert.ok(
     unanchored <= MAX_UNANCHORED_ENTRIES,
     `${unanchored} of ${log.entries.length} published entries sit above the newest anchored head ` +

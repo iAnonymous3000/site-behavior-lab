@@ -46,8 +46,9 @@ evidence.
 Every publication is also chained into the append-only
 [transparency log](https://sitebehavior.org/transparency-log.json), whose most
 recently anchored head carries OpenTimestamps anchors covering the entries
-beneath it; anchors cover a prefix, so entries published since that anchor have
-no external time bound until the next weekly anchoring run. The detectors'
+beneath it; anchors cover a prefix, so entries published since that anchor
+carry no anchor in the published log until a human merges one of the weekly
+anchor proposals for a later head. The detectors'
 enumerated blind spots are published on the
 [catalog page](https://sitebehavior.org/catalog/), where each entry states
 whether a test enforces it against the scanner source or it rests on review.

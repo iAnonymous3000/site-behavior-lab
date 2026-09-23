@@ -76,6 +76,37 @@ test("the README describes transparency-log anchoring as a prefix while a gap ex
 });
 
 /**
+ * The anchoring workflow never writes the published log. It submits the head
+ * to the calendars and pushes the proof to an automation/* proposal branch, so
+ * the gap above the newest anchor closes only when a human merges a proposal.
+ * The README and three docs said the gap closed at "the next anchoring run"
+ * while two weekly runs passed, both proposals stayed open, and entries 932 to
+ * 1026 carried no anchor in the published log.
+ */
+test("published docs say an anchor reaches the log by a merged proposal, not by a run", () => {
+  const workflow = readFileSync(path.join(root, ".github/workflows/anchor-transparency-log.yml"), "utf8");
+  // Re-derive the mechanism. If the workflow ever commits anchors straight to
+  // the default branch, "the next anchoring run" becomes true again and this
+  // guard must be revisited rather than satisfied.
+  assert.match(workflow, /PROPOSAL_BRANCH: automation\/transparency-anchor-/);
+  assert.match(workflow, /gh pr create/);
+
+  for (const file of ["README.md", "docs/limitations.md", "docs/verify-a-report.md", "docs/evidence-custody.md"]) {
+    const document = readFileSync(path.join(root, file), "utf8");
+    assert.doesNotMatch(
+      document,
+      /until the next (?:weekly )?anchoring run|head is anchored weekly/i,
+      `${file} says a workflow run anchors the log, but the run only opens a proposal a human must merge`
+    );
+    assert.match(
+      document,
+      /merges?[\s\S]{0,80}anchor\s+proposals?|anchor\s+proposals?[\s\S]{0,80}merged/i,
+      `${file} must say the unanchored gap closes when an anchor proposal is merged`
+    );
+  }
+});
+
+/**
  * The catalog page publishes both kinds of boundary entry: test-enforced and
  * review-only. The README said the blind spots are published "with the test
  * that keeps each claim honest", implying every entry is enforced. It is 10 of
