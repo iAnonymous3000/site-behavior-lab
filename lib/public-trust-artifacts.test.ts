@@ -329,6 +329,23 @@ test("repository metadata points contributors to the canonical public project", 
   assert.ok(read(".github/CODEOWNERS").includes("@iAnonymous3000"));
 });
 
+// CONTRIBUTING.md told contributors to run `npm install`. With npm 11.11.0 that
+// rewrites package-lock.json without its root packageManager field, so the
+// release-evidence and toolchain-provenance tests went red on an otherwise
+// clean tree, while the README and every workflow install with `npm ci`.
+test("the contributor guide installs with npm ci on the pinned toolchain", () => {
+  const contributing = read("CONTRIBUTING.md");
+  const engines = JSON.parse(read("package.json")).engines as { node: string; npm: string };
+  assert.ok(contributing.includes(`Node.js ${engines.node}`), "CONTRIBUTING must name the pinned Node version");
+  assert.ok(contributing.includes(`npm ${engines.npm}`), "CONTRIBUTING must name the pinned npm version");
+  assert.match(contributing, /Install dependencies with `npm ci`/);
+  assert.doesNotMatch(
+    contributing.split("Do not use `npm install`").join(""),
+    /\bnpm install\b/,
+    "CONTRIBUTING may name npm install only to warn against it"
+  );
+});
+
 test("runtime status reads the Pages receipt from the public library, not scanner same-origin", () => {
   const status = read("app/status/live-deployment-status.tsx");
   const nextConfig = read("next.config.mjs");

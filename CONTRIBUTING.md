@@ -15,13 +15,21 @@ than the controlled visit supports.
 
 ## Development
 
-The project requires Node.js 24.
+Use Node.js 24.14.1 with npm 11.11.0 (`.nvmrc`, `package.json`, and CI pin the
+same versions).
 
-1. Install dependencies with npm install.
-2. Run npm run check for TypeScript, Cloudflare types, unit tests, and the
-   production build.
+1. Install dependencies with `npm ci`, then the pinned browser with
+   `npx playwright install chromium`. Do not use `npm install` or
+   `npm audit fix` for setup: with npm 11.11.0 both rewrite
+   `package-lock.json` and drop its root `packageManager` field, which the
+   release-evidence and toolchain-provenance tests pin, and
+   `npm run supply-chain:third-party:check` then reports the inventory stale,
+   so the checks fail on an otherwise clean tree.
+2. Run `NEXT_PUBLIC_SITE_BEHAVIOR_LAB_SITE_URL=https://example.org npm run check`
+   for TypeScript, Cloudflare types, unit tests, and the production build. The
+   build refuses to guess the public origin, so the variable is required.
 3. When static publication behavior changes, also run npm run build:pages and
-   npm run test:smoke:static.
+   npm run test:smoke:static with the same variable set.
 4. Add focused tests for every bug fix and for fail-closed integrity,
    redaction, or eligibility behavior.
 
