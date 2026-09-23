@@ -313,13 +313,36 @@ const POLICY_PHRASES_IN_DOCUMENT = POLICY_TEXT_PATTERNS.map(
     new RegExp(`(?<![a-z0-9])(?:${pattern.source.replace(/^\^/, "").replace(/\$$/, "")})(?![a-z0-9])`)
 );
 
-// A title or top-level heading announcing a missing page. A site that answers
-// a dead policy link with its "not found" template and status 200 (a soft 404)
-// wraps it in the same chrome, footer and "Privacy Policy" link text as every
-// other page, so only the page's own announcement says it is not the document
-// the link promised.
-const NOT_FOUND_ANNOUNCEMENT =
-  /(?<![a-z0-9])404(?![a-z0-9])|\bnot found\b|\b(?:could not|couldn't|cannot|can't|can not) be found\b|\b(?:does not|doesn't|no longer) exists?\b|\bpagina no encontrada\b|\bpage (?:introuvable|non trouvee)\b|\bseite nicht gefunden\b|\bpagina niet gevonden\b|\bpagina nao encontrada\b|\bpagina non trovata\b/;
+// A title or top-level heading announcing a missing page or an error. A site
+// that answers a dead policy link with its "not found" template and status 200
+// (a soft 404) wraps it in the same chrome, footer and "Privacy Policy" link
+// text as every other page, so only the page's own announcement says it is not
+// the document the link promised. Templates word it many ways: before these
+// alternatives, "Sorry, we can't find that page", "This page isn't available",
+// "Page missing" and "Oops, something went wrong" were each read as the
+// policy. Only the title and h1 elements are read, so an announcement made
+// only in an h2 or in running text is out of reach here.
+const NOT_FOUND_ANNOUNCEMENT = new RegExp(
+  [
+    "(?<![a-z0-9])404(?![a-z0-9])",
+    "\\bnot found\\b",
+    "\\b(?:could not|couldn't|cannot|can't|can not) be found\\b",
+    // First person or a named page: a help widget's "Can't find what you're
+    // looking for?" heading can sit on a real policy page.
+    "\\b(?:we|i) (?:could not|couldn't|cannot|can't|can not)(?: seem to)? find\\b",
+    "\\b(?:could not|couldn't|cannot|can't|can not)(?: seem to)? find (?:the|this|that|your) page\\b",
+    "\\b(?:(?:does not|doesn't)(?: seem to)?|no longer) exists?\\b",
+    "\\b(?:isn't|is not|is no longer) available\\b",
+    "\\bpage (?:unavailable|missing|has (?:been )?moved)\\b",
+    "\\bsomething went wrong\\b",
+    "\\bpagina no encontrada\\b",
+    "\\bpage (?:introuvable|non trouvee)\\b",
+    "\\bseite nicht gefunden\\b",
+    "\\bpagina niet gevonden\\b",
+    "\\bpagina nao encontrada\\b",
+    "\\bpagina non trovata\\b"
+  ].join("|")
+);
 
 function labelNamesPrivacyPolicy(label: string): boolean {
   const normalized = normalizePolicySignal(label);
@@ -340,7 +363,8 @@ function labelNamesPrivacyPolicy(label: string): boolean {
  *   1. The landed URL is not somewhere selection refuses to go (the site root,
  *      or the scanned page itself, without a policy path segment).
  *   2. A link whose path named a policy did not end at a path that names none.
- *   3. Neither the title nor any top-level heading announces a missing page.
+ *   3. Neither the title nor any top-level heading announces a missing page
+ *      or an error.
  *   4. The title or a heading names privacy, or the text names a privacy
  *      policy, notice or statement in one of the languages the selector reads.
  *

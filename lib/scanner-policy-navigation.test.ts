@@ -146,6 +146,17 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
         return html(page("Page not found | Example Lamps", "Example Lamps", filler));
       case "heading-404":
         return html(page("Example Lamps", "Sorry, this page could not be found", filler));
+      // Soft-404 and error templates that never say "not found".
+      case "cant-find-404":
+        return html(page("Example Lamps", "Sorry, we can't find that page", filler));
+      case "couldnt-find-404":
+        return html(page("Example Lamps", "Oops! We couldn't find that page.", filler));
+      case "unavailable-404":
+        return html(page("Example Lamps", "This page isn't available", filler));
+      case "missing-404":
+        return html(page("Example Lamps", "Page missing", filler));
+      case "error-page":
+        return html(page("Oops! | Example Lamps", "Oops, something went wrong", filler));
       case "no-signal":
         return html(page("Example Lamps", "Our stores", filler, ""));
       default:
@@ -178,6 +189,11 @@ test("privacy-policy probing reads only a same-site document that is a policy", 
       "legal-to-root",
       "title-404",
       "heading-404",
+      "cant-find-404",
+      "couldnt-find-404",
+      "unavailable-404",
+      "missing-404",
+      "error-page",
       "text-only-root",
       "no-signal"
     ]) {

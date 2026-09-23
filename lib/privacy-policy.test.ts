@@ -501,10 +501,25 @@ test("privacyPolicyDocumentQualifies rejects a same-site page that is not the po
     { title: "Shop", headings: ["Shop", "Sorry, this page could not be found"] },
     { title: "Privacy Policy | Shop", headings: ["Oops! That page can’t be found."] },
     { title: "Seite nicht gefunden", headings: [] },
-    { title: "Shop", headings: ["Página no encontrada"] }
+    { title: "Shop", headings: ["Página no encontrada"] },
+    // Soft-404 and error templates that never say "not found".
+    { title: "Shop", headings: ["Sorry, we can’t find that page"] },
+    { title: "Shop", headings: ["Oops! We couldn't find that page."] },
+    { title: "Shop", headings: ["We can't seem to find the page you're looking for"] },
+    { title: "Can't find the page | Shop", headings: [] },
+    { title: "Shop", headings: ["This page isn't available"] },
+    { title: "Shop", headings: ["This page is no longer available"] },
+    { title: "Page unavailable | Shop", headings: [] },
+    { title: "Shop", headings: ["Page missing"] },
+    { title: "Shop", headings: ["Hmm, the page you were looking for doesn't seem to exist anymore."] },
+    { title: "Shop", headings: ["This page has moved"] },
+    { title: "Oops! | Shop", headings: ["Oops, something went wrong"] }
   ]) {
     assert.equal(qualifies({ ...chrome, ...announcement }), false, JSON.stringify(announcement));
   }
+  // A help widget's question is not an announcement: a real policy page that
+  // carries one as a second h1 is still read.
+  assert.equal(qualifies({ headings: ["Privacy Policy", "Can't find what you're looking for? Contact us"] }), true);
   // A document with no privacy signal anywhere.
   assert.equal(
     qualifies({ title: "Shop", headings: ["Our stores"], text: `Opening hours and directions. ${PAD.replace(/privacy/g, "store")}` }),

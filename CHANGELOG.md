@@ -28,14 +28,14 @@ entries is in [docs/comprehensive-review-2026-09-22.md](docs/comprehensive-revie
   gap. `policy-text-cross-check@7` reads a privacy policy only when the landed
   page is itself a policy, so a link that lands on the site root or back on a
   scanned page with no policy path, a redirect that drops the policy path, a
-  not-found page, or a page with no policy wording records a failed policy
-  read; it also matches mentions by catalog entity, adds the trade names
-  Yahoo, Segment, Smart AdServer, Rubicon Project and Clarity by Microsoft,
-  and no longer counts the word "clarity" as naming Microsoft. It reads the
-  policy text without the page's script, style, noscript and template
-  content, so a vendor loader in the policy page's body (Clarity, Segment,
-  Google Analytics, the Meta Pixel, Bing UET) no longer counts as the policy
-  naming that vendor.
+  not-found or error page, or a page with no policy wording records a failed
+  policy read; it also matches mentions by catalog entity, adds the trade
+  names Yahoo, Segment, Smart AdServer, Rubicon Project and Clarity by
+  Microsoft, and no longer counts the word "clarity" as naming Microsoft. It
+  reads the policy text without the page's script, style, noscript and
+  template content, so a vendor loader in the policy page's body (Clarity,
+  Segment, Google Analytics, the Meta Pixel, Bing UET) no longer counts as
+  the policy naming that vendor.
   `fingerprint-observer@4` keeps a frame's canvas, WebGL, audio and WebRTC
   evidence when only its listener attribution is bounded, withholds that
   frame's session-recording and input-monitoring findings, and says so in a
