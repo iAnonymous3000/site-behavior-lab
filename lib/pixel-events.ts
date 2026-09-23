@@ -24,8 +24,9 @@
  *      this as "never reads"; see the RFC errata.)
  *
  * Pure and dependency-light so it unit-tests without a browser. The scanner
- * feeds it the raw (pre-redaction) request URL and POST body; everywhere else
- * consumes the {@link PixelEventSummary} it returns.
+ * feeds it the raw (pre-redaction) request URL, POST body, and declared
+ * Content-Type; everywhere else consumes the {@link PixelEventSummary} it
+ * returns.
  */
 
 import { safeParseUrl } from "./report-url";
@@ -38,6 +39,12 @@ export type PixelEventInput = {
   url: string;
   method?: string;
   postData?: string | null;
+  /**
+   * The request's declared Content-Type, when capture could read it. A
+   * multipart boundary is taken from here first, and sniffed from the body's
+   * first line only when no multipart type was declared.
+   */
+  contentType?: string | null;
 };
 
 type DecodedPixel = {
@@ -111,9 +118,15 @@ export function inspectPixelRequest(input: PixelEventInput): PixelInspection | n
   const host = parsed.hostname.toLowerCase();
   const path = parsed.pathname;
 
-  if (isMetaPixel(host, path)) return { decoded: decodeMeta(parsed, input), bodyDecoded: formBodyDecoded(input.postData) };
+  if (isMetaPixel(host, path)) {
+    const form = readFormParams(parsed, input);
+    return { decoded: decodeMeta(form.params), bodyDecoded: form.bodyDecoded };
+  }
   if (isTikTokPixel(host, path)) return decodeTikTok(input);
-  if (isXPixel(host, path)) return { decoded: decodeX(parsed, input), bodyDecoded: formBodyDecoded(input.postData) };
+  if (isXPixel(host, path)) {
+    const form = readFormParams(parsed, input);
+    return { decoded: decodeX(form.params), bodyDecoded: form.bodyDecoded };
+  }
   return null;
 }
 
@@ -204,8 +217,7 @@ function isMetaPixel(host: string, path: string): boolean {
   return hostMatches(host, "facebook.com") && (path === "/tr" || path.startsWith("/tr/"));
 }
 
-function decodeMeta(parsed: URL, input: PixelEventInput): DecodedPixel {
-  const params = mergedParams(parsed, input);
+function decodeMeta(params: URLSearchParams): DecodedPixel {
   const events = new Set<string>();
   for (const token of params.getAll("ev")) {
     // An UNSAFE token is generalized, never dropped. isSafeEventToken decides
@@ -298,8 +310,7 @@ function isXPixel(host: string, path: string): boolean {
   return (hostMatches(host, "analytics.twitter.com") || host === "t.co") && path.startsWith("/i/adsct");
 }
 
-function decodeX(parsed: URL, input: PixelEventInput): DecodedPixel {
-  const params = mergedParams(parsed, input);
+function decodeX(params: URLSearchParams): DecodedPixel {
   // The adsct endpoint is X's conversion/audience tag. Order-value parameters
   // mark a purchase; everything else is conversion/audience tracking. X's
   // browser pixel identifies via its own cookie (p_user_id), not user-supplied
@@ -328,22 +339,80 @@ function identifierField(fields: Readonly<Record<string, PixelMatchField>>, key:
   return Object.hasOwn(fields, normalized) ? fields[normalized] : undefined;
 }
 
-/** Query params plus any urlencoded POST body (pixels occasionally POST `/tr`). */
-function mergedParams(parsed: URL, input: PixelEventInput): URLSearchParams {
+/**
+ * Query params plus any form POST body, and whether that body decoded fully.
+ * One parse answers both, so the fields a row publishes and the coverage it
+ * claims for them cannot come from two different readings of the body. Pixels
+ * POST `/tr` as urlencoded text, and fbevents.js flushes through
+ * navigator.sendBeacon(url, FormData), which Chromium sends as
+ * multipart/form-data. A multipart body also contains "=" (in every
+ * name="..."), so it must be recognized before the urlencoded check or it
+ * reads as a complete form carrying none of its fields.
+ */
+function readFormParams(parsed: URL, input: PixelEventInput): { params: URLSearchParams; bodyDecoded: boolean } {
   const params = new URLSearchParams(parsed.search);
   const body = input.postData;
-  if (body && body.length <= MAX_DECODED_BODY_CHARS && !looksLikeJson(body)) {
-    try {
-      new URLSearchParams(body).forEach((value, key) => params.append(key, value));
-    } catch {
-      /* ignore an unparseable body; query params still stand */
-    }
+  if (!body) return { params, bodyDecoded: true };
+  if (body.length > MAX_DECODED_BODY_CHARS || looksLikeJson(body)) return { params, bodyDecoded: false };
+  const boundary = multipartBoundary(input.contentType, body);
+  if (boundary !== undefined) {
+    const multipart = boundary === null ? { fields: [], complete: false } : parseMultipartFormData(body, boundary);
+    for (const [name, value] of multipart.fields) params.append(name, value);
+    return { params, bodyDecoded: multipart.complete };
   }
-  return params;
+  new URLSearchParams(body).forEach((value, key) => params.append(key, value));
+  return { params, bodyDecoded: body.includes("=") };
 }
 
-function formBodyDecoded(body: string | null | undefined): boolean {
-  return !body || (body.length <= MAX_DECODED_BODY_CHARS && !looksLikeJson(body) && body.includes("="));
+/**
+ * The boundary of a multipart body. A declared multipart Content-Type wins,
+ * and yields null when it names no boundary. Otherwise the body's own first
+ * line is read as a delimiter (RFC 2046 boundary characters, 1 to 70 of
+ * them). undefined means the body is not framed as multipart at all.
+ */
+function multipartBoundary(contentType: string | null | undefined, body: string): string | null | undefined {
+  if (contentType && /^\s*multipart\//i.test(contentType)) {
+    const declared = /;\s*boundary\s*=\s*(?:"([^"]*)"|([^\s;"]+))/i.exec(contentType);
+    return declared?.[1] || declared?.[2] || null;
+  }
+  return /^--([0-9A-Za-z'()+_,./:=? -]{1,70})\r?\n/.exec(body)?.[1];
+}
+
+/**
+ * Each part's field name and value, for the shape browsers send a FormData
+ * body in (RFC 7578): CRLF framing, and exactly one header per part,
+ * `Content-Disposition: form-data; name="..."`. A framed part in any other
+ * shape (a file part, an extra header, no header block) is skipped and marks
+ * the body incomplete. A framing break stops the parse there, keeping the
+ * parts already closed by a delimiter, so a truncated beacon keeps its leading
+ * fields and still reports that it was not read in full.
+ */
+function parseMultipartFormData(body: string, boundary: string): { fields: Array<[string, string]>; complete: boolean } {
+  const delimiter = `--${boundary}`;
+  const fields: Array<[string, string]> = [];
+  if (!body.startsWith(delimiter)) return { fields, complete: false };
+  let complete = true;
+  let cursor = delimiter.length;
+  while (body.startsWith("\r\n", cursor)) {
+    const start = cursor + 2;
+    const end = body.indexOf(`\r\n${delimiter}`, start);
+    if (end === -1) return { fields, complete: false };
+    const part = body.slice(start, end);
+    const headerEnd = part.indexOf("\r\n\r\n");
+    const name = headerEnd === -1 ? null : formDataPartName(part.slice(0, headerEnd));
+    if (name === null) complete = false;
+    else fields.push([name, part.slice(headerEnd + 4)]);
+    cursor = end + 2 + delimiter.length;
+  }
+  // Only the close delimiter, with at most one trailing CRLF, ends a body
+  // whose every part was read.
+  const rest = body.slice(cursor);
+  return { fields, complete: complete && (rest === "--" || rest === "--\r\n") };
+}
+
+/** The field name of a part whose only header is `Content-Disposition: form-data; name="..."`. */
+function formDataPartName(headers: string): string | null {
+  return /^content-disposition[ \t]*:[ \t]*form-data[ \t]*;[ \t]*name[ \t]*=[ \t]*"([^"\r\n]*)"[ \t]*$/i.exec(headers)?.[1] ?? null;
 }
 
 function parseJsonBody(body: string | null | undefined): unknown {

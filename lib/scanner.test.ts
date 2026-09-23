@@ -2283,20 +2283,50 @@ test("CNAME resolution does not let a filter-list match override a reviewed nont
   }
 });
 
-for (const pixelBodyCase of [
+const pixelBodyCases: Array<{
+  name: string;
+  expression: string;
+  reason: string;
+  kind: string;
+  url?: string;
+  contentType?: string;
+}> = [
   { name: "truncated", expression: `"x".repeat(${MAX_CAPTURED_BODY_CHARS + 1})`, reason: "evidence-cap-reached", kind: "truncated" },
   { name: "malformed JSON", expression: JSON.stringify('{"event":'), reason: "scan-failed", kind: "dropped" },
-  { name: "unsupported JSON", expression: JSON.stringify('{"unknown":{"email":"populated"}}'), reason: "scan-failed", kind: "dropped" }
-]) {
+  { name: "unsupported JSON", expression: JSON.stringify('{"unknown":{"email":"populated"}}'), reason: "scan-failed", kind: "dropped" },
+  {
+    // A multipart body with no close delimiter: the part it cut off is not
+    // evidence of absence, so the Meta row must not read as fully decoded.
+    name: "malformed multipart",
+    url: "http://www.facebook.com/tr/",
+    contentType: "multipart/form-data; boundary=fixture",
+    expression: JSON.stringify('--fixture\r\nContent-Disposition: form-data; name="ev"\r\n\r\nPurchase\r\n--fixture\r\nContent-Disposition: form-data; name="ud[em]"\r\n\r\npopulated'),
+    reason: "scan-failed",
+    kind: "dropped"
+  },
+  {
+    // Well framed by its own first line, but not by the boundary the request
+    // declared. The declared Content-Type reaches the decoder from capture, so
+    // the body is not read by sniffing alone.
+    name: "mismatched multipart boundary",
+    url: "http://www.facebook.com/tr/",
+    contentType: "multipart/form-data; boundary=declared",
+    expression: JSON.stringify('--fixture\r\nContent-Disposition: form-data; name="ev"\r\n\r\nPurchase\r\n--fixture--\r\n'),
+    reason: "scan-failed",
+    kind: "dropped"
+  }
+];
+for (const pixelBodyCase of pixelBodyCases) {
   test(`a ${pixelBodyCase.name} recognized pixel POST censors pixel detector output`, { timeout: 30_000 }, async () => {
     const upstream = createServer((request, response) => {
       const host = request.headers.host?.split(":")[0] ?? "";
       if (host === "pixel-body.test") {
         response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
         response.end(`<!doctype html><title>Pixel body fixture</title><script>
-          fetch("http://analytics.tiktok.com/api/v2/pixel", {
+          fetch(${JSON.stringify(pixelBodyCase.url ?? "http://analytics.tiktok.com/api/v2/pixel")}, {
             method: "POST",
             mode: "no-cors",
+            ${pixelBodyCase.contentType ? `headers: { "content-type": ${JSON.stringify(pixelBodyCase.contentType)} },` : ""}
             body: ${pixelBodyCase.expression}
           }).catch(() => undefined);
         </script>`);
@@ -2351,6 +2381,73 @@ for (const pixelBodyCase of [
   });
 
 }
+
+test("a Meta Pixel sendBeacon(FormData) request decodes its multipart fields", { timeout: 30_000 }, async () => {
+  // fbevents.js flushes through navigator.sendBeacon(url, FormData), which
+  // Chromium serializes as multipart/form-data. The body used to pass the
+  // urlencoded sniff (it contains "=" in every name="..."), decode to nothing,
+  // and publish a complete Meta row with no event and no identifier field.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "pixel-beacon.test") {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end(`<!doctype html><title>Pixel beacon fixture</title><script>
+        const form = new FormData();
+        form.append("id", "1234567890");
+        form.append("ev", "Purchase");
+        form.append("ud[em]", "${"a".repeat(64)}");
+        form.append("ud[ph]", "");
+        navigator.sendBeacon("http://www.facebook.com/tr/", form);
+      </script>`);
+      return;
+    }
+    response.writeHead(204);
+    response.end();
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { result, measurement } = await scanSiteWithMeasurement(
+      {
+        url: "http://pixel-beacon.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    assert.ok(
+      result.requests.some(
+        (request) => request.domain === "www.facebook.com" && request.method === "POST" && request.resourceType === "ping"
+      ),
+      "the beacon reached request capture"
+    );
+    assert.deepEqual(result.pixelEvents, [
+      { platform: "Meta", product: "Meta Pixel", events: ["Purchase"], advancedMatching: ["email"], requests: 1 }
+    ]);
+    assert.equal(result.warnings.includes(PIXEL_DECODE_CAPTURE_LOSS_WARNING), false);
+    assert.equal(measurement.measurement.detectors["pixel-events"].status, "complete");
+    assert.equal(
+      measurement.measurement.qualityFacts.captureLoss.some((loss) => loss.detail === "pixel-decode"),
+      false
+    );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
 
 test("scanSite marks fingerprint coverage partial when a poisoned main frame is masked by a readable iframe", { timeout: 20_000 }, async () => {
   const upstream = createServer((request, response) => {

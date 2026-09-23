@@ -2329,7 +2329,12 @@ export async function scanSiteWithMeasurement(
       if (retainAtTrustedBoundary && record.thirdParty) {
         const url = request.url();
         const body = safeRequestPostDataWithCoverage(request);
-        const input = { url, method: record.method, postData: body.value };
+        const input = {
+          url,
+          method: record.method,
+          postData: body.value,
+          contentType: safeRequestContentType(request)
+        };
         const pixel = inspectPixelRequest(input);
         pixelEventInputs.push(input);
         const phaseInputs = pixelEventInputsByPhase.get(phaseId) ?? [];
@@ -4293,6 +4298,19 @@ function safeRequestPostDataWithCoverage(request: Pick<Request, "postData">): Bo
       : { value: body, truncated: false, unreadable: false };
   } catch {
     return { value: null, truncated: false, unreadable: true };
+  }
+}
+
+// The declared type tells the pixel decoder how a body is framed (a FormData
+// beacon arrives as multipart/form-data with its boundary here), so coverage
+// does not rest on sniffing the body alone. The provisional request headers
+// are read synchronously; a read that throws leaves the decoder to the body's
+// own framing rather than failing the capture.
+function safeRequestContentType(request: Pick<Request, "headers">): string | null {
+  try {
+    return request.headers()["content-type"] ?? null;
+  } catch {
+    return null;
   }
 }
 

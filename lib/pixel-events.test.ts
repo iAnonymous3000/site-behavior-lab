@@ -39,7 +39,13 @@ test("unsupported pixel bodies remain recognized endpoints with incomplete decod
     assert.equal(inspection.bodyDecoded, false, String(postData));
     assert.deepEqual(inspection.decoded.events, []);
   }
-  for (const postData of ['{"ev":"Purchase"}', "opaque-data", "x".repeat(MAX_DECODED_BODY_CHARS + 1)]) {
+  for (const postData of [
+    '{"ev":"Purchase"}',
+    "opaque-data",
+    "x".repeat(MAX_DECODED_BODY_CHARS + 1),
+    // Contains "=", so it passed as a urlencoded form while carrying no pair.
+    '--b\r\nContent-Disposition: form-data; name="ev"\r\n\r\nPurchase'
+  ]) {
     const inspection = inspectPixelRequest({ url: "https://www.facebook.com/tr?ev=PageView", method: "POST", postData });
     assert.equal(inspection?.bodyDecoded, false);
     assert.deepEqual(inspection?.decoded.events, ["PageView"], "a body failure does not discard a decoded query label");
@@ -164,6 +170,92 @@ test("Meta: a urlencoded POST body is merged with the query string", () => {
   });
   assert.deepEqual(decoded?.events, ["ViewContent"]);
   assert.deepEqual(decoded?.advancedMatching, ["email"]);
+});
+
+// The exact framing Chromium sends for navigator.sendBeacon(url, FormData),
+// which is how fbevents.js flushes its beacon transport (captured from
+// headless Chromium through Playwright's request.postData()).
+const BOUNDARY = "----WebKitFormBoundaryJ35BhSdbXodubXgB";
+const formPart = (name: string, value: string, boundary = BOUNDARY): string =>
+  `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`;
+const formBody = (parts: Array<[string, string]>, boundary = BOUNDARY): string =>
+  parts.map(([name, value]) => formPart(name, value, boundary)).join("") + `--${boundary}--\r\n`;
+
+test("Meta: a FormData beacon body decodes each multipart part", () => {
+  const body = formBody([
+    ["id", "1234567890"],
+    ["ev", "Purchase"],
+    // A part value is raw text, never a nested urlencoded form.
+    ["dl", "https://shop.example/checkout?ev=Lead&ud[ph]=5551234"],
+    ["ud[em]", HASH],
+    ["ud[ph]", ""],
+    ["cd[value]", "49.99"]
+  ]);
+  for (const contentType of [
+    undefined,
+    `multipart/form-data; boundary=${BOUNDARY}`,
+    `Multipart/Form-Data; Boundary="${BOUNDARY}"`,
+    // A mislabeled body is still read by its own framing, never as urlencoded.
+    "text/plain;charset=UTF-8"
+  ]) {
+    const input: PixelEventInput = { url: "https://www.facebook.com/tr/", method: "POST", postData: body, contentType };
+    const inspection = inspectPixelRequest(input);
+    assert.equal(inspection?.bodyDecoded, true, String(contentType));
+    assert.deepEqual(inspection?.decoded.events, ["Purchase"], String(contentType));
+    assert.deepEqual(inspection?.decoded.advancedMatching, ["email"], String(contentType));
+    const summary = JSON.stringify(summarizePixelEvents([input]));
+    assert.ok(!summary.includes(HASH), "the identifier value is only tested for emptiness");
+  }
+
+  const x = inspectPixelRequest({
+    url: "https://analytics.twitter.com/i/adsct",
+    method: "POST",
+    postData: formBody([["txn_id", "abc"], ["tw_sale_amount", "49.99"]])
+  });
+  assert.equal(x?.bodyDecoded, true);
+  assert.deepEqual(x?.decoded.events, ["Purchase"], "X reads the same form parts");
+
+  const dashLeadingForm = inspectPixelRequest({ url: "https://www.facebook.com/tr/", method: "POST", postData: "--flag=1&ev=Lead" });
+  assert.equal(dashLeadingForm?.bodyDecoded, true, "a urlencoded body is not multipart without a delimiter line");
+  assert.deepEqual(dashLeadingForm?.decoded.events, ["Lead"]);
+});
+
+test("Meta: a malformed or unsupported multipart body is not decoded but keeps its closed parts", () => {
+  const cd = (name: string) => `Content-Disposition: form-data; name="${name}"`;
+  const close = `--${BOUNDARY}--\r\n`;
+  const lead = formPart("ev", "Purchase");
+  const email = formPart("ud[em]", HASH);
+  const cases: Array<{ name: string; postData: string; contentType?: string; events: string[]; advancedMatching: string[] }> = [
+    { name: "no close delimiter", postData: lead + `--${BOUNDARY}\r\n${cd("ud[em]")}\r\n\r\n${HASH}`, events: ["Purchase"], advancedMatching: [] },
+    { name: "part with no blank line", postData: lead + `--${BOUNDARY}\r\n${cd("ud[em]")}\r\n${HASH}\r\n` + close, events: ["Purchase"], advancedMatching: [] },
+    { name: "part with no header block", postData: lead + `--${BOUNDARY}\r\n\r\n${HASH}\r\n` + email + close, events: ["Purchase"], advancedMatching: ["email"] },
+    {
+      name: "file part",
+      postData: lead + `--${BOUNDARY}\r\n${cd("upload")}; filename="a.txt"\r\nContent-Type: text/plain\r\n\r\nhello\r\n` + email + close,
+      events: ["Purchase"],
+      advancedMatching: ["email"]
+    },
+    { name: "filename parameter", postData: `--${BOUNDARY}\r\n${cd("ev")}; filename="blob"\r\n\r\nLead\r\n` + email + close, events: [], advancedMatching: ["email"] },
+    { name: "extra part header", postData: `--${BOUNDARY}\r\n${cd("ev")}\r\nContent-Type: text/plain\r\n\r\nLead\r\n` + email + close, events: [], advancedMatching: ["email"] },
+    { name: "LF-only framing", postData: `--${BOUNDARY}\n${cd("ev")}\n\nPurchase\n--${BOUNDARY}--\n`, events: [], advancedMatching: [] },
+    { name: "epilogue after the close delimiter", postData: lead + email + close + "ev=Lead", events: ["Purchase"], advancedMatching: ["email"] },
+    { name: "declared type without a boundary", postData: lead + email + close, contentType: "multipart/form-data", events: [], advancedMatching: [] },
+    { name: "declared boundary absent from the body", postData: lead + email + close, contentType: "multipart/form-data; boundary=other", events: [], advancedMatching: [] },
+    { name: "declared boundary a prefix of the body's", postData: lead + email + close, contentType: "multipart/form-data; boundary=----WebKitFormBoundary", events: [], advancedMatching: [] },
+    {
+      name: "first line is not the declared delimiter",
+      postData: `--${"x".repeat(BOUNDARY.length)}\r\n${cd("ev")}\r\n\r\nPurchase\r\n` + close,
+      contentType: `multipart/form-data; boundary=${BOUNDARY}`,
+      events: [],
+      advancedMatching: []
+    }
+  ];
+  for (const { name, postData, contentType, events, advancedMatching } of cases) {
+    const inspection = inspectPixelRequest({ url: "https://www.facebook.com/tr/", method: "POST", postData, contentType });
+    assert.equal(inspection?.bodyDecoded, false, name);
+    assert.deepEqual(inspection?.decoded.events, events, name);
+    assert.deepEqual(inspection?.decoded.advancedMatching, advancedMatching, name);
+  }
 });
 
 // --- TikTok -----------------------------------------------------------------
