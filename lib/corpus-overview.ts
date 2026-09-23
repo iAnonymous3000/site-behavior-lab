@@ -360,9 +360,18 @@ export function summarizeCorpusSiteCounts(entries: DirectoryEntry[]): CorpusSite
   };
 }
 
-/** Consent interaction arms are post-choice states, not passive site visits. */
+/**
+ * Consent interaction arms are post-choice states, not passive site visits.
+ *
+ * A row with no site key (a `{label}`-generalized lead host) belongs to no
+ * site, so it is not eligible either: the stats builder never records it and
+ * the export marks it generalized-lead-host. Admitting it here let such a
+ * visit date the status snapshot's aggregate cohort, and rank that cohort by
+ * recency, from a report the cohort's own site sample excludes.
+ */
 export function entryEligibleForCorpusRollups(entry: DirectoryEntry): boolean {
   return (
+    entry.siteKey !== null &&
     !publishedReportCorrections(entry.id).suppressIndexing &&
     !entryLoadFailed(entry) &&
     entry.requestEvidenceComplete &&

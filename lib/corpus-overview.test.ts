@@ -327,6 +327,51 @@ test("corpus rollups require an uncensored passive lead run", () => {
     entryEligibleForCorpusRollups(makeEntry({ id: "consent-reject", consentMode: "reject-all", comparisonType: "consent" })),
     false
   );
+  assert.equal(
+    entryEligibleForCorpusRollups(makeEntry({ id: "generalized-host", siteKey: null })),
+    false,
+    "a {label}-generalized lead host belongs to no site, so it is in no site sample"
+  );
+});
+
+/**
+ * The stats builder drops a keyless (`{label}`-generalized) lead row before
+ * recording anything, so the cohort it dates and ranks is keyed rows only.
+ * buildCorpusOverview filters with entryEligibleForCorpusRollups and hands
+ * the survivors to selectAggregateCorpusCohort; while that filter admitted
+ * keyless rows, one newest keyless visit re-dated its cohort and could hand
+ * /status and the directory a different cohort than corpus-stats.json's
+ * primaryCohortId.
+ */
+test("a keyless newest row cannot re-date or re-select the aggregate cohort", () => {
+  const cohortA = makeEntry({ id: "probe" }).corpusCohort;
+  const cohortB = { ...cohortA, id: "v1:test-methodology:producer-unrecorded:gpc-off", gpc: false };
+  const domains = Array.from({ length: 60 }, (_, index) => `site-${index}.example`);
+  const rowsA = domains.map((domain, index) =>
+    makeEntry({ id: `a-${index}`, domain, corpusCohort: cohortA, scannedAt: "2026-09-01T00:00:00.000Z" })
+  );
+  const rowsB = domains.map((domain, index) =>
+    makeEntry({ id: `b-${index}`, domain, corpusCohort: cohortB, scannedAt: "2026-09-02T00:00:00.000Z" })
+  );
+  const keyless = makeEntry({
+    id: "a-generalized",
+    domain: "site-0.example",
+    siteKey: null,
+    requestedUrl: "https://{label}.site-0.example/",
+    finalUrl: "https://{label}.site-0.example/",
+    corpusCohort: cohortA,
+    scannedAt: "2026-09-03T00:00:00.000Z"
+  });
+
+  // The builder's shape: keyed rows only, each cohort dated by its newest one.
+  const keyedOnly = selectAggregateCorpusCohort([...rowsA, ...rowsB]);
+  assert.equal(keyedOnly.cohort?.id, cohortB.id);
+
+  const overview = selectAggregateCorpusCohort(
+    [...rowsA, keyless, ...rowsB].filter(entryEligibleForCorpusRollups)
+  );
+  assert.equal(overview.cohort?.id, keyedOnly.cohort?.id, "a keyless row must not move the aggregate cohort");
+  assert.ok(overview.entries.every((entry) => entry.siteKey !== null));
 });
 
 test("a failed visit's directory entry carries no exact request or cookie counts", () => {

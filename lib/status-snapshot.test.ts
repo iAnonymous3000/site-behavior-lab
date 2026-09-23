@@ -14,6 +14,14 @@ test("published status derives its counts and installed inputs from committed ev
   assert.equal(snapshot.filterSourceCount, lists.sourceCount);
   assert.equal(snapshot.aggregateCohortId, stats.primaryCohortId);
   assert.equal(snapshot.siteCount, stats.sampleSize);
+  // The date /status prints for the aggregate cohort is the one the artifact
+  // records for that cohort. A keyless ({label}-generalized) row that the
+  // builder never records could otherwise date the cohort by itself. This
+  // also ties the snapshot to the builder's other population rules
+  // (runInCorpusDistributionPopulation against entryEligibleForCorpusRollups),
+  // so a future divergence there turns this red too, which is intended.
+  const primaryCohort = stats.cohorts.find((cohort: { id: string }) => cohort.id === stats.primaryCohortId);
+  assert.equal(snapshot.latestAggregateEvidence, primaryCohort?.latestRunAt ?? null);
   assert.equal(snapshot.aggregateSiteDates.length, snapshot.siteCount);
   assert.ok(snapshot.v1ReportCount + snapshot.v2ReportCount > 0);
   assert.deepEqual(readStatusSnapshot(JSON.parse(JSON.stringify(snapshot))), snapshot);
