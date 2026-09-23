@@ -1,7 +1,7 @@
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { getDomain } from "tldts";
+import { partyRegistrableDomain } from "./domain-utils";
 import {
   buildPageGraphExportManifest,
   buildCorpusFacts,
@@ -86,9 +86,12 @@ export function main(argv = process.argv.slice(2)): number {
     // Source filenames can contain customer/site names. The exported join key
     // is deterministic by input order and reveals nothing about local paths.
     const pageId = `page-${String(index + 1).padStart(6, "0")}`;
+    // The scanner's party rule, so etld1 and third_party mean what they mean
+    // in scan reports (bar.github.io is third-party on a foo.github.io page).
+    // A host with no registrable domain stays null: unknown, not a party.
     const facts = buildCorpusFacts(graphml, {
       pageId,
-      registrableDomain: (host) => getDomain(host)
+      registrableDomain: partyRegistrableDomain
     });
     for (const warning of facts.warnings) {
       console.warn(`${pageId}: ${warning}`);

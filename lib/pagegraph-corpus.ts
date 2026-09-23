@@ -42,7 +42,7 @@ import {
  * removed when their acting script is removed, but their target nodes (the
  * storage area, the web API) are never treated as removed themselves.
  *
- * Pure: callers inject `registrableDomain` (tldts `getDomain` in the CLI).
+ * Pure: callers inject `registrableDomain` (`partyRegistrableDomain` in the CLI).
  * The estimate is structural, not behavioral: it bounds what could stop
  * loading, and says nothing about JS error cascades (proposal section 12).
  */
@@ -130,7 +130,7 @@ export type CorpusFactsOptions = {
   pageId: string;
   /** Overrides the root URL extracted from the GraphML when provided. */
   pageUrl?: string;
-  /** eTLD+1 resolver (tldts `getDomain` in the CLI); null when unresolvable. */
+  /** eTLD+1 resolver (`partyRegistrableDomain` in the CLI); null when unresolvable. */
   registrableDomain: (host: string) => string | null;
 };
 

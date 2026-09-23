@@ -28,6 +28,12 @@ Ingests each GraphML file through the existing schema-aware parser
   engine, the same engine Shields simulation uses) and `impact-report.json`
   (the TypeScript closure), plus a one-line summary.
 
+The `etld1` and `third_party` columns use the scanner's party rule
+(`partyRegistrableDomain` in `lib/domain-utils.ts`, with the PSL private
+section), so `bar.github.io` on a `foo.github.io` page is third-party, exactly
+as in scan reports. A host with no registrable domain (an IP literal or
+`localhost`) exports an empty `etld1` and an unknown `third_party`.
+
 Then:
 
 ```sh
