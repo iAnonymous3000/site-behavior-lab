@@ -15,6 +15,14 @@ export type FingerprintObservationCollection = {
   observations: FingerprintObservations;
   attemptedFrames: number;
   readableFrames: number;
+  /**
+   * Readable frames whose listener attribution was bounded: at least one
+   * tracked registration could not be attributed, so the frame's
+   * session-recording and input-monitoring summaries were withheld while its
+   * other detections and event counts were kept. Detector coverage is
+   * incomplete whenever this is non-zero, even with every frame readable.
+   */
+  listenerAttributionLostFrames: number;
 };
 
 /**
@@ -86,7 +94,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   // Deep enough that ordinary synchronous framework wrappers keep the real
   // registrant inside the capture, still bounded so one registration cannot
   // allocate an arbitrarily deep stack. A chain that saturates this bound
-  // without resolving attribution records coverage loss, never a clean read.
+  // without resolving attribution records listener-attribution loss, never a
+  // clean read.
   const observerStackTraceLimit = mathMax(
     64,
     typeof StackError.stackTraceLimit === "number" ? StackError.stackTraceLimit : 0
@@ -177,6 +186,12 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
   const locationHrefGetter =
     typeof Location !== "undefined" ? objectGetOwnPropertyDescriptor(Location.prototype, "href")?.get : undefined;
   let observerCoverageLost = false;
+  // Scoped to listener attribution. A saturated stack capture or an
+  // overflowed listener-origin bound leaves unknown which scripts registered
+  // listeners; it says nothing about the canvas, font, WebGL, audio and WebRTC
+  // observations or the event counters, none of which read a stack or an
+  // origin. Only the two listener-coverage summaries are withheld.
+  let listenerAttributionLost = false;
   type CanvasState = {
     maxReadHeight: number;
     maxReadWidth: number;
@@ -330,10 +345,21 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     ]);
     return safeSortStrings(result);
   };
-  const addBoundedUniqueString = (values: Set<string>, value: string, limit: number): void => {
+  const markObserverCoverageLost = (): void => {
+    observerCoverageLost = true;
+  };
+  const markListenerAttributionLost = (): void => {
+    listenerAttributionLost = true;
+  };
+  const addBoundedUniqueString = (
+    values: Set<string>,
+    value: string,
+    limit: number,
+    onOverflow: () => void = markObserverCoverageLost
+  ): void => {
     if (safeSetHas(values, value)) return;
     if (safeSetSize(values) >= limit) {
-      observerCoverageLost = true;
+      onOverflow();
       return;
     }
     safeSetAdd(values, value);
@@ -682,8 +708,8 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     configurable: false,
     value: () => {
       // The scanner treats a non-snapshot as an unreadable frame and records
-      // detector coverage loss. Never turn compromised listener attribution
-      // into a publishable zero.
+      // detector coverage loss. Never turn a compromised stack reader or an
+      // overflowed evidence bound into a publishable zero.
       if (observerCoverageLost) return null;
       const detections: FingerprintDetectionSummary[] = [];
       const appendDetections = (items: FingerprintDetectionSummary[]) => {
@@ -692,6 +718,16 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
       appendDetections(summarizeCanvasDetections());
       appendDetections(summarizeCanvasFontDetections());
       appendDetections(summarizeHighEntropyDetections());
+      // Bounded listener attribution withholds exactly the summaries built
+      // from attributed registrations and flags the frame, so the scanner
+      // records the loss instead of reading a clean frame.
+      if (listenerAttributionLost) {
+        return trustedJsonSnapshot({
+          detections,
+          events: snapshotEventCounts(),
+          listenerAttributionLost: true
+        });
+      }
       appendDetections(summarizeInteractionDetections());
       return trustedJsonSnapshot({
         detections,
@@ -998,7 +1034,18 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     }
   };
 
-  const scriptOriginFromStack = (skipUntil?: Function): { coverageAvailable: boolean; origins: string[] } => {
+  // "unavailable": no trustworthy stack could be read at all (prepareStackTrace
+  // not neutralized, stackTraceLimit unusable, an empty stack). That is an
+  // integrity signal about the frame and still withholds its whole snapshot.
+  // "saturated": a stack was read, but the capture filled the observer's bound
+  // with first-party frames only, so this registration's registrant is
+  // unknown. Nothing else the frame recorded depends on that answer.
+  type StackAttribution =
+    | { status: "resolved"; origins: string[] }
+    | { status: "saturated" }
+    | { status: "unavailable" };
+
+  const scriptOriginFromStack = (skipUntil?: Function): StackAttribution => {
     const previousPrepareStackTraceDescriptor = objectGetOwnPropertyDescriptor(StackError, "prepareStackTrace");
     const previousStackTraceLimitDescriptor = objectGetOwnPropertyDescriptor(StackError, "stackTraceLimit");
     let prepareStackTraceNeutralized = false;
@@ -1095,7 +1142,7 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     }
 
     if (!prepareStackTraceNeutralized || !stackTraceLimitUsable || stack === "") {
-      return { coverageAvailable: false, origins: [] };
+      return { status: "unavailable" };
     }
 
     const stackLines = reflectApply(stringSplit, stack, ["\n"]) as string[];
@@ -1149,20 +1196,20 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     }
 
     if (chainThirdPartyOrigins.length > 0) {
-      return { coverageAvailable: true, origins: chainThirdPartyOrigins };
+      return { status: "resolved", origins: chainThirdPartyOrigins };
     }
     // No third-party frame inside a capture that saturated the observer's
     // bound: the walk exhausted the captured frames without resolving
     // attribution, and the registrant may sit beyond the truncation point. A
-    // wrapper chain deeper than the bound must read as bounded coverage, never
-    // as a clean first-party registration.
+    // wrapper chain deeper than the bound must read as bounded listener
+    // coverage, never as a clean first-party registration.
     if (frameLineCount >= observerStackTraceLimit) {
-      return { coverageAvailable: false, origins: [] };
+      return { status: "saturated" };
     }
     // A healthy stack may contain only non-HTTP frames in harnesses or browser
     // internals. That is unattributed, not evidence that stack capture itself
     // was disabled.
-    return { coverageAvailable: true, origins: nearestOrigin === null ? [] : [nearestOrigin] };
+    return { status: "resolved", origins: nearestOrigin === null ? [] : [nearestOrigin] };
   };
 
   const isThirdPartyOrigin = (origin: string | null): origin is string => {
@@ -1187,16 +1234,23 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     state.totalListenerCalls += 1;
 
     if (thirdPartyOrigins.length === 0) return;
+    // Both origin bounds below limit only what the listener-coverage summaries
+    // can retain, so overflowing either one bounds listener attribution alone.
     for (let index = 0; index < thirdPartyOrigins.length; index += 1) {
       if (thirdPartyOrigins[index].length > maxRetainedScriptOriginLength) {
-        observerCoverageLost = true;
+        listenerAttributionLost = true;
         return;
       }
     }
     safeSetAdd(state.thirdPartyEventTypes, eventType);
     safeSetAdd(state.thirdPartyListenerTargets, targetType);
     for (let index = 0; index < thirdPartyOrigins.length; index += 1) {
-      addBoundedUniqueString(state.thirdPartyOrigins, thirdPartyOrigins[index], maxUniqueThirdPartyOrigins);
+      addBoundedUniqueString(
+        state.thirdPartyOrigins,
+        thirdPartyOrigins[index],
+        maxUniqueThirdPartyOrigins,
+        markListenerAttributionLost
+      );
     }
     // One registration call, however many chain origins it recorded: the
     // thresholds count listener registrations, not origins.
@@ -1216,12 +1270,17 @@ export function fingerprintObserverInitScript(firstPartySiteKey?: string): void 
     // stack reader looks past synchronous first-party wrappers and records
     // every distinct third-party origin present in the captured chain. A
     // wrapper replacing the prototype is therefore not itself evidence loss;
-    // an unreadable stack still is.
-    const stackAttribution = activeScriptOrigin
-      ? { coverageAvailable: true, origins: [activeScriptOrigin] }
+    // an unreadable stack still is, and a saturated one bounds this
+    // registration's attribution.
+    const stackAttribution: StackAttribution = activeScriptOrigin
+      ? { status: "resolved", origins: [activeScriptOrigin] }
       : scriptOriginFromStack(skipUntil);
-    if (!stackAttribution.coverageAvailable) {
+    if (stackAttribution.status === "unavailable") {
       observerCoverageLost = true;
+      return;
+    }
+    if (stackAttribution.status === "saturated") {
+      listenerAttributionLost = true;
       return;
     }
     const chainThirdPartyOrigins: string[] = [];
@@ -1503,6 +1562,7 @@ export async function collectFingerprintObservationsWithCoverage(
   const merged = new Map<string, number>();
   const detections = new Map<FingerprintDetectionSummary["kind"], FingerprintDetectionSummary>();
   let readableFrames = 0;
+  let listenerAttributionLostFrames = 0;
 
   for (const frame of frames) {
     let snapshot: unknown;
@@ -1524,6 +1584,7 @@ export async function collectFingerprintObservationsWithCoverage(
     const normalized = normalizeFingerprintSnapshot(snapshot);
     if (!normalized) continue;
     readableFrames += 1;
+    if (normalized.listenerAttributionLost) listenerAttributionLostFrames += 1;
     const { events, detections: frameDetections } = normalized;
     for (const [api, count] of Object.entries(events)) {
       merged.set(api, (merged.get(api) ?? 0) + count);
@@ -1541,13 +1602,15 @@ export async function collectFingerprintObservationsWithCoverage(
       detections: Array.from(detections.values()).sort((a, b) => b.count - a.count || a.kind.localeCompare(b.kind))
     },
     attemptedFrames: frames.length,
-    readableFrames
+    readableFrames,
+    listenerAttributionLostFrames
   };
 }
 
 function normalizeFingerprintSnapshot(snapshot: unknown): {
   detections: FingerprintDetectionSummary[];
   events: Record<string, number>;
+  listenerAttributionLost: boolean;
 } | null {
   let candidate = snapshot;
   const serialized = typeof candidate === "string";
@@ -1564,14 +1627,26 @@ function normalizeFingerprintSnapshot(snapshot: unknown): {
     if (!isRecord(candidate.events) || !Array.isArray(candidate.detections)) return null;
     const events = numericRecord(candidate.events);
     if (!events) return null;
+    // The observer writes this flag only as `true`. Any other value, or a
+    // flagged frame that still carries a listener-coverage summary, is not a
+    // snapshot the observer produces and reads as an unreadable frame.
+    const listenerAttributionLost = "listenerAttributionLost" in candidate;
+    if (listenerAttributionLost && candidate.listenerAttributionLost !== true) return null;
     const detections: FingerprintDetectionSummary[] = [];
     for (const detection of candidate.detections) {
       if (!isFingerprintDetectionSummary(detection)) return null;
+      if (
+        listenerAttributionLost &&
+        (detection.kind === "session-recording" || detection.kind === "input-monitoring")
+      ) {
+        return null;
+      }
       detections.push(detection);
     }
     return {
       detections,
-      events
+      events,
+      listenerAttributionLost
     };
   }
 
@@ -1579,7 +1654,8 @@ function normalizeFingerprintSnapshot(snapshot: unknown): {
   if (!legacyEvents) return null;
   return {
     detections: [],
-    events: legacyEvents
+    events: legacyEvents,
+    listenerAttributionLost: false
   };
 }
 

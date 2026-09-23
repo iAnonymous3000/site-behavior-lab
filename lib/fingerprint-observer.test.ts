@@ -18,6 +18,21 @@ async function collectFingerprintObservationsFromFrames(
   return (await collectFingerprintObservationsWithCoverage(frames)).observations;
 }
 
+// A deferred third-party task that first runs a canvas text readback and a
+// WebGL renderer-plus-pixel read (neither touches a stack), then registers
+// input listeners through whatever addEventListener the page installed.
+const PROBE_THEN_REGISTER_SCRIPT =
+  "window.probeThenRegister = function probeThenRegister() {" +
+  '  const canvas = document.querySelector("#c");' +
+  '  canvas.getContext("2d").fillText("abcdefghijklmnop", 0, 16);' +
+  "  canvas.toDataURL();" +
+  '  const gl = document.querySelector("#g").getContext("webgl");' +
+  "  gl.getParameter(37446);" +
+  "  gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));" +
+  '  const field = document.querySelector("#field");' +
+  '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
+  "};";
+
 test("collectFingerprintObservationsFromFrames merges, sorts, and ignores inaccessible frames", async () => {
   const { events } = await collectFingerprintObservationsFromFrames([
     frameWithEvents({
@@ -77,7 +92,73 @@ test("collectFingerprintObservationsWithCoverage accepts only validated primitiv
       events: [{ api: "canvas.toDataURL", count: 2 }]
     },
     attemptedFrames: 4,
-    readableFrames: 1
+    readableFrames: 1,
+    listenerAttributionLostFrames: 0
+  });
+});
+
+test("collectFingerprintObservationsWithCoverage keeps a listener-bounded frame and rejects contradictory flags", async () => {
+  const canvasDetection: FingerprintDetectionSummary = {
+    kind: "canvas-fingerprinting",
+    heuristic: "openwpm-canvas-v1",
+    count: 1,
+    evidence: {
+      readApis: ["canvas.toDataURL"],
+      maxCanvasWidth: 32,
+      maxCanvasHeight: 32,
+      maxDistinctTextCharacters: 10,
+      maxTextWriteCalls: 1
+    }
+  };
+  const collection = await collectFingerprintObservationsWithCoverage([
+    {
+      evaluate: async () =>
+        JSON.stringify({
+          detections: [canvasDetection],
+          events: { "canvas.toDataURL": 1 },
+          listenerAttributionLost: true
+        })
+    },
+    {
+      evaluate: async () =>
+        JSON.stringify({ detections: [], events: { "canvas.toDataURL": 1 }, listenerAttributionLost: false })
+    },
+    {
+      evaluate: async () =>
+        JSON.stringify({ detections: [], events: { "canvas.toDataURL": 1 }, listenerAttributionLost: "true" })
+    },
+    {
+      // A bounded frame never carries a listener summary: the observer
+      // withholds both before it sets the flag.
+      evaluate: async () =>
+        JSON.stringify({
+          detections: [
+            {
+              kind: "input-monitoring",
+              heuristic: "input-listener-coverage-v1",
+              count: 1,
+              evidence: {
+                eventTypes: ["input", "keydown"],
+                listenerTargets: ["input"],
+                thirdPartyOrigins: ["https://recorder.example.net"],
+                totalListenerCalls: 4
+              }
+            }
+          ],
+          events: { "canvas.toDataURL": 1 },
+          listenerAttributionLost: true
+        })
+    }
+  ]);
+
+  assert.deepEqual(collection, {
+    observations: {
+      detections: [canvasDetection],
+      events: [{ api: "canvas.toDataURL", count: 1 }]
+    },
+    attemptedFrames: 4,
+    readableFrames: 1,
+    listenerAttributionLostFrames: 1
   });
 });
 
@@ -358,6 +439,72 @@ test("fingerprintObserverInitScript uses currentScript or explicit coverage loss
   }
 });
 
+test("stack-reader integrity exits still withhold the whole frame after canvas and WebGL evidence", async () => {
+  // Only a saturated capture is scoped to listener attribution. A page that
+  // locks the stack reader (stackTraceLimit pinned at an unusable value, or a
+  // prepareStackTrace the observer cannot neutralize) has tampered with the
+  // instrument itself, so the frame stays unreadable even though its canvas
+  // and WebGL counters were recorded before the registration.
+  const locks: Record<string, string> = {
+    "stackTraceLimit locked at zero":
+      'Object.defineProperty(Error,"stackTraceLimit",{value:0,writable:false,configurable:false});',
+    "stackTraceLimit locked oversized":
+      'Object.defineProperty(Error,"stackTraceLimit",{value:1000000,writable:false,configurable:false});',
+    "prepareStackTrace locked":
+      'Object.defineProperty(Error,"prepareStackTrace",{value:()=>"https://example.com/forged.js:1:1",writable:false,configurable:false});'
+  };
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext();
+    await context.addInitScript(fingerprintObserverInitScript, "example.com");
+    for (const [label, lock] of Object.entries(locks)) {
+      const page = await context.newPage();
+      await page.route("https://example.com/**", (route) =>
+        route.fulfill({
+          body:
+            '<input id="field"><canvas id="c" width="64" height="32"></canvas><canvas id="g" width="32" height="32"></canvas>' +
+            `<script>${lock}</script>` +
+            '<script src="https://recorder.example.net/recorder.js"></script>' +
+            "<script>setTimeout(() => window.probeThenRegister(), 0)</script>",
+          contentType: "text/html"
+        })
+      );
+      await page.route("https://recorder.example.net/recorder.js", (route) =>
+        route.fulfill({ body: PROBE_THEN_REGISTER_SCRIPT, contentType: "text/javascript" })
+      );
+      await page.goto("https://example.com/");
+      await page.waitForTimeout(50);
+      const inPage = await page.evaluate(() => {
+        const fingerprintWindow = window as Window & {
+          __siteBehaviorLabFingerprintEvents?: Record<string, number>;
+          __siteBehaviorLabFingerprintSnapshot?: () => unknown;
+        };
+        return {
+          events: { ...fingerprintWindow.__siteBehaviorLabFingerprintEvents },
+          snapshot: fingerprintWindow.__siteBehaviorLabFingerprintSnapshot?.()
+        };
+      });
+      assert.equal(inPage.events["canvas.toDataURL"], 1, `${label}: the canvas readback was recorded`);
+      assert.equal(
+        inPage.events["webgl.getParameter.UNMASKED_RENDERER_WEBGL"],
+        1,
+        `${label}: the WebGL renderer read was recorded`
+      );
+      assert.equal(inPage.snapshot, null, `${label}: an integrity exit withholds the whole frame`);
+      const coverage = await collectFingerprintObservationsWithCoverage(page.frames());
+      assert.deepEqual(
+        { ...coverage, observations: undefined },
+        { observations: undefined, attemptedFrames: 1, readableFrames: 0, listenerAttributionLostFrames: 0 },
+        label
+      );
+      assert.deepEqual(coverage.observations, { detections: [], events: [] }, label);
+      await page.close();
+    }
+  } finally {
+    await browser.close();
+  }
+});
+
 test("first-party addEventListener wrappers do not hide a deferred third-party registrant", async () => {
   // Angular's Zone.js saves the observer-installed method, replaces the
   // prototype, and later calls the saved method from its own first-party
@@ -421,8 +568,11 @@ test("first-party addEventListener wrappers do not hide a deferred third-party r
 // synchronous call chain by `padDepth` frames before delegating to the
 // observer-installed addEventListener, and a third-party recorder registers
 // input listeners in a deferred task (currentScript null, stack-only
-// attribution). Only the pad depth varies.
-async function coverageWithPaddedWrapper(padDepth: number) {
+// attribution). Only the pad depth varies, unless `withOtherEvidence` adds
+// the stack-independent canvas and WebGL probe to the recorder's task and a
+// second third-party vendor that registers through the observer's method
+// directly, so its chain resolves within the bound.
+async function coverageWithPaddedWrapper(padDepth: number, withOtherEvidence = false) {
   const browser = await chromium.launch({ headless: true });
   try {
     const context = await browser.newContext();
@@ -430,12 +580,28 @@ async function coverageWithPaddedWrapper(padDepth: number) {
     const page = await context.newPage();
     await page.route("https://example.com/**", (route) =>
       route.fulfill({
-        body:
-          '<input id="field">' +
-          '<script src="https://example.com/wrapper.js"></script>' +
-          '<script src="https://recorder.example.net/recorder.js"></script>' +
-          '<script>setTimeout(() => window.registerRecorder(), 0)</script>',
+        body: withOtherEvidence
+          ? '<input id="field"><canvas id="c" width="64" height="32"></canvas><canvas id="g" width="32" height="32"></canvas>' +
+            '<script src="https://direct.example.org/direct.js"></script>' +
+            '<script src="https://example.com/wrapper.js"></script>' +
+            '<script src="https://recorder.example.net/recorder.js"></script>' +
+            "<script>setTimeout(() => { window.registerDirect(); window.probeThenRegister(); }, 0)</script>"
+          : '<input id="field">' +
+            '<script src="https://example.com/wrapper.js"></script>' +
+            '<script src="https://recorder.example.net/recorder.js"></script>' +
+            '<script>setTimeout(() => window.registerRecorder(), 0)</script>',
         contentType: "text/html"
+      })
+    );
+    await page.route("https://direct.example.org/direct.js", (route) =>
+      route.fulfill({
+        body:
+          "const directAdd = EventTarget.prototype.addEventListener;" +
+          "window.registerDirect = function registerDirect() {" +
+          '  const field = document.querySelector("#field");' +
+          '  ["input","keydown","change","paste"].forEach(type => directAdd.call(field, type, () => undefined));' +
+          "};",
+        contentType: "text/javascript"
       })
     );
     await page.route("https://example.com/wrapper.js", (route) =>
@@ -454,11 +620,12 @@ async function coverageWithPaddedWrapper(padDepth: number) {
     );
     await page.route("https://recorder.example.net/recorder.js", (route) =>
       route.fulfill({
-        body:
-          "window.registerRecorder = function registerRecorder() {" +
-          '  const field = document.querySelector("#field");' +
-          '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
-          "};",
+        body: withOtherEvidence
+          ? PROBE_THEN_REGISTER_SCRIPT
+          : "window.registerRecorder = function registerRecorder() {" +
+            '  const field = document.querySelector("#field");' +
+            '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
+            "};",
         contentType: "text/javascript"
       })
     );
@@ -479,6 +646,7 @@ test("a first-party wrapper deep in the bounded stack still yields the third-par
   const coverage = await coverageWithPaddedWrapper(40);
   assert.equal(coverage.attemptedFrames, 1);
   assert.equal(coverage.readableFrames, 1);
+  assert.equal(coverage.listenerAttributionLostFrames, 0);
   assert.equal(coverage.observations.detections[0]?.kind, "input-monitoring");
   assert.deepEqual(
     coverage.observations.detections[0]?.evidence.thirdPartyOrigins,
@@ -490,15 +658,60 @@ test("a wrapper chain deeper than the stack bound records coverage loss instead 
   // One hundred pad frames exceed the observer's raised bound, so the capture
   // saturates with first-party frames and the third-party registrant is
   // structurally invisible. The honest wire outcome is a bounded read: the
-  // frame must report no snapshot (readableFrames 0); on this single-frame
-  // page the scanner publishes that as failed fingerprint coverage with
-  // capture loss (partial only when other frames stay readable). A clean
-  // complete read here would let any page hide a registrant behind a deep
-  // first-party wrapper.
+  // frame stays readable but is counted as listener-attribution loss, which
+  // the scanner records as fingerprint capture loss with a partial detector.
+  // A clean complete read here would let any page hide a registrant behind a
+  // deep first-party wrapper.
   const coverage = await coverageWithPaddedWrapper(100);
   assert.equal(coverage.attemptedFrames, 1);
-  assert.equal(coverage.readableFrames, 0);
+  assert.equal(coverage.readableFrames, 1);
+  assert.equal(coverage.listenerAttributionLostFrames, 1);
   assert.deepEqual(coverage.observations.detections, []);
+});
+
+test("a saturated listener stack keeps the frame's canvas and WebGL evidence and withholds only its listener summaries", async () => {
+  // The citi.com and capitalone.com shape: a deep first-party wrapper
+  // saturates the stack capture on a listener registration in a frame that
+  // also read canvas text back and read the unmasked WebGL renderer. Nulling
+  // that frame discarded canvas and WebGL evidence that never depended on
+  // stack attribution. The registrant stays unknown, so the frame's
+  // listener-coverage summaries are withheld, including the input-monitoring
+  // summary a second vendor's resolvable registrations would otherwise earn.
+  const coverage = await coverageWithPaddedWrapper(100, true);
+  assert.equal(coverage.attemptedFrames, 1);
+  assert.equal(coverage.readableFrames, 1);
+  assert.equal(coverage.listenerAttributionLostFrames, 1);
+  assert.deepEqual(
+    coverage.observations.detections.map((detection) => detection.kind),
+    ["canvas-fingerprinting", "webgl-fingerprinting"]
+  );
+  assert.deepEqual(coverage.observations.detections[1]?.evidence, {
+    readApis: ["webgl.readPixels"],
+    parameters: ["webgl.getParameter.UNMASKED_RENDERER_WEBGL"],
+    getParameterCalls: 1,
+    readPixelsCalls: 1
+  });
+  assert.deepEqual(coverage.observations.events, [
+    { api: "canvas.toDataURL", count: 1 },
+    { api: "webgl.getParameter.UNMASKED_RENDERER_WEBGL", count: 1 },
+    { api: "webgl.readPixels", count: 1 }
+  ]);
+
+  // The control: at a depth the capture can hold, the same page resolves
+  // both vendors and publishes their input-monitoring summary beside the
+  // canvas and WebGL detections, so the summary withheld above was real.
+  const resolved = await coverageWithPaddedWrapper(40, true);
+  assert.equal(resolved.readableFrames, 1);
+  assert.equal(resolved.listenerAttributionLostFrames, 0);
+  assert.deepEqual(
+    resolved.observations.detections.map((detection) => detection.kind),
+    ["canvas-fingerprinting", "input-monitoring", "webgl-fingerprinting"]
+  );
+  const inputMonitoring = resolved.observations.detections.find((detection) => detection.kind === "input-monitoring");
+  assert.deepEqual(
+    (inputMonitoring?.evidence as { thirdPartyOrigins: string[] }).thirdPartyOrigins,
+    ["https://direct.example.org", "https://recorder.example.net"]
+  );
 });
 
 test("two third-party origins in one registration chain attribute the chain instead of censoring the frame", async () => {
@@ -1861,19 +2074,46 @@ test("fingerprintObserverInitScript latches coverage loss when attacker-controll
   } finally {
     fontHarness.restore();
   }
+});
 
-  const originHarness = installInteractionHarness();
-  try {
-    fingerprintObserverInitScript("example.com");
-    const input = new originHarness.Input();
-    for (let index = 0; index <= 128; index += 1) {
-      withStackOrigin(`https://recorder-${index}.example.net`, () => {
-        input.addEventListener("input", () => undefined);
-      });
+test("fingerprintObserverInitScript bounds only listener attribution when a listener origin bound overflows", () => {
+  // The two origin bounds limit what the listener-coverage summaries can
+  // retain and nothing else, so overflowing either one withholds those
+  // summaries and flags the frame instead of discarding its other evidence.
+  // Each case would otherwise publish input monitoring from the origins it
+  // did retain.
+  const registerFrom = (origin: string, input: { addEventListener(type: string, listener: () => void): void }) => {
+    withStackOrigin(origin, () => {
+      input.addEventListener("input", () => undefined);
+      input.addEventListener("keydown", () => undefined);
+      input.addEventListener("change", () => undefined);
+      input.addEventListener("paste", () => undefined);
+    });
+  };
+  const cases: Record<string, (input: { addEventListener(type: string, listener: () => void): void }) => void> = {
+    "more than 128 distinct third-party origins": (input) => {
+      for (let index = 0; index <= 128; index += 1) registerFrom(`https://recorder-${index}.example.net`, input);
+    },
+    "an origin longer than 2048 characters": (input) => {
+      registerFrom("https://recorder.example.net", input);
+      registerFrom(`https://${"a".repeat(2100)}.example.net`, input);
     }
-    assert.equal(readRawSnapshot(originHarness.window), null);
-  } finally {
-    originHarness.restore();
+  };
+  for (const [label, register] of Object.entries(cases)) {
+    const harness = installInteractionHarness();
+    try {
+      fingerprintObserverInitScript("example.com");
+      register(new harness.Input());
+      const raw = readRawSnapshot(harness.window);
+      assert.equal(typeof raw, "string", `${label}: the frame stays readable`);
+      assert.deepEqual(
+        JSON.parse(raw as string),
+        { detections: [], events: {}, listenerAttributionLost: true },
+        label
+      );
+    } finally {
+      harness.restore();
+    }
   }
 });
 

@@ -34,6 +34,7 @@ import {
   createProbeRequestCaptureState,
   decideRoutedRequest,
   fingerprintFrameCoverageStatus,
+  fingerprintObserverLossFrames,
   incompleteKeystrokeProbeRequestLoss,
   phaseAwareFingerprintEvents,
   freezePassiveShieldsFacts,
@@ -73,6 +74,10 @@ import {
   PIXEL_DECODE_CAPTURE_LOSS_WARNING
 } from "./scan-runtime";
 import { resolveScannerEgressLabel, resolveScannerEgressRegion } from "./scanner-egress";
+import { buildReportFacts } from "./report-facts";
+import { buildRuntimeScanReportV2R2 } from "./scan-report-v2-runtime-builder";
+import { toPublicScanReportR2 } from "./scan-report-v2-r2-projection";
+import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 
 test("scannerEgressLabel canonicalizes unreviewed operator text before r2 collection", () => {
   assert.equal(scannerEgressLabel({}), "this scanner instance");
@@ -2677,6 +2682,248 @@ test("a fingerprint observer that read no frame at all records the same capture 
       true,
       "a dead observer must also be a recorded fingerprinting capture loss"
     );
+  } finally {
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+// A first-party wrapper that pads every addEventListener call past the
+// observer's 64-frame stack capture, the shape Zone.js and deep React render
+// chains produce on real sites.
+const SATURATING_WRAPPER_SCRIPT =
+  "const observerAdd = EventTarget.prototype.addEventListener;" +
+  "function pad(target, args, depth) {" +
+  "  if (depth > 0) return pad(target, args, depth - 1);" +
+  "  return observerAdd.apply(target, args);" +
+  "}" +
+  "EventTarget.prototype.addEventListener = function deepAdd(...args) { return pad(this, args, 100); };";
+
+// A deferred third-party task: canvas text readback, the unmasked WebGL
+// renderer read plus a pixel read, then input listeners registered through
+// whatever addEventListener the page installed.
+const PROBE_THEN_REGISTER_SCRIPT =
+  "window.probeThenRegister = function probeThenRegister() {" +
+  '  const canvas = document.querySelector("#c");' +
+  '  canvas.getContext("2d").fillText("abcdefghijklmnop", 0, 16);' +
+  "  canvas.toDataURL();" +
+  '  const gl = document.querySelector("#g").getContext("webgl");' +
+  "  gl.getParameter(37446);" +
+  "  gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));" +
+  '  const field = document.querySelector("#field");' +
+  '  ["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));' +
+  "};";
+
+test("fingerprintObserverLossFrames counts unreadable frames and listener-bounded frames once each", () => {
+  assert.equal(fingerprintObserverLossFrames({ attemptedFrames: 3, readableFrames: 3, listenerAttributionLostFrames: 0 }), 0);
+  assert.equal(fingerprintObserverLossFrames({ attemptedFrames: 3, readableFrames: 2, listenerAttributionLostFrames: 0 }), 1);
+  assert.equal(fingerprintObserverLossFrames({ attemptedFrames: 3, readableFrames: 3, listenerAttributionLostFrames: 2 }), 2);
+  assert.equal(fingerprintObserverLossFrames({ attemptedFrames: 3, readableFrames: 2, listenerAttributionLostFrames: 1 }), 2);
+});
+
+test("a saturated listener stack publishes the frame's canvas and WebGL evidence as a censored family", { timeout: 30_000 }, async () => {
+  // The citi.com and capitalone.com shape on the loopback. The observer used
+  // to null this whole frame, so the report published no fingerprint events
+  // and no detections for a visit that read canvas text back and read the
+  // unmasked WebGL renderer. Only the listener attribution is unknown; that
+  // is what must stay censored, as capture loss with a partial detector.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "recorder.example.net") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(PROBE_THEN_REGISTER_SCRIPT);
+      return;
+    }
+    if (request.url === "/wrapper.js") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(SATURATING_WRAPPER_SCRIPT);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html><title>saturated listener stack</title>
+      <input id="field"><canvas id="c" width="64" height="32"></canvas><canvas id="g" width="32" height="32"></canvas>
+      <script src="/wrapper.js"></script>
+      <script src="http://recorder.example.net/recorder.js"></script>
+      <script>setTimeout(() => window.probeThenRegister(), 0)</script>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+  // The observe-mode banner read keeps the consent detector out of the
+  // default state the r2 builder rejects, as in the shadow-emission test.
+  const previousConsentVerification = process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+  process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = "1";
+
+  try {
+    const visit = await scanSiteWithMeasurement(
+      {
+        url: "http://saturated.example.com/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "observe"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+    const { result, measurement: staged } = visit;
+
+    // The retained evidence publishes.
+    assert.deepEqual(
+      (result.fingerprintDetections ?? []).map((detection) => detection.kind),
+      ["canvas-fingerprinting", "webgl-fingerprinting"]
+    );
+    for (const api of ["canvas.toDataURL", "webgl.getParameter.UNMASKED_RENDERER_WEBGL", "webgl.readPixels"]) {
+      assert.equal(
+        result.fingerprintEvents.some((event) => event.api === api && event.count >= 1),
+        true,
+        `${api} must survive the saturated registration`
+      );
+    }
+    // The listener claim stays censored, on every channel the reader uses:
+    // the detector status, the capture-loss ledger, and the v1 warning.
+    assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
+      version: "fingerprint-observer@3",
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: 0
+    });
+    assert.deepEqual(
+      staged.measurement.qualityFacts.captureLoss.filter((loss) => loss.detail === "fingerprint-observer"),
+      [{ family: "fingerprinting", phaseId: 0, kind: "dropped", count: 1, detail: "fingerprint-observer" }]
+    );
+    assert.equal(result.warnings.includes(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING), true);
+
+    // Population invariant: the corpus admits a run's fingerprintEvents only
+    // when facts.claims["fingerprint-apis"].benchmarkAllowed holds, so this
+    // run stays out of that population exactly as it did when the frame was
+    // nulled, on the r2 wire and on the v1 wire.
+    const r2 = toPublicScanReportR2(
+      buildRuntimeScanReportV2R2(visit, "public-api", {
+        SITE_BEHAVIOR_LAB_BUILD_COMMIT: "a".repeat(40)
+      } as NodeJS.ProcessEnv)
+    );
+    const r2View = viewFromV2(r2, 2);
+    const r2Facts = buildReportFacts(r2View).display;
+    assert.deepEqual(
+      r2View.runs[0].evidence.fingerprintDetections.map((detection) => detection.kind).sort(),
+      ["canvas-fingerprinting", "webgl-fingerprinting"]
+    );
+    assert.equal(r2Facts.claims["fingerprint-apis"].benchmarkAllowed, false);
+    assert.equal(r2Facts.claims["fingerprint-apis"].exactCountAllowed, false);
+    assert.deepEqual([...r2Facts.claims["fingerprint-apis"].blockers].sort(), ["detector-incomplete", "family-censored"]);
+    assert.equal(r2Facts.claims["session-recording-input-monitoring"].allowed, false);
+    const v1Facts = buildReportFacts(viewFromV1Report(result)).display;
+    assert.equal(v1Facts.claims["fingerprint-apis"].benchmarkAllowed, false);
+    assert.deepEqual(v1Facts.claims["fingerprint-apis"].blockers, ["family-censored"]);
+  } finally {
+    if (previousConsentVerification === undefined) {
+      delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    } else {
+      process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION = previousConsentVerification;
+    }
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a passive read with bounded listener attribution cannot credit a later recorder to the consent phase", { timeout: 30_000 }, async () => {
+  // Every passive frame is readable, but the saturated registration withheld
+  // the passive listener summaries. If that read counted as a complete
+  // passive boundary, the reloaded post-consent document's input monitoring
+  // would be missing from it and would be published as starting after the
+  // click. The passive boundary stays incomplete instead.
+  const upstream = createServer((request, response) => {
+    const host = request.headers.host?.split(":")[0] ?? "";
+    if (host === "recorder.example.net") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(
+        request.url === "/direct.js"
+          ? 'const field = document.querySelector("#field");' +
+              '["input","keydown","change","paste"].forEach(type => field.addEventListener(type, () => undefined));'
+          : PROBE_THEN_REGISTER_SCRIPT
+      );
+      return;
+    }
+    if (request.url === "/wrapper.js") {
+      response.writeHead(200, { "content-type": "text/javascript" });
+      response.end(SATURATING_WRAPPER_SCRIPT);
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    const consented = (request.headers.cookie ?? "").includes("cmp-choice=granted");
+    response.end(
+      consented
+        ? `<!doctype html><title>post-consent recorder</title><input id="field">
+          <script src="http://recorder.example.net/direct.js"></script>`
+        : `<!doctype html><title>passive saturated listener</title>
+          <div id="onetrust-banner-sdk">
+            <button id="onetrust-accept-btn-handler"
+              onclick="document.cookie='cmp-choice=granted; path=/'; location.reload();">
+              Accept all
+            </button>
+          </div>
+          <input id="field"><canvas id="c" width="64" height="32"></canvas><canvas id="g" width="32" height="32"></canvas>
+          <script src="/wrapper.js"></script>
+          <script src="http://recorder.example.net/recorder.js"></script>
+          <script>setTimeout(() => window.probeThenRegister(), 0)</script>`
+    );
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const { measurement: staged } = await scanSiteWithMeasurement(
+      {
+        url: "http://fingerprint-saturated-phase.test/",
+        device: "desktop",
+        gpcEnabled: false,
+        consentMode: "accept-all"
+      },
+      {
+        publicUrlAlreadyVerified: true,
+        verifyPublicUrl: async () => undefined,
+        resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+        connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+        resolveCnameChain: async () => []
+      }
+    );
+
+    const consentPhase = staged.measurement.phases.find((phase) => phase.kind === "consent-interaction");
+    assert.ok(consentPhase);
+    assert.equal(
+      staged.measurement.qualityFacts.captureLoss.some(
+        (loss) =>
+          loss.family === "fingerprinting" &&
+          loss.phaseId === 0 &&
+          loss.kind === "dropped" &&
+          loss.detail === "fingerprint-observer"
+      ),
+      true,
+      "the bounded passive read is recorded as passive capture loss"
+    );
+    assert.equal(
+      staged.evidence.fingerprintDetections.some((detection) => detection.phaseId === consentPhase.phaseId),
+      false,
+      "no fingerprint detection may be credited to the consent phase"
+    );
+    assert.deepEqual(staged.measurement.detectors["fingerprint-heuristics"], {
+      version: "fingerprint-observer@3",
+      status: "partial",
+      reason: "scan-failed",
+      phaseId: consentPhase.phaseId
+    });
   } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));

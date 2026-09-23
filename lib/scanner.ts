@@ -249,6 +249,19 @@ export function fingerprintFrameCoverageStatus(
   return coverage.readableFrames === coverage.attemptedFrames ? "complete" : "partial";
 }
 
+/**
+ * Frames whose fingerprint evidence is incomplete: every unreadable frame plus
+ * every readable frame whose listener attribution was bounded. Both are the
+ * same `fingerprinting` capture loss. Only the unreadable ones lower frame
+ * coverage, because a bounded frame still contributed its other detections
+ * and event counts.
+ */
+export function fingerprintObserverLossFrames(
+  coverage: Pick<FingerprintObservationCollection, "attemptedFrames" | "readableFrames" | "listenerAttributionLostFrames">
+): number {
+  return Math.max(0, coverage.attemptedFrames - coverage.readableFrames) + coverage.listenerAttributionLostFrames;
+}
+
 const DESKTOP_VIEWPORT = { width: 1440, height: 980 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 const SCAN_TIMEZONE = "UTC";
@@ -1500,16 +1513,22 @@ export async function scanSiteWithMeasurement(
       if (passiveFingerprint.ok && passiveFingerprint.value.readableFrames > 0) {
         passiveFingerprintObservations = passiveFingerprint.value.observations;
       }
-      if (passiveFingerprint.ok && passiveFingerprintCoverage === "complete") {
+      // A passive read with bounded listener attribution is not phase-pure
+      // for the listener summaries it withheld: a later read of a fresh
+      // document could otherwise credit a pre-consent recorder to the consent
+      // phase. It stays an incomplete boundary like an unreadable frame.
+      if (
+        passiveFingerprint.ok &&
+        passiveFingerprintCoverage === "complete" &&
+        passiveFingerprint.value.listenerAttributionLostFrames === 0
+      ) {
         passiveBoundary.fingerprinting = true;
       } else {
         measurementKernel.recordCaptureLoss({
           family: "fingerprinting",
           phaseId: passivePhaseId,
           kind: passiveFingerprint.ok ? "dropped" : passiveFingerprint.kind,
-          count: passiveFingerprint.ok
-            ? Math.max(1, passiveFingerprint.value.attemptedFrames - passiveFingerprint.value.readableFrames)
-            : 1,
+          count: passiveFingerprint.ok ? Math.max(1, fingerprintObserverLossFrames(passiveFingerprint.value)) : 1,
           detail: "fingerprint-observer"
         });
       }
@@ -1752,10 +1771,11 @@ export async function scanSiteWithMeasurement(
     let tentativeFinalUrl = trustedSubjectUrl;
     let tentativeCookies: CookieRecord[] = [];
     let tentativeStorage: PassiveBoundaryOutcome<StorageRecord[]> = { ok: false, kind: "dropped" };
-    let tentativeFingerprintCollection = {
-      observations: { events: [], detections: [] } as FingerprintObservations,
+    let tentativeFingerprintCollection: FingerprintObservationCollection = {
+      observations: { events: [], detections: [] },
       attemptedFrames: 0,
-      readableFrames: 0
+      readableFrames: 0,
+      listenerAttributionLostFrames: 0
     };
     let tentativeScreenshot: string | null = null;
     let tentativePolicyLinks: PolicyLinkCandidate[] = [];
@@ -1837,24 +1857,34 @@ export async function scanSiteWithMeasurement(
         ? ({ ok: true, value: passiveStorageForTrustedSubject } as const)
         : ({ ok: false, kind: "dropped" } as const);
     const storage = finalStorage.ok ? finalStorage.value : [];
-    const fingerprintCollection = subjectStateTrusted
+    const fingerprintCollection: FingerprintObservationCollection = subjectStateTrusted
       ? tentativeFingerprintCollection
       : {
           observations: passiveFingerprintObservations ?? { events: [], detections: [] },
           attemptedFrames: passiveBoundary.fingerprinting ? 1 : 0,
-          readableFrames: passiveBoundary.fingerprinting ? 1 : 0
+          readableFrames: passiveBoundary.fingerprinting ? 1 : 0,
+          // passiveBoundary.fingerprinting is set only for a passive read with
+          // no bounded listener attribution.
+          listenerAttributionLostFrames: 0
         };
     const fingerprintObservations = fingerprintCollection.observations;
     const fingerprintFrameCoverage = fingerprintFrameCoverageStatus(fingerprintCollection);
+    // Every frame was read, but at least one withheld its listener-coverage
+    // summaries. The retained detections and counts publish; the family is
+    // still incomplete, so it records the same loss and partial detector as a
+    // partially readable page.
+    const fingerprintListenerAttributionLost = fingerprintCollection.listenerAttributionLostFrames > 0;
     // v2 carries this as a `fingerprinting` capture loss in its quality facts.
     // v1 has no quality block, so without a warning a run whose observer never
     // executed looks exactly like a run that looked and found nothing, and the
     // report publishes an unhedged "No fingerprint-like API calls observed".
-    if (fingerprintFrameCoverage !== "complete") {
+    if (fingerprintFrameCoverage !== "complete" || fingerprintListenerAttributionLost) {
       warnings.add(FINGERPRINT_OBSERVER_CAPTURE_LOSS_WARNING);
     }
     const fingerprintCoverageIncomplete =
-      fingerprintFrameCoverage === "partial" || (consentPhaseId !== null && !passiveBoundary.fingerprinting);
+      fingerprintFrameCoverage === "partial" ||
+      fingerprintListenerAttributionLost ||
+      (consentPhaseId !== null && !passiveBoundary.fingerprinting);
     const canAttributeConsentFingerprinting =
       subjectStateTrusted && (consentPhaseId === null || passiveBoundary.fingerprinting);
     const fingerprintAttribution = subjectStateTrusted
@@ -1902,12 +1932,12 @@ export async function scanSiteWithMeasurement(
     // v2 quality, and the report then published "No fingerprint-like API calls
     // observed" at ok level for a page that defeated the instrument. The v1
     // warning above already covers both states; the r2 facts now agree with it.
-    if (subjectStateTrusted && fingerprintFrameCoverage !== "complete") {
+    if (subjectStateTrusted && (fingerprintFrameCoverage !== "complete" || fingerprintListenerAttributionLost)) {
       measurementKernel.recordCaptureLoss({
         family: "fingerprinting",
         phaseId: stateSnapshotPhaseId,
         kind: "dropped",
-        count: Math.max(1, fingerprintCollection.attemptedFrames - fingerprintCollection.readableFrames),
+        count: Math.max(1, fingerprintObserverLossFrames(fingerprintCollection)),
         detail: "fingerprint-observer"
       });
     }
