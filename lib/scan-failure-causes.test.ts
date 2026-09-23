@@ -14,21 +14,57 @@ import {
 // __dirname points at the compiled output rather than the sources they read.
 const root = process.cwd();
 
-const ALL_CAUSES: ScanFailureCause[] = [
-  "invalid-url",
-  "private-target",
-  "target-unreachable",
-  "target-refused-automation",
-  "page-load-timeout",
-  "scanner-busy",
-  "rate-limited",
-  "challenge-required",
-  "access-key-required",
-  "request-rejected",
-  "feature-unavailable",
-  "scan-conflict",
-  "service-error"
-];
+// A Record over the union, so the compiler holds this list to exactly the
+// declared vocabulary: a cause added to or removed from the module without this
+// list fails to compile instead of silently escaping the tests below.
+const CAUSE_KEYS: Record<ScanFailureCause, true> = {
+  "invalid-url": true,
+  "private-target": true,
+  "target-unreachable": true,
+  "page-load-timeout": true,
+  "scanner-busy": true,
+  "rate-limited": true,
+  "challenge-required": true,
+  "access-key-required": true,
+  "request-rejected": true,
+  "feature-unavailable": true,
+  "scan-conflict": true,
+  "service-error": true
+};
+const ALL_CAUSES = Object.keys(CAUSE_KEYS) as ScanFailureCause[];
+
+/**
+ * Every cause a producer declares at a throw site in lib, app, or cloudflare.
+ *
+ * Reads `new PublicScanError|PublicFacingError|EdgeScanGateError(..., "cause")`
+ * in non-test sources. The `[^;]*?` span cannot cross a semicolon, so a throw
+ * whose message text contains one is not seen; if a guard below fails for a
+ * cause you can see being thrown, check for that first.
+ */
+function producerDeclaredCauses(): Set<string> {
+  const declared = new Set<string>();
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === "node_modules" || entry.name === "adblock-wasm") continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      if (!entry.name.endsWith(".ts") || entry.name.includes(".test.")) continue;
+      const source = readFileSync(full, "utf8");
+      for (const match of source.matchAll(
+        /new (?:PublicScanError|PublicFacingError|EdgeScanGateError)\([^;]*?,\s*"([a-z-]+)"\s*\)/g
+      )) {
+        declared.add(match[1]!);
+      }
+    }
+  };
+  walk(path.join(root, "lib"));
+  walk(path.join(root, "app"));
+  walk(path.join(root, "cloudflare"));
+  return declared;
+}
 
 test("every declared cause has reader-facing words", () => {
   for (const cause of ALL_CAUSES) {
@@ -36,15 +72,6 @@ test("every declared cause has reader-facing words", () => {
     assert.ok(notice.message.length > 0, `${cause} needs a message`);
     assert.equal(typeof notice.retryable, "boolean");
   }
-});
-
-test("a refusal of automation is never described as retryable", () => {
-  // The old copy ended "Try again, or try a different page" for a refusal that
-  // is deterministic. The report surface states this case honestly, and the
-  // error surface used to contradict it about the same fact.
-  const notice = scanFailureNotice("target-refused-automation");
-  assert.equal(notice.retryable, false);
-  assert.doesNotMatch(notice.action ?? "", /try again/i);
 });
 
 test("an undeclared cause returns the server's own words and invents no instruction", () => {
@@ -157,29 +184,34 @@ test("both producers emit the cause on the wire", () => {
 
 test("no public scan error declares a cause outside the closed vocabulary", () => {
   // Guards against a typo'd cause silently becoming an unclassified failure.
-  const declared = new Set<string>();
-  const walk = (dir: string) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name === "node_modules" || entry.name === "adblock-wasm") continue;
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        walk(full);
-        continue;
-      }
-      if (!entry.name.endsWith(".ts") || entry.name.includes(".test.")) continue;
-      const source = readFileSync(full, "utf8");
-      for (const match of source.matchAll(
-        /new (?:PublicScanError|PublicFacingError|EdgeScanGateError)\([^;]*?,\s*"([a-z-]+)"\s*\)/g
-      )) {
-        declared.add(match[1]!);
-      }
-    }
-  };
-  walk(path.join(root, "lib"));
-  walk(path.join(root, "app"));
-  walk(path.join(root, "cloudflare"));
+  const declared = producerDeclaredCauses();
   assert.ok(declared.size > 0, "no declared causes were found to check");
   for (const cause of declared) {
     assert.equal(isScanFailureCause(cause), true, `"${cause}" is not a declared cause`);
+  }
+});
+
+test("every cause in the vocabulary is declared by a producer or listed as undeclared", () => {
+  // Words for a case no producer throws describe behavior the product does not
+  // have, and the next reader of the module believes the case is handled.
+  // "target-refused-automation" was that: written, tested, and never declared,
+  // because the navigation-failure 502 cannot tell a refusal from an outage.
+  //
+  // Causes no producer declares today. Allowed, not required: when one gets a
+  // producer this test still passes, and the entry can simply be dropped.
+  const undeclaredAllowed = new Set<ScanFailureCause>([
+    // toPublicError's unexpected-error branch declines to classify.
+    "service-error",
+    // The lease conflicts in lib/scan-jobs.ts throw 409 without a cause.
+    "scan-conflict",
+    // The 429 throws in lib/scan-limits.ts and the Worker carry no cause.
+    "rate-limited"
+  ]);
+  const declared = producerDeclaredCauses();
+  for (const cause of ALL_CAUSES) {
+    assert.ok(
+      declared.has(cause) || undeclaredAllowed.has(cause),
+      `"${cause}" has reader-facing words but no producer declares it`
+    );
   }
 });

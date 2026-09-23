@@ -42,8 +42,6 @@ export type ScanFailureCause =
   | "private-target"
   /** The host did not resolve, or the page could not be fetched at all. */
   | "target-unreachable"
-  /** The site answered, and refused an undisguised automated visit. */
-  | "target-refused-automation"
   /** The page did not finish loading inside the scan's time budget. */
   | "page-load-timeout"
   /** The scanner itself is at capacity right now. */
@@ -68,15 +66,7 @@ export type ScanFailureNotice = {
   message: string;
   /** The single next action, or null when no action of theirs would help. */
   action: string | null;
-  /**
-   * Whether repeating the SAME request could plausibly succeed.
-   *
-   * `target-refused-automation` is deliberately false. A site that refuses an
-   * undisguised automated visit refuses it every time; the old copy ended
-   * "Try again, or try a different page", which invited a visitor to retry a
-   * permanent refusal. The report surface already states this case honestly,
-   * and the error surface used to contradict it on the same fact.
-   */
+  /** Whether repeating the SAME request could plausibly succeed. */
   retryable: boolean;
 };
 
@@ -96,13 +86,6 @@ const NOTICES: Record<ScanFailureCause, ScanFailureNotice> = {
     message: "The scanner couldn't reach that page. The site may be down, or the address may not resolve.",
     action: "Check the address, or try again later.",
     retryable: true
-  },
-  "target-refused-automation": {
-    message:
-      "That site refused an automated visit. This is the site's choice, and it is a real result rather than a scanner error.",
-    // Deliberately not "try again": the refusal is deterministic.
-    action: "Scanning it again will be refused the same way. Try a different page or site.",
-    retryable: false
   },
   "page-load-timeout": {
     message: "The page didn't finish loading inside the scan's time limit. It may be very slow or very large.",
