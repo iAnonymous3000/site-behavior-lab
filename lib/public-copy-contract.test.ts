@@ -134,6 +134,17 @@ test("category copy scopes 'newest' to the page's cohort and discloses newer vis
   assert.match(category, /in a measurement cohort this page does not use/);
 });
 
+// No page renders a leaderboard: its /directory/ render was removed in July and
+// the unused CorpusOverview.heaviest ranking with it. Reader copy that still
+// excluded incomplete visits "from the leaderboard" described nothing, and the
+// one ranked view left, the directory sort, deliberately keeps lower-bound
+// rows rankable, so the exclusion may not be restated about it either.
+test("reader copy names no leaderboard the site does not render", () => {
+  for (const file of ["app/sites/[domain]/page.tsx", "lib/corpus-export.ts"]) {
+    assert.doesNotMatch(source(file), /leaderboard/i, `${file} names a leaderboard no page renders`);
+  }
+});
+
 test("public metric copy keeps request rows and distinct service entities separate", () => {
   const home = source("app/site-behavior-app.tsx");
   // The rows moved from card grids in directory-index.tsx and the category page

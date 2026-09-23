@@ -279,7 +279,7 @@ test("aggregate selection names one methodology cohort and mixed direct aggregat
   // v1 keeps the aggregate while it remains the deployed benchmark source,
   // even though the r2 cohort here has more sites. This used to differ between
   // the two selection sites: the stats builder filtered to v1 and the directory
-  // did not, so the artifact and the leaderboard could name different cohorts.
+  // did not, so the artifact and the rendered aggregate could name different cohorts.
   // Both now call selectPrimaryCorpusCohort, and promoting r2 stays a
   // deliberate policy change rather than an emergent one.
   const selected = selectAggregateCorpusCohort([legacy, r2a, r2b]);

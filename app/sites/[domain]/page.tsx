@@ -290,10 +290,10 @@ function IncompleteEvidenceChip({ capped, failed }: { capped: boolean; failed: b
       {failed ? "visit did not complete" : capped ? "recording capped" : "request evidence incomplete"}
       <span className="visually-hidden print-text-equivalent">
         {failed
-          ? ": this visit returned an error document or was blocked, so its request counts are lower bounds, its cookie count is not measured, and it is excluded from the medians, leaderboard, and since-last-scan deltas."
+          ? ": this visit returned an error document or was blocked, so its request counts are lower bounds, its cookie count is not measured, and it is excluded from the medians and since-last-scan deltas."
           : capped
-            ? ": this visit hit the exact request-recording cap, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."
-            : ": this visit has incomplete request evidence from another bounded capture loss, so its request counts are lower bounds and it is excluded from the medians, leaderboard, and since-last-scan deltas."}
+            ? ": this visit hit the exact request-recording cap, so its request counts are lower bounds and it is excluded from the medians and since-last-scan deltas."
+            : ": this visit has incomplete request evidence from another bounded capture loss, so its request counts are lower bounds and it is excluded from the medians and since-last-scan deltas."}
       </span>
     </span>
   );

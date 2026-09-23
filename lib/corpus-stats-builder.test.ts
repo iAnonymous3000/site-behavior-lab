@@ -623,7 +623,7 @@ test("missing or mismatched sidecars fail the corpus build", async () => {
 
 test("the published artifact and the rendered aggregate name the same cohort", async () => {
   // The selection rule used to be restated in two files: this builder chose
-  // primaryCohortId while lib/corpus-overview chose the leaderboard's cohort.
+  // primaryCohortId while lib/corpus-overview chose the aggregate's cohort.
   // Both now call selectPrimaryCorpusCohort, and this proves it over the real
   // committed corpus rather than a fixture, so a re-added local sort in either
   // file fails here. It asserts agreement only, never a count, so an ordinary

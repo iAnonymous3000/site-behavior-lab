@@ -201,7 +201,7 @@ test("the JSON payload embeds the measured-corpus framing", () => {
   assert.match(payload.note, /not a random sample of the web/);
   assert.match(payload.note, /run-to-run variance/);
   assert.match(payload.note, /measuredSampleSize is the denominator of primaryCohortId/);
-  assert.match(payload.note, /no percentile, category median, or leaderboard silently pools v1 and r2/);
+  assert.match(payload.note, /no percentile or category median silently pools v1 and r2/);
   assert.equal(payload.cohorts[0].denominator, 1);
   assert.equal(payload.cohorts[0].methodologyVersion, "test-methodology");
   assert.equal(payload.cohorts[0].trackerCatalogDigest, LEGACY_CATALOG_IDENTITY.trackerCatalogDigest);

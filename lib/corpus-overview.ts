@@ -44,7 +44,7 @@ export type { ConsentClicks } from "./temporal-report-identity";
 /**
  * Server-only: loads the committed report corpus and derives the index-level views
  * shared by the directory page and the homepage hero, per-report entries, the
- * heaviest sites, and the distinct-site count. Per-category medians are NOT
+ * aggregate cohort and its distinct-site count. Per-category medians are NOT
  * derived here: `buildCategoryEvidencePages` owns them so the homepage,
  * directory, and category routes cannot publish different numbers for one
  * category. Metrics use the baseline (off / unprotected) run; one data point
@@ -143,7 +143,7 @@ export type DirectoryEntry = {
   /**
    * The lead run hit the request-recording cap: its activity counts are floors cut
    * off mid-collection, so the row is excluded from percentiles, rollups,
-   * the leaderboard, and since-last-scan pairing, and marked in the exports.
+   * and since-last-scan pairing, and marked in the exports.
    */
   capped: boolean;
   /** Lead run's requested URL (origin + path); pairs since-last-scan by exact subject. */
@@ -273,12 +273,14 @@ export type CorpusOverview = {
   entries: DirectoryEntry[];
   /** Valid public report routes and their newest recorded run, sorted by ID for stable sitemap output. */
   sitemapReports: { id: string; lastModifiedAt: string }[];
-  heaviest: DirectoryEntry[];
-  /** Exact cohort used for the leaderboard and siteCount; null when no eligible rows exist. */
+  /**
+   * Exact cohort behind siteCount and the /status aggregate card, the same one
+   * corpus-stats.json names as primaryCohortId; null when no eligible rows exist.
+   */
   aggregateCohort: CorpusCohortIdentity | null;
   /**
    * Distinct sites in aggregateCohort's passive sample (loaded, uncapped, no
-   * post-choice consent lead): the basis of the leaderboard.
+   * post-choice consent lead): the count /status publishes for that cohort.
    */
   siteCount: number;
   /**
@@ -397,7 +399,7 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   // Failed loads, request-capped runs, and consent-interaction arms stay listed
   // with their honest headlines, but none describes an uncensored passive
   // visit. Keep them out of since-last-scan pairing, category medians, and the
-  // leaderboard just as the percentile builder does.
+  // aggregate cohort just as the percentile builder does.
   const measuredLoaded = loadedEntries.filter(({ entry }) => entryEligibleForCorpusRollups(entry));
 
   // "Since last comparable visit": each site's newest report is paired only
@@ -432,11 +434,6 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   const aggregate = selectAggregateCorpusCohort(measuredLoaded.map(({ entry }) => entry));
   const sites = selectSiteDataPoints(aggregate.entries);
 
-  const heaviest = [...sites]
-    .filter((site) => site.trackerRequests > 0)
-    .sort((a, b) => b.trackerRequests - a.trackerRequests)
-    .slice(0, 5);
-
   const siteCounts = summarizeCorpusSiteCounts(entries);
   const sitemapReports = loadedEntries
     .filter(({ entry }) => !publishedReportCorrections(entry.id).suppressIndexing)
@@ -446,7 +443,6 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
   return {
     entries,
     sitemapReports,
-    heaviest,
     aggregateCohort: aggregate.cohort,
     siteCount: sites.length,
     ...siteCounts
@@ -458,8 +454,8 @@ async function buildCorpusOverview(): Promise<CorpusOverview> {
  * SAME rule the stats builder applies to its published cohorts. Both sides call
  * {@link selectPrimaryCorpusCohort}; neither restates it. This keeps an r2
  * migration visible without ever blending r2 and legacy-v1 measurements in one
- * denominator, and keeps the leaderboard's cohort and the artifact's
- * primaryCohortId from drifting apart.
+ * denominator, and keeps the cohort /status and siteCount describe and the
+ * artifact's primaryCohortId from drifting apart.
  */
 export function selectAggregateCorpusCohort(entries: DirectoryEntry[]): {
   cohort: CorpusCohortIdentity | null;
@@ -498,7 +494,7 @@ function newestScannedAt(entries: readonly DirectoryEntry[]): string | null {
 
 /**
  * Picks the report that represents a site's current behavior in rollups and
- * the leaderboard. Report kind is irrelevant here: the newest eligible visit
+ * category pages. Report kind is irrelevant here: the newest eligible visit
  * is the best available observation of current behavior.
  */
 export function preferAsSiteDataPoint(candidate: DirectoryEntry, existing: DirectoryEntry): boolean {

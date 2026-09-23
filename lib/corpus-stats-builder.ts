@@ -221,8 +221,9 @@ export function createCorpusStatsAccumulator(now = new Date()) {
 
     // Keep the historical top-level fields as a compatibility view for current
     // findings consumers. It names exactly one cohort, never a pool, chosen by
-    // the shared selector the directory leaderboard also calls so the artifact
-    // and the rendered aggregate can never name different cohorts.
+    // the shared selector lib/corpus-overview also calls for /status and
+    // siteCount, so the artifact and the rendered aggregate can never name
+    // different cohorts.
     // Site keys travel with each candidate so the selector can refuse to hand the
     // aggregate to a structurally narrower universe; `byCohort` already holds
     // them, keyed exactly as the eligibility pass counted them.

@@ -6,8 +6,7 @@ import { siteProfileKey } from "./site-profile";
 import {
   buildCategoryEvidencePages,
   buildDirectorySites,
-  directoryPageCount,
-  directoryPageSlice
+  directoryPageCount
 } from "./directory-view";
 import {
   METRIC_CONTRACT_DIGEST,
@@ -187,11 +186,9 @@ test("a site's report count means the same retained total on the directory and i
   assert.equal(page.sites[0].reportCount, retained, "the category row counts the site's retained reports too");
 });
 
-test("directory pagination is bounded and rejects invalid page numbers", () => {
+test("directory page count is bounded", () => {
   assert.equal(directoryPageCount(0, 24), 1);
   assert.equal(directoryPageCount(49, 24), 3);
-  assert.deepEqual(directoryPageSlice([1, 2, 3, 4, 5], 2, 2), [3, 4]);
-  assert.deepEqual(directoryPageSlice([1, 2], 0, 2), []);
 });
 
 test("category pages use one newest eligible report per canonical site", () => {

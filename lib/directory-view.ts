@@ -89,12 +89,6 @@ export function directoryPageCount(siteCount: number, pageSize = DIRECTORY_PAGE_
   return Math.max(1, Math.ceil(siteCount / pageSize));
 }
 
-export function directoryPageSlice<T>(items: T[], page: number, pageSize = DIRECTORY_PAGE_SIZE): T[] {
-  if (!Number.isInteger(page) || page < 1 || pageSize < 1) return [];
-  const start = (page - 1) * pageSize;
-  return items.slice(start, start + pageSize);
-}
-
 /**
  * Build category pages only from newest eligible passive evidence. Failed,
  * capped, incomplete and post-choice consent visits never enter the sample.
