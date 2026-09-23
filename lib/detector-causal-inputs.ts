@@ -121,12 +121,6 @@ export const DETECTOR_CAUSAL_INPUTS = Object.freeze({
   }
 } as const satisfies Record<CalibratableDetectorId, DetectorCausalInputs>);
 
-export function detectorCausalInputs(
-  detector: CalibratableDetectorId
-): DetectorCausalInputs {
-  return DETECTOR_CAUSAL_INPUTS[detector];
-}
-
 /**
  * Complete, or the first proven reason it is not.
  *

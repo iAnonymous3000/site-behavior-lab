@@ -191,7 +191,6 @@ async function validGovernanceReceipt(capturedAt: string) {
 test("release governance capture binds full bypass lists and public updated_at", async () => {
   const {
     buildReleaseTagGovernanceReceipt,
-    publicRulesetProjection,
     releaseTagGovernanceReceiptFreshnessProblems,
     releaseTagGovernanceReceiptProblems,
     releaseTagGovernanceReceiptSha256,
@@ -288,25 +287,6 @@ test("release governance capture binds full bypass lists and public updated_at",
       Date.parse("2026-08-01T00:00:00.000Z")
     ).join("; "),
     /in the future/
-  );
-  assert.deepEqual(
-    publicRulesetProjection(
-      Object.fromEntries(
-        Object.entries(creation).filter(([key]) => key !== "bypass_actors")
-      )
-    ),
-    {
-      id: receipt.rulesets.tagCreation.id,
-      name: receipt.rulesets.tagCreation.name,
-      target: receipt.rulesets.tagCreation.target,
-      sourceType: receipt.rulesets.tagCreation.sourceType,
-      source: receipt.rulesets.tagCreation.source,
-      enforcement: receipt.rulesets.tagCreation.enforcement,
-      conditions: receipt.rulesets.tagCreation.conditions,
-      rules: receipt.rulesets.tagCreation.rules,
-      createdAt: receipt.rulesets.tagCreation.createdAt,
-      updatedAt: receipt.rulesets.tagCreation.updatedAt
-    }
   );
 
   const weakened = structuredClone(receipt);

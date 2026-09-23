@@ -3,7 +3,6 @@ import test from "node:test";
 import {
   DETECTOR_CAUSAL_INPUTS,
   declaredOwnStageDetails,
-  detectorCausalInputs,
   evaluateDetectorCausalInputs,
   ownStageDetailsAreDetectorOutput,
   type CalibratableDetectorId
@@ -229,10 +228,7 @@ test("an unprovable run fails closed", () => {
   );
 });
 
-test("the accessor returns the frozen contract", () => {
-  assert.deepEqual(
-    detectorCausalInputs("cname-uncloaking").families,
-    ["requests"]
-  );
+test("the contract table is frozen", () => {
+  assert.deepEqual(DETECTOR_CAUSAL_INPUTS["cname-uncloaking"].families, ["requests"]);
   assert.ok(Object.isFrozen(DETECTOR_CAUSAL_INPUTS));
 });

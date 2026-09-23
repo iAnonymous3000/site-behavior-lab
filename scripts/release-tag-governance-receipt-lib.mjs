@@ -168,25 +168,6 @@ export function normalizeDetailedRuleset(ruleset, label = "ruleset") {
   };
 }
 
-export function publicRulesetProjection(ruleset, label = "ruleset") {
-  if (!isRecord(ruleset)) throw new Error(`${label} must be an object`);
-  if (!Array.isArray(ruleset.rules) || !isRecord(ruleset.conditions)) {
-    throw new Error(`${label} must expose rules and conditions`);
-  }
-  return {
-    id: ruleset.id,
-    name: ruleset.name,
-    target: ruleset.target,
-    sourceType: ruleset.source_type,
-    source: ruleset.source,
-    enforcement: ruleset.enforcement,
-    conditions: cloneJson(ruleset.conditions),
-    rules: cloneJson(ruleset.rules),
-    createdAt: ruleset.created_at,
-    updatedAt: ruleset.updated_at
-  };
-}
-
 function exactTagCondition(ruleset) {
   return (
     ruleset.target === "tag" &&

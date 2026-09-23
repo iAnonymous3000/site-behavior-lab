@@ -13,13 +13,18 @@ import {
   allocateMissing,
   denominatorsFromMatrix,
   matrixTotal,
-  rateFrom,
   worstComposition,
-  simulatePolicy,
-  wilsonHalfWidth
+  simulatePolicy
 } from "./calibration-censoring-simulation-lib.mjs";
 
 const ARM = { prevalence: 0.5, recall: 0.9, specificity: 0.95 };
+
+/** The test's own point estimate for one rate, read straight off RATE_CELLS. */
+function pointRate(matrix, rateId) {
+  const count = (cells) => cells.reduce((total, cell) => total + matrix[cell], 0);
+  const denominator = count(RATE_CELLS[rateId].denominator);
+  return denominator === 0 ? null : count(RATE_CELLS[rateId].numerator) / denominator;
+}
 
 test("the matrix conserves the planned frame exactly", () => {
   // REGRESSION. Rounding each cell independently over-counted every frame
@@ -90,7 +95,7 @@ test("bounds are a Wilson envelope, not a half-range plus a half-width", () => {
     );
     // Every realizable assignment's point estimate must lie inside the envelope.
     for (const { matrix: candidate } of extremalMatrices(matrix, { missingBoth: 40 })) {
-      const point = rateFrom(candidate, rateId);
+      const point = pointRate(candidate, rateId);
       if (point === null) continue;
       assert.ok(
         point >= bound.lower - 1e-9 && point <= bound.upper + 1e-9,

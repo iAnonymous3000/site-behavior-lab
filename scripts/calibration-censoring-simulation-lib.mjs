@@ -100,12 +100,6 @@ export const WORST_CASE_COMPOSITION_MODES = Object.freeze([
   "references-obtained"
 ]);
 
-export function wilsonHalfWidth(n, p = 0.5, z = 1.96) {
-  if (!Number.isFinite(n) || n <= 0) return 0.5;
-  const d = 1 + (z * z) / n;
-  return (z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
-}
-
 /**
  * The four marginal denominators implied by an operating point.
  *
@@ -180,14 +174,6 @@ export function denominatorsFromMatrix(matrix) {
     predictedDetected: matrix.tp + matrix.fp,
     predictedNotDetected: matrix.tn + matrix.fn
   };
-}
-
-export function rateFrom(matrix, rateId) {
-  const spec = RATE_CELLS[rateId];
-  if (spec === undefined) throw new Error(`unknown rate ${rateId}`);
-  const denominator = sum(matrix, spec.denominator);
-  if (denominator === 0) return null;
-  return sum(matrix, spec.numerator) / denominator;
 }
 
 export function wilsonInterval(k, n, z = 1.96) {

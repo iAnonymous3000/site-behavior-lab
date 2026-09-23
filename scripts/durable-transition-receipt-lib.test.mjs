@@ -6,7 +6,6 @@ import test from "node:test";
 import {
   DURABLE_CONFIG_PATH,
   TRANSITION_RECEIPT_PATH,
-  actionsRunAttemptEndpoint,
   buildDurableEnableTransitionReceipt,
   canonicalTransitionReceiptText,
   transitionReceiptSha256
@@ -421,13 +420,6 @@ test("the canonical text is exactly what the binding compares against", () => {
     transitionReceiptSha256(receipt),
     createHash("sha256").update(text).digest("hex")
   );
-});
-
-test("the endpoint builder refuses inputs outside the binding's own ranges", () => {
-  assert.equal(actionsRunAttemptEndpoint(7, 1), `/repos/${REPO}/actions/runs/7/attempts/1`);
-  assert.throws(() => actionsRunAttemptEndpoint(0, 1), /positive integer/);
-  assert.throws(() => actionsRunAttemptEndpoint(7, 0), /between 1 and 100/);
-  assert.throws(() => actionsRunAttemptEndpoint(7, 101), /between 1 and 100/);
 });
 
 test("the receipt path and workflow refs match the binding, not a copy of it", () => {

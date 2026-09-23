@@ -24,7 +24,6 @@ import {
   calibrationLabelRosterRunSelectionSnapshot,
   calibrationLabelRosterWorkflowPath,
   createCalibrationLabelRosterAuthorization,
-  parseCalibrationLabelRosterRunName,
   validateCalibrationLabelRosterAuthorization,
   validateCalibrationLabelRosterGithubMetadata,
   validateCalibrationLabelRosterRunSelectionSnapshot,
@@ -246,12 +245,6 @@ test("case-input authorization is domain-separated but aliases share one run ide
     }),
     runName
   );
-  assert.deepEqual(parseCalibrationLabelRosterRunName(runName), {
-    studyId: STUDY,
-    candidateCommit: CANDIDATE,
-    runName
-  });
-  assert.equal(parseCalibrationLabelRosterRunName(`${runName}:extra`), null);
   assert.equal(
     calibrationLabelRosterWorkflowPath(
       `${CALIBRATION_LABEL_ROSTER_WORKFLOW_PATH}@main`

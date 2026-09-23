@@ -48,32 +48,6 @@ export function calibrationLabelRosterRunName(identity) {
   return `${RUN_NAME_PREFIX}${studyId}:${candidateCommit}`;
 }
 
-export function parseCalibrationLabelRosterRunName(value) {
-  if (typeof value !== "string" || !value.startsWith(RUN_NAME_PREFIX)) {
-    return null;
-  }
-  const suffix = value.slice(RUN_NAME_PREFIX.length);
-  const firstSeparator = suffix.indexOf(":");
-  if (
-    firstSeparator <= 0 ||
-    suffix.indexOf(":", firstSeparator + 1) !== -1
-  ) {
-    return null;
-  }
-  const parsed = {
-    studyId: suffix.slice(0, firstSeparator),
-    candidateCommit: suffix.slice(firstSeparator + 1)
-  };
-  try {
-    return {
-      ...parsed,
-      runName: calibrationLabelRosterRunName(parsed)
-    };
-  } catch {
-    return null;
-  }
-}
-
 export function calibrationLabelRosterArtifactName(
   studyId,
   runId,

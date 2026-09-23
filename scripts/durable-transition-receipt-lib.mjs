@@ -95,17 +95,6 @@ function requireSha(value, label) {
   return value;
 }
 
-/** The Actions run endpoint for one attempt. Pure, so callers can be audited. */
-export function actionsRunAttemptEndpoint(runId, runAttempt) {
-  if (!/^[1-9][0-9]{0,19}$/.test(String(runId))) {
-    throw new Error("run id must be a positive integer");
-  }
-  if (!Number.isSafeInteger(runAttempt) || runAttempt < 1 || runAttempt > 100) {
-    throw new Error("run attempt must be between 1 and 100");
-  }
-  return `/repos/${REPOSITORY}/actions/runs/${runId}/attempts/${runAttempt}`;
-}
-
 /**
  * Derive one run's facts from its authenticated attempt response.
  *
