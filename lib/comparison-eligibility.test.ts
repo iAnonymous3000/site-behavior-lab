@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import {
   PAGE_SUBJECT_UNVERIFIED_WARNING,
@@ -16,6 +18,8 @@ import {
   runRequestEvidenceCapped,
   temporalPairEligibility
 } from "./comparison-eligibility";
+import { legacyComparisonDecision } from "./comparison-decision";
+import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import {
   INVALID_UPSTREAM_RESPONSE_WARNING,
@@ -26,13 +30,42 @@ import {
   ScanWarningCollector,
   UNSETTLED_ROUTED_REQUEST_WARNING
 } from "./scan-runtime";
-import { SCAN_REPORT_SCHEMA_VERSION, type ScanConditions, type ScanResult } from "./types";
+import { SCAN_REPORT_SCHEMA_VERSION, type ComparisonScanResult, type ScanConditions, type ScanResult } from "./types";
 
 test("the eligibility cap constant matches the scanner's recording cap", () => {
   // comparison-eligibility must stay client-safe (no public-suffix list), so it
   // mirrors the constant instead of importing scan-runtime; this pin keeps the
   // two from drifting.
   assert.equal(COMPARISON_REQUEST_CAP, MAX_RECORDED_REQUESTS);
+});
+
+test("a consent arm whose click left the site is not an accept-versus-reject result", () => {
+  // The producer keeps such an arm's requests, cookies, storage and final URL
+  // at the pre-click boundary but still records the dispatch as a click, so
+  // without this reason a committed consent pair stayed comparable and its
+  // "Accept-all click" vs "Reject-all click" deltas diffed pre-choice evidence.
+  const reportsDir = path.join(process.cwd(), "public", "reports");
+  let pairs = 0;
+  for (const name of readdirSync(reportsDir).filter((entry) => /^\d{8}-[0-9a-f]{32}\.json$/.test(entry))) {
+    const report = JSON.parse(readFileSync(path.join(reportsDir, name), "utf8")) as ComparisonScanResult & { schemaVersion: number };
+    if (report.schemaVersion !== 1 || report.reportType !== "comparison" || report.comparisonType !== "consent") continue;
+    if (!comparisonEligibility(report).eligible) continue;
+    pairs += 1;
+    for (const arm of ["baseline", "variant"] as const) {
+      const mutated = structuredClone(report);
+      mutated[arm].warnings.push(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING);
+      const eligibility = comparisonEligibility(mutated);
+      const label = mutated.runLabels?.[arm] ?? arm;
+      assert.equal(eligibility.eligible, false, `${name} ${arm}`);
+      assert.deepEqual(
+        eligibility.reasons,
+        [`The "${label}" visit's consent interaction left the recorded site, so its evidence stops before the choice and cannot represent that choice.`],
+        `${name} ${arm}`
+      );
+      assert.equal(legacyComparisonDecision(mutated).mode, "raw-only", `${name} ${arm}`);
+    }
+  }
+  assert.ok(pairs > 0, "the committed corpus must carry an eligible v1 consent pair for this check");
 });
 
 test("a matched, uncapped, loaded pair is eligible", () => {

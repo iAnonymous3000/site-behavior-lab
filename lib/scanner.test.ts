@@ -9,7 +9,11 @@ import {
   PAGE_SUBJECT_UNVERIFIED_WARNING,
   SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
 } from "./bot-wall-classifier";
-import { RedactionPass, redactScannerWarnings } from "./redact-scan-report-v1";
+import { RedactionPass, redactScanResultV1, redactScannerWarnings } from "./redact-scan-report-v1";
+import { createConsentComparisonReport } from "./compare-reports";
+import { legacyComparisonDecision } from "./comparison-decision";
+import { comparisonEligibility } from "./comparison-eligibility";
+import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { PublicScanError } from "./public-errors";
 import { TCF_API_METHOD } from "./consent-verification";
 import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
@@ -3511,6 +3515,73 @@ test("scanSite verifies a consent click end to end when the verification flag is
     );
   } finally {
     delete process.env.SITE_BEHAVIOR_LAB_CONSENT_VERIFICATION;
+    await closeSharedBrowserForTests();
+    await new Promise<void>((resolve) => upstream.close(() => resolve()));
+  }
+});
+
+test("a consent pair whose Accept click later leaves the site is not comparable", { timeout: 60_000 }, async () => {
+  // The control hides its banner (so the probe records a click), then the page
+  // navigates to another origin during the settle wait. The producer keeps the
+  // accept arm's evidence at the pre-click boundary; the real producer output,
+  // not a hand-written warning, must fail the comparison gate.
+  const upstream = createServer((request, response) => {
+    if (request.headers.host?.startsWith("account.consent-origin.com")) {
+      response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+      response.end("<!doctype html><title>Account</title><p>Elsewhere</p>");
+      return;
+    }
+    if (request.url?.startsWith("/px")) {
+      response.writeHead(204);
+      response.end();
+      return;
+    }
+    response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    response.end(`<!doctype html>
+      <title>Trusted consent origin</title>
+      <div id="consent-banner">
+        <button onclick="document.getElementById('consent-banner').remove(); setTimeout(() => { location.href = 'http://account.consent-origin.com/'; }, 600)">Accept all</button>
+        <button onclick="document.getElementById('consent-banner').remove(); fetch('/px?reject=1')">Reject all</button>
+      </div>`);
+  });
+  await new Promise<void>((resolve, reject) => {
+    upstream.once("error", reject);
+    upstream.listen(0, "127.0.0.1", resolve);
+  });
+  const address = upstream.address();
+  assert.ok(address && typeof address === "object");
+
+  try {
+    const scan = (consentMode: "accept-all" | "reject-all") =>
+      scanSiteWithMeasurement(
+        { url: "http://www.consent-origin.com/", device: "desktop", gpcEnabled: false, consentMode },
+        {
+          publicUrlAlreadyVerified: true,
+          verifyPublicUrl: async () => undefined,
+          resolvePublicHost: async () => [{ address: "93.184.216.34", family: 4 }],
+          connectProxyUpstreamForTests: () => connect(address.port, "127.0.0.1"),
+          resolveCnameChain: async () => []
+        }
+      );
+    const accept = redactScanResultV1((await scan("accept-all")).result).report;
+    const reject = redactScanResultV1((await scan("reject-all")).result).report;
+
+    assert.equal(accept.consentInteraction?.clicked, true, "the fixture must record the dispatch as a click");
+    assert.equal(accept.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING), true);
+    assert.equal(reject.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING), false);
+
+    const pair = createConsentComparisonReport(accept, reject);
+    const eligibility = comparisonEligibility(pair);
+    assert.equal(eligibility.eligible, false);
+    assert.equal(
+      eligibility.reasons.some((reason) =>
+        reason.startsWith(`The "${pair.runLabels?.baseline ?? "baseline"}" visit's consent interaction left the recorded site`)
+      ),
+      true,
+      eligibility.reasons.join(" | ")
+    );
+    assert.equal(legacyComparisonDecision(pair).mode, "raw-only");
+  } finally {
     await closeSharedBrowserForTests();
     await new Promise<void>((resolve) => upstream.close(() => resolve()));
   }

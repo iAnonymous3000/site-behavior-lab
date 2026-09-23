@@ -47,6 +47,7 @@ import {
   type ConsentInteractionSummary,
   type ConsentProbeFailure
 } from "./consent-interaction";
+import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import {
   CONSENT_RELOAD_DISCLOSURE,
   consentVerificationEnabled,
@@ -297,8 +298,6 @@ const CONSENT_SETTLE_IDLE_TIMEOUT_MS = 3_000;
 const CONSENT_RELOAD_MIN_BUDGET_MS = 8_000;
 const CONSENT_RELOAD_NAV_TIMEOUT_MS = 10_000;
 const CONSENT_RELOAD_SETTLE_IDLE_TIMEOUT_MS = 1_500;
-const CONSENT_INTERACTION_SUBJECT_WARNING =
-  "The consent interaction left the recorded site; later page state was not used and the active input probe was skipped.";
 const CONSENT_RELOAD_SUBJECT_WARNING =
   "The post-consent reload left the recorded site; its state was not used and the active input probe was skipped.";
 const ACTIVE_PROBE_SUBJECT_WARNING =
@@ -1441,7 +1440,7 @@ export async function scanSiteWithMeasurement(
     const markConsentInteractionSubjectLoss = (phaseId: number) => {
       if (consentInteractionLeftSubject) return;
       consentInteractionLeftSubject = true;
-      warnings.add(CONSENT_INTERACTION_SUBJECT_WARNING);
+      warnings.add(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING);
       for (const family of ["requests", "cookies", "storage", "fingerprinting"] as const) {
         measurementKernel.recordCaptureLoss({ family, phaseId, kind: "dropped", count: 1 });
       }

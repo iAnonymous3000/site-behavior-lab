@@ -3,6 +3,7 @@ import {
   PAGE_SUBJECT_UNVERIFIED_WARNING,
   SUSPECTED_CHALLENGE_OR_SOFT_BLOCK_WARNING
 } from "./bot-wall-classifier";
+import { CONSENT_INTERACTION_LEFT_SUBJECT_WARNING } from "./consent-subject-loss-warning";
 import { legacyV1MethodologyIdentity } from "./legacy-methodology";
 
 /**
@@ -103,6 +104,14 @@ export function comparisonEligibility(report: ComparisonScanResult): ComparisonE
     }
     if (runHitKeystrokeProbeCaptureLoss(run)) {
       reasons.push(`The "${label}" visit ended its synthetic form-input probe before it finished, so its request evidence is incomplete.`);
+    }
+    // The dispatch can still read as a click (the control reacted before the
+    // page navigated away), so this warning is the only v1 channel saying the
+    // arm's evidence was cut at the pre-click boundary.
+    if (runConsentInteractionLeftSubject(run)) {
+      reasons.push(
+        `The "${label}" visit's consent interaction left the recorded site, so its evidence stops before the choice and cannot represent that choice.`
+      );
     }
   }
 
@@ -497,6 +506,16 @@ export function runHitPixelDecodeCaptureLoss(run: Pick<ScanResult, "warnings">):
 
 export function runHitKeystrokeProbeCaptureLoss(run: Pick<ScanResult, "warnings">): boolean {
   return run.warnings.some((warning) => warning.includes(KEYSTROKE_PROBE_INCOMPLETE_WARNING_FRAGMENT));
+}
+
+/**
+ * Whether a legacy consent visit's click navigated the page to another origin.
+ * The producer then keeps that visit's evidence at the pre-click boundary, so
+ * it is not evidence of the choice. Matched exactly against the producer's
+ * own constant, never a restated fragment.
+ */
+export function runConsentInteractionLeftSubject(run: Pick<ScanResult, "warnings">): boolean {
+  return run.warnings.includes(CONSENT_INTERACTION_LEFT_SUBJECT_WARNING);
 }
 
 export function runRequestEvidenceCapped(run: ScanResult): boolean {
