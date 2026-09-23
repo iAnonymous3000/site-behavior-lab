@@ -7,9 +7,11 @@ import path from "node:path";
 import test from "node:test";
 import {
   appendTransparencyLogEntries,
+  assertTransparencyLogHistory,
   buildTransparencyLog,
   parseTransparencyLog,
-  verifyTransparencyLogChain
+  verifyTransparencyLogChain,
+  type TransparencyLogAnchor
 } from "./publication-transparency-log";
 import {
   MAX_CALENDAR_RESPONSE_BYTES,
@@ -393,4 +395,130 @@ test("the CLI refuses unknown arguments, plaintext calendars, and an empty log",
   const run = runCli(empty, ["--submit", "--calendar", "https://unused.example"]);
   assert.equal(run.status, 1);
   assert.match(run.stderr, /no head to anchor/);
+});
+
+// ---------------------------------------------------------------------------
+// Carrying an open proposal's anchors. The weekly workflow extends one fixed
+// proposal branch instead of opening a new pull request per run, so the CLI
+// must keep the proposal's pending proofs and must not resubmit their head.
+
+async function writeLog(file: string, entryCount: number, anchors: readonly TransparencyLogAnchor[]): Promise<void> {
+  await writeFile(file, `${JSON.stringify(buildTransparencyLog(chainedEntries(entryCount), anchors), null, 2)}\n`);
+}
+
+async function withCountingCalendar(run: (origin: string, hits: () => number) => Promise<void>): Promise<void> {
+  let hits = 0;
+  await withCalendar(
+    (_body, origin) => {
+      hits += 1;
+      return { status: 200, body: fakeCalendarTimestamp(PENDING_TAG, origin) };
+    },
+    (origin) => run(origin, () => hits)
+  );
+}
+
+test("the CLI carries a pending proposal's anchors and never resubmits a head it already anchors", async () => {
+  const dir = await cliWorkspace();
+  const logPath = path.join(dir, "public", "transparency-log.json");
+  const carryPath = path.join(dir, "pending-transparency-log.json");
+
+  await withCountingCalendar(async (origin, hits) => {
+    // The proposal anchored the current head at this calendar last week.
+    const threeHead = chainedEntries(3)[2].entryDigest;
+    const pending = anchorFromCalendarTimestamp(3, threeHead, fakeCalendarTimestamp(PENDING_TAG, origin));
+    await writeLog(carryPath, 3, [pending]);
+
+    const committedBefore = await readFile(logPath, "utf8");
+    const same = await runCliAsync(dir, ["--submit", "--calendar", origin, "--carry-anchors", carryPath]);
+    assert.equal(same.status, 0, same.stderr);
+    assert.match(same.stdout, /Carried 1 pending anchor/);
+    assert.match(same.stdout, /Already anchored at 3 entries/);
+    assert.equal(hits(), 0, "a head the open proposal already anchors must not be submitted again");
+    assert.equal(await readFile(logPath, "utf8"), committedBefore, "nothing new to propose means nothing written");
+
+    // Main moved on. The earlier proof is the tighter bound for its prefix, so
+    // it is carried byte for byte ahead of the new head's anchor.
+    await writeLog(logPath, 4, []);
+    const before = JSON.parse(await readFile(logPath, "utf8")) as unknown;
+    const moved = await runCliAsync(dir, ["--submit", "--calendar", origin, "--carry-anchors", carryPath]);
+    assert.equal(moved.status, 0, moved.stderr);
+    assert.match(moved.stdout, /1 carried, 1 appended/);
+    assert.equal(hits(), 1);
+    const written = JSON.parse(await readFile(logPath, "utf8")) as unknown;
+    assertTransparencyLogHistory(before, written);
+    const anchors = parseTransparencyLog(written).anchors;
+    assert.equal(anchors.length, 2);
+    assert.deepEqual(anchors[0], pending);
+    assert.equal(anchors[1].entryCount, 4);
+    assert.equal(anchors[1].head, chainedEntries(4)[3].entryDigest);
+
+    // Once the proposal merges, its anchors are simply committed history.
+    await writeFile(carryPath, JSON.stringify(written));
+    const merged = await runCliAsync(dir, ["--submit", "--calendar", origin, "--carry-anchors", carryPath]);
+    assert.equal(merged.status, 0, merged.stderr);
+    assert.match(merged.stdout, /Carried 0 pending anchors/);
+    assert.equal(hits(), 1);
+  });
+});
+
+test("the CLI refuses a carried proposal it cannot validate before contacting any calendar", async () => {
+  const dir = await cliWorkspace();
+  const logPath = path.join(dir, "public", "transparency-log.json");
+  const carryPath = path.join(dir, "pending-transparency-log.json");
+  const threeHead = chainedEntries(3)[2].entryDigest;
+
+  await withCountingCalendar(async (origin, hits) => {
+    const refuse = async (pattern: RegExp, args: readonly string[] = ["--carry-anchors", carryPath]) => {
+      const committedBefore = await readFile(logPath, "utf8");
+      const run = await runCliAsync(dir, ["--submit", "--calendar", origin, ...args]);
+      assert.equal(run.status, 1, run.stdout);
+      assert.match(run.stderr, pattern);
+      assert.equal(await readFile(logPath, "utf8"), committedBefore);
+    };
+
+    await refuse(/carried proposal log could not be read/, ["--carry-anchors", path.join(dir, "missing.json")]);
+    await writeFile(carryPath, "{ not json");
+    await refuse(/carried proposal log could not be read/);
+    await refuse(/Usage/, ["--carry-anchors", carryPath, "--carry-anchors", carryPath]);
+
+    // An anchor over a chain main never had cannot be re-pointed at main.
+    const rewritten = appendTransparencyLogEntries(
+      [],
+      Array.from({ length: 3 }, (_, index) => ({
+        reportId: `20260601-${String(index).padStart(2, "0").repeat(16)}`,
+        reportWireSha256: "c".repeat(64),
+        publicDigest: "b".repeat(64)
+      }))
+    );
+    const foreignHead = rewritten[2].entryDigest;
+    await writeFile(
+      carryPath,
+      JSON.stringify(
+        buildTransparencyLog(rewritten, [
+          anchorFromCalendarTimestamp(3, foreignHead, fakeCalendarTimestamp(PENDING_TAG, origin))
+        ])
+      )
+    );
+    await refuse(/attests to head/);
+
+    // A proof over another digest, relabelled with main's head.
+    const relabelled = {
+      ...anchorFromCalendarTimestamp(3, foreignHead, fakeCalendarTimestamp(PENDING_TAG, origin)),
+      head: threeHead
+    };
+    await writeLog(carryPath, 3, [relabelled]);
+    await refuse(/different digest/);
+
+    // A pending anchor below a committed one could only land by reordering
+    // committed history.
+    await writeLog(logPath, 3, [
+      anchorFromCalendarTimestamp(3, threeHead, fakeCalendarTimestamp(PENDING_TAG, "https://alice.btc.calendar.opentimestamps.org"))
+    ]);
+    await writeLog(carryPath, 3, [
+      anchorFromCalendarTimestamp(2, chainedEntries(2)[1].entryDigest, fakeCalendarTimestamp(PENDING_TAG, origin))
+    ]);
+    await refuse(/must not decrease/);
+
+    assert.equal(hits(), 0);
+  });
 });

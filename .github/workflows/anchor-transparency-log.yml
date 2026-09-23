@@ -13,6 +13,16 @@ name: Anchor Transparency Log
 # assertTransparencyLogHistory compares committed anchors by whole object, so
 # an in-place edit fails CI by design.
 #
+# The proposal lives on ONE fixed branch that each run extends. A per-run
+# branch re-proposed the same head every week while the first proposal sat
+# unmerged (PRs #238 and #243 both anchored entry 1026), and only one could
+# ever merge. Replacing the branch instead would be lossy: an OpenTimestamps
+# proof only bounds a head from above, so the earlier pending proof is the
+# tighter bound. Each run therefore carries the open proposal's anchors into
+# the candidate, skips calendars that already anchored the current head
+# there, and force-pushes only against the exact commit it carried from.
+# Deleting the branch is how a reviewer discards a pending proposal.
+#
 # It does NOT upgrade a pending calendar promise into a Bitcoin attestation.
 # That needs the external opentimestamps client to replay the proof's operation
 # tree, which this repository deliberately does not reimplement; run
@@ -45,6 +55,8 @@ jobs:
       # The proposal's push-event CI run is parked for manual approval; this
       # starts separate non-promoting branch validation.
       actions: write
+    env:
+      PROPOSAL_BRANCH: automation/transparency-anchor
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -69,18 +81,52 @@ jobs:
           set -euo pipefail
           npm run transparency:log:anchor:status | tee "$RUNNER_TEMP/anchor-before.txt"
 
+      - name: Carry the pending anchor proposal
+        id: pending
+        run: |
+          set -euo pipefail
+          # Absent (exit 2) and unreadable (anything else) are different
+          # answers: anchoring without knowing what the open proposal holds
+          # would submit its head again and then fail to push over it.
+          listed=0
+          git ls-remote --exit-code --heads origin "refs/heads/${PROPOSAL_BRANCH}" > /dev/null || listed=$?
+          if [[ "$listed" -eq 2 ]]; then
+            echo "remote_oid=" >> "$GITHUB_OUTPUT"
+            echo "carry_log=" >> "$GITHUB_OUTPUT"
+            echo "No pending anchor proposal on ${PROPOSAL_BRANCH}; anchoring against main alone."
+            exit 0
+          fi
+          if [[ "$listed" -ne 0 ]]; then
+            echo "::error title=Pending anchor proposal unreadable::git ls-remote exited ${listed} for ${PROPOSAL_BRANCH}"
+            exit 1
+          fi
+          git fetch --no-tags --depth=1 origin "refs/heads/${PROPOSAL_BRANCH}"
+          remote_oid="$(git rev-parse FETCH_HEAD)"
+          carry_log="$RUNNER_TEMP/pending-transparency-log.json"
+          git show "${remote_oid}:public/transparency-log.json" > "$carry_log"
+          echo "remote_oid=${remote_oid}" >> "$GITHUB_OUTPUT"
+          echo "carry_log=${carry_log}" >> "$GITHUB_OUTPUT"
+          echo "Carrying the pending anchor proposal ${PROPOSAL_BRANCH} at ${remote_oid}."
+
       - name: Submit the current head to the calendars
         id: anchor
+        env:
+          CARRY_LOG: ${{ steps.pending.outputs.carry_log }}
         run: |
           set -euo pipefail
           # Anchoring is redundancy across independent calendars: the CLI exits
           # nonzero only when every calendar failed, in which case nothing
           # changed and the run should be visibly red rather than silently
-          # proposing an unchanged file.
-          npm run transparency:log:anchor | tee "$RUNNER_TEMP/anchor-submit.txt"
+          # proposing an unchanged file. The CLI validates every carried anchor
+          # against main's chain before anything is submitted.
+          carry_args=()
+          if [[ -n "$CARRY_LOG" ]]; then
+            carry_args=(--carry-anchors "$CARRY_LOG")
+          fi
+          npm run transparency:log:anchor -- "${carry_args[@]}" | tee "$RUNNER_TEMP/anchor-submit.txt"
           if git diff --quiet -- public/transparency-log.json; then
             echo "changed=0" >> "$GITHUB_OUTPUT"
-            echo "The current head is already anchored by every calendar; nothing to propose."
+            echo "The current head is already anchored on main or in the pending proposal by every calendar; nothing to propose."
           else
             echo "changed=1" >> "$GITHUB_OUTPUT"
           fi
@@ -127,7 +173,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BASE_BRANCH: ${{ github.event.repository.default_branch }}
-          PROPOSAL_BRANCH: automation/transparency-anchor-${{ github.run_id }}
+          REMOTE_OID: ${{ steps.pending.outputs.remote_oid }}
         run: |
           set -euo pipefail
           git config user.name "iAnonymous3000"
@@ -141,8 +187,17 @@ jobs:
           fi
           git checkout -B "$PROPOSAL_BRANCH"
           git commit -m "Anchor the current transparency-log head" \
-            -m "Appends one anchor per calendar that replied for the head at this run. Existing anchors are untouched; the list is append-only and CI compares committed anchors by whole object."
-          git push --force-with-lease origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+            -m "Carries the pending proposal's anchors unchanged and appends one anchor per calendar that replied for the head at this run. Existing anchors are untouched; the list is append-only and CI compares committed anchors by whole object."
+          # Lease against exactly the commit whose anchors were carried. A
+          # branch that moved since then holds proofs this run never saw, and
+          # overwriting it would discard them.
+          if [[ -n "$REMOTE_OID" ]]; then
+            git push \
+              --force-with-lease="refs/heads/${PROPOSAL_BRANCH}:${REMOTE_OID}" \
+              origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+          else
+            git push origin "HEAD:refs/heads/${PROPOSAL_BRANCH}"
+          fi
 
           proposal_body="$RUNNER_TEMP/anchor-pr.md"
           printf '%s\n' \
@@ -150,24 +205,41 @@ jobs:
             '# Anchor the current transparency-log head' \
             '' \
             '- Appends a detached OpenTimestamps proof for the head this run observed.' \
+            '- Anchors this proposal already held are carried byte for byte. An earlier pending proof is the tighter time bound, so a later run extends this proposal instead of replacing it; delete the branch to discard it.' \
             '- Existing anchors are untouched. An in-place edit would fail `transparency:verify-history`.' \
             '- Fresh anchors carry a calendar promise; the Bitcoin attestation appears after the aggregation window and needs the external `ots upgrade` client.' \
             "- Before merge, manually approve this automation proposal's parked push-event CI run; the pull request's required checks remain expected until that run executes." \
             "- The separate non-promoting \`workflow_dispatch\` CI run validates this proposal branch but does not satisfy the pull request's required checks; trusted \`main\` CI runs only after merge." \
             > "$proposal_body"
 
-          pr_error="$RUNNER_TEMP/anchor-pr-error.txt"
-          if ! gh pr create \
+          # Only a same-repository pull request is this proposal; a fork can
+          # name its branch the same.
+          pr_number=$(gh pr list \
             --repo "$GITHUB_REPOSITORY" \
-            --base "$BASE_BRANCH" \
+            --state open \
             --head "$PROPOSAL_BRANCH" \
-            --title "Anchor the current transparency-log head" \
-            --body-file "$proposal_body" 2>"$pr_error"; then
-            cat "$pr_error" >&2
-            if ! grep -q "not permitted to create or approve pull requests" "$pr_error"; then
-              exit 1
+            --limit 10 \
+            --json number,isCrossRepository \
+            --jq '[.[] | select(.isCrossRepository | not)] | if length > 1 then error("multiple open transparency-anchor PRs") elif length == 1 then .[0].number else empty end')
+          if [[ -n "$pr_number" ]]; then
+            gh pr edit "$pr_number" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Anchor the current transparency-log head" \
+              --body-file "$proposal_body"
+          else
+            pr_error="$RUNNER_TEMP/anchor-pr-error.txt"
+            if ! gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base "$BASE_BRANCH" \
+              --head "$PROPOSAL_BRANCH" \
+              --title "Anchor the current transparency-log head" \
+              --body-file "$proposal_body" 2>"$pr_error"; then
+              cat "$pr_error" >&2
+              if ! grep -q "not permitted to create or approve pull requests" "$pr_error"; then
+                exit 1
+              fi
+              compare_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${BASE_BRANCH}...${PROPOSAL_BRANCH}?expand=1"
+              echo "::error title=Open the proposal manually::Actions may not create PRs in this repository. Open ${compare_url}"
             fi
-            compare_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${BASE_BRANCH}...${PROPOSAL_BRANCH}?expand=1"
-            echo "::error title=Open the proposal manually::Actions may not create PRs in this repository. Open ${compare_url}"
           fi
           gh workflow run ci.yml --ref "$PROPOSAL_BRANCH" --repo "$GITHUB_REPOSITORY"

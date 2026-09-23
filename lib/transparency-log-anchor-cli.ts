@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { readBoundedUtf8File } from "./bounded-utf8-file";
 import { replaceUtf8FileAtomically } from "./exact-atomic-file";
 import {
   buildTransparencyLog,
@@ -28,6 +29,14 @@ import { TRANSPARENCY_LOG_JSON_MAX_BYTES } from "./report-resource-limits";
  * successful calendar is enough to commit; total failure changes nothing and
  * exits nonzero. Re-runs are idempotent per calendar for the current head.
  *
+ * `--carry-anchors <path>` names the log on a still-open anchor proposal. Its
+ * anchors that are not yet committed are validated against the committed
+ * chain and kept ahead of anything this run appends, so a weekly re-run
+ * extends the pending proposal instead of replacing it. An OpenTimestamps
+ * proof only bounds a head from above, so the earlier pending proof is the
+ * tighter bound and must survive; and a head the proposal already anchors is
+ * not submitted again.
+ *
  * `--status` is offline: it revalidates every stored anchor against the
  * recomputed chain and reports its attestation kinds. A fresh anchor carries
  * a calendar's pending promise; the Bitcoin attestation appears after the
@@ -47,7 +56,7 @@ const DEFAULT_CALENDARS = [
 ] as const;
 
 type Mode =
-  | { readonly kind: "submit"; readonly calendars: readonly string[] }
+  | { readonly kind: "submit"; readonly calendars: readonly string[]; readonly carryAnchorsPath: string | null }
   | { readonly kind: "status" };
 
 async function main(): Promise<void> {
@@ -69,11 +78,19 @@ async function main(): Promise<void> {
     }
     const head = log.head;
     const entryCount = log.entryCount;
+    const pending = mode.carryAnchorsPath === null ? [] : await readPendingAnchors(mode.carryAnchorsPath, log);
+    const known = [...log.anchors, ...pending];
+    if (mode.carryAnchorsPath !== null) {
+      console.log(
+        `Carried ${pending.length} pending anchor${pending.length === 1 ? "" : "s"} from the open proposal ` +
+          `(${pending.length === 0 ? "none beyond the committed log" : "kept ahead of anything appended now"}).`
+      );
+    }
 
     const appended: TransparencyLogAnchor[] = [];
     const failures: string[] = [];
     for (const calendar of mode.calendars) {
-      const existing = log.anchors.find(
+      const existing = known.find(
         (anchor) => anchor.entryCount === entryCount && anchor.head === head && proofMentionsCalendar(anchor, calendar)
       );
       if (existing) {
@@ -98,37 +115,49 @@ async function main(): Promise<void> {
       throw new Error("No calendar produced a timestamp; the log is unchanged.");
     }
 
-    const rebuilt = buildTransparencyLog(log.entries, [...log.anchors, ...appended]);
+    const rebuilt = buildTransparencyLog(log.entries, [...known, ...appended]);
     verifyTransparencyLogChain(rebuilt);
     await replaceUtf8FileAtomically(logPath, `${JSON.stringify(rebuilt, null, 2)}\n`, TRANSPARENCY_LOG_JSON_MAX_BYTES);
     console.log(
       `Transparency log written: ${rebuilt.anchors.length} external anchor${rebuilt.anchors.length === 1 ? "" : "s"} ` +
-        `(${appended.length} appended). Commit the result; upgrade to a Bitcoin attestation later via --status instructions.`
+        `(${pending.length} carried, ${appended.length} appended). Commit the result; upgrade to a Bitcoin attestation later via --status instructions.`
     );
   } finally {
     await lock.release();
   }
 }
 
+const USAGE =
+  "Usage: transparency-log-anchor-cli [--submit [--calendar <url>]... [--carry-anchors <log path>] | --status]";
+
 function parseMode(): Mode {
   const args = process.argv.slice(2);
   if (args[0] === "--status" && args.length === 1) return { kind: "status" };
   if (args[0] === "--submit") {
     const calendars: string[] = [];
+    let carryAnchorsPath: string | null = null;
     for (let index = 1; index < args.length; index += 2) {
-      if (args[index] !== "--calendar" || typeof args[index + 1] !== "string") {
-        throw new Error("Usage: transparency-log-anchor-cli [--submit [--calendar <url>]... | --status]");
+      const value = args[index + 1];
+      if (typeof value !== "string" || value.length === 0) throw new Error(USAGE);
+      if (args[index] === "--carry-anchors" && carryAnchorsPath === null) {
+        carryAnchorsPath = path.resolve(value);
+        continue;
       }
-      const url = new URL(args[index + 1]);
+      if (args[index] !== "--calendar") throw new Error(USAGE);
+      const url = new URL(value);
       // Local calendars exist only in tests; production aggregation is https.
       if (url.protocol !== "https:" && url.hostname !== "127.0.0.1") {
         throw new Error(`Calendar ${url.host} must be reached over https.`);
       }
       calendars.push(url.origin);
     }
-    return { kind: "submit", calendars: calendars.length > 0 ? calendars : [...DEFAULT_CALENDARS] };
+    return {
+      kind: "submit",
+      calendars: calendars.length > 0 ? calendars : [...DEFAULT_CALENDARS],
+      carryAnchorsPath
+    };
   }
-  throw new Error("Usage: transparency-log-anchor-cli [--submit [--calendar <url>]... | --status]");
+  throw new Error(USAGE);
 }
 
 async function readCommittedLog(logPath: string): Promise<ParsedTransparencyLog> {
@@ -145,6 +174,49 @@ async function readCommittedLog(logPath: string): Promise<ParsedTransparencyLog>
   // Anchoring a broken chain would witness the breakage as history.
   verifyTransparencyLogChain(parsed);
   return parsed;
+}
+
+/**
+ * The carried proposal's anchors that the committed log does not hold yet.
+ * Everything is re-derived, never trusted: the carried file must parse as a
+ * whole log with its own chain intact, every pending proof must commit to the
+ * head it names, and the committed chain must reach each of those heads. A
+ * pending anchor that would sort below a committed one (a newer anchor landed
+ * on main by another route) cannot be appended without reordering committed
+ * history, so the run refuses rather than silently dropping a proof.
+ */
+async function readPendingAnchors(
+  carryPath: string,
+  log: ParsedTransparencyLog
+): Promise<TransparencyLogAnchor[]> {
+  const label = "The carried proposal log";
+  let value: unknown;
+  try {
+    value = JSON.parse((await readBoundedUtf8File(carryPath, TRANSPARENCY_LOG_JSON_MAX_BYTES)).contents) as unknown;
+  } catch (error) {
+    throw new Error(`${label} could not be read as JSON: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  const carried = parseTransparencyLog(value);
+  verifyTransparencyLogChain(carried);
+
+  const committed = new Set(log.anchors.map(anchorIdentity));
+  const pending = carried.anchors.filter((anchor) => !committed.has(anchorIdentity(anchor)));
+  for (const anchor of pending) inspectOtsProof(Buffer.from(anchor.proof, "base64"), anchor.head);
+  const union = [...log.anchors, ...pending];
+  for (let index = Math.max(1, log.anchors.length); index < union.length; index += 1) {
+    if (union[index].entryCount < union[index - 1].entryCount) {
+      throw new Error(
+        `${label} holds an anchor for ${union[index].entryCount} entries that would follow one for ` +
+          `${union[index - 1].entryCount}; anchors must not decrease. Review and delete the proposal branch to discard it.`
+      );
+    }
+  }
+  verifyTransparencyLogChain(buildTransparencyLog(log.entries, union));
+  return pending;
+}
+
+function anchorIdentity(anchor: TransparencyLogAnchor): string {
+  return JSON.stringify([anchor.entryCount, anchor.head, anchor.proofType, anchor.proof]);
 }
 
 async function submitDigest(calendar: string, headHex: string): Promise<Uint8Array> {

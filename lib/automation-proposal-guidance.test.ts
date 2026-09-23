@@ -92,3 +92,60 @@ test("every automation proposal explains both CI lanes and the manual approval",
     }
   }
 });
+
+test("the transparency anchor extends one proposal branch and never discards a pending proof", () => {
+  // A per-run branch re-proposed the same head every week while the first
+  // proposal sat unmerged (PRs #238 and #243 both anchored entry 1026). A
+  // rebuilt fixed branch would instead throw away the earlier, tighter proof.
+  const workflowName = "anchor-transparency-log.yml";
+  const source = readFileSync(path.join(workflowsDirectory, workflowName), "utf8");
+  const indexOfOrFail = (text: string, marker: string): number => {
+    const index = text.indexOf(marker);
+    assert.notEqual(index, -1, `${workflowName} no longer contains ${JSON.stringify(marker)}; update this guard`);
+    return index;
+  };
+  const step = (name: string): string => {
+    const start = indexOfOrFail(source, `\n      - name: ${name}\n`);
+    const next = source.indexOf("\n      - name:", start + 1);
+    return source.slice(start, next === -1 ? undefined : next);
+  };
+
+  assert.match(
+    source,
+    /\n    permissions:\n      contents: write\n      pull-requests: write\n(?:      #[^\n]*\n)*      actions: write\n    env:\n      PROPOSAL_BRANCH: automation\/transparency-anchor\n/
+  );
+  assert.doesNotMatch(source, /transparency-anchor-\$\{\{/, "the proposal branch must not be per run");
+  assert.doesNotMatch(source, /--force-with-lease(?!=)/, "a bare lease rejects re-runs and protects nothing");
+
+  const carry = step("Carry the pending anchor proposal");
+  assert.match(carry, /\n        id: pending\n/);
+  assert.match(carry, /git ls-remote --exit-code --heads origin "refs\/heads\/\$\{PROPOSAL_BRANCH\}" > \/dev\/null \|\| listed=\$\?/);
+  assert.match(carry, /if \[\[ "\$listed" -eq 2 \]\]; then[\s\S]*?exit 0\n\s+fi\n\s+if \[\[ "\$listed" -ne 0 \]\]; then[\s\S]*?exit 1/);
+  assert.match(carry, /remote_oid="\$\(git rev-parse FETCH_HEAD\)"/);
+  assert.match(carry, /git show "\$\{remote_oid\}:public\/transparency-log\.json" > "\$carry_log"/);
+
+  const submit = step("Submit the current head to the calendars");
+  assert.ok(
+    indexOfOrFail(source, "\n      - name: Carry the pending anchor proposal\n") <
+      indexOfOrFail(source, "\n      - name: Submit the current head to the calendars\n"),
+    "the pending proposal must be carried before anything is submitted"
+  );
+  assert.match(submit, /CARRY_LOG: \$\{\{ steps\.pending\.outputs\.carry_log \}\}/);
+  assert.match(submit, /carry_args=\(--carry-anchors "\$CARRY_LOG"\)/);
+  assert.match(submit, /npm run transparency:log:anchor -- "\$\{carry_args\[@\]\}"/);
+
+  const publish = step("Publish reviewed anchor proposal");
+  // The lease is the commit the anchors were carried from, never a re-fetch:
+  // a branch that moved in between holds proofs this run never saw.
+  assert.match(publish, /REMOTE_OID: \$\{\{ steps\.pending\.outputs\.remote_oid \}\}/);
+  assert.doesNotMatch(publish, /git fetch/);
+  assert.match(
+    publish,
+    /if \[\[ -n "\$REMOTE_OID" \]\]; then\n\s+git push \\\n\s+--force-with-lease="refs\/heads\/\$\{PROPOSAL_BRANCH\}:\$\{REMOTE_OID\}" \\\n\s+origin "HEAD:refs\/heads\/\$\{PROPOSAL_BRANCH\}"\n\s+else\n\s+git push origin "HEAD:refs\/heads\/\$\{PROPOSAL_BRANCH\}"\n\s+fi/
+  );
+  assert.match(publish, /gh pr list \\[\s\S]*?--state open \\[\s\S]*?--head "\$PROPOSAL_BRANCH" \\[\s\S]*?select\(\.isCrossRepository \| not\)/);
+  assert.match(publish, /gh pr edit "\$pr_number"/);
+  assert.ok(indexOfOrFail(publish, "git push") < indexOfOrFail(publish, "gh pr list"));
+  assert.ok(indexOfOrFail(publish, "gh pr list") < indexOfOrFail(publish, "gh pr edit"));
+  assert.ok(indexOfOrFail(publish, "gh pr edit") < indexOfOrFail(publish, "gh pr create"));
+});
