@@ -7,7 +7,7 @@
   "inputs": {
     "packageLock": {
       "path": "package-lock.json",
-      "sha256": "00b2a84e9bdc45b1d5085196f155f23b25f816f51a07326a7545e85a373d2d7d"
+      "sha256": "a254b2a69ab70750b2278d43f6b93bdaeef891aef2d2d9bcd43537f1c75d1f33"
     },
     "cargoLock": {
       "path": "tools/adblock-wasm/Cargo.lock",
@@ -28,8 +28,8 @@
   },
   "summary": {
     "npm": {
-      "total": 168,
-      "declared": 168,
+      "total": 167,
+      "declared": 167,
       "unknown": 0
     },
     "cargo": {
@@ -1504,18 +1504,6 @@
     },
     {
       "name": "fsevents",
-      "version": "2.3.2",
-      "lockPath": "node_modules/fsevents",
-      "license": "MIT",
-      "licenseStatus": "declared-in-package-lock",
-      "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz",
-      "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
-      "developmentOnly": false,
-      "optional": true
-    },
-    {
-      "name": "fsevents",
       "version": "2.3.3",
       "lockPath": "node_modules/wrangler/node_modules/fsevents",
       "license": "MIT",
@@ -1744,25 +1732,25 @@
     },
     {
       "name": "playwright",
-      "version": "1.62.1",
+      "version": "1.63.0",
       "lockPath": "node_modules/playwright",
       "license": "Apache-2.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.62.1.tgz",
-      "integrity": "sha512-0M+L3LAD8/nm554LOla9Ayx0j0tmFZ0FBcoQ7F1VuVHpM/XpiC8RcDzBQB8W5+hA8L22THxELzeF+2WcUzvcLg==",
+      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.63.0.tgz",
+      "integrity": "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==",
       "developmentOnly": false,
       "optional": false
     },
     {
       "name": "playwright-core",
-      "version": "1.62.1",
+      "version": "1.63.0",
       "lockPath": "node_modules/playwright-core",
       "license": "Apache-2.0",
       "licenseStatus": "declared-in-package-lock",
       "licenseEvidence": "package-lock.json",
-      "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.62.1.tgz",
-      "integrity": "sha512-wPYSwEBJY9GHraISXqyqtx0na0LpO3XEX7jNDhntbex7tzUS7kLnZsOlFruFJB4Hi/rhDMjXGqHewDZ68nYZVw==",
+      "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.63.0.tgz",
+      "integrity": "sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==",
       "developmentOnly": false,
       "optional": false
     },

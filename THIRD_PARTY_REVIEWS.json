@@ -1698,20 +1698,6 @@
       "notes": null
     },
     {
-      "key": "npm:fsevents@2.3.2",
-      "ecosystem": "npm",
-      "name": "fsevents",
-      "version": "2.3.2",
-      "runtime": true,
-      "status": "unreviewed",
-      "declaredLicense": "MIT",
-      "determinedLicense": null,
-      "obligations": [],
-      "reviewer": null,
-      "reviewedAt": null,
-      "notes": null
-    },
-    {
       "key": "npm:fsevents@2.3.3",
       "ecosystem": "npm",
       "name": "fsevents",
@@ -1978,10 +1964,10 @@
       "notes": null
     },
     {
-      "key": "npm:playwright@1.62.1",
+      "key": "npm:playwright@1.63.0",
       "ecosystem": "npm",
       "name": "playwright",
-      "version": "1.62.1",
+      "version": "1.63.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",
@@ -1992,10 +1978,10 @@
       "notes": null
     },
     {
-      "key": "npm:playwright-core@1.62.1",
+      "key": "npm:playwright-core@1.63.0",
       "ecosystem": "npm",
       "name": "playwright-core",
-      "version": "1.62.1",
+      "version": "1.63.0",
       "runtime": true,
       "status": "unreviewed",
       "declaredLicense": "Apache-2.0",

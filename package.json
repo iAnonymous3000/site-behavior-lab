@@ -139,7 +139,7 @@
     "lucide-react": "^1.47.0",
     "next": "^16.3.6",
     "pdfjs-dist": "^6.2.108",
-    "playwright": "1.62.1",
+    "playwright": "1.63.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tldts": "7.4.10",
