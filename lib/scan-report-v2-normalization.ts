@@ -59,8 +59,8 @@ export const MIGRATABLE_REDACTION_V3_NORMALIZATIONS: Readonly<
  * the managed reader re-runs the current sanitizer over every stored
  * redaction-v4 r2 report whatever normalization it declares, so a stored report
  * holding a host whose redaction the new engine changes, or a registrable
- * domain it stored that the new engine no longer computes the same way, fails
- * closed. Such an entry needs, in its own comment, the complete set of host
+ * domain it stored that the new engine redacts or recomputes differently,
+ * fails closed. Such an entry needs, in its own comment, the complete set of host
  * shapes and stored-domain positions that stop being fixed points, the committed
  * corpus proof that none of them is published, the retention bound on the live
  * store, and the owner's acceptance of orphaning the stored reports that hold
@@ -93,8 +93,9 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     //    registrable domain are all ones the allowlist keeps stays fixed
     //    (api.adaptable.app, www.xnbay.com; not www.u2.xnbay.com, whose u2 is
     //    generalized). Below aivencloud.com only direct children fail as host
-    //    strings, all of them, because *.aivencloud.com replaces it. Neither
-    //    exception holds for a stored registrable domain (5);
+    //    strings, all of them, because *.aivencloud.com replaces it. The
+    //    allowlist exception does not hold for a CNAME-cloak tracker domain,
+    //    and the aivencloud one holds for neither stored position (5);
     // 2. that is a direct child of one of the 6 wildcard-added zones
     //    (*.eth.limo, *.eth.link, *.p.azurewebsites.net,
     //    *.cursorusercontent.com, *.builtwithrocket.new, *.aivencloud.com)
@@ -121,11 +122,14 @@ export const SUPERSEDED_R2_NORMALIZATIONS: Readonly<
     //    remediation planner as unsupported-report-schema. The domain and
     //    entity of a Shields-list tracker matched through a CNAME cloak fail
     //    when the new engine computes a different registrable domain for the
-    //    stored target: below an exact added rule, deeper than a direct child
-    //    under a wildcard-added zone, or an allowlisted host under a removed
-    //    rule (api.adaptable.app). A scanned App Service app on Azure's newer
-    //    "<region>-01.azurewebsites.net" hostnames, or a scanned Cloud Run
-    //    service, is the likeliest live case.
+    //    stored target: below an exact added rule (again all but
+    //    vps.hrsn.net), deeper than a direct child under a wildcard-added
+    //    zone, or an allowlisted host under a removed rule (api.adaptable.app);
+    //    the reader reports that as redaction-not-idempotent and the planner
+    //    as unsupported-report-schema (sanitizer-rejected-evidence). A
+    //    scanned site keeps the allowlist exception. A scanned App Service app
+    //    on Azure's newer "<region>-01.azurewebsites.net" hostnames, or a
+    //    scanned Cloud Run service, is the likeliest live case.
     // readManagedReport enters its fixed-point branch on the redaction
     // version alone, never the normalization, so every stored redaction-v4 r2
     // report of every era, not only cb7064 ones, is re-redacted with the new
