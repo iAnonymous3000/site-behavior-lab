@@ -13,6 +13,7 @@ import {
 } from "./scan-report-v2-fixtures";
 import { buildComparisonDiffV2, evaluateComparability } from "./scan-report-v2-evaluators";
 import type { PublicComparisonReportV2 } from "./scan-report-v2";
+import { makeConsentInterventionReportV2R2 } from "./scan-report-v2-r2-fixtures";
 import { viewFromV1Report, viewFromV2 } from "./scan-report-views";
 import type { ScanReport, ScanResult } from "./types";
 
@@ -332,5 +333,66 @@ test("detects requested-page attribution for returned error-page evidence", () =
     presentation,
     "error-page-signals-attributed-to-site",
     headline
+  );
+});
+
+test("detects a per-run headline above a card that describes another visit", () => {
+  // khanacademy.org's r2 consent pair: the classification family was denied
+  // (egress region unrecorded), the headline fell through to the Accept-all
+  // visit's "contacted catalogued Google domains during this visit", and the
+  // board's warn consent card described the Reject-all visit.
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const variant = view.runs.find((run) => run.label === "variant");
+  if (!variant || !view.claims.familyDeltas) throw new Error("fixture invariant");
+  const tracker = { domain: "metrics.example", entity: "Example Analytics", category: "analytics", confidence: "curated" as const };
+  variant.evidence.domains = [
+    { domain: "metrics.example", requests: 1, thirdParty: true, tracker, statuses: [200], resourceTypes: ["script"] }
+  ];
+  variant.evidence.requests = [
+    {
+      id: 1,
+      url: "https://metrics.example/collect",
+      domain: "metrics.example",
+      method: "GET",
+      resourceType: "script",
+      status: 200,
+      thirdParty: true,
+      tracker,
+      startedAtMs: 1
+    }
+  ];
+  variant.counts.knownTrackerRequests = 1;
+  variant.counts.thirdPartyRequests = 1;
+  variant.counts.thirdPartyDomains = 1;
+  view.claims.familyDeltas["tracker-classification"] = { allowed: false, reasons: ["egress region unrecorded"] };
+
+  const presentation = validateReportPresentation(view);
+  assert.deepEqual(presentation.violations, []);
+  assert.equal(presentation.headline.semantic.runScope, "variant");
+  const card = presentation.findings.find((finding) => finding.id === "consent-comparison");
+  assert.equal(card?.arm, "variant");
+  assert.equal(card?.level, "warn");
+
+  // The fall-through the regate removed: a display-scoped per-run story over
+  // the display-run board, whose consent card still describes the variant.
+  const fallThrough: ReportHeadline = {
+    ...presentation.headline,
+    semantic: { ...presentation.headline.semantic, story: "observed-activity", runScope: "display" }
+  };
+  const { focusArm: _focusArm, ...unfocused } = fallThrough;
+  assert.deepEqual(
+    reportConsistencyViolations(presentation.facts, unfocused, buildFindings(view, null, presentation.facts)).map(
+      (violation) => violation.id
+    ),
+    ["headline-describes-another-visit"]
+  );
+  // A story the headline deliberately ranks above the comparison may lead.
+  assert.deepEqual(
+    reportConsistencyViolations(
+      presentation.facts,
+      { ...unfocused, semantic: { ...unfocused.semantic, story: "keystroke-transmission" } },
+      buildFindings(view, null, presentation.facts)
+    ),
+    []
   );
 });

@@ -395,12 +395,18 @@ function buildUncorrectedReportHeadline(
       ? finish(
           "alarm",
           `${domain} sent a hashed form of synthetic input to ${recipientCount} before submission.`,
-          `A one-way hash of the scanner's unique test value appeared in requests to ${recipients} without form submission. The report does not establish whether transmission happened during typing, blur, or unload, what the recipient used it for, or whether real visitor input follows the same path.${recipientOwnershipNote}`
+          `A one-way hash of the scanner's unique test value appeared in requests to ${recipients} without form submission. The report does not establish whether transmission happened during typing, blur, or unload, what the recipient used it for, or whether real visitor input follows the same path.${recipientOwnershipNote}`,
+          undefined,
+          undefined,
+          { story: "keystroke-transmission" }
         )
       : finish(
           "warn",
           `${domain} sent synthetic form input to ${recipientCount} before submission.`,
-          `The scanner's unique test value appeared in requests to ${recipients} without form submission. The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path.${recipientOwnershipNote}`
+          `The scanner's unique test value appeared in requests to ${recipients} without form submission. The report does not establish whether transmission happened during typing, blur, or unload, why it was sent, or whether real visitor input follows the same path.${recipientOwnershipNote}`,
+          undefined,
+          undefined,
+          { story: "keystroke-transmission" }
         );
   }
 
@@ -424,7 +430,7 @@ function buildUncorrectedReportHeadline(
       `An advertising pixel on ${domain} attached populated fields that the platform designates for personal identifiers (${fields}) to observed requests. The scanner records only that they were filled, never their values, so their contents, hashing, successful delivery, and eventual use are not verified.${extraNote}`,
       undefined,
       undefined,
-      undefined,
+      { story: "pixel-identifiers" },
       "Observed ad-pixel requests had populated fields designated for personal identifiers. The scanner records that they were filled, never their values; their contents, hashing, successful delivery, and eventual use are unverified."
     );
   }
@@ -469,14 +475,23 @@ function buildUncorrectedReportHeadline(
     }
   }
 
-  // Consent comparison: the story is what changed between the two visits.
+  // Consent comparison: the story is what the Reject-all visit recorded.
   // Claims are gated on both controls having observable effect AND on the pair
   // claim gate; dispatch alone can hit a no-op/decoy control. When either gate
   // fails, the report falls through to the ordinary evidence-led headline.
   // Registration wording comes from the recorded consent state;
   // even verified r2 evidence does not make the whole request log post-choice.
+  //
+  // Mirrors the board's consent card (buildConsentComparisonFinding), which
+  // needs only the pair gate: the Reject-all visit's own facts are one arm's
+  // evidence, and only the cross-arm clauses need a family. "Still", the diff
+  // pointer and the Accept-all contrast lean on the tracker catalog, so they
+  // need tracker-classification; "X became Y" needs raw-counts. Gating the
+  // whole branch on the classification family left every committed r2 pair
+  // (whose egress region is unrecorded) leading with the Accept-all visit as
+  // an unlabeled "this visit" above a board describing the Reject-all visit.
   if (
-    classificationDeltasUsable &&
+    comparisonUsable &&
     arms &&
     axis === "consent" &&
     consentChoiceVerified(arms.baseline.consent) &&
@@ -495,36 +510,74 @@ function buildUncorrectedReportHeadline(
     // request relative to it even when r2 verified the registered state.
     const registration = consentRegistrationSentence(view, arms.variant.consent, "Reject all");
     if (rejectTracking.length > 0) {
+      // The pair gate does not see per-family censoring, so a Reject-all
+      // request log that did not finish still reaches here: its rows are a
+      // floor, stated as retained like the per-run censored branches.
+      const rejectRequestsCensored = reportFacts.arms?.variant.evidence.requests.state === "censored";
+      const rejectLead = rejectRequestsCensored
+        ? `In the visit where the scanner clicked Reject all, the retained request rows include ${joinNames(
+            rejectTracking.map((entity) => entity.entity)
+          )}; request collection did not finish, so the count is a floor.`
+        : `In the visit where the scanner clicked Reject all, ${joinNames(
+            rejectTracking.map((entity) => entity.entity)
+          )} ${trackerResponseQualification(rejectTracking, rejectResponded)}.`;
       return finish(
         "warn",
-        `${domain} still contacted ${plural(rejectTracking.length, "distinct catalogued tracking-related service")} in the visit that clicked Reject all.`,
-        `In the visit where the scanner clicked Reject all, ${joinNames(
-          rejectTracking.map((entity) => entity.entity)
-        )} ${trackerResponseQualification(rejectTracking, rejectResponded)}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} The diff lists the services that appeared only in the visit that clicked Accept all.`,
+        rejectRequestsCensored
+          ? `${domain}'s retained request log for the visit that clicked Reject all includes ${plural(rejectTracking.length, "distinct catalogued tracking-related service")}.`
+          : `${domain} ${classificationDeltasUsable ? "still contacted" : "contacted"} ${plural(rejectTracking.length, "distinct catalogued tracking-related service")} in the visit that clicked Reject all.`,
+        `${rejectLead} ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT}${
+          classificationDeltasUsable
+            ? " The diff lists the services that appeared only in the visit that clicked Accept all."
+            : ""
+        }`,
         buildStats(reportFacts.arms?.variant ?? facts, rejectTracking.length),
         "variant",
         {
           story: "consent",
           runScope: "variant",
           assertedClaims: ["third-party-services"]
-        }
+        },
+        // The social card's bound cannot hold the registration sentence as
+        // well. It is dropped whole (it confirms the choice; omitting it
+        // states nothing false), and the whole-visit caveat that qualifies the
+        // claim is kept word for word.
+        `${rejectLead} ${CONSENT_WHOLE_VISIT_CAVEAT}`
       );
     }
-    if (rawCountDeltasUsable && trackingEntities.length > 0) {
+    // The absence needs the Reject-all visit's own claim gate (a censored or
+    // otherwise incomplete request log is a floor, never an absence), and fires
+    // only when the Accept-all visit had catalogued trackers: that is the case
+    // where falling through would present those trackers as "this visit"
+    // above a clean Reject-all card.
+    if (
+      trackingEntities.length > 0 &&
+      reportFacts.arms?.variant.claims["third-party-services"].allowed === true
+    ) {
+      const acceptContrast = classificationDeltasUsable
+        ? `, while the visit that clicked Accept all recorded requests to ${plural(
+            trackingEntities.length,
+            "distinct catalogued tracking-related service"
+          )}${
+            rawCountDeltasUsable
+              ? `: ${plural(arms.baseline.counts.thirdPartyRequests, "third-party request")} became ${arms.variant.counts.thirdPartyRequests.toLocaleString("en-US")}`
+              : ""
+          }`
+        : "";
       return finish(
         "info",
         `${domain} recorded no requests to catalogued trackers in the visit that clicked Reject all.`,
-        `The visit that clicked Reject all recorded no request to a catalogued tracking-related service, while the visit that clicked Accept all recorded requests to ${plural(
-          trackingEntities.length,
-          "distinct catalogued tracking-related service"
-        )}: ${plural(arms.baseline.counts.thirdPartyRequests, "third-party request")} became ${arms.variant.counts.thirdPartyRequests.toLocaleString("en-US")}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT}`,
+        `The visit that clicked Reject all recorded no request to a catalogued tracking-related service${acceptContrast}. ${registration} ${CONSENT_WHOLE_VISIT_CAVEAT}`,
         buildStats(reportFacts.arms?.variant ?? facts, 0),
         "variant",
         {
           story: "consent",
           runScope: "variant",
           absenceClaims: ["third-party-services"]
-        }
+        },
+        // As above: the card keeps the absence and the whole-visit caveat,
+        // dropping only the registration sentence and the Accept-all contrast.
+        `The visit that clicked Reject all recorded no request to a catalogued tracking-related service. ${CONSENT_WHOLE_VISIT_CAVEAT}`
       );
     }
   }

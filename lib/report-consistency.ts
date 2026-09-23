@@ -11,7 +11,8 @@ export type ReportConsistencyRuleId =
   | "quiet-copy-over-loud-finding"
   | "identity-conflict"
   | "unsafe-categorical-title-under-incomplete-evidence"
-  | "error-page-signals-attributed-to-site";
+  | "error-page-signals-attributed-to-site"
+  | "headline-describes-another-visit";
 
 export type ReportConsistencyViolation = {
   id: ReportConsistencyRuleId;
@@ -167,8 +168,44 @@ export function reportConsistencyViolations(
     }
   }
 
+  // A site-evidence card may describe one comparison arm rather than the
+  // board's run (the consent card's Reject-all visit). A per-run headline over
+  // it presents a different visit as "this visit" on the page, the share
+  // text, the social card and the JSON-LD description, with no arm label:
+  // khanacademy.org's r2 pair led with the Accept-all visit's Google traffic
+  // above a warn card about the Reject-all visit. Stories the headline ranks
+  // above the consent comparison may still lead.
+  const armCards = findings.filter(
+    (finding) =>
+      finding.methodology !== true &&
+      finding.arm !== undefined &&
+      finding.arm !== focusArm &&
+      (finding.level === "warn" || finding.level === "loud")
+  );
+  if (
+    armCards.length > 0 &&
+    headline.semantic.runScope === "display" &&
+    !HEADLINE_STORIES_ABOVE_ARM_CARDS.has(headline.semantic.story)
+  ) {
+    add(
+      "headline-describes-another-visit",
+      `The headline described the display visit above ${armCards.map((finding) => finding.id).join(", ")}, which describes the ${armCards[0].arm} visit.`
+    );
+  }
+
   return violations;
 }
+
+/** Headline stories deliberately ranked above the consent comparison. */
+const HEADLINE_STORIES_ABOVE_ARM_CARDS: ReadonlySet<ReportHeadline["semantic"]["story"]> = new Set([
+  "correction",
+  "load-failure",
+  "subject-unverified",
+  "interstitial",
+  "keystroke-transmission",
+  "pixel-identifiers",
+  "consent"
+]);
 
 export function validateReportPresentation(
   view: ReportView,

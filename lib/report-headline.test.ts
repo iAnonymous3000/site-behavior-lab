@@ -10,6 +10,7 @@ import { GPC_WORKER_CAPTURE_LOSS_WARNING } from "./gpc-injection";
 import type { CorpusStats } from "./corpus-stats";
 import { validateReportPresentation } from "./report-consistency";
 import { displayableScreenshot } from "./report-insights";
+import { buildFindings } from "./report-findings";
 import { buildReportHeadline, reportPageTitle, type ReportHeadline } from "./report-headline";
 import { INVALID_UPSTREAM_RESPONSE_WARNING } from "./scan-runtime";
 import { evaluateQuality } from "./scan-report-v2-evaluators";
@@ -971,6 +972,131 @@ test("a verified r2 consent headline states registration without dropping whole-
   assert.match(headline.subhead, /strictly necessary/);
   assert.match(headline.subhead, /legitimate interest/);
   assert.doesNotMatch(headline.subhead, /never verified|cannot verify/);
+});
+
+/**
+ * The verified r2 consent fixture, with Google requests on the chosen arms
+ * and, optionally, the tracker-classification or raw-counts family denied
+ * (the documented state of every committed r2 pair while the egress region
+ * is unrecorded) or the Reject-all visit's request evidence censored.
+ */
+function verifiedConsentView(options: {
+  acceptTrackers: boolean;
+  rejectTrackers: boolean;
+  classification: boolean;
+  rawCounts?: boolean;
+  rejectRequestsCensored?: boolean;
+}) {
+  const view = viewFromV2(makeConsentInterventionReportV2R2(), 2);
+  const google = makeTrackerDomain("google-analytics.com", 3, "Google", "analytics");
+  for (const run of view.runs) {
+    if (run.label === "baseline" ? !options.acceptTrackers : !options.rejectTrackers) continue;
+    run.evidence.domains = [google];
+    run.evidence.requests = Array.from(
+      { length: 3 },
+      (_, index): NetworkRequestRecord => ({
+        id: index + 1,
+        url: `https://google-analytics.com/request-${index + 1}`,
+        domain: google.domain,
+        method: "GET",
+        resourceType: "script",
+        status: 204,
+        thirdParty: true,
+        tracker: google.tracker,
+        startedAtMs: index + 1
+      })
+    );
+    run.counts.knownTrackerRequests = 3;
+    run.counts.thirdPartyRequests = 3;
+    run.counts.thirdPartyDomains = 1;
+  }
+  const deny = { allowed: false, reasons: ["The pair did not record the network egress region for both visits."] };
+  if (!view.claims.familyDeltas) throw new Error("fixture invariant");
+  if (!options.classification) view.claims.familyDeltas["tracker-classification"] = deny;
+  if (options.rawCounts === false) view.claims.familyDeltas["raw-counts"] = deny;
+  if (options.rejectRequestsCensored) {
+    const variant = view.runs.find((run) => run.label === "variant");
+    if (!variant?.quality.byFamily || !variant.quality.facts) throw new Error("fixture invariant");
+    variant.quality.byFamily.requests = { outcome: "censored", reasons: ["capture-loss:dropped"] };
+    variant.quality.facts.captureLoss.push({ family: "requests", phaseId: null, kind: "dropped", count: 1 });
+  }
+  assert.equal(view.claims.pairComparison?.allowed, true);
+  return view;
+}
+
+test("a verified consent pair leads with the Reject-all visit when only the classification family is denied", () => {
+  // The board's Reject-all card needs only the pair gate; the headline also
+  // required the classification family, so on khanacademy.org's r2 pair
+  // (20260714-ad6a59f3) it fell through to the Accept-all visit's own story as
+  // an unlabeled "this visit" above a board describing the Reject-all visit.
+  // Only the cross-arm wording ("still", the diff pointer) needs that family.
+  const denied = verifiedConsentView({ acceptTrackers: true, rejectTrackers: true, classification: false });
+  const headline = buildReportHeadline(denied);
+  assert.equal(
+    headline.headline,
+    "example.com contacted 1 distinct catalogued tracking-related service in the visit that clicked Reject all."
+  );
+  assert.doesNotMatch(`${headline.headline} ${headline.subhead}`, /still|diff lists/);
+  assert.equal(headline.semantic.runScope, "variant");
+  assert.equal(headline.focusArm, "variant");
+  // The social card keeps the claim and its whole-visit qualification.
+  assert.ok(headline.compactSubhead && headline.compactSubhead.length <= 300, String(headline.compactSubhead));
+  assert.match(headline.compactSubhead ?? "", /span before and after the click/);
+  const card = buildFindings(denied, null, undefined, "variant").find((finding) => finding.id === "consent-comparison");
+  assert.ok(card);
+  assert.match(card.title, /in the visit that clicked Reject all$/);
+  assert.equal(card.arm, "variant");
+  // The comparison panel renders its per-arm entity lists only under the
+  // classification family, so the card may not point at them either.
+  assert.doesNotMatch(card.detail, /diff below lists/);
+
+  const allowed = buildReportHeadline(verifiedConsentView({ acceptTrackers: true, rejectTrackers: true, classification: true }));
+  assert.match(allowed.headline, /^example\.com still contacted 1 distinct/);
+  assert.match(allowed.subhead, /The diff lists the services that appeared only in the visit that clicked Accept all\.$/);
+});
+
+test("a clean Reject-all visit keeps its absence headline, with cross-arm clauses only under their families", () => {
+  const classificationDenied = buildReportHeadline(
+    verifiedConsentView({ acceptTrackers: true, rejectTrackers: false, classification: false })
+  );
+  assert.equal(
+    classificationDenied.headline,
+    "example.com recorded no requests to catalogued trackers in the visit that clicked Reject all."
+  );
+  assert.match(classificationDenied.subhead, /^The visit that clicked Reject all recorded no request to a catalogued tracking-related service\. /);
+  assert.doesNotMatch(classificationDenied.subhead, /visit that clicked Accept all recorded|became/);
+  assert.equal(classificationDenied.focusArm, "variant");
+  assert.deepEqual(classificationDenied.semantic.absenceClaims, ["third-party-services"]);
+
+  const rawDenied = buildReportHeadline(
+    verifiedConsentView({ acceptTrackers: true, rejectTrackers: false, classification: true, rawCounts: false })
+  );
+  assert.match(rawDenied.subhead, /while the visit that clicked Accept all recorded requests to 1 distinct catalogued tracking-related service\./);
+  assert.doesNotMatch(rawDenied.subhead, /became/);
+
+  const both = buildReportHeadline(verifiedConsentView({ acceptTrackers: true, rejectTrackers: false, classification: true }));
+  assert.match(both.subhead, /1 distinct catalogued tracking-related service: 3 third-party requests became 0\./);
+
+  // A censored Reject-all request log is a floor: retained trackers are named
+  // as retained, never as an exact count of what the visit contacted.
+  const censoredWithTrackers = buildReportHeadline(
+    verifiedConsentView({ acceptTrackers: true, rejectTrackers: true, classification: true, rejectRequestsCensored: true })
+  );
+  assert.equal(
+    censoredWithTrackers.headline,
+    "example.com's retained request log for the visit that clicked Reject all includes 1 distinct catalogued tracking-related service."
+  );
+  assert.doesNotMatch(censoredWithTrackers.headline, /still|contacted/);
+  assert.match(censoredWithTrackers.subhead, /did not finish, so the count is a floor/);
+  assert.match(censoredWithTrackers.compactSubhead ?? "", /did not finish, so the count is a floor/);
+  assert.equal(censoredWithTrackers.semantic.runScope, "variant");
+
+  // A censored Reject-all request log never renders an absence headline.
+  const censored = buildReportHeadline(
+    verifiedConsentView({ acceptTrackers: true, rejectTrackers: false, classification: true, rejectRequestsCensored: true })
+  );
+  assert.doesNotMatch(censored.headline, /recorded no requests to catalogued trackers/);
+  assert.equal(censored.semantic.absenceClaims.includes("third-party-services"), false);
 });
 
 test("v2 dispatch alone cannot drive a Reject-all headline", () => {

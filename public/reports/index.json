@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-07T05:34:32.428Z",
+  "generatedAt": "2026-09-23T05:11:48.651Z",
   "reports": [
     {
       "id": "20260907-cf8be51e45532bfab007b146d7a5e289",
@@ -20947,7 +20947,7 @@
       "reportWireBytes": 156352,
       "reportWireSha256": "2e62e179b6162f014af3fdd81e14a4b3f268179cde9d0fe819491ccda707d729",
       "title": "khanacademy.org",
-      "headline": "khanacademy.org contacted catalogued Google domains during this visit.",
+      "headline": "khanacademy.org contacted 1 distinct catalogued tracking-related service in the visit that clicked Reject all.",
       "tone": "warn",
       "domain": "khanacademy.org",
       "requestedUrl": "https://www.khanacademy.org/",

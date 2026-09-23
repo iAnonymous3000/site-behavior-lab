@@ -120,6 +120,13 @@ export type Finding = {
    * WOULD be about the site if its measurement had completed.
    */
   incompleteOnly?: true;
+  /**
+   * Set on a card that describes one comparison arm rather than the board's
+   * run: the consent card's Reject-all visit. The headline must describe that
+   * visit too, or it presents another visit as "this visit" above it; the
+   * report-consistency gate reads this field to check that seam.
+   */
+  arm?: "variant";
   /** Structured meaning for fact-to-render consistency checks. */
   claim?: {
     id: ReportClaimId;
@@ -2117,8 +2124,13 @@ function buildConsentComparisonFinding(
           ? ` (${plural(acceptTracking.length, "distinct catalogued tracking-related service")} appeared in the request log for the visit that clicked Accept all)`
           : ""
       }.`,
-      detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} It is a documented observation to review against the banner's promises, not a violation ruling. The diff below lists the services that appeared only in the visit that clicked Accept all.`,
-      evidence
+      // The comparison panel renders its per-arm entity lists only under the
+      // classification family, so the pointer to them needs it too.
+      detail: `${registration} ${CONSENT_WHOLE_VISIT_CAVEAT} It is a documented observation to review against the banner's promises, not a violation ruling.${
+        classificationAllowed ? " The diff below lists the services that appeared only in the visit that clicked Accept all." : ""
+      }`,
+      evidence,
+      arm: "variant"
     };
   }
 
@@ -2153,7 +2165,8 @@ function buildConsentComparisonFinding(
         ? "an observed difference for this pair of visits"
         : "what these two visits recorded, not evidence that the choice made no difference"
     }.${rejectEvidenceCensored ? CENSORED_ABSENCE_NOTE : ""}`,
-    evidence
+    evidence,
+    arm: "variant"
   };
 }
 
