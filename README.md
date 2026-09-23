@@ -273,16 +273,26 @@ log-retention, and independent egress backstop controls rest on point-in-time
 operator receipts recorded in the runbook, not on committed evidence, and the
 corresponding release gates stay open until they are re-captured.
 
-Scheduled automation: featured-site rescans run weekly and open a pull request
-that a human must approve and merge (never hand-merged); a weekly run submits
-the current transparency-log head to OpenTimestamps calendars and proposes the
+Scheduled automation: featured-site rescans run weekly in two legs (the
+gallery catalog and the de-bias seed catalog), each opening a pull request that
+a human must approve and merge (never hand-merged); a weekly run submits the
+current transparency-log head to OpenTimestamps calendars and proposes the
 anchor in a pull request, which a human must approve and merge before the
 published log carries it; production health is checked every quarter hour and
 hourly; Dependabot proposals get their derived manifests regenerated
 automatically but still need a human. The weekly Brave Shields list refresh
-is currently disabled by the operator while a reliability sweep characterizes
-the present instrument, and the measurement-toolchain drift issue it maintains
-therefore stays open.
+fetches and validates the lists, then force-updates one proposal branch,
+`automation/brave-list-refresh`, and opens or updates its pull request. When
+upstream rules have moved, the snapshot is a new measurement identity that only
+a human can declare: `npm run lists:adoption` prints the
+`NODE_R2_CURRENT_ADBLOCK_IDENTITY` literal to adopt, and the outgoing identity
+must first be frozen as a closed producer row, so the proposal stays open until
+a maintainer does both. Setting the `SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE`
+repository variable to `1` quiesces the refresh. A separate job in the same
+workflow compares the pinned adblock crate, Playwright, tldts, and bundled
+Chromium with their upstream stable releases, and keeps the
+measurement-toolchain drift issue open while an actionable upgrade is
+available.
 
 ## API
 

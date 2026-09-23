@@ -358,6 +358,47 @@ test("measurement-freeze policy distinguishes stale proposals from the controlle
   assert.doesNotMatch(release, /do not MERGE any\s+open `automation\/\*` proposal during a freeze window/);
 });
 
+/**
+ * The README said the weekly Brave Shields list refresh was "currently
+ * disabled by the operator" and that the toolchain drift issue "therefore"
+ * stayed open. The workflow had been re-enabled on 2026-09-07 and then ran on
+ * three Mondays, and the drift job never depended on the refresh. Whether an
+ * operator has disabled a workflow in GitHub is not visible from the
+ * repository, so this pins only what the committed workflow determines: the
+ * hand-off to a human identity declaration, the committed quiesce switch, and
+ * the drift job's independence from the refresh job.
+ */
+test("the README describes the Brave-list refresh the committed workflow implements", () => {
+  const readme = source("README.md");
+  const workflow = source(".github/workflows/update-brave-lists.yml");
+
+  assert.match(workflow, /run: npm run lists:adoption/);
+  assert.match(workflow, /PROPOSAL_BRANCH: automation\/brave-list-refresh/);
+  assert.match(workflow, /vars\.SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE != '1'/);
+  const driftJobStart = workflow.indexOf("\n  toolchain-drift-check:");
+  assert.ok(driftJobStart >= 0, "the toolchain drift job was not found");
+  const driftJobHeader = workflow.slice(driftJobStart, workflow.indexOf("steps:", driftJobStart));
+  assert.doesNotMatch(
+    driftJobHeader,
+    /\bneeds:|\bif:/,
+    "the drift job became conditional; revisit how the README explains the drift issue"
+  );
+
+  const start = readme.indexOf("Brave Shields list refresh");
+  assert.ok(start >= 0, "the README no longer describes the Brave-list refresh");
+  const passage = readme.slice(start, readme.indexOf("\n\n", start));
+  assert.match(passage, /`npm run lists:adoption`/);
+  assert.match(passage, /automation\/brave-list-refresh/);
+  assert.match(passage, /NODE_R2_CURRENT_ADBLOCK_IDENTITY/);
+  assert.match(passage, /SITE_BEHAVIOR_LAB_MEASUREMENT_FREEZE/);
+  assert.match(
+    passage,
+    /separate job[\s\S]{0,320}drift\s+issue/i,
+    "the drift issue is kept by its own job, not by the refresh lane"
+  );
+  assert.doesNotMatch(passage, /drift issue it maintains\s+therefore/i);
+});
+
 test("operator commands and topology names target explicit Wrangler configs", () => {
   const readme = source("README.md");
   const envExample = source(".env.example");
